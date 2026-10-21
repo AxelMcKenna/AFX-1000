@@ -16,7 +16,7 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DRMX_BUILD_PLUGINS=ON
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DRMX_BUILD_PLUGINS=ON '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
       - run: cmake --build build --parallel 3
       - run: ctest --test-dir build --output-on-failure
       - uses: actions/upload-artifact@v4

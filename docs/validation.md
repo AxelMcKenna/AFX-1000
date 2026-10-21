@@ -5,6 +5,7 @@ Verified during development on Apple Silicon macOS 26.6.2:
 - Native macOS application builds, opens, enumerates audio/MIDI devices, and starts output.
 - Direct rekordbox process capture and Mac speaker output started at 44.1 kHz; the user confirmed audio and effects were working.
 - JUCE 8.0.6 standalone, AU, and VST3 artifacts compile and link locally. This is not DAW certification.
+- Universal native app, AU, and VST3 builds contain both arm64 and x86-64 slices. The native app's minimum binary deployment target is macOS 12.0; application capture requires 14.2+. Intel runtime testing remains outstanding.
 - Engine tests cover neutral stereo, wet-only null, all ten Scene FX producing a changed output, the four isolator modes at 44.1/48/88.2/96 kHz, release resets, sampler playback, invalid values, state round trips, WAV, event queue behavior, all shared panel actions, and Scene FX hit areas.
 - Synthetic pulse tests at 90/120/128/150/173 BPM lock within 2.5 BPM; observed errors were below 1 BPM. Performance on arbitrary music and tempo changes needs listening and additional fixtures.
 - Allocation tracking found no allocations during variable-size audio processing with input roll and band rolls active.

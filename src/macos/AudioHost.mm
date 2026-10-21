@@ -80,8 +80,11 @@ bool AudioHost::startRekordbox(AudioDeviceID output,uint32_t outPair,uint32_t bu
         AudioObjectPropertyAddress processAddress{kAudioHardwarePropertyTranslatePIDToProcessObject,kAudioObjectPropertyScopeGlobal,kAudioObjectPropertyElementMain};
         AudioObjectGetPropertyData(kAudioObjectSystemObject,&processAddress,sizeof(pid),&pid,&size,&object);
         CATapDescription* description=[[CATapDescription alloc] initStereoMixdownOfProcesses:object?@[@(object)]:@[]];
-        if(@available(macOS 26.0,*)) { description.bundleIDs=@[@"com.pioneerdj.rekordboxdj"]; description.processRestoreEnabled=YES; }
-        else if(!object) { error="Play a track in rekordbox once, then start direct capture."; return false; }
+        bool usesBundleIdentity=false;
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+        if(@available(macOS 26.0,*)) { description.bundleIDs=@[@"com.pioneerdj.rekordboxdj"]; description.processRestoreEnabled=YES; usesBundleIdentity=true; }
+#endif
+        if(!usesBundleIdentity&&!object) { error="Play a track in rekordbox once, then start direct capture."; return false; }
         description.name=@"RMX rekordbox input"; description.privateTap=YES; description.muteBehavior=CATapMutedWhenTapped;
         startupStage.store("Requesting rekordbox audio access");
         AudioObjectID tap=0; OSStatus status=AudioHardwareCreateProcessTap(description,&tap);
