@@ -1,8 +1,22 @@
 # RMX Lab
 
+## Web prototype (recommended for iteration)
+
+The browser version lives in `web/` and uses an `AudioWorklet` processor for the stereo isolator and beat echo. It is the quickest version to run and modify. No package install or build step is needed.
+
+1. In Terminal, go to this folder and run `python3 -m http.server 8000`.
+2. Open `http://localhost:8000/web/` in a recent desktop browser.
+3. Allow microphone access, select an audio input if the browser offers it, and click **Start Audio**.
+4. Select an output device if the browser supports output selection. Otherwise set the interface as the macOS default output in Audio settings or Audio MIDI Setup.
+5. Start with the isolator at 0 dB and echo wet at 0%. Use headphones while checking the send/return path.
+
+The browser reports its base audio latency, but that value excludes some device and routing latency. `AudioWorklet` avoids doing the DSP on the UI thread; it does not guarantee a fixed or performance-grade latency. The web app is still a standalone effect and does not register as a rekordbox plug-in.
+
+The native Swift prototype remains available below for comparison.
+
 A small macOS stereo audio prototype with a three-band isolator and tempo-based echo. It is a standalone application that uses Core Audio through AVAudioEngine; it is not a rekordbox plug-in and does not assume that rekordbox can host Audio Units or VSTs.
 
-## Build and launch
+## Native macOS build and launch
 
 Requirements: macOS 14 or later, Xcode command line tools, and Swift 6.
 

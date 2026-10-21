@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10100f">
+  <title>RMX Lab — Audio FX Prototype</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="RMX Lab home"><span class="brand-mark">R</span><span>RMX <b>LAB</b></span></a>
+      <div class="top-status"><span id="statusDot" class="status-dot"></span><span id="statusText">AUDIO STOPPED</span></div>
+    </header>
+
+    <section class="intro">
+      <div><p class="eyebrow">STEREO EFFECT UNIT / WEB PROTOTYPE</p><h1>Make space<br>for the <em>echo.</em></h1></div>
+      <button id="startButton" class="power-button"><span class="power-icon">⏻</span><span id="startLabel">START AUDIO</span></button>
+    </section>
+
+    <section class="device-panel panel">
+      <div class="section-head"><div><span class="section-index">00</span><h2>Audio path</h2></div><span id="latencyReadout" class="readout">— ms</span></div>
+      <div class="device-grid">
+        <label class="device-field"><span>INPUT DEVICE</span><select id="inputDevice"><option value="">System default input</option></select></label>
+        <label class="device-field"><span>OUTPUT DEVICE</span><select id="outputDevice"><option value="">System default output</option></select></label>
+      </div>
+      <p class="microcopy">Select the stereo send input and return output from your interface. Use headphones while configuring routing.</p>
+    </section>
+
+    <section class="panel isolator-panel">
+      <div class="section-head"><div><span class="section-index">01</span><h2>Isolator</h2></div><span class="unit-label">−24 TO +6 dB</span></div>
+      <div class="bands">
+        <div class="band" data-band="low"><label for="low">LOW</label><div class="dial-wrap"><input id="low" type="range" min="-24" max="6" value="0"><div class="dial-scale"><span>−24</span><span>0</span><span>+6</span></div></div><output id="lowValue">0 dB</output></div>
+        <div class="band" data-band="mid"><label for="mid">MID</label><div class="dial-wrap"><input id="mid" type="range" min="-24" max="6" value="0"><div class="dial-scale"><span>−24</span><span>0</span><span>+6</span></div></div><output id="midValue">0 dB</output></div>
+        <div class="band" data-band="high"><label for="high">HIGH</label><div class="dial-wrap"><input id="high" type="range" min="-24" max="6" value="0"><div class="dial-scale"><span>−24</span><span>0</span><span>+6</span></div></div><output id="highValue">0 dB</output></div>
+      </div>
+    </section>
+
+    <section class="panel echo-panel">
+      <div class="section-head"><div><span class="section-index">02</span><h2>Echo</h2></div><span class="sync-badge"><span></span> MANUAL SYNC</span></div>
+      <div class="echo-controls">
+        <label class="slider-row"><span>WET</span><input id="mix" type="range" min="0" max="100" value="0"><output id="mixValue">0%</output></label>
+        <label class="slider-row"><span>FEEDBACK</span><input id="feedback" type="range" min="0" max="88" value="32"><output id="feedbackValue">32%</output></label>
+        <div class="tempo-row"><label class="tempo-control"><span>TEMPO</span><input id="bpm" type="number" min="60" max="200" value="120"><b>BPM</b></label><label class="division-control"><span>BEAT</span><select id="division"><option value="0.25">1/4</option><option value="0.5" selected>1/2</option><option value="1">1 beat</option><option value="2">2 beats</option></select></label></div>
+      </div>
+      <div class="echo-visual" aria-hidden="true"><span class="wave-line"></span><span class="echo-dot"></span><span class="echo-dot delay-one"></span><span class="echo-dot delay-two"></span><span class="echo-dot delay-three"></span></div>
+    </section>
+
+    <footer><span>RMX LAB <i>•</i> AUDIOWORKLET ENGINE</span><span>LOCAL PROTOTYPE / v0.2</span></footer>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
