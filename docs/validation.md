@@ -13,6 +13,6 @@ Verified during development on Apple Silicon macOS 26.6.2:
 
 Outstanding: physical FLX4/FLX6 routing and headphone separation, a live two-hour soak, loopback latency/noise/distortion measurements, DAW-host automation/validation, Intel Mac runtime checks, ARM Linux runtime performance, and reference-unit sonic comparisons.
 
-A subsequent direct-capture restart timed out in desktop automation. Earlier direct capture worked and was confirmed by the user, but repeated restart reliability remains under investigation.
+A subsequent direct-capture restart timed out in desktop automation, followed by automation failures on other applications. Audio initialization now runs on a separate control queue and reports progress so a slow system call cannot block the interface. The new live restart path still needs verification; the automation failure does not establish its cause.
 
 Do not describe this build as a certified hardware emulation or as fully qualified for live sets based only on the synthetic checks.

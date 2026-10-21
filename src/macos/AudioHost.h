@@ -34,6 +34,7 @@ public:
     std::atomic<float> latencyMs{},callbackLoad{};
     std::atomic<bool> active{};
     std::atomic<bool> deviceChanged{};
+    std::atomic<const char*> startupStage{"Audio stopped"};
     bool feedbackEnabled{false};
     double rate() const { return outputRate; }
 private:

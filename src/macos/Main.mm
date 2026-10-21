@@ -67,6 +67,11 @@ std::filesystem::path sessionPath() {
     rmx::Engine* engine;
     AudioHost* host;
     rmx::SampleBank* bank;
+    std::shared_ptr<rmx::Engine> engineOwner;
+    std::shared_ptr<AudioHost> hostOwner;
+    std::shared_ptr<rmx::SampleBank> bankOwner;
+    dispatch_queue_t audioQueue;
+    BOOL audioStarting;
     rmx::State state;
     std::vector<Control> controls;
     std::vector<AudioDevice> devices;
@@ -85,7 +90,7 @@ std::filesystem::path sessionPath() {
     NSPanel* setupPanel;
     double tapTime;
 }
-- (instancetype)initWithEngine:(rmx::Engine*)e host:(AudioHost*)h bank:(rmx::SampleBank*)b;
+- (instancetype)initWithEngine:(std::shared_ptr<rmx::Engine>)e host:(std::shared_ptr<AudioHost>)h bank:(std::shared_ptr<rmx::SampleBank>)b;
 - (void)refreshDevices;
 - (void)audioSetup:(id)sender;
 - (void)editSample:(id)sender;
@@ -163,9 +168,9 @@ std::filesystem::path sessionPath() {
     const bool handled=rmx::panel::activate(model,[&](Param p){return engine->params.get(p);},[&](Param p,float v){[self change:p value:v];},[&](rmx::Event e){[self sendEvent:e];});
     if(!handled&&c.action==1) [self settings:nil]; [self setNeedsDisplay:YES];
 }
-- (instancetype)initWithEngine:(rmx::Engine*)e host:(AudioHost*)h bank:(rmx::SampleBank*)b {
+- (instancetype)initWithEngine:(std::shared_ptr<rmx::Engine>)e host:(std::shared_ptr<AudioHost>)h bank:(std::shared_ptr<rmx::SampleBank>)b {
     if((self=[super initWithFrame:NSMakeRect(0,0,1280,575.625)])) {
-        engine=e; host=h; bank=b; dragging=-1; selectedPad=0; editSlot=0; message=@"Select audio devices, then start. Space: bypass · 1–4: drums · T: tap · Esc: reset";
+        engineOwner=e; hostOwner=h; bankOwner=b; engine=e.get(); host=h.get(); bank=b.get(); audioQueue=dispatch_queue_create("nz.axelmckenna.rmx.audio-control",DISPATCH_QUEUE_SERIAL); audioStarting=NO; dragging=-1; selectedPad=0; editSlot=0; message=@"Select audio devices, then start. Space: bypass · 1–4: drums · T: tap · Esc: reset";
         self.wantsLayer=YES; self.layer.backgroundColor=color(.035,.043,.055).CGColor;
         panelImage=[[NSImage alloc] initWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"rmx-1000_1" ofType:@"png"]];
         panelImage=restyle(panelImage);
@@ -208,7 +213,7 @@ std::filesystem::path sessionPath() {
     for(const auto& s:sources) { [midiMenu addItemWithTitle:str(s.name)]; midiMenu.lastItem.tag=s.id; }
     host->selectMidiSource(0);
 }
-- (void)refreshClicked:(id)sender { (void)sender; [self refreshDevices]; }
+- (void)refreshClicked:(id)sender { (void)sender; if(!audioStarting) [self refreshDevices]; }
 - (void)deviceChanged:(id)sender {
     (void)sender;
     auto fill=[&](NSPopUpButton* selection,NSPopUpButton* pairs,bool input) { const auto id=selection.selectedItem.tag; [pairs removeAllItems]; uint32_t channels=id==0xfffffffe?2:0; for(const auto& d:devices) if(d.id==id) channels=input?d.inputs:d.outputs; for(uint32_t i=0;i+1<channels;i+=2) { [pairs addItemWithTitle:[NSString stringWithFormat:@"Ch %u–%u",i+1,i+2]]; pairs.lastItem.tag=i; } };
@@ -216,15 +221,42 @@ std::filesystem::path sessionPath() {
     if(host->running()) { host->stop(); startButton.title=@"START AUDIO"; message=@"Device selection changed. Restart audio to apply."; }
 }
 - (void)midiChanged:(id)sender { (void)sender; host->selectMidiSource(static_cast<MIDIEndpointRef>(midiMenu.selectedItem.tag)); message=@"MIDI input selected. Right-click a knob to learn a CC. Notes 36–39 trigger drums."; }
+- (void)setAudioSetupEnabled:(BOOL)enabled {
+    inputMenu.enabled=enabled; outputMenu.enabled=enabled; inputPair.enabled=enabled; outputPair.enabled=enabled; bufferMenu.enabled=enabled; startButton.enabled=enabled;
+}
 - (void)startAudio:(id)sender {
-    (void)sender;
-    if(host->running()) { host->stop(); startButton.title=@"START AUDIO"; [self persist]; return; }
-    auto begin=^{ std::string error; const auto output=static_cast<AudioDeviceID>(outputMenu.selectedItem.tag),pair=static_cast<uint32_t>(outputPair.selectedItem.tag),frames=static_cast<uint32_t>(bufferMenu.titleOfSelectedItem.intValue); const bool ok=inputMenu.selectedItem.tag==0xfffffffe?host->startRekordbox(output,pair,frames,error):host->start(static_cast<AudioDeviceID>(inputMenu.selectedItem.tag),output,static_cast<uint32_t>(inputPair.selectedItem.tag),pair,frames,error); self->startButton.title=ok?@"STOP AUDIO":@"START AUDIO"; self->message=ok?@"Audio running. Keep the unprocessed master disconnected from the speakers.":str(error); [self setNeedsDisplay:YES]; if(!ok) { NSAlert* alert=[NSAlert new]; alert.messageText=@"Audio route could not start"; alert.informativeText=str(error); [alert runModal]; } };
-    if(inputMenu.selectedItem.tag&&inputMenu.selectedItem.tag!=0xfffffffe) {
-        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) { dispatch_async(dispatch_get_main_queue(),^{ if(granted) begin(); else self->message=@"Audio input permission denied. Enable RMX in System Settings → Privacy & Security → Microphone."; }); }];
-    } else begin();
+    (void)sender; if(audioStarting) return;
+    if(host->running()) {
+        audioStarting=YES; [self setAudioSetupEnabled:NO]; startButton.title=@"STOPPING…";
+        auto owner=hostOwner; auto audio=engineOwner; auto assets=bankOwner;
+        dispatch_async(audioQueue,^{ (void)audio; (void)assets; owner->stop(); dispatch_async(dispatch_get_main_queue(),^{ self->audioStarting=NO; [self setAudioSetupEnabled:YES]; self->startButton.title=@"START AUDIO"; [self persist]; }); }); return;
+    }
+    const auto input=static_cast<AudioDeviceID>(inputMenu.selectedItem.tag),output=static_cast<AudioDeviceID>(outputMenu.selectedItem.tag);
+    const auto inPair=static_cast<uint32_t>(inputPair.selectedItem.tag),outPair=static_cast<uint32_t>(outputPair.selectedItem.tag),frames=static_cast<uint32_t>(bufferMenu.titleOfSelectedItem.intValue);
+    auto begin=^{
+        if(self->audioStarting) return; self->audioStarting=YES; [self setAudioSetupEnabled:NO]; self->startButton.title=@"STARTING…";
+        self->message=@"Starting audio. Allow the macOS audio-capture prompt if it appears.";
+        auto owner=self->hostOwner; auto audio=self->engineOwner; auto assets=self->bankOwner;
+        dispatch_async(self->audioQueue,^{
+            @autoreleasepool {
+                (void)audio; (void)assets; std::string error;
+                const bool ok=input==0xfffffffe?owner->startRekordbox(output,outPair,frames,error):owner->start(input,output,inPair,outPair,frames,error);
+                NSString* failure=str(error);
+                dispatch_async(dispatch_get_main_queue(),^{ self->audioStarting=NO; [self setAudioSetupEnabled:YES]; self->startButton.title=ok?@"STOP AUDIO":@"START AUDIO"; self->message=ok?@"Audio running.":failure;
+                    if(!ok) { NSAlert* alert=[NSAlert new]; alert.messageText=@"Audio route could not start"; alert.informativeText=failure; [alert runModal]; }
+                });
+            }
+        });
+    };
+    if(input&&input!=0xfffffffe) [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) { dispatch_async(dispatch_get_main_queue(),^{ if(granted) begin(); else self->message=@"Audio input permission denied. Enable RMX in System Settings → Privacy & Security → Microphone."; }); }];
+    else begin();
+}
+- (void)stopAudioForTermination {
+    auto owner=hostOwner; auto audio=engineOwner; auto assets=bankOwner;
+    dispatch_async(audioQueue,^{ (void)audio; (void)assets; owner->stop(); });
 }
 - (void)update {
+    if(audioStarting) { deviceStatus.stringValue=[NSString stringWithUTF8String:host->startupStage.load()]; [self setNeedsDisplay:YES]; return; }
     if(host->deviceChanged.exchange(false)) { host->stop(); startButton.title=@"START AUDIO"; [self refreshDevices]; message=@"Audio device disconnected or its sample rate changed. Check routing and restart audio."; }
     const float cpu=host->callbackLoad.load()*100;
     deviceStatus.stringValue=host->running()?[NSString stringWithFormat:@"%.0f Hz · CPU %.1f%% · est. I/O %.1f ms\nUnder/overruns %llu/%llu · MIDI drops %llu",host->rate(),cpu,host->latencyMs.load(),host->underruns.load(),host->overruns.load(),host->midiDrops.load()]:@"Audio stopped · presets and samples remain editable";
@@ -360,7 +392,7 @@ std::filesystem::path sessionPath() {
     if([panel runModal]==NSModalResponseOK) { try { state.capture(engine->params); for(size_t i=0;i<128;++i) state.cc[i]=host->cc[i].load(); state.save(panel.URL.fileSystemRepresentation); message=@"Preset saved with sample references and MIDI mappings."; } catch(const std::exception& e) { message=str(e.what()); } }
 }
 - (void)loadPreset:(id)sender {
-    (void)sender; NSOpenPanel* panel=[NSOpenPanel openPanel]; panel.allowsMultipleSelection=NO; panel.canChooseDirectories=NO;
+    (void)sender; if(audioStarting) return; NSOpenPanel* panel=[NSOpenPanel openPanel]; panel.allowsMultipleSelection=NO; panel.canChooseDirectories=NO;
     if([panel runModal]!=NSModalResponseOK) return;
     try {
         auto next=rmx::State::load(panel.URL.fileSystemRepresentation); auto newBank=rmx::makeFactoryBank(); std::string missing;
@@ -371,14 +403,14 @@ std::filesystem::path sessionPath() {
     } catch(const std::exception& e) { message=str(e.what()); }
 }
 - (void)importSample:(id)sender {
-    (void)sender; NSOpenPanel* panel=[NSOpenPanel openPanel]; panel.allowedContentTypes=@[UTTypeWAV]; panel.allowsMultipleSelection=NO; panel.canChooseDirectories=NO;
+    (void)sender; if(audioStarting) return; NSOpenPanel* panel=[NSOpenPanel openPanel]; panel.allowedContentTypes=@[UTTypeWAV]; panel.allowsMultipleSelection=NO; panel.canChooseDirectories=NO;
     panel.message=[NSString stringWithFormat:@"Import into bank %d, %@. WAV mono/stereo, up to 30 seconds.",static_cast<int>(engine->params.get(Param::Bank))+1,str(rmx::drumNames[static_cast<size_t>(selectedPad)])];
     if([panel runModal]!=NSModalResponseOK) return;
     try { auto sample=rmx::readWav(panel.URL.fileSystemRepresentation); const size_t slot=static_cast<size_t>(engine->params.get(Param::Bank))*4+selectedPad; const bool restart=host->running(); host->stop(); bank->slots[slot]=std::move(sample); state.samplePaths[slot]=panel.URL.fileSystemRepresentation; if(restart) [self startAudio:nil]; [self persist]; message=@"Sample imported. Audio was briefly suspended to install the new asset safely."; }
     catch(const std::exception& e) { message=str(e.what()); }
 }
 - (void)editSample:(id)sender {
-    (void)sender; const size_t slot=static_cast<size_t>(engine->params.get(Param::Bank))*4+selectedPad;
+    (void)sender; if(audioStarting) return; const size_t slot=static_cast<size_t>(engine->params.get(Param::Bank))*4+selectedPad;
     const auto& original=bank->slots[slot]; if(original.frames.empty()) return;
     const double duration=original.frames.size()/original.rate;
     NSAlert* dialog=[NSAlert new]; dialog.messageText=@"Edit selected sample";
@@ -423,18 +455,18 @@ std::filesystem::path sessionPath() {
 @end
 
 @interface AppDelegate : NSObject<NSApplicationDelegate,NSWindowDelegate> {
-    std::unique_ptr<rmx::Engine> engine;
-    std::unique_ptr<rmx::SampleBank> samples;
-    std::unique_ptr<AudioHost> host;
+    std::shared_ptr<rmx::Engine> engine;
+    std::shared_ptr<rmx::SampleBank> samples;
+    std::shared_ptr<AudioHost> host;
     NSWindow* window;
     Surface* surface;
 }
 @end
 @implementation AppDelegate
 - (void)applicationDidFinishLaunching:(NSNotification*)notification {
-    (void)notification; engine=std::make_unique<rmx::Engine>(); samples=std::make_unique<rmx::SampleBank>(rmx::makeFactoryBank()); engine->setBank(samples.get()); engine->prepare(48000,8192); host=std::make_unique<AudioHost>(*engine);
+    (void)notification; engine=std::make_shared<rmx::Engine>(); samples=std::make_shared<rmx::SampleBank>(rmx::makeFactoryBank()); engine->setBank(samples.get()); engine->prepare(48000,8192); host=std::make_shared<AudioHost>(*engine);
     window=[[NSWindow alloc] initWithContentRect:{0,0,1280,575.625} styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskResizable backing:NSBackingStoreBuffered defer:NO]; window.title=@"RMX — Remix Station"; window.minSize={960,454}; window.contentAspectRatio={2048,921}; window.delegate=self; window.backgroundColor=color(.035,.043,.055); window.appearance=[NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
-    surface=[[Surface alloc] initWithEngine:engine.get() host:host.get() bank:samples.get()]; surface.autoresizingMask=NSViewWidthSizable|NSViewHeightSizable; window.contentView=surface;
+    surface=[[Surface alloc] initWithEngine:engine host:host bank:samples]; surface.autoresizingMask=NSViewWidthSizable|NSViewHeightSizable; window.contentView=surface;
     NSMenu* bar=[NSMenu new]; NSMenuItem* appItem=[NSMenuItem new]; [bar addItem:appItem]; NSMenu* app=[NSMenu new]; [app addItemWithTitle:@"About RMX" action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""]; [app addItem:NSMenuItem.separatorItem]; [app addItemWithTitle:@"Quit RMX" action:@selector(terminate:) keyEquivalent:@"q"]; appItem.submenu=app;
     NSMenuItem* fileItem=[NSMenuItem new]; [bar addItem:fileItem]; NSMenu* file=[[NSMenu alloc] initWithTitle:@"File"]; [file addItemWithTitle:@"Load preset…" action:@selector(loadPreset:) keyEquivalent:@"o"].target=surface; [file addItemWithTitle:@"Save preset…" action:@selector(savePreset:) keyEquivalent:@"s"].target=surface; [file addItemWithTitle:@"Import sample…" action:@selector(importSample:) keyEquivalent:@"i"].target=surface; [file addItemWithTitle:@"Edit selected sample…" action:@selector(editSample:) keyEquivalent:@"e"].target=surface;
     [file addItemWithTitle:@"Audio & MIDI setup…" action:@selector(audioSetup:) keyEquivalent:@","].target=surface;
@@ -449,7 +481,7 @@ std::filesystem::path sessionPath() {
     [window center]; [window makeKeyAndOrderFront:nil]; [window makeFirstResponder:surface]; [NSApp activateIgnoringOtherApps:YES];
 }
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender { (void)sender; return YES; }
-- (void)applicationWillTerminate:(NSNotification*)notification { (void)notification; [surface persist]; host->stop(); [surface->timer invalidate]; }
+- (void)applicationWillTerminate:(NSNotification*)notification { (void)notification; [surface persist]; [surface stopAudioForTermination]; [surface->timer invalidate]; }
 - (void)windowDidResignKey:(NSNotification*)notification { (void)notification; if(surface->dragging>=0) { const auto& c=surface->controls[static_cast<size_t>(surface->dragging)]; if(c.kind==Kind::Lever) engine->params.set(Param::ReleaseAmount,0); if(c.kind==Kind::Strip) engine->enqueue({rmx::EventType::RollStop}); surface->dragging=-1; } }
 @end
 int main(int argc,const char* argv[]) {

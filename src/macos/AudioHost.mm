@@ -83,6 +83,7 @@ bool AudioHost::startRekordbox(AudioDeviceID output,uint32_t outPair,uint32_t bu
         if(@available(macOS 26.0,*)) { description.bundleIDs=@[@"com.pioneerdj.rekordboxdj"]; description.processRestoreEnabled=YES; }
         else if(!object) { error="Play a track in rekordbox once, then start direct capture."; return false; }
         description.name=@"RMX rekordbox input"; description.privateTap=YES; description.muteBehavior=CATapMutedWhenTapped;
+        startupStage.store("Requesting rekordbox audio access");
         AudioObjectID tap=0; OSStatus status=AudioHardwareCreateProcessTap(description,&tap);
         if(status) { error=osError("Cannot capture rekordbox; allow RMX audio capture in System Settings",status); return false; }
         CFStringRef outputUID=nullptr; size=sizeof(outputUID); AudioObjectPropertyAddress uid{kAudioDevicePropertyDeviceUID,kAudioObjectPropertyScopeGlobal,kAudioObjectPropertyElementMain};
@@ -98,6 +99,7 @@ bool AudioHost::startRekordbox(AudioDeviceID output,uint32_t outPair,uint32_t bu
             @kAudioAggregateDeviceSubDeviceListKey:@[@{@kAudioSubDeviceUIDKey:outputName}],
             @kAudioAggregateDeviceTapListKey:@[@{@kAudioSubTapUIDKey:description.UUID.UUIDString,@kAudioSubTapDriftCompensationKey:@YES}]
         };
+        startupStage.store("Connecting rekordbox to the selected output");
         AudioDeviceID aggregate=0; status=AudioHardwareCreateAggregateDevice((__bridge CFDictionaryRef)composition,&aggregate);
         if(status) { AudioHardwareDestroyProcessTap(tap); error=osError("Cannot create direct audio route",status); return false; }
         // Physical input channels precede the tap channels in a mixed aggregate.
@@ -109,6 +111,7 @@ bool AudioHost::startRekordbox(AudioDeviceID output,uint32_t outPair,uint32_t bu
 }
 bool AudioHost::start(AudioDeviceID input,AudioDeviceID output,uint32_t inPair,uint32_t outPair,uint32_t bufferFrames,std::string& error) {
     stop(); error.clear(); inputID=input; outputID=output; inputPair=inPair; outputPair=outPair;
+    startupStage.store("Configuring the audio device");
     if(!output||channelCount(output,kAudioObjectPropertyScopeOutput)<outPair+2) { error="Select a stereo output pair."; return false; }
     if(input&&channelCount(input,kAudioObjectPropertyScopeInput)<inPair+2) { error="Select a stereo line input pair (not a microphone)."; return false; }
     if(!floatFormat(output,kAudioObjectPropertyScopeOutput)||(input&&!floatFormat(input,kAudioObjectPropertyScopeInput))) { error="Device must expose 32-bit float Core Audio streams."; return false; }
@@ -116,11 +119,13 @@ bool AudioHost::start(AudioDeviceID input,AudioDeviceID output,uint32_t inPair,u
     AudioObjectSetPropertyData(output,&bs,0,nullptr,sizeof(bufferFrames),&bufferFrames);
     if(input&&input!=output) AudioObjectSetPropertyData(input,&bs,0,nullptr,sizeof(bufferFrames),&bufferFrames);
     outputRate=deviceRate(output); inputRate=input?deviceRate(input):outputRate;
+    startupStage.store("Preparing audio processing");
     engine.prepare(outputRate,maxFrames); writeIndex.store(0); readIndex.store(0); fraction=0; primed=false; targetFill=std::min(bufferFrames*3,4096u);
     underruns.store(0); overruns.store(0); pickedUp.fill(false); lastCC.fill(-1);
     UInt32 actual=sizeof(bufferFrames); AudioObjectGetPropertyData(output,&bs,0,nullptr,&actual,&bufferFrames);
     auto latency=[&](AudioDeviceID id,AudioObjectPropertyScope scope) { UInt32 v=0,s=sizeof(v); AudioObjectPropertyAddress a{kAudioDevicePropertyLatency,scope,kAudioObjectPropertyElementMain}; AudioObjectGetPropertyData(id,&a,0,nullptr,&s,&v); return v; };
     latencyMs.store(static_cast<float>((bufferFrames*2+latency(output,kAudioObjectPropertyScopeOutput)+(input?latency(input,kAudioObjectPropertyScopeInput):0)+(input&&input!=output?targetFill:0))*1000/outputRate));
+    startupStage.store("Opening the audio output");
     OSStatus status=AudioDeviceCreateIOProcID(output,callback,this,&outputProc);
     if(status) { error=osError("Cannot create output callback",status); stop(); return false; }
     if(input&&input!=output) {
@@ -130,6 +135,7 @@ bool AudioHost::start(AudioDeviceID input,AudioDeviceID output,uint32_t inPair,u
         if(status) { error=osError("Cannot start input; check microphone permission",status); stop(); return false; }
     }
     active.store(true);
+    startupStage.store("Starting audio playback");
     status=AudioDeviceStart(output,outputProc);
     if(status) { error=osError("Cannot start output",status); stop(); return false; }
     for(auto selector:{kAudioDevicePropertyDeviceIsAlive,kAudioDevicePropertyNominalSampleRate}) {
@@ -137,10 +143,11 @@ bool AudioHost::start(AudioDeviceID input,AudioDeviceID output,uint32_t inPair,u
         AudioObjectAddPropertyListener(outputID,&a,propertyCallback,this);
         if(inputID&&inputID!=outputID) AudioObjectAddPropertyListener(inputID,&a,propertyCallback,this);
     }
-    deviceChanged.store(false); return true;
+    deviceChanged.store(false); startupStage.store("Audio running"); return true;
 }
 void AudioHost::stop() {
     active.store(false);
+    startupStage.store("Stopping audio");
     for(auto selector:{kAudioDevicePropertyDeviceIsAlive,kAudioDevicePropertyNominalSampleRate}) {
         AudioObjectPropertyAddress a{selector,kAudioObjectPropertyScopeGlobal,kAudioObjectPropertyElementMain};
         if(outputID) AudioObjectRemovePropertyListener(outputID,&a,propertyCallback,this);
