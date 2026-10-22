@@ -1,0 +1,27 @@
+Reference,Quantity,Part or specification,Role,Qualification
+U1,1,Daisy Seed with 64 MB external SDRAM rev7 preferred,STM32H750 audio compute module,Verify exact module revision and schematic
+U2-U5,4,74HC165 at 3.3 V,32 active-low button and switch inputs,Select package and confirm propagation at scan rate
+U6-U7,2,74HC4051 at 3.3 V,16 analog mux inputs for 10 knobs and lever,11 populated channels plus spare inputs tied to ground
+U8,1,MPR121 breakout at 3.3 V address 0x5A,8-electrode X-Pad sensor,Prototype part; production lifecycle and touch tuning unresolved
+U9-U20,12,74HC595 at 3.3 V,96 static LED/display outputs,Limit current per LED and aggregate per package
+U21,1,TPS3431,Independent watchdog,Select CWD for 50 ms nominal and verify min/max against heartbeat
+U22,1,74LVC1G08 at 3.3 V,Gate WDO with DSP_READY,Provide pull-down on ready and pull-up on WDO
+Q1,1,Logic-level NMOS plus flyback diode,Relay coil driver,Size from selected relay coil current
+K1-K2,2,DPDT non-latching signal relay with 5 V coil,One relay per audio channel; dry path on NC contacts,Use both poles for a future balanced line path
+RV1-RV10,10,10k linear panel pot,Input output three bands Scene Sub1 Sub2 X-level Pitch,Generic 7.2 mm shaft hole; verify bushing and shaft length
+RV11,1,Spring-return lever with 10k position sensor,Release amount,Custom mechanical assembly; not selected
+SW1-SW29,29,Momentary normally-open switch,Performance controls,Generic cap envelopes; component selection pending
+SW30,1,ON-OFF-ON SPDT,Back Spin Echo Vinyl Brake,Verify 11x5 mm panel cutout against real part
+SW31,1,SPDT,Default/User,Use one pole as active-low digital input
+SW32,1,SPST rear bypass override,Hardware de-energize relay,Put in relay permission path independent of MCU
+DS1,1,Three common-cathode seven-segment digits,Tempo display,24 individual segment outputs through resistors; fit chosen display in 24x11 mm window
+LEDs,55,Low-current LEDs with individual resistors,Buttons banks and input/output meters,Remaining 17 of 96 outputs reserved for strip and pad feedback
+R_DIGITAL,32,10k pull-up to 3.3 V,Input switch bias,Locate near shift-register inputs
+R_LED,79,Start with 1k per LED segment,Current limiting,Calculate for selected LEDs; no direct unresisted LEDs
+R_ADC,11,1k series to mux input,Pot wiper protection and RC filter,Fit footprint for 10nF per wiper; tune acquisition settling
+C_DECOUPLE,24,100nF ceramic,Local logic decoupling,At each supply pin pair; final count follows schematic
+J_SD,1,microSD socket with 47k signal pull-ups,Future banks and presets,GPIO reserved; filesystem and hot-plug firmware pending
+J_AUDIO,4,6.35 mm panel jack,Stereo line input/output,Generic 12 mm holes; analog front end unresolved
+J_USB,1,Panel USB extension to Seed USB device port,Firmware and future USB MIDI,Generic 12x8 mm slot; actual mount pending
+J_DC,1,Panel DC jack with keyed 5 V regulated input,Power,Connector polarity protection and power budget require schematic
+PS1,1,Regulated isolated 5 V supply with >=1 A available,Compute and relay power,Bench supply for first prototype; validate load/transients
