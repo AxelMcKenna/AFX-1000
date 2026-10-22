@@ -2,6 +2,28 @@
 
 The objective is full functional and sonic replication, with a standalone hardware implementation. The current changes are progress toward that objective, not a redefinition of completion as an inspired effect, a desktop-only tool or an unbuilt enclosure. A checked item below is limited to the stated evidence. The physical reference is the RMX-1000 with firmware 2.20; its operating manual, firmware MIDI addendum and remixbox manual define behavior. Reference captures remain necessary for undocumented curves and sound.
 
+## Implementation update: 22 October 2026
+
+- [x] Improve AUTO pulse-phase tracking, gradual clock correction, silence invalidation and tempo-change recovery. Synthetic fixtures pass; real-music and reference-unit validation remain open.
+- [x] Share MIDI clock handling across native and plugin adapters, including Start/Stop/Continue and Song Position Pointer. Plugin clock/transport events use sample offsets with DAW transport priority.
+- [x] Separate loop tempo from pitch using bounded, stereo-linked overlap-add. Neutral playback retains direct interpolation. Reference-unit sound and transient behavior remain unverified.
+- [x] Add an optional Ableton Link adapter and native setup control. The SDK-free build passes; Link remains disabled in packaged builds, and enabled compilation/live peers still need validation.
+- [x] Replace the hardware photograph with original amber/teal panel artwork in native and plugin builds.
+- [x] Add reference-audio capture/comparison tools, a persistent offline stress tool, a VST3 runtime probe and universal Mac packaging with source/dependency archives, notices and hashes.
+
+The verified source snapshot is commit `f87aaad009eb8d03035f21431c95341a5c587727`. Release and ASan/UBSan runs each passed all 14 CTest entries. The VST3 probe passed 329 checks, covering 138 project parameters and 4624 processed blocks. Universal native/AU/VST3 builds and the firmware cross-build passed. These results apply to that snapshot; later workspace changes need their own validation.
+
+The offline stress run processed 7200 simulated seconds with no non-finite output or dropped events, but recorded three callbacks over their frame deadlines. It does not satisfy the physical two-hour live-soak requirement. Packages are ad hoc signed and not notarized. Four logical commits were exported; GitHub push failed because the session could not resolve `github.com`.
+
+- [ ] Compare against real RMX recordings and complete loudness-matched listening checks before claiming sonic parity.
+- [ ] Validate FLX4/FLX6 routing, actual DAW operation, device recovery and a real two-hour session.
+- [ ] Verify AU runtime. The component built, but process-local registration returned null during the probe; the cause is undetermined.
+- [ ] Build and exercise the Link-enabled configuration with the separately supplied SDK.
+- [ ] Flash and validate physical hardware, including audio, controls, storage and fault recovery.
+- [ ] Select the project source license; retain dependency terms separately.
+
+See the [engineering report](engineering-update-2026-10-22.md) for measurements and limitations, plus [synchronization](synchronization.md), [sample stretching](sample-stretching.md), [reference validation](reference-validation.md) and [release packaging](release.md).
+
 ## Performance state and timing
 
 - [x] Pad one-shots remain immediate with Quantize on; sample-offset event path is retained. Regression-tested.
