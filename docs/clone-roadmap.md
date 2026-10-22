@@ -41,6 +41,7 @@ See the [engineering report](engineering-update-2026-10-22.md) for measurements 
 
 ## DSP and routing
 
+- [ ] Prioritize drum and Noise sound matching from the [23 October source/documentation research](dsp-model.md#sound-research-23-october-2026): replace simple drum transients/noise tails, implement per-drum envelopes, add band-limited one-shot pitch playback, calibrate Noise sweep/resonance/modulation/echo and review output headroom. Research is complete for this pass; implementation and reference listening remain open.
 - [x] FX SOURCE bypasses Release for unselected signals; Noise does not depend on source buttons. Regression-tested.
 - [x] User-configurable retention of Scene/Isolate/X-Pad after Release, exposed to native settings and plugin parameters. Regression-tested.
 - [x] Implement Cut/Add kick detection, residual filtering and additive band delays. Signal tests pass; detector constants and named tap patterns still require reference-unit matching.

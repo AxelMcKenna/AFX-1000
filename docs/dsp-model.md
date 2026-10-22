@@ -4,6 +4,46 @@ The engine now has separate portable Scene and Isolate processors. Both use boun
 
 The source references are Pioneer's [operating manual, effect types on pages 15–17](https://manualzz.com/doc/79710635/pioneer-rmx-1000-dj-effector-owner-s-manual) and [remixbox manual, parameter ranges on pages 12–14](https://manualzz.com/doc/58880568/pioneer-rmx-1000-remix-station-owner-s-manual). The linked pages are mirrors of the manufacturer-authored manuals.
 
+## Sound research: 23 October 2026
+
+This pass investigates the reported weak drum timbres and static-like Noise sound. Evidence is a source review and manufacturer documentation, supplemented by first-party DSP research. No listening comparison against hardware, new audio measurements, DSP changes or live-app restart was performed in this pass.
+
+### What the reference specifies
+
+Pioneer's operating instructions describe Noise as internally generated white noise passed through a band-pass filter and echo. Main moves the filter frequency, Sub1 changes noise level and Sub2 applies modulation. White noise itself is therefore expected; the audible identity depends on the filtering and control response. See the manufacturer-authored [Noise description](https://www.manualshelf.com/manual/pioneer/rmx-1000/user-guide-english/page-16.html), available through a manual mirror.
+
+The manufacturer-authored [remixbox Scene table, page 12](https://pioneer.manymanuals.com/audio/rmx-1000-m/user-manual-4510/12) lists separate Noise width, minimum/maximum level, modulation/resonance modes and waveform choices. It does not establish the numerical frequency curve, Q, modulation rates, echo calibration or stereo behavior. Those require captures.
+
+The [remixbox X-Pad table, page 14](https://pioneer.manymanuals.com/audio/rmx-1000-m/user-manual-4510/14) specifies per-drum gain, three decay choices and two envelopes. Pitch has separately configurable negative and positive ranges up to twelve semitones each. Our global +/-24-semitone control and fixed generated assets do not reproduce this complete sound-shaping model.
+
+### Findings in our source
+
+| Area | Observed implementation | Likely consequence / work needed |
+| --- | --- | --- |
+| Kick | `makeFactoryBank` in `src/core/Engine.cpp`: a swept sine tending toward 45 Hz, short noise click and single exponential amplitude decay | A usable placeholder, with no measured reference transient, pitch contour or saturation. Fit these independently. |
+| Snare | One 170 Hz sine plus unfiltered white noise, with separate but simple exponential decays | Limited body modes and a broad noise tail. Model the transient, body and filtered snare-wire component separately, or use cleared reference assets. |
+| Clap | High-passed noise with a pulse term that repeats every 11 ms throughout the decay | Can sound buzzy or like a fluttering noise burst. Prototype a finite initial burst cluster followed by a separately filtered diffuse tail; derive timing from the reference. |
+| Hi-hat | High-passed noise with a short exponential decay | No explicit metallic ringing component. Add measured resonant/inharmonic content or a suitable recorded asset. |
+| Drum playback | One-shots use two-point linear interpolation; pitch changes sample speed | No dedicated anti-alias stage when reading faster than one source frame per output frame. Upward pitch and downsampling need a band-limited reader. Loops have a separate overlap-add path. |
+| Noise | `src/core/Scene.cpp`: mono xorshift noise, a state-variable band-pass, optional tilt, amplitude modulation and feedback echo | Already filtered. The current 25 Hz to 18 kHz exponential sweep, Q choices and gain compensation are project values. The source review cannot identify the audible cause with certainty. |
+| Noise modulation | Sub2 changes amplitude depth and a rate of `0.25 + 3.75 * Sub2` cycles per beat | The depth/rate coupling and intermediate rates are guesses. Match modulation destinations, rates, depth and side-chain behavior from captures. |
+| Noise echo | Fixed one-beat delay, global feedback and a 0.5 return multiplier | Functional routing, with unmeasured timing, damping and balance. Avoid tuning the dry noise alone. |
+| Output headroom | Protection is transparent below unity and approaches 1.25 above it | Summed music, drums and Noise can exceed digital full scale downstream. Check gain staging separately from timbre; clipping is a possible contributor, not an established diagnosis. |
+
+The existing eight-millisecond performance smoothing and topology-preserving state-variable filter are useful foundations. Retain them while reviewing the 32-sample coefficient update cadence, switching transients and gain changes. Wishnick's [Time-Varying Filters for Musical Applications](https://www.dafx.de/paper-archive/2014/dafx14_aaron_wishnick_time_varying_filters_for_.pdf) supports this filter family for changing parameters; it does not supply RMX calibration.
+
+For drum synthesis, Vult's first-party [VCV Drums development account](https://www.vult-dsp.com/post/making-of-the-vcv-drums) demonstrates separately modeled noise filters, transients and metallic ringing informed by measurements. This is a design approach for prototypes, not evidence that the RMX uses those circuits or drum-machine sources.
+
+### Recommended implementation order
+
+1. Capture a reference set before defining sonic acceptance thresholds. Start with the four drums at neutral gain/pitch and each decay/envelope combination: 24 settings, with repeated hits to check variation. Preserve onset, pitch contour and full tails. Measure the effect of gain and pitch separately.
+2. Replace the snare/clap/hat placeholders first, then fit the kick. Pre-render synthesized assets during preparation so the callback remains bounded. Preserve current preset IDs and separate internal drums from user sample banks. Track the provenance of any assets distributed with the project.
+3. Prototype Noise sweep, Q and level changes against stationary reference settings. First isolate the noise with silence at the input and modulation off; then compare slow/fast sweeps, resonance, each waveform and echo tails at several BPMs. Keep the white source for the reference mode; offer other colors only as explicit extensions.
+4. Add the documented per-drum gain/decay/envelope model and asymmetric pitch ranges. Implement band-limited one-shot pitch/sample-rate conversion with explicit CPU and memory budgets for desktop and firmware.
+5. Review final output headroom and perform level-matched comparisons on isolated hits, rapid rolls and music. For stochastic noise, compare averaged spectra, envelopes, echo timing and stereo correlation rather than requiring a sample null. Check 44.1/48/96 kHz, control sweeps and repeat triggering before promoting a sound revision.
+
+No verified redistributable factory drum pack was established in this research. Pioneer's [official software page](https://www.pioneerdj.com/en/support/software/effector/rmx-1000/) documents the original plug-in as another possible comparison source; compatibility and access must be checked before relying on it. Exact factory timbre remains unverified until reference audio is available. Improvements to subjective sound can proceed in a separately reviewable prototype meanwhile.
+
 ## Isolate
 
 `include/rmx/Isolator.h` / `src/core/Isolator.cpp` own the state for each selected audio bus. The complementary crossover remains a first-order project implementation so all three neutral bands sum transparently. Matching the hardware's crossover slopes/phase still requires measurement.
