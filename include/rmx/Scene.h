@@ -30,7 +30,7 @@ private:
     FractionalDelay echo,spiral;
     std::array<FractionalDelay,8> room;
     std::array<Stereo,8> damping{};
-    StateFilter mainFilter,echoFilter,noiseTilt;
+    StateFilter mainFilter,echoFilter,noiseTilt,noisePolish;
     SceneSettings settings;
     double rate{48000},pitchPhase{};uint64_t frame{};
     uint32_t random{0x12345678};
@@ -38,9 +38,12 @@ private:
     std::array<std::array<double,8>,2> roomLengths{};
     std::array<std::array<float,8>,2> roomGains{};
     unsigned roomSide{};float sideAttack{},sideRelease{};
+    float noiseCutoff{90},noiseCutoffSlew{},noiseModGain{1},noiseModSlew{},noiseReturnAlpha{};
+    Stereo noiseReturn{};uint64_t noiseAge{};
     void updateRoom() noexcept;
     float noise() noexcept;
     float modulation(float amount,double beat) const noexcept;
+    float noiseModulation(float amount,double beat) const noexcept;
     Stereo reverb(Stereo input) noexcept;
 };
 }

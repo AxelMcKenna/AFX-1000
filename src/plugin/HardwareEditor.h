@@ -50,6 +50,7 @@ public:
             float db=20*std::log10(std::max(output?processor.engine.meters.output.load():processor.engine.meters.input.load(),1.e-7f));
             for(int group=0;group<11;++group) for(int led=0;led<3;++led) for(int row=0;row<2;++row) { auto color=group==10?juce::Colour(0xffff2718):group>6?juce::Colour(0xffe8c92e):juce::Colour(0xff40d9b1); g.setColour(color.withAlpha(db>=-30+group*3?1.f:.12f)); g.fillRect(r.x+group*33.5f+led*7.8f,r.y+row*8,5.5f,5.5f); }
         }
+        if(processor.engine.meters.protectionGain.load()<.98f) {g.setColour(juce::Colour(0xffffb041));g.setFont(juce::Font(juce::FontOptions(11).withStyle("Bold")));g.drawText("LIMIT",552,238,80,17,juce::Justification::centredRight);}
         g.setColour(juce::Colour(0xff040303)); g.fillRect(924.f,146.f,121.f,66.f);
         const int bpm=std::clamp(static_cast<int>(std::round(processor.engine.meters.tempo.load())),0,999);
         constexpr std::array<int,10> segments{0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};

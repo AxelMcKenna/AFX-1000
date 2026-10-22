@@ -1,9 +1,9 @@
 #include "rmx/Engine.h"
-#include <numbers>
+#include "rmx/FactoryDrums.h"
+#include "rmx/SampleReader.h"
 
 namespace rmx {
 namespace {
-constexpr float pi=std::numbers::pi_v<float>;
 // Only performance controls are interpolated per sample. User selectors and
 // other discrete settings are consumed once per block, including on the MCU.
 constexpr std::array smoothedParameters{Param::InputGain,Param::OutputGain,Param::Low,Param::Mid,Param::High,
@@ -27,6 +27,7 @@ void Engine::prepare(double sampleRate,uint32_t maxBlock) {
     // Eight beats at the slowest supported tempo require twelve seconds.
     capturedRoll.assign(static_cast<size_t>(sr*60/40*xPadBeatValues.back())+4,{});
     smoothing=1-std::exp(-1.f/static_cast<float>(sr*.008));
+    protectionRelease=1-std::exp(-1.f/static_cast<float>(sr*.05));
     tempoTracker.prepare(sr);
     reset();
 }
@@ -40,6 +41,7 @@ void Engine::reset() noexcept {
     previousRelease=false; previousOverdub=false;
     bypassMix=params.get(Param::Bypass); sceneMix=0; releaseMix=0;
     p=params.snapshot(); smooth=p;
+    protectionGain=1;meters.protectionGain.store(1,std::memory_order_relaxed);
     isolateInputMix=(get(Param::IsolateSource)==0||get(Param::IsolateSource)==2)?1.f:0.f;
     isolatePadMix=(get(Param::IsolateSource)==1||get(Param::IsolateSource)==2)?1.f:0.f;
     sceneInputMix=(get(Param::SceneSource)==0||get(Param::SceneSource)==2)?1.f:0.f;
@@ -74,6 +76,16 @@ bool Engine::trigger(int pad,float velocity,int bank,int source,bool toggleLoop)
             voice=&v;break;
         }
     *voice={slot,0,std::clamp(velocity,0.f,1.f),0,{}};
+    if(internal) {
+        const auto setting=[&](Param first) {return get(static_cast<Param>(static_cast<unsigned>(first)+pad%4));};
+        constexpr float decayRates[]{9,15,12,38};
+        constexpr float decayFactors[]{1.7f,1,.62f};
+        const auto decay=static_cast<size_t>(setting(Param::KickDecay));
+        const bool tight=setting(Param::KickEnvelope)>.5f;
+        voice->envelope=db(setting(Param::KickGain));
+        voice->envelopeStep=std::exp(-(decayRates[pad%4]*(decayFactors[decay]-1)+(tight?3.f:0.f))/static_cast<float>(sr));
+        voice->punch=tight?.35f:0.f;voice->punchStep=std::exp(-1.f/static_cast<float>(sr*.012));
+    }
     return false;
 }
 void Engine::stopSample(int pad,int bank,int source) noexcept {
@@ -126,7 +138,8 @@ void Engine::event(Event e) noexcept {
 }
 Stereo Engine::sample() noexcept {
     Stereo out{};
-    const double ratio=std::pow(2.,sm(Param::XPitch)/12.);
+    const float pitch=sm(Param::XPitch);
+    const double ratio=std::pow(2.,pitch*(pitch<0?get(Param::PitchDownRange):get(Param::PitchUpRange))/(24*12.));
     for(auto& v:voices) {
         if(v.slot<0||!samples) continue;
         const auto& asset=v.slot<16?samples->slots[static_cast<size_t>(v.slot)]:samples->internal[static_cast<size_t>(v.slot-16)];
@@ -137,14 +150,15 @@ Stereo Engine::sample() noexcept {
             else {v.slot=-1;continue;}
         }
         const auto index=static_cast<size_t>(v.position);
-        const size_t next=index+1<asset.frames.size()?index+1:loop?0:index;
-        const float fadeIn=std::min(1.f,(static_cast<float>(v.age)+1)/std::min(size_t{32},asset.frames.size()));
+        const float fadeIn=std::min(1.f,(static_cast<float>(v.age)+1)/std::min(v.slot>=16?size_t{4}:size_t{32},asset.frames.size()));
         const float fadeOut=loop?1.f:std::min(1.f,static_cast<float>(asset.frames.size()-index)/std::min(size_t{64},asset.frames.size()));
         const double pitchStep=ratio*asset.rate/sr;
         const Stereo value=loop?v.stretch.process(asset.frames,v.position,pitchStep,
             asset.rate/sr*bpm/asset.playback.bpm,sr,asset.rate):
-            mix(asset.frames[index],asset.frames[next],static_cast<float>(v.position-index));
-        out=out+value*(v.velocity*fadeIn*fadeOut);
+            readOneShot(asset.frames,v.position,pitchStep);
+        out=out+value*(v.velocity*fadeIn*fadeOut*v.envelope*(1+v.punch));
+        v.envelope*=std::max(0.f,1+(v.envelopeStep-1)*static_cast<float>(ratio));
+        v.punch*=std::max(0.f,1+(v.punchStep-1)*static_cast<float>(ratio));
         if(!loop)v.position+=pitchStep;
         if(v.age<std::numeric_limits<uint32_t>::max())++v.age;
     }
@@ -253,7 +267,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     previousOverdub=overdub;
     Event e; while(queue.pop(e)) event(e);
     size_t eventIndex=0;
-    float inputPeak=0,outputPeak=0;
+    float inputPeak=0,outputPeak=0,minimumProtection=1;
     for(uint32_t i=0;i<frames;++i,++frame) {
         while(eventIndex<events.size()&&events[eventIndex].offset<=i) event(events[eventIndex++]);
         for(auto parameter:smoothedParameters) {
@@ -303,9 +317,13 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         processed=processed*db(sm(Param::OutputGain));
         approach(bypassMix,get(Param::Bypass),smoothing);
         processed=finite(mix(processed,raw,bypassMix));
-        // Transparent below unity; bounded soft protection above unity.
-        auto protect=[](float v) { const float a=std::abs(v); return a<=1?v:std::copysign(1+.25f*std::tanh((a-1)*4),v); };
-        outL[i]=protect(processed.l); outR[i]=protect(processed.r);
+        // Sample-peak ceiling with linked stereo gain. No lookahead, allocation
+        // or per-channel saturation; full-scale excess cannot reach the device.
+        const float magnitude=level(processed),target=magnitude>.9995f?.9995f/magnitude:1.f;
+        if(target<protectionGain)protectionGain=target;
+        else protectionGain+=(target-protectionGain)*protectionRelease;
+        minimumProtection=std::min(minimumProtection,protectionGain);
+        outL[i]=processed.l*protectionGain;outR[i]=processed.r*protectionGain;
         outputPeak=std::max(outputPeak,level({outL[i],outR[i]}));
         if(transport.playing) {
             beat+=bpm/(60*sr);
@@ -316,6 +334,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         }
     }
     meters.sequenceSteps.store(static_cast<unsigned>(sequence.size()),std::memory_order_relaxed); meters.padMuteMask.store(sequence.muteMask(),std::memory_order_relaxed);
+    meters.protectionGain.store(minimumProtection,std::memory_order_relaxed);
     meters.input.store(inputPeak,std::memory_order_relaxed); meters.output.store(outputPeak,std::memory_order_relaxed); meters.tempo.store(static_cast<float>(bpm),std::memory_order_relaxed);
 }
 
@@ -323,21 +342,7 @@ SampleBank makeFactoryBank(double rate,bool fillSampleBanks) {
     SampleBank bank;
     for(int slot=0;slot<(fillSampleBanks?16:4);++slot) {
         auto& s=fillSampleBanks?bank.slots[static_cast<size_t>(slot)]:bank.internal[static_cast<size_t>(slot)]; s.rate=rate;
-        const int type=slot%4, variation=slot/4;
-        const double length=type==0?.7:type==1?.38:type==2?.32:.16;
-        s.frames.resize(static_cast<size_t>(rate*length));
-        uint32_t random=0x749abc+static_cast<uint32_t>(slot); double phase=0; float low=0;
-        for(size_t i=0;i<s.frames.size();++i) {
-            double t=i/rate; random^=random<<13; random^=random>>17; random^=random<<5;
-            const float n=static_cast<float>(static_cast<int32_t>(random))/2147483648.f;
-            phase+=2*pi*(45+variation*6+100*std::exp(-t*35))/rate;
-            low+=.2f*(n-low); float value=0;
-            if(type==0) value=static_cast<float>(std::sin(phase)*std::exp(-t*(8+variation))*.85+n*std::exp(-t*220)*.15);
-            if(type==1) value=static_cast<float>(n*std::exp(-t*20)*.55+std::sin(2*pi*(170+variation*20)*t)*std::exp(-t*28)*.3);
-            if(type==2) { double pulse=std::fmod(t,.011); value=static_cast<float>((n-low)*std::exp(-t*20)*(.35+.3*std::exp(-pulse*300))); }
-            if(type==3) value=static_cast<float>((n-low)*std::exp(-t*(45-variation*5))*.5);
-            s.frames[i]={value,value};
-        }
+        s=makeDrumSample(static_cast<unsigned>(slot%4),static_cast<unsigned>(slot/4),rate);
     }
     if(fillSampleBanks)for(size_t pad=0;pad<4;++pad)bank.internal[pad]=bank.slots[pad];
     return bank;

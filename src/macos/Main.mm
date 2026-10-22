@@ -369,6 +369,7 @@ AudioDeviceID audioDeviceForUID(NSString* uid,const std::vector<AudioDevice>& de
         for(int group=0;group<11;++group) for(int led=0;led<3;++led) for(int row=0;row<2;++row) { const float threshold=-30+group*3.f; const bool lit=db>=threshold; NSColor* ledColor=group==10?color(1,.05,.02):group>6?color(.95,.85,.15):color(.7,.92,.24); box({r.x+group*33.5+led*7.8,r.y+row*8,5.5,5.5},lit?ledColor:[ledColor colorWithAlphaComponent:.12],.4); }
     };
     meter(false,engine->meters.input.load()); meter(true,engine->meters.output.load());
+    if(engine->meters.protectionGain.load()<.98f)text(@"LIMIT",{552,238,80,17},11,orange(),true,NSTextAlignmentRight);
     box({924,146,121,66},color(.015,.012,.012),0);
     const int tempo=std::clamp(static_cast<int>(std::round(host->running()?engine->meters.tempo.load():engine->params.get(Param::Tempo))),0,999);
     const std::array<int,10> segments{0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};

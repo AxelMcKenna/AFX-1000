@@ -14,15 +14,20 @@ void SceneProcessor::prepare(double sampleRate) {
     rate=sampleRate;echo.prepare(static_cast<size_t>(rate*16)+4);spiral.prepare(static_cast<size_t>(rate*.75)+4);
     for(size_t i=0;i<room.size();++i)room[i].prepare(static_cast<size_t>(rate*roomSeconds[i]*2)+4);
     dampingAlpha=poleCoefficient(6000,rate);noiseTilt.configure(1000,.7071f,rate);
+    noisePolish.configure(12500,.7071f,rate);
+    noiseCutoffSlew=1-std::exp(-1.f/static_cast<float>(rate*.008));
+    noiseModSlew=1-std::exp(-1.f/static_cast<float>(rate*.002));noiseReturnAlpha=poleCoefficient(6500,rate);
     sideAttack=1-std::exp(-1.f/static_cast<float>(rate*.003));sideRelease=1-std::exp(-1.f/static_cast<float>(rate*.08));updateRoom();reset();
 }
 void SceneProcessor::reset() noexcept {
     echo.reset();spiral.reset();for(auto& delay:room)delay.reset();damping={};
-    mainFilter.reset();echoFilter.reset();noiseTilt.reset();pitchPhase=0;frame=0;random=0x12345678;
+    mainFilter.reset();echoFilter.reset();noiseTilt.reset();noisePolish.reset();pitchPhase=0;frame=0;random=0x12345678;
+    noiseCutoff=90;noiseModGain=1;noiseReturn={};noiseAge=0;
     previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;
 }
 void SceneProcessor::configure(const SceneSettings& next) noexcept {
     if(next==settings)return;
+    if(next.type==2&&settings.type!=2) {noiseAge=0;noiseReturn={};}
     settings=next;settings.type=std::clamp(settings.type,0,9);previousCutoff=previousQ=previousEchoCutoff=-1;updateRoom();
 }
 float SceneProcessor::noise() noexcept {random^=random<<13;random^=random>>17;random^=random<<5;return static_cast<float>(static_cast<int32_t>(random))/2147483648.f;}
@@ -41,6 +46,27 @@ float SceneProcessor::modulation(float amount,double beat) const noexcept {
         default:value=1-std::clamp(sidechainEnvelope*4,0.f,1.f);break;
     }
     return 1-amount*(1-value);
+}
+float SceneProcessor::noiseModulation(float amount,double beat) const noexcept {
+    if(amount<=0)return 1;
+    // Musical divisions, smoothed at the output so square/random edges and
+    // changes of subdivision cannot introduce a one-sample gain discontinuity.
+    constexpr double rates[]{.25,.5,1,2,4};
+    const auto region=std::min(4u,static_cast<unsigned>(amount*5));
+    const double position=std::clamp(beat,-1.e12,1.e12)*rates[region];
+    const double phase=position-std::floor(position);float wave=1;
+    switch(settings.waveform[2]) {
+        case 0:wave=static_cast<float>(.5-.5*std::cos(2*pi*phase));break;
+        case 1:wave=static_cast<float>(phase);break;
+        case 2:wave=phase<.5?1.f:0.f;break;
+        case 3: {
+            double cycle=std::fmod(std::floor(position),4294967296.);if(cycle<0)cycle+=4294967296.;
+            uint32_t hash=static_cast<uint32_t>(cycle)^0x9e3779b9u;hash^=hash>>16;hash*=0x7feb352du;hash^=hash>>15;
+            wave=(hash&65535u)/65535.f;break;
+        }
+        default:wave=1-std::clamp(sidechainEnvelope*4,0.f,1.f);break;
+    }
+    return 1-amount*(1-wave);
 }
 void SceneProcessor::updateRoom() noexcept {
     constexpr float timeFactors[]{.5f,1,2};
@@ -78,26 +104,28 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
     const auto delayed=echo.read(delay);
     sidechainEnvelope+=(sidechain-sidechainEnvelope)*(sidechain>sidechainEnvelope?sideAttack:sideRelease);
     float cutoff=sweep(macro);
+    if(type==2) {noiseCutoff+=(sweep(macro,90,12500)-noiseCutoff)*noiseCutoffSlew;cutoff=noiseCutoff;}
     if(type==6)cutoff=sweep(1-macro);
     if(type==1)cutoff=sweep(settings.echoFilter==2?sub2:1-sub2);
     if(type==4)cutoff=sweep(sub2,25,10000);
     if(type==9)cutoff=sweep(1-sub2);
     constexpr float widthQ[]{2,.8f,.5f};
     float q=widthQ[std::clamp(settings.width[type],0,2)];
+    if(type==2) {constexpr float noiseQ[]{2.8f,1.6f,.9f};q=noiseQ[std::clamp(settings.width[2],0,2)];}
     if(resonance) {const int character=settings.resonance[type];if(character!=2)q+=sub2*(character==1?1.3f:7.3f);}
     if((frame&31u)==0||previousCutoff<0) {
         if(cutoff!=previousCutoff||q!=previousQ) {mainFilter.configure(cutoff,q,rate);previousCutoff=cutoff;previousQ=q;}
         // ECHO Sub2 is a filter cutoff, not a feedback/resonance surrogate.
         if(type==1&&(cutoff!=previousEchoCutoff||q!=previousQ)) {echoFilter.configure(cutoff,q,rate);previousEchoCutoff=cutoff;}
     }
-    if((type==2||type==7)&&((frame&31u)==0||previousEchoCutoff<0)) {
+    if((type==2||type==7)&&((frame&(type==2?7u:31u))==0||previousEchoCutoff<0)) {
         const float auxCutoff=type==2?cutoff:std::min(12000.f,static_cast<float>(rate*.4));
         echoFilter.configure(auxCutoff,q,rate);previousEchoCutoff=auxCutoff;
     }
     Stereo result=input,send=input;
     constexpr float characters[]{.65f,1.f,1.45f};
     const float feedback=std::min(.96f,settings.feedback*characters[std::clamp(settings.feedbackCharacter[type],0,2)]);
-    const float modGain=modulated&&!resonance?modulation(sub2,beat):1;
+    const float modGain=modulated&&!resonance&&type!=2?modulation(sub2,beat):1;
     if(type==4||type==9) {
         roomSide=type==9?1:0;
         const auto wetRoom=reverb(input*(enabled*activation));
@@ -131,15 +159,24 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
             send=echoFilter.process(crushed).low;
         }
         if(type==2) {
-            const float n=noise()*.35f;const auto generated=echoFilter.process({n,n});
-            send=generated.band*(1/q);
+            const float n=noise()*.28f;const auto generated=echoFilter.process({n,n});
+            // Partial energy compensation keeps a sweep from becoming a sudden
+            // blast of treble. Resonance still changes the contour audibly.
+            const float compensation=std::clamp(std::sqrt(1200.f/cutoff),.45f,2.f);
+            send=noisePolish.process(generated.band).low*(compensation/std::sqrt(q));
             const auto tilt=noiseTilt.process(send);
             send=mix(send,settings.noiseColor<.5f?tilt.low:tilt.high,std::abs(settings.noiseColor-.5f)*2);
             constexpr float minima[]{-1000,-18,-12,-6},maxima[]{0,3,6,9};
             const float position=sub1/7,minimum=minima[std::clamp(settings.noiseMinimum,0,3)],maximum=maxima[std::clamp(settings.noiseMaximum,0,3)];
-            const float volume=settings.noiseMinimum==0?position*db(maximum):db(minimum+(maximum-minimum)*position);
-            send=send*(volume*modGain*activation);
-            result=input+(send+delayed*.5f)*enabled;
+            const float volume=settings.noiseMinimum==0?position*position*db(maximum):db(minimum+(maximum-minimum)*position);
+            noiseModGain+=((resonance?1.f:noiseModulation(sub2,beat))-noiseModGain)*noiseModSlew;
+            send=send*(volume*noiseModGain*activation);
+            // Ignore a previous effect's shared delay contents until this
+            // effect has written one delay length. No delay-buffer clear in IO.
+            const Stereo returned=noiseAge>=static_cast<uint64_t>(delay)?delayed:Stereo{};
+            noiseReturn=noiseReturn+(returned-noiseReturn)*noiseReturnAlpha;
+            result=input+(send+noiseReturn*.4f)*enabled;
+            ++noiseAge;
         } else if(type==1) {
             const auto wetFiltered=echoFilter.process(delayed);
             const auto wet=settings.echoFilter==2?wetFiltered.high:settings.echoFilter==1?wetFiltered.band*(1/q):wetFiltered.low;
@@ -148,7 +185,7 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
         else result=mix(input,send*modGain+delayed*(macro*modGain),macro*enabled);
         // HOLD freezes the currently circulating echo at the full macro end.
         const bool hold=type==1&&settings.echoFeedbackMode==0&&macro>.985f;
-        echo.push(hold?delayed:bounded(send*(enabled*activation)+delayed*feedback));
+        echo.push(type==2?bounded(send*enabled+noiseReturn*feedback):hold?delayed:bounded(send*(enabled*activation)+delayed*feedback));
         spiral.push({});(void)reverb({});
     }
     ++frame;return result;

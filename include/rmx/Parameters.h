@@ -17,7 +17,7 @@ enum class Param : uint16_t {
     LowCrossover, HighCrossover, Feedback, ReverbDecay, NoiseColor,
     Swing,SamplerMute,UserSettings,ReleaseKeepScene,ReleaseKeepIsolate,ReleaseKeepSampler,IsolateMinLow,IsolateMinMid,IsolateMinHigh,IsolateMaxLow,IsolateMaxMid,IsolateMaxHigh,CutKickStrength,CutHpfResonance,CutLpfResonance,AddPatternLow,AddPatternMid,AddPatternHigh,TransPatternLow,TransPatternMid,TransPatternHigh,BandRollPatternLow,BandRollPatternMid,BandRollPatternHigh,GateDepthLow,GateDepthMid,GateDepthHigh,DriveDepthLow,DriveDepthMid,DriveDepthHigh,BpfModMode,BpfWave,BpfResonance,BpfFeedbackChar,HpfModMode,HpfWave,HpfResonance,HpfFeedbackChar,LpfModMode,LpfWave,LpfResonance,LpfFeedbackChar,BpfWidth,CrushWave,CrushWidth,CrushFeedbackChar,NoiseModMode,NoiseWave,NoiseResonance,NoiseWidth,NoiseMinimum,NoiseMaximum,EchoFilter,EchoFeedbackMode,EchoFeedbackChar,SpiralUpPitchMode,SpiralUpTimeSpan,SpiralUpFeedbackChar,SpiralDownPitchMode,SpiralDownTimeSpan,SpiralDownFeedbackChar,ReverbUpRoomSize,ReverbUpTime,ReverbDownRoomSize,ReverbDownTime,
     BpfDelay1, BpfDelay2, BpfDelay3, BpfDelay4, EchoDelay1, EchoDelay2, EchoDelay3, EchoDelay4, SpiralUpDelay1, SpiralUpDelay2, SpiralUpDelay3, SpiralUpDelay4, HpfDelay1, HpfDelay2, HpfDelay3, HpfDelay4, LpfDelay1, LpfDelay2, LpfDelay3, LpfDelay4, CrushDelay1, CrushDelay2, CrushDelay3, CrushDelay4, SpiralDownDelay1, SpiralDownDelay2, SpiralDownDelay3, SpiralDownDelay4, EchoWidth, ReverbUpFilter, ReverbDownFilter, SampleSource,
-    XPadBeat1, XPadBeat2, XPadBeat3, XPadBeat4, XPadBeat5, XPadBeat6, XPadBeat7, XPadBeat8, Count
+    XPadBeat1, XPadBeat2, XPadBeat3, XPadBeat4, XPadBeat5, XPadBeat6, XPadBeat7, XPadBeat8, KickGain, SnareGain, ClapGain, HatGain, KickDecay, SnareDecay, ClapDecay, HatDecay, KickEnvelope, SnareEnvelope, ClapEnvelope, HatEnvelope, PitchDownRange, PitchUpRange, Count
 };
 inline constexpr size_t parameterCount = static_cast<size_t>(Param::Count);
 struct ParameterInfo { std::string_view id, name; float min, max, initial; bool discrete; bool advanced{}; };
@@ -41,7 +41,7 @@ inline constexpr std::array<ParameterInfo, parameterCount> parameters {{
     {"high", "High", -1, 1, 0, false},
     {"isolate_source", "Isolator source", 0, 3, 2, true},
     {"x_level", "Sampler level", 0, 1.5f, 0.75f, false},
-    {"x_pitch", "Sampler pitch", -24, 24, 0, false},
+    {"x_pitch", "Sampler pitch travel", -24, 24, 0, false},
     {"x_roll", "X-Pad position", 0, 7, 3, true},
     {"x_hold", "Roll hold", 0, 1, 0, true},
     {"x_source", "X-Pad source", 0, 1, 0, true},
@@ -159,7 +159,21 @@ inline constexpr std::array<ParameterInfo, parameterCount> parameters {{
     {"x_pad_beat_5", "X-Pad position 5 beat", 0, 15, 10, true, true},
     {"x_pad_beat_6", "X-Pad position 6 beat", 0, 15, 11, true, true},
     {"x_pad_beat_7", "X-Pad position 7 beat", 0, 15, 13, true, true},
-    {"x_pad_beat_8", "X-Pad position 8 beat", 0, 15, 14, true, true}
+    {"x_pad_beat_8", "X-Pad position 8 beat", 0, 15, 14, true, true},
+    {"kick_gain", "Kick gain", -3, 3, 0, true, true},
+    {"snare_gain", "Snare gain", -3, 3, 0, true, true},
+    {"clap_gain", "Clap gain", -3, 3, 0, true, true},
+    {"hat_gain", "Hi-hat gain", -3, 3, 0, true, true},
+    {"kick_decay", "Kick decay", 0, 2, 1, true, true},
+    {"snare_decay", "Snare decay", 0, 2, 1, true, true},
+    {"clap_decay", "Clap decay", 0, 2, 1, true, true},
+    {"hat_decay", "Hi-hat decay", 0, 2, 1, true, true},
+    {"kick_envelope", "Kick envelope", 0, 1, 0, true, true},
+    {"snare_envelope", "Snare envelope", 0, 1, 0, true, true},
+    {"clap_envelope", "Clap envelope", 0, 1, 0, true, true},
+    {"hat_envelope", "Hi-hat envelope", 0, 1, 0, true, true},
+    {"pitch_down_range", "Pitch down range (semitones)", 1, 24, 24, true, true},
+    {"pitch_up_range", "Pitch up range (semitones)", 1, 24, 24, true, true}
 }};
 inline constexpr std::array<std::string_view, 10> sceneNames {"BPF Echo", "Echo", "Noise", "Spiral Up", "Reverb Up", "HPF Echo", "LPF Echo", "Crush Echo", "Spiral Down", "Reverb Down"};
 inline constexpr std::array<std::string_view, 4> isolateNames {"Isolate", "Cut / Add", "Trans / Roll", "Gate / Drive"};
@@ -193,12 +207,15 @@ inline constexpr std::array<std::string_view,3> strengthNames{"Mild","Default","
 inline constexpr std::array<std::string_view,2> switchNames{"Off","On"};
 inline constexpr std::array<std::string_view,2> modModeNames{"Modulation","Resonance"},feedbackModeNames{"Hold","DJM"},pitchModeNames{"Linear","Key"},roomNames{"Large","Small"};
 inline constexpr std::array<std::string_view,3> resonanceNames{"Default","Mild","None"},widthNames{"Narrow","Normal","Wide"},filterNames{"Low-pass","Band-pass","High-pass"},timeNames{"Short","Default","Long"};
+inline constexpr std::array<std::string_view,2> envelopeNames{"Type 1","Type 2"};
 inline constexpr std::array<std::string_view,5> waveNames{"Triangle","Saw","Square","Random","Side-chain"};
 inline constexpr std::array<std::string_view,4> noiseMinNames{"Off","-18 dB","-12 dB","-6 dB"};
 inline constexpr std::array<std::string_view,2> settingNames{"Default","User"},sampleSourceNames{"Samples","Input Roll"};
 inline constexpr std::array<std::string_view,4> sourceNames{"Input","X-Pad","Both","Neither"},bankNames{"Bank 1","Bank 2","Bank 3","Bank 4"};
 inline constexpr std::array<std::string_view,2> drumSourceNames{"Internal drums","Bank samples"};
 inline std::span<const std::string_view> parameterChoices(Param p) noexcept {
+    if(p>=Param::KickDecay&&p<=Param::HatDecay)return timeNames;
+    if(p>=Param::KickEnvelope&&p<=Param::HatEnvelope)return envelopeNames;
     if(p==Param::UserSettings)return settingNames;
     if(p==Param::SceneType)return sceneNames;
     if(p==Param::IsolateMode)return isolateNames;

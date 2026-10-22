@@ -21,7 +21,7 @@ SampleBank makeFactoryBank(double rate=48000,bool fillSampleBanks=true);
 enum class EventType : uint8_t { Trigger, RollStart, RollStop, Tap, ClearSequence, Panic, MutePad, DeletePad, Nudge, NudgeStart, NudgeStop,SelectPad };
 struct Event { EventType type{}; uint8_t pad{}; float velocity{1}; uint32_t offset{};uint8_t bank{255},source{255}; };
 struct Transport { double bpm{120}; double beat{}; bool synced{}, playing{true}; };
-struct MeterState { std::atomic<float> input{}, output{}, tempo{120}, confidence{}, load{}; std::atomic<uint32_t> droppedEvents{}; std::atomic<unsigned> sequenceSteps{}, padMuteMask{}; };
+struct MeterState { std::atomic<float> input{}, output{}, tempo{120}, confidence{}, load{},protectionGain{1}; std::atomic<uint32_t> droppedEvents{}; std::atomic<unsigned> sequenceSteps{}, padMuteMask{}; };
 
 // One producer (UI or the adapter's merged event source), one audio consumer.
 template<class T, size_t Capacity> class SpscQueue {
@@ -64,7 +64,7 @@ private:
     Stereo rollInput{};
     std::array<Isolator,2> isolators;
     std::pmr::vector<Stereo> capturedRoll; size_t capturedLength{},captureCopied{}; double capturePosition{};
-    struct Voice { int slot{-1}; double position{}; float velocity{}; uint32_t age{}; LoopStretch stretch; };
+    struct Voice { int slot{-1}; double position{}; float velocity{}; uint32_t age{}; LoopStretch stretch; float envelope{1},envelopeStep{1},punch{},punchStep{}; };
     std::array<Voice,32> voices{};
     Sequencer sequence;
     SpscQueue<Event,256> queue;
@@ -77,6 +77,7 @@ private:
     std::array<double,4> tapIntervals{}; size_t tapCount{},tapIndex{}; bool tapped{};
     bool previousRelease{}, previousOverdub{}, sourceRoll{},wasExternalSync{};
     float smoothing{},bypassMix{},sceneMix{},releaseMix{},rollInputMix{};
+    float protectionGain{1},protectionRelease{};
     float isolateInputMix{1},isolatePadMix{1},sceneInputMix{1},scenePadMix{1};
     TempoTracker tempoTracker;
     float get(Param x) const noexcept { return p[static_cast<size_t>(x)]; }
