@@ -24,7 +24,8 @@ void text(NSString* s,NSRect r,CGFloat size,NSColor* c,bool bold=false,NSTextAli
 }
 NSString* str(std::string_view s) { return [[NSString alloc] initWithBytes:s.data() length:s.size() encoding:NSUTF8StringEncoding]; }
 NSString* valueText(Param p,float v) {
-    if(p==Param::SceneTime||p==Param::XRoll) return str(rmx::beatNames[static_cast<size_t>(v)]);
+    if(p==Param::SceneTime) return [NSString stringWithFormat:@"%.0f%%",v/7*100];
+    if(p==Param::XRoll) return str(rmx::xPadPositionNames[static_cast<size_t>(rmx::sanitize(p,v))]);
     if(p==Param::Tempo) return [NSString stringWithFormat:@"%.1f",v];
     if(p==Param::ReleaseTime) return [NSString stringWithFormat:@"%.2f beats",v];
     if(p==Param::XPitch) return [NSString stringWithFormat:@"%+.1f st",v];
@@ -35,15 +36,6 @@ NSString* valueText(Param p,float v) {
 }
 using Kind=rmx::panel::Kind;
 struct Control { NSRect rect; Kind kind; Param param; std::string label; float value{}; int action{}; };
-NSImage* restyle(NSImage* source) {
-    CGImageRef original=[source CGImageForProposedRect:nullptr context:nil hints:nil];
-    const size_t w=CGImageGetWidth(original),h=CGImageGetHeight(original);
-    std::vector<uint8_t> pixels(w*h*4); CGColorSpaceRef rgb=CGColorSpaceCreateDeviceRGB();
-    CGContextRef context=CGBitmapContextCreate(pixels.data(),w,h,8,w*4,rgb,static_cast<CGBitmapInfo>(kCGImageAlphaPremultipliedLast)|kCGBitmapByteOrder32Big);
-    CGContextDrawImage(context,CGRectMake(0,0,w,h),original);
-    for(size_t i=0;i<w*h;++i) { auto* pixel=&pixels[i*4]; const auto mapped=rmx::panel::skinColor(pixel[0]/255.f,pixel[1]/255.f,pixel[2]/255.f); for(size_t c=0;c<3;++c) pixel[c]=static_cast<uint8_t>(std::clamp(mapped[c],0.f,1.f)*255); }
-    CGImageRef image=CGBitmapContextCreateImage(context); NSImage* result=[[NSImage alloc] initWithCGImage:image size:source.size]; CGImageRelease(image); CGContextRelease(context); CGColorSpaceRelease(rgb); return result;
-}
 std::filesystem::path sessionPath() {
     NSString* folder=[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,NSUserDomainMask,YES) firstObject];
     auto path=std::filesystem::path(folder.UTF8String)/"RMX"; std::filesystem::create_directories(path); return path/"session.rmx";
@@ -77,7 +69,7 @@ std::filesystem::path sessionPath() {
     std::vector<AudioDevice> devices;
     std::vector<MidiSource> sources;
     NSPopUpButton *inputMenu,*outputMenu,*inputPair,*outputPair,*bufferMenu,*midiMenu;
-    NSButton *startButton;
+    NSButton *startButton,*linkButton;
     NSTextField *deviceStatus;
     int dragging;
     float dragStart;
@@ -172,8 +164,7 @@ std::filesystem::path sessionPath() {
     if((self=[super initWithFrame:NSMakeRect(0,0,1280,575.625)])) {
         engineOwner=e; hostOwner=h; bankOwner=b; engine=e.get(); host=h.get(); bank=b.get(); audioQueue=dispatch_queue_create("nz.axelmckenna.rmx.audio-control",DISPATCH_QUEUE_SERIAL); audioStarting=NO; dragging=-1; selectedPad=0; editSlot=0; message=@"Select audio devices, then start. Space: bypass · 1–4: drums · T: tap · Esc: reset";
         self.wantsLayer=YES; self.layer.backgroundColor=color(.035,.043,.055).CGColor;
-        panelImage=[[NSImage alloc] initWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"rmx-1000_1" ofType:@"png"]];
-        panelImage=restyle(panelImage);
+        panelImage=[[NSImage alloc] initWithContentsOfFile:[NSBundle.mainBundle pathForResource:@"panel" ofType:@"png"]];
         for(const auto& c:rmx::panel::controls()) controls.push_back({{c.rect.x,c.rect.y,c.rect.w,c.rect.h},c.kind,c.param,c.label,c.value,c.action});
         [self installAccessibleControls];
         setupPanel=[[NSPanel alloc] initWithContentRect:{0,0,1280,220} styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskClosable backing:NSBackingStoreBuffered defer:NO];
@@ -184,6 +175,8 @@ std::filesystem::path sessionPath() {
         inputPair=popup({371,52,115,25},nullptr); outputPair=popup({371,90,115,25},nullptr);
         bufferMenu=popup({563,52,100,25},nullptr); for(auto v:{64,128,256,512,1024}) [bufferMenu addItemWithTitle:[NSString stringWithFormat:@"%d",v]]; [bufferMenu selectItemAtIndex:1];
         midiMenu=popup({742,52,270,25},@selector(midiChanged:));
+        linkButton=[NSButton checkboxWithTitle:AudioHost::linkAvailable()?@"Ableton Link":@"Ableton Link (SDK not included)" target:self action:@selector(linkChanged:)];
+        linkButton.frame={505,13,320,25};linkButton.enabled=AudioHost::linkAvailable();[setupPanel.contentView addSubview:linkButton];
         startButton=[[NSButton alloc] initWithFrame:{1040,48,188,34}]; startButton.bezelStyle=NSBezelStyleRounded; startButton.title=@"START AUDIO"; startButton.target=self; startButton.action=@selector(startAudio:); [setupPanel.contentView addSubview:startButton];
         NSButton* refresh=[[NSButton alloc] initWithFrame:{1040,90,188,27}]; refresh.bezelStyle=NSBezelStyleRounded; refresh.title=@"Refresh devices"; refresh.target=self; refresh.action=@selector(refreshClicked:); [setupPanel.contentView addSubview:refresh];
         deviceStatus=[NSTextField labelWithString:@"Audio stopped"]; deviceStatus.frame={520,92,495,34}; deviceStatus.font=[NSFont monospacedSystemFontOfSize:10 weight:NSFontWeightRegular]; deviceStatus.textColor=muted(); [setupPanel.contentView addSubview:deviceStatus];
@@ -192,15 +185,16 @@ std::filesystem::path sessionPath() {
         label(@"Physical: FLX MASTER → stereo interface input → RMX → interface output → speakers. Computer: BlackHole master input, separate physical output.",{24,145,1230,24});
         label(@"Keep headphone cueing on the FLX. Disable interface direct monitoring. Estimated latency must be confirmed with a loopback measurement.",{24,174,1230,24});
         [self refreshDevices];
-        try { state=rmx::State::load(sessionPath()); state.apply(engine->params); for(size_t i=0;i<128;++i) host->cc[i].store(state.cc[i]);
-            for(size_t i=0;i<16;++i) if(!state.samplePaths[i].empty()) { try { bank->slots[i]=rmx::readWav(state.samplePaths[i]); } catch(...) { message=@"A saved sample is missing. Original drum substituted; reimport the sample to restore it."; } }
+        try { auto next=rmx::State::load(sessionPath());auto nextBank=rmx::makeFactoryBank();
+            for(size_t i=0;i<16;++i) if(!next.samplePaths[i].empty()) { try { nextBank.slots[i]=rmx::readWav(next.samplePaths[i]); } catch(...) { message=@"A saved sample is missing. Original drum substituted; reimport the sample to restore it."; } }
+            next.applySamples(nextBank);*bank=std::move(nextBank);state=std::move(next);state.apply(engine->params);for(size_t i=0;i<128;++i)host->cc[i].store(state.cc[i]);
         } catch(...) {}
         timer=[NSTimer scheduledTimerWithTimeInterval:1./30 repeats:YES block:^(NSTimer*) { [self update]; }];
     }
     return self;
 }
 - (void)persist {
-    try { state.capture(engine->params); for(size_t i=0;i<128;++i) state.cc[i]=host->cc[i].load(); state.save(sessionPath()); } catch(const std::exception& e) { message=str(e.what()); }
+    try { state.capture(engine->params);state.captureSamples(*bank); for(size_t i=0;i<128;++i) state.cc[i]=host->cc[i].load(); state.save(sessionPath()); } catch(const std::exception& e) { message=str(e.what()); }
 }
 - (void)refreshDevices {
     const auto oldInput=inputMenu.selectedItem.tag,oldOutput=outputMenu.selectedItem.tag;
@@ -214,6 +208,10 @@ std::filesystem::path sessionPath() {
     host->selectMidiSource(0);
 }
 - (void)refreshClicked:(id)sender { (void)sender; if(!audioStarting) [self refreshDevices]; }
+- (void)linkChanged:(id)sender {
+    (void)sender;
+    host->setLinkEnabled(linkButton.state==NSControlStateValueOn);
+}
 - (void)deviceChanged:(id)sender {
     (void)sender;
     auto fill=[&](NSPopUpButton* selection,NSPopUpButton* pairs,bool input) { const auto id=selection.selectedItem.tag; [pairs removeAllItems]; uint32_t channels=id==0xfffffffe?2:0; for(const auto& d:devices) if(d.id==id) channels=input?d.inputs:d.outputs; for(uint32_t i=0;i+1<channels;i+=2) { [pairs addItemWithTitle:[NSString stringWithFormat:@"Ch %u–%u",i+1,i+2]]; pairs.lastItem.tag=i; } };
@@ -260,6 +258,7 @@ std::filesystem::path sessionPath() {
     if(host->deviceChanged.exchange(false)) { host->stop(); startButton.title=@"START AUDIO"; [self refreshDevices]; message=@"Audio device disconnected or its sample rate changed. Check routing and restart audio."; }
     const float cpu=host->callbackLoad.load()*100;
     deviceStatus.stringValue=host->running()?[NSString stringWithFormat:@"%.0f Hz · CPU %.1f%% · est. I/O %.1f ms\nUnder/overruns %llu/%llu · MIDI drops %llu",host->rate(),cpu,host->latencyMs.load(),host->underruns.load(),host->overruns.load(),host->midiDrops.load()]:@"Audio stopped · presets and samples remain editable";
+    if(host->linkEnabled()) deviceStatus.stringValue=[deviceStatus.stringValue stringByAppendingFormat:@" · Link peers %u",host->linkPeers()];
     const int learned=host->learnedCC.exchange(-1); if(learned>=0) message=[NSString stringWithFormat:@"Learned CC %d. Move the controller through the current knob value to take over.",learned];
     [self setNeedsDisplay:YES];
 }
@@ -294,7 +293,7 @@ std::filesystem::path sessionPath() {
     if(engine->params.get(Param::AutoTempo)>.5f&&engine->meters.confidence.load()<.2f) {
         const float alpha=static_cast<float>(.25+.22*std::sin(NSDate.timeIntervalSinceReferenceDate*5)); box({1101,108,80,39},color(0,0,0,alpha),3);
     }
-    // Selected annular button lights independently of the photographic panel.
+    // Selected annular button lights independently of the static panel artwork.
     if(engine->params.get(Param::SceneOn)>.5f) {
         const int selected=static_cast<int>(engine->params.get(Param::SceneType)); const CGFloat begin=selected<5?-153+selected*25.2:127.8-(selected-5)*25.2;
         NSBezierPath* wedge=[NSBezierPath bezierPath]; const CGFloat end=begin+25.2; const CGFloat rad=begin*3.141592653589793/180;
@@ -314,7 +313,12 @@ std::filesystem::path sessionPath() {
     }
     // Bank indicators and the touch-strip light follow the actual engine state.
     const int currentBank=static_cast<int>(engine->params.get(Param::Bank));
-    for(int i=0;i<4;++i) if(i!=currentBank) box({488.+i*115,590,30,23},color(0,0,0,.6),3);
+    for(int i=0;i<4;++i) if(engine->params.get(Param::SampleSource)<.5f||i!=currentBank) box({488.+i*115,590,30,23},color(0,0,0,.6),3);
+    const auto stripValues=engine->params.snapshot();
+    for(unsigned position=0;position<8;++position) {
+        box({475.+position*51,773,47,24},color(.025,.028,.032),3);
+        text(str(rmx::xPadBeatNames[rmx::xPadBeatChoice(stripValues,static_cast<float>(position))]),{475.+position*51,775,47,20},14,cyan(),true,NSTextAlignmentCenter);
+    }
     if(dragging>=0&&controls[static_cast<size_t>(dragging)].kind==Kind::Strip) { const int division=static_cast<int>(engine->params.get(Param::XRoll)); box({475.+division*51,742,47,76},color(.55,.73,1,.22),4); }
     const float lever=engine->params.get(Param::ReleaseAmount);
     if(lever>.005f) { box({1884,430,113,105},color(.015,.015,.015),4); NSGradient* gradient=[[NSGradient alloc] initWithStartingColor:color(.25,.25,.25) endingColor:color(.045,.045,.045)]; NSBezierPath* handle=[NSBezierPath bezierPathWithRoundedRect:{1891,435+lever*62,99,30} xRadius:10 yRadius:10]; [gradient drawInBezierPath:handle angle:90]; }
@@ -340,8 +344,9 @@ std::filesystem::path sessionPath() {
     for(size_t i=0;i<controls.size();++i) {
         auto& c=controls[i]; if(!NSPointInRect(point,c.rect)) continue;
         if(c.kind==Kind::Pad) selectedPad=static_cast<int>(c.value);
+        if(c.action==7) { dragging=static_cast<int>(i); [self sendEvent:rmx::Event{rmx::EventType::NudgeStart,0,c.value}]; return; }
         rmx::panel::Control model{{static_cast<float>(c.rect.origin.x),static_cast<float>(c.rect.origin.y),static_cast<float>(c.rect.size.width),static_cast<float>(c.rect.size.height)},c.kind,c.param,c.label,c.value,c.action};
-        const bool handled=rmx::panel::activate(model,[&](Param p){ return engine->params.get(p); },[&](Param p,float v){ [self change:p value:v]; },[&](rmx::Event e){ [self sendEvent:e]; },event.modifierFlags&NSEventModifierFlagShift);
+        const bool handled=rmx::panel::activate(model,[&](Param p){ return engine->params.get(p); },[&](Param p,float v){ [self change:p value:v]; },[&](rmx::Event e){ [self sendEvent:e]; },event.modifierFlags&NSEventModifierFlagShift,event.modifierFlags&NSEventModifierFlagOption);
         if(handled) { [self setNeedsDisplay:YES]; return; }
         if(c.kind==Kind::Action) { if(c.action==1) [self settings:nil]; }
         else if(c.kind==Kind::Knob&&event.clickCount==2) { [self editNumeric:c.param]; }
@@ -361,7 +366,7 @@ std::filesystem::path sessionPath() {
     [self setNeedsDisplay:YES];
 }
 - (void)mouseUp:(NSEvent*)event {
-    (void)event; if(dragging>=0) { auto& c=controls[static_cast<size_t>(dragging)]; if(c.kind==Kind::Lever) [self change:c.param value:0]; if(c.kind==Kind::Strip) engine->enqueue({rmx::EventType::RollStop}); } dragging=-1;
+    (void)event; if(dragging>=0) { auto& c=controls[static_cast<size_t>(dragging)]; if(c.action==7) [self sendEvent:rmx::Event{rmx::EventType::NudgeStop}]; if(c.kind==Kind::Lever) [self change:c.param value:0]; if(c.kind==Kind::Strip) engine->enqueue({rmx::EventType::RollStop}); } dragging=-1;
 }
 - (void)scrollWheel:(NSEvent*)event {
     const NSPoint point=[self surfacePoint:event];
@@ -389,7 +394,7 @@ std::filesystem::path sessionPath() {
 }
 - (void)savePreset:(id)sender {
     (void)sender; NSSavePanel* panel=[NSSavePanel savePanel]; panel.nameFieldStringValue=@"Performance.rmx";
-    if([panel runModal]==NSModalResponseOK) { try { state.capture(engine->params); for(size_t i=0;i<128;++i) state.cc[i]=host->cc[i].load(); state.save(panel.URL.fileSystemRepresentation); message=@"Preset saved with sample references and MIDI mappings."; } catch(const std::exception& e) { message=str(e.what()); } }
+    if([panel runModal]==NSModalResponseOK) { try { state.capture(engine->params);state.captureSamples(*bank); for(size_t i=0;i<128;++i) state.cc[i]=host->cc[i].load(); state.save(panel.URL.fileSystemRepresentation); message=@"Preset saved with sample references and MIDI mappings."; } catch(const std::exception& e) { message=str(e.what()); } }
 }
 - (void)loadPreset:(id)sender {
     (void)sender; if(audioStarting) return; NSOpenPanel* panel=[NSOpenPanel openPanel]; panel.allowsMultipleSelection=NO; panel.canChooseDirectories=NO;
@@ -397,6 +402,7 @@ std::filesystem::path sessionPath() {
     try {
         auto next=rmx::State::load(panel.URL.fileSystemRepresentation); auto newBank=rmx::makeFactoryBank(); std::string missing;
         for(size_t i=0;i<16;++i) if(!next.samplePaths[i].empty()) { try { newBank.slots[i]=rmx::readWav(next.samplePaths[i]); } catch(const std::exception&) { missing+=" "+std::to_string(i+1); } }
+        next.applySamples(newBank);
         const bool restart=host->running(); host->stop(); *bank=std::move(newBank); state=std::move(next); state.apply(engine->params); for(size_t i=0;i<128;++i) host->cc[i].store(state.cc[i]);
         if(restart) [self startAudio:nil];
         message=missing.empty()?@"Preset restored.":str("Missing samples in slots"+missing+". Factory sounds substituted.");
@@ -404,9 +410,9 @@ std::filesystem::path sessionPath() {
 }
 - (void)importSample:(id)sender {
     (void)sender; if(audioStarting) return; NSOpenPanel* panel=[NSOpenPanel openPanel]; panel.allowedContentTypes=@[UTTypeWAV]; panel.allowsMultipleSelection=NO; panel.canChooseDirectories=NO;
-    panel.message=[NSString stringWithFormat:@"Import into bank %d, %@. WAV mono/stereo, up to 30 seconds.",static_cast<int>(engine->params.get(Param::Bank))+1,str(rmx::drumNames[static_cast<size_t>(selectedPad)])];
+    panel.message=[NSString stringWithFormat:@"Import into bank %d, %@. Each bank holds at most 16 seconds total.",static_cast<int>(engine->params.get(Param::Bank))+1,str(rmx::drumNames[static_cast<size_t>(selectedPad)])];
     if([panel runModal]!=NSModalResponseOK) return;
-    try { auto sample=rmx::readWav(panel.URL.fileSystemRepresentation); const size_t slot=static_cast<size_t>(engine->params.get(Param::Bank))*4+selectedPad; const bool restart=host->running(); host->stop(); bank->slots[slot]=std::move(sample); state.samplePaths[slot]=panel.URL.fileSystemRepresentation; if(restart) [self startAudio:nil]; [self persist]; message=@"Sample imported. Audio was briefly suspended to install the new asset safely."; }
+    try { auto sample=rmx::readWav(panel.URL.fileSystemRepresentation); const size_t slot=static_cast<size_t>(engine->params.get(Param::Bank))*4+selectedPad; if(!rmx::sampleFitsBank(*bank,slot,sample))throw std::runtime_error("Sample would exceed this bank's 16-second total"); const bool restart=host->running(); host->stop(); bank->slots[slot]=std::move(sample);engine->params.set(Param::SampleSource,1); state.samplePaths[slot]=panel.URL.fileSystemRepresentation; if(restart) [self startAudio:nil]; [self persist]; message=@"Sample imported. Audio was briefly suspended to install the new asset safely."; }
     catch(const std::exception& e) { message=str(e.what()); }
 }
 - (void)editSample:(id)sender {
@@ -415,37 +421,77 @@ std::filesystem::path sessionPath() {
     const double duration=original.frames.size()/original.rate;
     NSAlert* dialog=[NSAlert new]; dialog.messageText=@"Edit selected sample";
     dialog.informativeText=[NSString stringWithFormat:@"Bank %d · %@ · %.3f seconds. Edits create a new managed WAV.",static_cast<int>(slot/4)+1,str(rmx::drumNames[slot%4]),duration];
-    NSView* form=[[NSView alloc] initWithFrame:{0,0,400,150}];
-    NSTextField* begin=[[NSTextField alloc] initWithFrame:{200,112,150,24}]; begin.stringValue=@"0";
-    NSTextField* end=[[NSTextField alloc] initWithFrame:{200,78,150,24}]; end.stringValue=[NSString stringWithFormat:@"%.6f",duration];
-    for(int i=0;i<2;++i) { NSTextField* label=[NSTextField labelWithString:i?@"End (seconds)":@"Start (seconds)"]; label.frame={0,112.-i*34,190,24}; [form addSubview:label]; }
+    NSView* form=[[NSView alloc] initWithFrame:{0,0,400,230}];
+    NSTextField* begin=[[NSTextField alloc] initWithFrame:{200,192,150,24}]; begin.stringValue=@"0";
+    NSTextField* end=[[NSTextField alloc] initWithFrame:{200,158,150,24}]; end.stringValue=[NSString stringWithFormat:@"%.6f",duration];
+    for(int i=0;i<2;++i) { NSTextField* label=[NSTextField labelWithString:i?@"End (seconds)":@"Start (seconds)"]; label.frame={0,192.-i*34,190,24}; [form addSubview:label]; }
     [form addSubview:begin]; [form addSubview:end];
+    NSButton* loop=[NSButton checkboxWithTitle:@"Loop (slot 1 only)" target:nil action:nil];loop.frame={0,112,380,25};loop.enabled=slot%4==0;loop.state=original.playback.loop?NSControlStateValueOn:NSControlStateValueOff;[form addSubview:loop];
+    NSTextField* bpm=[[NSTextField alloc] initWithFrame:{200,78,150,24}];bpm.stringValue=[NSString stringWithFormat:@"%.3f",original.playback.bpm];[form addSubview:bpm];
+    NSTextField* bpmLabel=[NSTextField labelWithString:@"Sample BPM (70–200)"];bpmLabel.frame={0,78,190,24};[form addSubview:bpmLabel];
     NSButton* normalize=[NSButton checkboxWithTitle:@"Normalize peak to −0.45 dBFS" target:nil action:nil]; normalize.frame={0,40,380,25}; [form addSubview:normalize];
     NSButton* reverse=[NSButton checkboxWithTitle:@"Reverse" target:nil action:nil]; reverse.frame={0,5,380,25}; [form addSubview:reverse];
     dialog.accessoryView=form; [dialog addButtonWithTitle:@"Apply"]; [dialog addButtonWithTitle:@"Cancel"];
     if([dialog runModal]!=NSAlertFirstButtonReturn) return;
+    double sampleBpm=0;NSScanner* scanner=[NSScanner scannerWithString:bpm.stringValue];
+    if(![scanner scanDouble:&sampleBpm]||!scanner.isAtEnd||!rmx::validSamplePlayback(slot,{sampleBpm,loop.state==NSControlStateValueOn})) {message=@"Use sample BPM 70–200. Loop mode is available only in slot 1.";return;}
     const double a=begin.doubleValue,b=end.doubleValue;
     if(!std::isfinite(a)||!std::isfinite(b)||a<0||b>duration+.000001||b<=a||b-a<.001) { message=@"Invalid trim. Use a start before the end, inside the sample."; return; }
     try {
-        rmx::Sample edited; edited.rate=original.rate;
+        rmx::Sample edited; edited.rate=original.rate;edited.playback={sampleBpm,loop.state==NSControlStateValueOn};
         const size_t first=static_cast<size_t>(a*original.rate),last=std::min(original.frames.size(),static_cast<size_t>(std::round(b*original.rate)));
         edited.frames.assign(original.frames.begin()+static_cast<std::ptrdiff_t>(first),original.frames.begin()+static_cast<std::ptrdiff_t>(last));
         if(reverse.state==NSControlStateValueOn) std::reverse(edited.frames.begin(),edited.frames.end());
         if(normalize.state==NSControlStateValueOn) { float peak=0; for(auto x:edited.frames) peak=std::max({peak,std::abs(x.l),std::abs(x.r)}); if(peak>1.e-8f) for(auto& x:edited.frames) x=x*(.95f/peak); }
+        if(!rmx::sampleFitsBank(*bank,slot,edited))throw std::runtime_error("Sample would exceed this bank's 16-second total");
         const auto folder=sessionPath().parent_path()/"Samples"; std::filesystem::create_directories(folder);
         const auto file=folder/("slot-"+std::to_string(slot)+"-"+std::to_string(static_cast<uint64_t>(NSDate.timeIntervalSinceReferenceDate*1000))+".wav"); rmx::writeWav(file,edited);
-        const bool restart=host->running(); host->stop(); bank->slots[slot]=std::move(edited); state.samplePaths[slot]=file.string(); if(restart) [self startAudio:nil]; [self persist]; message=@"Edited sample saved and installed.";
+        const bool restart=host->running(); host->stop(); bank->slots[slot]=std::move(edited);engine->params.set(Param::SampleSource,1); state.samplePaths[slot]=file.string(); if(restart) [self startAudio:nil]; [self persist]; message=@"Edited sample saved and installed.";
     } catch(const std::exception& e) { message=str(e.what()); }
 }
 - (void)settings:(id)sender {
     (void)sender;
-    NSAlert* dialog=[NSAlert new]; dialog.messageText=@"Engine settings"; dialog.informativeText=@"Double-click knobs for exact values. Settings use the same parameter IDs as the plugin and future hardware.";
-    NSView* form=[[NSView alloc] initWithFrame:{0,0,460,365}]; NSMutableArray<NSTextField*>* fields=[NSMutableArray array];
-    const std::array<Param,9> editable{Param::InputGain,Param::OutputGain,Param::LowCrossover,Param::HighCrossover,Param::Feedback,Param::ReverbDecay,Param::NoiseColor,Param::Swing,Param::ReleaseTime};
-    for(size_t i=0;i<editable.size();++i) { Param p=editable[i]; auto& info=rmx::parameters[static_cast<size_t>(p)]; NSTextField* label=[NSTextField labelWithString:str(info.name)]; label.frame={0,330.-i*33,260,23}; [form addSubview:label]; NSTextField* field=[[NSTextField alloc] initWithFrame:{280,330.-i*33,150,23}]; field.stringValue=[NSString stringWithFormat:@"%.4g",engine->params.get(p)]; [form addSubview:field]; [fields addObject:field]; }
-    NSButton* wet=[NSButton checkboxWithTitle:@"Wet only for parallel mixer send/return" target:nil action:nil]; wet.frame={0,15,440,24}; wet.state=engine->params.get(Param::WetOnly)>.5f?NSControlStateValueOn:NSControlStateValueOff; [form addSubview:wet];
-    dialog.accessoryView=form; [dialog addButtonWithTitle:@"Apply"]; [dialog addButtonWithTitle:@"Routing guide"]; [dialog addButtonWithTitle:@"Cancel"];
-    auto result=[dialog runModal]; if(result==NSAlertFirstButtonReturn) { for(size_t i=0;i<editable.size();++i) engine->params.set(editable[i],fields[i].floatValue); engine->params.set(Param::UserSettings,1); engine->params.set(Param::WetOnly,wet.state==NSControlStateValueOn?1:0); [self persist]; } else if(result==NSAlertSecondButtonReturn) [self routingGuide:nil];
+    NSAlert* dialog=[NSAlert new]; dialog.messageText=@"User settings";
+    dialog.informativeText=@"Choose effect ranges, patterns and release behavior. Apply selects User; the Default switch restores factory behavior without deleting your choices.";
+    std::vector<Param> editable{Param::InputGain,Param::OutputGain,Param::SampleSource};
+    for(size_t i=0;i<rmx::parameterCount;++i) if(rmx::parameters[i].advanced) editable.push_back(static_cast<Param>(i));
+    const CGFloat contentHeight=editable.size()*32+16;
+    NSView* form=[[NSView alloc] initWithFrame:{0,0,540,440}];
+    NSScrollView* scroll=[[NSScrollView alloc] initWithFrame:{0,45,540,395}]; scroll.hasVerticalScroller=YES; scroll.borderType=NSBezelBorder;
+    NSView* document=[[NSView alloc] initWithFrame:{0,0,520,contentHeight}]; scroll.documentView=document; [form addSubview:scroll];
+    NSMutableArray<NSControl*>* fields=[NSMutableArray array];
+    for(size_t i=0;i<editable.size();++i) {
+        const Param p=editable[i];const auto& info=rmx::parameters[static_cast<size_t>(p)];const CGFloat y=contentHeight-32-i*32;
+        NSTextField* label=[NSTextField labelWithString:str(info.name)]; label.frame={8,y,310,24};[document addSubview:label];
+        const auto choices=rmx::parameterChoices(p);
+        if(!choices.empty()) {
+            NSPopUpButton* choice=[[NSPopUpButton alloc] initWithFrame:{330,y,165,26} pullsDown:NO];
+            for(auto title:choices) [choice addItemWithTitle:str(title)];
+            [choice selectItemAtIndex:static_cast<NSInteger>(engine->params.get(p))]; [document addSubview:choice];[fields addObject:choice];
+        } else {
+            NSTextField* field=[[NSTextField alloc] initWithFrame:{330,y,165,24}]; field.stringValue=[NSString stringWithFormat:@"%.4g",engine->params.get(p)];[document addSubview:field];[fields addObject:field];
+        }
+    }
+    NSButton* wet=[NSButton checkboxWithTitle:@"Wet only for parallel mixer send/return" target:nil action:nil];wet.frame={0,10,530,24};wet.state=engine->params.get(Param::WetOnly)>.5f?NSControlStateValueOn:NSControlStateValueOff;[form addSubview:wet];
+    [document scrollPoint:NSMakePoint(0,std::max(CGFloat(0),contentHeight-395))];
+    dialog.accessoryView=form;[dialog addButtonWithTitle:@"Apply"];[dialog addButtonWithTitle:@"Routing guide"];[dialog addButtonWithTitle:@"Cancel"];
+    const auto result=[dialog runModal];
+    if(result==NSAlertFirstButtonReturn) {
+        std::vector<float> values; values.reserve(editable.size());
+        for(size_t i=0;i<editable.size();++i) {
+            float value=0;NSControl* control=fields[i];
+            if([control isKindOfClass:NSPopUpButton.class]) value=static_cast<float>(((NSPopUpButton*)control).indexOfSelectedItem);
+            else {
+                NSScanner* scanner=[NSScanner scannerWithString:((NSTextField*)control).stringValue];
+                if(![scanner scanFloat:&value]||!scanner.isAtEnd||!std::isfinite(value)) {message=@"Enter finite numeric values. No settings were changed.";return;}
+            }
+            const auto& info=rmx::parameters[static_cast<size_t>(editable[i])];
+            if(value<info.min||value>info.max) {message=[NSString stringWithFormat:@"%@ must be between %.3g and %.3g. No settings were changed.",str(info.name),info.min,info.max];return;}
+            values.push_back(value);
+        }
+        for(size_t i=0;i<editable.size();++i) engine->params.set(editable[i],values[i]);
+        engine->params.set(Param::UserSettings,1);engine->params.set(Param::WetOnly,wet.state==NSControlStateValueOn?1:0);[self persist];
+    } else if(result==NSAlertSecondButtonReturn) [self routingGuide:nil];
 }
 - (void)routingGuide:(id)sender {
     (void)sender; NSAlert* dialog=[NSAlert new]; dialog.messageText=@"FLX4 / FLX6 live audio routing";

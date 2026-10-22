@@ -16,6 +16,25 @@ uint32_t channelCount(AudioDeviceID id,AudioObjectPropertyScope scope) {
     if(AudioObjectGetPropertyData(id,&a,0,nullptr,&size,list)!=noErr) return 0;
     uint32_t channels=0; for(UInt32 i=0;i<list->mNumberBuffers;++i) channels+=list->mBuffers[i].mNumberChannels; return channels;
 }
+uint32_t outputStreamLatency(AudioDeviceID device,uint32_t pair) {
+    AudioObjectPropertyAddress address{kAudioDevicePropertyStreams,kAudioObjectPropertyScopeOutput,kAudioObjectPropertyElementMain};
+    UInt32 bytes=0;
+    if(AudioObjectGetPropertyDataSize(device,&address,0,nullptr,&bytes)!=noErr) return 0;
+    std::vector<AudioStreamID> streams(bytes/sizeof(AudioStreamID));
+    if(AudioObjectGetPropertyData(device,&address,0,nullptr,&bytes,streams.data())!=noErr) return 0;
+    uint32_t firstChannel=0,result=0;
+    for(auto stream:streams) {
+        AudioStreamBasicDescription format{};UInt32 size=sizeof(format);
+        AudioObjectPropertyAddress property{kAudioStreamPropertyVirtualFormat,kAudioObjectPropertyScopeGlobal,kAudioObjectPropertyElementMain};
+        if(AudioObjectGetPropertyData(stream,&property,0,nullptr,&size,&format)!=noErr) continue;
+        if(firstChannel<pair+2&&firstChannel+format.mChannelsPerFrame>pair) {
+            UInt32 frames=0;size=sizeof(frames);property.mSelector=kAudioStreamPropertyLatency;
+            if(AudioObjectGetPropertyData(stream,&property,0,nullptr,&size,&frames)==noErr) result=std::max(result,frames);
+        }
+        firstChannel+=format.mChannelsPerFrame;
+    }
+    return result;
+}
 double deviceRate(AudioDeviceID id) { AudioObjectPropertyAddress a{kAudioDevicePropertyNominalSampleRate,kAudioObjectPropertyScopeGlobal,kAudioObjectPropertyElementMain}; double v=48000; UInt32 size=sizeof(v); AudioObjectGetPropertyData(id,&a,0,nullptr,&size,&v); return v; }
 bool floatFormat(AudioDeviceID id,AudioObjectPropertyScope scope) {
     AudioObjectPropertyAddress a{kAudioDevicePropertyStreamFormat,scope,kAudioObjectPropertyElementMain}; AudioStreamBasicDescription f{}; UInt32 size=sizeof(f);
@@ -53,6 +72,7 @@ std::vector<MidiSource> AudioHost::midiSources() {
     return sources;
 }
 void AudioHost::selectMidiSource(MIDIEndpointRef selected) {
+    midiGeneration.fetch_add(1);resetMidiParser.store(true);
     for(ItemCount i=0;i<MIDIGetNumberOfSources();++i) MIDIPortDisconnectSource(midiInput,MIDIGetSource(i));
     if(selected) MIDIPortConnectSource(midiInput,selected,nullptr);
 }
@@ -123,10 +143,13 @@ bool AudioHost::start(AudioDeviceID input,AudioDeviceID output,uint32_t inPair,u
     if(input&&input!=output) AudioObjectSetPropertyData(input,&bs,0,nullptr,sizeof(bufferFrames),&bufferFrames);
     outputRate=deviceRate(output); inputRate=input?deviceRate(input):outputRate;
     startupStage.store("Preparing audio processing");
-    engine.prepare(outputRate,maxFrames); writeIndex.store(0); readIndex.store(0); fraction=0; primed=false; targetFill=std::min(bufferFrames*3,4096u);
+    engine.prepare(outputRate,maxFrames); midiGeneration.fetch_add(1);resetMidiParser.store(true);writeIndex.store(0); readIndex.store(0); fraction=0; primed=false; targetFill=std::min(bufferFrames*3,4096u);
     underruns.store(0); overruns.store(0); pickedUp.fill(false); lastCC.fill(-1);
     UInt32 actual=sizeof(bufferFrames); AudioObjectGetPropertyData(output,&bs,0,nullptr,&actual,&bufferFrames);
     auto latency=[&](AudioDeviceID id,AudioObjectPropertyScope scope) { UInt32 v=0,s=sizeof(v); AudioObjectPropertyAddress a{kAudioDevicePropertyLatency,scope,kAudioObjectPropertyElementMain}; AudioObjectGetPropertyData(id,&a,0,nullptr,&s,&v); return v; };
+    // IOProc output mHostTime already expresses scheduled buffer output time.
+    // Device and stream latency still lie between that timestamp and the DAC.
+    outputLatencySeconds=(latency(output,kAudioObjectPropertyScopeOutput)+outputStreamLatency(output,outPair))/outputRate;
     latencyMs.store(static_cast<float>((bufferFrames*2+latency(output,kAudioObjectPropertyScopeOutput)+(input?latency(input,kAudioObjectPropertyScopeInput):0)+(input&&input!=output?targetFill:0))*1000/outputRate));
     startupStage.store("Opening the audio output");
     OSStatus status=AudioDeviceCreateIOProcID(output,callback,this,&outputProc);
@@ -163,10 +186,10 @@ void AudioHost::stop() {
 OSStatus AudioHost::propertyCallback(AudioObjectID,UInt32,const AudioObjectPropertyAddress[],void* user) {
     static_cast<AudioHost*>(user)->deviceChanged.store(true); return noErr;
 }
-OSStatus AudioHost::callback(AudioDeviceID device,const AudioTimeStamp*,const AudioBufferList* input,const AudioTimeStamp*,AudioBufferList* output,const AudioTimeStamp*,void* user) {
+OSStatus AudioHost::callback(AudioDeviceID device,const AudioTimeStamp*,const AudioBufferList* input,const AudioTimeStamp*,AudioBufferList* output,const AudioTimeStamp* outputTime,void* user) {
     auto& h=*static_cast<AudioHost*>(user);
     if(device==h.inputID&&device!=h.outputID) h.capture(input);
-    if(device==h.outputID) h.render(h.inputID==h.outputID?input:nullptr,output);
+    if(device==h.outputID) h.render(h.inputID==h.outputID?input:nullptr,output,outputTime);
     return noErr;
 }
 void AudioHost::capture(const AudioBufferList* input) noexcept {
@@ -176,7 +199,7 @@ void AudioHost::capture(const AudioBufferList* input) noexcept {
     for(uint32_t i=0;i<count;++i) ring[(w+i)&(ringSize-1)]={readChannel(input,inputPair,i),readChannel(input,inputPair+1,i)};
     writeIndex.store(w+count,std::memory_order_release);
 }
-void AudioHost::render(const AudioBufferList* input,AudioBufferList* output) noexcept {
+void AudioHost::render(const AudioBufferList* input,AudioBufferList* output,const AudioTimeStamp* outputTime) noexcept {
     if(!output) return;
     const auto start=mach_absolute_time(); const uint32_t count=framesIn(output);
     for(UInt32 b=0;b<output->mNumberBuffers;++b) if(output->mBuffers[b].mData) std::memset(output->mBuffers[b].mData,0,output->mBuffers[b].mDataByteSize);
@@ -200,7 +223,10 @@ void AudioHost::render(const AudioBufferList* input,AudioBufferList* output) noe
     readIndex.store(r,std::memory_order_release);
     std::array<rmx::Event,256> events{}; size_t eventCount=0; processMidi(events,eventCount);
     rmx::Transport t;
-    if(clockPlaying&&clockLast&&hostSeconds(start-clockLast)<.5) { t.synced=true; t.bpm=clockBpm; t.beat=clockBeat+std::max(0.,hostSeconds(start-clockLast))*clockBpm/60; }
+    const uint64_t outputHost=outputTime&&(outputTime->mFlags&kAudioTimeStampHostTimeValid)?outputTime->mHostTime:start;
+    const auto audibleMicros=static_cast<int64_t>((hostSeconds(outputHost)+outputLatencySeconds)*1.e6);
+    const bool linked=link.capture(audibleMicros,t);
+    if(!linked) { const auto clock=midiClock.position(hostSeconds(outputHost)+outputLatencySeconds);if(clock.synced) { t.synced=true;t.bpm=clock.bpm;t.beat=clock.beat;t.playing=clock.playing; } }
     engine.process(left.data(),right.data(),outLeft.data(),outRight.data(),count,t,std::span<const rmx::Event>(events.data(),eventCount));
     for(uint32_t i=0;i<count;++i) { writeChannel(output,outputPair,i,outLeft[i]); writeChannel(output,outputPair+1,i,outRight[i]); }
     const float load=static_cast<float>(hostSeconds(mach_absolute_time()-start)/(count/outputRate)); callbackLoad.store(load,std::memory_order_relaxed); engine.meters.load.store(load,std::memory_order_relaxed);
@@ -208,23 +234,25 @@ void AudioHost::render(const AudioBufferList* input,AudioBufferList* output) noe
 void AudioHost::midiCallback(const MIDIPacketList* list,void* user,void*) {
     auto& h=*static_cast<AudioHost*>(user); if(!h.midiEnabled.load()) return;
     const MIDIPacket* packet=&list->packet[0];
-    // Running status persists across packets. CoreMIDI may batch real-time clock bytes.
-    static thread_local uint8_t status=0,a=0; static thread_local int need=0,got=0;
+    const auto generation=h.midiGeneration.load();
+    if(h.resetMidiParser.exchange(false)) h.midiParser.reset();
     for(UInt32 p=0;p<list->numPackets;++p) {
         for(UInt16 i=0;i<packet->length;++i) {
-            const uint8_t b=packet->data[i]; const uint64_t time=packet->timeStamp?packet->timeStamp:mach_absolute_time();
-            Midi m{}; bool ready=false;
-            if(b>=0xf8) { m={b,0,0,time}; ready=true; }
-            else if(b&0x80) { status=b; got=0; need=((b&0xf0)==0xc0||(b&0xf0)==0xd0)?1:2; if(b>=0xf0) status=0; }
-            else if(status) { if(got++==0) a=b; if(got==need) { m={status,a,need==2?b:uint8_t(0),time}; got=0; ready=true; } }
-            if(ready&&!h.midi.push(m)) h.midiDrops.fetch_add(1,std::memory_order_relaxed);
+            const uint64_t time=packet->timeStamp?packet->timeStamp:mach_absolute_time();
+            h.midiParser.byte(packet->data[i],[&](uint8_t status,uint8_t a,uint8_t b) {
+                if(!h.midi.push({status,a,b,time,generation})) h.midiDrops.fetch_add(1,std::memory_order_relaxed);
+            });
         }
         packet=MIDIPacketNext(packet);
     }
 }
+
 void AudioHost::processMidi(std::array<rmx::Event,256>& events,size_t& count) noexcept {
+    const auto generation=midiGeneration.load();
+    if(consumedMidiGeneration!=generation) { midiClock.reset();consumedMidiGeneration=generation; }
     Midi m;
     while(midi.pop(m)) {
+        if(m.generation!=generation) continue;
         auto add=[&](rmx::EventType type,int pad=0,float velocity=1) { if(count<events.size()) events[count++]={type,static_cast<uint8_t>(pad),velocity,0}; else midiDrops.fetch_add(1,std::memory_order_relaxed); };
         if((m.status&0xf0)==0x90&&m.b&&m.a>=36&&m.a<=39) add(rmx::EventType::Trigger,m.a-36,m.b/127.f);
         if((m.status&0xf0)==0xb0) {
@@ -240,13 +268,8 @@ void AudioHost::processMidi(std::array<rmx::Event,256>& events,size_t& count) no
             if(m.a==64) add(m.b>=64?rmx::EventType::RollStart:rmx::EventType::RollStop);
             if(m.a==123) add(rmx::EventType::Panic);
         }
-        if(m.status==0xfa) { clockPlaying=true; clockBeat=0; clockTicks=0; clockLast=0; }
-        if(m.status==0xfb) clockPlaying=true;
-        if(m.status==0xfc) { clockPlaying=false; add(rmx::EventType::RollStop); }
-        if(m.status==0xf8) {
-            if(clockLast&&m.time>clockLast) { const double interval=hostSeconds(m.time-clockLast),tempo=60/(24*interval); if(tempo>=40&&tempo<=240) clockBpm+=(tempo-clockBpm)*.15; }
-            clockLast=m.time; clockBeat+=1./24; ++clockTicks;
-        }
+        midiClock.receive(m.status,m.a,m.b,hostSeconds(m.time));
+        if(m.status==0xfc) add(rmx::EventType::RollStop);
     }
 }
 void AudioHost::sendFeedback(rmx::Param p,float normalized) {

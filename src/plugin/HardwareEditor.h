@@ -17,10 +17,7 @@ class RMXEditor final : public juce::AudioProcessorEditor,private juce::Timer {
 public:
     explicit RMXEditor(RMXProcessor& p):AudioProcessorEditor(p),processor(p) {
         static const juce::Image cached=[] {
-            auto image=juce::ImageFileFormat::loadFrom(BinaryData::rmx1000_1_png,BinaryData::rmx1000_1_pngSize);
-            juce::Image::BitmapData bitmap(image,juce::Image::BitmapData::readWrite);
-            for(int y=0;y<image.getHeight();++y) for(int x=0;x<image.getWidth();++x) { auto c=bitmap.getPixelColour(x,y); auto mapped=rmx::panel::skinColor(c.getFloatRed(),c.getFloatGreen(),c.getFloatBlue()); bitmap.setPixelColour(x,y,juce::Colour::fromFloatRGBA(mapped[0],mapped[1],mapped[2],c.getFloatAlpha())); }
-            return image;
+            return juce::ImageFileFormat::loadFrom(BinaryData::panel_png,BinaryData::panel_pngSize);
         }();
         skin=cached; setResizable(true,true); setResizeLimits(900,405,2048,921); getConstrainer()->setFixedAspectRatio(2048./921); setSize(1280,576); setWantsKeyboardFocus(true); startTimerHz(30);
     }
@@ -57,7 +54,14 @@ public:
         for(int d=0;d<3;++d) { const int n=d==0?bpm/100:d==1?(bpm/10)%10:bpm%10; const float x=934.f+d*36,y=156; const float lines[7][4]={{x+5,y,x+25,y},{x+27,y+3,x+25,y+22},{x+24,y+27,x+22,y+46},{x+1,y+49,x+20,y+49},{x-1,y+27,x-3,y+46},{x+2,y+3,x,y+22},{x+2,y+24,x+23,y+24}};
             for(int i=0;i<7;++i) { g.setColour(segments[static_cast<size_t>(n)]&(1<<i)?juce::Colour(0xfff28d1e):juce::Colour(0xff1c0c03)); g.drawLine(lines[i][0],lines[i][1],lines[i][2],lines[i][3],5); }
         }
-        for(int i=0;i<4;++i) if(i!=static_cast<int>(value(Param::Bank))) { g.setColour(juce::Colours::black.withAlpha(.6f)); g.fillRoundedRectangle(488.f+i*115,590,30,23,3); }
+        for(int i=0;i<4;++i) if(value(Param::SampleSource)<.5f||i!=static_cast<int>(value(Param::Bank))) { g.setColour(juce::Colours::black.withAlpha(.6f)); g.fillRoundedRectangle(488.f+i*115,590,30,23,3); }
+        const auto stripValues=processor.engine.params.snapshot();
+        for(unsigned position=0;position<8;++position) {
+            const float x=475.f+position*51;
+            g.setColour(juce::Colour(0xff060708));g.fillRoundedRectangle(x,773,47,24,3);
+            g.setColour(juce::Colour(0xff2ed1de));g.setFont(juce::Font(juce::FontOptions(14).withStyle("Bold")));
+            g.drawText(juce::String(rmx::xPadBeatNames[rmx::xPadBeatChoice(stripValues,static_cast<float>(position))].data()),static_cast<int>(x),775,47,20,juce::Justification::centred);
+        }
         if(value(Param::ReleaseAmount)>.005f) { g.setColour(juce::Colour(0xff040404)); g.fillRoundedRectangle(1884,430,113,105,4); g.setGradientFill(juce::ColourGradient(juce::Colour(0xff555555),0,435,juce::Colour(0xff101010),0,465,false)); g.fillRoundedRectangle(1891,435+value(Param::ReleaseAmount)*62,99,30,10); }
         g.setColour(juce::Colour(0xff060606)); g.fillRoundedRectangle(1903,301,61,47,4); g.setColour(juce::Colour(0xff303030)); g.fillRoundedRectangle(1908+(2-value(Param::ReleaseType))*17,307,15,34,2);
         g.setColour(juce::Colour(0xff060606)); g.fillRoundedRectangle(1831,151,69,43,3); g.setColour(juce::Colour(0xff303030)); g.fillRoundedRectangle(1836+value(Param::UserSettings)*29,156,29,33,2);
@@ -72,7 +76,8 @@ public:
         for(size_t i=0;i<controls.size();++i) {
             const auto& c=controls[i]; if(!rect(c.rect).contains(pos)) continue;
             if(c.kind==Kind::Pad) selectedPad=static_cast<int>(c.value);
-            if(rmx::panel::activate(c,[&](Param p){ return value(p); },[&](Param p,float v){ processor.change(p,v); },[&](rmx::Event e){ processor.engine.enqueue(e); },event.mods.isShiftDown())) return;
+            if(c.action==7) { dragging=static_cast<int>(i); processor.engine.enqueue({rmx::EventType::NudgeStart,0,c.value}); return; }
+            if(rmx::panel::activate(c,[&](Param p){ return value(p); },[&](Param p,float v){ processor.change(p,v); },[&](rmx::Event e){ processor.engine.enqueue(e); },event.mods.isShiftDown(),event.mods.isAltDown())) return;
             if(c.kind==Kind::Action) { if(c.action==1) menu(); }
             else {
                 dragging=static_cast<int>(i); dragOrigin=pos; dragValue=value(c.param); parameter(c.param)->beginChangeGesture();
@@ -103,11 +108,29 @@ private:
     juce::RangedAudioParameter* parameter(Param p) { return processor.tree.getParameter(js(rmx::parameters[static_cast<size_t>(p)].id)); }
     void toggle(Param p) { processor.change(p,value(p)>.5?0:1); }
     void setGesture(Param p,float v) { auto* param=parameter(p); param->setValueNotifyingHost(param->convertTo0to1(rmx::sanitize(p,v))); }
-    void finishGesture() { if(dragging<0) return; auto c=controls[static_cast<size_t>(dragging)]; if(c.kind==Kind::Lever) setGesture(c.param,0); if(c.kind==Kind::Strip) processor.engine.enqueue({rmx::EventType::RollStop}); parameter(c.param)->endChangeGesture(); dragging=-1; }
+    void finishGesture() { if(dragging<0) return; auto c=controls[static_cast<size_t>(dragging)]; if(c.action==7) { processor.engine.enqueue({rmx::EventType::NudgeStop}); dragging=-1; return; } if(c.kind==Kind::Lever) setGesture(c.param,0); if(c.kind==Kind::Strip) processor.engine.enqueue({rmx::EventType::RollStop}); parameter(c.param)->endChangeGesture(); dragging=-1; }
     void timerCallback() override { repaint(); }
     void menu() {
-        juce::PopupMenu menu; menu.addItem(1,"All parameters / exact values…"); menu.addItem(2,"Import sample into selected pad…"); menu.addItem(3,"Save preset…"); menu.addItem(4,"Load preset…"); menu.addSeparator(); menu.addItem(5,"Bypass",true,value(Param::Bypass)>.5f); menu.addItem(6,"Reset effects");
-        menu.showMenuAsync(juce::PopupMenu::Options{}.withTargetComponent(this),[safe=juce::Component::SafePointer<RMXEditor>(this)](int result) { if(!safe) return; switch(result) { case 1: safe->settings(); break; case 2: safe->files(0); break; case 3: safe->files(1); break; case 4: safe->files(2); break; case 5: safe->toggle(Param::Bypass); break; case 6: safe->processor.engine.enqueue({rmx::EventType::Panic}); break; } });
+        juce::PopupMenu menu; menu.addItem(1,"All parameters / exact values…"); menu.addItem(2,"Import sample into selected pad…");menu.addItem(7,"Selected sample playback…"); menu.addItem(3,"Save preset…"); menu.addItem(4,"Load preset…"); menu.addSeparator(); menu.addItem(5,"Bypass",true,value(Param::Bypass)>.5f); menu.addItem(6,"Reset effects");
+        menu.showMenuAsync(juce::PopupMenu::Options{}.withTargetComponent(this),[safe=juce::Component::SafePointer<RMXEditor>(this)](int result) { if(!safe) return; switch(result) { case 1: safe->settings(); break; case 2: safe->files(0); break; case 3: safe->files(1); break; case 4: safe->files(2); break; case 5: safe->toggle(Param::Bypass); break; case 6: safe->processor.engine.enqueue({rmx::EventType::Panic}); break;case 7:safe->sampleSettings();break; } });
+    }
+    void sampleSettings() {
+        const int slot=static_cast<int>(value(Param::Bank))*4+selectedPad;
+        const auto playback=processor.samplePlayback(slot);
+        auto dialog=std::make_shared<juce::AlertWindow>("Sample playback","Only slot 1 of each bank can loop. Set the sample's original BPM; loops follow the performance tempo.",juce::MessageBoxIconType::NoIcon,this);
+        dialog->addComboBox("mode",juce::StringArray{"One-shot","Loop"},"Playback");
+        dialog->getComboBoxComponent("mode")->setSelectedItemIndex(playback.loop?1:0);
+        dialog->getComboBoxComponent("mode")->setEnabled(slot%4==0);
+        dialog->addTextEditor("bpm",juce::String(playback.bpm,3),"Sample BPM (70–200)");
+        dialog->addButton("Apply",1,juce::KeyPress(juce::KeyPress::returnKey));dialog->addButton("Cancel",0,juce::KeyPress(juce::KeyPress::escapeKey));
+        dialog->enterModalState(true,juce::ModalCallbackFunction::create([safe=juce::Component::SafePointer<RMXEditor>(this),dialog,slot](int result) {
+            if(!safe||result!=1)return;
+            try {
+                const auto text=dialog->getTextEditorContents("bpm").trim().toStdString();size_t consumed=0;const double bpm=std::stod(text,&consumed);
+                if(consumed!=text.size())throw std::runtime_error("Enter a sample BPM between 70 and 200");
+                safe->processor.configureSample(slot,{bpm,dialog->getComboBoxComponent("mode")->getSelectedItemIndex()==1});
+            } catch(const std::exception& error) {safe->processor.assetMessage=error.what();}
+        }),false);
     }
     void settings() { juce::DialogWindow::LaunchOptions options; options.dialogTitle="RMX · Engine parameters"; options.dialogBackgroundColour=juce::Colour(0xff131a24); options.useNativeTitleBar=true; options.resizable=true; auto* editor=new juce::GenericAudioProcessorEditor(processor); editor->setSize(620,700); options.content.setOwned(editor); options.launchAsync(); }
     void files(int mode) {
