@@ -18,6 +18,14 @@ NSColor* orange() { return color(1,.43,.16); }
 NSColor* cyan() { return color(.18,.82,.87); }
 NSColor* muted() { return color(.47,.51,.56); }
 void box(NSRect r,NSColor* fill,CGFloat radius=10) { [fill setFill]; [[NSBezierPath bezierPathWithRoundedRect:r xRadius:radius yRadius:radius] fill]; }
+void hardwareSwitch(NSRect r,NSRect cap) {
+    NSGradient* rim=[[NSGradient alloc] initWithStartingColor:color(.04,.05,.045) endingColor:color(.42,.46,.43)];
+    [rim drawInBezierPath:[NSBezierPath bezierPathWithRoundedRect:NSInsetRect(r,-2,-2) xRadius:4 yRadius:4] angle:90];
+    box(r,color(.025,.035,.03),3);
+    NSGradient* face=[[NSGradient alloc] initWithStartingColor:color(.66,.71,.67) endingColor:color(.22,.27,.23)];
+    [face drawInBezierPath:[NSBezierPath bezierPathWithRoundedRect:cap xRadius:3 yRadius:3] angle:90];
+    for(int i=0;i<3;++i) box({cap.origin.x+5,cap.origin.y+8+i*5,cap.size.width-10,1},color(.12,.17,.13,.7),0);
+}
 void text(NSString* s,NSRect r,CGFloat size,NSColor* c,bool bold=false,NSTextAlignment alignment=NSTextAlignmentLeft) {
     NSMutableParagraphStyle* style=[NSMutableParagraphStyle new]; style.alignment=alignment;
     [s drawInRect:r withAttributes:@{NSFontAttributeName:bold?[NSFont boldSystemFontOfSize:size]:[NSFont systemFontOfSize:size],NSForegroundColorAttributeName:c,NSParagraphStyleAttributeName:style}];
@@ -276,18 +284,17 @@ std::filesystem::path sessionPath() {
     for(const auto& c:controls) {
         if(c.kind==Kind::Knob&&c.param!=Param::Tempo) {
             const auto& info=rmx::parameters[static_cast<size_t>(c.param)]; const float v=engine->params.get(c.param);
-            const float angle=(v-info.initial)/(info.max-info.min)*270;
-            if(std::abs(angle)>.05f) {
-                [NSGraphicsContext saveGraphicsState]; [[NSBezierPath bezierPathWithOvalInRect:c.rect] addClip];
-                NSAffineTransform* rotate=[NSAffineTransform transform]; [rotate translateXBy:NSMidX(c.rect) yBy:NSMidY(c.rect)]; [rotate rotateByDegrees:angle]; [rotate translateXBy:-NSMidX(c.rect) yBy:-NSMidY(c.rect)]; [rotate concat];
-                [panelImage drawInRect:{0,0,2048,921} fromRect:NSZeroRect operation:NSCompositingOperationSourceOver fraction:1 respectFlipped:YES hints:@{NSImageHintInterpolation:@(NSImageInterpolationHigh)}]; [NSGraphicsContext restoreGraphicsState];
-            }
+            const double angle=(-225+270*(v-info.min)/(info.max-info.min))*3.141592653589793/180;
+            const CGFloat radius=c.rect.size.width/2,x=NSMidX(c.rect),y=NSMidY(c.rect);
+            NSBezierPath* pointer=[NSBezierPath bezierPath];[pointer moveToPoint:{x+radius*.48*std::cos(angle),y+radius*.48*std::sin(angle)}];[pointer lineToPoint:{x+radius*.80*std::cos(angle),y+radius*.80*std::sin(angle)}];
+            [color(.94,.96,.89) setStroke];pointer.lineWidth=radius>60?5:3.5;pointer.lineCapStyle=NSLineCapStyleRound;[pointer stroke];
         }
         if(c.action==8) { const int source=static_cast<int>(engine->params.get(Param::SceneSource)); const bool on=source==2||source==static_cast<int>(c.value); if(!on) box(NSInsetRect(c.rect,3,3),color(0,0,0,.65),4); }
-        if(c.kind==Kind::Toggle||c.kind==Kind::Choice||c.kind==Kind::Pad) {
+        if((c.kind==Kind::Toggle||c.kind==Kind::Choice||c.kind==Kind::Pad)&&c.param!=Param::UserSettings) {
             const float v=engine->params.get(c.param); const bool on=c.kind==Kind::Toggle?v>.5f:c.kind==Kind::Choice?std::abs(v-c.value)<.01f:selectedPad==static_cast<int>(c.value);
-            if(!on) box(NSInsetRect(c.rect,3,3),color(0,0,0,.30),5);
-            else if(c.param!=Param::IsolateMode) { [NSGraphicsContext saveGraphicsState]; NSShadow* glow=[NSShadow new]; glow.shadowColor=[(c.param==Param::Quantize||c.param==Param::AutoTempo)?NSColor.redColor:color(.65,1,.1) colorWithAlphaComponent:.7]; glow.shadowBlurRadius=11; [glow set]; NSBezierPath* border=[NSBezierPath bezierPathWithRoundedRect:NSInsetRect(c.rect,3,3) xRadius:5 yRadius:5]; [[glow.shadowColor colorWithAlphaComponent:.35] setStroke]; border.lineWidth=2; [border stroke]; [NSGraphicsContext restoreGraphicsState]; }
+            const NSRect lamp={c.rect.origin.x+8,NSMaxY(c.rect)-9,c.rect.size.width-16,3};
+            if(!on) box(lamp,color(0,0,0,.75),1);
+            else { [NSGraphicsContext saveGraphicsState];NSShadow* glow=[NSShadow new];glow.shadowColor=(c.param==Param::Quantize||c.param==Param::AutoTempo)?color(1,.66,.24,.85):color(.35,.94,.76,.85);glow.shadowBlurRadius=9;[glow set];box(lamp,glow.shadowColor,1);[NSGraphicsContext restoreGraphicsState]; }
         }
     }
     if(engine->params.get(Param::AutoTempo)>.5f&&engine->meters.confidence.load()<.2f) {
@@ -316,19 +323,13 @@ std::filesystem::path sessionPath() {
     for(int i=0;i<4;++i) if(engine->params.get(Param::SampleSource)<.5f||i!=currentBank) box({488.+i*115,590,30,23},color(0,0,0,.6),3);
     const auto stripValues=engine->params.snapshot();
     for(unsigned position=0;position<8;++position) {
-        box({475.+position*51,773,47,24},color(.025,.028,.032),3);
         text(str(rmx::xPadBeatNames[rmx::xPadBeatChoice(stripValues,static_cast<float>(position))]),{475.+position*51,775,47,20},14,cyan(),true,NSTextAlignmentCenter);
     }
     if(dragging>=0&&controls[static_cast<size_t>(dragging)].kind==Kind::Strip) { const int division=static_cast<int>(engine->params.get(Param::XRoll)); box({475.+division*51,742,47,76},color(.55,.73,1,.22),4); }
     const float lever=engine->params.get(Param::ReleaseAmount);
-    if(lever>.005f) { box({1884,430,113,105},color(.015,.015,.015),4); NSGradient* gradient=[[NSGradient alloc] initWithStartingColor:color(.25,.25,.25) endingColor:color(.045,.045,.045)]; NSBezierPath* handle=[NSBezierPath bezierPathWithRoundedRect:{1891,435+lever*62,99,30} xRadius:10 yRadius:10]; [gradient drawInBezierPath:handle angle:90]; }
-    const int releaseType=static_cast<int>(engine->params.get(Param::ReleaseType)); box({1903,301,61,47},color(.025,.025,.025),4); box({1908+(2-releaseType)*17.,307,15,34},color(.18,.18,.18),2);
-    box({1831,151,69,43},color(.025,.025,.025),3); box({1836+engine->params.get(Param::UserSettings)*29,156,29,33},color(.18,.18,.18),2);
-    box({1690,50,295,63},color(.025,.025,.025),8);
-    text(@"RMX",{1748,52,220,56},46,color(.85,.87,.87),true,NSTextAlignmentRight);
-    box({1828,578,185,76},color(.035,.035,.035),3);
-    text(@"PERFORMANCE FX",{1836,584,167,21},16,color(.7,.73,.74),true);
-    text(@"RMX",{1834,608,169,43},34,color(.9,.92,.92),true);
+    hardwareSwitch({1884,430,113,105},{1891,435+lever*62,99,30});
+    const int releaseType=static_cast<int>(engine->params.get(Param::ReleaseType));hardwareSwitch({1903,301,61,47},{1908+(2-releaseType)*17.,307,15,34});
+    hardwareSwitch({1831,151,69,43},{1836+engine->params.get(Param::UserSettings)*29,156,29,33});
     [NSGraphicsContext restoreGraphicsState];
 }
 - (NSPoint)surfacePoint:(NSEvent*)event {

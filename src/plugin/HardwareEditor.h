@@ -28,13 +28,15 @@ public:
         for(const auto& c:controls) {
             auto r=rect(c.rect);
             if(c.kind==Kind::Knob&&c.param!=Param::Tempo) {
-                const auto& info=rmx::parameters[static_cast<size_t>(c.param)]; const float angle=(value(c.param)-info.initial)/(info.max-info.min)*juce::MathConstants<float>::pi*1.5f;
-                if(std::abs(angle)>.001f) { g.saveState(); juce::Path clip; clip.addEllipse(r); g.reduceClipRegion(clip); g.addTransform(juce::AffineTransform::rotation(angle,r.getCentreX(),r.getCentreY())); g.drawImage(skin,juce::Rectangle<float>(0,0,2048,921)); g.restoreState(); }
+                const auto& info=rmx::parameters[static_cast<size_t>(c.param)];const float angle=(-225+270*(value(c.param)-info.min)/(info.max-info.min))*juce::MathConstants<float>::pi/180;
+                const float radius=r.getWidth()/2,x=r.getCentreX(),y=r.getCentreY();
+                g.setColour(juce::Colour(0xffeff5e3));g.drawLine(x+radius*.48f*std::cos(angle),y+radius*.48f*std::sin(angle),x+radius*.80f*std::cos(angle),y+radius*.80f*std::sin(angle),radius>60?5.f:3.5f);
             }
             if(c.action==8) { const int source=static_cast<int>(value(Param::SceneSource)); const bool on=source==2||source==static_cast<int>(c.value); if(!on) { g.setColour(juce::Colours::black.withAlpha(.65f)); g.fillRoundedRectangle(r.reduced(3),4); } }
-            if(c.kind==Kind::Toggle||c.kind==Kind::Choice||c.kind==Kind::Pad) {
+            if((c.kind==Kind::Toggle||c.kind==Kind::Choice||c.kind==Kind::Pad)&&c.param!=Param::UserSettings) {
                 const bool on=c.kind==Kind::Toggle?value(c.param)>.5f:c.kind==Kind::Choice?std::abs(value(c.param)-c.value)<.01f:selectedPad==static_cast<int>(c.value);
-                if(!on) { g.setColour(juce::Colours::black.withAlpha(.30f)); g.fillRoundedRectangle(r.reduced(3),5); }
+                const juce::Rectangle<float> lamp{r.getX()+8,r.getBottom()-9,r.getWidth()-16,3};
+                g.setColour(on?(c.param==Param::Quantize||c.param==Param::AutoTempo?juce::Colour(0xffffa83d):juce::Colour(0xff59efc2)):juce::Colour(0xff13251e));g.fillRoundedRectangle(lamp,1);
             }
         }
         if(value(Param::SceneOn)>.5f) {
@@ -58,15 +60,12 @@ public:
         const auto stripValues=processor.engine.params.snapshot();
         for(unsigned position=0;position<8;++position) {
             const float x=475.f+position*51;
-            g.setColour(juce::Colour(0xff060708));g.fillRoundedRectangle(x,773,47,24,3);
             g.setColour(juce::Colour(0xff2ed1de));g.setFont(juce::Font(juce::FontOptions(14).withStyle("Bold")));
             g.drawText(juce::String(rmx::xPadBeatNames[rmx::xPadBeatChoice(stripValues,static_cast<float>(position))].data()),static_cast<int>(x),775,47,20,juce::Justification::centred);
         }
-        if(value(Param::ReleaseAmount)>.005f) { g.setColour(juce::Colour(0xff040404)); g.fillRoundedRectangle(1884,430,113,105,4); g.setGradientFill(juce::ColourGradient(juce::Colour(0xff555555),0,435,juce::Colour(0xff101010),0,465,false)); g.fillRoundedRectangle(1891,435+value(Param::ReleaseAmount)*62,99,30,10); }
-        g.setColour(juce::Colour(0xff060606)); g.fillRoundedRectangle(1903,301,61,47,4); g.setColour(juce::Colour(0xff303030)); g.fillRoundedRectangle(1908+(2-value(Param::ReleaseType))*17,307,15,34,2);
-        g.setColour(juce::Colour(0xff060606)); g.fillRoundedRectangle(1831,151,69,43,3); g.setColour(juce::Colour(0xff303030)); g.fillRoundedRectangle(1836+value(Param::UserSettings)*29,156,29,33,2);
-        g.setColour(juce::Colour(0xff060606)); g.fillRoundedRectangle(1690,50,295,63,8); g.setColour(juce::Colour(0xffdde0e0)); g.setFont(juce::Font(juce::FontOptions(46).withStyle("Bold"))); g.drawText("RMX",1748,52,220,56,juce::Justification::centredRight);
-        g.setColour(juce::Colour(0xff090909)); g.fillRoundedRectangle(1828,578,185,76,3); g.setColour(juce::Colour(0xffbbc1c1)); g.setFont(juce::Font(juce::FontOptions(16).withStyle("Bold"))); g.drawText("PERFORMANCE FX",1836,584,167,21,juce::Justification::centredLeft); g.setFont(juce::Font(juce::FontOptions(34).withStyle("Bold"))); g.drawText("RMX",1834,608,169,43,juce::Justification::centredLeft);
+        hardwareSwitch(g,{1884,430,113,105},{1891,435+value(Param::ReleaseAmount)*62,99,30});
+        hardwareSwitch(g,{1903,301,61,47},{1908+(2-value(Param::ReleaseType))*17,307,15,34});
+        hardwareSwitch(g,{1831,151,69,43},{1836+value(Param::UserSettings)*29,156,29,33});
     }
     void mouseDown(const juce::MouseEvent& event) override {
         grabKeyboardFocus(); auto pos=point(event);
@@ -102,6 +101,12 @@ public:
         if(c=='t'||c=='T') { processor.engine.enqueue({rmx::EventType::Tap}); return true; } return false;
     }
 private:
+    static void hardwareSwitch(juce::Graphics& g,juce::Rectangle<float> r,juce::Rectangle<float> cap) {
+        g.setGradientFill(juce::ColourGradient(juce::Colour(0xff0a0d0b),0,r.getY(),juce::Colour(0xff6b756e),0,r.getBottom(),false));g.fillRoundedRectangle(r.expanded(2),4);
+        g.setColour(juce::Colour(0xff060908));g.fillRoundedRectangle(r,3);
+        g.setGradientFill(juce::ColourGradient(juce::Colour(0xffa8b5ab),0,cap.getY(),juce::Colour(0xff38453b),0,cap.getBottom(),false));g.fillRoundedRectangle(cap,3);
+        g.setColour(juce::Colour(0xb31f2b21));for(int i=0;i<3;++i)g.fillRect(cap.getX()+5,cap.getY()+8+i*5,cap.getWidth()-10,1.f);
+    }
     static juce::Rectangle<float> rect(rmx::panel::Rect r) { return {r.x,r.y,r.w,r.h}; }
     juce::Point<float> point(const juce::MouseEvent& e) const { return {e.position.x*2048/getWidth(),e.position.y*921/getHeight()}; }
     float value(Param p) const { return processor.tree.getRawParameterValue(js(rmx::parameters[static_cast<size_t>(p)].id))->load(); }
