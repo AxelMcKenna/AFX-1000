@@ -16,7 +16,7 @@ The manufacturer-authored [remixbox Scene table, page 12](https://pioneer.manyma
 
 The [remixbox X-Pad table, page 14](https://pioneer.manymanuals.com/audio/rmx-1000-m/user-manual-4510/14) specifies per-drum gain, three decay choices and two envelopes. Pitch has separately configurable negative and positive ranges up to twelve semitones each. Our global +/-24-semitone control and fixed generated assets do not reproduce this complete sound-shaping model.
 
-### Findings in our source
+### Findings before the sound revision
 
 | Area | Observed implementation | Likely consequence / work needed |
 | --- | --- | --- |
@@ -43,6 +43,21 @@ For drum synthesis, Vult's first-party [VCV Drums development account](https://w
 5. Review final output headroom and perform level-matched comparisons on isolated hits, rapid rolls and music. For stochastic noise, compare averaged spectra, envelopes, echo timing and stereo correlation rather than requiring a sample null. Check 44.1/48/96 kHz, control sweeps and repeat triggering before promoting a sound revision.
 
 No verified redistributable factory drum pack was established in this research. Pioneer's [official software page](https://www.pioneerdj.com/en/support/software/effector/rmx-1000/) documents the original plug-in as another possible comparison source; compatibility and access must be checked before relying on it. Exact factory timbre remains unverified until reference audio is available. Improvements to subjective sound can proceed in a separately reviewable prototype meanwhile.
+
+## Sound revision: 23 October 2026
+
+The first implementation of the research recommendations is a separately built sound revision. The running app is not replaced or restarted. This is original project voicing; there are no new hardware captures or claims of sonic parity.
+
+- **Drums:** `FactoryDrums.h` pre-renders a saturated swept kick with a separate click, a multi-mode snare body with filtered wires, three finite clap bursts with a diffuse tail, and a hat with inharmonic ringing plus filtered noise. Preparation applies a DC blocker, end taper and per-instrument peak normalization. Internal drums and desktop starter banks use these assets; imported user samples remain their own sources.
+- **Per-drum settings:** fourteen parameters are appended after the existing IDs: four gains, four decay choices, four envelopes and two pitch ranges. Internal drum gain is -3 to +3 dB; decay offers Short/Default/Long. Type 2 adds a short punch contour and faster tail. Choices are captured on each new hit and follow source playback time as pitch changes. Their numeric curves are project values. They are available in the existing native advanced-settings dialog and plugin parameter editor, with normal Default/User recall. Imported samples do not receive internal-drum envelope processing.
+- **Pitch ranges:** the old `x_pitch` ID and -24 to +24 travel domain remain compatible. Separate down/up endpoint settings scale the two halves of travel; defaults retain the previous +/-24-semitone extension. Setting an endpoint to 12 gives a one-octave bend on that side. Values 1 through 12 cover the documented hardware options; 13 through 24 are extensions. The parameter name now identifies pitch travel rather than promising that its raw value always equals effective semitones.
+- **One-shot playback:** integer unity reads are unchanged. Slower reads use cubic interpolation; faster reads use a 64-tap Blackman-windowed sinc with interpolated phase/cutoff tables and a guard band. Tables are compile-time read-only data, about 280 kB, without a callback initializer or additional sample-bank copies. There is no added playback latency. Finite filters are not alias-free at every extreme source/output-rate ratio; stopband rejection, maximum-voice CPU cost and embedded deadlines remain unmeasured. The loop stretch path is unchanged.
+- **Noise:** white noise is retained. A dedicated 90 Hz to 12.5 kHz sweep, tighter width choices, partial energy compensation and a 12.5 kHz polishing filter shape the signal. Sub1 uses a smoother squared-amplitude curve when its minimum is Off. Modulation uses subdivisions of 1/4, 1/2, 1, 2 or 4 cycles per beat, with gain edges smoothed over 2 ms. Resonance mode bypasses that LFO. The one-beat echo is damped at 6.5 kHz and returned at 0.4; its send is no longer activated twice near Main's lower end. A frame counter suppresses previous-effect delay contents without clearing the delay allocation inside the callback. These are auditionable project tunings, not measured RMX factory maps.
+- **Output protection:** linked stereo sample-peak gain replaces the old above-unity saturator. The ceiling is 0.9995, with immediate gain reduction and a 50 ms release. A LIMIT lamp below the output meter shows reduction greater than about 0.18 dB. No lookahead or latency is added. This is not a true-peak limiter and does not establish the downstream DAC's intersample headroom. Below the ceiling, with no prior limiting, gain is unity.
+
+`rmx_sound_preview` is an optional build target for offline auditions. It opens no audio device and refuses an existing output directory. It writes 21 clips: four drums at -12/0/+12/+24 semitones, four fast rolls and a Noise sweep. Each clip receives one constant audition gain, targeting 0.05 RMS over its active duration with a 0.9 peak cap; `manifest.csv` records the actual levels. This is a listening deliverable, not a regression or hardware-conformance suite.
+
+The arm64 native Mac app, AU and VST3 compiled for review. No automated test suite, real-device soak, firmware deadline run, alias-rejection measurement or original-unit listening comparison was performed for this sound revision. Earlier test counts and performance measurements apply to their earlier snapshots. The next review should compare the offline pairs and exercise gain/decay/envelope settings before promoting this revision for live use.
 
 ## Isolate
 
