@@ -26,3 +26,12 @@ jobs:
             build/RMX.app
             build/RMXPlugin_artefacts/Release/AU
             build/RMXPlugin_artefacts/Release/VST3
+      - run: cmake --build build --target RMXPluginProbe --parallel 3
+      - run: ./build/RMXPluginProbe_artefacts/Release/RMXPluginProbe "$PWD/build/RMXPlugin_artefacts/Release/VST3/RMX.vst3" > build/vst3-runtime.json
+      - run: python3 tools/package_macos.py --build-dir build --output-dir build/packages
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RMX-macOS-preview-packages
+          path: |
+            build/packages/
+            build/*-runtime.json

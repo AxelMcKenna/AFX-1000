@@ -18,11 +18,11 @@ Pioneer's [published RMX-1000 specifications](https://forums.pioneerdj.com/hc/en
 
 ## Hardware architecture
 
-The C++ engine takes planar float audio, a sample rate, timestamped pad events, transport information, and stable parameter IDs. It does not depend on JUCE, Cocoa, Core Audio, a filesystem, or a display. A future embedded adapter supplies audio buffers and control events; the preset schema and MIDI mappings remain shared.
+The C++ engine takes planar float audio, a sample rate, timestamped pad events, transport information, and stable parameter IDs. It does not depend on JUCE, Cocoa, Core Audio, a filesystem, or a display. The initial Daisy adapter supplies audio buffers and control events but now cross-builds with the pinned Arm/libDaisy toolchain; board bring-up remains required; the preset schema and MIDI mappings remain shared.
 
 The Linux CI configuration builds the headless core on x86-64 and ARM64. A real ARM hardware benchmark and round-trip latency measurement remain required. The desktop process-tap route is an Apple adapter, not part of the portable engine.
 
-A future standalone unit needs stereo line ADC/DAC, calibrated master/send-return gain ranges, physical controls, storage, a watchdog, and a physical bypass path. Select the board, codecs, power design, and RAM only after profiling the chosen sample-bank limits and worst effect combination. A USB/MIDI controller can precede that unit and use the existing parameter IDs.
+The [A0 hardware design](../hardware/README.md) proposes a Seed with 64 MB external SDRAM, scanned physical controls, touch sensing, storage pin reservations, an independent watchdog and a normally closed relay bypass path. The shared engine can now use a bounded SDRAM arena; the host memory check proves the 48 kHz buffers and 64 seconds of sample storage fit. The firmware is cross-compiled and its linker placement is checked; it has not been run or measured on the MCU. Boot-time SD sample loading now cross-builds. The analog carrier, calibrated gain ranges, PCB layout, power design, SD effect presets and physical storage/control validation remain unfinished.
 
 ## Fidelity checks to complete
 

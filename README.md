@@ -12,10 +12,14 @@ Works with rekordbox through audio capture or an interface. The effects are orig
 
 - **Scene FX:** BPF Echo, Echo, Noise, Spiral Up, Reverb Up, HPF Echo, LPF Echo, Crush Echo, Spiral Down and Reverb Down.
 - **Isolate FX:** three bands, with Isolator, Cut/Add, Trans/Roll and Gate/Drive modes.
-- **X-Pad:** four sample banks, 16 synthesized sounds, WAV import, pitch, rolls, hold and overdub.
+- **X-Pad:** four internal drums and four sample banks, 16 bank variants, WAV import, pitch, rolls, hold and overdub.
 - **Release FX:** Back Spin, Echo and Vinyl Brake.
 
-Auto BPM, tap tempo, quantized rolls, MIDI learn, soft takeover and DAW automation are included.
+Auto BPM, tap tempo, quantized rolls, assignable X-Pad divisions including triplets, MIDI learn, soft takeover and DAW automation are included.
+
+Loop tempo and pitch have separate playback controls. AUTO can follow detected beat phase, and MIDI clock supports Start, Stop, Continue and Song Position Pointer. See [sync](docs/synchronization.md) and [sample stretching](docs/sample-stretching.md) for the implementation limits.
+
+Overdub runs a four-beat pattern. Each bank holds 16 seconds of audio; slot 1 supports BPM-tagged loops. Sample editing includes trim, reverse, normalization and BPM/loop settings. Pad one-shots trigger immediately.
 
 ## Run it
 
@@ -90,12 +94,26 @@ Still in development. Mac-only rekordbox audio has been tested, and universal Ma
 
 The engine uses stereo floating-point audio, with checks at 44.1, 48, 88.2 and 96 kHz. Processing is preallocated; the core audio callback does no allocation, locking, file I/O or UI work. See [validation](docs/validation.md) and [specifications](docs/specifications.md) for the details.
 
+### Hardware
+
+The [hardware prototype](hardware/README.md) includes a parametric OpenSCAD enclosure, generated panel DXF/SVG, control/pin manifest, preliminary wiring/BOM and a Daisy Seed firmware adapter. The [clone requirements and remaining work](docs/clone-roadmap.md) track the full hardware/software objective. This is an unbuilt prototype design; effect sound matching, board testing and the analog carrier are still outstanding. The Daisy firmware now cross-builds with pinned dependencies and checked ELF memory placement.
+
+```sh
+./build/rmx_memory_budget
+python3 tools/generate_hardware.py --check
+./build/rmx_card_export Performance.rmx /path/to/new-card-folder
+```
+
+The firmware now cross-builds with boot-time SD sample loading. The exporter writes the project card layout; original RSD/SD interoperability and physical card testing remain unfinished. See the hardware guide for supported sample formats and bank replacement behavior.
+
 ## Reference
 
-[Controls](docs/controls.md) / [Routing](docs/routing.md) / [Specifications](docs/specifications.md) / [Validation](docs/validation.md)
+[Controls](docs/controls.md) / [Routing](docs/routing.md) / [Specifications](docs/specifications.md) / [Validation](docs/validation.md) / [Hardware](hardware/README.md) / [Roadmap](docs/clone-roadmap.md)
+
+[Mac packages](docs/release.md) / [Reference captures and runtime checks](docs/reference-validation.md) / [Engineering update](docs/engineering-update-2026-10-22.md)
 
 The original Swift and browser prototypes are kept in `Sources/` and `web/`. Their guide is [here](docs/legacy-prototypes.md).
 
 ## Assets and licensing
 
-Factory drums are synthesized by this project. The panel uses a [Pioneer DJ reference photograph](https://www.pioneerdj.com/product-images/847/38473749-de98-4b65-aedd-a1c68374c1e4/rmx-1000_1.png), recoloured with the visible manufacturer/model badges replaced. The photograph is a third-party asset; these changes do not grant redistribution rights. No project-wide distribution license is asserted for the original repository or third-party assets.
+Factory drums and the current panel artwork are made by this project. The native and plugin interfaces use a panel generated from [drawing code](tools/generate_panel.mm), with no manufacturer photograph in current builds. A project license is still pending. JUCE, optional Link and embedded dependencies retain their own terms; see [source and dependency notices](THIRD_PARTY_NOTICES.md).
