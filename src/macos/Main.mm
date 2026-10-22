@@ -48,6 +48,17 @@ std::filesystem::path sessionPath() {
     NSString* folder=[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory,NSUserDomainMask,YES) firstObject];
     auto path=std::filesystem::path(folder.UTF8String)/"RMX"; std::filesystem::create_directories(path); return path/"session.rmx";
 }
+NSString* audioDeviceUID(AudioDeviceID device) {
+    CFStringRef uid=nullptr;UInt32 size=sizeof(uid);
+    AudioObjectPropertyAddress address{kAudioDevicePropertyDeviceUID,kAudioObjectPropertyScopeGlobal,kAudioObjectPropertyElementMain};
+    if(!device||AudioObjectGetPropertyData(device,&address,0,nullptr,&size,&uid)!=noErr||!uid)return @"";
+    return CFBridgingRelease(uid);
+}
+AudioDeviceID audioDeviceForUID(NSString* uid,const std::vector<AudioDevice>& devices) {
+    if(![uid isKindOfClass:NSString.class]||uid.length==0)return 0;
+    for(const auto& device:devices)if([audioDeviceUID(device.id) isEqualToString:uid])return device.id;
+    return 0;
+}
 }
 
 @interface SetupView : NSView
@@ -72,6 +83,7 @@ std::filesystem::path sessionPath() {
     std::shared_ptr<rmx::SampleBank> bankOwner;
     dispatch_queue_t audioQueue;
     BOOL audioStarting;
+    BOOL routeReady,resumeAudio;
     rmx::State state;
     std::vector<Control> controls;
     std::vector<AudioDevice> devices;
@@ -102,6 +114,9 @@ std::filesystem::path sessionPath() {
 - (void)routingGuide:(id)sender;
 - (void)update;
 - (void)persist;
+- (void)saveAudioRoute;
+- (void)restoreAudioRoute;
+- (void)resumeSavedAudio;
 - (void)activateControlIndex:(NSInteger)index;
 - (void)change:(Param)p value:(float)v;
 - (void)sendEvent:(rmx::Event)event;
@@ -197,12 +212,52 @@ std::filesystem::path sessionPath() {
             for(size_t i=0;i<16;++i) if(!next.samplePaths[i].empty()) { try { nextBank.slots[i]=rmx::readWav(next.samplePaths[i]); } catch(...) { message=@"A saved sample is missing. Original drum substituted; reimport the sample to restore it."; } }
             next.applySamples(nextBank);*bank=std::move(nextBank);state=std::move(next);state.apply(engine->params);for(size_t i=0;i<128;++i)host->cc[i].store(state.cc[i]);
         } catch(...) {}
+        [self restoreAudioRoute];routeReady=YES;
         timer=[NSTimer scheduledTimerWithTimeInterval:1./30 repeats:YES block:^(NSTimer*) { [self update]; }];
     }
     return self;
 }
 - (void)persist {
+    [self saveAudioRoute];
     try { state.capture(engine->params);state.captureSamples(*bank); for(size_t i=0;i<128;++i) state.cc[i]=host->cc[i].load(); state.save(sessionPath()); } catch(const std::exception& e) { message=str(e.what()); }
+}
+- (void)saveAudioRoute {
+    if(!routeReady)return;
+    const auto input=static_cast<AudioDeviceID>(inputMenu.selectedItem.tag),output=static_cast<AudioDeviceID>(outputMenu.selectedItem.tag);
+    // Core Audio object IDs are temporary. Persist device UIDs and a named tap.
+    [NSUserDefaults.standardUserDefaults setObject:@{
+        @"inputKind":input==0xfffffffe?@"rekordbox":input?@"device":@"none",
+        @"inputUID":input&&input!=0xfffffffe?audioDeviceUID(input):@"",
+        @"outputUID":audioDeviceUID(output),@"inputPair":@(inputPair.selectedItem.tag),
+        @"outputPair":@(outputPair.selectedItem.tag),@"buffer":@(bufferMenu.titleOfSelectedItem.intValue),@"resume":@(resumeAudio)
+    } forKey:@"RMXAudioRouteV1"];
+}
+- (void)restoreAudioRoute {
+    NSDictionary* saved=[NSUserDefaults.standardUserDefaults dictionaryForKey:@"RMXAudioRouteV1"];
+    if(!saved)return;
+    bool valid=true;
+    const auto output=audioDeviceForUID(saved[@"outputUID"],devices);
+    if(!output||![outputMenu selectItemWithTag:output])valid=false;
+    NSString* kind=saved[@"inputKind"];
+    if([kind isEqualToString:@"rekordbox"])valid=[inputMenu selectItemWithTag:0xfffffffe]&&valid;
+    else if([kind isEqualToString:@"device"]) {
+        const auto input=audioDeviceForUID(saved[@"inputUID"],devices);
+        valid=input&&[inputMenu selectItemWithTag:input]&&valid;
+    } else if(![kind isEqualToString:@"none"])valid=false;
+    [self deviceChanged:nil];
+    if(inputPair.numberOfItems&&![inputPair selectItemWithTag:[saved[@"inputPair"] integerValue]])valid=false;
+    if(![outputPair selectItemWithTag:[saved[@"outputPair"] integerValue]])valid=false;
+    const int frames=[saved[@"buffer"] intValue];
+    for(NSInteger i=0;i<bufferMenu.numberOfItems;++i)if([bufferMenu itemAtIndex:i].title.intValue==frames)[bufferMenu selectItemAtIndex:i];
+    resumeAudio=valid&&[saved[@"resume"] boolValue];
+    if(!valid)message=@"Saved audio device or channel pair is unavailable. Check Audio & MIDI setup before starting.";
+}
+- (void)resumeSavedAudio {
+    if(!resumeAudio)return;
+    if(inputMenu.selectedItem.tag==0xfffffffe&&[NSRunningApplication runningApplicationsWithBundleIdentifier:@"com.pioneerdj.rekordboxdj"].count==0) {
+        message=@"Open rekordbox, then press START AUDIO in Audio & MIDI setup.";[self audioSetup:nil];return;
+    }
+    [self startAudio:nil];
 }
 - (void)refreshDevices {
     const auto oldInput=inputMenu.selectedItem.tag,oldOutput=outputMenu.selectedItem.tag;
@@ -225,6 +280,7 @@ std::filesystem::path sessionPath() {
     auto fill=[&](NSPopUpButton* selection,NSPopUpButton* pairs,bool input) { const auto id=selection.selectedItem.tag; [pairs removeAllItems]; uint32_t channels=id==0xfffffffe?2:0; for(const auto& d:devices) if(d.id==id) channels=input?d.inputs:d.outputs; for(uint32_t i=0;i+1<channels;i+=2) { [pairs addItemWithTitle:[NSString stringWithFormat:@"Ch %u–%u",i+1,i+2]]; pairs.lastItem.tag=i; } };
     fill(inputMenu,inputPair,true); fill(outputMenu,outputPair,false);
     if(host->running()) { host->stop(); startButton.title=@"START AUDIO"; message=@"Device selection changed. Restart audio to apply."; }
+    if(sender&&routeReady) { resumeAudio=NO;[self saveAudioRoute]; }
 }
 - (void)midiChanged:(id)sender { (void)sender; host->selectMidiSource(static_cast<MIDIEndpointRef>(midiMenu.selectedItem.tag)); message=@"MIDI input selected. Right-click a knob to learn a CC. Notes 36–39 trigger drums."; }
 - (void)setAudioSetupEnabled:(BOOL)enabled {
@@ -233,6 +289,7 @@ std::filesystem::path sessionPath() {
 - (void)startAudio:(id)sender {
     (void)sender; if(audioStarting) return;
     if(host->running()) {
+        resumeAudio=NO;[self saveAudioRoute];
         audioStarting=YES; [self setAudioSetupEnabled:NO]; startButton.title=@"STOPPING…";
         auto owner=hostOwner; auto audio=engineOwner; auto assets=bankOwner;
         dispatch_async(audioQueue,^{ (void)audio; (void)assets; owner->stop(); dispatch_async(dispatch_get_main_queue(),^{ self->audioStarting=NO; [self setAudioSetupEnabled:YES]; self->startButton.title=@"START AUDIO"; [self persist]; }); }); return;
@@ -248,7 +305,7 @@ std::filesystem::path sessionPath() {
                 (void)audio; (void)assets; std::string error;
                 const bool ok=input==0xfffffffe?owner->startRekordbox(output,outPair,frames,error):owner->start(input,output,inPair,outPair,frames,error);
                 NSString* failure=str(error);
-                dispatch_async(dispatch_get_main_queue(),^{ self->audioStarting=NO; [self setAudioSetupEnabled:YES]; self->startButton.title=ok?@"STOP AUDIO":@"START AUDIO"; self->message=ok?@"Audio running.":failure;
+                dispatch_async(dispatch_get_main_queue(),^{ self->audioStarting=NO;self->resumeAudio=ok;[self saveAudioRoute]; [self setAudioSetupEnabled:YES]; self->startButton.title=ok?@"STOP AUDIO":@"START AUDIO"; self->message=ok?@"Audio running.":failure;
                     if(!ok) { NSAlert* alert=[NSAlert new]; alert.messageText=@"Audio route could not start"; alert.informativeText=failure; [alert runModal]; }
                 });
             }
@@ -263,7 +320,7 @@ std::filesystem::path sessionPath() {
 }
 - (void)update {
     if(audioStarting) { deviceStatus.stringValue=[NSString stringWithUTF8String:host->startupStage.load()]; [self setNeedsDisplay:YES]; return; }
-    if(host->deviceChanged.exchange(false)) { host->stop(); startButton.title=@"START AUDIO"; [self refreshDevices]; message=@"Audio device disconnected or its sample rate changed. Check routing and restart audio."; }
+    if(host->deviceChanged.exchange(false)) { host->stop();resumeAudio=NO; startButton.title=@"START AUDIO"; [self refreshDevices];[self saveAudioRoute]; message=@"Audio device disconnected or its sample rate changed. Check routing and restart audio."; }
     const float cpu=host->callbackLoad.load()*100;
     deviceStatus.stringValue=host->running()?[NSString stringWithFormat:@"%.0f Hz · CPU %.1f%% · est. I/O %.1f ms\nUnder/overruns %llu/%llu · MIDI drops %llu",host->rate(),cpu,host->latencyMs.load(),host->underruns.load(),host->overruns.load(),host->midiDrops.load()]:@"Audio stopped · presets and samples remain editable";
     if(host->linkEnabled()) deviceStatus.stringValue=[deviceStatus.stringValue stringByAppendingFormat:@" · Link peers %u",host->linkPeers()];
@@ -526,6 +583,7 @@ std::filesystem::path sessionPath() {
     }
     const NSRect screen=NSScreen.mainScreen.visibleFrame; const CGFloat scale=std::min({1.,screen.size.width/1340,(screen.size.height-45)/575.625}); [window setContentSize:{1280*scale,575.625*scale}]; window.minSize={960,454};
     [window center]; [window makeKeyAndOrderFront:nil]; [window makeFirstResponder:surface]; [NSApp activateIgnoringOtherApps:YES];
+    dispatch_async(dispatch_get_main_queue(),^{ [self->surface resumeSavedAudio]; });
 }
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender { (void)sender; return YES; }
 - (void)applicationWillTerminate:(NSNotification*)notification { (void)notification; [surface persist]; [surface stopAudioForTermination]; [surface->timer invalidate]; }

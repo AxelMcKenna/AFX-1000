@@ -10,6 +10,8 @@ On macOS 14.2 or later:
 4. Start audio and allow audio capture if macOS asks. Start playback in rekordbox.
 5. Check the input/output meters, start with neutral isolator controls, and enable one effect at a time.
 
+The native app remembers the selected input, output, channel pairs and buffer size. If you quit with audio running, it reconnects that route when reopened. Choosing **Stop Audio** disables automatic restart. Open rekordbox before reopening RMX for direct capture; if a saved device is missing, review Audio & MIDI setup and start manually.
+
 The application creates a private, temporary Core Audio process tap and aggregate device. Only rekordbox is captured. While the tap is being read, the original application's direct playback is muted to avoid hearing a duplicate dry signal. Stopping RMX destroys the private route and restores normal playback.
 
 This direct mixdown is intended for the Mac-only test. Do not assume it preserves separate cue/master channels when controller headphones are in use. The FLX routes below require their own acceptance test.
