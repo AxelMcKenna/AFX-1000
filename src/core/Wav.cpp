@@ -57,4 +57,19 @@ void writeWav(const std::filesystem::path& path,const Sample& sample) {
     for(auto frame:sample.frames) { put32(out,std::bit_cast<uint32_t>(frame.l)); put32(out,std::bit_cast<uint32_t>(frame.r)); }
     if(!out) throw std::runtime_error("WAV write failed");
 }
+void writeCardWav(const std::filesystem::path& path,const Sample& sample) {
+    if(sample.rate!=48000||sample.frames.empty()||sample.frames.size()>16*48000)throw std::runtime_error("Card samples require 48 kHz audio, at most sixteen seconds");
+    for(auto frame:sample.frames)if(!std::isfinite(frame.l)||!std::isfinite(frame.r)||peak(frame)>1)
+        throw std::runtime_error("Normalize sample peaks to PCM range before card export");
+    std::ofstream out(path,std::ios::binary);if(!out)throw std::runtime_error("Cannot create card WAV");
+    const auto bytes=static_cast<uint32_t>(sample.frames.size()*6);
+    out.write("RIFF",4);put32(out,36+bytes);out.write("WAVEfmt ",8);put32(out,16);put16(out,1);put16(out,2);
+    put32(out,48000);put32(out,48000*6);put16(out,6);put16(out,24);out.write("data",4);put32(out,bytes);
+    for(auto frame:sample.frames)for(float value:{frame.l,frame.r}) {
+        const int32_t signedValue=static_cast<int32_t>(std::clamp(std::llround(static_cast<double>(value)*8388608),-8388608LL,8388607LL));
+        const auto encoded=static_cast<uint32_t>(signedValue);
+        const char pcm[3]{static_cast<char>(encoded),static_cast<char>(encoded>>8),static_cast<char>(encoded>>16)};out.write(pcm,3);
+    }
+    out.flush();if(!out)throw std::runtime_error("Card WAV write failed");
+}
 }

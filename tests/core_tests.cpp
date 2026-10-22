@@ -66,6 +66,7 @@ int main() {
         }
         {
             Rig rig; rig.engine.params.set(rmx::Param::Quantize,0); rig.engine.params.set(rmx::Param::IsolateMode,2); rig.engine.params.set(rmx::Param::Low,1); rig.engine.params.set(rmx::Param::Mid,1); rig.engine.params.set(rmx::Param::High,1);
+            rig.engine.params.set(rmx::Param::SampleSource,1);rig.bank.slots[0].playback={120,true};rig.engine.enqueue({rmx::EventType::Trigger,0});rig.run(1);
             rig.engine.params.set(rmx::Param::XSource,1); rig.engine.enqueue({rmx::EventType::RollStart,0});
             trackAllocations=true;
             for(int i=0;i<1200;++i) rig.engine.process(rig.l.data(),rig.r.data(),rig.ol.data(),rig.orr.data(),static_cast<uint32_t>(i%3==0?1:i%3==1?127:256));

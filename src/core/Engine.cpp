@@ -4,40 +4,39 @@
 namespace rmx {
 namespace {
 constexpr float pi=std::numbers::pi_v<float>;
+// Only performance controls are interpolated per sample. User selectors and
+// other discrete settings are consumed once per block, including on the MCU.
+constexpr std::array smoothedParameters{Param::InputGain,Param::OutputGain,Param::Low,Param::Mid,Param::High,
+    Param::SceneDepth,Param::SceneTime,Param::SceneResonance,Param::XLevel,Param::XPitch,Param::SamplerMute,Param::ReleaseAmount};
 float db(float x) noexcept { return std::pow(10.f,x/20.f); }
-float coefficient(float hz,double sr) noexcept { return 1-std::exp(-2*pi*hz/static_cast<float>(sr)); }
 Stereo finite(Stereo x) noexcept { return {std::isfinite(x.l)?std::clamp(x.l,-16.f,16.f):0, std::isfinite(x.r)?std::clamp(x.r,-16.f,16.f):0}; }
-float level(Stereo x) noexcept { return std::max(std::abs(x.l),std::abs(x.r)); }
+void approach(float& value,float target,float alpha) noexcept {
+    value+=(target-value)*alpha;
+    // Float one-pole smoothers can otherwise stall just short of 0/1,
+    // leaking a dry source through a fully engaged release or bypass.
+    if(std::abs(target-value)<1e-4f) value=target;
 }
-Stereo Engine::Delay::read(double ago) const noexcept {
-    ago=std::clamp(ago,1.,static_cast<double>(buffer.size()-2));
-    double pos=static_cast<double>(head)-ago;
-    if(pos<0) pos+=buffer.size();
-    const auto index=static_cast<size_t>(pos);
-    return mix(buffer[index],buffer[(index+1)%buffer.size()],static_cast<float>(pos-index));
+float level(Stereo x) noexcept { return std::max(std::abs(x.l),std::abs(x.r)); }
 }
 void Engine::prepare(double sampleRate,uint32_t maxBlock) {
     (void)maxBlock;
     sr=std::clamp(sampleRate,8000.,192000.);
     const auto capacity=static_cast<size_t>(sr*16)+4;
-    sceneDelay.prepare(capacity); history.prepare(capacity); rollHistory.prepare(capacity);
-    for(auto& bus:bandLoops) for(auto& band:bus) { band.history.prepare(static_cast<size_t>(sr)+4); band.frozen.assign(static_cast<size_t>(sr)+4,{}); }
-    capturedRoll.assign(static_cast<size_t>(sr*8)+4,{});
-    constexpr std::array<double,8> seconds{.0297,.0371,.0411,.0437,.0531,.0613,.0719,.0797};
-    for(size_t i=0;i<8;++i) reverb[i].prepare(static_cast<size_t>(seconds[i]*sr*2)+3);
+    history.prepare(capacity); sceneProcessor.prepare(sr);
+    for(auto& isolator:isolators) isolator.prepare(sr);
+    // Eight beats at the slowest supported tempo require twelve seconds.
+    capturedRoll.assign(static_cast<size_t>(sr*60/40*xPadBeatValues.back())+4,{});
     smoothing=1-std::exp(-1.f/static_cast<float>(sr*.008));
     tempoTracker.prepare(sr);
     reset();
 }
 void Engine::reset() noexcept {
-    sceneDelay.clear(); history.clear(); rollHistory.clear();
-    for(auto& bus:bandLoops) for(auto& band:bus) { band.history.clear(); band.active=false; band.copied=0; band.position=0; band.length=0; }
-    for(auto& delay:reverb) delay.clear();
-    lowSplit={}; highSplit={}; sceneFilter={}; feedbackFilter={}; reverbDamping={};
-    voices={}; pendingCount=0; sequence={}; sequenceSize=0;
+    sceneProcessor.reset(); history.reset(); rollInput={}; rollInputMix=0;
+    for(auto& isolator:isolators) isolator.reset();
+    voices={}; sequence.clear();
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
-    rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0; captureFrame=0;
-    rollNext=0; rollStart=0; sceneRead=0; releaseRead=0; releaseAge=0; lastTick=-1;
+    rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0;
+    rollNext=0; rollStart=0; releaseRead=0; releaseAge=0; nudgeDirection=0; nudgeOffset=0; tapIntervals={}; tapCount=0; tapIndex=0; tapped=false;
     previousRelease=false; previousOverdub=false;
     bypassMix=params.get(Param::Bypass); sceneMix=0; releaseMix=0;
     p=params.snapshot(); smooth=p;
@@ -45,157 +44,145 @@ void Engine::reset() noexcept {
     isolatePadMix=(get(Param::IsolateSource)==1||get(Param::IsolateSource)==2)?1.f:0.f;
     sceneInputMix=(get(Param::SceneSource)==0||get(Param::SceneSource)==2)?1.f:0.f;
     scenePadMix=(get(Param::SceneSource)==1||get(Param::SceneSource)==2)?1.f:0.f;
-    tempoTracker.reset();
+    tempoTracker.reset(); autoPhaseSlew=0; wasExternalSync=false;
     Event e; while(queue.pop(e)) {}
 }
 bool Engine::enqueue(Event e) noexcept {
+    e=captureEvent(e);
     if(queue.push(e)) return true;
     meters.droppedEvents.fetch_add(1,std::memory_order_relaxed); return false;
 }
-float Engine::noise() noexcept { random^=random<<13; random^=random>>17; random^=random<<5; return static_cast<float>(static_cast<int32_t>(random))/2147483648.f; }
-void Engine::trigger(int pad,float velocity) noexcept {
-    selectedPad=pad%4;
-    if(get(Param::XSource)>.5f) {
-        capturedLength=std::min(capturedRoll.size(),static_cast<size_t>(sr*60/bpm*beatDivisions[static_cast<size_t>(get(Param::XRoll))]));
-        captureCopied=0; captureFrame=frame; capturePosition=0; sourceRoll=true; return;
+Event Engine::captureEvent(Event e)const noexcept {
+    if(e.type==EventType::Trigger||e.type==EventType::SelectPad) {
+        if(e.bank==255)e.bank=static_cast<uint8_t>(params.get(Param::Bank));
+        if(e.source==255)e.source=static_cast<uint8_t>(params.get(Param::SampleSource));
     }
+    return e;
+}
+void Engine::set(Param parameter,float value) noexcept {
+    params.set(parameter,value); p[static_cast<size_t>(parameter)]=params.get(parameter);
+}
+bool Engine::trigger(int pad,float velocity,int bank,int source,bool toggleLoop) noexcept {
+    selectedPad=pad%4;
+    const bool internal=(source<0?static_cast<int>(get(Param::SampleSource)):source)==0;
+    const int slot=internal?16+pad%4:(bank<0?static_cast<int>(get(Param::Bank)):bank%4)*4+pad%4;
     Voice* voice=&voices[0];
     for(auto& v:voices) { if(v.slot<0) { voice=&v; break; } if(v.age>voice->age) voice=&v; }
-    *voice={static_cast<int>(get(Param::Bank))*4+pad%4,0,std::clamp(velocity,0.f,1.f),0};
+    if(samples&&!internal&&samples->slots[slot].playback.loop&&validSamplePlayback(slot,samples->slots[slot].playback))
+        for(auto& v:voices)if(v.slot==slot) {
+            if(toggleLoop) {stopSample(pad,bank<0?static_cast<int>(get(Param::Bank)):bank,1);return true;}
+            voice=&v;break;
+        }
+    *voice={slot,0,std::clamp(velocity,0.f,1.f),0,{}};
+    return false;
 }
-void Engine::schedule(int pad,float velocity) noexcept {
-    double distance=0;
-    if(get(Param::Quantize)>.5f) {
-        double target=std::ceil(beat*4-1.e-7)/4;
-        if(static_cast<int>(std::round(target*4))%2) target+=get(Param::Swing)*.25;
-        distance=std::max(0.,target-beat)*60/bpm*sr;
-    }
-    if(pendingCount<pending.size()) pending[pendingCount++]={frame+static_cast<uint64_t>(distance),static_cast<uint8_t>(pad%4),velocity,get(Param::Overdub)>.5f};
-    else meters.droppedEvents.fetch_add(1,std::memory_order_relaxed);
+void Engine::stopSample(int pad,int bank,int source) noexcept {
+    const int slot=source==0?16+pad%4:(bank%4)*4+pad%4;
+    for(auto& voice:voices)if(voice.slot==slot)voice.slot=-1;
+}
+void Engine::hit(int pad,float velocity,int bank,int source,bool toggleLoop) noexcept {
+    if(bank<0)bank=static_cast<int>(get(Param::Bank));
+    if(source<0)source=static_cast<int>(get(Param::SampleSource));
+    const bool stopped=trigger(pad,velocity,bank,source,toggleLoop);
+    if(get(Param::Overdub)>.5f&&!sequence.record(beat+nudgeOffset,{static_cast<unsigned>(pad%4),static_cast<unsigned>(bank),velocity,source==0,stopped}))
+        meters.droppedEvents.fetch_add(1,std::memory_order_relaxed);
 }
 void Engine::event(Event e) noexcept {
     switch(e.type) {
-        case EventType::Trigger: schedule(e.pad,e.velocity); break;
-        case EventType::RollStart: rollPad=e.pad%4; selectedPad=rollPad; rollNext=beat; rollStart=beat; break;
-        case EventType::RollStop: if(get(Param::XHold)<.5f) { rollPad=-1; sourceRoll=false; } break;
-        case EventType::ClearSequence: sequence={}; sequenceSize=0; break;
+        // Hardware one-shots are immediate, including when QUANTIZE is on.
+        case EventType::Trigger: set(Param::XSource,0); hit(e.pad,e.velocity,e.bank==255?-1:e.bank,e.source==255?-1:e.source); break;
+        case EventType::SelectPad: selectedPad=e.pad%4;set(Param::XSource,0);break;
+        case EventType::RollStart: {
+            rollPad=e.pad%4; selectedPad=rollPad; rollStart=beat+nudgeOffset; if(get(Param::XSource)>.5f) sourceRoll=false;
+            const double division=xPadDivision(p);
+            rollNext=get(Param::Quantize)>.5f?std::ceil(rollStart/division-1e-7)*division:rollStart;
+            break;
+        }
+        case EventType::RollStop: if(get(Param::XHold)<.5f) rollPad=-1; break;
+        case EventType::ClearSequence: sequence.clear(); break;
+        case EventType::MutePad: sequence.toggleMute(e.pad); break;
+        case EventType::DeletePad:
+            sequence.erase(e.pad%4);
+            for(auto& voice:voices) if(voice.slot>=0&&voice.slot%4==e.pad%4) voice.slot=-1;
+            break;
+        case EventType::Nudge: nudgeOffset+=(e.velocity<0?-1:1)/96.; break;
+        case EventType::NudgeStart: nudgeDirection=e.velocity<0?-1:1; break;
+        case EventType::NudgeStop: nudgeDirection=0; break;
         case EventType::Panic:
-            voices={}; rollPad=-1; sourceRoll=false; pendingCount=0; sequence={}; sequenceSize=0;
-            params.set(Param::SceneOn,0); params.set(Param::ReleaseAmount,0); params.set(Param::Low,0); params.set(Param::Mid,0); params.set(Param::High,0); params.set(Param::XHold,0); params.set(Param::Overdub,0);
-            p=params.snapshot(); break;
+            voices={}; rollPad=-1; sourceRoll=false; sequence.clear(); nudgeDirection=0; nudgeOffset=0;
+            set(Param::SceneOn,0); set(Param::ReleaseAmount,0); set(Param::Low,0); set(Param::Mid,0); set(Param::High,0); set(Param::XHold,0); set(Param::Overdub,0);
+            break;
         case EventType::Tap:
-            if(lastTap>0) { const double tapped=60*sr/(frame-lastTap); if(tapped>=40&&tapped<=240) { params.set(Param::Tempo,static_cast<float>(tapped)); params.set(Param::AutoTempo,0); bpm=tapped; } }
-            lastTap=frame?frame:1; beat=std::floor(beat); break;
+            if(tapped&&frame>lastTap) {
+                const double interval=(frame-lastTap)/sr;
+                if(interval>=.25&&interval<=1.5) {
+                    tapIntervals[tapIndex++%tapIntervals.size()]=interval; tapCount=std::min(tapCount+1,tapIntervals.size());
+                    double sum=0; for(size_t i=0;i<tapCount;++i) sum+=tapIntervals[i];
+                    bpm=60*tapCount/sum; set(Param::Tempo,static_cast<float>(bpm)); set(Param::AutoTempo,0);
+                } else { tapCount=0; tapIndex=0; }
+            }
+            lastTap=frame; tapped=true; beat=std::floor(beat); break;
     }
 }
 Stereo Engine::sample() noexcept {
     Stereo out{};
-    if(!samples) return out;
     const double ratio=std::pow(2.,sm(Param::XPitch)/12.);
     for(auto& v:voices) {
-        if(v.slot<0) continue;
-        const auto& asset=samples->slots[static_cast<size_t>(v.slot)];
+        if(v.slot<0||!samples) continue;
+        const auto& asset=v.slot<16?samples->slots[static_cast<size_t>(v.slot)]:samples->internal[static_cast<size_t>(v.slot-16)];
+        if(asset.frames.empty()||!std::isfinite(asset.rate)||asset.rate<8000||asset.rate>192000) {v.slot=-1;continue;}
+        const bool loop=v.slot<16&&asset.playback.loop&&validSamplePlayback(static_cast<size_t>(v.slot),asset.playback);
+        if(v.position>=asset.frames.size()) {
+            if(loop)v.position=std::fmod(v.position,static_cast<double>(asset.frames.size()));
+            else {v.slot=-1;continue;}
+        }
         const auto index=static_cast<size_t>(v.position);
-        if(index+1>=asset.frames.size()) { v.slot=-1; continue; }
-        const float fade=std::min(1.f,static_cast<float>(v.age)/32.f)*std::min(1.f,static_cast<float>(asset.frames.size()-index)/64.f);
-        out=out+mix(asset.frames[index],asset.frames[index+1],static_cast<float>(v.position-index))*(v.velocity*fade);
-        v.position+=ratio*asset.rate/sr; ++v.age;
+        const size_t next=index+1<asset.frames.size()?index+1:loop?0:index;
+        const float fadeIn=std::min(1.f,(static_cast<float>(v.age)+1)/std::min(size_t{32},asset.frames.size()));
+        const float fadeOut=loop?1.f:std::min(1.f,static_cast<float>(asset.frames.size()-index)/std::min(size_t{64},asset.frames.size()));
+        const double pitchStep=ratio*asset.rate/sr;
+        const Stereo value=loop?v.stretch.process(asset.frames,v.position,pitchStep,
+            asset.rate/sr*bpm/asset.playback.bpm,sr,asset.rate):
+            mix(asset.frames[index],asset.frames[next],static_cast<float>(v.position-index));
+        out=out+value*(v.velocity*fadeIn*fadeOut);
+        if(!loop)v.position+=pitchStep;
+        if(v.age<std::numeric_limits<uint32_t>::max())++v.age;
     }
+    Stereo roll{};
     if(sourceRoll&&capturedLength>1) {
-        // Copy the frozen window incrementally: never copy seconds of audio in one callback.
-        for(int copied=0;copied<32&&captureCopied<capturedLength;++copied,++captureCopied)
-            capturedRoll[captureCopied]=rollHistory.read(static_cast<double>(frame-captureFrame+capturedLength-captureCopied));
-        const auto i=static_cast<size_t>(capturePosition)%capturedLength;
-        const float fade=std::min(1.f,static_cast<float>(i)/32.f)*std::min(1.f,static_cast<float>(capturedLength-i)/32.f);
-        auto captured=[&](size_t index) { return index<captureCopied?capturedRoll[index]:rollHistory.read(static_cast<double>(frame-captureFrame+capturedLength-index)); };
-        out=out+mix(captured(i),captured((i+1)%capturedLength),static_cast<float>(capturePosition-std::floor(capturePosition)))*fade;
-        capturePosition+=ratio;
-        if(capturePosition>=capturedLength) { capturePosition=std::fmod(capturePosition,static_cast<double>(capturedLength)); if(rollPad<0) sourceRoll=false; }
+        if(captureCopied<capturedLength) {
+            // The hardware records FROM the touch, not the preceding audio.
+            // Monitor live input during the first pass; then repeat that fixed
+            // capture. There is no moving recapture on subsequent repetitions.
+            capturedRoll[captureCopied++]=rollInput; roll=rollInput;
+        } else {
+            const auto i=static_cast<size_t>(capturePosition)%capturedLength;
+            const float fade=std::min(1.f,static_cast<float>(i)/32.f)*std::min(1.f,static_cast<float>(capturedLength-i)/32.f);
+            roll=mix(capturedRoll[i],capturedRoll[(i+1)%capturedLength],static_cast<float>(capturePosition-std::floor(capturePosition)))*fade;
+            capturePosition=std::fmod(capturePosition+ratio,static_cast<double>(capturedLength));
+        }
     }
-    return out*(sm(Param::XLevel)*(1-sm(Param::SamplerMute)));
+    return out*(sm(Param::XLevel)*(1-sm(Param::SamplerMute)))+roll*rollInputMix;
 }
 Stereo Engine::isolate(Stereo x,size_t bus) noexcept {
-    Stereo low=lowSplit[bus].low(x,lowAlpha), upper=highSplit[bus].low(x,highAlpha);
-    std::array<Stereo,3> bands{low,upper-low,x-upper};
-    const int mode=static_cast<int>(get(Param::IsolateMode));
-    Stereo out{};
-    for(size_t b=0;b<3;++b) {
-        const float k=sm(static_cast<Param>(static_cast<int>(Param::Low)+b));
-        Stereo y=bands[b];
-        auto& loop=bandLoops[bus][b]; loop.history.push(y);
-        if(mode!=2||k<=.0001f) loop.active=false;
-        if(mode==0) y=y*(k<0?1+k:1+k*2);
-        else if(mode==1) {
-            const float gate=static_cast<float>(std::fmod(beat*4,1.)<.5);
-            y=k<0?y*(1+k):y*(1+k*gate*2);
-        } else if(mode==2) {
-            const double phase=std::fmod(beat*4,1.);
-            const float gate=static_cast<float>(phase<.5);
-            if(k<0) y=y*(1+k*(1-gate));
-            else if(k>.0001f) {
-                const auto length=std::max(size_t(8),static_cast<size_t>(60*sr/bpm*.25/std::pow(2.,std::floor(k*4))));
-                if(!loop.active||loop.length!=length) { loop.active=true; loop.length=std::min(length,loop.frozen.size()); loop.copied=0; loop.position=0; loop.start=frame; }
-                for(int n=0;n<4&&loop.copied<loop.length;++n,++loop.copied) loop.frozen[loop.copied]=loop.history.read(static_cast<double>(frame-loop.start+loop.length-loop.copied));
-                const auto index=static_cast<size_t>(loop.position);
-                auto read=[&](size_t i) { return i<loop.copied?loop.frozen[i]:loop.history.read(static_cast<double>(frame-loop.start+loop.length-i)); };
-                const float fade=std::min(1.f,static_cast<float>(index)/16)*std::min(1.f,static_cast<float>(loop.length-index)/16);
-                y=mix(y,read(index)*fade,k);
-                loop.position+=1; if(loop.position>=loop.length) loop.position=0;
-            }
-        } else {
-            const float magnitude=level(y);
-            if(k<0) { const float threshold=-k*.2f; y=y*std::clamp((magnitude-threshold)*50.f,0.f,1.f); }
-            else if(k>1.e-5f) { const float drive=1+k*12; y={std::tanh(y.l*drive)/std::sqrt(drive),std::tanh(y.r*drive)/std::sqrt(drive)}; }
-        }
-        out=out+y;
-    }
-    return out;
-}
-Stereo Engine::room(Stereo x) noexcept {
-    constexpr std::array<double,8> seconds{.0297,.0371,.0411,.0437,.0531,.0613,.0719,.0797};
-    std::array<Stereo,8> taps{}; Stereo sum{}, wet{};
-    const float size=.35f+get(Param::SceneTime)/7*1.4f;
-    const float decay=std::clamp(sm(Param::ReverbDecay)*.7f+sm(Param::SceneResonance)*.28f,.1f,.95f);
-    for(size_t i=0;i<8;++i) { taps[i]=reverbDamping[i].low(reverb[i].read(sr*seconds[i]*size),.12f+sm(Param::SceneResonance)*.3f); sum=sum+taps[i]; wet=wet+taps[i]*(i%2?.16f:-.16f); }
-    for(size_t i=0;i<8;++i) reverb[i].push(finite(x*.2f+(sum*.25f-taps[i])*decay));
-    return {wet.l+sum.r*.1f,wet.r+sum.l*.1f};
+    isolators[bus].tempo(bpm);
+    return isolators[bus].process(x,{sm(Param::Low),sm(Param::Mid),sm(Param::High)},beat+nudgeOffset);
 }
 Stereo Engine::scene(Stereo x) noexcept {
-    const int type=static_cast<int>(get(Param::SceneType));
-    const float depth=sm(Param::SceneDepth);
-    const double delay=std::clamp(sr*60/bpm*beatDivisions[static_cast<size_t>(get(Param::SceneTime))],2.,sr*14);
-    Stereo echo=sceneDelay.read(delay), send=x, wet=echo;
-    const float cutoff=300+depth*10000;
-    if(type==0) { const Stereo lo=sceneFilter.low(x,coefficient(cutoff,sr)); send=lo-feedbackFilter.low(lo,coefficient(cutoff*.35f,sr)); wet=echo; }
-    if(type==2) { const float n=noise()*.35f; send=sceneFilter.low({n,n},coefficient(300+sm(Param::NoiseColor)*12000,sr)); wet=send+echo*.5f; }
-    if(type==3||type==8) {
-        const double speed=std::pow(2.,static_cast<double>(depth)*(type==3?1:-1));
-        sceneRead+=1-speed; if(sceneRead<0) sceneRead+=delay; if(sceneRead>=delay) sceneRead-=delay;
-        const double phase=sceneRead/delay;
-        const float weight=static_cast<float>(.5-.5*std::cos(2*pi*phase));
-        wet=sceneDelay.read(2+sceneRead)*weight+sceneDelay.read(2+std::fmod(sceneRead+delay*.5,delay))*(1-weight);
-    }
-    if(type==5) send=x-sceneFilter.low(x,coefficient(80+depth*7000,sr));
-    if(type==6) send=sceneFilter.low(x,coefficient(18000*std::pow(.02f,depth),sr));
-    if(type==7) { const float steps=std::pow(2.f,14-depth*11); send={std::round(x.l*steps)/steps,std::round(x.r*steps)/steps}; wet=echo+send*.3f; }
-    if(type==4||type==9) wet=room(type==9?x*(1-depth*.8f):x);
-    else (void)room({}); // Allow existing reverb to decay without stale frozen state.
-    const float feedback=std::min(.96f,sm(Param::Feedback)*(.7f+sm(Param::SceneResonance)*.6f));
-    sceneDelay.push(finite(send*sceneMix+echo*feedback));
-    const float amount=depth*sceneMix;
-    if(type==2) return x+wet*amount;
-    if(type>=5) return mix(x,send*(1-depth*.7f)+wet*depth,sceneMix*depth);
-    return x+wet*(amount*.8f);
+    return sceneProcessor.process(x,sm(Param::SceneDepth),sm(Param::SceneTime),sm(Param::SceneResonance),sceneMix,bpm,beat,peak(rollInput));
 }
 Stereo Engine::release(Stereo x) noexcept {
     const bool active=get(Param::ReleaseAmount)>.005f;
     if(active&&!previousRelease) { releaseAge=0; releaseRead=0; }
     if(!active&&previousRelease) {
-        params.set(Param::SceneOn,0); params.set(Param::Low,0); params.set(Param::Mid,0); params.set(Param::High,0); params.set(Param::XHold,0); params.set(Param::Overdub,0);
-        p=params.snapshot(); rollPad=-1; sourceRoll=false; voices={}; sequenceSize=0; pendingCount=0;
+        if(get(Param::ReleaseKeepScene)<.5f) set(Param::SceneOn,0);
+        if(get(Param::ReleaseKeepIsolate)<.5f) { set(Param::Low,0); set(Param::Mid,0); set(Param::High,0); }
+        if(get(Param::ReleaseKeepSampler)<.5f) {
+            set(Param::XHold,0); set(Param::Overdub,0); rollPad=-1; sourceRoll=false; voices={}; sequence.clear();
+        }
     }
     previousRelease=active;
-    releaseMix+=(static_cast<float>(active)-releaseMix)*smoothing;
+    approach(releaseMix,static_cast<float>(active),smoothing);
     Stereo wet{};
     if(active||releaseMix>.0001f) {
         const float lever=sm(Param::ReleaseAmount);
@@ -214,71 +201,128 @@ void Engine::detectTempo(Stereo x) noexcept {
     if(frame%256==0) {
         meters.confidence.store(tempoTracker.certainty(),std::memory_order_relaxed);
         if(get(Param::AutoTempo)>.5f&&tempoTracker.certainty()>.15f) bpm=tempoTracker.bpm();
+        autoPhaseSlew=get(Param::AutoTempo)>.5f&&get(Param::Quantize)>.5f&&tempoTracker.phaseLocked()?tempoTracker.phaseSlew(beat):0;
     }
 }
 void Engine::process(const float* left,const float* right,float* outL,float* outR,uint32_t frames,Transport transport,std::span<const Event> events) noexcept {
     if(!frames) return;
     p=params.snapshot();
-    if(get(Param::UserSettings)<.5f) for(auto setting:{Param::LowCrossover,Param::HighCrossover,Param::Feedback,Param::ReverbDecay,Param::NoiseColor,Param::Swing}) p[static_cast<size_t>(setting)]=parameters[static_cast<size_t>(setting)].initial;
+    transport.synced=transport.synced&&std::isfinite(transport.bpm)&&transport.bpm>=40&&transport.bpm<=240;
+    if(wasExternalSync&&!transport.synced) { tempoTracker.reset();autoPhaseSlew=0;meters.confidence.store(0,std::memory_order_relaxed); }
+    wasExternalSync=transport.synced;
+    if(transport.synced) meters.confidence.store(1,std::memory_order_relaxed);
+    if(get(Param::UserSettings)<.5f) for(size_t i=0;i<parameterCount;++i) if(parameters[i].advanced) p[i]=parameters[i].initial;
     if(transport.synced&&std::isfinite(transport.bpm)&&transport.bpm>=40&&transport.bpm<=240) { bpm=transport.bpm; if(std::isfinite(transport.beat)) beat=transport.beat; }
     else if(get(Param::AutoTempo)<.5f) bpm=get(Param::Tempo);
-    lowAlpha=coefficient(get(Param::LowCrossover),sr); highAlpha=coefficient(get(Param::HighCrossover),sr);
+    IsolatorSettings iso;
+    iso.mode=static_cast<int>(get(Param::IsolateMode));iso.lowHz=get(Param::LowCrossover);iso.highHz=get(Param::HighCrossover);
+    for(unsigned b=0;b<3;++b) {
+        auto value=[&](Param first){return static_cast<int>(get(static_cast<Param>(static_cast<unsigned>(first)+b)));};
+        iso.minimum[b]=value(Param::IsolateMinLow);iso.maximum[b]=value(Param::IsolateMaxLow);
+        iso.addPattern[b]=value(Param::AddPatternLow);iso.transPattern[b]=value(Param::TransPatternLow);iso.rollPattern[b]=value(Param::BandRollPatternLow);
+        iso.gateDepth[b]=value(Param::GateDepthLow);iso.driveDepth[b]=value(Param::DriveDepthLow);
+    }
+    iso.kickStrength=static_cast<int>(get(Param::CutKickStrength));iso.cutHpfResonance=get(Param::CutHpfResonance)>.5f;iso.cutLpfResonance=get(Param::CutLpfResonance)>.5f;
+    for(auto& isolator:isolators) isolator.configure(iso);
+    SceneSettings sceneSettings;sceneSettings.type=static_cast<int>(get(Param::SceneType));
+    auto integer=[&](Param p){return static_cast<int>(get(p));};
+    sceneSettings.sub2Mode[0]=integer(Param::BpfModMode);sceneSettings.waveform[0]=integer(Param::BpfWave);sceneSettings.resonance[0]=integer(Param::BpfResonance);
+    sceneSettings.sub2Mode[5]=integer(Param::HpfModMode);sceneSettings.waveform[5]=integer(Param::HpfWave);sceneSettings.resonance[5]=integer(Param::HpfResonance);
+    sceneSettings.sub2Mode[6]=integer(Param::LpfModMode);sceneSettings.waveform[6]=integer(Param::LpfWave);sceneSettings.resonance[6]=integer(Param::LpfResonance);
+    sceneSettings.sub2Mode[2]=integer(Param::NoiseModMode);sceneSettings.waveform[2]=integer(Param::NoiseWave);sceneSettings.resonance[2]=integer(Param::NoiseResonance);
+    sceneSettings.feedbackCharacter[0]=integer(Param::BpfFeedbackChar);
+    sceneSettings.feedbackCharacter[1]=integer(Param::EchoFeedbackChar);
+    sceneSettings.feedbackCharacter[3]=integer(Param::SpiralUpFeedbackChar);
+    sceneSettings.feedbackCharacter[5]=integer(Param::HpfFeedbackChar);
+    sceneSettings.feedbackCharacter[6]=integer(Param::LpfFeedbackChar);
+    sceneSettings.feedbackCharacter[7]=integer(Param::CrushFeedbackChar);
+    sceneSettings.feedbackCharacter[8]=integer(Param::SpiralDownFeedbackChar);
+    sceneSettings.waveform[7]=integer(Param::CrushWave);sceneSettings.width[0]=integer(Param::BpfWidth);sceneSettings.width[2]=integer(Param::NoiseWidth);sceneSettings.width[7]=integer(Param::CrushWidth);
+    sceneSettings.noiseMinimum=integer(Param::NoiseMinimum);sceneSettings.noiseMaximum=integer(Param::NoiseMaximum);
+    sceneSettings.echoFilter=integer(Param::EchoFilter);sceneSettings.echoFeedbackMode=integer(Param::EchoFeedbackMode);
+    sceneSettings.spiralPitchMode={integer(Param::SpiralUpPitchMode),integer(Param::SpiralDownPitchMode)};sceneSettings.spiralTimeSpan={integer(Param::SpiralUpTimeSpan),integer(Param::SpiralDownTimeSpan)};
+    sceneSettings.roomSize={integer(Param::ReverbUpRoomSize),integer(Param::ReverbDownRoomSize)};sceneSettings.reverbTime={integer(Param::ReverbUpTime),integer(Param::ReverbDownTime)};
+    sceneSettings.width[1]=integer(Param::EchoWidth);
+    sceneSettings.reverbFilter={integer(Param::ReverbUpFilter),integer(Param::ReverbDownFilter)};
+    for(const auto group:sceneDelayGroups)for(unsigned region=0;region<4;++region)
+        sceneSettings.delayBeats[group.scene][region]=integer(static_cast<Param>(static_cast<unsigned>(group.first)+region));
+    sceneSettings.feedback=get(Param::Feedback);sceneSettings.decay=get(Param::ReverbDecay);sceneSettings.noiseColor=get(Param::NoiseColor);sceneProcessor.configure(sceneSettings);
+
+    const bool overdub=get(Param::Overdub)>.5f;
+    if(!overdub&&previousOverdub) { sequence.clear(); voices={}; }
+    previousOverdub=overdub;
     Event e; while(queue.pop(e)) event(e);
     size_t eventIndex=0;
     float inputPeak=0,outputPeak=0;
     for(uint32_t i=0;i<frames;++i,++frame) {
         while(eventIndex<events.size()&&events[eventIndex].offset<=i) event(events[eventIndex++]);
-        for(size_t k=0;k<parameterCount;++k) smooth[k]+=(p[k]-smooth[k])*smoothing;
-        const int tick=static_cast<int>(std::floor(beat*24+1.e-7))%384;
-        if(tick!=lastTick&&transport.playing) {
-            for(size_t j=0;j<sequenceSize;++j) if(sequence[j].active&&sequence[j].tick==tick) trigger(sequence[j].pad,sequence[j].velocity);
-            lastTick=tick;
+        for(auto parameter:smoothedParameters) {
+            const auto k=static_cast<size_t>(parameter);smooth[k]+=(p[k]-smooth[k])*smoothing;
         }
-        for(size_t j=0;j<pendingCount;) {
-            if(pending[j].at<=frame) {
-                const auto pendingEvent=pending[j]; trigger(pendingEvent.pad,pendingEvent.velocity);
-                if(pendingEvent.record&&sequenceSize<sequence.size()) {
-                    const auto tick=static_cast<uint16_t>(static_cast<int>(std::round(beat*24))%384);
-                    sequence[sequenceSize++]={pendingEvent.pad,pendingEvent.velocity,tick,true};
+        const double performanceBeat=beat+nudgeOffset;
+        sequence.advance(performanceBeat,transport.playing,[&](Sequencer::Hit hit) {
+            if(hit.stop)stopSample(static_cast<int>(hit.pad),static_cast<int>(hit.bank),hit.internal?0:1);
+            else trigger(static_cast<int>(hit.pad),hit.velocity,static_cast<int>(hit.bank),hit.internal?0:1);
+        });
+        if(rollPad>=0&&performanceBeat+1e-8>=rollNext&&transport.playing) {
+            if(get(Param::XSource)>.5f) {
+                // Freeze once per gesture. Repetition must not capture a new
+                // moving window on every cycle of a held roll.
+                if(!sourceRoll) {
+                    capturedLength=std::min(capturedRoll.size(),static_cast<size_t>(std::llround(sr*60/bpm*xPadDivision(p))));
+                    captureCopied=0; capturePosition=0; sourceRoll=true;
                 }
-                pending[j]=pending[--pendingCount];
-            } else ++j;
+            } else hit(rollPad,1,-1,-1,false);
+            const double division=xPadDivision(p);
+            rollNext=performanceBeat+division;
         }
-        if(rollPad>=0&&beat>=rollNext) { trigger(rollPad,1); rollNext=beat+beatDivisions[static_cast<size_t>(get(Param::XRoll))]; }
         Stereo raw{left?left[i]:0,right?right[i]:(left?left[i]:0)}; raw=finite(raw);
         Stereo input=raw*db(sm(Param::InputGain));
         inputPeak=std::max(inputPeak,level(input));
         if(!transport.synced) detectTempo(input);
-        rollHistory.push(input);
+        rollInput=input;
+        const float rollTarget=sourceRoll&&rollPad>=0&&get(Param::XSource)>.5f?std::min(1.f,sm(Param::XLevel))*(1-sm(Param::SamplerMute)):0.f;
+        approach(rollInputMix,rollTarget,smoothing);
+        if(rollTarget==0&&rollInputMix<1e-6f) sourceRoll=false;
         Stereo drums=sample(), processed{};
+        input=input*(1-rollInputMix);
         const int isoSource=static_cast<int>(get(Param::IsolateSource));
-        isolateInputMix+=(((isoSource==0||isoSource==2)?1.f:0.f)-isolateInputMix)*smoothing;
-        isolatePadMix+=(((isoSource==1||isoSource==2)?1.f:0.f)-isolatePadMix)*smoothing;
+        approach(isolateInputMix,(isoSource==0||isoSource==2)?1.f:0.f,smoothing);
+        approach(isolatePadMix,(isoSource==1||isoSource==2)?1.f:0.f,smoothing);
         input=mix(input,isolate(input,0),isolateInputMix); drums=mix(drums,isolate(drums,1),isolatePadMix);
         const int sceneSource=static_cast<int>(get(Param::SceneSource));
-        sceneInputMix+=(((sceneSource==0||sceneSource==2)?1.f:0.f)-sceneInputMix)*smoothing;
-        scenePadMix+=(((sceneSource==1||sceneSource==2)?1.f:0.f)-scenePadMix)*smoothing;
-        sceneMix+=(get(Param::SceneOn)*std::max(sceneInputMix,scenePadMix)-sceneMix)*smoothing;
+        approach(sceneInputMix,(sceneSource==0||sceneSource==2)?1.f:0.f,smoothing);
+        approach(scenePadMix,(sceneSource==1||sceneSource==2)?1.f:0.f,smoothing);
+        approach(sceneMix,get(Param::SceneOn),smoothing);
         const Stereo send=input*sceneInputMix+drums*scenePadMix;
-        processed=input+drums+(scene(send)-send);
-        processed=release(processed);
+        // FX SOURCE selects the whole processing chain, including RELEASE.
+        // Unselected sources bypass it. Noise is generated inside scene() even
+        // when neither input is selected.
+        processed=input+drums-send+release(scene(send));
         if(get(Param::WetOnly)>.5f) processed=processed-raw*db(sm(Param::InputGain));
         processed=processed*db(sm(Param::OutputGain));
-        bypassMix+=(get(Param::Bypass)-bypassMix)*smoothing;
+        approach(bypassMix,get(Param::Bypass),smoothing);
         processed=finite(mix(processed,raw,bypassMix));
         // Transparent below unity; bounded soft protection above unity.
         auto protect=[](float v) { const float a=std::abs(v); return a<=1?v:std::copysign(1+.25f*std::tanh((a-1)*4),v); };
         outL[i]=protect(processed.l); outR[i]=protect(processed.r);
         outputPeak=std::max(outputPeak,level({outL[i],outR[i]}));
-        if(transport.playing) beat+=bpm/(60*sr);
+        if(transport.playing) {
+            beat+=bpm/(60*sr);
+            // Follow confident detected pulse phase gradually; never jump the
+            // sequencer timeline or override an external host/MIDI/Link clock.
+            if(!transport.synced&&get(Param::AutoTempo)>.5f&&get(Param::Quantize)>.5f) beat+=autoPhaseSlew/sr;
+            nudgeOffset+=nudgeDirection*.02*bpm/(60*sr);
+        }
     }
+    meters.sequenceSteps.store(static_cast<unsigned>(sequence.size()),std::memory_order_relaxed); meters.padMuteMask.store(sequence.muteMask(),std::memory_order_relaxed);
     meters.input.store(inputPeak,std::memory_order_relaxed); meters.output.store(outputPeak,std::memory_order_relaxed); meters.tempo.store(static_cast<float>(bpm),std::memory_order_relaxed);
 }
 
-SampleBank makeFactoryBank(double rate) {
+SampleBank makeFactoryBank(double rate,bool fillSampleBanks) {
     SampleBank bank;
-    for(int slot=0;slot<16;++slot) {
-        auto& s=bank.slots[static_cast<size_t>(slot)]; s.rate=rate;
+    for(int slot=0;slot<(fillSampleBanks?16:4);++slot) {
+        auto& s=fillSampleBanks?bank.slots[static_cast<size_t>(slot)]:bank.internal[static_cast<size_t>(slot)]; s.rate=rate;
         const int type=slot%4, variation=slot/4;
         const double length=type==0?.7:type==1?.38:type==2?.32:.16;
         s.frames.resize(static_cast<size_t>(rate*length));
@@ -295,6 +339,7 @@ SampleBank makeFactoryBank(double rate) {
             s.frames[i]={value,value};
         }
     }
+    if(fillSampleBanks)for(size_t pad=0;pad<4;++pad)bank.internal[pad]=bank.slots[pad];
     return bank;
 }
 }
