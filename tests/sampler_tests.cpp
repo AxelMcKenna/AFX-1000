@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <new>
 #include <chrono>
+#include <limits>
 
 using namespace rmx;
 static thread_local bool trackAllocations=false;
@@ -107,8 +108,10 @@ int main() {try {
         const unsigned expected=pitch==0?500:1000;require(rises>=expected-3&&rises<=expected+3,"Loop tempo adjustment changed the requested pitch");
     }
     {
-        // No-stretch playback must keep the exact original interpolation, not
-        // introduce windowing, latency or an initial phase offset.
+        // No-stretch playback must preserve linear interpolation without
+        // windowing, latency or an initial phase offset. GCC can contract the
+        // multiply/add operations differently after inlining on ARM, so allow
+        // float rounding rather than requiring identical intermediate bits.
         std::array<Stereo,113> frames{};
         for(size_t i=0;i<frames.size();++i)frames[i]={static_cast<float>(i)/200,-static_cast<float>(i)/300};
         for(double step:{.25,1.,2.,6.}) {
@@ -117,7 +120,8 @@ int main() {try {
                 const size_t first=static_cast<size_t>(expected),next=(first+1)%frames.size();
                 const Stereo target=mix(frames[first],frames[next],static_cast<float>(expected-first));
                 const Stereo actual=stretch.process(frames,timeline,step,step,48000,48000);
-                require(actual.l==target.l&&actual.r==target.r,"Neutral loop stretch altered interpolation");
+                constexpr float rounding=2*std::numeric_limits<float>::epsilon();
+                require(std::abs(actual.l-target.l)<=rounding&&std::abs(actual.r-target.r)<=rounding,"Neutral loop stretch altered interpolation");
                 expected=std::fmod(expected+step,static_cast<double>(frames.size()));
             }
         }

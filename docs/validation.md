@@ -1,5 +1,24 @@
 # Validation record
 
+## Linux ARM interpolation assertion, 23 October 2026
+
+The reported GitHub Actions `ubuntu-24.04-arm` run passed 25 of 26 entries and
+failed `sampler` at "Neutral loop stretch altered interpolation". That assertion
+required bit-identical results from two separately optimized linear-interpolation
+expressions. GCC permits floating-point multiply/add contraction by default in
+C++, which can change the last rounded bits after inlining; see the
+[GCC optimization options](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-ffp-contract).
+This is the suspected portability cause, not a measured audio discontinuity.
+
+The assertion now allows two float epsilons (approximately 2.38e-7 full scale)
+per channel, retaining its 10,000-frame comparisons at four playback steps.
+There is no DSP or compiler-flag change. The updated sampler target compiles and
+links with AppleClang on arm64; tests were not executed for this change. The
+GitHub Linux ARM rerun remains outstanding. Earlier passing local records below
+do not establish a passing CI matrix for this revision.
+
+## Earlier local validation
+
 Verified during development on Apple Silicon macOS 26.6.2:
 
 - Native macOS application builds, opens, enumerates audio/MIDI devices, and starts output.
