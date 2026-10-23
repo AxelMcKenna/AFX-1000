@@ -1,0 +1,1677 @@
+{
+  "schema": 1,
+  "revision": "A0.2-draft",
+  "project": "line-audio",
+  "title": "RMX - unbalanced line interface and gain modes",
+  "paper": "A1",
+  "mcu_gpio": {},
+  "bom_file": "line-audio-bom.csv",
+  "sheet_notes": [
+    "RMX A0.2 / LINE AUDIO / DRAFT - RCA and TS harness, 10kohm minimum external load; match the actual Rev7 Seed by calibration",
+    "Passive ADC pad includes the Seed 13.6kohm TYPICAL input impedance. No high-voltage amplifier is connected to the ADC input.",
+    "SW33 is one four-pole mode switch: MASTER adds input shunts; SEND/RETURN adds output feedback shunts. Change modes in manual bypass.",
+    "K3 mute is on relay-audio; delayed K1/K2 choose dry/wet. Pop/click, stability, headroom, protection and final parts require physical validation."
+  ],
+  "components": [
+    {
+      "ref": "J_AUD1",
+      "value": "SEED AUDIO HEADER PINS 16/17/18/19/20",
+      "pins": [
+        {
+          "number": "1",
+          "name": "ADC_L",
+          "type": "passive",
+          "net": "ADC_L"
+        },
+        {
+          "number": "2",
+          "name": "ADC_R",
+          "type": "passive",
+          "net": "ADC_R"
+        },
+        {
+          "number": "3",
+          "name": "DAC_L",
+          "type": "passive",
+          "net": "DAC_L"
+        },
+        {
+          "number": "4",
+          "name": "DAC_R",
+          "type": "passive",
+          "net": "DAC_R"
+        },
+        {
+          "number": "5",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical",
+      "package": "1x5 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        71.12
+      ]
+    },
+    {
+      "ref": "J_AUD2",
+      "value": "ANALOG POWER",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+20VA",
+          "type": "passive",
+          "net": "+20VA"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "-20VA",
+          "type": "passive",
+          "net": "-20VA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        71.12
+      ]
+    },
+    {
+      "ref": "J_IN_L1",
+      "value": "TS INPUT L",
+      "pins": [
+        {
+          "number": "T",
+          "name": "TIP",
+          "type": "passive",
+          "net": "IN_L_P"
+        },
+        {
+          "number": "S",
+          "name": "SLEEVE",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "isolated panel TS jack; no normal contact model until part is frozen",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        71.12
+      ]
+    },
+    {
+      "ref": "J_RCA_IN_L1",
+      "value": "RCA INPUT L",
+      "pins": [
+        {
+          "number": "C",
+          "name": "CENTER",
+          "type": "passive",
+          "net": "IN_L_P"
+        },
+        {
+          "number": "S",
+          "name": "SHELL",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "isolated panel RCA jack; exact part pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        71.12
+      ]
+    },
+    {
+      "ref": "J_OUT_L1",
+      "value": "TS OUTPUT L",
+      "pins": [
+        {
+          "number": "T",
+          "name": "TIP",
+          "type": "passive",
+          "net": "OUT_L_P"
+        },
+        {
+          "number": "S",
+          "name": "SLEEVE",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "isolated panel TS jack; exact part pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        71.12
+      ]
+    },
+    {
+      "ref": "J_RCA_OUT_L1",
+      "value": "RCA OUTPUT L",
+      "pins": [
+        {
+          "number": "C",
+          "name": "CENTER",
+          "type": "passive",
+          "net": "OUT_L_P"
+        },
+        {
+          "number": "S",
+          "name": "SHELL",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "isolated panel RCA jack; exact part pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        71.12
+      ]
+    },
+    {
+      "ref": "J_IN_R1",
+      "value": "TS INPUT R",
+      "pins": [
+        {
+          "number": "T",
+          "name": "TIP",
+          "type": "passive",
+          "net": "IN_R_P"
+        },
+        {
+          "number": "S",
+          "name": "SLEEVE",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "isolated panel TS jack; no normal contact model until part is frozen",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        71.12
+      ]
+    },
+    {
+      "ref": "J_RCA_IN_R1",
+      "value": "RCA INPUT R",
+      "pins": [
+        {
+          "number": "C",
+          "name": "CENTER",
+          "type": "passive",
+          "net": "IN_R_P"
+        },
+        {
+          "number": "S",
+          "name": "SHELL",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "isolated panel RCA jack; exact part pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        107.95
+      ]
+    },
+    {
+      "ref": "J_OUT_R1",
+      "value": "TS OUTPUT R",
+      "pins": [
+        {
+          "number": "T",
+          "name": "TIP",
+          "type": "passive",
+          "net": "OUT_R_P"
+        },
+        {
+          "number": "S",
+          "name": "SLEEVE",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "isolated panel TS jack; exact part pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        107.95
+      ]
+    },
+    {
+      "ref": "J_RCA_OUT_R1",
+      "value": "RCA OUTPUT R",
+      "pins": [
+        {
+          "number": "C",
+          "name": "CENTER",
+          "type": "passive",
+          "net": "OUT_R_P"
+        },
+        {
+          "number": "S",
+          "name": "SHELL",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "isolated panel RCA jack; exact part pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        107.95
+      ]
+    },
+    {
+      "ref": "U28",
+      "value": "LME49860MAX/NOPB",
+      "pins": [
+        {
+          "number": "1",
+          "name": "OUT_A",
+          "type": "output",
+          "net": "LINE_L_RAW"
+        },
+        {
+          "number": "2",
+          "name": "IN_A_N",
+          "type": "input",
+          "net": "FB_L"
+        },
+        {
+          "number": "3",
+          "name": "IN_A_P",
+          "type": "input",
+          "net": "AMP_L_IN"
+        },
+        {
+          "number": "4",
+          "name": "VEE",
+          "type": "power_in",
+          "net": "-20VA"
+        },
+        {
+          "number": "5",
+          "name": "IN_B_P",
+          "type": "input",
+          "net": "AMP_R_IN"
+        },
+        {
+          "number": "6",
+          "name": "IN_B_N",
+          "type": "input",
+          "net": "FB_R"
+        },
+        {
+          "number": "7",
+          "name": "OUT_B",
+          "type": "output",
+          "net": "LINE_R_RAW"
+        },
+        {
+          "number": "8",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+20VA"
+        }
+      ],
+      "source": "https://www.ti.com/lit/ds/symlink/lme49860.pdf",
+      "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+      "package": "SOIC-8",
+      "mpn": "LME49860MAX/NOPB",
+      "qualification": "44V maximum operating total supply; do not connect raw +/-24V rails. Stability and full-band output swing need board tests.",
+      "at": [
+        381.0,
+        107.95
+      ]
+    },
+    {
+      "ref": "C400",
+      "value": "100nF X7R 50V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+20VA"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        107.95
+      ]
+    },
+    {
+      "ref": "C401",
+      "value": "100nF X7R 50V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "-20VA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        107.95
+      ]
+    },
+    {
+      "ref": "R400",
+      "value": "22.1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "IN_L_P"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "ADC_L"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        107.95
+      ]
+    },
+    {
+      "ref": "R401",
+      "value": "680k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "ADC_L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        140.97
+      ]
+    },
+    {
+      "ref": "R402",
+      "value": "2.87k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "ADC_L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "PAD_L_MASTER"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        140.97
+      ]
+    },
+    {
+      "ref": "C402",
+      "value": "4.7uF film 50V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "DAC_L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "DAC_L_AC"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "film; actual dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        140.97
+      ]
+    },
+    {
+      "ref": "R403",
+      "value": "100k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "DAC_L_AC"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        140.97
+      ]
+    },
+    {
+      "ref": "R404",
+      "value": "47k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "AMP_L_IN"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        140.97
+      ]
+    },
+    {
+      "ref": "R405",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "FB_L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        140.97
+      ]
+    },
+    {
+      "ref": "R406",
+      "value": "12.1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LINE_L_RAW"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "MASTER_TRIM_L"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        140.97
+      ]
+    },
+    {
+      "ref": "RV20",
+      "value": "500 ohm MASTER trim",
+      "pins": [
+        {
+          "number": "1",
+          "name": "END_A",
+          "type": "passive",
+          "net": "MASTER_TRIM_L"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "FB_L"
+        },
+        {
+          "number": "3",
+          "name": "END_B",
+          "type": "passive",
+          "net": "FB_L"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "multiturn trim; wiper strapped to end B; no open-loop failure on wiper loss",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        167.64
+      ]
+    },
+    {
+      "ref": "R407",
+      "value": "3.01k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LINE_L_RAW"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "SEND_TRIM_L"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        167.64
+      ]
+    },
+    {
+      "ref": "RV21",
+      "value": "200 ohm SEND trim",
+      "pins": [
+        {
+          "number": "1",
+          "name": "END_A",
+          "type": "passive",
+          "net": "SEND_TRIM_L"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "SEND_FB_L"
+        },
+        {
+          "number": "3",
+          "name": "END_B",
+          "type": "passive",
+          "net": "SEND_FB_L"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "multiturn trim; wiper strapped to end B",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        167.64
+      ]
+    },
+    {
+      "ref": "R408",
+      "value": "100 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LINE_L_RAW"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LINE_L_ISOLATED"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        167.64
+      ]
+    },
+    {
+      "ref": "C403",
+      "value": "22uF bipolar 50V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LINE_L_ISOLATED"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "WET_L_P"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "bipolar audio electrolytic; ESR and physical part pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        167.64
+      ]
+    },
+    {
+      "ref": "R409",
+      "value": "100k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WET_L_P"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        167.64
+      ]
+    },
+    {
+      "ref": "R410",
+      "value": "0 ohm UNBALANCED RETURN STRAP",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "IN_L_N"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        167.64
+      ]
+    },
+    {
+      "ref": "R411",
+      "value": "0 ohm UNBALANCED RETURN STRAP",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WET_L_N"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        194.31
+      ]
+    },
+    {
+      "ref": "R412",
+      "value": "0 ohm UNBALANCED RETURN STRAP",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "OUT_L_N"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        194.31
+      ]
+    },
+    {
+      "ref": "R420",
+      "value": "22.1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "IN_R_P"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "ADC_R"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        194.31
+      ]
+    },
+    {
+      "ref": "R421",
+      "value": "680k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "ADC_R"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        194.31
+      ]
+    },
+    {
+      "ref": "R422",
+      "value": "2.87k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "ADC_R"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "PAD_R_MASTER"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        194.31
+      ]
+    },
+    {
+      "ref": "C422",
+      "value": "4.7uF film 50V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "DAC_R"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "DAC_R_AC"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "film; actual dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        194.31
+      ]
+    },
+    {
+      "ref": "R423",
+      "value": "100k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "DAC_R_AC"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        194.31
+      ]
+    },
+    {
+      "ref": "R424",
+      "value": "47k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "AMP_R_IN"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        220.98
+      ]
+    },
+    {
+      "ref": "R425",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "FB_R"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        220.98
+      ]
+    },
+    {
+      "ref": "R426",
+      "value": "12.1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LINE_R_RAW"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "MASTER_TRIM_R"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        220.98
+      ]
+    },
+    {
+      "ref": "RV22",
+      "value": "500 ohm MASTER trim",
+      "pins": [
+        {
+          "number": "1",
+          "name": "END_A",
+          "type": "passive",
+          "net": "MASTER_TRIM_R"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "FB_R"
+        },
+        {
+          "number": "3",
+          "name": "END_B",
+          "type": "passive",
+          "net": "FB_R"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "multiturn trim; wiper strapped to end B; no open-loop failure on wiper loss",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        220.98
+      ]
+    },
+    {
+      "ref": "R427",
+      "value": "3.01k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LINE_R_RAW"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "SEND_TRIM_R"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        220.98
+      ]
+    },
+    {
+      "ref": "RV23",
+      "value": "200 ohm SEND trim",
+      "pins": [
+        {
+          "number": "1",
+          "name": "END_A",
+          "type": "passive",
+          "net": "SEND_TRIM_R"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "SEND_FB_R"
+        },
+        {
+          "number": "3",
+          "name": "END_B",
+          "type": "passive",
+          "net": "SEND_FB_R"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "multiturn trim; wiper strapped to end B",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        220.98
+      ]
+    },
+    {
+      "ref": "R428",
+      "value": "100 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LINE_R_RAW"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LINE_R_ISOLATED"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        220.98
+      ]
+    },
+    {
+      "ref": "C423",
+      "value": "22uF bipolar 50V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LINE_R_ISOLATED"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "WET_R_P"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "bipolar audio electrolytic; ESR and physical part pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        260.35
+      ]
+    },
+    {
+      "ref": "R429",
+      "value": "100k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WET_R_P"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        260.35
+      ]
+    },
+    {
+      "ref": "R430",
+      "value": "0 ohm UNBALANCED RETURN STRAP",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "IN_R_N"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        260.35
+      ]
+    },
+    {
+      "ref": "R431",
+      "value": "0 ohm UNBALANCED RETURN STRAP",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WET_R_N"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        260.35
+      ]
+    },
+    {
+      "ref": "R432",
+      "value": "0 ohm UNBALANCED RETURN STRAP",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "OUT_R_N"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        260.35
+      ]
+    },
+    {
+      "ref": "SW33",
+      "value": "4PDT MASTER / SEND-RETURN",
+      "pins": [
+        {
+          "number": "1C",
+          "name": "COMMON",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "1M",
+          "name": "MASTER",
+          "type": "passive",
+          "net": "PAD_L_MASTER"
+        },
+        {
+          "number": "1S",
+          "name": "SEND",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "3C",
+          "name": "COMMON",
+          "type": "passive",
+          "net": "FB_L"
+        },
+        {
+          "number": "3M",
+          "name": "MASTER",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "3S",
+          "name": "SEND",
+          "type": "passive",
+          "net": "SEND_FB_L"
+        },
+        {
+          "number": "2C",
+          "name": "COMMON",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2M",
+          "name": "MASTER",
+          "type": "passive",
+          "net": "PAD_R_MASTER"
+        },
+        {
+          "number": "2S",
+          "name": "SEND",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "4C",
+          "name": "COMMON",
+          "type": "passive",
+          "net": "FB_R"
+        },
+        {
+          "number": "4M",
+          "name": "MASTER",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "4S",
+          "name": "SEND",
+          "type": "passive",
+          "net": "SEND_FB_R"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "one mechanically ganged four-pole switch; harness terminal IDs; exact switch/footprint pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        260.35
+      ]
+    },
+    {
+      "ref": "J_AUD3",
+      "value": "DRY TO RELAY J_RY3",
+      "pins": [
+        {
+          "number": "1",
+          "name": "IN_L_P",
+          "type": "passive",
+          "net": "IN_L_P"
+        },
+        {
+          "number": "2",
+          "name": "IN_L_N",
+          "type": "passive",
+          "net": "IN_L_N"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "IN_R_P",
+          "type": "passive",
+          "net": "IN_R_P"
+        },
+        {
+          "number": "5",
+          "name": "IN_R_N",
+          "type": "passive",
+          "net": "IN_R_N"
+        },
+        {
+          "number": "6",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+      "package": "1x6 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        260.35
+      ]
+    },
+    {
+      "ref": "J_AUD4",
+      "value": "WET TO RELAY J_RY4",
+      "pins": [
+        {
+          "number": "1",
+          "name": "WET_L_P",
+          "type": "passive",
+          "net": "WET_L_P"
+        },
+        {
+          "number": "2",
+          "name": "WET_L_N",
+          "type": "passive",
+          "net": "WET_L_N"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "WET_R_P",
+          "type": "passive",
+          "net": "WET_R_P"
+        },
+        {
+          "number": "5",
+          "name": "WET_R_N",
+          "type": "passive",
+          "net": "WET_R_N"
+        },
+        {
+          "number": "6",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+      "package": "1x6 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        303.53
+      ]
+    },
+    {
+      "ref": "J_AUD5",
+      "value": "OUTPUT FROM RELAY J_RY5",
+      "pins": [
+        {
+          "number": "1",
+          "name": "OUT_L_P",
+          "type": "passive",
+          "net": "OUT_L_P"
+        },
+        {
+          "number": "2",
+          "name": "OUT_L_N",
+          "type": "passive",
+          "net": "OUT_L_N"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "OUT_R_P",
+          "type": "passive",
+          "net": "OUT_R_P"
+        },
+        {
+          "number": "5",
+          "name": "OUT_R_N",
+          "type": "passive",
+          "net": "OUT_R_N"
+        },
+        {
+          "number": "6",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+      "package": "1x6 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        303.53
+      ]
+    },
+    {
+      "ref": "J_AUD6",
+      "value": "MUTE FROM RELAY J_RY6",
+      "pins": [
+        {
+          "number": "1",
+          "name": "AMP_L_IN",
+          "type": "passive",
+          "net": "AMP_L_IN"
+        },
+        {
+          "number": "2",
+          "name": "DAC_L_AC",
+          "type": "passive",
+          "net": "DAC_L_AC"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "AMP_R_IN",
+          "type": "passive",
+          "net": "AMP_R_IN"
+        },
+        {
+          "number": "5",
+          "name": "DAC_R_AC",
+          "type": "passive",
+          "net": "DAC_R_AC"
+        },
+        {
+          "number": "6",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+      "package": "1x6 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        303.53
+      ]
+    }
+  ],
+  "design_assumptions": {
+    "codec_revision": "Daisy Seed Rev7 PCM3060",
+    "adc_full_scale_vrms": 1.2727922061357855,
+    "adc_input_ohm_typical": 13600,
+    "dac_full_scale_vrms": 1,
+    "dac_source_ohm_typical": 100,
+    "master_nominal_dbu": 4,
+    "send_nominal_dbv": -10,
+    "headroom_db": 20,
+    "minimum_external_load_ohm": 10000,
+    "analog_rails_nominal_v": 20,
+    "calibration_required": true,
+    "input_protection_qualified": false,
+    "mono_normalling_implemented": false,
+    "electrical_performance_measured": false
+  }
+}

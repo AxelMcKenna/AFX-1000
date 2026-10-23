@@ -1,0 +1,955 @@
+{
+  "schema": 1,
+  "revision": "A0.2-draft",
+  "project": "carrier-power",
+  "title": "RMX - 12V input, digital and bipolar audio power",
+  "paper": "A2",
+  "mcu_gpio": {},
+  "bom_file": "carrier-power-bom.csv",
+  "sheet_notes": [
+    "RMX A0.2 / POWER / DRAFT - regulated external 12V DC, center positive, current-limited 2A source; NO mains circuitry in chassis",
+    "Two ISOLATED 24V modules create separate raw positive and negative rails; their output returns are bonded at GND.",
+    "LDOs reduce raw +/-24V to approximately +/-20V. Never connect raw rails to U28. Use rated capacitors with guaranteed effective capacitance.",
+    "+3V3 is supplied by Seed pin 38, not an external parallel regulator. Measure available rail current, temperature and startup before attaching controls."
+  ],
+  "components": [
+    {
+      "ref": "J_PWR1",
+      "value": "EXTERNAL 12V DC",
+      "pins": [
+        {
+          "number": "1",
+          "name": "DC_IN_P",
+          "type": "passive",
+          "net": "DC_IN_P"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "package": "1x2 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        67.31
+      ]
+    },
+    {
+      "ref": "F1",
+      "value": "2A time-delay fuse",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "DC_IN_P"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "DC_FUSED"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "rated fuse and holder; selection and fault coordination pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        67.31
+      ]
+    },
+    {
+      "ref": "SW34",
+      "value": "POWER maintained",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "DC_FUSED"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "DC_SWITCHED"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel DC-rated switch; exact part pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        67.31
+      ]
+    },
+    {
+      "ref": "D3",
+      "value": "B540C-13-F",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "+12V_PROTECTED"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "DC_SWITCHED"
+        }
+      ],
+      "source": "https://www.diodes.com/part/view/B540C",
+      "footprint": "Diode_SMD:D_SMC",
+      "package": "SMC",
+      "mpn": "B540C-13-F",
+      "qualification": "Series 5A/40V reverse-polarity diode; current derating, surge coordination and thermal qualification pending",
+      "at": [
+        381.0,
+        67.31
+      ]
+    },
+    {
+      "ref": "C500",
+      "value": "22uF 50V electrolytic (+ to 12V)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+12V_PROTECTED"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "input bulk; 22uF recommended by TSR for mechanical switch input",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        67.31
+      ]
+    },
+    {
+      "ref": "C501",
+      "value": "100nF X7R 50V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+12V_PROTECTED"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        106.68
+      ]
+    },
+    {
+      "ref": "PS1",
+      "value": "TSR 2-2450",
+      "pins": [
+        {
+          "number": "1",
+          "name": "VIN",
+          "type": "power_in",
+          "net": "+12V_PROTECTED"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "VOUT",
+          "type": "power_out",
+          "net": "+5V"
+        }
+      ],
+      "source": "https://www.tracopower.com/sites/default/files/products/datasheets/tsr2_datasheet.pdf",
+      "footprint": "",
+      "package": "SIP3 14x7.5x10.1mm; verify manufacturer landing pattern",
+      "mpn": "TSR 2-2450",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        106.68
+      ]
+    },
+    {
+      "ref": "PS2",
+      "value": "TMR 6-1215",
+      "pins": [
+        {
+          "number": "1",
+          "name": "VIN_N",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "VIN_P",
+          "type": "power_in",
+          "net": "+12V_PROTECTED"
+        },
+        {
+          "number": "3",
+          "name": "REMOTE",
+          "type": "input",
+          "no_connect": true
+        },
+        {
+          "number": "5",
+          "name": "NC",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "6",
+          "name": "VOUT_P",
+          "type": "power_out",
+          "net": "+24VA_RAW"
+        },
+        {
+          "number": "7",
+          "name": "VOUT_N",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "8",
+          "name": "NC",
+          "type": "passive",
+          "no_connect": true
+        }
+      ],
+      "source": "https://www.tracopower.com/products/tmr6.pdf",
+      "footprint": "",
+      "package": "SIP8 7 leads, 21.8x9.1x11.2mm; custom footprint review pending",
+      "mpn": "TMR 6-1215",
+      "qualification": "Isolated SINGLE 24V output, not dual 15V model; remote open = on. Output return bond is intentional; system audio ground is not isolated.",
+      "at": [
+        269.24,
+        106.68
+      ]
+    },
+    {
+      "ref": "PS3",
+      "value": "TMR 6-1215",
+      "pins": [
+        {
+          "number": "1",
+          "name": "VIN_N",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "VIN_P",
+          "type": "power_in",
+          "net": "+12V_PROTECTED"
+        },
+        {
+          "number": "3",
+          "name": "REMOTE",
+          "type": "input",
+          "no_connect": true
+        },
+        {
+          "number": "5",
+          "name": "NC",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "6",
+          "name": "VOUT_P",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "7",
+          "name": "VOUT_N",
+          "type": "power_out",
+          "net": "-24VA_RAW"
+        },
+        {
+          "number": "8",
+          "name": "NC",
+          "type": "passive",
+          "no_connect": true
+        }
+      ],
+      "source": "https://www.tracopower.com/products/tmr6.pdf",
+      "footprint": "",
+      "package": "SIP8 7 leads, 21.8x9.1x11.2mm; custom footprint review pending",
+      "mpn": "TMR 6-1215",
+      "qualification": "Isolated SINGLE 24V output, not dual 15V model; remote open = on. Output return bond is intentional; system audio ground is not isolated.",
+      "at": [
+        381.0,
+        106.68
+      ]
+    },
+    {
+      "ref": "U29",
+      "value": "LT3012EDE#PBF",
+      "pins": [
+        {
+          "number": "1",
+          "name": "NC",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "2",
+          "name": "OUT",
+          "type": "power_out",
+          "net": "+20VA"
+        },
+        {
+          "number": "3",
+          "name": "OUT",
+          "type": "passive",
+          "net": "+20VA"
+        },
+        {
+          "number": "4",
+          "name": "ADJ",
+          "type": "input",
+          "net": "ADJ_POS"
+        },
+        {
+          "number": "5",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "6",
+          "name": "NC",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "7",
+          "name": "NC",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "8",
+          "name": "SHDN_N",
+          "type": "input",
+          "net": "+24VA_RAW"
+        },
+        {
+          "number": "9",
+          "name": "NC",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "10",
+          "name": "IN",
+          "type": "power_in",
+          "net": "+24VA_RAW"
+        },
+        {
+          "number": "11",
+          "name": "IN",
+          "type": "power_in",
+          "net": "+24VA_RAW"
+        },
+        {
+          "number": "12",
+          "name": "NC",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "13",
+          "name": "EP_GND",
+          "type": "power_in",
+          "net": "GND"
+        }
+      ],
+      "source": "https://www.analog.com/media/en/technical-documentation/data-sheets/lt3012.pdf",
+      "footprint": "",
+      "package": "DFN12 4x3mm + GND EP13; reviewed footprint pending",
+      "mpn": "LT3012EDE#PBF",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        106.68
+      ]
+    },
+    {
+      "ref": "U30",
+      "value": "LT3015ET#PBF",
+      "pins": [
+        {
+          "number": "1",
+          "name": "SHDN",
+          "type": "input",
+          "net": "-24VA_RAW"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "IN",
+          "type": "power_in",
+          "net": "-24VA_RAW"
+        },
+        {
+          "number": "4",
+          "name": "ADJ",
+          "type": "input",
+          "net": "ADJ_NEG"
+        },
+        {
+          "number": "5",
+          "name": "OUT",
+          "type": "power_out",
+          "net": "-20VA"
+        }
+      ],
+      "source": "https://www.analog.com/media/en/technical-documentation/data-sheets/3015fb.pdf",
+      "footprint": "",
+      "package": "5-lead TO-220; tab at INPUT (negative raw rail); electrically isolate mounting",
+      "mpn": "LT3015ET#PBF",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        149.86
+      ]
+    },
+    {
+      "ref": "R500",
+      "value": "151k 0.1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+20VA"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "ADJ_POS"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        149.86
+      ]
+    },
+    {
+      "ref": "R501",
+      "value": "10k 0.1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "ADJ_POS"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        149.86
+      ]
+    },
+    {
+      "ref": "R502",
+      "value": "154k 0.1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "-20VA"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "ADJ_NEG"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        149.86
+      ]
+    },
+    {
+      "ref": "R503",
+      "value": "10k 0.1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "ADJ_NEG"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        149.86
+      ]
+    },
+    {
+      "ref": "C502",
+      "value": "22uF 50V electrolytic (+ on pin 1)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+24VA_RAW"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": ">=16uF effective, ESR <=3ohm over operating temperature; exact series pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        179.07
+      ]
+    },
+    {
+      "ref": "C503",
+      "value": "22uF 50V electrolytic (+ on pin 1)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "-24VA_RAW"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": ">=16uF effective, ESR <=3ohm over operating temperature; exact series pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        179.07
+      ]
+    },
+    {
+      "ref": "C504",
+      "value": "22uF 50V electrolytic (+ on pin 1)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+20VA"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": ">=16uF effective, ESR <=3ohm over operating temperature; exact series pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        179.07
+      ]
+    },
+    {
+      "ref": "C505",
+      "value": "22uF 50V electrolytic (+ on pin 1)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "-20VA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": ">=16uF effective, ESR <=3ohm over operating temperature; exact series pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        179.07
+      ]
+    },
+    {
+      "ref": "C506",
+      "value": "100nF X7R 50V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+20VA"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        179.07
+      ]
+    },
+    {
+      "ref": "C507",
+      "value": "100nF X7R 50V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "-20VA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        205.74
+      ]
+    },
+    {
+      "ref": "J_PWR2",
+      "value": "SEED POWER (39 VIN / 40 GND / 38 OUT)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+5V",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        205.74
+      ]
+    },
+    {
+      "ref": "J_PWR3",
+      "value": "BYPASS J_BP1 POWER",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "+5V",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        205.74
+      ]
+    },
+    {
+      "ref": "J_PWR4",
+      "value": "RELAY J_RY1 POWER",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+5V",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        205.74
+      ]
+    },
+    {
+      "ref": "J_PWR5",
+      "value": "LINE AUDIO POWER",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+20VA",
+          "type": "passive",
+          "net": "+20VA"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "-20VA",
+          "type": "passive",
+          "net": "-20VA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        205.74
+      ]
+    },
+    {
+      "ref": "J_PWR6",
+      "value": "RAIL MONITOR POWER",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+5V",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "+20VA",
+          "type": "passive",
+          "net": "+20VA"
+        },
+        {
+          "number": "5",
+          "name": "-20VA",
+          "type": "passive",
+          "net": "-20VA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical",
+      "package": "1x5 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        236.22
+      ]
+    },
+    {
+      "ref": "#FLG03",
+      "value": "EXTERNAL DC POWER DECLARATION",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+12V_PROTECTED",
+          "type": "power_out",
+          "net": "+12V_PROTECTED"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "virtual",
+      "mpn": "",
+      "qualification": "ERC declaration only: externally powered through J_PWR1/F1/SW34/D3; not a physical component",
+      "at": [
+        157.48,
+        236.22
+      ],
+      "virtual": true
+    },
+    {
+      "ref": "#FLG04",
+      "value": "EXTERNAL DC POWER DECLARATION",
+      "pins": [
+        {
+          "number": "1",
+          "name": "GND",
+          "type": "power_out",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "virtual",
+      "mpn": "",
+      "qualification": "ERC declaration only: externally powered through J_PWR1/F1/SW34/D3; not a physical component",
+      "at": [
+        269.24,
+        236.22
+      ],
+      "virtual": true
+    }
+  ]
+}

@@ -1,0 +1,1136 @@
+{
+  "schema": 1,
+  "revision": "A0.2-draft",
+  "project": "relay-audio",
+  "title": "RMX - de-energized dry audio and coil driver",
+  "paper": "A2",
+  "mcu_gpio": {},
+  "bom_file": "relay-audio-bom.csv",
+  "sheet_notes": [
+    "RMX A0.2 / RELAY DRIVER AND AUDIO CONTACTS / DRAFT - no fabrication release",
+    "NC selects dry; NO selects processed. Both poles switch, permitting balanced harness use. All coil current returns directly to power ground.",
+    "K3 first releases the input mute; U33 delays K1/K2 reconnect. Q1/Q2 each have a local pull-down and separate 5V-powered 3V3 clamp.",
+    "D1 is a drain-to-ground unidirectional TVS, not a diode across the coils. Scope flyback energy, overshoot and release time."
+  ],
+  "components": [
+    {
+      "ref": "J_RY1",
+      "value": "REGULATED POWER",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+5V",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        68.58
+      ]
+    },
+    {
+      "ref": "J_RY2",
+      "value": "FROM BYPASS J_BP4",
+      "pins": [
+        {
+          "number": "1",
+          "name": "RELAY_PERMISSION",
+          "type": "passive",
+          "net": "RELAY_PERMISSION"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "package": "1x2 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        68.58
+      ]
+    },
+    {
+      "ref": "Q1",
+      "value": "DMN3023L-7",
+      "pins": [
+        {
+          "number": "1",
+          "name": "G",
+          "type": "input",
+          "net": "RELAY_GATE"
+        },
+        {
+          "number": "2",
+          "name": "S",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "D",
+          "type": "passive",
+          "net": "COIL_LOW"
+        }
+      ],
+      "source": "https://www.diodes.com/datasheet/download/DMN3023L.pdf",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "package": "SOT-23",
+      "mpn": "DMN3023L-7",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        68.58
+      ]
+    },
+    {
+      "ref": "R30",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTACTS_DRIVE"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "RELAY_GATE"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        68.58
+      ]
+    },
+    {
+      "ref": "R31",
+      "value": "100k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "RELAY_GATE"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        68.58
+      ]
+    },
+    {
+      "ref": "D1",
+      "value": "SMAJ12A (Littelfuse)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "COIL_LOW"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "https://www.littelfuse.com/assetdocs/tvs-diodes-smaj-datasheet?assetguid=13c2a823-03b8-4d1f-9ddc-9b44670aed9d",
+      "footprint": "Diode_SMD:D_SMA",
+      "package": "DO-214AC SMA",
+      "mpn": "SMAJ12A",
+      "qualification": "12V standoff; 19.9V max specified clamp at 20.1A/25C; pulse/temperature/lead overshoot qualification required",
+      "at": [
+        45.72,
+        102.87
+      ]
+    },
+    {
+      "ref": "U27",
+      "value": "TPS3808G33DBVR",
+      "pins": [
+        {
+          "number": "1",
+          "name": "RESET_N",
+          "type": "open_collector",
+          "net": "RELAY_GATE"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+5V"
+        },
+        {
+          "number": "4",
+          "name": "CT",
+          "type": "input",
+          "no_connect": true
+        },
+        {
+          "number": "5",
+          "name": "SENSE",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "6",
+          "name": "VDD",
+          "type": "power_in",
+          "net": "+5V"
+        }
+      ],
+      "source": "https://www.ti.com/lit/gpn/tps3808",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "package": "SOT-23-6",
+      "mpn": "TPS3808G33DBVR",
+      "qualification": "Independent local clamp powered by coil supply; CT open = 20ms nominal. No blanket guarantee outside supervisor valid supply range.",
+      "at": [
+        157.48,
+        102.87
+      ]
+    },
+    {
+      "ref": "C30",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        102.87
+      ]
+    },
+    {
+      "ref": "C31",
+      "value": "47uF 16V electrolytic (+ to 5V)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm",
+      "package": "radial 5mm; exact series pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        102.87
+      ]
+    },
+    {
+      "ref": "K1",
+      "value": "G5V-2 DC5",
+      "pins": [
+        {
+          "number": "1",
+          "name": "COIL_A",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "16",
+          "name": "COIL_B",
+          "type": "passive",
+          "net": "COIL_LOW"
+        },
+        {
+          "number": "4",
+          "name": "COM_1",
+          "type": "passive",
+          "net": "OUT_L_P"
+        },
+        {
+          "number": "6",
+          "name": "NC_1",
+          "type": "passive",
+          "net": "IN_L_P"
+        },
+        {
+          "number": "8",
+          "name": "NO_1",
+          "type": "passive",
+          "net": "WET_L_P"
+        },
+        {
+          "number": "13",
+          "name": "COM_2",
+          "type": "passive",
+          "net": "OUT_L_N"
+        },
+        {
+          "number": "11",
+          "name": "NC_2",
+          "type": "passive",
+          "net": "IN_L_N"
+        },
+        {
+          "number": "9",
+          "name": "NO_2",
+          "type": "passive",
+          "net": "WET_L_N"
+        }
+      ],
+      "source": "https://omronfs.omron.com/en_US/ecb/products/pdf/en-g5v_2.pdf",
+      "footprint": "Relay_THT:Relay_DPDT_Omron_G5V-2",
+      "package": "DIP DPDT non-latching",
+      "mpn": "G5V-2 DC5",
+      "qualification": "STANDARD 500mW coil, not H1: 50 ohm +/-10% at 23C. Verify bottom-view footprint by unpowered continuity before assembly.",
+      "at": [
+        492.76,
+        102.87
+      ]
+    },
+    {
+      "ref": "K2",
+      "value": "G5V-2 DC5",
+      "pins": [
+        {
+          "number": "1",
+          "name": "COIL_A",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "16",
+          "name": "COIL_B",
+          "type": "passive",
+          "net": "COIL_LOW"
+        },
+        {
+          "number": "4",
+          "name": "COM_1",
+          "type": "passive",
+          "net": "OUT_R_P"
+        },
+        {
+          "number": "6",
+          "name": "NC_1",
+          "type": "passive",
+          "net": "IN_R_P"
+        },
+        {
+          "number": "8",
+          "name": "NO_1",
+          "type": "passive",
+          "net": "WET_R_P"
+        },
+        {
+          "number": "13",
+          "name": "COM_2",
+          "type": "passive",
+          "net": "OUT_R_N"
+        },
+        {
+          "number": "11",
+          "name": "NC_2",
+          "type": "passive",
+          "net": "IN_R_N"
+        },
+        {
+          "number": "9",
+          "name": "NO_2",
+          "type": "passive",
+          "net": "WET_R_N"
+        }
+      ],
+      "source": "https://omronfs.omron.com/en_US/ecb/products/pdf/en-g5v_2.pdf",
+      "footprint": "Relay_THT:Relay_DPDT_Omron_G5V-2",
+      "package": "DIP DPDT non-latching",
+      "mpn": "G5V-2 DC5",
+      "qualification": "STANDARD 500mW coil, not H1: 50 ohm +/-10% at 23C. Verify bottom-view footprint by unpowered continuity before assembly.",
+      "at": [
+        45.72,
+        143.51
+      ]
+    },
+    {
+      "ref": "J_RY3",
+      "value": "IN AUDIO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "IN_L_P",
+          "type": "passive",
+          "net": "IN_L_P"
+        },
+        {
+          "number": "2",
+          "name": "IN_L_N",
+          "type": "passive",
+          "net": "IN_L_N"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "IN_R_P",
+          "type": "passive",
+          "net": "IN_R_P"
+        },
+        {
+          "number": "5",
+          "name": "IN_R_N",
+          "type": "passive",
+          "net": "IN_R_N"
+        },
+        {
+          "number": "6",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+      "package": "1x6 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        143.51
+      ]
+    },
+    {
+      "ref": "J_RY4",
+      "value": "WET AUDIO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "WET_L_P",
+          "type": "passive",
+          "net": "WET_L_P"
+        },
+        {
+          "number": "2",
+          "name": "WET_L_N",
+          "type": "passive",
+          "net": "WET_L_N"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "WET_R_P",
+          "type": "passive",
+          "net": "WET_R_P"
+        },
+        {
+          "number": "5",
+          "name": "WET_R_N",
+          "type": "passive",
+          "net": "WET_R_N"
+        },
+        {
+          "number": "6",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+      "package": "1x6 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        143.51
+      ]
+    },
+    {
+      "ref": "J_RY5",
+      "value": "OUT AUDIO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "OUT_L_P",
+          "type": "passive",
+          "net": "OUT_L_P"
+        },
+        {
+          "number": "2",
+          "name": "OUT_L_N",
+          "type": "passive",
+          "net": "OUT_L_N"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "OUT_R_P",
+          "type": "passive",
+          "net": "OUT_R_P"
+        },
+        {
+          "number": "5",
+          "name": "OUT_R_N",
+          "type": "passive",
+          "net": "OUT_R_N"
+        },
+        {
+          "number": "6",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+      "package": "1x6 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        143.51
+      ]
+    },
+    {
+      "ref": "U33",
+      "value": "TPS3808G33DBVR",
+      "pins": [
+        {
+          "number": "1",
+          "name": "RESET_N",
+          "type": "open_collector",
+          "net": "CONTACTS_ENABLE"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MR_N",
+          "type": "input",
+          "net": "RELAY_PERMISSION"
+        },
+        {
+          "number": "4",
+          "name": "CT",
+          "type": "input",
+          "no_connect": true
+        },
+        {
+          "number": "5",
+          "name": "SENSE",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "6",
+          "name": "VDD",
+          "type": "power_in",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://www.ti.com/lit/gpn/tps3808",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "package": "SOT-23-6",
+      "mpn": "TPS3808G33DBVR",
+      "qualification": "20ms nominal output contact enable delay after permission, immediate fault assertion; verify minimum delay versus K3 maximum operation time",
+      "at": [
+        492.76,
+        143.51
+      ]
+    },
+    {
+      "ref": "R32",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTACTS_ENABLE"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        191.77
+      ]
+    },
+    {
+      "ref": "U35",
+      "value": "74HCT14D,653",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1A",
+          "type": "input",
+          "net": "CONTACTS_ENABLE"
+        },
+        {
+          "number": "2",
+          "name": "1Y",
+          "type": "output",
+          "net": "CONTACTS_N"
+        },
+        {
+          "number": "3",
+          "name": "2A",
+          "type": "input",
+          "net": "CONTACTS_N"
+        },
+        {
+          "number": "4",
+          "name": "2Y",
+          "type": "output",
+          "net": "CONTACTS_DRIVE"
+        },
+        {
+          "number": "5",
+          "name": "3A",
+          "type": "input",
+          "net": "RELAY_PERMISSION"
+        },
+        {
+          "number": "6",
+          "name": "3Y",
+          "type": "output",
+          "net": "MUTE_N"
+        },
+        {
+          "number": "7",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "8",
+          "name": "4Y",
+          "type": "output",
+          "net": "MUTE_DRIVE"
+        },
+        {
+          "number": "9",
+          "name": "4A",
+          "type": "input",
+          "net": "MUTE_N"
+        },
+        {
+          "number": "10",
+          "name": "5Y",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "11",
+          "name": "5A",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "12",
+          "name": "6Y",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "13",
+          "name": "6A",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "14",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+5V"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT14.pdf",
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "package": "SOIC-14",
+      "mpn": "74HCT14D,653",
+      "qualification": "Two Schmitt inverters per non-inverting 5V gate drive. TTL thresholds accept 3.3V; Schmitt inputs tolerate supervisor pull-up rise. Do not substitute HC.",
+      "at": [
+        157.48,
+        191.77
+      ]
+    },
+    {
+      "ref": "R33",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "MUTE_DRIVE"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "MUTE_GATE"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        191.77
+      ]
+    },
+    {
+      "ref": "R34",
+      "value": "100k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "MUTE_GATE"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        191.77
+      ]
+    },
+    {
+      "ref": "Q2",
+      "value": "DMN3023L-7",
+      "pins": [
+        {
+          "number": "1",
+          "name": "G",
+          "type": "input",
+          "net": "MUTE_GATE"
+        },
+        {
+          "number": "2",
+          "name": "S",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "D",
+          "type": "passive",
+          "net": "MUTE_COIL_LOW"
+        }
+      ],
+      "source": "https://www.diodes.com/datasheet/download/DMN3023L.pdf",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "package": "SOT-23",
+      "mpn": "DMN3023L-7",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        191.77
+      ]
+    },
+    {
+      "ref": "D2",
+      "value": "SMAJ12A (Littelfuse)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "MUTE_COIL_LOW"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "https://www.littelfuse.com/assetdocs/tvs-diodes-smaj-datasheet?assetguid=13c2a823-03b8-4d1f-9ddc-9b44670aed9d",
+      "footprint": "Diode_SMD:D_SMA",
+      "package": "DO-214AC SMA",
+      "mpn": "SMAJ12A",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        240.03
+      ]
+    },
+    {
+      "ref": "U34",
+      "value": "TPS3808G33DBVR",
+      "pins": [
+        {
+          "number": "1",
+          "name": "RESET_N",
+          "type": "open_collector",
+          "net": "MUTE_GATE"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+5V"
+        },
+        {
+          "number": "4",
+          "name": "CT",
+          "type": "input",
+          "no_connect": true
+        },
+        {
+          "number": "5",
+          "name": "SENSE",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "6",
+          "name": "VDD",
+          "type": "power_in",
+          "net": "+5V"
+        }
+      ],
+      "source": "https://www.ti.com/lit/gpn/tps3808",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "package": "SOT-23-6",
+      "mpn": "TPS3808G33DBVR",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        240.03
+      ]
+    },
+    {
+      "ref": "K3",
+      "value": "G5V-2 DC5",
+      "pins": [
+        {
+          "number": "1",
+          "name": "COIL_A",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "16",
+          "name": "COIL_B",
+          "type": "passive",
+          "net": "MUTE_COIL_LOW"
+        },
+        {
+          "number": "4",
+          "name": "COM_1",
+          "type": "passive",
+          "net": "AMP_L_IN"
+        },
+        {
+          "number": "6",
+          "name": "NC_1",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "8",
+          "name": "NO_1",
+          "type": "passive",
+          "net": "DAC_L_AC"
+        },
+        {
+          "number": "13",
+          "name": "COM_2",
+          "type": "passive",
+          "net": "AMP_R_IN"
+        },
+        {
+          "number": "11",
+          "name": "NC_2",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "NO_2",
+          "type": "passive",
+          "net": "DAC_R_AC"
+        }
+      ],
+      "source": "https://omronfs.omron.com/en_US/ecb/products/pdf/en-g5v_2.pdf",
+      "footprint": "Relay_THT:Relay_DPDT_Omron_G5V-2",
+      "package": "DIP DPDT non-latching",
+      "mpn": "G5V-2 DC5",
+      "qualification": "Unpowered clamps line amplifier inputs to ground; processed input release precedes delayed output contacts. Pop/click and dropout ordering need physical measurement.",
+      "at": [
+        269.24,
+        240.03
+      ]
+    },
+    {
+      "ref": "C32",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        240.03
+      ]
+    },
+    {
+      "ref": "C33",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        240.03
+      ]
+    },
+    {
+      "ref": "C34",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        278.13
+      ]
+    },
+    {
+      "ref": "J_RY6",
+      "value": "MUTE TO LINE AUDIO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "AMP_L_IN",
+          "type": "passive",
+          "net": "AMP_L_IN"
+        },
+        {
+          "number": "2",
+          "name": "DAC_L_AC",
+          "type": "passive",
+          "net": "DAC_L_AC"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "AMP_R_IN",
+          "type": "passive",
+          "net": "AMP_R_IN"
+        },
+        {
+          "number": "5",
+          "name": "DAC_R_AC",
+          "type": "passive",
+          "net": "DAC_R_AC"
+        },
+        {
+          "number": "6",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+      "package": "1x6 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        278.13
+      ]
+    }
+  ],
+  "design_limits": {
+    "coil_ohm": 50,
+    "coil_tolerance": 0.1,
+    "coil_count": 2,
+    "mute_coil_count": 1,
+    "supply_min": 4.75,
+    "supply_max": 5.25,
+    "mosfet_rds_ohm_at_2v5": 0.068,
+    "mosfet_vds_rating": 30,
+    "tvs_clamp_at_25c": 19.9,
+    "gate_series_ohm": 10000,
+    "gate_pull_down_ohm": 100000,
+    "resistor_tolerance": 0.01,
+    "supervisor_threshold": 3.07,
+    "supervisor_threshold_tolerance": 0.015,
+    "buffer_voh_min": 3.7,
+    "buffer_vih_min": 2.1,
+    "gate_leakage_budget_a": 2e-06,
+    "qualified_vgs": 2.5,
+    "supervisor_vol_max": 0.4,
+    "supervisor_sink_test_a": 0.001,
+    "leakage_and_temperature_qualified": false,
+    "release_latency_measured": false
+  }
+}

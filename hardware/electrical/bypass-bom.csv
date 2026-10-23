@@ -1,0 +1,30 @@
+Reference,Value,MPN,Package,Footprint,Source,Qualification
+U21,TPS3435AFACADDFRQ1,TPS3435AFACADDFRQ1,DDF SOT-23-THIN-8,,https://www.ti.com/lit/gpn/tps3435-q1,Pinout A; adjustable timeout/pulse; startup F 10s exits on first valid WDI falling edge; source stocked through NZ storefronts with overseas dispatch; footprint review pending
+U25,TPS3808G33DBVR,TPS3808G33DBVR,DBV SOT-23-6,Package_TO_SOT_SMD:SOT-23-6,https://www.ti.com/lit/gpn/tps3808,300 ms nominal recovery via 100k CT resistor; verify thresholds and source availability
+U26,TPS3808G50DBVR,TPS3808G50DBVR,DBV SOT-23-6,Package_TO_SOT_SMD:SOT-23-6,https://www.ti.com/lit/gpn/tps3808,300 ms nominal recovery via 100k CT resistor; verify thresholds and source availability
+J_BP1,REGULATED POWER,,1x3 2.54 mm,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,hardware/electrical/README.md,Bench interface; power generation/protection outside sheet
+J_BP2,SEED D28 / D17,,1x3 2.54 mm,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,hardware/electrical/README.md,GPIO index is not physical Seed header pin; disconnect either control -> dry after its guard timeout
+U22,74LVC2G08DP,74LVC2G08DP,SOT505-2 TSSOP-8,Package_SO:TSSOP-8_3x3mm_P0.65mm,https://assets.nexperia.com/documents/data-sheet/74LVC2G08.pdf,Dual AND; pin mapping for DP package only
+U23,74LVC1G08GV,74LVC1G08GV,SOT753 SC-74A,Package_TO_SOT_SMD:SOT-23-5,https://assets.nexperia.com/documents/data-sheet/74LVC1G08.pdf,Clear permission asynchronously on any health fault
+U24,74LVC74APW,"74LVC74APW,118",SOT402-1 TSSOP-14,Package_SO:TSSOP-14_4.4x5mm_P0.65mm,https://assets.nexperia.com/documents/data-sheet/74LVC74A.pdf,"Ordering suffix 74LVC74APW,118; two rising-edge stages require a complete heartbeat pulse after clear; intermediate falling edge starts watchdog monitoring; clock/reset recovery and stage hold margins need review"
+J_BP3,ANALOG RAIL HEALTH,,1x2 2.54 mm,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,hardware/electrical/README.md,Active-high 3.3 V from analog rail supervisor/settling circuit; missing signal keeps dry; circuit unfinished
+J_BP4,TO RELAY DRIVER,,1x2 2.54 mm,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,hardware/electrical/README.md,3.3 V logic only; no relay coil; driver/muting and NC dry contacts outside this sheet
+R21,10k,,0603 metric 1608,Resistor_SMD:R_0603_1608Metric,hardware/electrical/README.md,WDO open-drain pull-up; exact stocked resistor MPN not selected
+R22,47k,,0603 metric 1608,Resistor_SMD:R_0603_1608Metric,hardware/electrical/README.md,Ready defaults low when MCU disconnected/reset; exact stocked resistor MPN not selected
+R23,47k,,0603 metric 1608,Resistor_SMD:R_0603_1608Metric,hardware/electrical/README.md,Heartbeat defaults low when MCU disconnected/reset; exact stocked resistor MPN not selected
+R24,47k,,0603 metric 1608,Resistor_SMD:R_0603_1608Metric,hardware/electrical/README.md,Missing analog health keeps dry; source must drive high; exact stocked resistor MPN not selected
+R25,10k,,0603 metric 1608,Resistor_SMD:R_0603_1608Metric,hardware/electrical/README.md,Shared supervisor open-drain pull-up; exact stocked resistor MPN not selected
+R26,10k,,0603 metric 1608,Resistor_SMD:R_0603_1608Metric,hardware/electrical/README.md,Manual bypass switch pull-up; exact stocked resistor MPN not selected
+R27,100k,,0603 metric 1608,Resistor_SMD:R_0603_1608Metric,hardware/electrical/README.md,CT strap inside 40k-200k range; 300 ms nominal; exact stocked resistor MPN not selected
+R28,100k,,0603 metric 1608,Resistor_SMD:R_0603_1608Metric,hardware/electrical/README.md,CT strap inside 40k-200k range; 300 ms nominal; exact stocked resistor MPN not selected
+R29,47k,,0603 metric 1608,Resistor_SMD:R_0603_1608Metric,hardware/electrical/README.md,Pull-down at driver input; duplicate at remote MOSFET gate if wired; exact stocked resistor MPN not selected
+SW32,MANUAL DRY BYPASS,,SPST maintained; footprint TBD,,hardware/electrical/README.md,Closed forces both supervisors RESET low; open requires recovery delay plus fresh heartbeat
+C21,10nF C0G 1%,C0805X103F5GACTU,0805 metric 2012,Capacitor_SMD:C_0805_2012Metric,https://search.kemet.com/download/specsheet/C0805X103F5GACTU,C0805X103F5GACTU candidate; with C28 total 10.1nF gives 49.995ms nominal; tolerance/temperature/leakage still apply
+C22,100nF X7R >=10V,,0603 metric 1608,Capacitor_SMD:C_0603_1608Metric,hardware/electrical/README.md,Local decoupling next to U21; exact stocked capacitor MPN not selected
+C23,100nF X7R >=10V,,0603 metric 1608,Capacitor_SMD:C_0603_1608Metric,hardware/electrical/README.md,Local decoupling next to U25; exact stocked capacitor MPN not selected
+C24,100nF X7R >=10V,,0603 metric 1608,Capacitor_SMD:C_0603_1608Metric,hardware/electrical/README.md,Local decoupling next to U26; exact stocked capacitor MPN not selected
+C25,100nF X7R >=10V,,0603 metric 1608,Capacitor_SMD:C_0603_1608Metric,hardware/electrical/README.md,Local decoupling next to U22; exact stocked capacitor MPN not selected
+C26,100nF X7R >=10V,,0603 metric 1608,Capacitor_SMD:C_0603_1608Metric,hardware/electrical/README.md,Local decoupling next to U23; exact stocked capacitor MPN not selected
+C27,100nF X7R >=10V,,0603 metric 1608,Capacitor_SMD:C_0603_1608Metric,hardware/electrical/README.md,Local decoupling next to U24; exact stocked capacitor MPN not selected
+C28,100pF C0G 1%,C0603C101F5GACTU,0603 metric 1608,Capacitor_SMD:C_0603_1608Metric,https://search.kemet.com/download/specsheet/C0603C101F5GACTU,KEMET C0603C101F5GACTU; parallel 100pF trim with C21; 1% C0G 50V; physical timing and leakage require qualification
+C29,10nF C0G 1%,C0805X103F5GACTU,0805 metric 2012,Capacitor_SMD:C_0805_2012Metric,https://search.kemet.com/download/specsheet/C0805X103F5GACTU,C0805X103F5GACTU candidate; nominal WDO low pulse 49.5ms; CWD < 200*CRST constraint satisfied

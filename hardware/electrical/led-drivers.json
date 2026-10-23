@@ -1,0 +1,6204 @@
+{
+  "schema": 1,
+  "revision": "A0.2-draft",
+  "project": "led-drivers",
+  "title": "RMX - static 96-bit LED chain",
+  "paper": "A0",
+  "mcu_gpio": {
+    "led_data": 9,
+    "led_clock": 10,
+    "led_latch": 13,
+    "led_oe": 14
+  },
+  "bom_file": "led-drivers-bom.csv",
+  "sheet_notes": [
+    "RMX A0.2 / LEDS / DRAFT - common-cathode display, 1k per lit segment, 3.3V HC logic",
+    "U9 nearest MCU drives bits 0..7. Its Q7S feeds U10 DS. Clock/latch shared. OE pull-up keeps outputs dark through reset.",
+    "Do not replace common-cathode digits with common-anode parts. Final display pinout and panel footprints are release gates."
+  ],
+  "components": [
+    {
+      "ref": "J_LED1",
+      "value": "SEED LED HARNESS",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "LED_DATA",
+          "type": "passive",
+          "net": "LED_DATA"
+        },
+        {
+          "number": "4",
+          "name": "LED_CLOCK",
+          "type": "passive",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "5",
+          "name": "LED_LATCH",
+          "type": "passive",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "6",
+          "name": "LED_OE_N",
+          "type": "passive",
+          "net": "LED_OE_N"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+      "package": "1x6 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        85.09
+      ]
+    },
+    {
+      "ref": "R160",
+      "value": "47k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        85.09
+      ]
+    },
+    {
+      "ref": "U9",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_1"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_DATA"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_00"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_01"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_02"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_03"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_04"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_05"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_06"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_07"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        85.09
+      ]
+    },
+    {
+      "ref": "C160",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        85.09
+      ]
+    },
+    {
+      "ref": "U10",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_2"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_1"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_08"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_09"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_10"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_11"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_12"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_13"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_14"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_15"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        85.09
+      ]
+    },
+    {
+      "ref": "C161",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        85.09
+      ]
+    },
+    {
+      "ref": "U11",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_3"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_2"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_16"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_17"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_18"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_19"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_20"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_21"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_22"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_23"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        85.09
+      ]
+    },
+    {
+      "ref": "C162",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        85.09
+      ]
+    },
+    {
+      "ref": "U12",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_4"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_3"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_24"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_25"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_26"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_27"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_28"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_29"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_30"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_31"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        85.09
+      ]
+    },
+    {
+      "ref": "C163",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        85.09
+      ]
+    },
+    {
+      "ref": "U13",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_5"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_4"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_32"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_33"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_34"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_35"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_36"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_37"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_38"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_39"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        146.05
+      ]
+    },
+    {
+      "ref": "C164",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        146.05
+      ]
+    },
+    {
+      "ref": "U14",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_6"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_5"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_40"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_41"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_42"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_43"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_44"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_45"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_46"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_47"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        146.05
+      ]
+    },
+    {
+      "ref": "C165",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        146.05
+      ]
+    },
+    {
+      "ref": "U15",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_7"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_6"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_48"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_49"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_50"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_51"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_52"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_53"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_54"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_55"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        146.05
+      ]
+    },
+    {
+      "ref": "C166",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        146.05
+      ]
+    },
+    {
+      "ref": "U16",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_8"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_7"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_56"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_57"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_58"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_59"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_60"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_61"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_62"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_63"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        146.05
+      ]
+    },
+    {
+      "ref": "C167",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        146.05
+      ]
+    },
+    {
+      "ref": "U17",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_9"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_8"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_64"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_65"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_66"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_67"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_68"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_69"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_70"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_71"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        146.05
+      ]
+    },
+    {
+      "ref": "C168",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        146.05
+      ]
+    },
+    {
+      "ref": "U18",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_10"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_9"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_72"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_73"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_74"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_75"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_76"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_77"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_78"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_79"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        207.01
+      ]
+    },
+    {
+      "ref": "C169",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        207.01
+      ]
+    },
+    {
+      "ref": "U19",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "net": "LED_SERIAL_11"
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_10"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_80"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_81"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_82"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_83"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_84"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_85"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_86"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_87"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        207.01
+      ]
+    },
+    {
+      "ref": "C170",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        207.01
+      ]
+    },
+    {
+      "ref": "U20",
+      "value": "74HC595D,118",
+      "pins": [
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7S",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "10",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "SHCP",
+          "type": "input",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "STCP",
+          "type": "input",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "13",
+          "name": "OE_N",
+          "type": "input",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "14",
+          "name": "DS",
+          "type": "input",
+          "net": "LED_SERIAL_11"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "15",
+          "name": "Q0",
+          "type": "output",
+          "net": "LED_BIT_88"
+        },
+        {
+          "number": "1",
+          "name": "Q1",
+          "type": "output",
+          "net": "LED_BIT_89"
+        },
+        {
+          "number": "2",
+          "name": "Q2",
+          "type": "output",
+          "net": "LED_BIT_90"
+        },
+        {
+          "number": "3",
+          "name": "Q3",
+          "type": "output",
+          "net": "LED_BIT_91"
+        },
+        {
+          "number": "4",
+          "name": "Q4",
+          "type": "output",
+          "net": "LED_BIT_92"
+        },
+        {
+          "number": "5",
+          "name": "Q5",
+          "type": "output",
+          "net": "LED_BIT_93"
+        },
+        {
+          "number": "6",
+          "name": "Q6",
+          "type": "output",
+          "net": "LED_BIT_94"
+        },
+        {
+          "number": "7",
+          "name": "Q7",
+          "type": "output",
+          "net": "LED_BIT_95"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT595.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC595D,118",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        207.01
+      ]
+    },
+    {
+      "ref": "C171",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        207.01
+      ]
+    },
+    {
+      "ref": "R200",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_00"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_00"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        207.01
+      ]
+    },
+    {
+      "ref": "D100",
+      "value": "LOW CURRENT LED bit 0",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_00"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        207.01
+      ]
+    },
+    {
+      "ref": "R201",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_01"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_01"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        207.01
+      ]
+    },
+    {
+      "ref": "D101",
+      "value": "LOW CURRENT LED bit 1",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_01"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        207.01
+      ]
+    },
+    {
+      "ref": "R202",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_02"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_02"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        250.19
+      ]
+    },
+    {
+      "ref": "D102",
+      "value": "LOW CURRENT LED bit 2",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_02"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        250.19
+      ]
+    },
+    {
+      "ref": "R203",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_03"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_03"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        250.19
+      ]
+    },
+    {
+      "ref": "D103",
+      "value": "LOW CURRENT LED bit 3",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_03"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        250.19
+      ]
+    },
+    {
+      "ref": "R204",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_04"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_04"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        250.19
+      ]
+    },
+    {
+      "ref": "D104",
+      "value": "LOW CURRENT LED bit 4",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_04"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        250.19
+      ]
+    },
+    {
+      "ref": "R205",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_05"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_05"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        250.19
+      ]
+    },
+    {
+      "ref": "D105",
+      "value": "LOW CURRENT LED bit 5",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_05"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        250.19
+      ]
+    },
+    {
+      "ref": "R206",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_06"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_06"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        250.19
+      ]
+    },
+    {
+      "ref": "D106",
+      "value": "LOW CURRENT LED bit 6",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_06"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        250.19
+      ]
+    },
+    {
+      "ref": "R207",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_07"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_07"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        275.59
+      ]
+    },
+    {
+      "ref": "D107",
+      "value": "LOW CURRENT LED bit 7",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_07"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        275.59
+      ]
+    },
+    {
+      "ref": "R208",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_08"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_08"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        275.59
+      ]
+    },
+    {
+      "ref": "D108",
+      "value": "LOW CURRENT LED bit 8",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_08"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        275.59
+      ]
+    },
+    {
+      "ref": "R209",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_09"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_09"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        275.59
+      ]
+    },
+    {
+      "ref": "D109",
+      "value": "LOW CURRENT LED bit 9",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_09"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        275.59
+      ]
+    },
+    {
+      "ref": "R210",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_10"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_10"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        275.59
+      ]
+    },
+    {
+      "ref": "D110",
+      "value": "LOW CURRENT LED bit 10",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_10"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        275.59
+      ]
+    },
+    {
+      "ref": "R211",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_11"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_11"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        275.59
+      ]
+    },
+    {
+      "ref": "D111",
+      "value": "LOW CURRENT LED bit 11",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_11"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        275.59
+      ]
+    },
+    {
+      "ref": "R212",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_12"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_12"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        300.99
+      ]
+    },
+    {
+      "ref": "D112",
+      "value": "LOW CURRENT LED bit 12",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_12"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        300.99
+      ]
+    },
+    {
+      "ref": "R213",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_13"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_13"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        300.99
+      ]
+    },
+    {
+      "ref": "D113",
+      "value": "LOW CURRENT LED bit 13",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_13"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        300.99
+      ]
+    },
+    {
+      "ref": "R214",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_14"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_14"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        300.99
+      ]
+    },
+    {
+      "ref": "D114",
+      "value": "LOW CURRENT LED bit 14",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_14"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        300.99
+      ]
+    },
+    {
+      "ref": "R215",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_15"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_15"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        300.99
+      ]
+    },
+    {
+      "ref": "D115",
+      "value": "LOW CURRENT LED bit 15",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_15"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        300.99
+      ]
+    },
+    {
+      "ref": "R216",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_16"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_16"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        300.99
+      ]
+    },
+    {
+      "ref": "D116",
+      "value": "LOW CURRENT LED bit 16",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_16"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        300.99
+      ]
+    },
+    {
+      "ref": "R217",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_17"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_17"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        326.39
+      ]
+    },
+    {
+      "ref": "D117",
+      "value": "LOW CURRENT LED bit 17",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_17"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        326.39
+      ]
+    },
+    {
+      "ref": "R218",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_18"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_18"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        326.39
+      ]
+    },
+    {
+      "ref": "D118",
+      "value": "LOW CURRENT LED bit 18",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_18"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        326.39
+      ]
+    },
+    {
+      "ref": "R219",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_19"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_19"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        326.39
+      ]
+    },
+    {
+      "ref": "D119",
+      "value": "LOW CURRENT LED bit 19",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_19"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        326.39
+      ]
+    },
+    {
+      "ref": "R220",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_20"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_20"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        326.39
+      ]
+    },
+    {
+      "ref": "D120",
+      "value": "LOW CURRENT LED bit 20",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_20"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        326.39
+      ]
+    },
+    {
+      "ref": "R221",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_21"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_21"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        326.39
+      ]
+    },
+    {
+      "ref": "D121",
+      "value": "LOW CURRENT LED bit 21",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_21"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        326.39
+      ]
+    },
+    {
+      "ref": "R222",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_22"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_22"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        351.79
+      ]
+    },
+    {
+      "ref": "D122",
+      "value": "LOW CURRENT LED bit 22",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_22"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        351.79
+      ]
+    },
+    {
+      "ref": "R223",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_23"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_23"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        351.79
+      ]
+    },
+    {
+      "ref": "D123",
+      "value": "LOW CURRENT LED bit 23",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_23"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        351.79
+      ]
+    },
+    {
+      "ref": "R224",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_24"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_24"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        351.79
+      ]
+    },
+    {
+      "ref": "D124",
+      "value": "LOW CURRENT LED bit 24",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_24"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        351.79
+      ]
+    },
+    {
+      "ref": "R225",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_25"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_25"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        351.79
+      ]
+    },
+    {
+      "ref": "D125",
+      "value": "LOW CURRENT LED bit 25",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_25"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        351.79
+      ]
+    },
+    {
+      "ref": "R226",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_26"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_26"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        351.79
+      ]
+    },
+    {
+      "ref": "D126",
+      "value": "LOW CURRENT LED bit 26",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_26"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        351.79
+      ]
+    },
+    {
+      "ref": "R227",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_27"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_27"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        377.19
+      ]
+    },
+    {
+      "ref": "D127",
+      "value": "LOW CURRENT LED bit 27",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_27"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        377.19
+      ]
+    },
+    {
+      "ref": "R228",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_28"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_28"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        377.19
+      ]
+    },
+    {
+      "ref": "D128",
+      "value": "LOW CURRENT LED bit 28",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_28"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        377.19
+      ]
+    },
+    {
+      "ref": "R229",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_29"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_29"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        377.19
+      ]
+    },
+    {
+      "ref": "D129",
+      "value": "LOW CURRENT LED bit 29",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_29"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        377.19
+      ]
+    },
+    {
+      "ref": "R230",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_30"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_30"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        377.19
+      ]
+    },
+    {
+      "ref": "D130",
+      "value": "LOW CURRENT LED bit 30",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_30"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        377.19
+      ]
+    },
+    {
+      "ref": "R231",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_31"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_31"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        377.19
+      ]
+    },
+    {
+      "ref": "D131",
+      "value": "LOW CURRENT LED bit 31",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_31"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        377.19
+      ]
+    },
+    {
+      "ref": "R232",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_32"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_32"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        402.59
+      ]
+    },
+    {
+      "ref": "D132",
+      "value": "LOW CURRENT LED bit 32",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_32"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        402.59
+      ]
+    },
+    {
+      "ref": "R233",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_33"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_33"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        402.59
+      ]
+    },
+    {
+      "ref": "D133",
+      "value": "LOW CURRENT LED bit 33",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_33"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        402.59
+      ]
+    },
+    {
+      "ref": "R234",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_34"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_34"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        402.59
+      ]
+    },
+    {
+      "ref": "D134",
+      "value": "LOW CURRENT LED bit 34",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_34"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        402.59
+      ]
+    },
+    {
+      "ref": "R235",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_35"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_35"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        402.59
+      ]
+    },
+    {
+      "ref": "D135",
+      "value": "LOW CURRENT LED bit 35",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_35"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        402.59
+      ]
+    },
+    {
+      "ref": "R236",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_36"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_36"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        402.59
+      ]
+    },
+    {
+      "ref": "D136",
+      "value": "LOW CURRENT LED bit 36",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_36"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        402.59
+      ]
+    },
+    {
+      "ref": "R237",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_37"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_37"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        427.99
+      ]
+    },
+    {
+      "ref": "D137",
+      "value": "LOW CURRENT LED bit 37",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_37"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        427.99
+      ]
+    },
+    {
+      "ref": "R238",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_38"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_38"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        427.99
+      ]
+    },
+    {
+      "ref": "D138",
+      "value": "LOW CURRENT LED bit 38",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_38"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        427.99
+      ]
+    },
+    {
+      "ref": "R239",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_39"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_39"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        427.99
+      ]
+    },
+    {
+      "ref": "D139",
+      "value": "LOW CURRENT LED bit 39",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_39"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        427.99
+      ]
+    },
+    {
+      "ref": "R240",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_40"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_40"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        427.99
+      ]
+    },
+    {
+      "ref": "D140",
+      "value": "LOW CURRENT LED bit 40",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_40"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        427.99
+      ]
+    },
+    {
+      "ref": "R241",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_41"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_41"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        427.99
+      ]
+    },
+    {
+      "ref": "D141",
+      "value": "LOW CURRENT LED bit 41",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_41"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        427.99
+      ]
+    },
+    {
+      "ref": "R242",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_42"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_42"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        453.39
+      ]
+    },
+    {
+      "ref": "D142",
+      "value": "LOW CURRENT LED bit 42",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_42"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        453.39
+      ]
+    },
+    {
+      "ref": "R243",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_43"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_43"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        453.39
+      ]
+    },
+    {
+      "ref": "D143",
+      "value": "LOW CURRENT LED bit 43",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_43"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        453.39
+      ]
+    },
+    {
+      "ref": "R244",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_44"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_44"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        453.39
+      ]
+    },
+    {
+      "ref": "D144",
+      "value": "LOW CURRENT LED bit 44",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_44"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        453.39
+      ]
+    },
+    {
+      "ref": "R245",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_45"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_45"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        453.39
+      ]
+    },
+    {
+      "ref": "D145",
+      "value": "LOW CURRENT LED bit 45",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_45"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        453.39
+      ]
+    },
+    {
+      "ref": "R246",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_46"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_46"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        453.39
+      ]
+    },
+    {
+      "ref": "D146",
+      "value": "LOW CURRENT LED bit 46",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_46"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        453.39
+      ]
+    },
+    {
+      "ref": "R247",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_47"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_47"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        478.79
+      ]
+    },
+    {
+      "ref": "D147",
+      "value": "LOW CURRENT LED bit 47",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_47"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        478.79
+      ]
+    },
+    {
+      "ref": "R248",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_48"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_48"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        478.79
+      ]
+    },
+    {
+      "ref": "D148",
+      "value": "LOW CURRENT LED bit 48",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_48"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        478.79
+      ]
+    },
+    {
+      "ref": "R249",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_49"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_49"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        478.79
+      ]
+    },
+    {
+      "ref": "D149",
+      "value": "LOW CURRENT LED bit 49",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_49"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        478.79
+      ]
+    },
+    {
+      "ref": "R250",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_50"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_50"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        478.79
+      ]
+    },
+    {
+      "ref": "D150",
+      "value": "LOW CURRENT LED bit 50",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_50"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        478.79
+      ]
+    },
+    {
+      "ref": "R251",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_51"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_51"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        478.79
+      ]
+    },
+    {
+      "ref": "D151",
+      "value": "LOW CURRENT LED bit 51",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_51"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        478.79
+      ]
+    },
+    {
+      "ref": "R252",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_52"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_52"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        504.19
+      ]
+    },
+    {
+      "ref": "D152",
+      "value": "LOW CURRENT LED bit 52",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_52"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        504.19
+      ]
+    },
+    {
+      "ref": "R253",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_53"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_53"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        504.19
+      ]
+    },
+    {
+      "ref": "D153",
+      "value": "LOW CURRENT LED bit 53",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_53"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        504.19
+      ]
+    },
+    {
+      "ref": "R254",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_54"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_54"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        504.19
+      ]
+    },
+    {
+      "ref": "D154",
+      "value": "LOW CURRENT LED bit 54",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "LED_ANODE_54"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "LED_0603/panel light pipe; exact color/bin pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        504.19
+      ]
+    },
+    {
+      "ref": "R255",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_55"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_55"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        504.19
+      ]
+    },
+    {
+      "ref": "R256",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_56"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_56"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        504.19
+      ]
+    },
+    {
+      "ref": "R257",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_57"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_57"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        504.19
+      ]
+    },
+    {
+      "ref": "R258",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_58"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_58"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        504.19
+      ]
+    },
+    {
+      "ref": "R259",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_59"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_59"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        529.59
+      ]
+    },
+    {
+      "ref": "R260",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_60"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_60"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        529.59
+      ]
+    },
+    {
+      "ref": "R261",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_61"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_61"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        529.59
+      ]
+    },
+    {
+      "ref": "R262",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_62"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_62"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        529.59
+      ]
+    },
+    {
+      "ref": "R263",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_63"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_63"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        529.59
+      ]
+    },
+    {
+      "ref": "R264",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_64"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_64"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        529.59
+      ]
+    },
+    {
+      "ref": "R265",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_65"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_65"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        529.59
+      ]
+    },
+    {
+      "ref": "R266",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_66"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_66"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        529.59
+      ]
+    },
+    {
+      "ref": "R267",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_67"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_67"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        529.59
+      ]
+    },
+    {
+      "ref": "R268",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_68"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_68"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        529.59
+      ]
+    },
+    {
+      "ref": "R269",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_69"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_69"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        554.99
+      ]
+    },
+    {
+      "ref": "R270",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_70"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_70"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        554.99
+      ]
+    },
+    {
+      "ref": "R271",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_71"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_71"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        554.99
+      ]
+    },
+    {
+      "ref": "R272",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_72"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_72"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        554.99
+      ]
+    },
+    {
+      "ref": "R273",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_73"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_73"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        554.99
+      ]
+    },
+    {
+      "ref": "R274",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_74"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_74"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        554.99
+      ]
+    },
+    {
+      "ref": "R275",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_75"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_75"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        554.99
+      ]
+    },
+    {
+      "ref": "R276",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_76"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_76"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        554.99
+      ]
+    },
+    {
+      "ref": "R277",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_77"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_77"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        554.99
+      ]
+    },
+    {
+      "ref": "R278",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_78"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_78"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        554.99
+      ]
+    },
+    {
+      "ref": "R279",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_79"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_79"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        580.39
+      ]
+    },
+    {
+      "ref": "R280",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_80"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_80"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        580.39
+      ]
+    },
+    {
+      "ref": "R281",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_81"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_81"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        580.39
+      ]
+    },
+    {
+      "ref": "R282",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_82"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_82"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        580.39
+      ]
+    },
+    {
+      "ref": "R283",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_83"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_83"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        580.39
+      ]
+    },
+    {
+      "ref": "R284",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_84"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_84"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        580.39
+      ]
+    },
+    {
+      "ref": "R285",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_85"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_85"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        580.39
+      ]
+    },
+    {
+      "ref": "R286",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_86"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_86"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        580.39
+      ]
+    },
+    {
+      "ref": "R287",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_87"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_87"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        580.39
+      ]
+    },
+    {
+      "ref": "R288",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_88"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_88"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        580.39
+      ]
+    },
+    {
+      "ref": "R289",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_89"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_89"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        614.68
+      ]
+    },
+    {
+      "ref": "R290",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_90"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_90"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        614.68
+      ]
+    },
+    {
+      "ref": "R291",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_91"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_91"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        614.68
+      ]
+    },
+    {
+      "ref": "R292",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_92"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_92"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        614.68
+      ]
+    },
+    {
+      "ref": "R293",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_93"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_93"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        614.68
+      ]
+    },
+    {
+      "ref": "R294",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_94"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_94"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        614.68
+      ]
+    },
+    {
+      "ref": "R295",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "LED_BIT_95"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "LED_ANODE_95"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        614.68
+      ]
+    },
+    {
+      "ref": "DS1",
+      "value": "COMMON CATHODE DIGIT",
+      "pins": [
+        {
+          "number": "a",
+          "name": "a",
+          "type": "passive",
+          "net": "LED_ANODE_55"
+        },
+        {
+          "number": "b",
+          "name": "b",
+          "type": "passive",
+          "net": "LED_ANODE_56"
+        },
+        {
+          "number": "c",
+          "name": "c",
+          "type": "passive",
+          "net": "LED_ANODE_57"
+        },
+        {
+          "number": "d",
+          "name": "d",
+          "type": "passive",
+          "net": "LED_ANODE_58"
+        },
+        {
+          "number": "e",
+          "name": "e",
+          "type": "passive",
+          "net": "LED_ANODE_59"
+        },
+        {
+          "number": "f",
+          "name": "f",
+          "type": "passive",
+          "net": "LED_ANODE_60"
+        },
+        {
+          "number": "g",
+          "name": "g",
+          "type": "passive",
+          "net": "LED_ANODE_61"
+        },
+        {
+          "number": "dp",
+          "name": "dp",
+          "type": "passive",
+          "net": "LED_ANODE_62"
+        },
+        {
+          "number": "K",
+          "name": "COMMON_K",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "display module terminal names; numerical pinout pending selected module",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        828.04,
+        614.68
+      ]
+    },
+    {
+      "ref": "DS2",
+      "value": "COMMON CATHODE DIGIT",
+      "pins": [
+        {
+          "number": "a",
+          "name": "a",
+          "type": "passive",
+          "net": "LED_ANODE_63"
+        },
+        {
+          "number": "b",
+          "name": "b",
+          "type": "passive",
+          "net": "LED_ANODE_64"
+        },
+        {
+          "number": "c",
+          "name": "c",
+          "type": "passive",
+          "net": "LED_ANODE_65"
+        },
+        {
+          "number": "d",
+          "name": "d",
+          "type": "passive",
+          "net": "LED_ANODE_66"
+        },
+        {
+          "number": "e",
+          "name": "e",
+          "type": "passive",
+          "net": "LED_ANODE_67"
+        },
+        {
+          "number": "f",
+          "name": "f",
+          "type": "passive",
+          "net": "LED_ANODE_68"
+        },
+        {
+          "number": "g",
+          "name": "g",
+          "type": "passive",
+          "net": "LED_ANODE_69"
+        },
+        {
+          "number": "dp",
+          "name": "dp",
+          "type": "passive",
+          "net": "LED_ANODE_70"
+        },
+        {
+          "number": "K",
+          "name": "COMMON_K",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "display module terminal names; numerical pinout pending selected module",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        939.8,
+        614.68
+      ]
+    },
+    {
+      "ref": "DS3",
+      "value": "COMMON CATHODE DIGIT",
+      "pins": [
+        {
+          "number": "a",
+          "name": "a",
+          "type": "passive",
+          "net": "LED_ANODE_71"
+        },
+        {
+          "number": "b",
+          "name": "b",
+          "type": "passive",
+          "net": "LED_ANODE_72"
+        },
+        {
+          "number": "c",
+          "name": "c",
+          "type": "passive",
+          "net": "LED_ANODE_73"
+        },
+        {
+          "number": "d",
+          "name": "d",
+          "type": "passive",
+          "net": "LED_ANODE_74"
+        },
+        {
+          "number": "e",
+          "name": "e",
+          "type": "passive",
+          "net": "LED_ANODE_75"
+        },
+        {
+          "number": "f",
+          "name": "f",
+          "type": "passive",
+          "net": "LED_ANODE_76"
+        },
+        {
+          "number": "g",
+          "name": "g",
+          "type": "passive",
+          "net": "LED_ANODE_77"
+        },
+        {
+          "number": "dp",
+          "name": "dp",
+          "type": "passive",
+          "net": "LED_ANODE_78"
+        },
+        {
+          "number": "K",
+          "name": "COMMON_K",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "display module terminal names; numerical pinout pending selected module",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        1051.56,
+        614.68
+      ]
+    },
+    {
+      "ref": "J_LED79",
+      "value": "RESERVED LED ANODES",
+      "pins": [
+        {
+          "number": "1",
+          "name": "LED_ANODE_79",
+          "type": "passive",
+          "net": "LED_ANODE_79"
+        },
+        {
+          "number": "2",
+          "name": "LED_ANODE_80",
+          "type": "passive",
+          "net": "LED_ANODE_80"
+        },
+        {
+          "number": "3",
+          "name": "LED_ANODE_81",
+          "type": "passive",
+          "net": "LED_ANODE_81"
+        },
+        {
+          "number": "4",
+          "name": "LED_ANODE_82",
+          "type": "passive",
+          "net": "LED_ANODE_82"
+        },
+        {
+          "number": "5",
+          "name": "LED_ANODE_83",
+          "type": "passive",
+          "net": "LED_ANODE_83"
+        },
+        {
+          "number": "6",
+          "name": "LED_ANODE_84",
+          "type": "passive",
+          "net": "LED_ANODE_84"
+        },
+        {
+          "number": "7",
+          "name": "LED_ANODE_85",
+          "type": "passive",
+          "net": "LED_ANODE_85"
+        },
+        {
+          "number": "8",
+          "name": "LED_ANODE_86",
+          "type": "passive",
+          "net": "LED_ANODE_86"
+        },
+        {
+          "number": "9",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x09_P2.54mm_Vertical",
+      "package": "1x9 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        657.86
+      ]
+    },
+    {
+      "ref": "J_LED87",
+      "value": "RESERVED LED ANODES",
+      "pins": [
+        {
+          "number": "1",
+          "name": "LED_ANODE_87",
+          "type": "passive",
+          "net": "LED_ANODE_87"
+        },
+        {
+          "number": "2",
+          "name": "LED_ANODE_88",
+          "type": "passive",
+          "net": "LED_ANODE_88"
+        },
+        {
+          "number": "3",
+          "name": "LED_ANODE_89",
+          "type": "passive",
+          "net": "LED_ANODE_89"
+        },
+        {
+          "number": "4",
+          "name": "LED_ANODE_90",
+          "type": "passive",
+          "net": "LED_ANODE_90"
+        },
+        {
+          "number": "5",
+          "name": "LED_ANODE_91",
+          "type": "passive",
+          "net": "LED_ANODE_91"
+        },
+        {
+          "number": "6",
+          "name": "LED_ANODE_92",
+          "type": "passive",
+          "net": "LED_ANODE_92"
+        },
+        {
+          "number": "7",
+          "name": "LED_ANODE_93",
+          "type": "passive",
+          "net": "LED_ANODE_93"
+        },
+        {
+          "number": "8",
+          "name": "LED_ANODE_94",
+          "type": "passive",
+          "net": "LED_ANODE_94"
+        },
+        {
+          "number": "9",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x09_P2.54mm_Vertical",
+      "package": "1x9 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        657.86
+      ]
+    },
+    {
+      "ref": "J_LED95",
+      "value": "RESERVED LED ANODE",
+      "pins": [
+        {
+          "number": "1",
+          "name": "LED_ANODE_95",
+          "type": "passive",
+          "net": "LED_ANODE_95"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "package": "1x2 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        657.86
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2324 @@
+{
+  "schema": 1,
+  "revision": "A0.2-draft",
+  "project": "button-inputs",
+  "title": "RMX - 32 switch inputs",
+  "paper": "A1",
+  "mcu_gpio": {
+    "button_load": 0,
+    "button_clock": 7,
+    "button_data": 8
+  },
+  "bom_file": "button-inputs-bom.csv",
+  "sheet_notes": [
+    "RMX A0.2 / BUTTONS / DRAFT - active-low switches, all logic at 3.3V",
+    "U2 is nearest MCU: Q7 is read BEFORE shifting. H/D7 is bit 0; A/D0 is bit 7. Tail serial input is grounded.",
+    "SW30/SW31 pin names are project harness positions, not a frozen manufacturer footprint."
+  ],
+  "components": [
+    {
+      "ref": "J_BTN1",
+      "value": "SEED BUTTON HARNESS",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "BUTTON_LOAD",
+          "type": "passive",
+          "net": "BUTTON_LOAD"
+        },
+        {
+          "number": "4",
+          "name": "BUTTON_CLOCK",
+          "type": "passive",
+          "net": "BUTTON_CLOCK"
+        },
+        {
+          "number": "5",
+          "name": "BUTTON_DATA",
+          "type": "passive",
+          "net": "BUTTON_DATA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical",
+      "package": "1x5 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        85.09
+      ]
+    },
+    {
+      "ref": "U2",
+      "value": "74HC165D,653",
+      "pins": [
+        {
+          "number": "1",
+          "name": "PL_N",
+          "type": "input",
+          "net": "BUTTON_LOAD"
+        },
+        {
+          "number": "2",
+          "name": "CP",
+          "type": "input",
+          "net": "BUTTON_CLOCK"
+        },
+        {
+          "number": "7",
+          "name": "Q7_N",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7",
+          "type": "output",
+          "net": "BUTTON_DATA"
+        },
+        {
+          "number": "10",
+          "name": "DS",
+          "type": "input",
+          "net": "BUTTON_SERIAL_1"
+        },
+        {
+          "number": "15",
+          "name": "CE",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "D0",
+          "type": "input",
+          "net": "BUTTON_07"
+        },
+        {
+          "number": "12",
+          "name": "D1",
+          "type": "input",
+          "net": "BUTTON_06"
+        },
+        {
+          "number": "13",
+          "name": "D2",
+          "type": "input",
+          "net": "BUTTON_05"
+        },
+        {
+          "number": "14",
+          "name": "D3",
+          "type": "input",
+          "net": "BUTTON_04"
+        },
+        {
+          "number": "3",
+          "name": "D4",
+          "type": "input",
+          "net": "BUTTON_03"
+        },
+        {
+          "number": "4",
+          "name": "D5",
+          "type": "input",
+          "net": "BUTTON_02"
+        },
+        {
+          "number": "5",
+          "name": "D6",
+          "type": "input",
+          "net": "BUTTON_01"
+        },
+        {
+          "number": "6",
+          "name": "D7",
+          "type": "input",
+          "net": "BUTTON_00"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT165.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC165D,653",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        85.09
+      ]
+    },
+    {
+      "ref": "C100",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        85.09
+      ]
+    },
+    {
+      "ref": "U3",
+      "value": "74HC165D,653",
+      "pins": [
+        {
+          "number": "1",
+          "name": "PL_N",
+          "type": "input",
+          "net": "BUTTON_LOAD"
+        },
+        {
+          "number": "2",
+          "name": "CP",
+          "type": "input",
+          "net": "BUTTON_CLOCK"
+        },
+        {
+          "number": "7",
+          "name": "Q7_N",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7",
+          "type": "output",
+          "net": "BUTTON_SERIAL_1"
+        },
+        {
+          "number": "10",
+          "name": "DS",
+          "type": "input",
+          "net": "BUTTON_SERIAL_2"
+        },
+        {
+          "number": "15",
+          "name": "CE",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "D0",
+          "type": "input",
+          "net": "BUTTON_15"
+        },
+        {
+          "number": "12",
+          "name": "D1",
+          "type": "input",
+          "net": "BUTTON_14"
+        },
+        {
+          "number": "13",
+          "name": "D2",
+          "type": "input",
+          "net": "BUTTON_13"
+        },
+        {
+          "number": "14",
+          "name": "D3",
+          "type": "input",
+          "net": "BUTTON_12"
+        },
+        {
+          "number": "3",
+          "name": "D4",
+          "type": "input",
+          "net": "BUTTON_11"
+        },
+        {
+          "number": "4",
+          "name": "D5",
+          "type": "input",
+          "net": "BUTTON_10"
+        },
+        {
+          "number": "5",
+          "name": "D6",
+          "type": "input",
+          "net": "BUTTON_09"
+        },
+        {
+          "number": "6",
+          "name": "D7",
+          "type": "input",
+          "net": "BUTTON_08"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT165.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC165D,653",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        85.09
+      ]
+    },
+    {
+      "ref": "C101",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        85.09
+      ]
+    },
+    {
+      "ref": "U4",
+      "value": "74HC165D,653",
+      "pins": [
+        {
+          "number": "1",
+          "name": "PL_N",
+          "type": "input",
+          "net": "BUTTON_LOAD"
+        },
+        {
+          "number": "2",
+          "name": "CP",
+          "type": "input",
+          "net": "BUTTON_CLOCK"
+        },
+        {
+          "number": "7",
+          "name": "Q7_N",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7",
+          "type": "output",
+          "net": "BUTTON_SERIAL_2"
+        },
+        {
+          "number": "10",
+          "name": "DS",
+          "type": "input",
+          "net": "BUTTON_SERIAL_3"
+        },
+        {
+          "number": "15",
+          "name": "CE",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "D0",
+          "type": "input",
+          "net": "BUTTON_23"
+        },
+        {
+          "number": "12",
+          "name": "D1",
+          "type": "input",
+          "net": "BUTTON_22"
+        },
+        {
+          "number": "13",
+          "name": "D2",
+          "type": "input",
+          "net": "BUTTON_21"
+        },
+        {
+          "number": "14",
+          "name": "D3",
+          "type": "input",
+          "net": "BUTTON_20"
+        },
+        {
+          "number": "3",
+          "name": "D4",
+          "type": "input",
+          "net": "BUTTON_19"
+        },
+        {
+          "number": "4",
+          "name": "D5",
+          "type": "input",
+          "net": "BUTTON_18"
+        },
+        {
+          "number": "5",
+          "name": "D6",
+          "type": "input",
+          "net": "BUTTON_17"
+        },
+        {
+          "number": "6",
+          "name": "D7",
+          "type": "input",
+          "net": "BUTTON_16"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT165.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC165D,653",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        85.09
+      ]
+    },
+    {
+      "ref": "C102",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        85.09
+      ]
+    },
+    {
+      "ref": "U5",
+      "value": "74HC165D,653",
+      "pins": [
+        {
+          "number": "1",
+          "name": "PL_N",
+          "type": "input",
+          "net": "BUTTON_LOAD"
+        },
+        {
+          "number": "2",
+          "name": "CP",
+          "type": "input",
+          "net": "BUTTON_CLOCK"
+        },
+        {
+          "number": "7",
+          "name": "Q7_N",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "Q7",
+          "type": "output",
+          "net": "BUTTON_SERIAL_3"
+        },
+        {
+          "number": "10",
+          "name": "DS",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "15",
+          "name": "CE",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "D0",
+          "type": "input",
+          "net": "BUTTON_31"
+        },
+        {
+          "number": "12",
+          "name": "D1",
+          "type": "input",
+          "net": "BUTTON_30"
+        },
+        {
+          "number": "13",
+          "name": "D2",
+          "type": "input",
+          "net": "BUTTON_29"
+        },
+        {
+          "number": "14",
+          "name": "D3",
+          "type": "input",
+          "net": "BUTTON_28"
+        },
+        {
+          "number": "3",
+          "name": "D4",
+          "type": "input",
+          "net": "BUTTON_27"
+        },
+        {
+          "number": "4",
+          "name": "D5",
+          "type": "input",
+          "net": "BUTTON_26"
+        },
+        {
+          "number": "5",
+          "name": "D6",
+          "type": "input",
+          "net": "BUTTON_25"
+        },
+        {
+          "number": "6",
+          "name": "D7",
+          "type": "input",
+          "net": "BUTTON_24"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT165.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC165D,653",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        146.05
+      ]
+    },
+    {
+      "ref": "C103",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        146.05
+      ]
+    },
+    {
+      "ref": "R100",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_00"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        146.05
+      ]
+    },
+    {
+      "ref": "SW1",
+      "value": "QUANTIZE NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_00"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        146.05
+      ]
+    },
+    {
+      "ref": "R101",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_01"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        146.05
+      ]
+    },
+    {
+      "ref": "SW2",
+      "value": "AUTO NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_01"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        146.05
+      ]
+    },
+    {
+      "ref": "R102",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_02"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        146.05
+      ]
+    },
+    {
+      "ref": "SW3",
+      "value": "TAP NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_02"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        189.23
+      ]
+    },
+    {
+      "ref": "R103",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_03"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        189.23
+      ]
+    },
+    {
+      "ref": "SW4",
+      "value": "NUDGE - NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_03"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        189.23
+      ]
+    },
+    {
+      "ref": "R104",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_04"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        189.23
+      ]
+    },
+    {
+      "ref": "SW5",
+      "value": "NUDGE + NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_04"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        189.23
+      ]
+    },
+    {
+      "ref": "R105",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_05"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        189.23
+      ]
+    },
+    {
+      "ref": "SW6",
+      "value": "INPUT NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_05"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        189.23
+      ]
+    },
+    {
+      "ref": "R106",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_06"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        214.63
+      ]
+    },
+    {
+      "ref": "SW7",
+      "value": "X-PAD NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_06"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        214.63
+      ]
+    },
+    {
+      "ref": "R107",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_07"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        214.63
+      ]
+    },
+    {
+      "ref": "SW8",
+      "value": "ISOLATOR NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_07"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        214.63
+      ]
+    },
+    {
+      "ref": "R108",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_08"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        214.63
+      ]
+    },
+    {
+      "ref": "SW9",
+      "value": "CUT / ADD NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_08"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        214.63
+      ]
+    },
+    {
+      "ref": "R109",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_09"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        214.63
+      ]
+    },
+    {
+      "ref": "SW10",
+      "value": "TRANS / ROLL NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_09"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        240.03
+      ]
+    },
+    {
+      "ref": "R110",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_10"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        240.03
+      ]
+    },
+    {
+      "ref": "SW11",
+      "value": "GATE / DRIVE NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_10"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        240.03
+      ]
+    },
+    {
+      "ref": "R111",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_11"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        240.03
+      ]
+    },
+    {
+      "ref": "SW12",
+      "value": "BANK NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_11"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        240.03
+      ]
+    },
+    {
+      "ref": "R112",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_12"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        240.03
+      ]
+    },
+    {
+      "ref": "SW13",
+      "value": "ROLL NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_12"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        240.03
+      ]
+    },
+    {
+      "ref": "R113",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_13"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        265.43
+      ]
+    },
+    {
+      "ref": "SW14",
+      "value": "KICK NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_13"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        265.43
+      ]
+    },
+    {
+      "ref": "R114",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_14"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        265.43
+      ]
+    },
+    {
+      "ref": "SW15",
+      "value": "SNARE NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_14"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        265.43
+      ]
+    },
+    {
+      "ref": "R115",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_15"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        265.43
+      ]
+    },
+    {
+      "ref": "SW16",
+      "value": "CLAP NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_15"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        265.43
+      ]
+    },
+    {
+      "ref": "R116",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_16"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        265.43
+      ]
+    },
+    {
+      "ref": "SW17",
+      "value": "HI HAT NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_16"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        290.83
+      ]
+    },
+    {
+      "ref": "R117",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_17"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        290.83
+      ]
+    },
+    {
+      "ref": "SW18",
+      "value": "OVERDUB NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_17"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        290.83
+      ]
+    },
+    {
+      "ref": "R118",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_18"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        290.83
+      ]
+    },
+    {
+      "ref": "SW19",
+      "value": "HOLD / MUTE NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_18"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        290.83
+      ]
+    },
+    {
+      "ref": "R119",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_19"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        290.83
+      ]
+    },
+    {
+      "ref": "SW20",
+      "value": "BPF ECHO NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_19"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        290.83
+      ]
+    },
+    {
+      "ref": "R120",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_20"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        316.23
+      ]
+    },
+    {
+      "ref": "SW21",
+      "value": "ECHO NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_20"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        316.23
+      ]
+    },
+    {
+      "ref": "R121",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_21"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        316.23
+      ]
+    },
+    {
+      "ref": "SW22",
+      "value": "NOISE NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_21"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        316.23
+      ]
+    },
+    {
+      "ref": "R122",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_22"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        316.23
+      ]
+    },
+    {
+      "ref": "SW23",
+      "value": "SPIRAL UP NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_22"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        316.23
+      ]
+    },
+    {
+      "ref": "R123",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_23"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        316.23
+      ]
+    },
+    {
+      "ref": "SW24",
+      "value": "REVERB UP NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_23"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        341.63
+      ]
+    },
+    {
+      "ref": "R124",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_24"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        341.63
+      ]
+    },
+    {
+      "ref": "SW25",
+      "value": "HPF ECHO NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_24"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        341.63
+      ]
+    },
+    {
+      "ref": "R125",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_25"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        341.63
+      ]
+    },
+    {
+      "ref": "SW26",
+      "value": "LPF ECHO NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_25"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        341.63
+      ]
+    },
+    {
+      "ref": "R126",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_26"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        341.63
+      ]
+    },
+    {
+      "ref": "SW27",
+      "value": "CRUSH ECHO NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_26"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        341.63
+      ]
+    },
+    {
+      "ref": "R127",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_27"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        367.03
+      ]
+    },
+    {
+      "ref": "SW28",
+      "value": "SPIRAL DOWN NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_27"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        367.03
+      ]
+    },
+    {
+      "ref": "R128",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_28"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        367.03
+      ]
+    },
+    {
+      "ref": "SW29",
+      "value": "REVERB DOWN NO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_28"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "panel momentary; part dimensions pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        367.03
+      ]
+    },
+    {
+      "ref": "R129",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_29"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        367.03
+      ]
+    },
+    {
+      "ref": "R130",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_30"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        604.52,
+        367.03
+      ]
+    },
+    {
+      "ref": "R131",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "BUTTON_31"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        716.28,
+        367.03
+      ]
+    },
+    {
+      "ref": "SW30",
+      "value": "BACK / ECHO / BRAKE ON-OFF-ON",
+      "pins": [
+        {
+          "number": "1",
+          "name": "BACK",
+          "type": "passive",
+          "net": "BUTTON_29"
+        },
+        {
+          "number": "2",
+          "name": "COMMON",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "BRAKE",
+          "type": "passive",
+          "net": "BUTTON_30"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "SPDT center-off panel switch; harness numbering only",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        393.7
+      ]
+    },
+    {
+      "ref": "SW31",
+      "value": "DEFAULT / USER (closed = User)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "BUTTON_31"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "SPST/SPDT panel switch; harness numbering only",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        393.7
+      ]
+    }
+  ]
+}

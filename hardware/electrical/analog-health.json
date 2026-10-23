@@ -1,0 +1,691 @@
+{
+  "schema": 1,
+  "revision": "A0.2-draft",
+  "project": "analog-health",
+  "title": "RMX - analog rail supervision and settling",
+  "paper": "A2",
+  "mcu_gpio": {},
+  "bom_file": "analog-health-bom.csv",
+  "sheet_notes": [
+    "RMX A0.2 / ANALOG RAIL HEALTH / DRAFT - comparator outputs wired open-collector, 300ms nominal recovery after both rails recover",
+    "Negative rail is translated with a 2.5V reference; polarity is opposite the positive-rail comparator. Missing rails keep output low.",
+    "Reference fault behavior, comparator offset/bias, all supply permutations and analog timing require bench tests. Not an overvoltage crowbar."
+  ],
+  "components": [
+    {
+      "ref": "J_HL1",
+      "value": "POWER",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+5V",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "+20VA",
+          "type": "passive",
+          "net": "+20VA"
+        },
+        {
+          "number": "5",
+          "name": "-20VA",
+          "type": "passive",
+          "net": "-20VA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical",
+      "package": "1x5 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        74.93
+      ]
+    },
+    {
+      "ref": "J_HL2",
+      "value": "TO BYPASS J_BP3",
+      "pins": [
+        {
+          "number": "1",
+          "name": "EXT_RAILS_OK",
+          "type": "passive",
+          "net": "EXT_RAILS_OK"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "package": "1x2 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        74.93
+      ]
+    },
+    {
+      "ref": "U31",
+      "value": "LM393BDR",
+      "pins": [
+        {
+          "number": "1",
+          "name": "OUT_A",
+          "type": "open_collector",
+          "net": "ANALOG_RAW_OK"
+        },
+        {
+          "number": "2",
+          "name": "IN_A_N",
+          "type": "input",
+          "net": "REF_0409"
+        },
+        {
+          "number": "3",
+          "name": "IN_A_P",
+          "type": "input",
+          "net": "SENSE_POS"
+        },
+        {
+          "number": "4",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "5",
+          "name": "IN_B_P",
+          "type": "input",
+          "net": "REF_0409"
+        },
+        {
+          "number": "6",
+          "name": "IN_B_N",
+          "type": "input",
+          "net": "SENSE_NEG"
+        },
+        {
+          "number": "7",
+          "name": "OUT_B",
+          "type": "open_collector",
+          "net": "ANALOG_RAW_OK"
+        },
+        {
+          "number": "8",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+5V"
+        }
+      ],
+      "source": "https://www.ti.com/lit/gpn/lm393b",
+      "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+      "package": "SOIC-8",
+      "mpn": "LM393BDR",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        74.93
+      ]
+    },
+    {
+      "ref": "D4",
+      "value": "LM4040A25IDBZR",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CATHODE",
+          "type": "passive",
+          "net": "REF_2V5"
+        },
+        {
+          "number": "2",
+          "name": "ANODE",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "STAR_ANODE",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "https://www.ti.com/lit/gpn/lm4040",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "package": "SOT-23",
+      "mpn": "LM4040A25IDBZR",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        74.93
+      ]
+    },
+    {
+      "ref": "R520",
+      "value": "4.7k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "REF_2V5"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        74.93
+      ]
+    },
+    {
+      "ref": "R521",
+      "value": "51.1k 0.1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "REF_2V5"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "REF_0409"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        107.95
+      ]
+    },
+    {
+      "ref": "R522",
+      "value": "10k 0.1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "REF_0409"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        107.95
+      ]
+    },
+    {
+      "ref": "R523",
+      "value": "453k 0.1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+20VA"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "SENSE_POS"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        107.95
+      ]
+    },
+    {
+      "ref": "R524",
+      "value": "10k 0.1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "SENSE_POS"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        107.95
+      ]
+    },
+    {
+      "ref": "R525",
+      "value": "100k 0.1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "REF_2V5"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "SENSE_NEG"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        107.95
+      ]
+    },
+    {
+      "ref": "R526",
+      "value": "931k 0.1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "SENSE_NEG"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "-20VA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        138.43
+      ]
+    },
+    {
+      "ref": "R527",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "ANALOG_RAW_OK"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        138.43
+      ]
+    },
+    {
+      "ref": "R528",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "EXT_RAILS_OK"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        138.43
+      ]
+    },
+    {
+      "ref": "R529",
+      "value": "100k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CT_ANALOG"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        138.43
+      ]
+    },
+    {
+      "ref": "U32",
+      "value": "TPS3808G33DBVR",
+      "pins": [
+        {
+          "number": "1",
+          "name": "RESET_N",
+          "type": "open_collector",
+          "net": "EXT_RAILS_OK"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MR_N",
+          "type": "input",
+          "net": "ANALOG_RAW_OK"
+        },
+        {
+          "number": "4",
+          "name": "CT",
+          "type": "input",
+          "net": "CT_ANALOG"
+        },
+        {
+          "number": "5",
+          "name": "SENSE",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "6",
+          "name": "VDD",
+          "type": "power_in",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://www.ti.com/lit/gpn/tps3808",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "package": "SOT-23-6",
+      "mpn": "TPS3808G33DBVR",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        138.43
+      ]
+    },
+    {
+      "ref": "U36",
+      "value": "TPS3808G25DBVR",
+      "pins": [
+        {
+          "number": "1",
+          "name": "RESET_N",
+          "type": "open_collector",
+          "net": "ANALOG_RAW_OK"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "4",
+          "name": "CT",
+          "type": "input",
+          "no_connect": true
+        },
+        {
+          "number": "5",
+          "name": "SENSE",
+          "type": "input",
+          "net": "REF_2V5"
+        },
+        {
+          "number": "6",
+          "name": "VDD",
+          "type": "power_in",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://www.ti.com/lit/gpn/tps3808",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "package": "SOT-23-6",
+      "mpn": "TPS3808G25DBVR",
+      "qualification": "Reference undervoltage also holds comparator wired output low; CT open nominal 20ms, followed by U32 nominal 300ms recovery",
+      "at": [
+        45.72,
+        173.99
+      ]
+    },
+    {
+      "ref": "D5",
+      "value": "BAT54WS-7-F",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "SENSE_NEG"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "https://www.diodes.com/part/view/BAT54WS",
+      "footprint": "Diode_SMD:D_SOD-323",
+      "package": "SOD-323",
+      "mpn": "BAT54WS-7-F",
+      "qualification": "Limits negative sense voltage on reference loss; comparator state outside valid input range is not trusted; U36 must hold permission low",
+      "at": [
+        157.48,
+        173.99
+      ]
+    },
+    {
+      "ref": "C520",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        173.99
+      ]
+    },
+    {
+      "ref": "C521",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        173.99
+      ]
+    },
+    {
+      "ref": "C522",
+      "value": "10nF C0G 50V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "REF_2V5"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        173.99
+      ]
+    },
+    {
+      "ref": "C523",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        204.47
+      ]
+    }
+  ]
+}

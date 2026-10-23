@@ -1,0 +1,1180 @@
+{
+  "schema": 1,
+  "revision": "A0.2-draft",
+  "project": "compute-storage-touch",
+  "title": "RMX - Seed, native SD and touch module",
+  "paper": "A2",
+  "mcu_gpio": {
+    "button_load": 0,
+    "button_clock": 7,
+    "button_data": 8,
+    "led_data": 9,
+    "led_clock": 10,
+    "led_latch": 13,
+    "led_oe": 14,
+    "i2c_scl": 11,
+    "i2c_sda": 12,
+    "adc_mux_a": 15,
+    "adc_mux_b": 16,
+    "mux_s0": 25,
+    "mux_s1": 26,
+    "mux_s2": 27,
+    "watchdog_heartbeat": 28,
+    "dsp_ready": 17
+  },
+  "bom_file": "compute-storage-touch-bom.csv",
+  "sheet_notes": [
+    "RMX A0.2 / COMPUTE / DRAFT - U1 uses PHYSICAL header numbers. D numbers are carried in pin names, not pad numbers.",
+    "Use the 64MB SDRAM Rev7 Seed. VIN = 5V. Pin 38 supplies 3.3V; never parallel another 3.3V regulator into this output.",
+    "MPR121 breakout terminals are LABELS, not IC pin numbers. Vin = 3.3V. Check module revision, pull-ups and electrode/lens geometry.",
+    "J_USB2 represents the Seed built-in micro-USB port. D29/D30 are a different USB peripheral and are deliberately left unused."
+  ],
+  "components": [
+    {
+      "ref": "U1",
+      "value": "DAISY SEED REV7 64MB SDRAM",
+      "pins": [
+        {
+          "number": "1",
+          "name": "D0",
+          "type": "output",
+          "net": "BUTTON_LOAD"
+        },
+        {
+          "number": "2",
+          "name": "D1",
+          "type": "bidirectional",
+          "net": "SD_DAT3"
+        },
+        {
+          "number": "3",
+          "name": "D2",
+          "type": "bidirectional",
+          "net": "SD_DAT2"
+        },
+        {
+          "number": "4",
+          "name": "D3",
+          "type": "bidirectional",
+          "net": "SD_DAT1"
+        },
+        {
+          "number": "5",
+          "name": "D4",
+          "type": "bidirectional",
+          "net": "SD_DAT0"
+        },
+        {
+          "number": "6",
+          "name": "D5",
+          "type": "bidirectional",
+          "net": "SD_CMD"
+        },
+        {
+          "number": "7",
+          "name": "D6",
+          "type": "output",
+          "net": "SD_CLK"
+        },
+        {
+          "number": "8",
+          "name": "D7",
+          "type": "output",
+          "net": "BUTTON_CLOCK"
+        },
+        {
+          "number": "9",
+          "name": "D8",
+          "type": "input",
+          "net": "BUTTON_DATA"
+        },
+        {
+          "number": "10",
+          "name": "D9",
+          "type": "output",
+          "net": "LED_DATA"
+        },
+        {
+          "number": "11",
+          "name": "D10",
+          "type": "output",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "12",
+          "name": "D11",
+          "type": "bidirectional",
+          "net": "TOUCH_SCL"
+        },
+        {
+          "number": "13",
+          "name": "D12",
+          "type": "bidirectional",
+          "net": "TOUCH_SDA"
+        },
+        {
+          "number": "14",
+          "name": "D13",
+          "type": "output",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "15",
+          "name": "D14",
+          "type": "output",
+          "net": "LED_OE_N"
+        },
+        {
+          "number": "16",
+          "name": "AUDIO_IN_L",
+          "type": "input",
+          "net": "ADC_L"
+        },
+        {
+          "number": "17",
+          "name": "AUDIO_IN_R",
+          "type": "input",
+          "net": "ADC_R"
+        },
+        {
+          "number": "18",
+          "name": "AUDIO_OUT_L",
+          "type": "output",
+          "net": "DAC_L"
+        },
+        {
+          "number": "19",
+          "name": "AUDIO_OUT_R",
+          "type": "output",
+          "net": "DAC_R"
+        },
+        {
+          "number": "20",
+          "name": "AGND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "21",
+          "name": "3V3_ANALOG",
+          "type": "power_out",
+          "no_connect": true
+        },
+        {
+          "number": "22",
+          "name": "D15",
+          "type": "input",
+          "net": "MUX_A"
+        },
+        {
+          "number": "23",
+          "name": "D16",
+          "type": "input",
+          "net": "MUX_B"
+        },
+        {
+          "number": "24",
+          "name": "D17",
+          "type": "output",
+          "net": "DSP_READY"
+        },
+        {
+          "number": "25",
+          "name": "D18",
+          "type": "bidirectional",
+          "no_connect": true
+        },
+        {
+          "number": "26",
+          "name": "D19",
+          "type": "bidirectional",
+          "no_connect": true
+        },
+        {
+          "number": "27",
+          "name": "D20",
+          "type": "bidirectional",
+          "no_connect": true
+        },
+        {
+          "number": "28",
+          "name": "D21",
+          "type": "bidirectional",
+          "no_connect": true
+        },
+        {
+          "number": "29",
+          "name": "D22",
+          "type": "bidirectional",
+          "no_connect": true
+        },
+        {
+          "number": "30",
+          "name": "D23",
+          "type": "bidirectional",
+          "no_connect": true
+        },
+        {
+          "number": "31",
+          "name": "D24",
+          "type": "bidirectional",
+          "no_connect": true
+        },
+        {
+          "number": "32",
+          "name": "D25",
+          "type": "output",
+          "net": "MUX_S0"
+        },
+        {
+          "number": "33",
+          "name": "D26",
+          "type": "output",
+          "net": "MUX_S1"
+        },
+        {
+          "number": "34",
+          "name": "D27",
+          "type": "output",
+          "net": "MUX_S2"
+        },
+        {
+          "number": "35",
+          "name": "D28",
+          "type": "output",
+          "net": "HEARTBEAT"
+        },
+        {
+          "number": "36",
+          "name": "D29",
+          "type": "bidirectional",
+          "no_connect": true
+        },
+        {
+          "number": "37",
+          "name": "D30",
+          "type": "bidirectional",
+          "no_connect": true
+        },
+        {
+          "number": "38",
+          "name": "3V3_DIGITAL",
+          "type": "power_out",
+          "net": "+3V3"
+        },
+        {
+          "number": "39",
+          "name": "VIN",
+          "type": "power_in",
+          "net": "+5V"
+        },
+        {
+          "number": "40",
+          "name": "DGND",
+          "type": "power_in",
+          "net": "GND"
+        }
+      ],
+      "source": "https://daisy.nyc3.cdn.digitaloceanspaces.com/products/seed/Daisy_Seed_datasheet.pdf",
+      "footprint": "",
+      "package": "40-pin module, 2 rows x20 @2.54mm, row spacing15.24mm; source footprint review pending",
+      "mpn": "Daisy Seed 64MB with headers",
+      "qualification": "Requires compatible QSPI bootloader, 64MB external SDRAM, physical bring-up and rail-current qualification.",
+      "at": [
+        45.72,
+        115.57
+      ]
+    },
+    {
+      "ref": "J_SD1",
+      "value": "MICROSD 3.3V NATIVE 4-BIT",
+      "pins": [
+        {
+          "number": "1",
+          "name": "SD_DAT2",
+          "type": "passive",
+          "net": "SD_DAT2"
+        },
+        {
+          "number": "2",
+          "name": "SD_DAT3",
+          "type": "passive",
+          "net": "SD_DAT3"
+        },
+        {
+          "number": "3",
+          "name": "SD_CMD",
+          "type": "passive",
+          "net": "SD_CMD"
+        },
+        {
+          "number": "4",
+          "name": "+3V3",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "5",
+          "name": "SD_CLK",
+          "type": "passive",
+          "net": "SD_CLK"
+        },
+        {
+          "number": "6",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "7",
+          "name": "SD_DAT0",
+          "type": "passive",
+          "net": "SD_DAT0"
+        },
+        {
+          "number": "8",
+          "name": "SD_DAT1",
+          "type": "passive",
+          "net": "SD_DAT1"
+        },
+        {
+          "number": "SH",
+          "name": "SHIELD",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "microSD socket standard contacts 1..8; shell pad numbering/footprint pending",
+      "mpn": "",
+      "qualification": "No 5V regulator or SPI-only breakout. Short SDMMC traces, local bulk and 47k pull-ups except CLK; exact socket must be selected.",
+      "at": [
+        157.48,
+        115.57
+      ]
+    },
+    {
+      "ref": "R550",
+      "value": "47k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "SD_DAT2"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        115.57
+      ]
+    },
+    {
+      "ref": "R551",
+      "value": "47k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "SD_DAT3"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        115.57
+      ]
+    },
+    {
+      "ref": "R552",
+      "value": "47k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "SD_CMD"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        115.57
+      ]
+    },
+    {
+      "ref": "R553",
+      "value": "47k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "SD_DAT0"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        210.82
+      ]
+    },
+    {
+      "ref": "R554",
+      "value": "47k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "SD_DAT1"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        210.82
+      ]
+    },
+    {
+      "ref": "C550",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        210.82
+      ]
+    },
+    {
+      "ref": "C551",
+      "value": "10uF X7R 10V; >=4.7uF effective",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        210.82
+      ]
+    },
+    {
+      "ref": "U8",
+      "value": "ADAFRUIT MPR121 BREAKOUT 1982",
+      "pins": [
+        {
+          "number": "VIN",
+          "name": "VIN",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "GND",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3VO",
+          "name": "3VO",
+          "type": "power_out",
+          "no_connect": true
+        },
+        {
+          "number": "SCL",
+          "name": "SCL",
+          "type": "input",
+          "net": "TOUCH_SCL"
+        },
+        {
+          "number": "SDA",
+          "name": "SDA",
+          "type": "bidirectional",
+          "net": "TOUCH_SDA"
+        },
+        {
+          "number": "ADDR",
+          "name": "ADDR",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "IRQ",
+          "name": "IRQ",
+          "type": "open_collector",
+          "no_connect": true
+        },
+        {
+          "number": "0",
+          "name": "E0",
+          "type": "passive",
+          "net": "TOUCH_0"
+        },
+        {
+          "number": "1",
+          "name": "E1",
+          "type": "passive",
+          "net": "TOUCH_1"
+        },
+        {
+          "number": "2",
+          "name": "E2",
+          "type": "passive",
+          "net": "TOUCH_2"
+        },
+        {
+          "number": "3",
+          "name": "E3",
+          "type": "passive",
+          "net": "TOUCH_3"
+        },
+        {
+          "number": "4",
+          "name": "E4",
+          "type": "passive",
+          "net": "TOUCH_4"
+        },
+        {
+          "number": "5",
+          "name": "E5",
+          "type": "passive",
+          "net": "TOUCH_5"
+        },
+        {
+          "number": "6",
+          "name": "E6",
+          "type": "passive",
+          "net": "TOUCH_6"
+        },
+        {
+          "number": "7",
+          "name": "E7",
+          "type": "passive",
+          "net": "TOUCH_7"
+        },
+        {
+          "number": "8",
+          "name": "E8",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "9",
+          "name": "E9",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "10",
+          "name": "E10",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "11",
+          "name": "E11",
+          "type": "passive",
+          "no_connect": true
+        }
+      ],
+      "source": "https://learn.adafruit.com/adafruit-mpr121-12-key-capacitive-touch-sensor-breakout-tutorial/pinouts",
+      "footprint": "",
+      "package": "module terminals by silkscreen label, not QFN pins; exact module revision mounting pending",
+      "mpn": "Adafruit 1982",
+      "qualification": "Prototype breakout; MPR121 lifecycle/supply replacement remains a production decision. Eight of twelve electrodes used at address 0x5A.",
+      "at": [
+        492.76,
+        210.82
+      ]
+    },
+    {
+      "ref": "R555",
+      "value": "4.7k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "TOUCH_SCL"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        265.43
+      ]
+    },
+    {
+      "ref": "R556",
+      "value": "4.7k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "TOUCH_SDA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        265.43
+      ]
+    },
+    {
+      "ref": "J_TOUCH1",
+      "value": "ELECTRODES LEFT TO RIGHT",
+      "pins": [
+        {
+          "number": "1",
+          "name": "TOUCH_0",
+          "type": "passive",
+          "net": "TOUCH_0"
+        },
+        {
+          "number": "2",
+          "name": "TOUCH_1",
+          "type": "passive",
+          "net": "TOUCH_1"
+        },
+        {
+          "number": "3",
+          "name": "TOUCH_2",
+          "type": "passive",
+          "net": "TOUCH_2"
+        },
+        {
+          "number": "4",
+          "name": "TOUCH_3",
+          "type": "passive",
+          "net": "TOUCH_3"
+        },
+        {
+          "number": "5",
+          "name": "TOUCH_4",
+          "type": "passive",
+          "net": "TOUCH_4"
+        },
+        {
+          "number": "6",
+          "name": "TOUCH_5",
+          "type": "passive",
+          "net": "TOUCH_5"
+        },
+        {
+          "number": "7",
+          "name": "TOUCH_6",
+          "type": "passive",
+          "net": "TOUCH_6"
+        },
+        {
+          "number": "8",
+          "name": "TOUCH_7",
+          "type": "passive",
+          "net": "TOUCH_7"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical",
+      "package": "1x8 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        265.43
+      ]
+    },
+    {
+      "ref": "J_CPU1",
+      "value": "BUTTONS",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "BUTTON_LOAD",
+          "type": "passive",
+          "net": "BUTTON_LOAD"
+        },
+        {
+          "number": "4",
+          "name": "BUTTON_CLOCK",
+          "type": "passive",
+          "net": "BUTTON_CLOCK"
+        },
+        {
+          "number": "5",
+          "name": "BUTTON_DATA",
+          "type": "passive",
+          "net": "BUTTON_DATA"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical",
+      "package": "1x5 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        265.43
+      ]
+    },
+    {
+      "ref": "J_CPU2",
+      "value": "ANALOG CONTROLS",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MUX_A",
+          "type": "passive",
+          "net": "MUX_A"
+        },
+        {
+          "number": "4",
+          "name": "MUX_B",
+          "type": "passive",
+          "net": "MUX_B"
+        },
+        {
+          "number": "5",
+          "name": "MUX_S0",
+          "type": "passive",
+          "net": "MUX_S0"
+        },
+        {
+          "number": "6",
+          "name": "MUX_S1",
+          "type": "passive",
+          "net": "MUX_S1"
+        },
+        {
+          "number": "7",
+          "name": "MUX_S2",
+          "type": "passive",
+          "net": "MUX_S2"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical",
+      "package": "1x7 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        265.43
+      ]
+    },
+    {
+      "ref": "J_CPU3",
+      "value": "LED CHAIN",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "LED_DATA",
+          "type": "passive",
+          "net": "LED_DATA"
+        },
+        {
+          "number": "4",
+          "name": "LED_CLOCK",
+          "type": "passive",
+          "net": "LED_CLOCK"
+        },
+        {
+          "number": "5",
+          "name": "LED_LATCH",
+          "type": "passive",
+          "net": "LED_LATCH"
+        },
+        {
+          "number": "6",
+          "name": "LED_OE_N",
+          "type": "passive",
+          "net": "LED_OE_N"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",
+      "package": "1x6 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        303.53
+      ]
+    },
+    {
+      "ref": "J_CPU4",
+      "value": "BYPASS HEARTBEAT",
+      "pins": [
+        {
+          "number": "1",
+          "name": "HEARTBEAT",
+          "type": "passive",
+          "net": "HEARTBEAT"
+        },
+        {
+          "number": "2",
+          "name": "DSP_READY",
+          "type": "passive",
+          "net": "DSP_READY"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        303.53
+      ]
+    },
+    {
+      "ref": "J_CPU5",
+      "value": "POWER",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+5V",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        303.53
+      ]
+    },
+    {
+      "ref": "J_CPU6",
+      "value": "LINE AUDIO",
+      "pins": [
+        {
+          "number": "1",
+          "name": "ADC_L",
+          "type": "passive",
+          "net": "ADC_L"
+        },
+        {
+          "number": "2",
+          "name": "ADC_R",
+          "type": "passive",
+          "net": "ADC_R"
+        },
+        {
+          "number": "3",
+          "name": "DAC_L",
+          "type": "passive",
+          "net": "DAC_L"
+        },
+        {
+          "number": "4",
+          "name": "DAC_R",
+          "type": "passive",
+          "net": "DAC_R"
+        },
+        {
+          "number": "5",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical",
+      "package": "1x5 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        303.53
+      ]
+    },
+    {
+      "ref": "J_USB1",
+      "value": "PANEL USB-B EXTENSION",
+      "pins": [
+        {
+          "number": "1",
+          "name": "VBUS",
+          "type": "passive",
+          "net": "USB_VBUS"
+        },
+        {
+          "number": "2",
+          "name": "D_N",
+          "type": "passive",
+          "net": "USB_D_N"
+        },
+        {
+          "number": "3",
+          "name": "D_P",
+          "type": "passive",
+          "net": "USB_D_P"
+        },
+        {
+          "number": "4",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "SH",
+          "name": "SHIELD",
+          "type": "passive",
+          "net": "CHASSIS"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "short shielded USB-B-female to micro-USB-male extension; no loose D+/D- flying wires",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        303.53
+      ]
+    },
+    {
+      "ref": "J_USB2",
+      "value": "SEED BUILT-IN MICRO-USB PORT (CABLE END)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "VBUS",
+          "type": "passive",
+          "net": "USB_VBUS"
+        },
+        {
+          "number": "2",
+          "name": "D_N",
+          "type": "passive",
+          "net": "USB_D_N"
+        },
+        {
+          "number": "3",
+          "name": "D_P",
+          "type": "passive",
+          "net": "USB_D_P"
+        },
+        {
+          "number": "4",
+          "name": "ID",
+          "type": "passive",
+          "no_connect": true
+        },
+        {
+          "number": "5",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "SH",
+          "name": "SHIELD",
+          "type": "passive",
+          "net": "CHASSIS"
+        }
+      ],
+      "source": "https://daisy.nyc3.cdn.digitaloceanspaces.com/products/seed/Daisy_Seed_datasheet.pdf",
+      "footprint": "",
+      "package": "cable end mates with Seed onboard port; not a separate MCU GPIO connection",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        339.09
+      ]
+    },
+    {
+      "ref": "R557",
+      "value": "0 ohm CHASSIS BOND DRAFT",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CHASSIS"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/electrical/carrier.md",
+      "footprint": "",
+      "package": "single controlled ground/chassis bond; EMC/ground-loop review pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        339.09
+      ]
+    }
+  ]
+}
