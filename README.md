@@ -1,12 +1,12 @@
-<img src="assets/readme-hero.svg" alt="RMX. Software effects unit." width="100%">
+<img src="assets/readme-hero.svg" alt="AFX-1000. Performance effects processor. Amber and teal hardware panel with waveform display, control dial and four effect sections." width="100%">
 
-[![Build](https://github.com/AxelMcKenna/RMX-1000-Clone/actions/workflows/build.yml/badge.svg)](https://github.com/AxelMcKenna/RMX-1000-Clone/actions/workflows/build.yml)
+[![Build](https://github.com/AxelMcKenna/afx-1000/actions/workflows/build.yml/badge.svg)](https://github.com/AxelMcKenna/afx-1000/actions/workflows/build.yml)
 ![macOS 12+](https://img.shields.io/badge/macOS-12%2B-222222?style=flat-square&logo=apple&logoColor=white)
 ![Standalone / AU / VST3](https://img.shields.io/badge/Standalone-AU_%2F_VST3-222222?style=flat-square)
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-167d8d?style=flat-square)
 ![Hardware prototype](https://img.shields.io/badge/Hardware-B1_prototype-d69a36?style=flat-square)
 
-A take on the RMX-1000, built around a shared C++20 audio engine. Native Mac app, AU and VST3, with a hardware-style amber/teal panel. A standalone Daisy Seed version is in development too.
+**AFX-1000** is a take on the RMX-1000, built around a shared C++20 audio engine. Native Mac app, AU and VST3, with a hardware-style amber/teal panel. A standalone Daisy Seed version is in development too.
 
 Use it with rekordbox through app capture or an audio interface. The effects and factory drums are original implementations. Matching the reference unit's sound, timing and full feature set is still work in progress.
 
@@ -34,8 +34,8 @@ Pitch travel has separate up/down ranges from 1 to 24 semitones. The extra range
 Requires macOS 12+, Xcode Command Line Tools and CMake 3.24+. The default native app needs no third-party SDK. Ableton Link is optional and disabled by default.
 
 ```sh
-git clone git@github.com:AxelMcKenna/RMX-1000-Clone.git
-cd RMX-1000-Clone
+git clone git@github.com:AxelMcKenna/afx-1000.git
+cd afx-1000
 ./build-app.sh
 open build/RMX.app
 ```
@@ -113,7 +113,7 @@ Choose a new output directory each time. These clips use the current engine; the
 | --- | --- |
 | Native Mac audio | Direct rekordbox capture and speaker output have worked in a live session. The latest saved-route/restart behavior still needs a live check. |
 | AU / VST3 | Build locally. Earlier universal artifacts include Apple Silicon and Intel slices; the latest sound review builds are arm64. Full DAW validation and Intel runtime checks remain open. |
-| Engine and firmware | The latest validation record reports 26 passing Release checks and an ARM firmware cross-build. Earlier sanitizer and plugin-probe results are recorded separately. |
+| Engine and firmware | Local validation records report 26 passing Release checks and an ARM firmware cross-build. Linux ARM CI exposed an exact-float interpolation assertion; its rounding-tolerance fix awaits a CI rerun. Earlier sanitizer and plugin-probe results are recorded separately. |
 | Synchronization | AUTO, tap, host transport and MIDI clock are implemented. Optional Link needs its SDK; enabled builds and peer synchronization remain unverified. |
 | Sound matching | Latest drum/Noise changes are ready for listening. No reference-unit comparison or claim of identical effects. |
 | Live use | Physical FLX4/FLX6 routing, cue separation, a live two-hour soak and measured round-trip latency remain open. |
