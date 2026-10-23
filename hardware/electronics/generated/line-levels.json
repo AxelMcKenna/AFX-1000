@@ -1,0 +1,142 @@
+{
+  "revision": "E01",
+  "status": "design constraints; schematic and physical verification pending",
+  "codec_nominal_full_scale_rms_v": 1.0,
+  "output_series_ohm": 100.0,
+  "combined_minimum_load_ohm": 10000.0,
+  "modes": [
+    {
+      "mode": "send_return",
+      "nominal_rms_v": 0.31622776601683794,
+      "target_headroom_db": 20,
+      "full_scale_rms_v": 3.1622776601683795,
+      "full_scale_peak_v": 4.47213595499958,
+      "ideal_input_gain": 0.31622776601683794,
+      "ideal_output_gain": 3.1622776601683795,
+      "amplifier_peak_before_output_resistor_v": 4.516857314549576
+    },
+    {
+      "mode": "master",
+      "nominal_rms_v": 1.228292224157363,
+      "target_headroom_db": 20,
+      "full_scale_rms_v": 12.28292224157363,
+      "full_scale_peak_v": 17.370675219607566,
+      "ideal_input_gain": 0.08141385090067009,
+      "ideal_output_gain": 12.28292224157363,
+      "amplifier_peak_before_output_resistor_v": 17.54438197180364
+    }
+  ],
+  "supply_screen": [
+    {
+      "supply": "single_5V_midpoint",
+      "nominal_rail_magnitude_v": 2.5,
+      "assumed_rail_tolerance": 0.05,
+      "assumed_output_swing_reserve_v": 2.0,
+      "available_connector_peak_v": 0.3712871287128713,
+      "available_connector_rms_v": 0.26253964648015377,
+      "meets_send_return_target": false,
+      "meets_master_target": false
+    },
+    {
+      "supply": "single_9V_midpoint",
+      "nominal_rail_magnitude_v": 4.5,
+      "assumed_rail_tolerance": 0.05,
+      "assumed_output_swing_reserve_v": 2.0,
+      "available_connector_peak_v": 2.252475247524752,
+      "available_connector_rms_v": 1.5927405219795991,
+      "meets_send_return_target": false,
+      "meets_master_target": false
+    },
+    {
+      "supply": "single_12V_midpoint",
+      "nominal_rail_magnitude_v": 6,
+      "assumed_rail_tolerance": 0.05,
+      "assumed_output_swing_reserve_v": 2.0,
+      "available_connector_peak_v": 3.6633663366336626,
+      "available_connector_rms_v": 2.5903911786041833,
+      "meets_send_return_target": false,
+      "meets_master_target": false
+    },
+    {
+      "supply": "bipolar_12V",
+      "nominal_rail_magnitude_v": 12,
+      "assumed_rail_tolerance": 0.05,
+      "assumed_output_swing_reserve_v": 2.0,
+      "available_connector_peak_v": 9.306930693069306,
+      "available_connector_rms_v": 6.580993805102521,
+      "meets_send_return_target": true,
+      "meets_master_target": false
+    },
+    {
+      "supply": "bipolar_15V",
+      "nominal_rail_magnitude_v": 15,
+      "assumed_rail_tolerance": 0.05,
+      "assumed_output_swing_reserve_v": 2.0,
+      "available_connector_peak_v": 12.128712871287128,
+      "available_connector_rms_v": 8.57629511835169,
+      "meets_send_return_target": true,
+      "meets_master_target": false
+    },
+    {
+      "supply": "bipolar_18V",
+      "nominal_rail_magnitude_v": 18,
+      "assumed_rail_tolerance": 0.05,
+      "assumed_output_swing_reserve_v": 2.0,
+      "available_connector_peak_v": 14.950495049504948,
+      "available_connector_rms_v": 10.571596431600856,
+      "meets_send_return_target": true,
+      "meets_master_target": false
+    },
+    {
+      "supply": "bipolar_22V",
+      "nominal_rail_magnitude_v": 22,
+      "assumed_rail_tolerance": 0.05,
+      "assumed_output_swing_reserve_v": 2.0,
+      "available_connector_peak_v": 18.71287128712871,
+      "available_connector_rms_v": 13.231998182599748,
+      "meets_send_return_target": true,
+      "meets_master_target": true
+    }
+  ],
+  "candidate_resistor_networks": [
+    {
+      "mode": "send_return",
+      "input_rin_ohm": 32400,
+      "input_effective_rf_ohm": 10000,
+      "output_rin_ohm": 10000,
+      "output_effective_rf_ohm": 32235.017626321973,
+      "input_gain_magnitude": 0.30864197530864196,
+      "output_gain_magnitude": 3.223501762632197,
+      "unloaded_unity_error_db": -0.04434196368624592,
+      "loaded_unity_error_db": -0.13076943933909693,
+      "nominal_input_dbfs": -20.210900204132244,
+      "nominal_adc_headroom_db": 20.210900204132244
+    },
+    {
+      "mode": "master",
+      "input_rin_ohm": 32400,
+      "input_effective_rf_ohm": 2581.6023738872404,
+      "output_rin_ohm": 10000,
+      "output_effective_rf_ohm": 127000,
+      "input_gain_magnitude": 0.07967908561380371,
+      "output_gain_magnitude": 12.7,
+      "unloaded_unity_error_db": 0.1029612499324927,
+      "loaded_unity_error_db": 0.0165337742796398,
+      "nominal_input_dbfs": -20.187079119060442,
+      "nominal_adc_headroom_db": 20.187079119060435
+    }
+  ],
+  "watchdog": {
+    "part": "TPS3431SDRBR",
+    "cwd_capacitance_pf": 150.0,
+    "capacitor_tolerance": 0.05,
+    "assumed_timing_tolerance": 0.15,
+    "timeout_typ_ms": 66.61,
+    "timeout_min_ms": 56.125074999999995,
+    "timeout_max_ms": 77.269075,
+    "callback_period_ms": 2.6666666666666665,
+    "falling_heartbeat_period_ms": 5.333333333333333,
+    "fault_latch": "SN74LVC1G74DCTR",
+    "relay_drive_gate": "SN74LVC1G08DBVR"
+  }
+}

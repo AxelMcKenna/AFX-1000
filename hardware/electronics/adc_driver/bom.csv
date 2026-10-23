@@ -1,0 +1,80 @@
+Reference,Part_or_value,Footprint_candidate,Datasheet,Design_note
+U1,THS4551IDGKR,Package_SO:VSSOP-8_3x3mm_P0.65mm,https://www.ti.com/lit/ds/symlink/ths4551.pdf,Remote raw-pin resistive feedback; local1pF high-frequency feedback. Low-voltage rails only.
+U2,THS4551IDGKR,Package_SO:VSSOP-8_3x3mm_P0.65mm,https://www.ti.com/lit/ds/symlink/ths4551.pdf,Remote raw-pin resistive feedback; local1pF high-frequency feedback. Low-voltage rails only.
+U3,OPA1656ID,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,https://www.ti.com/lit/ds/symlink/opa1656.pdf,High-impedance unity buffers preserve E10 load >=100k;1M returns per channel.
+U4,OPA4192ID,Package_SO:SOIC-14_3.9x8.7mm_P1.27mm,https://www.ti.com/lit/ds/symlink/opa4192.pdf,A/C buffer separate reference halves;B/D slow average raw ADC pins to reference/2. No shared channel reference.
+U5,LM7705MM/NOPB,Package_SO:VSSOP-8_3x3mm_P0.65mm,https://www.ti.com/lit/ds/symlink/lm7705.pdf,One bias generator/channel; output-current allocation <=20mA; effective pump capacitors must meet datasheet test values.
+U6,LM7705MM/NOPB,Package_SO:VSSOP-8_3x3mm_P0.65mm,https://www.ti.com/lit/ds/symlink/lm7705.pdf,One bias generator/channel; output-current allocation <=20mA; effective pump capacitors must meet datasheet test values.
+R1,2.49k 0.1%,Resistor_SMD:R_0805_2012Metric,,FDA source resistor; source buffer directly drives this resistive load
+R2,2.49k 0.1%,Resistor_SMD:R_0805_2012Metric,,Matched ground leg
+R3,1.21k 0.1%,Resistor_SMD:R_0805_2012Metric,,Remote negative-output feedback; gain reserves ADC clipping margin
+R4,1.21k 0.1%,Resistor_SMD:R_0805_2012Metric,,Remote positive-output feedback
+R5,3.32R 0.1%,Resistor_SMD:R_0805_2012Metric,,Raw-pin isolation; inside low-frequency feedback
+R6,3.32R 0.1%,Resistor_SMD:R_0805_2012Metric,,Raw-pin isolation; inside low-frequency feedback
+R7,1M 1%,Resistor_SMD:R_0805_2012Metric,,E10 load1M plus FET input; no direct low-resistance FDA load
+R8,1M 0.1%,Resistor_SMD:R_0805_2012Metric,,High-impedance reference divider; load about1.65uA/channel
+R9,1M 0.1%,Resistor_SMD:R_0805_2012Metric,,Reference half; hot input bias/offset allocation included in analysis
+R10,100k 0.1%,Resistor_SMD:R_0805_2012Metric,,Common-mode average sense
+R11,100k 0.1%,Resistor_SMD:R_0805_2012Metric,,Common-mode average sense
+R12,100M 1%,Resistor_SMD:R_0805_2012Metric,,Finite dc servo gain; clean board/leakage qualification required
+R13,10k 1%,Resistor_SMD:R_0805_2012Metric,,VOCM clamp current limit
+R14,4.7k 1%,Resistor_SMD:R_0805_2012Metric,,3.3V CHIP_EN from E09; missing enable defaults off
+R15,100k 1%,Resistor_SMD:R_0805_2012Metric,,PD pull-down
+R16,1R 1%,Resistor_SMD:R_0805_2012Metric,,Bias-rail ripple filter; signed load drop included in headroom screen
+C1,1pF C0G +/-0.1pF,Capacitor_SMD:C_0805_2012Metric,,Local high-frequency feedback; PCB parasitics and actual FDA loop need verification
+C2,1pF C0G +/-0.1pF,Capacitor_SMD:C_0805_2012Metric,,Local high-frequency feedback
+C3,47pF C0G 5%,Capacitor_SMD:C_0805_2012Metric,,"Differential RF capacitor, not a proven switched-capacitor kickback model"
+C4,22pF C0G 5%,Capacitor_SMD:C_0805_2012Metric,,Raw-pin RF common-mode cap
+C5,22pF C0G 5%,Capacitor_SMD:C_0805_2012Metric,,Raw-pin RF common-mode cap
+C6,100nF 25V X7R,Capacitor_SMD:C_0805_2012Metric,,Effective50..150nF allocation; reference-half filter
+C7,1uF 63V film 10%,Capacitor_THT:C_Rect_L7.2mm_W5.0mm_P5.00mm,,"WIMA MKS2C041001F00KSSD; servo effective0.9..1.1uF, leakage qualification required"
+C8,10uF 16V X7R,Capacitor_SMD:C_1206_3216Metric,,Require effective >=5uF at actual flying-cap bias
+C9,47uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,Require effective >=22uF at about5V negative reserve bias
+C10,47uF 6.3V X7R,Capacitor_SMD:C_1206_3216Metric,,Require effective >=22uF; native LM7705 output capacitor
+C11,47uF 6.3V X7R,Capacitor_SMD:C_1206_3216Metric,,Require effective >=22uF; post1Ohm bias filter
+C12,2.2uF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,Local pump input; require effective >=1uF
+C13,100nF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,Local FDA positive bypass
+C14,100nF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,Local FDA negative bypass
+D1,"BAT54S,215",Package_TO_SOT_SMD:SOT-23,https://assets.nexperia.com/documents/data-sheet/BAT54S.pdf,Series Schottky pair clamps VOCM; not a raw ADC signal shunt.
+R17,2.49k 0.1%,Resistor_SMD:R_0805_2012Metric,,FDA source resistor; source buffer directly drives this resistive load
+R18,2.49k 0.1%,Resistor_SMD:R_0805_2012Metric,,Matched ground leg
+R19,1.21k 0.1%,Resistor_SMD:R_0805_2012Metric,,Remote negative-output feedback; gain reserves ADC clipping margin
+R20,1.21k 0.1%,Resistor_SMD:R_0805_2012Metric,,Remote positive-output feedback
+R21,3.32R 0.1%,Resistor_SMD:R_0805_2012Metric,,Raw-pin isolation; inside low-frequency feedback
+R22,3.32R 0.1%,Resistor_SMD:R_0805_2012Metric,,Raw-pin isolation; inside low-frequency feedback
+R23,1M 1%,Resistor_SMD:R_0805_2012Metric,,E10 load1M plus FET input; no direct low-resistance FDA load
+R24,1M 0.1%,Resistor_SMD:R_0805_2012Metric,,High-impedance reference divider; load about1.65uA/channel
+R25,1M 0.1%,Resistor_SMD:R_0805_2012Metric,,Reference half; hot input bias/offset allocation included in analysis
+R26,100k 0.1%,Resistor_SMD:R_0805_2012Metric,,Common-mode average sense
+R27,100k 0.1%,Resistor_SMD:R_0805_2012Metric,,Common-mode average sense
+R28,100M 1%,Resistor_SMD:R_0805_2012Metric,,Finite dc servo gain; clean board/leakage qualification required
+R29,10k 1%,Resistor_SMD:R_0805_2012Metric,,VOCM clamp current limit
+R30,4.7k 1%,Resistor_SMD:R_0805_2012Metric,,3.3V CHIP_EN from E09; missing enable defaults off
+R31,100k 1%,Resistor_SMD:R_0805_2012Metric,,PD pull-down
+R32,1R 1%,Resistor_SMD:R_0805_2012Metric,,Bias-rail ripple filter; signed load drop included in headroom screen
+C15,1pF C0G +/-0.1pF,Capacitor_SMD:C_0805_2012Metric,,Local high-frequency feedback; PCB parasitics and actual FDA loop need verification
+C16,1pF C0G +/-0.1pF,Capacitor_SMD:C_0805_2012Metric,,Local high-frequency feedback
+C17,47pF C0G 5%,Capacitor_SMD:C_0805_2012Metric,,"Differential RF capacitor, not a proven switched-capacitor kickback model"
+C18,22pF C0G 5%,Capacitor_SMD:C_0805_2012Metric,,Raw-pin RF common-mode cap
+C19,22pF C0G 5%,Capacitor_SMD:C_0805_2012Metric,,Raw-pin RF common-mode cap
+C20,100nF 25V X7R,Capacitor_SMD:C_0805_2012Metric,,Effective50..150nF allocation; reference-half filter
+C21,1uF 63V film 10%,Capacitor_THT:C_Rect_L7.2mm_W5.0mm_P5.00mm,,"WIMA MKS2C041001F00KSSD; servo effective0.9..1.1uF, leakage qualification required"
+C22,10uF 16V X7R,Capacitor_SMD:C_1206_3216Metric,,Require effective >=5uF at actual flying-cap bias
+C23,47uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,Require effective >=22uF at about5V negative reserve bias
+C24,47uF 6.3V X7R,Capacitor_SMD:C_1206_3216Metric,,Require effective >=22uF; native LM7705 output capacitor
+C25,47uF 6.3V X7R,Capacitor_SMD:C_1206_3216Metric,,Require effective >=22uF; post1Ohm bias filter
+C26,2.2uF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,Local pump input; require effective >=1uF
+C27,100nF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,Local FDA positive bypass
+C28,100nF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,Local FDA negative bypass
+D2,"BAT54S,215",Package_TO_SOT_SMD:SOT-23,https://assets.nexperia.com/documents/data-sheet/BAT54S.pdf,Series Schottky pair clamps VOCM; not a raw ADC signal shunt.
+R33,1k 1%,Resistor_SMD:R_0805_2012Metric,,5V bleeder; does not establish zero back-power or arbitrary fault protection
+C29,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,U3 local positive
+C30,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,U3 local negative
+C31,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,U4 local positive
+C32,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,U4 local negative
+C33,10uF 50V X7R,Capacitor_SMD:C_1210_3225Metric,,Require effective >=4.7uF; exact MPN unselected
+C34,10uF 50V X7R,Capacitor_SMD:C_1210_3225Metric,,Require effective >=4.7uF; exact MPN unselected
+J1,Conn_01x03,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,,Same order as E10 J2; high-impedance input
+J2,Conn_01x07,Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical,,"Same order as E09 J2; short traces on converter PCB, not long raw-ADC harness"
+J3,Conn_01x04,Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical,,Qualified +/-12V and4.90..5.10V input; common reference
+J4,Conn_01x04,Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical,,DRV_ENABLE <- E09 J5.8 CHIP_EN; both filtered bias rails need future hardware window monitoring

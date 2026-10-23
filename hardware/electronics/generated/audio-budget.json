@@ -1,0 +1,280 @@
+{
+  "revision": "E04",
+  "status": "architecture screen; no complete analog circuit or measured audio result",
+  "headroom_both_modes_project_target_db": 20,
+  "reference_noise_comparison_assumption": "Nominal line signal, unity through gain, same weighting/bandwidth; reference measurement conditions still require verification",
+  "equal_adc_dac_dynamic_range_needed_before_analog_noise_db": {
+    "send_return": 125.01029995663981,
+    "master": 121.01029995663981
+  },
+  "converter_profiles": [
+    {
+      "name": "TAC5242_single_ended_3V3",
+      "adc_db": 110,
+      "dac_db": 111,
+      "source": "https://www.ti.com/lit/ds/symlink/tac5242.pdf",
+      "condition": "3.3V, single-ended; not a claim about Seed3 hardware straps",
+      "combined_dynamic_range_db": 107.46098108956133,
+      "modes": [
+        {
+          "mode": "send_return",
+          "target_snr_db": 102,
+          "nominal_rms_v": 0.31622776601683794,
+          "headroom_db": 20,
+          "converter_only_snr_at_nominal_db": 87.46098108956133,
+          "converter_equivalent_output_noise_uv": 13.395253766630482,
+          "maximum_total_output_noise_uv": 2.5118864315095824,
+          "remaining_analog_noise_budget_uv": null,
+          "converter_only_clears_minimum": false,
+          "maximum_headroom_before_analog_noise_db": 5.460981089561329
+        },
+        {
+          "mode": "master",
+          "target_snr_db": 98,
+          "nominal_rms_v": 1.228292224157363,
+          "headroom_db": 20,
+          "converter_only_snr_at_nominal_db": 87.46098108956133,
+          "converter_equivalent_output_noise_uv": 52.02985888750444,
+          "maximum_total_output_noise_uv": 15.463282941008805,
+          "remaining_analog_noise_budget_uv": null,
+          "converter_only_clears_minimum": false,
+          "maximum_headroom_before_analog_noise_db": 9.46098108956133
+        }
+      ],
+      "final_audio_performance_verified": false
+    },
+    {
+      "name": "TAC5242_differential_3V3",
+      "adc_db": 119,
+      "dac_db": 120,
+      "source": "https://www.ti.com/lit/ds/symlink/tac5242.pdf",
+      "condition": "3.3V, AC-coupled differential; optimistic chip-level screen",
+      "combined_dynamic_range_db": 116.46098108956133,
+      "modes": [
+        {
+          "mode": "send_return",
+          "target_snr_db": 102,
+          "nominal_rms_v": 0.31622776601683794,
+          "headroom_db": 20,
+          "converter_only_snr_at_nominal_db": 96.46098108956133,
+          "converter_equivalent_output_noise_uv": 4.752815388581977,
+          "maximum_total_output_noise_uv": 2.5118864315095824,
+          "remaining_analog_noise_budget_uv": null,
+          "converter_only_clears_minimum": false,
+          "maximum_headroom_before_analog_noise_db": 14.46098108956133
+        },
+        {
+          "mode": "master",
+          "target_snr_db": 98,
+          "nominal_rms_v": 1.228292224157363,
+          "headroom_db": 20,
+          "converter_only_snr_at_nominal_db": 96.46098108956133,
+          "converter_equivalent_output_noise_uv": 18.46089057322011,
+          "maximum_total_output_noise_uv": 15.463282941008805,
+          "remaining_analog_noise_budget_uv": null,
+          "converter_only_clears_minimum": false,
+          "maximum_headroom_before_analog_noise_db": 18.46098108956133
+        }
+      ],
+      "final_audio_performance_verified": false
+    },
+    {
+      "name": "ES9292PRO_AVCCH_3V3",
+      "adc_db": 128,
+      "dac_db": 128.5,
+      "source": "https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf",
+      "condition": "Internal 2.85V mode; 48kHz EVM typical DNR, A-weighted",
+      "combined_dynamic_range_db": 125.23250843541814,
+      "modes": [
+        {
+          "mode": "send_return",
+          "target_snr_db": 102,
+          "nominal_rms_v": 0.31622776601683794,
+          "headroom_db": 20,
+          "converter_only_snr_at_nominal_db": 105.23250843541814,
+          "converter_equivalent_output_noise_uv": 1.7313089663846442,
+          "maximum_total_output_noise_uv": 2.5118864315095824,
+          "remaining_analog_noise_budget_uv": 1.8199293139344943,
+          "converter_only_clears_minimum": true,
+          "maximum_headroom_before_analog_noise_db": 23.23250843541814
+        },
+        {
+          "mode": "master",
+          "target_snr_db": 98,
+          "nominal_rms_v": 1.228292224157363,
+          "headroom_db": 20,
+          "converter_only_snr_at_nominal_db": 105.23250843541814,
+          "converter_equivalent_output_noise_uv": 6.7247521234771925,
+          "maximum_total_output_noise_uv": 15.463282941008805,
+          "remaining_analog_noise_budget_uv": 13.924468686146806,
+          "converter_only_clears_minimum": true,
+          "maximum_headroom_before_analog_noise_db": 27.23250843541814
+        }
+      ],
+      "final_audio_performance_verified": false
+    },
+    {
+      "name": "ES9292PRO_AVCCH_4V5",
+      "adc_db": 128.5,
+      "dac_db": 130,
+      "source": "https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf",
+      "condition": "Internal 3.3V mode; 48kHz EVM typical DNR, A-weighted",
+      "combined_dynamic_range_db": 126.17525919312413,
+      "modes": [
+        {
+          "mode": "send_return",
+          "target_snr_db": 102,
+          "nominal_rms_v": 0.31622776601683794,
+          "headroom_db": 20,
+          "converter_only_snr_at_nominal_db": 106.17525919312413,
+          "converter_equivalent_output_noise_uv": 1.5532345426955827,
+          "maximum_total_output_noise_uv": 2.5118864315095824,
+          "remaining_analog_noise_budget_uv": 1.9740911580216318,
+          "converter_only_clears_minimum": true,
+          "maximum_headroom_before_analog_noise_db": 24.175259193124134
+        },
+        {
+          "mode": "master",
+          "target_snr_db": 98,
+          "nominal_rms_v": 1.228292224157363,
+          "headroom_db": 20,
+          "converter_only_snr_at_nominal_db": 106.17525919312413,
+          "converter_equivalent_output_noise_uv": 6.033075258116383,
+          "maximum_total_output_noise_uv": 15.463282941008805,
+          "remaining_analog_noise_budget_uv": 14.237806089548975,
+          "converter_only_clears_minimum": true,
+          "maximum_headroom_before_analog_noise_db": 28.175259193124134
+        }
+      ],
+      "final_audio_performance_verified": false
+    }
+  ],
+  "rejected_e01_resistor_network": {
+    "status": "rejected for reference-performance path",
+    "modes": [
+      {
+        "mode": "send_return",
+        "input_network_output_referred_uv": 6.622222175269333,
+        "output_feedback_network_uv": 6.626217816910654,
+        "series_resistor_uv": 0.17958307843077165,
+        "resistor_only_output_noise_uv": 9.369783304742525,
+        "resistor_only_snr_db": 90.56540905874989,
+        "target_snr_db": 102,
+        "clears_target_before_other_noise": false
+      },
+      {
+        "mode": "master",
+        "input_network_output_referred_uv": 12.04096109643982,
+        "output_feedback_network_uv": 23.68795427509193,
+        "series_resistor_uv": 0.17958307843077165,
+        "resistor_only_output_noise_uv": 26.573222837038074,
+        "resistor_only_snr_db": 93.29714946138479,
+        "target_snr_db": 98,
+        "clears_target_before_other_noise": false
+      }
+    ],
+    "assumptions": "Ideal flat stages, 20Hz-20kHz rectangular noise bandwidth, 25C, unity wanted signal",
+    "excluded": [
+      "amplifier noise and 1/f noise",
+      "converter noise",
+      "source/load and supply noise",
+      "filter transfer functions and frequency-dependent gain",
+      "resistor excess noise and tolerances"
+    ],
+    "interpretation": "Lower-bound circuit noise screen, not an A-weighted S/N measurement"
+  },
+  "prospective_analog_interface": {
+    "output_interfaces": [
+      {
+        "mode": "send_return",
+        "post_receiver_interface_rms_v": 2,
+        "topology": "noninverting output driver",
+        "ground_resistor_ohm": 1000,
+        "feedback_resistor_ohm": 604,
+        "feedback_parts_ohm": [
+          604
+        ],
+        "proposed_resistor_tolerance": 0.001,
+        "output_series_ohm": 100,
+        "minimum_combined_external_load_ohm": 10000,
+        "closed_loop_gain": 1.604,
+        "effective_amplifier_resistive_load_ohm": 1384.1763499658236,
+        "target_output_full_scale_rms_v": 3.1622776601683795,
+        "calculated_output_full_scale_rms_v": 3.1762376237623764,
+        "nominal_gain_error_db": 0.03825971658966571,
+        "amplifier_peak_at_target_v": 4.516857314549576
+      },
+      {
+        "mode": "master",
+        "post_receiver_interface_rms_v": 2,
+        "topology": "noninverting output driver",
+        "ground_resistor_ohm": 1000,
+        "feedback_resistor_ohm": 5200.9,
+        "feedback_parts_ohm": [
+          5110,
+          90.9
+        ],
+        "proposed_resistor_tolerance": 0.001,
+        "output_series_ohm": 100,
+        "minimum_combined_external_load_ohm": 10000,
+        "closed_loop_gain": 6.2009,
+        "effective_amplifier_resistive_load_ohm": 3842.0633216570864,
+        "target_output_full_scale_rms_v": 12.28292224157363,
+        "calculated_output_full_scale_rms_v": 12.279009900990099,
+        "nominal_gain_error_db": -0.0027670590917051935,
+        "amplifier_peak_at_target_v": 17.54438197180364
+      }
+    ],
+    "master_driver_candidate": "OPA2992D",
+    "consumer_driver_candidate": "OPA1612AID",
+    "input_buffer_candidate": "OPA2992D",
+    "analog_high_rails": {
+      "nominal_bipolar_v": 19,
+      "proposed_total_regulation_tolerance": 0.01,
+      "minimum_rail_magnitude_v": 18.81,
+      "maximum_total_supply_v": 38.38,
+      "opa2992_recommended_total_supply_max_v": 40,
+      "supply_within_recommended_range": true,
+      "assumed_output_headroom_v": 0.3,
+      "headroom_source_condition": "OPA2992 EC table at 40V supply, 2kOhm load; reuse at 38V is a screening assumption",
+      "master_effective_load_above_2k": true,
+      "screened_available_peak_v": 18.509999999999998,
+      "required_master_peak_v": 17.54438197180364,
+      "screened_peak_margin_v": 0.9656180281963564,
+      "candidate_clears_voltage_screen": true,
+      "bench_verified": false
+    },
+    "input_buffer": {
+      "series_resistor_ohm": 2200,
+      "assumed_flat_noise_density_nv_rt_hz": 7,
+      "white_noise_estimate_uv": 1.3049071965381847,
+      "status": "Illustrative buffer screen; omits source, bias, low-frequency noise and protection details"
+    },
+    "limits": [
+      "No circuit/PCB or regulator selection is established by this screen",
+      "Master/send-return would select separate output drivers; do not join their outputs",
+      "Separate stereo input gain selection is still required",
+      "E01 feedback-shunt values must not be copied into this proposed topology",
+      "Loaded converter full scale, analog filters and calibration remain unresolved"
+    ]
+  },
+  "decisions": [
+    "Keep Seed3 with onboard codec for firmware/control bring-up only",
+    "Onboard converter is not approved for reference-performance hardware",
+    "Evaluate ES9292QPRO, external differential converter board and new board adapter",
+    "Use OPA2992 and regulated +/-19V as high-voltage candidates, not an approved power BOM",
+    "Preserve the existing minimum targets; preferred 110dB nominal S/N is not met by these converter screens"
+  ],
+  "unresolved": [
+    "Actual Seed3 codec mode/analog transfer and measured performance",
+    "ESS 260Ohm input-impedance interpretation and loaded filter/gain network",
+    "ESS 390Ohm DAC source impedance and receiver loading",
+    "Converter procurement, clock choice, configuration and board adapter",
+    "Protection, coupling, power/ground, filter, noise integration and tolerance analysis",
+    "High-voltage input buffer full-scale input-pair crossover distortion",
+    "Complete native analog/power schematic and routed PCB",
+    "Actual unit noise, THD, headroom, response, latency, transients and thermal tests"
+  ],
+  "generator_sha256": "f0e2e14ffde88d964fa2b7724767d5bc82a5560a3b94b3f18d91ca1901d5fdbb",
+  "primary_source_record_sha256": "eec05ddaddbe662ba06e2c54812c092d7366c950f21a935cada6eb91ab8dd9fa"
+}

@@ -5,9 +5,9 @@
 
 namespace rmx {
 struct State {
-    std::array<float,parameterCount> values{};
-    std::array<std::string,16> samplePaths{};
-    std::array<int,128> cc{};
+    std::array<float, parameterCount> values{};
+    std::array<std::string, 16> samplePaths{};
+    std::array<int, 128> cc{};
     State();
     void capture(const ParameterStore&);
     void apply(ParameterStore&) const;
@@ -16,4 +16,4 @@ struct State {
     void save(const std::filesystem::path&) const;
     static State load(const std::filesystem::path&);
 };
-}
+} // namespace rmx

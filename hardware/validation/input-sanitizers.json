@@ -1,0 +1,39 @@
+{
+  "checked_at_utc": "2026-10-22T21:30:04.825379+00:00",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+  "flags": [
+    "-std=c++20",
+    "-O1",
+    "-g",
+    "-DRMX_EXTERNAL_CONVERTER=1",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer"
+  ],
+  "checks": [
+    {
+      "test": "tests/external_converter_tests.cpp",
+      "source_sha256": "54dcadacf8770159848673f7243bf9fa64951fb6d968b9d63e73987278229093",
+      "binary_sha256": "fd5ed0b915bba2c9b0de42df821d0c621e4e76d3f93a1c98e94b1937fe2a4f29",
+      "passed": true,
+      "summary": "External converter: 312 injected setup/activation faults; delayed power/ID startup, settling, live clock/ramp, relay, restart, wrap and PCM checks passed"
+    },
+    {
+      "test": "tests/input_qualification_tests.cpp",
+      "source_sha256": "1ca7c8854036351d3658203e56e9944166f7399f55056912d3804e5dfdf53048",
+      "binary_sha256": "ec38c53e5b88acc1da6729912f1e41275447c16bbb0dab7640adc9c432691840",
+      "passed": true,
+      "summary": "Input qualification boundaries, bus faults, timeout/chatter, calibration, manual bypass, actual gain/rearm/feedback integration and timer wrap passed"
+    }
+  ],
+  "source_sha256": {
+    "hardware/firmware/InputQualification.h": "823070919e7b68207fcd65c4d4faca1f56cd8037b87f9af934092f0668a1ac4d",
+    "hardware/firmware/ConnectionMode.h": "06cf5718597f7218903dd74423ba7220617e8ef186a74fcc131a1f200cc9f93e",
+    "hardware/firmware/RelayFeedback.h": "4277ae3357d43bc9eb88c8b1b6357a0cef3118ed92ae1bf7b59afb34d8cd8f10",
+    "hardware/firmware/Es9292.h": "cb2e62cd82c28bbfc0ad696234cfef05861f5192ebfcc68da99a3946e14bb83c",
+    "hardware/firmware/Pcm32.h": "b937eaac2fa94c67bc780208e7a2f36d227033d08f8666c5651ab462c4fdf8ab",
+    "hardware/firmware/DmaHalf.h": "fd0f72626c14d9c9f701c1b7493abd3195d1b3f91d48c484432b29d62397979b",
+    "hardware/firmware/BoardProfile.h": "acbac5ae5c1f03d5e29cd1756937862c74774b2b2752b5ece9e276921c1692c5",
+    "hardware/firmware/ConverterPower.h": "98502f71107ecddd9bfd1299639b21a73312301d2f733e4b7e17b68e95afb087"
+  },
+  "scope": "Portable converter power/input qualification, gain/rearm/feedback, qualified PCM and DMA helpers; no peripheral or physical emulation"
+}

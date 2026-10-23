@@ -1,0 +1,85 @@
+{
+  "revision": "E16",
+  "sources": {
+    "tps2663": {
+      "source": "https://www.ti.com/lit/ds/symlink/tps2663.pdf",
+      "revision_or_review": "G, June2024",
+      "download_sha256": "bb61314ace65ed37684bd07f541fc676081d7cf81cb24020e7c5c2065bfe16b2"
+    },
+    "tps7a16": {
+      "source": "https://www.ti.com/lit/ds/symlink/tps7a16.pdf",
+      "revision_or_review": "F, October2015",
+      "download_sha256": "4e05cfdef8f64684f9f24b7d1f86e83badb7784c09c96f2ddbcbdbc0a3b48f80"
+    },
+    "blocking_fet": {
+      "source": "https://assets.nexperia.com/documents/data-sheet/PSMN012-100YS.pdf",
+      "revision_or_review": "Rev04,23February2010; Nexperia2017 publication"
+    },
+    "gate_pulldown_fet": {
+      "source": "https://www.diodes.com/datasheet/download/BSS138.pdf",
+      "revision_or_review": "DS30144Rev25-2,June2024"
+    },
+    "ov_clamp": {
+      "source": "https://assets.nexperia.com/documents/data-sheet/BAS116.pdf",
+      "revision_or_review": "5August2020"
+    },
+    "tvs": {
+      "source": "https://www.vishay.com/docs/88392/smbj.pdf",
+      "revision_or_review": "9January2024"
+    },
+    "output_clamp": {
+      "source": "https://www.vishay.com/docs/88746/ss12.pdf",
+      "revision_or_review": "SS16"
+    },
+    "jack": {
+      "source": "https://www.sameskydevices.com/product/resource/pj-102ah.pdf",
+      "revision_or_review": "September12,2024",
+      "download_sha256": "41d7cf2b2cb481c323ecc953ba3f006fd0c24b42941473f7214d9dc1860d2b71"
+    },
+    "fuse": {
+      "source": "https://www.littelfuse.com/assetdocs/fuse-451-and-453-datasheet?assetguid=533cd5cc-956c-4243-867f-6ab5a62f6ba1",
+      "revision_or_review": "December1,2025"
+    },
+    "switch": {
+      "source": "https://www.littelfuse.com/assetdocs/littelfuse-c-k-slide-js-series-datasheet?assetguid=aba42b08-0d2c-423b-813d-a2faa5a3bb14",
+      "revision_or_review": "January14,2026"
+    },
+    "bulk": {
+      "source": "https://industrial.panasonic.com/ww/products/pt/aluminum-cap-lead/models/EEUFR1V221",
+      "revision_or_review": "Official exact-MPN product specifications:8x11.5mm,pitch3.5mm"
+    },
+    "receiving_buck": {
+      "source": "https://www.ti.com/lit/ds/symlink/tps62933f.pdf",
+      "revision_or_review": "D, August2022",
+      "download_sha256": "16ec2eac43c7374eb9e7edd7df7bdb24de6862f695e1582c68716ced4820e5f6"
+    },
+    "fast_comparator": {
+      "source": "https://www.ti.com/document-viewer/TLV7011/datasheet",
+      "revision_or_review": "SLVSDM5F,March2020; official HTML pin/functions,absolute/operating/electrical/switching and fail-safe-input sections",
+      "qualification_limits": "At auxiliary2.4..2.6V, output drive/leakage and1us at10mV overdrive are allocations,not manufacturer maxima; startup100us allocation;5.5V fail-safe input tolerance does not prove outside-common-mode timing"
+    },
+    "fast_shutdown_fet": {
+      "source": "https://www.diodes.com/datasheet/download/DMN2056U.pdf",
+      "revision_or_review": "DS38480Rev2-2,July2021; low-gate-voltage resistance,20V/8V ratings,SOT23 pin map",
+      "qualification_limits": "250mOhm hot resistance,10uA hot drain leakage and local gate timing remain allocations"
+    }
+  },
+  "own_project_symbols": true,
+  "external_libraries_vendored": false,
+  "kicad_version": "10.0.7",
+  "unselected": [
+    "Exact12V3A adapter with +/-5% delivered at inlet",
+    "Precision resistor MPNs and effective MLCC capacitance/ESR/leakage/derating",
+    "Keyed production power/guard/switch connectors and wiring"
+  ],
+  "unverified": [
+    "Fuse/TVS/adapter coordination and current/temperature derating",
+    "BSS138 gate pulldown at minimum3V drive and hot Q1 RDS at minimum8.3V drive",
+    "OVP clamp over intended temperatures and partial-power states",
+    "Actual fault-charge transfer, reverse/charged-output behavior, startup and shutdown",
+    "PCB/thermal/enclosure fit and downstream rail OV disconnects",
+    "Comparator propagation/drive/startup/input current at auxiliary2.4..2.6V and intended temperatures",
+    "Auxiliary PG delay-threshold lower bound and reference/comparator readiness",
+    "Measured fast-OV transferred-charge/overshoot and current bound;24V functional target excludes arbitrary higher-surge timing"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "revision": "E10",
+  "boundary": "Single-ended stereo input preamplifier; separate ADC driver required",
+  "input": ["PROC_IN_L", "AGND", "PROC_IN_R"],
+  "output": ["PRE_OUT_L", "AGND", "PRE_OUT_R"],
+  "minimum_driver_input_impedance_ohm": 100000,
+  "qualified_line_source_maximum_ohm": 1000,
+  "nominal_analysis_line_source_ohm": 100,
+  "gain_selection": "Released relay=Master attenuation; energized=Send/Return",
+  "gain_coil_interface": ["5V", "GAIN_LOW"],
+  "nominal_preamplifier_full_scale_rms_v": 4.0,
+  "preamp_output_dc_allocation_v": 0.025,
+  "required_independent_input_precharge_s": 1.2,
+  "qualification_start": "Processing input relay has closed onto the actual source, analog supplies/reference state valid; wet output selection remains dry",
+  "restart_on": ["Input connection or gain-range change", "Manual bypass release if input relay opened", "Analog power or input-path fault", "Restart/reconfiguration affecting input DC state"],
+  "existing_interface_conflict": "E02/E03 tie input-isolation and wet-output selector coils to BYPASS_LOW",
+  "required_remaining_changes": [
+    "Independent hardware-qualified input-relay drive",
+    "Input-settled status/gating and matching firmware startup/rearm sequence",
+    "ADC driver AC/DC load and common-mode/reference design",
+    "Raw ADC pin protection, loaded gain/headroom and scale calibration",
+    "Complete weighted noise budget retaining original targets",
+    "Native integrated PCB routing and actual enclosure/wiring placement"
+  ],
+  "independent_input_precharge_implemented": false,
+  "adc_driver_implemented": false,
+  "adc_scale_calibrated": false,
+  "pcb_routed": false,
+  "enclosure_placement_complete": false,
+  "physical_audio_verified": false
+}

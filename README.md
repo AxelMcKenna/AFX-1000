@@ -84,6 +84,23 @@ The renderer's preset argument is optional. Benchmarks measure DSP time, not phy
 
 </details>
 
+## Development checks
+
+The DSP is composed of sampler, sequencer, isolator, scene and release components. Platform adapters share parameter definitions and MIDI/control rules. JUCE parameters directly access the engine's atomic parameter store; message-thread notifications never replay older values. The native application controller serializes audio lifecycle, preset and sample workflows on one control queue.
+
+```sh
+python3 -m pip install -r tools/requirements-quality.txt
+python3 tools/check_format.py
+ruff check hardware tests tools
+ruff format --check hardware tests tools
+python3 -m unittest discover -s tests -p test_electronics.py
+cmake -S . -B build-sanitize -DCMAKE_BUILD_TYPE=Debug -DRMX_BUILD_NATIVE=OFF -DRMX_SANITIZER=address
+cmake --build build-sanitize --parallel 4
+ctest --test-dir build-sanitize --output-on-failure
+```
+
+Python tooling requires Python 3.11+. Use `RMX_SANITIZER=thread` in a separate build directory for race checks. Plugin builds also run the processor state regressions, including panic/release resets and automation superseding deferred notifications. Physical audio-device and hardware validation remains separate.
+
 ## Status
 
 Still in development. Mac-only rekordbox audio has been tested, and universal Mac artifacts build. Intel runtime testing, DAW validation, physical FLX routing, long sessions and hardware sound comparisons remain open. The latest capture restart changes need a live check.
@@ -92,7 +109,7 @@ The engine uses stereo floating-point audio, with checks at 44.1, 48, 88.2 and 9
 
 ## Reference
 
-[Controls](docs/controls.md) / [Routing](docs/routing.md) / [Specifications](docs/specifications.md) / [Validation](docs/validation.md)
+[Controls](docs/controls.md) / [Routing](docs/routing.md) / [Specifications](docs/specifications.md) / [Validation](docs/validation.md) / [Standalone hardware and CAD](hardware/README.md)
 
 The original Swift and browser prototypes are kept in `Sources/` and `web/`. Their guide is [here](docs/legacy-prototypes.md).
 

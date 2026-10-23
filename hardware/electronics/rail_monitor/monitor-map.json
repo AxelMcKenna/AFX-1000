@@ -1,0 +1,478 @@
+{
+  "windows": [
+    {
+      "name": "P19",
+      "rail": "P19",
+      "kind": "positive",
+      "sense_top": 91000,
+      "sense_bottom": 10000,
+      "uv_top": 3570,
+      "ov_top": 3010,
+      "normal": [
+        18.81,
+        19.19
+      ],
+      "valid": [
+        18.392,
+        19.608
+      ]
+    },
+    {
+      "name": "N19",
+      "rail": "N19",
+      "kind": "inverted",
+      "amp_in": 100000,
+      "amp_fb": 10000,
+      "uv_top": 3400,
+      "ov_top": 2870,
+      "normal": [
+        18.81,
+        19.19
+      ],
+      "valid": [
+        18.392,
+        19.608
+      ]
+    },
+    {
+      "name": "P12",
+      "rail": "P12",
+      "kind": "positive",
+      "sense_top": 91000,
+      "sense_bottom": 10000,
+      "uv_top": 11500,
+      "ov_top": 10604,
+      "normal": [
+        11.88,
+        12.12
+      ],
+      "valid": [
+        11.616,
+        12.384
+      ]
+    },
+    {
+      "name": "N12",
+      "rail": "N12",
+      "kind": "inverted",
+      "amp_in": 100000,
+      "amp_fb": 10000,
+      "uv_top": 11300,
+      "ov_top": 10412,
+      "normal": [
+        11.88,
+        12.12
+      ],
+      "valid": [
+        11.616,
+        12.384
+      ]
+    },
+    {
+      "name": "NBIAS_L",
+      "rail": "NBIAS_L",
+      "kind": "inverted",
+      "amp_in": 10000,
+      "amp_fb": 80600,
+      "uv_top": 8200,
+      "ov_top": 1780,
+      "normal": [
+        0.1838,
+        0.256
+      ],
+      "valid": [
+        0.16,
+        0.27
+      ]
+    },
+    {
+      "name": "NBIAS_R",
+      "rail": "NBIAS_R",
+      "kind": "inverted",
+      "amp_in": 10000,
+      "amp_fb": 80600,
+      "uv_top": 8200,
+      "ov_top": 1780,
+      "normal": [
+        0.1838,
+        0.256
+      ],
+      "valid": [
+        0.16,
+        0.27
+      ]
+    },
+    {
+      "name": "V5_REG",
+      "rail": "V5_REG",
+      "kind": "positive",
+      "sense_top": 10499,
+      "sense_bottom": 10000,
+      "uv_top": 374,
+      "ov_top": 127,
+      "normal": [
+        4.975,
+        5.025
+      ],
+      "valid": [
+        4.9,
+        5.1
+      ]
+    },
+    {
+      "name": "5V_DIG",
+      "rail": "5V_DIG",
+      "kind": "positive",
+      "sense_top": 10499,
+      "sense_bottom": 10000,
+      "ov_sense_top": 11500,
+      "uv_top": 768,
+      "ov_top": 270,
+      "normal": [
+        4.9,
+        5.1
+      ],
+      "valid": [
+        4.7,
+        5.3
+      ]
+    }
+  ],
+  "comparators": [
+    {
+      "name": "P19_UV",
+      "window": "P19",
+      "mode": "UV",
+      "positive": "P19_UV_SENSE",
+      "negative": "P19_UV_REF",
+      "output": "P19_UV_OK",
+      "sense_parts": [
+        "R1",
+        "R2"
+      ],
+      "threshold_parts": [
+        "R3",
+        "R4"
+      ],
+      "threshold_series": null,
+      "feedback": "R5",
+      "pull": "R6"
+    },
+    {
+      "name": "P19_OV",
+      "window": "P19",
+      "mode": "OV",
+      "positive": "P19_OV_REF",
+      "negative": "P19_OV_SENSE",
+      "output": "P19_OV_OK",
+      "sense_parts": [
+        "R7",
+        "R8"
+      ],
+      "threshold_parts": [
+        "R9",
+        "R10"
+      ],
+      "threshold_series": "R11",
+      "feedback": "R12",
+      "pull": "R13"
+    },
+    {
+      "name": "N19_UV",
+      "window": "N19",
+      "mode": "UV",
+      "positive": "N19_UV_SENSE",
+      "negative": "N19_UV_REF",
+      "output": "N19_UV_OK",
+      "sense_parts": [
+        "R14"
+      ],
+      "threshold_parts": [
+        "R15",
+        "R16"
+      ],
+      "threshold_series": null,
+      "feedback": "R17",
+      "pull": "R18"
+    },
+    {
+      "name": "N19_OV",
+      "window": "N19",
+      "mode": "OV",
+      "positive": "N19_OV_REF",
+      "negative": "N19_OV_SENSE",
+      "output": "N19_OV_OK",
+      "sense_parts": [
+        "R19"
+      ],
+      "threshold_parts": [
+        "R20",
+        "R21"
+      ],
+      "threshold_series": "R22",
+      "feedback": "R23",
+      "pull": "R24"
+    },
+    {
+      "name": "P12_UV",
+      "window": "P12",
+      "mode": "UV",
+      "positive": "P12_UV_SENSE",
+      "negative": "P12_UV_REF",
+      "output": "P12_UV_OK",
+      "sense_parts": [
+        "R25",
+        "R26"
+      ],
+      "threshold_parts": [
+        "R27",
+        "R28"
+      ],
+      "threshold_series": null,
+      "feedback": "R29",
+      "pull": "R30"
+    },
+    {
+      "name": "P12_OV",
+      "window": "P12",
+      "mode": "OV",
+      "positive": "P12_OV_REF",
+      "negative": "P12_OV_SENSE",
+      "output": "P12_OV_OK",
+      "sense_parts": [
+        "R31",
+        "R32"
+      ],
+      "threshold_parts": [
+        "R33",
+        "R34",
+        "R35"
+      ],
+      "threshold_series": "R36",
+      "feedback": "R37",
+      "pull": "R38"
+    },
+    {
+      "name": "N12_UV",
+      "window": "N12",
+      "mode": "UV",
+      "positive": "N12_UV_SENSE",
+      "negative": "N12_UV_REF",
+      "output": "N12_UV_OK",
+      "sense_parts": [
+        "R39"
+      ],
+      "threshold_parts": [
+        "R40",
+        "R41"
+      ],
+      "threshold_series": null,
+      "feedback": "R42",
+      "pull": "R43"
+    },
+    {
+      "name": "N12_OV",
+      "window": "N12",
+      "mode": "OV",
+      "positive": "N12_OV_REF",
+      "negative": "N12_OV_SENSE",
+      "output": "N12_OV_OK",
+      "sense_parts": [
+        "R44"
+      ],
+      "threshold_parts": [
+        "R45",
+        "R46",
+        "R47"
+      ],
+      "threshold_series": "R48",
+      "feedback": "R49",
+      "pull": "R50"
+    },
+    {
+      "name": "NBIAS_L_UV",
+      "window": "NBIAS_L",
+      "mode": "UV",
+      "positive": "NBIAS_L_UV_SENSE",
+      "negative": "NBIAS_L_UV_REF",
+      "output": "NBIAS_L_UV_OK",
+      "sense_parts": [
+        "R51"
+      ],
+      "threshold_parts": [
+        "R52",
+        "R53"
+      ],
+      "threshold_series": null,
+      "feedback": "R54",
+      "pull": "R55"
+    },
+    {
+      "name": "NBIAS_L_OV",
+      "window": "NBIAS_L",
+      "mode": "OV",
+      "positive": "NBIAS_L_OV_REF",
+      "negative": "NBIAS_L_OV_SENSE",
+      "output": "NBIAS_L_OV_OK",
+      "sense_parts": [
+        "R56"
+      ],
+      "threshold_parts": [
+        "R57",
+        "R58"
+      ],
+      "threshold_series": "R59",
+      "feedback": "R60",
+      "pull": "R61"
+    },
+    {
+      "name": "NBIAS_R_UV",
+      "window": "NBIAS_R",
+      "mode": "UV",
+      "positive": "NBIAS_R_UV_SENSE",
+      "negative": "NBIAS_R_UV_REF",
+      "output": "NBIAS_R_UV_OK",
+      "sense_parts": [
+        "R62"
+      ],
+      "threshold_parts": [
+        "R63",
+        "R64"
+      ],
+      "threshold_series": null,
+      "feedback": "R65",
+      "pull": "R66"
+    },
+    {
+      "name": "NBIAS_R_OV",
+      "window": "NBIAS_R",
+      "mode": "OV",
+      "positive": "NBIAS_R_OV_REF",
+      "negative": "NBIAS_R_OV_SENSE",
+      "output": "NBIAS_R_OV_OK",
+      "sense_parts": [
+        "R67"
+      ],
+      "threshold_parts": [
+        "R68",
+        "R69"
+      ],
+      "threshold_series": "R70",
+      "feedback": "R71",
+      "pull": "R72"
+    },
+    {
+      "name": "V5_REG_UV",
+      "window": "V5_REG",
+      "mode": "UV",
+      "positive": "V5_REG_UV_SENSE",
+      "negative": "V5_REG_UV_REF",
+      "output": "V5_REG_UV_OK",
+      "sense_parts": [
+        "R73",
+        "R74",
+        "R75"
+      ],
+      "threshold_parts": [
+        "R76",
+        "R77"
+      ],
+      "threshold_series": null,
+      "feedback": "R78",
+      "pull": "R79"
+    },
+    {
+      "name": "V5_REG_OV",
+      "window": "V5_REG",
+      "mode": "OV",
+      "positive": "V5_REG_OV_REF",
+      "negative": "V5_REG_OV_SENSE",
+      "output": "V5_REG_OV_OK",
+      "sense_parts": [
+        "R80",
+        "R81",
+        "R82"
+      ],
+      "threshold_parts": [
+        "R83",
+        "R84"
+      ],
+      "threshold_series": "R85",
+      "feedback": "R86",
+      "pull": "R87"
+    },
+    {
+      "name": "5V_DIG_UV",
+      "window": "5V_DIG",
+      "mode": "UV",
+      "positive": "5V_DIG_UV_SENSE",
+      "negative": "5V_DIG_UV_REF",
+      "output": "5V_DIG_UV_OK",
+      "sense_parts": [
+        "R88",
+        "R89",
+        "R90"
+      ],
+      "threshold_parts": [
+        "R91",
+        "R92"
+      ],
+      "threshold_series": null,
+      "feedback": "R93",
+      "pull": "R94"
+    },
+    {
+      "name": "5V_DIG_OV",
+      "window": "5V_DIG",
+      "mode": "OV",
+      "positive": "5V_DIG_OV_REF",
+      "negative": "5V_DIG_OV_SENSE",
+      "output": "5V_DIG_OV_OK",
+      "sense_parts": [
+        "R95",
+        "R96"
+      ],
+      "threshold_parts": [
+        "R97",
+        "R98"
+      ],
+      "threshold_series": "R99",
+      "feedback": "R100",
+      "pull": "R101"
+    }
+  ],
+  "amplifiers": [
+    {
+      "window": "N19",
+      "input_ref": "R102",
+      "feedback_ref": "R103",
+      "positive_pin": "3",
+      "negative_pin": "2",
+      "output_pin": "1"
+    },
+    {
+      "window": "N12",
+      "input_ref": "R104",
+      "feedback_ref": "R105",
+      "positive_pin": "5",
+      "negative_pin": "6",
+      "output_pin": "7"
+    },
+    {
+      "window": "NBIAS_L",
+      "input_ref": "R106",
+      "feedback_ref": "R107",
+      "positive_pin": "10",
+      "negative_pin": "9",
+      "output_pin": "8"
+    },
+    {
+      "window": "NBIAS_R",
+      "input_ref": "R108",
+      "feedback_ref": "R109",
+      "positive_pin": "12",
+      "negative_pin": "13",
+      "output_pin": "14"
+    }
+  ]
+}

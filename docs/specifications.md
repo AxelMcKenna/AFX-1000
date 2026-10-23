@@ -18,11 +18,20 @@ Pioneer's [published RMX-1000 specifications](https://forums.pioneerdj.com/hc/en
 
 ## Hardware architecture
 
-The C++ engine takes planar float audio, a sample rate, timestamped pad events, transport information, and stable parameter IDs. It does not depend on JUCE, Cocoa, Core Audio, a filesystem, or a display. A future embedded adapter supplies audio buffers and control events; the preset schema and MIDI mappings remain shared.
+The C++ engine takes planar float audio, a sample rate, timestamped pad events, transport information, and stable parameter IDs. It does not depend on JUCE, Cocoa, Core Audio, a filesystem, or a display. The embedded prototype supplies audio buffers and control events; the preset schema and MIDI mappings remain shared.
 
 The Linux CI configuration builds the headless core on x86-64 and ARM64. A real ARM hardware benchmark and round-trip latency measurement remain required. The desktop process-tap route is an Apple adapter, not part of the portable engine.
 
-A future standalone unit needs stereo line ADC/DAC, calibrated master/send-return gain ranges, physical controls, storage, a watchdog, and a physical bypass path. Select the board, codecs, power design, and RAM only after profiling the chosen sample-bank limits and worst effect combination. A USB/MIDI controller can precede that unit and use the existing parameter IDs.
+The physical unit needs stereo line ADC/DAC, calibrated master/send-return gain ranges, physical controls, storage, an independent watchdog, and physical bypass. The working Seed3 adapter cross-compiles at 48 kHz / 128 frames and its buffer payload fits the proposed SDRAM reservation. MCU timing and the audio/power circuitry remain unverified. The [electronics design basis](../hardware/electronics/README.md) defines line-level targets and bypass/gain-switch behavior; the CONNECTION switch controls gain independently of wet-only routing.
+
+The selected physical product is a [standalone stereo effects processor](../hardware/README.md), with onboard DSP, converters, sample storage and physical bypass. The [housing and control study](../hardware/cad/README.md) starts with a 334 × 157 mm body, an editable OpenSCAD enclosure, and controls mapped to the shared parameter IDs. Components, electronics, mechanical fit, and fabrication are still being developed.
+
+The [E04 audio budget](../hardware/electronics/generated/audio-budget.json)
+does not approve the prototype's onboard codec or E01 resistor network for the
+reference-performance hardware. It preserves the minimum targets and identifies
+external conversion/revised analog stages as the next design path. The current
+embedded build remains a bring-up implementation; no measured audio match is
+claimed.
 
 ## Fidelity checks to complete
 

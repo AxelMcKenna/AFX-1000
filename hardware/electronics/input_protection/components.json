@@ -1,0 +1,1503 @@
+[
+  {
+    "ref": "J1",
+    "part": "PJ-102AH",
+    "footprint": "Connector_BarrelJack:BarrelJack_CUI_PJ-102AH_Horizontal",
+    "pins": [
+      {
+        "number": "1",
+        "name": "CENTER+",
+        "kind": "passive",
+        "side": "L",
+        "net": "DC_IN"
+      },
+      {
+        "number": "2",
+        "name": "SLEEVE",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      },
+      {
+        "number": "3",
+        "name": "SWITCH",
+        "kind": "passive",
+        "side": "L",
+        "net": null
+      }
+    ],
+    "x": 59.69,
+    "y": 139.7,
+    "source": "https://www.sameskydevices.com/product/resource/pj-102ah.pdf",
+    "note": "5A24V inlet; center positive. Adapter target12V3A +/-5% delivered at inlet; exact adapter unselected."
+  },
+  {
+    "ref": "F1",
+    "part": "0451004.MRL 4A 125V",
+    "footprint": "Fuse:Fuse_Littelfuse-NANO2-451_453",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "DC_IN"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "VIN_SYS"
+      }
+    ],
+    "x": 48.26,
+    "y": 240.03,
+    "source": "https://www.littelfuse.com/assetdocs/fuse-451-and-453-datasheet?assetguid=533cd5cc-956c-4243-867f-6ab5a62f6ba1",
+    "note": "Backup fuse, nominal cold resistance16mOhm/I2t3.152A2s. Clearing/adapter/TVS coordination remains unverified; 30mOhm hot allocation is not a datasheet maximum."
+  },
+  {
+    "ref": "D1",
+    "part": "SMBJ33CA-E3/52",
+    "footprint": "Diode_SMD:D_SMB",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_SYS"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 123.19,
+    "y": 240.03,
+    "source": "https://www.vishay.com/docs/88392/smbj.pdf",
+    "note": "Bidirectional33V TVS tolerates24V DC misplug without normal avalanche. No surge-class or TVS/fuse coordination approval."
+  },
+  {
+    "ref": "Q1",
+    "part": "PSMN012-100YS,115",
+    "footprint": "Package_TO_SOT_SMD:LFPAK56",
+    "pins": [
+      {
+        "number": "1",
+        "name": "SOURCE",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_SYS"
+      },
+      {
+        "number": "2",
+        "name": "SOURCE",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_SYS"
+      },
+      {
+        "number": "3",
+        "name": "SOURCE",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_SYS"
+      },
+      {
+        "number": "4",
+        "name": "GATE",
+        "kind": "input",
+        "side": "L",
+        "net": "BLOCK_GATE"
+      },
+      {
+        "number": "5",
+        "name": "DRAIN/MB",
+        "kind": "passive",
+        "side": "R",
+        "net": "VIN_IC"
+      }
+    ],
+    "x": 389.89,
+    "y": 64.77,
+    "source": "https://assets.nexperia.com/documents/data-sheet/PSMN012-100YS.pdf",
+    "note": "Source is INPUT, drain is eFuse IN. Body diode permits cold positive startup; external blocking FET opposes internal pass-FET body diode."
+  },
+  {
+    "ref": "Q2",
+    "part": "BSS138-7-F",
+    "footprint": "Package_TO_SOT_SMD:SOT-23",
+    "pins": [
+      {
+        "number": "1",
+        "name": "GATE",
+        "kind": "input",
+        "side": "L",
+        "net": "BLOCK_DRV"
+      },
+      {
+        "number": "2",
+        "name": "SOURCE",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_SYS"
+      },
+      {
+        "number": "3",
+        "name": "DRAIN",
+        "kind": "passive",
+        "side": "R",
+        "net": "BLOCK_GATE"
+      }
+    ],
+    "x": 389.89,
+    "y": 105.41,
+    "source": "https://www.diodes.com/datasheet/download/BSS138.pdf",
+    "note": "Fast gate discharge as manufacturer Fig8-7. Ciss50pF max at10V; source follows raw input, never connect source to AGND."
+  },
+  {
+    "ref": "U1",
+    "part": "TPS26630RGER",
+    "footprint": "Package_DFN_QFN:Texas_RGE0024H_VQFN-24-1EP_4x4mm_P0.5mm_EP2.7x2.7mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "IN",
+        "kind": "power_in",
+        "side": "L",
+        "net": "VIN_IC"
+      },
+      {
+        "number": "2",
+        "name": "IN",
+        "kind": "power_in",
+        "side": "L",
+        "net": "VIN_IC"
+      },
+      {
+        "number": "3",
+        "name": "B_GATE",
+        "kind": "output",
+        "side": "R",
+        "net": "BLOCK_GATE"
+      },
+      {
+        "number": "4",
+        "name": "DRV",
+        "kind": "output",
+        "side": "R",
+        "net": "BLOCK_DRV"
+      },
+      {
+        "number": "5",
+        "name": "IN_SYS",
+        "kind": "power_in",
+        "side": "L",
+        "net": "VIN_SYS"
+      },
+      {
+        "number": "6",
+        "name": "UVLO",
+        "kind": "input",
+        "side": "L",
+        "net": "INPUT_UV"
+      },
+      {
+        "number": "7",
+        "name": "OVP",
+        "kind": "input",
+        "side": "L",
+        "net": "INPUT_OV"
+      },
+      {
+        "number": "8",
+        "name": "GND",
+        "kind": "power_in",
+        "side": "L",
+        "net": "AGND"
+      },
+      {
+        "number": "9",
+        "name": "dVdT",
+        "kind": "passive",
+        "side": "L",
+        "net": "INPUT_SLEW"
+      },
+      {
+        "number": "10",
+        "name": "ILIM",
+        "kind": "passive",
+        "side": "L",
+        "net": "INPUT_ILIM"
+      },
+      {
+        "number": "11",
+        "name": "MODE",
+        "kind": "input",
+        "side": "L",
+        "net": null
+      },
+      {
+        "number": "12",
+        "name": "SHDN",
+        "kind": "input",
+        "side": "L",
+        "net": "POWER_RUN"
+      },
+      {
+        "number": "13",
+        "name": "IMON",
+        "kind": "output",
+        "side": "R",
+        "net": null
+      },
+      {
+        "number": "14",
+        "name": "FLT",
+        "kind": "open_collector",
+        "side": "R",
+        "net": null
+      },
+      {
+        "number": "15",
+        "name": "PGTH",
+        "kind": "input",
+        "side": "L",
+        "net": "INPUT_PGTH"
+      },
+      {
+        "number": "16",
+        "name": "PGOOD",
+        "kind": "open_collector",
+        "side": "R",
+        "net": "POWER_READY"
+      },
+      {
+        "number": "17",
+        "name": "OUT",
+        "kind": "power_out",
+        "side": "R",
+        "net": "VIN_PROTECTED"
+      },
+      {
+        "number": "18",
+        "name": "OUT",
+        "kind": "passive",
+        "side": "R",
+        "net": "VIN_PROTECTED"
+      },
+      {
+        "number": "19",
+        "name": "NC",
+        "kind": "no_connect",
+        "side": "L",
+        "net": null
+      },
+      {
+        "number": "20",
+        "name": "NC",
+        "kind": "no_connect",
+        "side": "L",
+        "net": null
+      },
+      {
+        "number": "21",
+        "name": "NC",
+        "kind": "no_connect",
+        "side": "L",
+        "net": null
+      },
+      {
+        "number": "22",
+        "name": "NC",
+        "kind": "no_connect",
+        "side": "L",
+        "net": null
+      },
+      {
+        "number": "23",
+        "name": "NC",
+        "kind": "no_connect",
+        "side": "L",
+        "net": null
+      },
+      {
+        "number": "24",
+        "name": "NC",
+        "kind": "no_connect",
+        "side": "L",
+        "net": null
+      },
+      {
+        "number": "25",
+        "name": "EP/GND",
+        "kind": "power_in",
+        "side": "L",
+        "net": "AGND"
+      }
+    ],
+    "x": 219.71,
+    "y": 110.49,
+    "source": "https://www.ti.com/lit/ds/symlink/tps2663.pdf",
+    "note": "TPS26630 has no2x overload-pulse feature. MODE left open selects latch-off; power switch cycles SHDN to clear a fault."
+  },
+  {
+    "ref": "U2",
+    "part": "TPS7A1601DGNR",
+    "footprint": "Package_SO:MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "OUT",
+        "kind": "power_out",
+        "side": "R",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "FB",
+        "kind": "input",
+        "side": "L",
+        "net": "AUX_FB"
+      },
+      {
+        "number": "3",
+        "name": "PG",
+        "kind": "open_collector",
+        "side": "R",
+        "net": "POWER_RUN"
+      },
+      {
+        "number": "4",
+        "name": "GND",
+        "kind": "power_in",
+        "side": "L",
+        "net": "AGND"
+      },
+      {
+        "number": "5",
+        "name": "EN",
+        "kind": "input",
+        "side": "L",
+        "net": "VIN_IC"
+      },
+      {
+        "number": "6",
+        "name": "NC",
+        "kind": "no_connect",
+        "side": "L",
+        "net": null
+      },
+      {
+        "number": "7",
+        "name": "DELAY",
+        "kind": "passive",
+        "side": "L",
+        "net": "AUX_START_DELAY"
+      },
+      {
+        "number": "8",
+        "name": "IN",
+        "kind": "power_in",
+        "side": "L",
+        "net": "VIN_IC"
+      },
+      {
+        "number": "9",
+        "name": "EP/GND",
+        "kind": "power_in",
+        "side": "L",
+        "net": "AGND"
+      }
+    ],
+    "x": 59.69,
+    "y": 69.85,
+    "source": "https://www.ti.com/lit/ds/symlink/tps7a16.pdf",
+    "note": "Independent~2.5V for power switch and enable pull-up. Never connect to Seed3 3V3 output."
+  },
+  {
+    "ref": "R1",
+    "part": "309k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_SYS"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "INPUT_UV"
+      }
+    ],
+    "x": 198.12,
+    "y": 240.03,
+    "source": "",
+    "note": "Total error<=0.3%; minimum actual input resistor must exceed300k for reverse-input protection"
+  },
+  {
+    "ref": "R2",
+    "part": "40.2k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "INPUT_UV"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 273.05,
+    "y": 240.03,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "R3",
+    "part": "309k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_SYS"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "INPUT_OV"
+      }
+    ],
+    "x": 347.98,
+    "y": 240.03,
+    "source": "",
+    "note": "Total error<=0.3%; limit input current during reversed/misplugged supply"
+  },
+  {
+    "ref": "R4",
+    "part": "28k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "INPUT_OV"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 422.91,
+    "y": 240.03,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "R5",
+    "part": "73.2k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_PROTECTED"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "INPUT_PGTH"
+      }
+    ],
+    "x": 497.84,
+    "y": 240.03,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "R6",
+    "part": "10k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "INPUT_PGTH"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 48.26,
+    "y": 279.4,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "R7",
+    "part": "6.49k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "INPUT_ILIM"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 123.19,
+    "y": 279.4,
+    "source": "",
+    "note": "Nominal18kOhm*A/R=2.77A; allocate10% programming error, not a guarantee at an unlisted resistor value"
+  },
+  {
+    "ref": "R8",
+    "part": "110k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AUX_FB"
+      }
+    ],
+    "x": 198.12,
+    "y": 279.4,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "R9",
+    "part": "100k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "AUX_FB"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 273.05,
+    "y": 279.4,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "R10",
+    "part": "1k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "POWER_READY"
+      }
+    ],
+    "x": 347.98,
+    "y": 279.4,
+    "source": "",
+    "note": "Pull-up independent of Seed3 power; output goes to E14 guarded enable divider"
+  },
+  {
+    "ref": "R11",
+    "part": "10k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 422.91,
+    "y": 279.4,
+    "source": "",
+    "note": "Auxiliary bleeder exceeds positive OVP clamp injection under declared input envelope"
+  },
+  {
+    "ref": "R12",
+    "part": "47k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "POWER_RUN"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 497.84,
+    "y": 279.4,
+    "source": "",
+    "note": "Missing switch remains OFF with10uA internal source plus1uA auxiliary-PG leakage; load for PG and fast OV sinks"
+  },
+  {
+    "ref": "R13",
+    "part": "3.3k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "SWITCH_SUPPLY"
+      }
+    ],
+    "x": 48.26,
+    "y": 320.04,
+    "source": "",
+    "note": "Limits auxiliary PG sink current below1mA; receiving high level still exceeds2V"
+  },
+  {
+    "ref": "R14",
+    "part": "47k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_PROTECTED"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 123.19,
+    "y": 320.04,
+    "source": "",
+    "note": "Bus bleed; not a fast discharge or power-isolation guarantee"
+  },
+  {
+    "ref": "D2",
+    "part": "BAS116,215",
+    "footprint": "Package_TO_SOT_SMD:SOT-23",
+    "pins": [
+      {
+        "number": "1",
+        "name": "ANODE",
+        "kind": "passive",
+        "side": "L",
+        "net": "INPUT_OV"
+      },
+      {
+        "number": "2",
+        "name": "NC",
+        "kind": "no_connect",
+        "side": "L",
+        "net": null
+      },
+      {
+        "number": "3",
+        "name": "CATHODE",
+        "kind": "passive",
+        "side": "R",
+        "net": "V2V5_AUX"
+      }
+    ],
+    "x": 198.12,
+    "y": 320.04,
+    "source": "https://assets.nexperia.com/documents/data-sheet/BAS116.pdf",
+    "note": "Low-leakage positive OVP clamp; allocate1.3V forward drop over intended operating temperatures; verify physically."
+  },
+  {
+    "ref": "D3",
+    "part": "SS16-E3/61T",
+    "footprint": "Diode_SMD:D_SMA",
+    "pins": [
+      {
+        "number": "1",
+        "name": "CATHODE",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_PROTECTED"
+      },
+      {
+        "number": "2",
+        "name": "ANODE",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 273.05,
+    "y": 320.04,
+    "source": "https://www.vishay.com/docs/88746/ss12.pdf",
+    "note": "Output negative-spike provision per eFuse recommendations; actual undershoot/current/pulse bounds unverified."
+  },
+  {
+    "ref": "C1",
+    "part": "2.2uF 100V X7R",
+    "footprint": "Capacitor_SMD:C_1210_3225Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_SYS"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 347.98,
+    "y": 320.04,
+    "source": "",
+    "note": "Effective>=0.1uF; reverse-polarity capable nonpolar MLCC"
+  },
+  {
+    "ref": "C2",
+    "part": "2.2uF 100V X7R",
+    "footprint": "Capacitor_SMD:C_1210_3225Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_IC"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 422.91,
+    "y": 320.04,
+    "source": "",
+    "note": "Effective>=0.1uF before internal pass FET"
+  },
+  {
+    "ref": "C3",
+    "part": "220uF 35V electrolytic 20% (EEUFR1V221)",
+    "footprint": "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_PROTECTED"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 497.84,
+    "y": 320.04,
+    "source": "",
+    "note": "Positive lead atVIN_PROTECTED. Manufacturer body8x11.5mm/pitch3.5mm;950mArms and56mOhm impedance at100kHz. Actual waveform/ripple/lifetime and placement unverified."
+  },
+  {
+    "ref": "C4",
+    "part": "1uF 50V X7R",
+    "footprint": "Capacitor_SMD:C_1210_3225Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_PROTECTED"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 48.26,
+    "y": 359.41,
+    "source": "",
+    "note": "Effective>=0.1uF at protected input boundary"
+  },
+  {
+    "ref": "C5",
+    "part": "100nF 16V X7R",
+    "footprint": "Capacitor_SMD:C_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "kind": "passive",
+        "side": "L",
+        "net": "INPUT_SLEW"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 123.19,
+    "y": 359.41,
+    "source": "",
+    "note": "Effective80..120nF allocation; output ramp and full-temperature behavior require measurement"
+  },
+  {
+    "ref": "C6",
+    "part": "10uF 16V X7R",
+    "footprint": "Capacitor_SMD:C_1210_3225Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "kind": "passive",
+        "side": "L",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 198.12,
+    "y": 359.41,
+    "source": "",
+    "note": "Effective>=2.2uF for LDO stability"
+  },
+  {
+    "ref": "C7",
+    "part": "100nF 16V X7R",
+    "footprint": "Capacitor_SMD:C_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "kind": "passive",
+        "side": "L",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 273.05,
+    "y": 359.41,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "U3",
+    "part": "TLV7011DBVR",
+    "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+    "pins": [
+      {
+        "number": "1",
+        "name": "OUT",
+        "kind": "output",
+        "side": "R",
+        "net": "FAST_OV_OUT"
+      },
+      {
+        "number": "2",
+        "name": "VEE",
+        "kind": "power_in",
+        "side": "L",
+        "net": "AGND"
+      },
+      {
+        "number": "3",
+        "name": "IN+",
+        "kind": "input",
+        "side": "L",
+        "net": "FAST_OV_SENSE"
+      },
+      {
+        "number": "4",
+        "name": "IN-",
+        "kind": "input",
+        "side": "L",
+        "net": "FAST_OV_REF"
+      },
+      {
+        "number": "5",
+        "name": "VCC",
+        "kind": "power_in",
+        "side": "L",
+        "net": "V2V5_AUX"
+      }
+    ],
+    "x": 59.69,
+    "y": 185.42,
+    "source": "https://www.ti.com/document-viewer/TLV7011/datasheet",
+    "note": "Independent fast OV comparator; push-pull high turns Q3 ON to pull SHDN low. Delay/drive/bias budget includes allocations, not full-temperature manufacturer guarantees."
+  },
+  {
+    "ref": "Q3",
+    "part": "DMN2056U-7",
+    "footprint": "Package_TO_SOT_SMD:SOT-23",
+    "pins": [
+      {
+        "number": "1",
+        "name": "GATE",
+        "kind": "input",
+        "side": "L",
+        "net": "FAST_OV_GATE"
+      },
+      {
+        "number": "2",
+        "name": "SOURCE",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      },
+      {
+        "number": "3",
+        "name": "DRAIN",
+        "kind": "passive",
+        "side": "R",
+        "net": "POWER_RUN"
+      }
+    ],
+    "x": 389.89,
+    "y": 195.58,
+    "source": "https://www.diodes.com/datasheet/download/DMN2056U.pdf",
+    "note": "Low-voltage gate NFET.85mOhm max at1.5V/25C; allocate250mOhm hot. Sinks current-limited switch signal, not load current. Place locally at SHDN."
+  },
+  {
+    "ref": "R15",
+    "part": "30.9k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_IC"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "FAST_OV_SENSE"
+      }
+    ],
+    "x": 347.98,
+    "y": 359.41,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "R16",
+    "part": "3.09k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "FAST_OV_SENSE"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 422.91,
+    "y": 359.41,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "R17",
+    "part": "309k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "FAST_OV_OUT"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "FAST_OV_SENSE"
+      }
+    ],
+    "x": 497.84,
+    "y": 359.41,
+    "source": "",
+    "note": "Positive feedback adds hysteresis; no sense capacitor that could hide a fast input fault"
+  },
+  {
+    "ref": "R18",
+    "part": "10k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "FAST_OV_REF"
+      }
+    ],
+    "x": 48.26,
+    "y": 400.05,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "R19",
+    "part": "10k 0.1% 10ppm",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "FAST_OV_REF"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 123.19,
+    "y": 400.05,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "R20",
+    "part": "100k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "FAST_OV_GATE"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 198.12,
+    "y": 400.05,
+    "source": "",
+    "note": "Gate pulldown when comparator is unpowered; internal eFuse OVP remains independent"
+  },
+  {
+    "ref": "R21",
+    "part": "100 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "FAST_OV_OUT"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "FAST_OV_GATE"
+      }
+    ],
+    "x": 273.05,
+    "y": 400.05,
+    "source": "",
+    "note": "Local gate damping; place Q3 by SHDN, not across the panel harness"
+  },
+  {
+    "ref": "C8",
+    "part": "100nF 16V X7R",
+    "footprint": "Capacitor_SMD:C_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "kind": "passive",
+        "side": "L",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 347.98,
+    "y": 400.05,
+    "source": "",
+    "note": ""
+  },
+  {
+    "ref": "C9",
+    "part": "1nF 16V C0G 5%",
+    "footprint": "Capacitor_SMD:C_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "kind": "passive",
+        "side": "L",
+        "net": "FAST_OV_REF"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 422.91,
+    "y": 400.05,
+    "source": "",
+    "note": "Reference bypass only; roughly5us RC. Comparator startup/reference settling requires qualification."
+  },
+  {
+    "ref": "C10",
+    "part": "10nF 16V C0G 5%",
+    "footprint": "Capacitor_SMD:C_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "kind": "passive",
+        "side": "L",
+        "net": "AUX_START_DELAY"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 497.84,
+    "y": 400.05,
+    "source": "",
+    "note": "Auxiliary PG delays eFuse startup until comparator/reference settle. Delay threshold and comparator startup maxima require qualification; no MCU dependency."
+  },
+  {
+    "ref": "J2",
+    "part": "Header2",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "VIN_PROTECTED",
+        "kind": "passive",
+        "side": "L",
+        "net": "VIN_PROTECTED"
+      },
+      {
+        "number": "2",
+        "name": "AGND",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      }
+    ],
+    "x": 539.75,
+    "y": 59.69,
+    "source": "",
+    "note": "Engineering header only; use keyed rated production connector. J2 carries full input current; J3 is required for startup."
+  },
+  {
+    "ref": "J3",
+    "part": "Header2",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "AGND",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      },
+      {
+        "number": "2",
+        "name": "POWER_READY",
+        "kind": "passive",
+        "side": "L",
+        "net": "POWER_READY"
+      }
+    ],
+    "x": 539.75,
+    "y": 100.33,
+    "source": "",
+    "note": "Engineering header only; use keyed rated production connector. J2 carries full input current; J3 is required for startup."
+  },
+  {
+    "ref": "J4",
+    "part": "Header3",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "SWITCH_SUPPLY",
+        "kind": "passive",
+        "side": "L",
+        "net": "SWITCH_SUPPLY"
+      },
+      {
+        "number": "2",
+        "name": "POWER_RUN",
+        "kind": "passive",
+        "side": "L",
+        "net": "POWER_RUN"
+      },
+      {
+        "number": "3",
+        "name": "AGND",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      }
+    ],
+    "x": 539.75,
+    "y": 139.7,
+    "source": "",
+    "note": "Engineering header only; use keyed rated production connector. J2 carries full input current; J3 is required for startup."
+  },
+  {
+    "ref": "J5",
+    "part": "Header2",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "V2V5_AUX",
+        "kind": "passive",
+        "side": "L",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "AGND",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      }
+    ],
+    "x": 539.75,
+    "y": 180.34,
+    "source": "",
+    "note": "Engineering header only; use keyed rated production connector. J2 carries full input current; J3 is required for startup."
+  },
+  {
+    "ref": "J6",
+    "part": "Header3",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "V2V5_AUX",
+        "kind": "passive",
+        "side": "L",
+        "net": "V2V5_AUX"
+      },
+      {
+        "number": "2",
+        "name": "AGND",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      },
+      {
+        "number": "3",
+        "name": "POWER_RUN",
+        "kind": "passive",
+        "side": "L",
+        "net": "POWER_RUN"
+      }
+    ],
+    "x": 539.75,
+    "y": 214.63,
+    "source": "",
+    "note": "Engineering header only; use keyed rated production connector. J2 carries full input current; J3 is required for startup."
+  },
+  {
+    "ref": "S1",
+    "part": "JS102011SAQN",
+    "footprint": "Button_Switch_SMD:SW_SPDT_CK_JS102011SAQN",
+    "pins": [
+      {
+        "number": "1",
+        "name": "ON",
+        "kind": "passive",
+        "side": "L",
+        "net": "SWITCH_SUPPLY"
+      },
+      {
+        "number": "2",
+        "name": "COMMON",
+        "kind": "passive",
+        "side": "R",
+        "net": "POWER_RUN"
+      },
+      {
+        "number": "3",
+        "name": "OFF",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      }
+    ],
+    "x": 389.89,
+    "y": 154.94,
+    "source": "https://www.ckswitches.com/media/1422/js.pdf",
+    "note": "Low-current shutdown/reset switch. Physical placement/actuator and orientation must be verified; it does not carry load current."
+  }
+]

@@ -1,0 +1,73 @@
+{
+  "startup": {
+    "u4_release_min_s": 0.18,
+    "u4_release_max_s": 0.42,
+    "u7_startup_max_allocation_s": 0.1,
+    "u7_startup_max_manufacturer_specified": false,
+    "interpretation": "LTC6994 transfers IN at startup without a full delay. U4 holds TIMER_ENABLE low; verify startup <=100ms over supply ramps/dips before accepting hardware.",
+    "supply_ramp_dip_bench_verified": false
+  },
+  "timer": {
+    "part": "LTC6994HS6-1#TRMPBF",
+    "divider_code": 6,
+    "polarity": 0,
+    "n_div": 262144,
+    "nominal_s": 2.00802304,
+    "total_resistor_error_allocation": 0.01,
+    "full_temperature_ic_error_fraction": 0.03,
+    "conditional_minimum_s": 1.9283045253119997,
+    "conditional_maximum_s": 2.088946368512,
+    "mechanical_close_bounce_allocation_s": 0.05,
+    "minimum_after_contact_close_s": 1.8783045253119997,
+    "required_e10_input_settling_s": 1.2,
+    "external_timing_capacitor": false,
+    "hardware_timing_verified": false
+  },
+  "divider": {
+    "corners": 16,
+    "min_fraction": 0.3974611759879135,
+    "max_fraction": 0.4122977705674653,
+    "code6_valid_fraction": [
+      0.39125,
+      0.42125
+    ],
+    "total_each_resistor_error_allocation": 0.015
+  },
+  "gain_edge": {
+    "corners": 512,
+    "conditional_minimum_pulse_s": 0.004285956871376083,
+    "conditional_maximum_pulse_s": 0.12934271185019489,
+    "scope": "Isolated gain steps from settled RC state; rapid edge trains and real gain-contact bounce need bench verification",
+    "threshold_envelope_fraction": [
+      0.25,
+      0.75
+    ],
+    "mcu_low_max_v": 0.4,
+    "mcu_high_min": "VIO-0.4V",
+    "input_leakage_a": 1e-06,
+    "effective_capacitance_f": [
+      7e-07,
+      1.3e-06
+    ],
+    "required_recognized_low_pulse_s": 0.0001,
+    "envelope_manufacturer_guaranteed_at_3v3": false,
+    "pulse_recognition_bench_verified": false,
+    "note": "LTC6994 lists typical 5ns at3.3V, without a full-temperature limit. Allocate/measure <=100us recognition; no arbitrary-glitch guarantee."
+  },
+  "driver": {
+    "minimum_screened_gate_v": 2.848930929912846,
+    "maximum_static_hcs_load_a": 1.4841172187841282e-05,
+    "output_coils": 1,
+    "input_coils": 1,
+    "gain_coils": 2,
+    "maximum_gain_coil_pair_current_allocation_a": 0.06,
+    "ao3400a_rds25c_ohm": 0.048,
+    "tvs_clamp_datasheet_v": 15.4,
+    "coil_transient_verified": false
+  },
+  "status": {
+    "receiving_pulldown_ohm": 270000,
+    "maximum_screened_ready_load_a": 1.4962962962962962e-05,
+    "control_pcb_implemented": false
+  }
+}

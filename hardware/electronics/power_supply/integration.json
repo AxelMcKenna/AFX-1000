@@ -1,0 +1,120 @@
+{
+  "revision": "E14",
+  "status": "Native candidate rail generation; conditional electrical screens; no physical validation",
+  "input": {
+    "net": "VIN_PROTECTED",
+    "normal_v": [
+      10.5,
+      13.2
+    ],
+    "candidate_adapter": "12V3A external DC; +/-5% delivered at E15 PJ-102AH inlet; exact adapter unselected",
+    "input_protection_implemented": false,
+    "external_protection_schematic": "hardware/electronics/input_protection/input_protection.kicad_sch"
+  },
+  "raw_rails_v": {
+    "RAW_P22": [
+      21.12,
+      22.88
+    ],
+    "RAW_N22": [
+      -22.88,
+      -21.12
+    ],
+    "RAW_P17": [
+      16.32,
+      17.68
+    ],
+    "RAW_N17": [
+      -17.68,
+      -16.32
+    ]
+  },
+  "normal_targets_v": {
+    "P19": [
+      18.81,
+      19.19
+    ],
+    "N19": [
+      -19.19,
+      -18.81
+    ],
+    "P12": [
+      11.88,
+      12.12
+    ],
+    "N12": [
+      -12.12,
+      -11.88
+    ],
+    "V5_REG": [
+      4.975,
+      5.025
+    ],
+    "5V_DIG": [
+      4.9,
+      5.1
+    ]
+  },
+  "output_header": [
+    "P19_SRC",
+    "AGND",
+    "N19_SRC",
+    "P12_SRC",
+    "N12_SRC",
+    "V5_REG_SRC"
+  ],
+  "digital_header": [
+    "5V_DIG_SRC",
+    "AGND"
+  ],
+  "monitor_plan": "hardware/electronics/rail_monitor/integration.json",
+  "standalone": true,
+  "raw_generation_implemented": true,
+  "precision_linear_generation_implemented": true,
+  "independent_3v3_generation_implemented": false,
+  "logic_3v3_source": "Seed3 onboard3V3 supply; external load budget/partial-power connection must be checked before PCB",
+  "temperature": {
+    "target_unit_ambient_c": [
+      0,
+      40
+    ],
+    "digital_buck_junction_screen_c": [
+      0,
+      85
+    ],
+    "thermal_verified": false
+  },
+  "current_allocations_a": {
+    "P19": 0.025,
+    "N19": 0.025,
+    "P12": 0.15,
+    "N12": 0.15,
+    "V5_REG": 0.25,
+    "RAW_P22": 0.05,
+    "RAW_N22": 0.05,
+    "5V_DIG": 1.2,
+    "RAW_P17": 0.2,
+    "RAW_N17": 0.2
+  },
+  "overvoltage_disconnect_implemented": false,
+  "reverse_power_proof_complete": false,
+  "manufacturer_loop_models_verified": false,
+  "pcb_routed": false,
+  "enclosure_placement_complete": false,
+  "physical_startup_verified": false,
+  "complete_weighted_system_noise_closed": false,
+  "raw_pair_architecture": "Two independent LT3471 boost/Cuk pairs: +/-22V for19V stages/SET amplifiers; +/-17V for12V stages; no12V cascade through19V",
+  "startup_guard": {
+    "header": [
+      "AGND",
+      "POWER_READY"
+    ],
+    "source": "E15 J3",
+    "net": "SUPPLY_ENABLE",
+    "missing_cable": "Receiving pulldowns hold both bucks OFF under E15 leakage allocation",
+    "physical_verified": false
+  },
+  "downstream_disconnect_schematic": "hardware/electronics/rail_disconnect/rail_disconnect.kicad_sch",
+  "digital_source_nominal_v": 5.004,
+  "protected_load_targets_unchanged": true
+}

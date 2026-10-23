@@ -1,0 +1,340 @@
+{
+  "linear_stages": [
+    {
+      "name": "P19",
+      "corners": 256,
+      "minimum_magnitude_v": 18.930075915384617,
+      "maximum_magnitude_v": 19.07007205675675,
+      "maximum_target_amplifier_drive_v": 19.300223635727253,
+      "ldo_total_error_allocation_v": 0.012,
+      "reference_total_error_allocation": 0.001,
+      "minimum_bleed_current_a": 0.002061897626091627,
+      "maximum_bleed_power_w": 0.04041155762797331,
+      "specified_normal_fraction": 0.01
+    },
+    {
+      "name": "P12",
+      "corners": 256,
+      "minimum_magnitude_v": 11.95043855734266,
+      "maximum_magnitude_v": 12.049646638738734,
+      "maximum_target_amplifier_drive_v": 12.276795585442443,
+      "ldo_total_error_allocation_v": 0.015,
+      "reference_total_error_allocation": 0.001,
+      "minimum_bleed_current_a": 0.0021053589650369365,
+      "maximum_bleed_power_w": 0.02609619039477833,
+      "specified_normal_fraction": 0.01
+    },
+    {
+      "name": "V5_REG",
+      "corners": 256,
+      "minimum_magnitude_v": 4.9788011993007,
+      "maximum_magnitude_v": 5.02122122072072,
+      "maximum_target_amplifier_drive_v": 5.2533601574402695,
+      "ldo_total_error_allocation_v": 0.01,
+      "reference_total_error_allocation": 0.001,
+      "minimum_bleed_current_a": 0.002230545763765378,
+      "maximum_bleed_power_w": 0.011523681405647457,
+      "specified_normal_fraction": 0.005
+    },
+    {
+      "name": "N19",
+      "corners": 256,
+      "minimum_magnitude_v": 18.888658332967037,
+      "maximum_magnitude_v": 19.111654639339335,
+      "maximum_target_amplifier_drive_v": 19.628450297989517,
+      "ldo_total_error_allocation_v": 0.006,
+      "reference_total_error_allocation": 0.0035,
+      "minimum_bleed_current_a": 0.002057386349156078,
+      "maximum_bleed_power_w": 0.040587985804511645,
+      "specified_normal_fraction": 0.01
+    },
+    {
+      "name": "N12",
+      "corners": 256,
+      "minimum_magnitude_v": 11.929486009890113,
+      "maximum_magnitude_v": 12.070694186286284,
+      "maximum_target_amplifier_drive_v": 12.587487212669673,
+      "ldo_total_error_allocation_v": 0.006,
+      "reference_total_error_allocation": 0.0035,
+      "minimum_bleed_current_a": 0.002101667666729522,
+      "maximum_bleed_power_w": 0.026187436309508875,
+      "specified_normal_fraction": 0.01
+    }
+  ],
+  "linear_corner_cases": 1280,
+  "bucks": [
+    {
+      "name": "DIG",
+      "allocated_junction_c": [
+        0,
+        85
+      ],
+      "reference_v": [
+        0.788,
+        0.812
+      ],
+      "corners": 16,
+      "minimum_dc_v": 4.919091470106395,
+      "maximum_dc_v": 5.0891807391626624,
+      "extra_ripple_transient_reserve_v": 0.01,
+      "extended_temperature_reference_v": [
+        0.784,
+        0.816
+      ],
+      "physical_accuracy_ripple_thermal_verified": false
+    },
+    {
+      "name": "PRE",
+      "allocated_junction_c": [
+        0,
+        85
+      ],
+      "reference_v": [
+        0.788,
+        0.812
+      ],
+      "corners": 16,
+      "minimum_dc_v": 5.70128671515984,
+      "maximum_dc_v": 5.89903703516016,
+      "extra_ripple_transient_reserve_v": 0.025,
+      "extended_temperature_reference_v": [
+        0.784,
+        0.816
+      ],
+      "physical_accuracy_ripple_thermal_verified": false
+    }
+  ],
+  "allocations": {
+    "precision_resistor_total_fraction": 0.001,
+    "opamp_full_error_v": 0.00035,
+    "opamp_input_bias_a": 5e-09,
+    "opamp_gain_line_load_reserve_included_in_offset": true,
+    "positive_reference_fraction": 0.001,
+    "negative_reference_fraction": 0.0035
+  },
+  "manufacturer_macromodel_or_physical_proof": false,
+  "power": {
+    "raw_pairs": [
+      {
+        "name": "high",
+        "nominal_v": 22,
+        "load_allocation_each_a": 0.05,
+        "setpoint_corners": 64,
+        "minimum_dc_magnitude_v": 21.359692714285718,
+        "maximum_dc_magnitude_v": 22.64264104804805,
+        "raw_envelope_v": [
+          21.12,
+          22.88
+        ],
+        "raw_ripple_reserve_peak_v": 0.05,
+        "maximum_cuk_duty": 0.6945898778359512,
+        "maximum_cuk_switch_peak_a": 0.32933590224920684,
+        "maximum_boost_switch_peak_a": 0.25669343651881343,
+        "used_switch_current_limit_a": 0.9,
+        "current_limit_temperature_guarantee": false,
+        "minimum_efficiency_allocation": 0.75,
+        "diode_forward_voltage_allocation_v": 1.0,
+        "switch_maximum_with_3v_ringing_allocation_v": 40.08,
+        "switch_rating_v": 42
+      },
+      {
+        "name": "low",
+        "nominal_v": 17,
+        "load_allocation_each_a": 0.2,
+        "setpoint_corners": 64,
+        "minimum_dc_magnitude_v": 16.498061735974026,
+        "maximum_dc_magnitude_v": 17.49071348948949,
+        "raw_envelope_v": [
+          16.32,
+          17.68
+        ],
+        "raw_ripple_reserve_peak_v": 0.05,
+        "maximum_cuk_duty": 0.6401644962302947,
+        "maximum_cuk_switch_peak_a": 0.772577034972088,
+        "maximum_boost_switch_peak_a": 0.5360985574620478,
+        "used_switch_current_limit_a": 0.9,
+        "current_limit_temperature_guarantee": false,
+        "minimum_efficiency_allocation": 0.75,
+        "diode_forward_voltage_allocation_v": 1.0,
+        "switch_maximum_with_3v_ringing_allocation_v": 34.879999999999995,
+        "switch_rating_v": 42
+      }
+    ],
+    "raw_setpoint_corners": 128,
+    "raw_current_budgets_a": {
+      "positive_high": 0.039,
+      "negative_high": 0.03425,
+      "positive_low": 0.18,
+      "negative_low": 0.1725
+    },
+    "maximum_allocated_input_power_w": 21.826,
+    "maximum_allocated_input_current_a": 2.078666666666667,
+    "candidate_external_adapter_v": 12,
+    "candidate_external_adapter_a": 3,
+    "target_source_short_current_a": 0.0033986928104575162,
+    "positive_set_absolute_current_a": 0.01,
+    "negative_set_absolute_current_a": 0.005,
+    "output_or_input_short_protection_complete": false,
+    "loop_compensation_verified": false,
+    "thermal_verified": false,
+    "input_efuse_reverse_ov_disconnect_implemented": false,
+    "downstream_ov_disconnect_implemented": false
+  },
+  "dropout_thermal": {
+    "linear_regulators": [
+      {
+        "name": "P19",
+        "minimum_input_headroom_v": 2.049927943243251,
+        "required_input_headroom_v": 0.5,
+        "minimum_control_headroom_v": 2.049927943243251,
+        "required_control_headroom_v": 1.6,
+        "output_current_budget_including_bleed_a": 0.025,
+        "control_or_ground_current_budget_a": 0.006,
+        "maximum_allocated_ic_power_w": 0.12244764662307686,
+        "example_board_theta_ja_c_per_w": 60,
+        "conditional_junction_at55c_local_ambient_c": 62.34685879738461,
+        "thermal_layout_and_local_ambient_verified": false
+      },
+      {
+        "name": "P12",
+        "minimum_input_headroom_v": 4.270353361261266,
+        "required_input_headroom_v": 0.5,
+        "minimum_control_headroom_v": 4.270353361261266,
+        "required_control_headroom_v": 1.6,
+        "output_current_budget_including_bleed_a": 0.15,
+        "control_or_ground_current_budget_a": 0.03,
+        "maximum_allocated_ic_power_w": 1.0313210596783213,
+        "example_board_theta_ja_c_per_w": 30,
+        "conditional_junction_at55c_local_ambient_c": 85.93963179034964,
+        "thermal_layout_and_local_ambient_verified": false
+      },
+      {
+        "name": "V5_REG",
+        "minimum_input_headroom_v": 0.6550654944391203,
+        "required_input_headroom_v": 0.5,
+        "minimum_control_headroom_v": 5.47877877927928,
+        "required_control_headroom_v": 1.6,
+        "output_current_budget_including_bleed_a": 0.25,
+        "control_or_ground_current_budget_a": 0.03,
+        "maximum_allocated_ic_power_w": 0.48294492298584396,
+        "example_board_theta_ja_c_per_w": 60,
+        "conditional_junction_at55c_local_ambient_c": 83.97669537915064,
+        "thermal_layout_and_local_ambient_verified": false
+      },
+      {
+        "name": "N19",
+        "minimum_input_headroom_v": 2.008345360660666,
+        "required_input_headroom_v": 0.45,
+        "minimum_control_headroom_v": null,
+        "required_control_headroom_v": null,
+        "output_current_budget_including_bleed_a": 0.025,
+        "control_or_ground_current_budget_a": 0.005,
+        "maximum_allocated_ic_power_w": 0.21418354167582407,
+        "example_board_theta_ja_c_per_w": 34,
+        "conditional_junction_at55c_local_ambient_c": 62.28224041697802,
+        "thermal_layout_and_local_ambient_verified": false
+      },
+      {
+        "name": "N12",
+        "minimum_input_headroom_v": 4.2493058137137165,
+        "required_input_headroom_v": 0.45,
+        "minimum_control_headroom_v": null,
+        "required_control_headroom_v": null,
+        "output_current_budget_including_bleed_a": 0.15,
+        "control_or_ground_current_budget_a": 0.0225,
+        "maximum_allocated_ic_power_w": 1.260377098516483,
+        "example_board_theta_ja_c_per_w": 34,
+        "conditional_junction_at55c_local_ambient_c": 97.85282134956043,
+        "thermal_layout_and_local_ambient_verified": false
+      }
+    ],
+    "negative_reference_shunt_current_a": [
+      0.00018426980198019805,
+      0.00020594696969696968
+    ],
+    "negative_reference_total_fraction": 0.0035,
+    "negative_reference_full_temp_fraction": 0.00175,
+    "negative_reference_current_change_limit_v": 0.003,
+    "negative_reference_aging_thermal_reserve_fraction": 0.0005,
+    "positive_reference_total_fraction": 0.001,
+    "unit_ambient_target_c": [
+      0,
+      40
+    ],
+    "local_pcb_ambient_assumption_c": 55,
+    "digital_buck_junction_must_remain_below_c": 85,
+    "digital_buck_dissipation_allocation_w": 0.65,
+    "required_digital_buck_theta_ja_at55c_max_c_per_w": 46.15384615384615,
+    "digital_thermal_allocation_verified": false,
+    "whole_unit_heat_dissipation_and_ventilation_verified": false
+  },
+  "target_source_loops": {
+    "hypothetical_cases": 192,
+    "minimum_screened_phase_margin_deg": 59.22338006651614,
+    "maximum_normalized_reference_transfer": 0.9999997739517563,
+    "gbw_allocation_hz": [
+      5000000.0,
+      15000000.0
+    ],
+    "dc_open_loop_gain_allocation": [
+      1000000.0,
+      10000000.0
+    ],
+    "second_pole_multiple_gbw": [
+      1.5,
+      3
+    ],
+    "set_cap_effective_f": [
+      5e-08,
+      1.2e-07
+    ],
+    "switcher_loops_included": false,
+    "ldo_internal_loop_included": false,
+    "opamp_manufacturer_model": false,
+    "physical_compensation_or_transient_proof": false
+  },
+  "load_budget": {
+    "actual_package_counts": {
+      "OPA2992D": 1,
+      "OPA1612AID": 5,
+      "OPA1656ID": 3,
+      "THS4551IDGKR": 2,
+      "OPA4192ID": 1,
+      "LM7705MM/NOPB": 2
+    },
+    "per_12v_rail_full_temperature_quiescent_a": 0.091,
+    "e08_hypothetical_current_cases": 12,
+    "e08_both_channel_sum_dc_plus_ac_peak_a": 0.029415840705894356,
+    "additional_non_e08_output_current_reserve_a": 0.01,
+    "own_bleed_max_a": 0.002178367302922463,
+    "required_per_12v_rail_allocated_a": 0.13259420800881683,
+    "provided_per_12v_rail_budget_a": 0.15,
+    "e08_hypothetical_converter_scale": true,
+    "actual_load_current_verified": false,
+    "digital_budget": {
+      "seed_and_its_3v3_load_allocation_a": 0.6,
+      "led_sink_ceiling_a": 0.28800000000000003,
+      "four_relay_coils_allocation_a": 0.12,
+      "panel_and_sensor_reserve_a": 0.08,
+      "other_reserve_a": 0.01
+    },
+    "digital_budget_total_a": 1.098,
+    "provided_digital_budget_a": 1.2,
+    "led_3ma_current_setting_and_brightness_verified": false,
+    "seed_external_3v3_load_budget_closed": false,
+    "source_analysis_sha256": "c4a69ad3800faaad2ba07598635d1068673a50821f2647a4a1ec4f7e3ac03490",
+    "complete_signal_overload_and_short_current_proof": false
+  },
+  "startup_dependency_topology": {
+    "buck_enable_from": "E15 POWER_READY via J5",
+    "missing_guard_harness_disables_bucks": true,
+    "raw_enable_from": "5V_DIG_SRC",
+    "reference_from": [
+      "5V_DIG_SRC",
+      "RAW_N22"
+    ],
+    "negative_bias_pumps_enabled_before_codec": true,
+    "depends_on_chip_en": false,
+    "physical_startup_timing_verified": false
+  }
+}
