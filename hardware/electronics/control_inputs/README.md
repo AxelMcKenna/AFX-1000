@@ -5,7 +5,7 @@ and four external-profile rear/status inputs to three MCP23017-E/SO expanders.
 It uses the corrected [F04 mapping](../../firmware/control-inputs.json), leaving
 GPA7/GPB7 unconnected because the manufacturer specifies them as output-only.
 It is a prototype subassembly. Pots, LED/display drivers, touch electrodes,
-angle sensing, complete carrier routing and physical validation remain open.
+angle sensing and physical validation remain open.
 
 The native schematic has15 circuit components. Its independently checked
 netlist, all-severity ERC/DRC, schematic parity and open-connection checks pass.
@@ -15,16 +15,18 @@ do not establish real scan latency, signal integrity, EMC/ESD or physical fit.
 
 ![PCB-derived component and mounting bounds](../../../docs/assets/hardware/control-board.png)
 
-The PCB sits at layout(111,43), seat Z=12.1mm, above the existing processor
+The PCB sits at layout(109,43), seat Z=12.1mm, above the E19 processor
 carrier on four nominal4mm spacers. Its four Ø2.4mm mounting holes are board-
-relative(4,4),(60,4),(4,50),(60,50). The processor-carrier holes and routing
-keepouts are still proposals; the carrier itself is unrouted. Spacer OD≤5.5mm,
+relative(4,4),(60,4),(4,50),(60,50). Matching E19 processor-carrier holes and copper
+keepouts are implemented. The 2mm left shift clears the lower fixing bounds.
+Spacer OD≤5.5mm,
 screw/washer OD≤5.5mm and head height≤2mm are assembly limits with no selected
 parts or engagement proof. The placement packet uses actual PCB courtyards,
 connector expansion0.5mm, an11mm connector/harness height allocation,≤3mm
 trimmed THT protrusion including solder and stated board/seat allowances.
-The A04 CAD's241 named reserves and native solid-intersection checks pass
-under those limits. Complete wiring paths and final electronic-board fit remain open.
+The A05 housing model includes the routed E19 carrier, lower fixing heads/nuts
+and the daughterboard allocations. Complete wiring paths, exact fixing parts
+and final electronics fit remain open.
 
 | Header | Connection |
 | --- | --- |
@@ -65,10 +67,10 @@ and KiCad10.0.7:
 
 ```sh
 python3 -m hardware.electronics.control_inputs.generate
-build-hardware/cad-tools/bin/python hardware/electronics/control_inputs/board.py --kicad-cli /path/to/kicad-cli
+build-hardware/cad-tools/bin/python -m hardware.electronics.control_inputs.board --kicad-cli /path/to/kicad-cli
 python3 -m hardware.electronics.control_inputs.verify --kicad-cli /path/to/kicad-cli
 python3 -m hardware.cad.standalone
-build-hardware/cad-tools/bin/python hardware/cad/render.py --openscad /path/to/openscad
+build-hardware/cad-tools/bin/python -m hardware.cad.render --openscad /path/to/openscad
 ```
 
 `board.py` uses explicit GPIO fanouts and a conservative grid-routing aid for

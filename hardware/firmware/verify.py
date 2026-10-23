@@ -159,6 +159,7 @@ def main():
     direct = run([host / "rmx_external_converter_tests"]).strip()
     input_summary = run([host / "rmx_input_qualification_tests"]).strip()
     control_summary = run([host / "rmx_control_expanders_tests"]).strip()
+    wire_summary = run([host / "rmx_hardware_wire_tests"]).strip()
     profiles = {}
     for profile, target, build in [
         ("external", "rmx_standalone_external", "build-external"),
@@ -249,6 +250,7 @@ def main():
         external_test_summary=direct,
         input_qualification_summary=input_summary,
         control_expanders_summary=control_summary,
+        hardware_wire_summary=wire_summary,
         control_input_map="hardware/firmware/control-inputs.json",
         invalid_profile_rejected=True,
         source_sha256={str(p.relative_to(ROOT)): sha(p) for p in sorted(set(sources))},

@@ -14,6 +14,8 @@ illustrates contact/compression geometry; it is not a material or force simulati
 
 ## Parts
 
+Generate the printable files in `build/artifacts/cad/` using the commands below. The documentation images are reviewed snapshots; the [artifact policy](../../docs/artifacts.md) describes their storage.
+
 | Hard part | File | Per fixture |
 | --- | --- | ---: |
 | Pad key, 15 × 8 mm | `button-key_pad.stl` | 1, or nudge key |
@@ -106,7 +108,7 @@ wedges, illumination and the production carrier remain separate work.
 ## Regenerate
 
     python3 -m hardware.cad.button_fixture
-    build-cad-tools/bin/python hardware/cad/button_render.py --openscad /path/to/openscad
+    build-cad-tools/bin/python -m hardware.cad.button_render --openscad /path/to/openscad
     python3 -m hardware.electronics.button_test.generate
     python3 -m hardware.electronics.button_test.verify --kicad-cli /path/to/kicad-cli
 

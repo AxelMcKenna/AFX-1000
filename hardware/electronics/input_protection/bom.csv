@@ -1,5 +1,5 @@
 Reference,Part_or_value,Footprint_candidate,Datasheet,Design_note
-J1,PJ-102AH,Connector_BarrelJack:BarrelJack_CUI_PJ-102AH_Horizontal,https://www.sameskydevices.com/product/resource/pj-102ah.pdf,5A24V inlet; center positive. Adapter target12V3A +/-5% delivered at inlet; exact adapter unselected.
+J1,PJ-102AH,RMX_Input:PJ102AH_RearEdge_E23,https://www.sameskydevices.com/product/resource/pj-102ah.pdf,5A24V inlet; center positive. Adapter target12V3A +/-5% delivered at inlet; exact adapter unselected.
 F1,0451004.MRL 4A 125V,Fuse:Fuse_Littelfuse-NANO2-451_453,https://www.littelfuse.com/assetdocs/fuse-451-and-453-datasheet?assetguid=533cd5cc-956c-4243-867f-6ab5a62f6ba1,"Backup fuse, nominal cold resistance16mOhm/I2t3.152A2s. Clearing/adapter/TVS coordination remains unverified; 30mOhm hot allocation is not a datasheet maximum."
 D1,SMBJ33CA-E3/52,Diode_SMD:D_SMB,https://www.vishay.com/docs/88392/smbj.pdf,Bidirectional33V TVS tolerates24V DC misplug without normal avalanche. No surge-class or TVS/fuse coordination approval.
 Q1,"PSMN012-100YS,115",Package_TO_SOT_SMD:LFPAK56,https://assets.nexperia.com/documents/data-sheet/PSMN012-100YS.pdf,"Source is INPUT, drain is eFuse IN. Body diode permits cold positive startup; external blocking FET opposes internal pass-FET body diode."
@@ -12,7 +12,7 @@ R3,309k 0.1% 10ppm,Resistor_SMD:R_0805_2012Metric,,Total error<=0.3%; limit inpu
 R4,28k 0.1% 10ppm,Resistor_SMD:R_0805_2012Metric,,
 R5,73.2k 0.1% 10ppm,Resistor_SMD:R_0805_2012Metric,,
 R6,10k 0.1% 10ppm,Resistor_SMD:R_0805_2012Metric,,
-R7,6.49k 0.1% 10ppm,Resistor_SMD:R_0805_2012Metric,,"Nominal18kOhm*A/R=2.77A; allocate10% programming error, not a guarantee at an unlisted resistor value"
+R7,5.62k 0.1% 10ppm,Resistor_SMD:R_0805_2012Metric,,"E21: nominal18kOhm*A/R=3.20A; allocate10% programming error, not a guarantee at an unlisted resistor value. Adapter/fuse coordination and actual current limit require qualification."
 R8,110k 0.1% 10ppm,Resistor_SMD:R_0805_2012Metric,,
 R9,100k 0.1% 10ppm,Resistor_SMD:R_0805_2012Metric,,
 R10,1k 1%,Resistor_SMD:R_0805_2012Metric,,Pull-up independent of Seed3 power; output goes to E14 guarded enable divider
@@ -26,7 +26,7 @@ C1,2.2uF 100V X7R,Capacitor_SMD:C_1210_3225Metric,,Effective>=0.1uF; reverse-pol
 C2,2.2uF 100V X7R,Capacitor_SMD:C_1210_3225Metric,,Effective>=0.1uF before internal pass FET
 C3,220uF 35V electrolytic 20% (EEUFR1V221),Capacitor_THT:CP_Radial_D8.0mm_P3.50mm,,Positive lead atVIN_PROTECTED. Manufacturer body8x11.5mm/pitch3.5mm;950mArms and56mOhm impedance at100kHz. Actual waveform/ripple/lifetime and placement unverified.
 C4,1uF 50V X7R,Capacitor_SMD:C_1210_3225Metric,,Effective>=0.1uF at protected input boundary
-C5,100nF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,Effective80..120nF allocation; output ramp and full-temperature behavior require measurement
+C5,330nF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,E21: effective264..396nF allocation slows the protected-input ramp; output ramp and full-temperature behavior require measurement
 C6,10uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,Effective>=2.2uF for LDO stability
 C7,100nF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,
 U3,TLV7011DBVR,Package_TO_SOT_SMD:SOT-23-5,https://www.ti.com/document-viewer/TLV7011/datasheet,"Independent fast OV comparator; push-pull high turns Q3 ON to pull SHDN low. Delay/drive/bias budget includes allocations, not full-temperature manufacturer guarantees."
@@ -46,4 +46,4 @@ J3,Header2,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,,Engineeri
 J4,Header3,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,,Engineering header only; use keyed rated production connector. J2 carries full input current; J3 is required for startup.
 J5,Header2,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,,Engineering header only; use keyed rated production connector. J2 carries full input current; J3 is required for startup.
 J6,Header3,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,,Engineering header only; use keyed rated production connector. J2 carries full input current; J3 is required for startup.
-S1,JS102011SAQN,Button_Switch_SMD:SW_SPDT_CK_JS102011SAQN,https://www.ckswitches.com/media/1422/js.pdf,Low-current shutdown/reset switch. Physical placement/actuator and orientation must be verified; it does not carry load current.
+S1,JS102011SAQN,RMX_Input:JS102011SAQN_RearEdge_E23,https://www.ckswitches.com/media/1422/js.pdf,Low-current shutdown/reset switch. Physical placement/actuator and orientation must be verified; it does not carry load current.

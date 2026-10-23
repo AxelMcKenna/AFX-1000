@@ -1,4 +1,4 @@
-// RMX standalone enclosure A04/E07/E18. Millimetres. Read README.md before fabrication.
+// RMX standalone enclosure A07/E07/E18/E19/E20/E23. Millimetres. Read README.md before fabrication.
 // Generated control coordinates come from generate.py; edit that source for layout.
 include <generated/layout.scad>
 include <generated/components.scad>
@@ -30,7 +30,7 @@ assert(wall > 0 && floor_thickness > 0);
 assert(panel_inset > wall && panel_inset < wall + seat_width);
 assert(panel_thickness == seat_depth);
 
-function mount_diameter(m) = m[0]=="audio_carrier" ? 7.2 : 6;
+function mount_diameter(m) = (m[0]=="audio_carrier" || m[0]=="dsp_carrier" || m[0]=="led_driver" || m[0]=="input_power") ? 7.2 : 6;
 
 module rounded_rect(w, d, r) {
     hull() for (x = [r, w-r], y = [r, d-r])
@@ -100,7 +100,7 @@ module base() {
         for (p = fasteners) translate([p[0],p[1],floor_thickness+1])
             cylinder(h=shell_height,d=pilot_diameter);
         for (m = board_mounts)
-            if(m[0]=="audio_carrier") translate([m[1],m[2],-0.1])
+            if(m[0]=="audio_carrier" || m[0]=="dsp_carrier" || m[0]=="led_driver" || m[0]=="input_power") translate([m[1],m[2],-0.1])
                 cylinder(h=m[3]+0.2,d=m[4]);
             else translate([m[1],m[2],floor_thickness+0.8]) cylinder(h=m[3],d=m[4]);
         // Recess only the internal floor under E06. Through insert bores retain
@@ -150,7 +150,8 @@ module controls() {
 }
 
 module internals() {
-    for(b=boards) color([0.12,0.40,0.29]) difference() {
+    color([0.12,0.40,0.29]) input_pcb();
+    for(b=boards) if(b[0]!="input_power") color([0.12,0.40,0.29]) difference() {
         translate([b[1],b[2],b[3]]) cube([b[4],b[5],b[6]]);
         for(m=board_mounts) if(m[0]==b[0]) translate([m[1],m[2],b[3]-1]) cylinder(h=4,d=2.4);
         for(m=daughterboard_mounts) if(b[0]==m[0] || b[0]=="dsp_carrier")
@@ -196,7 +197,7 @@ module output_collision() {
             translate([0,0,panel_z]) linear_extrude(panel_thickness) panel_2d();
             lever_bracket();
             for(b=boards) if(b[0]!="audio_carrier")
-                translate([b[1],b[2],b[3]]) cube([b[4],b[5],b[6]]);
+                board_reserve(b);
             // Scene control PCB and the conservative switch/lead reserves.
             translate([244,78,25.4]) linear_extrude(2.0) difference() {circle(r=54);circle(r=18);}
             for(e=stationary_envelopes) translate([e[1],e[2],e[3]]) cube([e[4],e[5],e[6]]);
@@ -222,9 +223,95 @@ module control_collision() {
             translate([0,0,panel_z]) linear_extrude(panel_thickness) panel_2d();
             lever_bracket();
             for(b=boards) if(b[0]!="control_input_hub")
-                translate([b[1],b[2],b[3]]) cube([b[4],b[5],b[6]]);
+                board_reserve(b);
             translate([244,78,25.4]) linear_extrude(2.0) difference() {circle(r=54);circle(r=18);}
             for(e=concat(control_obstacles,output_envelopes,port_envelopes))
+                translate([e[1],e[2],e[3]]) cube([e[4],e[5],e[6]]);
+        }
+    }
+}
+
+module carrier_board() {
+    for(b=boards) if(b[0]=="dsp_carrier") color([0.12,0.40,0.29]) difference() {
+        translate([b[1],b[2],b[3]]) cube([b[4],b[5],b[6]]);
+        for(m=board_mounts) if(m[0]==b[0]) translate([m[1],m[2],b[3]-1]) cylinder(h=4,d=2.4);
+        for(m=daughterboard_mounts) translate([m[1],m[2],b[3]-1]) cylinder(h=4,d=m[5]);
+    }
+    for(e=carrier_envelopes) color([0.55,0.45,0.80,0.8])
+        translate([e[1],e[2],e[3]]) cube([e[4],e[5],e[6]]);
+}
+
+module carrier_collision() {
+    intersection() {
+        carrier_board();
+        union() {
+            base();
+            translate([0,0,panel_z]) linear_extrude(panel_thickness) panel_2d();
+            lever_bracket();
+            for(b=boards) if(b[0]!="dsp_carrier")
+                board_reserve(b);
+            translate([244,78,25.4]) linear_extrude(2.0) difference() {circle(r=54);circle(r=18);}
+            for(e=concat(carrier_obstacles,port_envelopes))
+                translate([e[1],e[2],e[3]]) cube([e[4],e[5],e[6]]);
+        }
+    }
+}
+
+module led_board() {
+    for(b=boards) if(b[0]=="led_driver") color([0.12,0.40,0.29]) difference() {
+        translate([b[1],b[2],b[3]]) cube([b[4],b[5],b[6]]);
+        for(m=board_mounts) if(m[0]==b[0]) translate([m[1],m[2],b[3]-1]) cylinder(h=4,d=2.4);
+    }
+    for(e=led_envelopes) color([0.60,0.45,0.20,0.8])
+        translate([e[1],e[2],e[3]]) cube([e[4],e[5],e[6]]);
+}
+
+module led_collision() {
+    intersection() {
+        led_board();
+        union() {
+            base();
+            translate([0,0,panel_z]) linear_extrude(panel_thickness) panel_2d();
+            lever_bracket();
+            for(b=boards) if(b[0]!="led_driver")
+                board_reserve(b);
+            translate([244,78,25.4]) linear_extrude(2.0) difference() {circle(r=54);circle(r=18);}
+            for(e=concat(led_obstacles,port_envelopes))
+                translate([e[1],e[2],e[3]]) cube([e[4],e[5],e[6]]);
+        }
+    }
+}
+
+module board_reserve(b) {
+    if(b[0]=="input_power") input_pcb();
+    else translate([b[1],b[2],b[3]]) cube([b[4],b[5],b[6]]);
+}
+
+module input_pcb() {
+    for(b=boards) if(b[0]=="input_power") difference() {
+        translate([b[1],b[2],b[3]]) linear_extrude(b[6]) polygon(input_outline);
+        for(m=board_mounts) if(m[0]==b[0]) translate([m[1],m[2],b[3]-1]) cylinder(h=4,d=2.2);
+    }
+}
+
+module input_board() {
+    color([0.12,0.40,0.29]) input_pcb();
+    for(e=input_envelopes) color([0.55,0.45,0.20,0.8])
+        translate([e[1],e[2],e[3]]) cube([e[4],e[5],e[6]]);
+}
+
+module input_collision() {
+    intersection() {
+        input_board();
+        union() {
+            base();
+            rear_panel();
+            translate([0,0,panel_z]) linear_extrude(panel_thickness) panel_2d();
+            lever_bracket();
+            for(b=boards) if(b[0]!="input_power")
+                board_reserve(b);
+            translate([244,78,25.4]) linear_extrude(2.0) difference() {circle(r=54);circle(r=18);}
+            for(e=concat(input_obstacles,port_envelopes))
                 translate([e[1],e[2],e[3]]) cube([e[4],e[5],e[6]]);
         }
     }
@@ -240,6 +327,8 @@ else if (part == "panel") linear_extrude(panel_thickness) panel_2d();
 else if (part == "panel_2d") panel_2d();
 else if (part == "controls") controls();
 else if (part == "rear_panel") rear_panel();
+else if (part == "input_board") input_board();
+else if (part == "input_collision") input_collision();
 else if (part == "internals") internals();
 else if (part == "lever_bracket") translate([-303,-66,-7]) lever_bracket();
 else if (part == "lever_arm") translate([-305,-78,-14]) lever_arm(0);
@@ -248,6 +337,10 @@ else if (part == "output_collision") output_collision();
 else if (part == "output_board") output_board();
 else if (part == "control_board") control_board();
 else if (part == "control_collision") control_collision();
+else if (part == "carrier_board") carrier_board();
+else if (part == "carrier_collision") carrier_collision();
+else if (part == "led_board") led_board();
+else if (part == "led_collision") led_collision();
 else if (part == "fit_coupon") fit_coupon();
 else if (part == "strip_backer") translate([-72,-122,-31.8]) strip_backer();
 else {

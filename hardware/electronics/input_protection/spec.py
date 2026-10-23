@@ -45,7 +45,7 @@ def capacitor(ref, a, b, value, large=False, fp=None, note=""):
 component(
     "J1",
     "PJ-102AH",
-    "Connector_BarrelJack:BarrelJack_CUI_PJ-102AH_Horizontal",
+    "RMX_Input:PJ102AH_RearEdge_E23",
     [
         pin(1, "CENTER+", "passive", "L", "DC_IN"),
         pin(2, "SLEEVE", "passive", "L", "AGND"),
@@ -176,8 +176,8 @@ resistor(
     "R7",
     "INPUT_ILIM",
     "AGND",
-    "6.49k",
-    note="Nominal18kOhm*A/R=2.77A; allocate10% programming error, not a guarantee at an unlisted resistor value",
+    "5.62k",
+    note="E21: nominal18kOhm*A/R=3.20A; allocate10% programming error, not a guarantee at an unlisted resistor value. Adapter/fuse coordination and actual current limit require qualification.",
 )
 resistor("R8", "V2V5_AUX", "AUX_FB", "110k")
 resistor("R9", "AUX_FB", "AGND", "100k")
@@ -267,8 +267,8 @@ capacitor(
     "C5",
     "INPUT_SLEW",
     "AGND",
-    "100nF 16V X7R",
-    note="Effective80..120nF allocation; output ramp and full-temperature behavior require measurement",
+    "330nF 16V X7R",
+    note="E21: effective264..396nF allocation slows the protected-input ramp; output ramp and full-temperature behavior require measurement",
 )
 capacitor("C6", "V2V5_AUX", "AGND", "10uF 16V X7R", True, note="Effective>=2.2uF for LDO stability")
 capacitor("C7", "V2V5_AUX", "AGND", "100nF 16V X7R")
@@ -363,7 +363,7 @@ for ref, nets, y in [
 component(
     "S1",
     "JS102011SAQN",
-    "Button_Switch_SMD:SW_SPDT_CK_JS102011SAQN",
+    "RMX_Input:JS102011SAQN_RearEdge_E23",
     [
         pin(1, "ON", "passive", "L", "SWITCH_SUPPLY"),
         pin(2, "COMMON", "passive", "R", "POWER_RUN"),
@@ -409,7 +409,7 @@ NOTES = [
     (
         20.32,
         30.48,
-        "Conditional schematic prototype. No IEC surge claim, PCB/enclosure placement or physical startup/fault validation. Final analog/digital rail OV disconnects remain open.",
+        "Conditional E16/E21 circuit with E23 PCB and A07 housing bounds. No IEC surge or physical startup/fault/assembly validation. Independent final rail disconnects remain separate.",
     ),
     (
         20.32,

@@ -103,7 +103,7 @@ def schematic():
     root = uid("root")
     out = [
         f'(kicad_sch (version 20250114) (generator eeschema) (uuid {root}) (paper "User" 1600 1300)',
-        '(title_block (title "Standalone RMX - main rail generation") (rev "E14") (comment 1 "Schematic prototype; no routed board or bench validation"))',
+        '(title_block (title "Standalone RMX - main rail generation") (rev "E14/E21") (comment 1 "Schematic prototype; no routed board or bench validation"))',
         "(lib_symbols " + "\n".join(symbol(c) for c in COMPONENTS) + ")",
     ]
     for c in COMPONENTS:
@@ -181,6 +181,9 @@ def flag_symbol(prefix):
 
 
 def main():
+    from .footprints import generate as generate_footprints
+
+    generate_footprints()
     ROOT.mkdir(exist_ok=True)
     (ROOT / "power_supply.kicad_sch").write_text(schematic() + "\n")
     (ROOT / "RMX_E14.kicad_sym").write_text(
@@ -199,7 +202,7 @@ def main():
     libraries = sorted({c["footprint"].split(":")[0] for c in COMPONENTS if c["footprint"]})
     fp_root = "$" + "{KICAD10_FOOTPRINT_DIR}"
     entries = [
-        f'(lib (name "{name}") (type "KiCad") (uri "{fp_root}/{name}.pretty") (options "") (descr "Standard KiCad library; package candidate"))'
+        f'(lib (name "{name}") (type "KiCad") (uri "{"${KIPRJMOD}" if name == "RMX_Power" else fp_root}/{name}.pretty") (options "") (descr "Candidate footprint library"))'
         for name in libraries
     ]
     (ROOT / "fp-lib-table").write_text("(fp_lib_table (version 7)\n" + "\n".join(entries) + ")\n")

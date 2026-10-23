@@ -18,7 +18,7 @@ from ..common.sexpr import read_sexpr as read
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "generated"
 SIZE = (64, 54)
-DATUM = (111, 43, 12.1)
+DATUM = (109, 43, 12.1)
 MOUNTS = [(4, 4), (60, 4), (4, 50), (60, 50)]
 POSES = {
     "U1": (20, 24, 90, "F"),

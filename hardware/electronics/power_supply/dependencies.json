@@ -60,6 +60,20 @@
       "revision": "23April2020",
       "download_sha256": null,
       "reviewed_via": "Official manufacturer datasheet; current/offset/dropout/pin/package or reference limits"
+    },
+    "srp7050wa": {
+      "source": "https://www.bourns.com/docs/Product-Datasheets/SRP7050WA.pdf",
+      "download_sha256": "fcfb01809b9285529350248df842acb775024f047504a8b08c4cda741dcb36ad",
+      "reviewed_via": "Manufacturer PDF:25C ratings and page2 recommended layout visually reviewed; typical current entries are not guaranteed minimums"
+    },
+    "srp1050wa": {
+      "source": "https://www.bourns.com/docs/Product-Datasheets/SRP1050WA.pdf",
+      "download_sha256": "4a7bc374f1d90984205a28d61a270b36ce0ddc13d12c49fe5a65f52c436ac801",
+      "reviewed_via": "Manufacturer PDF:25C ratings and page2 recommended layout visually reviewed; typical current entries are not guaranteed minimums"
+    },
+    "wima_mks2": {
+      "source": "https://www.wima.de/wp-content/uploads/media/d_WIMA_MKS_2.pdf",
+      "reviewed_via": "Manufacturer current63V table and order-code system:1uF/10% loose6-2 leads; nominal7.2x5x10mm/pitch5; full-temperature leakage and physical fit remain open"
     }
   },
   "kicad_version": "10.0.7",
@@ -81,5 +95,24 @@
   ],
   "complete_weighted_system_noise_closed": false,
   "physical_power_verified": false,
-  "external_input_protection_schematic": "hardware/electronics/input_protection/input_protection.kicad_sch"
+  "external_input_protection_schematic": "hardware/electronics/input_protection/input_protection.kicad_sch",
+  "load_update_revision": "E21",
+  "e21_reviewed_alternatives": [
+    {
+      "part": "TPS62913",
+      "source": "https://www.ti.com/lit/ds/symlink/tps62913.pdf",
+      "download_sha256": "6b27cbc00d3de5f5b838cbab15a37c5b136b835e43fdaf98bac290015b862bc5",
+      "decision": "Not selected: recommended total output capacitance is at most200uF; E17 digital bulk alone is4700uF nominal. Do not drop the protection bulk to fit this regulator."
+    },
+    {
+      "part": "TPS54620",
+      "source": "https://www.ti.com/lit/ds/symlink/tps54620.pdf",
+      "decision": "Investigated external compensation, not implemented or stability-qualified. Manufacturer small-signal model and all connected capacitance/ESR require review before selection."
+    }
+  ],
+  "existing_tps62933f_large_output_capacitance_stability_verified": false,
+  "e21_digital_current_allocation_a": 1.8,
+  "e21_digital_thermal_dissipation_allocation_w": 0.9,
+  "e24_passive_layout_revision": "E24",
+  "e24_passive_qualification_complete": false
 }

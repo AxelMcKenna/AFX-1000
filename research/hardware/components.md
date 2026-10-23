@@ -72,7 +72,7 @@ equation and measured brightness/thermal requirements.
 - [TLC5947 manufacturer specification](https://www.ti.com/product/TLC5947)
 - [AS5600 manufacturer datasheet](https://look.ams-osram.com/m/7059eac7531a86fd/original/AS5600-DS000365.pdf)
 - [REAN NYS229 manufacturer drawing](https://www.rean-connectors.com/media/14496/download/NYS229.pdf?v=1)
-- [E01 audio, gain and independent bypass design basis with manufacturer sources](../../hardware/electronics/README.md)
+- [E01 audio, gain and independent bypass design basis with manufacturer sources](audio-design-history.md)
 - [E04 converter/line-stage screen and primary-source hashes](../../hardware/electronics/audio-sources.json)
 - [CNC Kitchen insert dimensions and design guidelines](https://www.cnckitchen.com/s/CNCKitchen_Heat-Set-Insert-Dimensions-and-Design-Guidelines.pdf)
 
@@ -96,8 +96,11 @@ choose matching hardware after checking nearby finger clearance. Nut flats,
 anti-rotation features and final thread engagement must be checked on samples.
 
 The A03/E07 output subassembly has actual footprints and routed copper, with
-zero native KiCad DRC/parity issues and open connections. Other carrier/control
-shapes remain placement reserves. The component reserve check excludes wiring
+zero native KiCad DRC/parity issues and open connections. E18 adds the routed
+input hub; E19 now adds the routed processor/knob carrier and matching daughter
+mounting holes/keepouts. The A05 model includes their actual component, lead,
+socket and fixing bounds. Other carrier/control shapes remain placement reserves.
+The component reserve check excludes wiring
 and unmodeled features; it is separate from PCB design-rule checking. Three
 remaining relays, the converter/input stages and final supply still need actual
 placement. Input jacks also need a normalling/selection decision: the NYS229

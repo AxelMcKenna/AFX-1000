@@ -1,6 +1,6 @@
 # Standalone RMX hardware
 
-Preserved from `hardware/README.md` during the folder reorganisation. Current setup and status are in the [repository guide](../../../README.md). Existing citations are retained without new verification.
+Preserved from `hardware/README.md` on 23 October 2026. This records the earlier design discussion; current setup and status are linked from the [repository guide](../../../README.md). Existing source citations have been carried forward without new verification.
 
 The physical unit is a standalone stereo audio effects processor. It must process
 audio, run its sampler, read all performance controls, and drive its indicators
@@ -54,8 +54,17 @@ three chips. Use the [wiring map](../../../hardware/firmware/control-inputs.json
 on a64 ×54mm routed daughterboard. Native ERC/DRC/parity and open-connection
 checks pass. Its PCB-derived component, lead and mounting envelopes pass the
 A04 CAD's241-reserve and native solid-intersection checks. All seven housing
-solids remain valid. Complete control circuitry, carrier routing, connectors,
-physical fit and scan/bus measurements remain unfinished.
+solids remain valid in that historical review.
+[E19](../../../hardware/electronics/processor_carrier/README.md) now adds a routed150 ×65mm
+processor/knob carrier with76 circuit parts and eight mounting holes/keepouts.
+The E18 daughterboard shifts2mm left to matching carrier holes. Native
+ERC/DRC/parity/open checks pass, and A05 incorporates451 named reserves,
+including the socket/module, component, solder-tail, fixing and USB bounds.
+Seven housing solids and scoped native collision checks pass, allowing only
+intended mounting-face contacts. Complete LED/sensor/SD circuitry, remaining
+analog/power placement, exact parts, physical fit and measurements remain open.
+The [A05/E19 processor and housing review](../../../hardware/releases/README.md#processor-and-housing-review-a05-e19)
+captures this PCB/CAD update; the earlier A04/E18 archive retains its firmware-build evidence.
 
 Use an embedded audio MCU/module with local RAM, stereo converters and microSD
 storage. The current working candidate is **Daisy Seed3, 64 MB external SDRAM**,
@@ -70,7 +79,7 @@ module is 51 × 18 mm, uses an STM32H750 at 480 MHz, and includes a TAC5242 ster
 codec. This is enough information to reserve board space, not proof of final
 audio performance or compatibility with DJ mixer signal levels.
 
-The [E04 audio screen](../../../hardware/electronics/README.md#e04-converter-gain-and-noise-screen)
+The [E04 audio screen](../../../research/hardware/audio-design-history.md#e04-converter-gain-and-noise-screen)
 does not approve the onboard codec for the reference-performance design: under
 the project's 20 dB headroom/nominal-level noise assumptions, even its optimistic
 differential figures leave no budget for the minimum S/N targets. Seed3 remains
@@ -97,7 +106,7 @@ hard-wired together. A watchdog circuit must remove relay enable when valid audi
 callbacks stop, including if the UI task remains alive. Software bypass and
 power-failure bypass are separate behaviors.
 
-The [E01 electronics design basis](../../../hardware/electronics/README.md) calculates both line
+The [E01 electronics design basis](../../../research/hardware/audio-design-history.md) calculates both line
 gain ranges and power/headroom constraints. Its draft uses separate input
 isolation and output selector relays, two gain relays, and an edge-armed watchdog
 latch. These are circuit contracts pending a complete schematic, not assembled
@@ -208,7 +217,7 @@ configuration and on-device profiling justify more.
 
 ## Mechanical work
 
-See [CAD and control layout](../../../hardware/cad/README.md). Preserve the RMX-style control
+See [CAD and control layout](2026-10-23-cad-design.md). Preserve the RMX-style control
 arrangement while adding the internal audio/power carrier, panel control boards,
 release mechanism, optical parts, and rear I/O. Reserve the independent bypass
 path and service access as part of the layout.

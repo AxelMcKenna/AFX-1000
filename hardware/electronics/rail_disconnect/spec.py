@@ -182,6 +182,24 @@ for i, name in enumerate(rails, 1):
         )
     )
 
+# E21: two parallel devices on each side of the digital common-source switch.
+# Preserve opposing body diodes and the floating gate/source reference.
+# Increased leakage and gate charge must be included in the driver audit.
+for ref, drain in (("Q13", "5V_DIG_SRC"), ("Q14", "5V_DIG")):
+    component(
+        ref,
+        "CSD18510Q5B",
+        FET,
+        [
+            pin(1, "SOURCE_GROUP", "passive", "L", "5V_DIG_COMMON"),
+            pin(2, "GATE_GROUP", "input", "L", "5V_DIG_GATE"),
+            pin(3, "DRAIN_GROUP", "passive", "R", drain),
+        ],
+        source=TI + "csd18510q5b.pdf",
+        note="E21 parallel digital branch; grouped pads1=S,2=G,3=D. Symmetric gate/source/drain layout, full gate charge, leakage and fault timing need qualification.",
+    )
+CHANNELS[5]["fets"] += ["Q13", "Q14"]
+
 component(
     "U7",
     "REF35125QDBVR",

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""E14 native ERC, independently declared topology and conditional supply screens.
+"""E14/E24 native ERC, independent topology and conditional supply screens.
 
-No switching/transient macromodel, PCB, physical startup or protection proof.
+E24 placement is checked separately. No switching/transient macromodel, routed
+PCB, physical startup or protection proof is established here.
 """
 
 import argparse
@@ -234,7 +235,7 @@ def contract(parts, pins):
             f"L{i}",
             a,
             b,
-            f"{v}uH 20% Isat>=" + ("6A Irms>=3A DCR<=0.1ohm" if i in (4, 5) else "3A Irms>=1.5A DCR<=0.2ohm"),
+            f"{v}uH 20% " + ({33: "SRP7050WA-330M", 68: "SRP1050WA-680M", 10: "SRP1050WA-100M"}[v]),
         )
     resistors = [
         ("RAW_P22", "RAW_P_RMID", 300000),
@@ -305,7 +306,10 @@ def contract(parts, pins):
         caps.extend([(rail, fb, "68pF 50V C0G 5%"), (ss, "AGND", "330nF 16V X7R")])
     for name, out in [("DIG", "5V_DIG"), ("PRE", "V5_PRE")]:
         caps.extend(
-            [(name + "_BST", name + "_SW", "100nF 16V X7R"), (name + "_SS", "AGND", "33nF 16V X7R")]
+            [
+                (name + "_BST", name + "_SW", "100nF 16V X7R"),
+                (name + "_SS", "AGND", "1uF 16V X7R" if name == "DIG" else "33nF 16V X7R"),
+            ]
             + [(out, "AGND", "22uF 16V X7R")] * 2
             + [("VIN_PROTECTED", "AGND", "10uF 25V X7R")] * 2
             + [("VIN_PROTECTED", "AGND", "100nF 50V X7R")]
@@ -314,8 +318,8 @@ def contract(parts, pins):
         [
             ("5V_DIG", "AGND", "100nF 16V X7R"),
             ("PREF_2V5", "AGND", "2.2uF 16V X7R"),
-            ("PREF_FILTER", "AGND", "1uF film 63V 10%"),
-            ("NREF_FILTER", "AGND", "1uF film 63V 10%"),
+            ("PREF_FILTER", "AGND", "1uF film 63V 10% MKS2C041001F00KSSD"),
+            ("NREF_FILTER", "AGND", "1uF film 63V 10% MKS2C041001F00KSSD"),
         ]
     )
     for name, _, _ in stages:
@@ -533,7 +537,7 @@ def power_screen(parts, mapping):
         )
     maximum_input_power = (
         sum(2 * r["raw_envelope_v"][1] * r["load_allocation_each_a"] / 0.75 for r in pairs)
-        + (5.1 * 1.2 + 5.95 * 0.25) / 0.85
+        + (5.1 * 1.8 + 5.95 * 0.25) / 0.85
         + 13.2 * 0.030
     )
     assert maximum_input_power / 10.5 < 2.5
@@ -545,6 +549,16 @@ def power_screen(parts, mapping):
     )
     assert currents["positive_high"] < 0.05 and currents["negative_high"] < 0.05
     assert currents["positive_low"] < 0.20 and currents["negative_low"] < 0.20
+    # Conditional digital ramp only: the protected bulk must already be joined
+    # before the source rises. A late-closing E17 switch is a different event.
+    css = value("C17")
+    ss_min = css * 0.8 * 0.788 / 6.5e-6
+    ss_max = css * 1.2 * 0.812 / 4.5e-6
+    capacitance_allocation = 0.0065
+    charging = capacitance_allocation * 5.1 / ss_min
+    ripple = 5.1 * (1 - 5.1 / 13.2) / (value("L4") * 0.8 * 0.450e6)
+    peak = 1.8 + charging + ripple / 2
+    assert peak < 4.2, ("digital startup peak exceeds minimum high-side limit", peak)
     return dict(
         raw_pairs=pairs,
         raw_setpoint_corners=sum(r["setpoint_corners"] for r in pairs),
@@ -553,6 +567,24 @@ def power_screen(parts, mapping):
         maximum_allocated_input_current_a=maximum_input_power / 10.5,
         candidate_external_adapter_v=12,
         candidate_external_adapter_a=3,
+        digital_startup=dict(
+            soft_start_cap_f=css,
+            effective_cap_fraction=[0.8, 1.2],
+            ss_charge_current_a=[4.5e-6, 6.5e-6],
+            conditional_ramp_time_s=[ss_min, ss_max],
+            maximum_connected_capacitance_allocation_f=capacitance_allocation,
+            maximum_digital_capacitor_charging_a=charging,
+            maximum_extra_input_charging_a=charging * 5.1 / (10.5 * 0.85),
+            maximum_inductor_ripple_a=ripple,
+            maximum_conditional_inductor_peak_a=peak,
+            minimum_high_side_limit_a=4.2,
+            protected_bulk_preconnected_assumption=True,
+            actual_preconnection_order_verified=False,
+            late_switch_close_bounded=False,
+            other_rail_charging_included=False,
+            connected_capacitor_inventory_and_effective_bounds_closed=False,
+            full_startup_current_or_stability_verified=False,
+        ),
         target_source_short_current_a=22.88 / (6800 * 0.99),
         positive_set_absolute_current_a=0.010,
         negative_set_absolute_current_a=0.005,
@@ -629,8 +661,8 @@ def dropout_and_thermal(screen):
         unit_ambient_target_c=[0, 40],
         local_pcb_ambient_assumption_c=55,
         digital_buck_junction_must_remain_below_c=85,
-        digital_buck_dissipation_allocation_w=0.65,
-        required_digital_buck_theta_ja_at55c_max_c_per_w=(85 - 55) / 0.65,
+        digital_buck_dissipation_allocation_w=0.90,
+        required_digital_buck_theta_ja_at55c_max_c_per_w=(85 - 55) / 0.90,
         digital_thermal_allocation_verified=False,
         whole_unit_heat_dissipation_and_ventilation_verified=False,
     )
@@ -733,14 +765,21 @@ def audio_load(external):
     extra = 0.010
     required = quiescent + maximum + bleed + extra
     assert required < 0.150, (required, counts)
+    led_parts, led_pins = external["led_driver"]
+    assert sum(p.findtext("value") == "TLC5947DAPR" for p in led_parts.values()) == 4
+    for chip in range(4):
+        assert number(led_parts[f"R{chip + 1}"].findtext("value")) == 16500
+        assert all(led_pins[f"U{chip + 1}"][str(5 + i)] == f"LED_{chip * 24 + i:02d}" for i in range(24))
     digital = dict(
         seed_and_its_3v3_load_allocation_a=0.600,
-        led_sink_ceiling_a=96 * 0.003,
+        led_sink_ceiling_a=96 * 0.004,
+        led_driver_logic_allocation_a=4 * 0.090,
+        led_driver_misc_allocation_a=0.020,
         four_relay_coils_allocation_a=4 * 0.030,
         panel_and_sensor_reserve_a=0.080,
         other_reserve_a=0.010,
     )
-    assert sum(digital.values()) < 1.2
+    assert math.isclose(sum(digital.values()), 1.574) and sum(digital.values()) < 1.8
     return dict(
         actual_package_counts=counts,
         per_12v_rail_full_temperature_quiescent_a=quiescent,
@@ -754,11 +793,57 @@ def audio_load(external):
         actual_load_current_verified=False,
         digital_budget=digital,
         digital_budget_total_a=sum(digital.values()),
-        provided_digital_budget_a=1.2,
+        provided_digital_budget_a=1.8,
+        e20_load_included=True,
+        e20_low_current_icc_and_sink_bounds_physically_verified=False,
         led_3ma_current_setting_and_brightness_verified=False,
         seed_external_3v3_load_budget_closed=False,
         source_analysis_sha256=sha(record),
         complete_signal_overload_and_short_current_proof=False,
+    )
+
+
+def passive_selection(parts):
+    """Candidate identity/rating screen; typical currents do not close qualification."""
+    rows = {}
+    for refs, mpn, inductance, dcr, irms, isat, requirement in [
+        (("L1", "L6"), "SRP7050WA-330M", 33e-6, 0.1276, 4, 4.9, (0.2, 1.5, 3)),
+        (("L2", "L3", "L7", "L8"), "SRP1050WA-680M", 68e-6, 0.150, 3.5, 4.8, (0.2, 1.5, 3)),
+        (("L4", "L5"), "SRP1050WA-100M", 10e-6, 0.023, 9, 13, (0.1, 3, 6)),
+    ]:
+        assert dcr * 1.3 <= requirement[0] and irms >= requirement[1] and isat >= requirement[2]
+        for ref in refs:
+            value = parts[ref].findtext("value")
+            assert value.endswith(mpn) and math.isclose(number(value), inductance)
+            rows[ref] = dict(
+                mpn=mpn,
+                inductance_h=inductance,
+                dcr_max_25c_ohm=dcr,
+                irms_typ_25c_a=irms,
+                isat_typ_25c_a=isat,
+                hot_dcr_multiplier_allocation=1.3,
+                hot_dcr_allocation_ohm=dcr * 1.3,
+                current_bounds_guaranteed=False,
+                bias_and_hot_inductance_verified=False,
+                core_loss_and_temperature_verified=False,
+            )
+    for ref in ("C32", "C33"):
+        assert parts[ref].findtext("value") == "1uF film 63V 10% MKS2C041001F00KSSD"
+    return dict(
+        revision="E24",
+        inductors=rows,
+        film_capacitors=dict(
+            references=["C32", "C33"],
+            mpn="MKS2C041001F00KSSD",
+            capacitance_f=1e-6,
+            nominal_v=63,
+            tolerance=0.1,
+            nominal_body_mm=[7.2, 5, 10],
+            lead_pitch_mm=5,
+            full_temperature_leakage_and_assembly_qualified=False,
+        ),
+        limits="Irms/Isat are typical25C values; Isat denotes30% inductance drop. The1.3 DCR multiplier is an unqualified temperature allocation. Existing loop/startup screens do not establish bias/thermal/EMI or physical performance.",
+        physical_passive_qualification_complete=False,
     )
 
 
@@ -808,6 +893,8 @@ def main():
         screen["power"] = power_screen(parts, mapping)
         screen["dropout_thermal"] = dropout_and_thermal(screen)
         screen["target_source_loops"] = target_loops(parts, mapping)
+        selection = passive_selection(parts)
+        (OUT / "part-selection.json").write_text(json.dumps(selection, indent=2) + "\n")
         interfaces = {}
         external = {}
         load_header = {p: n.removesuffix("_SRC") for p, n in pins["J2"].items()}
@@ -819,6 +906,7 @@ def main():
             "input_range",
             "dac_receiver",
             "sequenced_bypass",
+            "led_driver",
         ):
             source = ROOT.parent / name / (name + ".kicad_sch")
             target = temp / (name + ".xml")
@@ -849,6 +937,8 @@ def main():
             )
         screen["load_budget"] = audio_load(external)
         plan = json.loads((ROOT / "integration.json").read_text())
+        assert plan["load_update_revision"] == "E21" and plan["e20_led_driver_included"]
+        assert math.isclose(plan["digital_soft_start_cap_f"], number(parts["C17"].findtext("value")))
         assert plan["normal_targets_v"]["P19"] == [18.81, 19.19]
         assert plan["raw_generation_implemented"] and not plan["overvoltage_disconnect_implemented"]
         assert plan["input"]["normal_v"] == [10.5, 13.2]
@@ -868,7 +958,7 @@ def main():
             RAW_N22=0.05,
             RAW_P17=0.20,
             RAW_N17=0.20,
-            **{"5V_DIG": 1.2},
+            **{"5V_DIG": 1.8},
         )
         screen["startup_dependency_topology"] = dict(
             buck_enable_from="E15 POWER_READY via J5",
@@ -883,7 +973,9 @@ def main():
         for ref, part in parts.items():
             identifier = part.findtext("footprint")
             lib, name = identifier.split(":")
-            path = args.footprints / (lib + ".pretty") / (name + ".kicad_mod")
+            path = (
+                (ROOT if lib == "RMX_Power" else args.footprints) / (lib + ".pretty") / (name + ".kicad_mod")
+            )
             assert set(pins[ref]) <= set(re.findall(r'\(pad\s+"([^"]+)"', path.read_text())), (
                 ref,
                 identifier,
@@ -903,8 +995,20 @@ def main():
                 ROOT.parent / "dac_receiver/generated/circuit-analysis.json",
             ]
         )
+        sources.extend(ROOT.parent / name / (name + ".kicad_sch") for name in external)
+        sources.extend(ROOT.glob("RMX_Power.pretty/*.kicad_mod"))
+        sources.append(OUT / "part-selection.json")
+        placement_path = OUT / "placement-verification.json"
+        if placement_path.exists():
+            placement = json.loads(placement_path.read_text())
+            assert placement["revision"] == "E24" and placement["pcb_routed"] is False
+            assert placement["nonrouting_drc_violations"] == placement["schematic_parity_issues"] == 0
+            for path, digest in placement["source_sha256"].items():
+                assert sha(ROOT / path) == digest, ("Rerun power_supply.check_placement", path)
+            sources.append(placement_path)
         report = dict(
             revision="E14",
+            load_update_revision="E21",
             checked_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
             kicad_version=version,
             native_erc_violations=0,
@@ -923,6 +1027,7 @@ def main():
             digital_source_nominal_v=5.004,
             downstream_overvoltage_disconnect_implemented=False,
             pcb_routed=False,
+            pcb_placement_revision="E24" if placement_path.exists() else None,
             enclosure_placement_complete=False,
             physical_power_audio_verified=False,
             source_sha256=source_hashes(ROOT, sorted(sources)),

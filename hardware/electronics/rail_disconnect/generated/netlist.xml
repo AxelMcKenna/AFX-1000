@@ -2,13 +2,13 @@
 <export version="E">
   <design>
     <source>/Users/axelmckrnna/dev/rmx-publish/hardware/electronics/rail_disconnect/rail_disconnect.kicad_sch</source>
-    <date>2026-10-23T17:03:28</date>
+    <date>2026-10-24T03:14:39</date>
     <tool>Eeschema 10.0.7</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
         <title>Standalone RMX - Rail disconnects / independent OV</title>
         <company/>
-        <rev>E17</rev>
+        <rev>E17/E21</rev>
         <date/>
         <source>rail_disconnect.kicad_sch</source>
         <comment number="1" value="Schematic prototype; no routed board or bench validation"/>
@@ -1286,6 +1286,54 @@
       <property name="Sheetfile" value="rail_disconnect.kicad_sch"/>
       <sheetpath names="/" tstamps="/"/>
       <tstamps>ce0d4466-175a-53d0-892c-67183df11ec3</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="Q13">
+      <value>CSD18510Q5B</value>
+      <footprint>Package_SON:VSONP-8-1EP_5x6_P1.27mm</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/csd18510q5b.pdf</datasheet>
+      <fields>
+        <field name="Footprint">Package_SON:VSONP-8-1EP_5x6_P1.27mm</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/csd18510q5b.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RMX_E17" part="E17_Q13" description=""/>
+      <property name="Sheetname" value="rail_disconnect"/>
+      <property name="Sheetfile" value="rail_disconnect.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b7e003f6-1802-5ebe-a150-3976373dd2d4</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1"/>
+            <pin num="2"/>
+            <pin num="3"/>
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="Q14">
+      <value>CSD18510Q5B</value>
+      <footprint>Package_SON:VSONP-8-1EP_5x6_P1.27mm</footprint>
+      <datasheet>https://www.ti.com/lit/ds/symlink/csd18510q5b.pdf</datasheet>
+      <fields>
+        <field name="Footprint">Package_SON:VSONP-8-1EP_5x6_P1.27mm</field>
+        <field name="Datasheet">https://www.ti.com/lit/ds/symlink/csd18510q5b.pdf</field>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="RMX_E17" part="E17_Q14" description=""/>
+      <property name="Sheetname" value="rail_disconnect"/>
+      <property name="Sheetfile" value="rail_disconnect.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>f3b1ee7f-d395-5ade-8f89-fc14ef7e24aa</tstamps>
       <units>
         <unit name="A">
           <pins>
@@ -4374,6 +4422,34 @@
         <pin num="3" name="DRAIN_GROUP" type="passive"/>
       </pins>
     </libpart>
+    <libpart lib="RMX_E17" part="E17_Q13">
+      <fields>
+        <field name="Reference">Q</field>
+        <field name="Value">CSD18510Q5B</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="SOURCE_GROUP" type="passive"/>
+        <pin num="2" name="GATE_GROUP" type="input"/>
+        <pin num="3" name="DRAIN_GROUP" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="RMX_E17" part="E17_Q14">
+      <fields>
+        <field name="Reference">Q</field>
+        <field name="Value">CSD18510Q5B</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="SOURCE_GROUP" type="passive"/>
+        <pin num="2" name="GATE_GROUP" type="input"/>
+        <pin num="3" name="DRAIN_GROUP" type="passive"/>
+      </pins>
+    </libpart>
     <libpart lib="RMX_E17" part="E17_Q2">
       <fields>
         <field name="Reference">Q</field>
@@ -5969,6 +6045,7 @@
       <node ref="C24" pin="1" pintype="passive"/>
       <node ref="J4" pin="1" pinfunction="5V_DIG_1" pintype="passive"/>
       <node ref="Q12" pin="3" pinfunction="DRAIN_GROUP_3" pintype="passive"/>
+      <node ref="Q14" pin="3" pinfunction="DRAIN_GROUP_3" pintype="passive"/>
       <node ref="R47" pin="1" pintype="passive"/>
       <node ref="R48" pin="1" pintype="passive"/>
     </net>
@@ -5980,6 +6057,8 @@
     <net code="3" name="/5V_DIG_COMMON" class="Default">
       <node ref="Q11" pin="1" pinfunction="SOURCE_GROUP_1" pintype="passive"/>
       <node ref="Q12" pin="1" pinfunction="SOURCE_GROUP_1" pintype="passive"/>
+      <node ref="Q13" pin="1" pinfunction="SOURCE_GROUP_1" pintype="passive"/>
+      <node ref="Q14" pin="1" pinfunction="SOURCE_GROUP_1" pintype="passive"/>
       <node ref="R42" pin="2" pintype="passive"/>
       <node ref="U6" pin="5" pinfunction="SOURCE_5" pintype="passive"/>
     </net>
@@ -5990,6 +6069,8 @@
     <net code="5" name="/5V_DIG_GATE" class="Default">
       <node ref="Q11" pin="2" pinfunction="GATE_GROUP_2" pintype="input"/>
       <node ref="Q12" pin="2" pinfunction="GATE_GROUP_2" pintype="input"/>
+      <node ref="Q13" pin="2" pinfunction="GATE_GROUP_2" pintype="input"/>
+      <node ref="Q14" pin="2" pinfunction="GATE_GROUP_2" pintype="input"/>
       <node ref="R41" pin="2" pintype="passive"/>
       <node ref="R42" pin="1" pintype="passive"/>
     </net>
@@ -6029,6 +6110,7 @@
     <net code="13" name="/5V_DIG_SRC" class="Default">
       <node ref="J2" pin="1" pinfunction="5V_DIG_SRC_1" pintype="passive"/>
       <node ref="Q11" pin="3" pinfunction="DRAIN_GROUP_3" pintype="passive"/>
+      <node ref="Q13" pin="3" pinfunction="DRAIN_GROUP_3" pintype="passive"/>
       <node ref="R46" pin="1" pintype="passive"/>
       <node ref="R78" pin="1" pintype="passive"/>
     </net>

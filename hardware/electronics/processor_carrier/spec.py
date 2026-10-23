@@ -264,7 +264,7 @@ NOTES = [
     (
         20,
         638,
-        "Proposed150x65mm carrier: front-slot Seed placement and2mm E18 daughterboard shift still require PCB/CAD implementation.",
+        "Routed150x65mm carrier: front-slot Seed and2mm E18 daughterboard shift implemented in PCB/A05 CAD; physical assembly unverified.",
     ),
     (
         20,

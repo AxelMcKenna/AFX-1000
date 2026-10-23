@@ -126,7 +126,7 @@ def mechanical(pcb, contract):
             )
             x, y = placement.transform(fp, first(pads[0], "at")[1:3])
             mounts[ref] = [x - 100, y - 100]
-            x, y = 111 + x - 100, 43 + y - 100
+            x, y = 109 + x - 100, 43 + y - 100
             bodies.extend(
                 [
                     [
@@ -137,7 +137,7 @@ def mechanical(pcb, contract):
                         5.5,
                         5.5,
                         4.0,
-                        "4mm spacer OD<=5.5mm on unrouted processor carrier; exact part and attachment unselected",
+                        "4mm spacer OD<=5.5mm on E19 processor carrier; exact part and attachment unselected",
                     ],
                     [
                         f"e18_{ref}_head",
@@ -174,7 +174,7 @@ def mechanical(pcb, contract):
             if ref.startswith("C")
             else 0.9
         )
-        x, y = 111 + x0 - 100, 43 + y0 - 100
+        x, y = 109 + x0 - 100, 43 + y0 - 100
         bodies.append(
             [
                 f"e18_{ref}",
@@ -193,7 +193,7 @@ def mechanical(pcb, contract):
                 bodies.append(
                     [
                         f"e18_{ref}_lead_{pad[1]}",
-                        round(111 + x - 101, 6),
+                        round(109 + x - 101, 6),
                         round(43 + y - 101, 6),
                         8.95,
                         2,
@@ -207,18 +207,18 @@ def mechanical(pcb, contract):
     return dict(
         revision="E18",
         pcb_sha256=sha(pcb),
-        board=["control_input_hub", 111, 43, 12.1, 64, 54, 1.6, "E18 routed digital input daughterboard"],
-        mount_centers_layout_mm=[[111 + mounts[key][0], 43 + mounts[key][1]] for key in sorted(mounts)],
+        board=["control_input_hub", 109, 43, 12.1, 64, 54, 1.6, "E18 routed digital input daughterboard"],
+        mount_centers_layout_mm=[[109 + mounts[key][0], 43 + mounts[key][1]] for key in sorted(mounts)],
         mount_hole_mm=2.4,
         spacer_nominal_height_mm=4,
         spacer_outer_diameter_limit_mm=5.5,
-        carrier_drill_pattern_is_proposal=True,
+        carrier_drill_pattern_is_proposal=False,
         pcb_routed=True,
         bodies=bodies,
         physical_fit_verified=False,
         limits=[
             "Digital input hub only; pots/LED/touch/angle sensor and full system boards still unfinished",
-            "Processor carrier needs matching holes and routing keepouts; its shape remains a placement proposal",
+            "Matching E19 holes/keepouts are implemented; physical spacer/fixing qualification remains open",
             "Connector/harness, spacer/screw and height bounds require exact parts and physical qualification",
         ],
     )
@@ -363,6 +363,19 @@ def main():
         assert integration["daughterboard_layout_origin_mm"] == packet["board"][1:4]
         assert integration["board_size_mm"] == packet["board"][4:7]
         assert integration["carrier_drill_centers_layout_mm"] == packet["mount_centers_layout_mm"]
+        carrier_pcb = ROOT.parent / "processor_carrier/processor_carrier.kicad_pcb"
+        carrier_tree = read_sexpr(carrier_pcb.read_text())
+        carrier_holes = {}
+        for fp in children(carrier_tree, "footprint"):
+            ref = next(p[2] for p in children(fp, "property") if p[1] == "Reference")
+            if ref not in ("H5", "H6", "H7", "H8"):
+                continue
+            pad = children(fp, "pad")[0]
+            assert pad[2] == "np_thru_hole" and float(first(pad, "drill")[1]) == 2.4
+            x, y = placement.transform(fp, first(pad, "at")[1:3])
+            carrier_holes[ref] = [30 + x - 100, 42 + y - 100]
+        assert [carrier_holes[ref] for ref in sorted(carrier_holes)] == packet["mount_centers_layout_mm"]
+        assert integration["carrier_drills_and_routing_complete"] and children(carrier_tree, "segment")
         (OUT / "placement.json").write_text(json.dumps(packet, indent=2) + "\n")
         for name, layers in [
             ("top", "F.Cu,F.Fab,F.SilkS,Edge.Cuts"),
@@ -397,6 +410,7 @@ def main():
             ROOT.parent / "output_stage/check_placement.py",
             ROOT.parent / "converter/converter.kicad_sch",
             ROOT.parent / "sequenced_bypass/sequenced_bypass.kicad_sch",
+            carrier_pcb,
         ]
         tree = read_sexpr((ROOT / "control_inputs.kicad_pcb").read_text())
         report = dict(
@@ -419,6 +433,7 @@ def main():
             physical_fit_verified=False,
             physical_scan_bus_emi_verified=False,
             complete_control_board=False,
+            carrier_matching_holes_implemented=True,
             source_load_interfaces_fresh=True,
             source_footprint_hashes=footprint_hashes,
             source_sha256=source_hashes(ROOT, files),

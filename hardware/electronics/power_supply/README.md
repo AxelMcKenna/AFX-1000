@@ -1,10 +1,52 @@
-# E14 main rail generation
+# E14 rail generation and E24 PCB placement
 
 E14 adds a native candidate power schematic for standalone operation. It converts
 an external protected 12 V input into regulated ±19 V, ±12 V, analog 5 V and
 digital 5 V. With the E17 source trim, 157 physical components pass native ERC and independent exported
 pin/value/net checks. This is a schematic prototype with conditional calculations;
 it is not a fabrication or assembly release.
+
+E24 places all 157 components and four M2 holes on a 84 × 38 × 1.6 mm,
+six-layer PCB candidate. Native [placement checks](generated/placement-verification.json)
+report zero nonrouting DRC/library/parity issues and **333 open connections**.
+There are no tracks, vias or planes yet. The [placement packet](generated/placement.json)
+records both-side courtyards and the different regulator exposed-pad nets;
+positive OUT and negative IN pads are not ground. Bottom regions are reserved
+for future thermal copper/vias, including a 24 × 14 mm allocation at the +12 V
+DD-PAK stage. The board extends 6 mm beyond the earlier 78 mm proposal so J4
+test-header leads stay clear of that allocation. The regions are independently
+checked against underside components and through-hole parts; they are not a
+completed heatsink or thermal proof.
+
+The two 33 µH placeholders used a family whose
+[published range stops at 22 µH](https://www.bourns.com/docs/Product-Datasheets/SRP6060FA.pdf).
+They now use SRP7050WA-330M candidates. The 68 µH and 10 µH candidates are
+SRP1050WA-680M and SRP1050WA-100M. Local footprints follow the manufacturer's
+recommended lands, with independently checked pad dimensions and courtyards
+that include maximum body dimensions. C32/C33 now identify WIMA
+MKS2C041001F00KSSD 1 µF/63 V/10% candidates, nominal body 7.2 × 5 × 10 mm.
+Values, circuit nets and the E21 load allocations are unchanged. Sources are
+listed in `dependencies.json` and the [part-selection screen](generated/part-selection.json).
+
+Inductor current entries are typical at 25°C, not guaranteed minimums. The
+1.3× hot-DCR factor is an engineering allocation. Bias/temperature inductance,
+core loss, solder/stencil process, leakage and actual thermal performance remain
+unqualified. Most passives are on the underside; converter hot-loop routing,
+feedback isolation, ground returns and EMI still require explicit layout work.
+E24 is not incorporated into A07's housing geometry. The existing generic power
+reserve does not establish component, lead, harness or thermal fit.
+
+J4 raw-rail engineering test access is now a 2 × 3 header at 2.54 mm pitch;
+its pin-number/net map is unchanged. J1/J2/J3/J5 retain their original footprints.
+Looking from the top, J4 has pins 1/2 in the first row, 3/4 in the second and 5/6
+in the third. No production connector or cable rating is approved.
+
+E21 raises the digital provision to 1.8 A and counts the E20 driver logic and
+emitters exactly once: the declared load is 1.574 A. C17 changes to 1 µF for a
+conditional 97–217 ms digital soft start. The [load review](../led_driver/generated/power-reconciliation.json)
+includes the revised E16 input ramp/current limit and E17 parallel switch bank.
+These are allocation screens. All-rail charging, late switch closure, the large
+protected bulk's loop stability, thermal limits and physical operation remain open.
 
 Input reverse-polarity/inrush/eFuse protection is now a separate
 [E15 candidate schematic](../input_protection/README.md), connected at J1/J5.
@@ -62,7 +104,7 @@ before the control/carrier PCB is released. Production connectors/harnesses are
 unselected; the pin headers are engineering interfaces.
 
 A 12 V, 3 A external low-voltage adapter is the working supply candidate. The
-allocated input-power screen is about 21.83 W, or 2.08 A at the lowest protected
+allocated input-power screen is about 25.43 W, or 2.42 A at the lowest protected
 input. It includes conservative conversion/control-current allowances. It is not
 a measured consumption figure or approval of an adapter, connector or input fuse.
 
@@ -73,7 +115,7 @@ a measured consumption figure or approval of an adapter, connector or input fuse
 | P19, N19 | magnitude 18.81–19.19 V | 25 mA each |
 | P12, N12 | magnitude 11.88–12.12 V | 150 mA each |
 | V5_REG | 4.975–5.025 V DC | 250 mA |
-| 5V_DIG | 4.90–5.10 V | 1.2 A |
+| 5V_DIG | 4.90–5.10 V | 1.8 A |
 
 The positive regulators are LT3080IMS8E for19V/5V and LT3080IQ in DD-PAK for
 the higher-current12V stage; negative regulators are LT3090IDD.
@@ -104,10 +146,21 @@ non-E08 signal reserve. The resulting conservative screen is about 132.6 mA
 against 150 mA per rail. Actual converter scale, load waveforms, overload and
 short-circuit currents remain unverified.
 
-The digital budget allocates 600 mA to the Seed/module domain, 288 mA to 96 LED
-sinks at 3 mA, 120 mA to four coils and 90 mA to panel/sensor/other reserve.
-Those are design allocations. Actual firmware load, LED current-setting parts,
-brightness, external 3.3 V load and coil currents require validation.
+The digital budget allocates 600 mA to the Seed/module domain, 384 mA to 96 LED
+sinks at a 4 mA ceiling, 360 mA to four driver ICs, 20 mA to their miscellaneous
+load, 120 mA to four coils and 90 mA to panel/sensor/other reserve. The 1.574 A
+sum leaves 226 mA against the 1.8 A provision. Fresh E20 exports check the four
+TLC5947s, IREF resistors and output count. These are engineering allocations:
+actual low-current ICC/sink limits, brightness, firmware/3.3 V and coil loads
+still need validation.
+
+The digital startup calculation allocates at most 6.5 mF connected output
+capacitance. With the selected soft-start capacitor and datasheet charge-current
+extremes, it adds about 342 mA at the output, or 195 mA referred to the input.
+It assumes the E17 bank is already closed. The connected capacitor inventory,
+late closure, other rails' charging and actual startup/loop behavior are not
+bounded by this calculation. The peak-inductor screen remains below the 4.2 A
+minimum high-side limit under the declared component allocations.
 
 ## Switching, startup and thermal limits
 
@@ -137,7 +190,7 @@ The digital buck's ±1.5% reference screen applies at 0–85°C junction. Outsid
 that range its wider reference bounds can exceed the stated normal 5 V budget.
 The unit ambient target is 0–40°C; local board ambient, copper spreading,
 enclosure heating and IC junction temperatures remain unverified. In particular,
-55°C local ambient and a 0.65 W buck allocation require at most about 46°C/W
+55°C local ambient and a 0.90 W buck allocation require at most about 33°C/W
 effective thermal resistance to retain that junction limit. The native
 schematic does not establish this. The linear thermal screen uses declared
 board assumptions; it does not prove that the housing can dissipate all heat.
@@ -152,6 +205,8 @@ unpowered, reverse-power and output-short behavior remains open.
 
 ```sh
 python3 -m hardware.electronics.power_supply.generate
+python3 -m hardware.electronics.power_supply.place --kicad-cli /path/to/kicad-cli
+python3 -m hardware.electronics.power_supply.check_placement --kicad-cli /path/to/kicad-cli
 python3 -m hardware.electronics.power_supply.verify --kicad-cli /path/to/kicad-cli
 ```
 
@@ -165,9 +220,11 @@ establish real stability. [Electrical screens](generated/electrical-screens.json
 retain the allocations, temperature limits and incomplete protection/thermal
 flags. Sources and unresolved part selections are in [dependencies.json](dependencies.json).
 
-No E14 PCB, enclosure placement, physical supply/startup/audio evidence or
-complete weighted system-noise closure exists yet. The earlier 170-reserve CAD
-fit does not include E08–E17. E17's voltage-drop screen applies to the integrated
+E24 is a placed-only PCB candidate. Routed copper, actual main-board housing
+placement, physical supply/startup/audio evidence and complete weighted
+system-noise closure remain unfinished. A07 incorporates the E23 inlet/protection
+board; its generic main-power reserve does not qualify E14/E17 or the remaining
+analog circuits. E17's voltage-drop screen applies to the integrated
 board star and excludes production contact/harness drop. Digital and analog5V
 have tight remaining ripple/voltage margins; actual integration must preserve
 their existing targets.

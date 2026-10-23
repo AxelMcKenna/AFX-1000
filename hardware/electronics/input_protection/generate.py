@@ -115,7 +115,7 @@ def schematic():
     root = uid("root")
     out = [
         f'(kicad_sch (version 20250114) (generator eeschema) (uuid {root}) (paper "User" 594 470)',
-        '(title_block (title "Standalone RMX - DC input protection / fast OV") (rev "E16") (comment 1 "Schematic prototype; no routed board or bench validation"))',
+        '(title_block (title "Standalone RMX - DC input protection / fast OV") (rev "E16/E21") (comment 1 "Candidate circuit and E23 PCB; no bench validation"))',
         "(lib_symbols " + "\n".join(symbol(c) for c in COMPONENTS) + ")",
     ]
     for c in COMPONENTS:
@@ -209,7 +209,7 @@ def main():
     libraries = sorted({c["footprint"].split(":")[0] for c in COMPONENTS if c["footprint"]})
     fp_root = "$" + "{KICAD10_FOOTPRINT_DIR}"
     entries = [
-        f'(lib (name "{name}") (type "KiCad") (uri "{fp_root}/{name}.pretty") (options "") (descr "Standard KiCad library; package candidate"))'
+        f'(lib (name "{name}") (type "KiCad") (uri "{"${KIPRJMOD}" if name == "RMX_Input" else fp_root}/{name}.pretty") (options "") (descr "Candidate footprint library"))'
         for name in libraries
     ]
     (ROOT / "fp-lib-table").write_text("(fp_lib_table (version 7)\n" + "\n".join(entries) + ")\n")

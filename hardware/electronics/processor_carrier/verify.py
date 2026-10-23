@@ -20,6 +20,7 @@ from ..common import netlists as eda
 from ..common.placement import footprint_root
 from ..common.reports import sha, source_hashes
 from ..common.sexpr import children, first, read_sexpr
+from .check_board import verify as verify_board
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "generated"
@@ -319,6 +320,36 @@ def main():
         assert codec["J4"] == {"1": "V5_REG", "2": "AGND", "3": "V3V3_IO"}
         assert [codec["J4"][str(i)] for i in (2, 3)] == [pins["J6"][str(i)] for i in (1, 2)]
         assert [codec["J5"][str(i)] for i in (1, 2, 3, 4, 6)] == [pins["J6"][str(i)] for i in (1, 3, 4, 5, 6)]
+        pcb_checks = verify_board(run, pins)
+        integration = json.loads((ROOT / "integration.json").read_text())
+        assert integration["firmware_profile"] == "external" and integration["firmware_revision"] == "F04"
+        assert not integration["onboard_profile_compatible"] and not integration["physical_fit_verified"]
+        assert integration["board_size_mm"] == [150, 65, 1.6]
+        assert integration["layout_origin_mm"] == [30, 42, 6.5]
+        assert integration["socket_finished_hole_nominal_mm"] == 1.04
+        for key, ref in [
+            ("power_input_J1", "J1"),
+            ("hub_J2", "J2"),
+            ("relay_J3", "J3"),
+            ("hub_rear_J4", "J4"),
+            ("converter_sai_J5", "J5"),
+            ("converter_split_J6", "J6"),
+            ("input_ready_J7", "J7"),
+        ]:
+            assert integration[key] == [pins[ref][str(i)] for i in range(1, len(pins[ref]) + 1)]
+        packet = json.loads((OUT / "placement.json").read_text())
+        hub = json.loads((ROOT.parent / "control_inputs/integration.json").read_text())
+        assert (
+            packet["daughter_mount_centers_layout_mm"]
+            == integration["daughter_drill_centers_layout_mm"]
+            == hub["carrier_drill_centers_layout_mm"]
+        )
+        assert (
+            integration["daughter_layout_origin_mm"]
+            == hub["daughterboard_layout_origin_mm"]
+            == [109, 43, 12.1]
+        )
+        assert not integration["local_i2c_pullups_fitted"] and not integration["full_control_board_complete"]
         with (OUT / "connector-map.csv").open("w", newline="") as stream:
             writer = csv.writer(stream)
             writer.writerow(["Header", "Pin", "Net", "Knob_id", "Firmware_profile"])
@@ -346,6 +377,11 @@ def main():
                 REPO / "include/rmx/controls/HardwareControls.h",
                 OUT / "connector-map.csv",
                 OUT / "passive-screen.json",
+                OUT / "placement.json",
+                OUT / "routing-inputs.json",
+                ROOT.parent / "control_inputs/board.py",
+                ROOT.parent / "control_inputs/integration.json",
+                ROOT.parent / "output_stage/check_placement.py",
             ]
         )
         report = {
@@ -362,7 +398,8 @@ def main():
             "firmware_profile": "external",
             "firmware_revision": "F04",
             "onboard_profile_compatible": False,
-            "official_module_pad_geometry_preserved": True,
+            "official_module_pad_centers_and_numbers_preserved": True,
+            "socket_nominal_drill_per_manufacturer_mm": 1.04,
             "specific_socket_landing_pattern_qualified": False,
             "source_footprint_hashes": footprints,
             "pcb_placed": False,
@@ -373,9 +410,10 @@ def main():
             "hardware_verified": False,
             "source_sha256": source_hashes(ROOT, files),
         }
+        report.update(pcb_checks)
         (OUT / "verification.json").write_text(json.dumps(report, indent=2) + "\n")
     print(
-        "E19: 76 parts, 40 module pins, 10 pots; zero native ERC violations; fresh board and F04 contracts pass. PCB and physical verification remain open."
+        "E19: 76 parts, 40 module pins, 10 pots; zero native ERC/DRC/parity/open; fresh board and F04 contracts pass. Physical verification remains open."
     )
 
 

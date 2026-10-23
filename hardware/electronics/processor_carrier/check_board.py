@@ -21,8 +21,12 @@ def mechanical(pcb, expected):
         for tag in ("start", "end")
     }
     assert corners == {(100, 100), (250, 100), (250, 165), (100, 165)}
-    assert {str(first(z, "layer")[1]) for z in children(tree, "zone")} == {"In1.Cu"}
-    zone = children(tree, "zone")[0]
+    zones = children(tree, "zone")
+    keepouts = [z for z in zones if children(z, "keepout")]
+    planes = [z for z in zones if not children(z, "keepout")]
+    assert len(keepouts) == 8 and len(planes) == 1
+    assert {str(first(z, "layer")[1]) for z in planes} == {"In1.Cu"}
+    zone = planes[0]
     assert str(first(zone, "net")[1]) == "/AGND" and children(zone, "filled_polygon")
     actual, mounts, bodies = {}, {}, []
     for fp in children(tree, "footprint"):
@@ -64,14 +68,15 @@ def mechanical(pcb, expected):
         actual[ref] = {str(p[1]): str(first(p, "net")[1]).lstrip("/") for p in pads}
         if ref == "U1":
             at = first(fp, "at")
-            assert all(
-                math.isclose(float(a), b, abs_tol=1e-6) for a, b in zip(at[1:4], (159.63, 145.98, 270))
-            )
+            assert all(math.isclose(float(a), b, abs_tol=1e-6) for a, b in zip(at[1:3], (159.63, 145.98)))
+            assert math.isclose(float(at[3]) % 360, 270, abs_tol=1e-6)
         side = "B" if first(fp, "layer")[1] == "B.Cu" else "F"
         bounds = courtyard(fp, side + ".CrtYd")
         expand = 0.5 if ref.startswith("J") else 0
         x0, y0, x1, y1 = bounds[0] - expand, bounds[1] - expand, bounds[2] + expand, bounds[3] + expand
-        assert 100 <= x0 < x1 <= 250 and 100 <= y0 < y1 <= 165, (ref, bounds)
+        assert 100 <= bounds[0] < bounds[2] <= 250 and 100 <= bounds[1] < bounds[3] <= 165, (ref, bounds)
+        # Connector/harness expansion may overhang the bare PCB; enclosure
+        # clearance is checked against the expanded box, without clipping it.
         if ref == "U1":
             z, top = 8.1, 25.3
             note = "Seed3 + two SSW-120-02-G-S sockets: whole assembly reserve, including dimensional/seat allowance; manufacturer geometry only, physical stack unverified"
@@ -80,7 +85,9 @@ def mechanical(pcb, expected):
             note = "Bottom SMD <=1.5mm including solder plus .15mm low-seat allowance; exact MPN qualification open"
         else:
             z = 8.1
-            height = 11 if ref.startswith("J") else 1.5 if ref.startswith("C") else 0.9
+            height = (
+                11 if ref.startswith("J") else 3.0 if ref == "C1" else 1.5 if ref.startswith("C") else 0.9
+            )
             top = z + height + 0.31
             note = "Header/harness<=11mm and XY courtyard+.5; SMD class height limit plus PCB/seat .31mm. Exact parts and physical fit unqualified"
         bodies.append(
@@ -112,7 +119,7 @@ def mechanical(pcb, expected):
                 ]
             )
         if ref == "U1":
-            for pad in pads[15:19]:
+            for pad in [p for p in pads if str(p[1]) in ("16", "17", "18", "19")]:
                 net = str(first(pad, "net")[1]).lstrip("/")
                 assert net.startswith("unconnected-")
                 assert not any(
@@ -131,12 +138,43 @@ def mechanical(pcb, expected):
         "H7": [83, 51],
         "H8": [139, 51],
     }
+    keepout_centers = {}
+    for area in keepouts:
+        assert set(first(area, "layers")[1:]) == {"F.Cu", "B.Cu", "In1.Cu", "In2.Cu"}
+        restrictions = first(area, "keepout")
+        for kind in ("tracks", "vias", "copperpour"):
+            assert first(restrictions, kind)[1] == "not_allowed"
+        points = children(first(first(area, "polygon"), "pts"), "xy")
+        assert len(points) == 32
+        cx = sum(float(p[1]) for p in points) / len(points)
+        cy = sum(float(p[2]) for p in points) / len(points)
+        ref = next(ref for ref, xy in mounts.items() if math.dist((cx - 100, cy - 100), xy) < 1e-5)
+        minimum = 3.75 if int(ref[1:]) <= 4 else 2.8
+        # Distance from center to every polygon edge, not merely vertices.
+        for p, q in zip(points, points[1:] + points[:1]):
+            px, py, qx, qy = float(p[1]), float(p[2]), float(q[1]), float(q[2])
+            distance = abs((qx - px) * (py - cy) - (px - cx) * (qy - py)) / math.hypot(qx - px, qy - py)
+            assert distance >= minimum - 1e-6
+        keepout_centers[ref] = [cx - 100, cy - 100]
+    assert set(keepout_centers) == set(mounts)
     # Provision for a right-facing USB plug/strain relief. This is a clearance
     # allocation, not a selected pigtail or an electrically approved service port.
     bodies.append(
         [
+            "e19_usb_socket",
+            91.7,
+            90,
+            18.8,
+            1.15,
+            13,
+            6.5,
+            "USB socket protrusion plus outline allowance outside the main Seed assembly box; physical bounds unqualified",
+        ]
+    )
+    bodies.append(
+        [
             "e19_usb_plug",
-            92.55,
+            92.85,
             90,
             20,
             25,
@@ -192,6 +230,18 @@ def verify(run, expected):
     packet = mechanical(pcb, expected)
     tree = read_sexpr(pcb.read_text())
     assert children(tree, "segment") and children(tree, "via")
+    adc_lengths = {}
+    for index in range(10):
+        net = f"/POT_ADC_{index:02d}"
+        tracks = [s for s in children(tree, "segment") if str(first(s, "net")[1]) == net]
+        assert tracks and all(first(s, "layer")[1] == "B.Cu" for s in tracks)
+        assert not any(str(first(v, "net")[1]) == net for v in children(tree, "via"))
+        length = sum(
+            math.dist(list(map(float, first(s, "start")[1:3])), list(map(float, first(s, "end")[1:3])))
+            for s in tracks
+        )
+        assert length < 20, (net, length)
+        adc_lengths[net.lstrip("/")] = round(length, 6)
     (OUT / "placement.json").write_text(json.dumps(packet, indent=2) + "\n")
     for name, layers in [
         ("top", "F.Cu,F.Fab,F.SilkS,Edge.Cuts"),
@@ -224,5 +274,9 @@ def verify(run, expected):
         routed_segments=len(children(tree, "segment")),
         through_vias=len(children(tree, "via")),
         mounting_holes=8,
+        mounting_copper_keepouts=8,
+        adc_filter_networks_bottom_only=True,
+        adc_filter_networks_extra_vias=0,
+        adc_filter_network_total_copper_length_mm=adc_lengths,
         board_size_mm=[150, 65, 1.6],
     )

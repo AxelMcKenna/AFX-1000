@@ -1,14 +1,19 @@
 # E01 standalone audio and power design
 
-Preserved from `hardware/electronics/README.md` during the folder reorganisation. Current setup and status are in the [repository guide](../../README.md). Existing citations are retained without new verification.
+Preserved from `hardware/electronics/README.md` on 23 October 2026. This records the earlier design discussion; current setup and status are linked from the [repository guide](../../README.md). Existing source citations have been carried forward without new verification.
 
 [E18 digital inputs](../../hardware/electronics/control_inputs/README.md) now adds a routed64 ×54mm
 three-expander input hub for F04's32 front controls and four external rear/status
 inputs. All15 component contracts, native ERC/DRC/parity and open-connection
 checks pass; the saved board has424 segments,62 vias and a filled AGND plane.
-Actual PCB-derived bounds pass A04's241-reserve and native solid-intersection
-checks. This implements the digital input subassembly; pots, LEDs, touch/angle
-circuits, complete carrier routing and physical validation remain unfinished.
+Actual PCB-derived bounds are included in A05's451-reserve model.
+[E19](../../hardware/electronics/processor_carrier/README.md) now adds the routed150 ×65mm processor/knob
+carrier with76 circuit parts, eight mounting holes/keepouts and matching E18
+daughterboard holes. Native ERC/DRC/parity/open checks pass; short bottom-side
+ADC filters and the actual component/lead/socket/USB bounds are modeled. The
+housing solids and scoped native collision checks pass, with only intended
+mounting-face contact. LEDs, touch/angle/SD boards, complete analog/power
+placement, exact parts, measurements and physical fit remain unfinished.
 
 Current ADC-input circuit work is [E12](../../hardware/electronics/adc_driver/README.md): high-impedance
 buffers, remote-feedback differential drivers, reference-half servos and local

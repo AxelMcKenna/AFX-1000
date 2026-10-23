@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render A04/E07/E18 solids, reviews, and collision envelopes; verify each solid.
+"""Render A07/E07/E18/E19/E20/E23 solids and collision envelopes.
 
 Requires OpenSCAD and trimesh/numpy/Pillow in the invoking Python environment.
 Only local files and subprocesses are used. No hardware validation is implied.
@@ -12,6 +12,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from . import generate as panel
 from .paths import ARTIFACTS, update_previews
 
 ROOT = Path(__file__).resolve().parent
@@ -51,6 +52,48 @@ def check_solid(path, backend):
     )
 
 
+def check_mounting_faces(path, regions):
+    """Accept only exporter remnants on explicitly intended mounting faces.
+
+    No general collision tolerance is applied. Every triangle must lie on one
+    named mounting plane and within its fixing footprint, to 0.00001mm. The
+    separate envelope check still rejects volumetric intersections at 1e-7mm.
+    """
+    import numpy as np
+    import trimesh
+
+    mesh = trimesh.load_mesh(path, process=False)
+    triangles = mesh.triangles
+    assert len(triangles), "Expected the native intersection mesh"
+    covered = np.zeros(len(triangles), dtype=bool)
+    maximum = 0.0
+    matched = []
+    tolerance = 1e-5
+    for name, x, y, z, width in regions:
+        inside = np.all(
+            (triangles[:, :, 0] >= x - width / 2 - tolerance)
+            & (triangles[:, :, 0] <= x + width / 2 + tolerance)
+            & (triangles[:, :, 1] >= y - width / 2 - tolerance)
+            & (triangles[:, :, 1] <= y + width / 2 + tolerance),
+            axis=1,
+        )
+        deviation = np.max(np.abs(triangles[:, :, 2] - z), axis=1)
+        hit = inside & (deviation <= tolerance)
+        if np.any(hit):
+            maximum = max(maximum, float(np.max(deviation[hit])))
+            matched.append(name)
+        covered |= hit
+    if not np.all(covered):
+        raise RuntimeError(f"Intersection outside intended mounting faces: {mesh.bounds.tolist()}")
+    return dict(
+        intersection="intended mounting-face contact only",
+        contact_faces=matched,
+        numerical_plane_tolerance_mm=tolerance,
+        maximum_plane_deviation_mm=maximum,
+        intersection_triangles=len(triangles),
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--openscad", default="openscad")
@@ -74,18 +117,39 @@ def main():
         control_packet["pcb_sha256"]
         == hashlib.sha256((control_root / "control_inputs.kicad_pcb").read_bytes()).hexdigest()
     ), "Stale control input PCB packet"
+    carrier_root = ROOT.parent / "electronics/processor_carrier"
+    carrier_packet = json.loads((carrier_root / "generated/placement.json").read_text())
+    assert (
+        carrier_packet["pcb_sha256"]
+        == hashlib.sha256((carrier_root / "processor_carrier.kicad_pcb").read_bytes()).hexdigest()
+    ), "Stale processor carrier PCB packet"
+    led_root = ROOT.parent / "electronics/led_driver"
+    led_packet = json.loads((led_root / "generated/placement.json").read_text())
+    assert (
+        led_packet["pcb_sha256"]
+        == hashlib.sha256((led_root / "led_driver.kicad_pcb").read_bytes()).hexdigest()
+    ), "Stale LED driver PCB packet"
+    assert led_packet["pcb_routed"] and led_packet["copper_layers"] == 6
+    input_root = ROOT.parent / "electronics/input_protection"
+    input_packet = json.loads((OUT / "input-power-placement.json").read_text())
+    assert (
+        input_packet["pcb_sha256"]
+        == hashlib.sha256((input_root / "input_protection.kicad_pcb").read_bytes()).hexdigest()
+    )
+    assert input_packet["revision"] == "A07/E23" and input_packet["pcb_routed"]
     report = dict(
-        revision="A04/" + packet["revision"] + "/E18",
+        revision="A07/" + packet["revision"] + "/E18/E19/E20/E23",
         renderer=(version.stdout + version.stderr).strip(),
         solids={},
         checks={},
     )
     model = ROOT / "enclosure.scad"
     OUT.mkdir(exist_ok=True)
+    (OUT / "solid-validation.json").unlink(missing_ok=True)
     with tempfile.TemporaryDirectory(prefix="rmx-cad-") as temporary:
         temp = Path(temporary)
 
-        def run(name, extra, expect_empty=False, backend="Manifold"):
+        def run(name, extra, expect_empty=False, backend="Manifold", mounting_faces=None):
             summary = temp / (name + ".json")
             command = [
                 args.openscad,
@@ -103,6 +167,9 @@ def main():
             log = process.stdout + process.stderr
             if expect_empty:
                 if process.returncode != 1 or "Current top level object is empty." not in log:
+                    if process.returncode == 0 and mounting_faces:
+                        destination = Path(extra[extra.index("-o") + 1])
+                        return check_mounting_faces(destination, mounting_faces)
                     raise RuntimeError(f"{name} must be empty; got {process.returncode}:\n{log}")
             elif process.returncode:
                 raise RuntimeError(f"{name} failed:\n{log}")
@@ -129,6 +196,10 @@ def main():
                 f"{part}: one closed solid, {result['triangles']} triangles, {result['volume_mm3']:.1f} mm3",
                 flush=True,
             )
+        daughter_faces = [
+            (f"daughter_landing_{index}", x, panel.D - y, 8.1, 5.5)
+            for index, (x, y) in enumerate(control_packet["mount_centers_layout_mm"], 1)
+        ]
         run(
             "lever_clearance", ["-o", str(temp / "lever-collision.stl"), "-D", 'part="lever_collision"'], True
         )
@@ -166,13 +237,15 @@ def main():
             physical_fit_verified=False,
             limitation="conditional part/assembly limits; excludes insert process, wire bends, final converter/input/power placement and physical fit",
         )
-        run(
+        control_result = run(
             "control_clearance",
             ["-o", str(temp / "control-collision.stl"), "-D", 'part="control_collision"'],
             True,
+            mounting_faces=daughter_faces,
         )
         report["checks"]["control_clearance"] = dict(
-            result="empty intersection",
+            result=control_result.get("intersection", "empty intersection"),
+            contact_evidence=control_result if "intersection" in control_result else {},
             against=[
                 "base/panel/lever bracket",
                 "other boards and component/port envelopes",
@@ -185,6 +258,85 @@ def main():
             physical_fit_verified=False,
             limitation="connector/harness, height, spacer/screw and carrier-drill targets unqualified; excludes remaining electronics",
         )
+        carrier_faces = daughter_faces + [
+            (f"carrier_boss_{index}", x, panel.D - y, 6.5, 7.2)
+            for index, (x, y) in enumerate(carrier_packet["mount_centers_layout_mm"], 1)
+        ]
+        carrier_result = run(
+            "carrier_clearance",
+            ["-o", str(temp / "carrier-collision.stl"), "-D", 'part="carrier_collision"'],
+            True,
+            mounting_faces=carrier_faces,
+        )
+        report["checks"]["carrier_clearance"] = dict(
+            result=carrier_result.get("intersection", "empty intersection"),
+            contact_evidence=carrier_result if "intersection" in carrier_result else {},
+            pcb_sha256=carrier_packet["pcb_sha256"],
+            pcb_routed=True,
+            source="native E19 footprint, socket/module, solder-tail, fixing and USB allocations",
+            against=[
+                "base/panel/lever bracket",
+                "other board/component/port reserves",
+                "conservative switch lead bounds",
+                "scene-board envelope",
+            ],
+            physical_fit_verified=False,
+            limitation="conditional part/assembly bounds; complete converter/power/LED/sensor/SD placement, pigtail routing and physical fit unfinished",
+        )
+        led_faces = [
+            (f"led_boss_{i}", x, panel.D - y, 6.5, 7.2)
+            for i, (x, y) in enumerate(led_packet["mount_centers_layout_mm"], 1)
+        ]
+        led_result = run(
+            "led_clearance",
+            ["-o", str(temp / "led-collision.stl"), "-D", 'part="led_collision"'],
+            True,
+            mounting_faces=led_faces,
+        )
+        report["checks"]["led_clearance"] = dict(
+            result=led_result.get("intersection", "empty intersection"),
+            contact_evidence=led_result if "intersection" in led_result else {},
+            pcb_sha256=led_packet["pcb_sha256"],
+            pcb_routed=True,
+            source="native E20 footprint, header/harness, solder-tail and fixing bounds",
+            against=[
+                "base/panel/lever bracket",
+                "other board/component/port reserves",
+                "switch and untrimmed lead bounds",
+                "scene-board envelope",
+            ],
+            physical_fit_verified=False,
+            full_unit_power_budget_closed=False,
+            limitation="conditional part/assembly bounds; emitter boards, harness routing, power integration and physical fit unfinished",
+        )
+        input_result = run(
+            "input_placement",
+            ["-o", str(temp / "input-collision.stl"), "-D", 'part="input_collision"'],
+            True,
+            mounting_faces=[
+                [f"input_H{i}", x, panel.D - y, 7.9, 7.2]
+                for i, (x, y) in enumerate(input_packet["mount_centers_layout_mm"], 1)
+            ],
+        )
+        report["checks"]["input_power_placement"] = dict(
+            result=input_result.get("intersection", "empty intersection"),
+            contact_evidence=input_result if "intersection" in input_result else {},
+            pcb_sha256=input_packet["pcb_sha256"],
+            pcb_routed=True,
+            placement_packet_sha256=hashlib.sha256(
+                (OUT / "input-power-placement.json").read_bytes()
+            ).hexdigest(),
+            source="actual E23 notched PCB, component/lead/harness and fixing bounds; candidate jack/actuator reserves",
+            against=[
+                "base and rear I/O plate",
+                "top panel and lever bracket",
+                "other board/component/port reserves",
+                "scene-board envelope",
+            ],
+            physical_fit_verified=False,
+            full_unit_power_budget_closed=False,
+            limitation="conditional part/assembly dimensions; exact plug mating, actuator access, mounts, harness and physical fit unqualified",
+        )
         run("panel_dxf", ["-o", str(ARTIFACTS / "panel.dxf"), "-D", 'part="panel_2d"'])
         for name, settings in [
             ("assembly", []),
@@ -195,6 +347,9 @@ def main():
             ),
             ("output-board", ["-D", 'part="output_board"']),
             ("control-board", ["-D", 'part="control_board"']),
+            ("processor-board", ["-D", 'part="carrier_board"']),
+            ("led-board", ["-D", 'part="led_board"']),
+            ("input-board", ["-D", 'part="input_board"']),
         ]:
             run(
                 name,
@@ -217,9 +372,19 @@ def main():
             )
         (OUT / "solid-validation.json").write_text(json.dumps(report, indent=2) + "\n")
     if args.update_previews:
-        update_previews(["assembly", "internals", "output-board", "control-board"])
+        update_previews(
+            [
+                "assembly",
+                "internals",
+                "output-board",
+                "control-board",
+                "processor-board",
+                "led-board",
+                "input-board",
+            ]
+        )
     print(
-        "A04/E07/E18 solid/mesh, output/control placement and conservative lever checks passed. Physical fit remains unverified."
+        "A07/E07/E18/E19/E20/E23 solids, output/control/processor/LED/input placement and lever checks passed. Physical fit and complete power integration remain unverified."
     )
 
 

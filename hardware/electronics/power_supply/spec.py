@@ -16,6 +16,7 @@ MSOP = "Package_SO:MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm"
 DFN = "Package_DFN_QFN:DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm"
 ADI = "https://www.analog.com/media/en/technical-documentation/data-sheets/"
 TI = "https://www.ti.com/lit/ds/symlink/"
+WIMA = "https://www.wima.de/wp-content/uploads/media/d_WIMA_MKS_2.pdf"
 
 
 def pin(n, name, kind, side, net):
@@ -64,7 +65,18 @@ def capacitor(a, b, v, large=False, note=""):
         if "film" in v
         else "Capacitor_SMD:" + ("C_1210_3225Metric" if large else "C_0805_2012Metric")
     )
-    component(ref, v, fp, [pin(1, "1", "passive", "L", a), pin(2, "2", "passive", "R", b)], note=note)
+    film = "film" in v
+    if film:
+        v += " MKS2C041001F00KSSD"
+        note = "E24 candidate WIMA MKS2, 1uF63V10%, body7.2x5x10mm/pitch5mm; leakage/assembly qualification open."
+    component(
+        ref,
+        v,
+        fp,
+        [pin(1, "1", "passive", "L", a), pin(2, "2", "passive", "R", b)],
+        source=WIMA if film else "",
+        note=note,
+    )
     return ref
 
 
@@ -72,12 +84,18 @@ def inductor(a, b, v, raw=False):
     global l_count
     l_count += 1
     ref = f"L{l_count}"
+    uh = int(v.split("uH")[0])
+    mpn = {33: "SRP7050WA-330M", 68: "SRP1050WA-680M", 10: "SRP1050WA-100M"}[uh]
+    family = "SRP7050WA" if uh == 33 else "SRP1050WA"
     component(
         ref,
-        v,
-        "Inductor_SMD:" + ("L_Bourns_SRP6060FA" if raw else "L_Bourns_SRP1050WA"),
+        f"{uh}uH 20% {mpn}",
+        "RMX_Power:" + family,
         [pin(1, "1", "passive", "L", a), pin(2, "2", "passive", "R", b)],
-        note="Footprint candidate only; exact shielded inductor MPN/derating/height and current ratings must be selected.",
+        source="https://www.bourns.com/docs/Product-Datasheets/" + family + ".pdf",
+        note="E24 selected candidate; retain requirement "
+        + v
+        + ". Datasheet Irms/Isat are typical25C entries, not guaranteed minimums; bias, hot DCR, core loss and actual temperature qualification remain open.",
     )
     return ref
 
@@ -185,7 +203,14 @@ for ref, name, output, top in [("U2", "DIG", "5V_DIG", 10500), ("U3", "PRE", "V5
         rt = [resistor(output, name + "_FB", top, True)]
     rb = resistor(name + "_FB", "AGND", 2000, True)
     capacitor(name + "_BST", name + "_SW", "100nF 16V X7R")
-    capacitor(name + "_SS", "AGND", "33nF 16V X7R")
+    capacitor(
+        name + "_SS",
+        "AGND",
+        "1uF 16V X7R" if name == "DIG" else "33nF 16V X7R",
+        note="E21 digital slow-start allocation: effective0.8..1.2uF; includes connected E17 bulk in the startup screen. Actual gate sequencing, loop stability and startup require qualification."
+        if name == "DIG"
+        else "",
+    )
     lr = inductor(name + "_SW", output, "10uH 20% Isat>=6A Irms>=3A DCR<=0.1ohm")
     for _ in range(2):
         capacitor(output, "AGND", "22uF 16V X7R", True, "Each effective>=10uF; combined20..60uF target")
@@ -405,7 +430,9 @@ for ref, nets, y in [
     component(
         ref,
         "Header" + str(len(nets)),
-        "Connector_PinHeader_2.54mm:PinHeader_1x" + f"{len(nets):02d}" + "_P2.54mm_Vertical",
+        "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical"
+        if ref == "J4"
+        else "Connector_PinHeader_2.54mm:PinHeader_1x" + f"{len(nets):02d}" + "_P2.54mm_Vertical",
         [pin(i + 1, net, "passive", "L", net) for i, net in enumerate(nets)],
         1400,
         y,

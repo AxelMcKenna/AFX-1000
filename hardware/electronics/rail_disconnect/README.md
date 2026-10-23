@@ -1,11 +1,19 @@
 # E17 rail disconnects and independent OV interlock
 
-E17 adds a162-component candidate circuit between the E14 rail generators and
-the existing audio/control loads. Six pairs of common-source NFETs disconnect
+E21 adapts the E17 circuit to164 components between the E14 rail generators and
+the existing audio/control loads. Six common-source NFET banks disconnect
 both directions on ±19V, ±12V, analog5V and digital5V. An auxiliary-powered
 reference, negative-rail sense amplifier and eight comparators control all six
 switches together. No MCU or protected rail is needed to start the interlock.
 This is a schematic prototype, not a fabrication or assembly release.
+
+The [E21 load reconciliation](../led_driver/generated/power-reconciliation.json)
+uses a 1.801 A digital protected-load screen. Q13 parallels Q11 and Q14 parallels
+Q12, reducing the allocated switch-plus-star resistance to 3.5 mΩ. The conditional
+protected range is 4.9028–5.0992 V against the unchanged 4.9–5.1 V target. These
+small margins exclude production contacts/harnesses and need physical ripple,
+load-step, hot-resistance and thermal qualification. The added FETs double the
+digital driver's gate load; actual startup and fault timing remain open.
 
 The verifier independently checks every exported component/net/value contract,
 critical pin roles, standard MOSFET pad grouping,16,384 allocated rail-threshold
@@ -79,10 +87,14 @@ pin4 into pad2 and drain pins5–8/exposed drain into pad3. Grouping and pad
 positions are checked, but complete manufacturer land-pattern/stencil approval
 is unfinished. Do not substitute a conventional G/S/D pin-order symbol.
 
-Each gate has22ohm damping and a20Mohm gate-source bleed. The loaded-drive
-screen includes2uA total hot gate leakage and the driver's370kohm maximum
-on impedance at nominal10k TT. It leaves more than8V gate drive under those
-allocations. The high impedance makes a low-value gate-source resistor unsuitable.
+Each bank has22ohm damping and a20Mohm gate-source bleed. The loaded-drive
+screen includes2uA total hot gate leakage for ordinary pairs and4uA for the four
+digital FETs, with the driver's370kohm maximum on impedance at nominal10k TT.
+The digital case retains at least7.38V under those allocations. The high
+impedance makes a low-value gate-source resistor unsuitable. The parallel
+branches require a compact, balanced layout; they provide lower resistance,
+not redundant single-FET-fault isolation. Sixteen independently failed/stuck
+digital gate combinations check both body-diode conduction directions.
 TT10k balances drive and auxiliary current; all six drivers have local bypasses.
 Each control input has a10k receiving pulldown. Under a10uA input-leakage
 allocation, a missing interlock trace stays below0.101V; that leakage allocation
@@ -102,7 +114,7 @@ and harnesses. These are layout/temperature requirements, not manufacturer hot
 RDS guarantees or measured resistances.
 
 The digital protected-star screen, including10mV ripple allowance, is about
-4.9013–5.0992V. Analog5V has about4.9772–5.0213V before additional analog ripple
+4.9028–5.0992V. Analog5V has about4.9772–5.0213V before additional analog ripple
 or load steps. Both have little remaining margin. Actual copper, connectors,
 consumer voltages, switching noise and transients must be checked. Do not relax
 the targets to accommodate an unsuitable board or harness.
@@ -155,8 +167,9 @@ capacitor dump. No physical absolute-maximum protection claim follows.
 The E17 auxiliary allocation is65mA. Together with E16's conservative overhead,
 the regulator screen is about71mA and0.73W at normal maximum input. Six driver
 RF loads and their startup steps need real decoupling and thermal design. Normal
-load plus the direct-input ramp retains only about68mA to the allocated minimum
-eFuse limit. Charging the added rail capacitors uses additional energy; the
+load, direct-input ramp and conditional preconnected digital-bulk ramp retain
+about101mA to the allocated minimum eFuse limit. Other-rail charging and late
+switch closure remain outside that allocation. Charging uses additional energy; the
 reported ideal minimum charging time is not a startup upper bound or proof that
 current limiting, fault timers, firmware startup and load steps cooperate.
 

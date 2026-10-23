@@ -117,7 +117,7 @@ def contract(parts, pins):
         ("INPUT_OV", "AGND", 28000),
         ("VIN_PROTECTED", "INPUT_PGTH", 73200),
         ("INPUT_PGTH", "AGND", 10000),
-        ("INPUT_ILIM", "AGND", 6490),
+        ("INPUT_ILIM", "AGND", 5620),
         ("V2V5_AUX", "AUX_FB", 110000),
         ("AUX_FB", "AGND", 100000),
         ("V2V5_AUX", "POWER_READY", 1000),
@@ -144,7 +144,7 @@ def contract(parts, pins):
             ("VIN_IC", "AGND", "2.2uF 100V X7R"),
             ("VIN_PROTECTED", "AGND", "220uF 35V electrolytic 20% (EEUFR1V221)"),
             ("VIN_PROTECTED", "AGND", "1uF 50V X7R"),
-            ("INPUT_SLEW", "AGND", "100nF 16V X7R"),
+            ("INPUT_SLEW", "AGND", "330nF 16V X7R"),
             ("V2V5_AUX", "AGND", "10uF 16V X7R"),
             ("V2V5_AUX", "AGND", "100nF 16V X7R"),
             ("V2V5_AUX", "AGND", "100nF 16V X7R"),
@@ -167,12 +167,12 @@ def contract(parts, pins):
         "Q2": "Package_TO_SOT_SMD:SOT-23",
         "Q3": "Package_TO_SOT_SMD:SOT-23",
         "U3": "Package_TO_SOT_SMD:SOT-23-5",
-        "J1": "Connector_BarrelJack:BarrelJack_CUI_PJ-102AH_Horizontal",
+        "J1": "RMX_Input:PJ102AH_RearEdge_E23",
         "F1": "Fuse:Fuse_Littelfuse-NANO2-451_453",
         "D1": "Diode_SMD:D_SMB",
         "D2": "Package_TO_SOT_SMD:SOT-23",
         "D3": "Diode_SMD:D_SMA",
-        "S1": "Button_Switch_SMD:SW_SPDT_CK_JS102011SAQN",
+        "S1": "RMX_Input:JS102011SAQN_RearEdge_E23",
     }.items():
         assert parts[ref].findtext("footprint") == footprint, (ref, footprint)
     return dict(
@@ -527,7 +527,9 @@ def screens(parts, pins, sparts, spins, power):
     downstream_aux_load = 0.065
     assert overhead + downstream_aux_load < 0.100
     load = power["maximum_allocated_input_power_w"] / 10.5 + 0.010 + downstream_aux_load
-    assert load + inrush < imin and imax < 4
+    digital_charge = power["digital_startup"]["maximum_extra_input_charging_a"]
+    combined = load + inrush + digital_charge
+    assert combined < imin and imax < 4
     resistances = dict(
         efuse_maximum=0.053,
         blocking_fet_hot_allocation=0.040,
@@ -604,7 +606,8 @@ def screens(parts, pins, sparts, spins, power):
             efuse_nominal_limit_a=ilim,
             efuse_allocated_limit_a=[imin, imax],
             programming_error_allocation_fraction=0.10,
-            programming_error_at_6k49_is_manufacturer_guarantee=False,
+            programming_resistor_ohm=value("R7"),
+            programming_error_at_selected_resistor_is_manufacturer_guarantee=False,
             e14_direct_input_capacitors_f=caps,
             minimum_effective_bus_f=minimum_bulk,
             nominal_tolerance_maximum_bus_f=maximum_bulk,
@@ -613,8 +616,10 @@ def screens(parts, pins, sparts, spins, power):
             dvdt_current_extremes_ua=[1.775, 2.225],
             ramp_max_allocation_v_per_s=ramp_max,
             inrush_current_allocation_a=inrush,
-            combined_load_plus_ramp_a=load + inrush,
-            remaining_current_margin_a=imin - load - inrush,
+            digital_preconnected_bulk_ramp_input_allocation_a=digital_charge,
+            combined_load_plus_ramp_a=combined,
+            remaining_current_margin_a=imin - combined,
+            other_rail_charging_or_late_switch_close_included=False,
             path_resistance_ohm=resistances,
             minimum_allocated_protected_input_v=protected_min,
             efuse_hot_conduction_allocation_w=load * load * 0.053,
@@ -722,6 +727,9 @@ def main():
         ]
         assert len(receiver) == 1 and number(downstream_parts[receiver[0]].findtext("value")) == 100000
         plan = json.loads((ROOT / "integration.json").read_text())
+        assert plan["load_update_revision"] == "E21"
+        assert plan["current_limit_programming_resistor_ohm"] == number(parts["R7"].findtext("value"))
+        assert math.isclose(plan["protected_input_slew_cap_f"], number(parts["C5"].findtext("value")))
         assert plan["output"]["header"] == [pins["J2"][str(i)] for i in (1, 2)]
         assert plan["guard"]["header"] == ["AGND", "POWER_READY"]
         assert plan["input"]["required_delivered_at_inlet_v"] == [11.4, 12.6]
@@ -752,7 +760,9 @@ def main():
         for ref, part in parts.items():
             identifier = part.findtext("footprint")
             lib, name = identifier.split(":")
-            path = args.footprints / (lib + ".pretty") / (name + ".kicad_mod")
+            path = (
+                (ROOT if lib == "RMX_Input" else args.footprints) / (lib + ".pretty") / (name + ".kicad_mod")
+            )
             assert set(pins[ref]) <= set(re.findall(r'\(pad\s+"([^"]+)"', path.read_text())), (
                 ref,
                 identifier,
@@ -760,6 +770,17 @@ def main():
             footprints[identifier] = sha(path)
         (OUT / "electrical-screens.json").write_text(json.dumps(screen, indent=2) + "\n")
         run("sch", "export", "svg", "--exclude-drawing-sheet", "-o", str(OUT) + os.sep, sheet)
+        board_record_path = OUT / "routing-verification.json"
+        board_record = None
+        if board_record_path.exists():
+            board_record = json.loads(board_record_path.read_text())
+            assert board_record["revision"] == "E23"
+            assert all(
+                board_record[k] == 0
+                for k in ("native_drc_violations", "schematic_parity_issues", "unconnected_items")
+            )
+            for path, digest in board_record["source_sha256"].items():
+                assert sha(ROOT / path) == digest, ("Rerun input_protection.check_board", path)
         sources = [
             p
             for p in ROOT.iterdir()
@@ -774,8 +795,12 @@ def main():
                 downstream_sheet,
             ]
         )
+        if board_record is not None:
+            sources.append(board_record_path)
+        sources.extend(ROOT.glob("RMX_Input.pretty/*.kicad_mod"))
         report = dict(
             revision="E16",
+            load_update_revision="E21",
             checked_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
             kicad_version=version,
             native_erc_violations=0,
@@ -793,7 +818,8 @@ def main():
             fast_ov_settled_state_cases=screen["fast_overvoltage_guard"]["settled_states"]["cases"],
             external_rail_disconnect_schematic_implemented=True,
             downstream_rail_ov_disconnect_implemented=False,
-            pcb_routed=False,
+            pcb_routed=board_record is not None,
+            pcb_routing_revision="E23" if board_record is not None else None,
             physical_power_verified=False,
             source_sha256=source_hashes(ROOT, sorted(sources)),
         )

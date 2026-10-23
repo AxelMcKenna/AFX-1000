@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""A04/E07/E18 internal envelopes, ports, and panel board mounting data.
+"""A07/E07/E18/E19/E20/E23 internal envelopes, ports, and mounting data.
 
 Envelope reserves are deliberately larger than part bodies. Board outlines are
-placement designs except the E07 output and E18 input-hub boards. See components.md for remaining gates.
+placement designs except E07 output, E18 input hub, E19 processor and E20 LED boards.
 """
 
 import hashlib
@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 
 from . import generate as panel
+from .input_power import packet as input_power_packet
 
 OUT = Path(__file__).resolve().parent / "generated"
 OUTPUT_ROOT = Path(__file__).resolve().parents[1] / "electronics/output_stage"
@@ -24,10 +25,25 @@ assert (
     CONTROL_PLACEMENT["pcb_sha256"]
     == hashlib.sha256((CONTROL_ROOT / "control_inputs.kicad_pcb").read_bytes()).hexdigest()
 ), "Regenerate/check control input PCB before CAD"
+CARRIER_ROOT = Path(__file__).resolve().parents[1] / "electronics/processor_carrier"
+CARRIER_PLACEMENT = json.loads((CARRIER_ROOT / "generated/placement.json").read_text())
+assert (
+    CARRIER_PLACEMENT["pcb_sha256"]
+    == hashlib.sha256((CARRIER_ROOT / "processor_carrier.kicad_pcb").read_bytes()).hexdigest()
+), "Regenerate/check processor PCB before CAD"
+assert CARRIER_PLACEMENT["daughter_mount_centers_layout_mm"] == CONTROL_PLACEMENT["mount_centers_layout_mm"]
+LED_ROOT = Path(__file__).resolve().parents[1] / "electronics/led_driver"
+LED_PLACEMENT = json.loads((LED_ROOT / "generated/placement.json").read_text())
+assert (
+    LED_PLACEMENT["pcb_sha256"]
+    == hashlib.sha256((LED_ROOT / "led_driver.kicad_pcb").read_bytes()).hexdigest()
+), "Regenerate/check LED driver PCB before CAD"
+assert LED_PLACEMENT["pcb_routed"] and LED_PLACEMENT["copper_layers"] == 6
+INPUT_PLACEMENT = input_power_packet()
 
 # [id, x, y, z, width, depth, height, role]. Positions are minimum corners.
 BOARDS = [
-    ["dsp_carrier", 30, 42, 6.5, 150, 65, 1.6, "placement"],
+    CARRIER_PLACEMENT["board"],
     OUTPUT_PLACEMENT["board"],
     ["power_carrier", 207, 105, 6.5, 78, 38, 1.6, "placement"],
     ["meter_board", 40, 17, 27, 65, 21, 1.6, "placement"],
@@ -36,13 +52,12 @@ BOARDS = [
     ["settings_board", 297, 18.5, 28.7, 20, 17, 1.6, "placement"],
     ["release_select_board", 306, 45.5, 28.7, 20, 17, 1.6, "placement"],
     CONTROL_PLACEMENT["board"],
+    LED_PLACEMENT["board"],
+    INPUT_PLACEMENT["board"],
 ]
 
 # Component keep-outs, not detailed STEP models.
 ENVELOPES = [
-    ["seed3", 53, 43, 18.2, 51, 18, 4.85, "manufacturer outline plus top components"],
-    ["seed_socket_rear", 53, 43, 8.1, 51, 2.6, 10.1, "socket reserve"],
-    ["seed_socket_front", 53, 58.4, 8.1, 51, 2.6, 10.1, "socket reserve"],
     ["power_components", 209, 107, 8.1, 74, 34, 12, "unrouted component reserve"],
     ["trill_components", 82, 123.5, 24.6, 52, 21, 6.4, "connector/component reserve"],
     ["bpm_digits", 148.75, 24, 27, 22.5, 14, 8.5, "three SA36-11YWA bodies"],
@@ -84,11 +99,22 @@ for c in panel.CONTROLS:
             ]
         )
 
-CONTROL_OBSTACLES = list(ENVELOPES)
+CARRIER_ENVELOPES = CARRIER_PLACEMENT["bodies"]
+LED_ENVELOPES = LED_PLACEMENT["bodies"]
+CONTROL_OBSTACLES = list(ENVELOPES) + CARRIER_ENVELOPES + LED_ENVELOPES
 CONTROL_ENVELOPES = CONTROL_PLACEMENT["bodies"]
-STATIONARY_ENVELOPES = list(ENVELOPES) + CONTROL_ENVELOPES
+STATIONARY_ENVELOPES = list(ENVELOPES) + CONTROL_ENVELOPES + CARRIER_ENVELOPES + LED_ENVELOPES
 OUTPUT_ENVELOPES = OUTPUT_PLACEMENT["bodies"]
-ENVELOPES.extend(OUTPUT_ENVELOPES + CONTROL_ENVELOPES)
+CARRIER_OBSTACLES = list(ENVELOPES) + CONTROL_ENVELOPES + OUTPUT_ENVELOPES + LED_ENVELOPES
+LED_OBSTACLES = list(ENVELOPES) + CONTROL_ENVELOPES + OUTPUT_ENVELOPES + CARRIER_ENVELOPES
+ENVELOPES.extend(OUTPUT_ENVELOPES + CONTROL_ENVELOPES + CARRIER_ENVELOPES + LED_ENVELOPES)
+INPUT_ENVELOPES = INPUT_PLACEMENT["bodies"]
+INPUT_OBSTACLES = list(ENVELOPES)
+CONTROL_OBSTACLES.extend(INPUT_ENVELOPES)
+STATIONARY_ENVELOPES.extend(INPUT_ENVELOPES)
+CARRIER_OBSTACLES.extend(INPUT_ENVELOPES)
+LED_OBSTACLES.extend(INPUT_ENVELOPES)
+ENVELOPES.extend(INPUT_ENVELOPES)
 FLOOR_POCKETS = [OUTPUT_PLACEMENT["floor_pocket"]]
 DAUGHTER_MOUNTS = [
     ["control_input_hub", x, y, 8.1, 12.1, 2.4] for x, y in CONTROL_PLACEMENT["mount_centers_layout_mm"]
@@ -96,7 +122,7 @@ DAUGHTER_MOUNTS = [
 
 
 def mount_diameter(m):
-    return 7.2 if m[0] == "audio_carrier" else 6
+    return 7.2 if m[0] in ("audio_carrier", "dsp_carrier", "led_driver", "input_power") else 6
 
 
 # Mounts for lower carrier boards. [id,x,y,seat_z,pilot_diameter]
@@ -105,7 +131,11 @@ for b in BOARDS[:3]:
     id, x, y, z, w, d, _, _ = b
     for px in (x + 4, x + w - 4):
         for py in (y + 4, y + d - 4):
-            MOUNTS.append([id, px, py, z, 3.2 if id == "audio_carrier" else 2.0])
+            MOUNTS.append([id, px, py, z, 3.2 if id in ("audio_carrier", "dsp_carrier") else 2.0])
+for x, y in LED_PLACEMENT["mount_centers_layout_mm"]:
+    MOUNTS.append(["led_driver", x, y, 6.5, 3.2])
+for x, y in INPUT_PLACEMENT["mount_centers_layout_mm"]:
+    MOUNTS.append(["input_power", x, y, 7.9, 3.2])
 for x in (306, 326):
     for y in (69, 102):
         MOUNTS.append(["lever", x, y, 7, 2.5])
@@ -127,14 +157,15 @@ PORTS = [
     ["line_mode", "rect", 241, 16, 9, 7, 18],
     ["micro_sd", "rect", 118, 16, 14, 3, 18],
     ["service_usb", "rect", 263, 16, 12, 8, 25],
-    ["dc_input", "round", 288, 16, 8.2, 8.2, 20],
-    ["power_switch", "rect", 302, 16, 9, 14, 18],
+    *INPUT_PLACEMENT["rear_openings"],
 ]
+MODELED_PORTS = {"dc_input", "power_switch"}
 
 
 def overlap(a, b, margin=0):
     # [x,y,z,w,d,h]; zero means touching, negative means separation.
-    return all(min(a[i] + a[i + 3], b[i] + b[i + 3]) - max(a[i], b[i]) > -margin for i in range(3))
+    threshold = 1e-7 if margin == 0 else -margin
+    return all(min(a[i] + a[i + 3], b[i] + b[i + 3]) - max(a[i], b[i]) > threshold for i in range(3))
 
 
 def port_box(p):
@@ -145,12 +176,16 @@ def port_box(p):
 
 
 def validate():
-    all_parts = [(b[0], b[1:7]) for b in BOARDS + ENVELOPES]
-    all_parts += [(p[0], port_box(p)) for p in PORTS]
+    all_parts = [(b[0], b[1:7]) for b in BOARDS + ENVELOPES if b[0] != "input_power"]
+    all_parts.extend((b[0], b[1:7]) for b in INPUT_PLACEMENT["board_pieces"])
+    all_parts += [(p[0], port_box(p)) for p in PORTS if p[0] not in MODELED_PORTS]
     collisions = []
     for i, (name, box) in enumerate(all_parts):
         x, y, z, w, d, h = box
-        assert x >= 2.8 and x + w <= panel.W - 2.8 and y >= 0 and y + d <= panel.D - 2.8 and z >= 1.6, name
+        minimum_y = -2 if name in ("e23_J1", "e23_S1_actuator") else 0
+        assert (
+            x >= 2.8 and x + w <= panel.W - 2.8 and y >= minimum_y and y + d <= panel.D - 2.8 and z >= 1.6
+        ), name
         if z < 2.8:
             pocket = FLOOR_POCKETS[0]
             _, px, py, pw, pd, pz = pocket
@@ -180,8 +215,8 @@ def validate():
         f"{len(all_parts)} internal/port reserves: no bounding-box intersections or shell-boss intersections."
     )
     return dict(
-        revision="A04/E07/E18",
-        scope="conservative component/lead/port reserves and actual E07/E18 footprint placement",
+        revision="A07/E07/E18/E19/E20/E23",
+        scope="conservative component/lead/interface reserves and actual E07/E18/E19/E20/E23 footprint placement; input PCB rear relief and body/actuator envelopes",
         parts_checked=len(all_parts),
         intersections=[],
         output_placement_sha256=hashlib.sha256(
@@ -194,7 +229,22 @@ def validate():
         ).hexdigest(),
         control_pcb_routed=CONTROL_PLACEMENT["pcb_routed"],
         control_physical_fit_verified=False,
-        control_carrier_mounting="4mm spacers; matching holes/keepouts still required on unrouted processor carrier",
+        control_carrier_mounting="4mm spacers; matching E19 holes/keepouts and lower fixing bounds implemented; physical assembly unqualified",
+        carrier_placement_sha256=hashlib.sha256(
+            (CARRIER_ROOT / "generated/placement.json").read_bytes()
+        ).hexdigest(),
+        carrier_pcb_routed=CARRIER_PLACEMENT["pcb_routed"],
+        carrier_physical_fit_verified=False,
+        led_placement_sha256=hashlib.sha256((LED_ROOT / "generated/placement.json").read_bytes()).hexdigest(),
+        led_pcb_routed=LED_PLACEMENT["pcb_routed"],
+        led_physical_fit_verified=False,
+        input_power_placement_sha256=hashlib.sha256(
+            json.dumps(INPUT_PLACEMENT, sort_keys=True).encode()
+        ).hexdigest(),
+        input_power_pcb_sha256=INPUT_PLACEMENT["pcb_sha256"],
+        input_power_pcb_routed=True,
+        input_power_physical_fit_verified=False,
+        full_unit_power_budget_closed=False,
         excluded=[
             "mechanism sweep and base pocket (checked separately in CAD)",
             "wiring beyond header reserves",
@@ -207,10 +257,10 @@ def validate():
 def rear_svg():
     items = [
         '<svg xmlns="http://www.w3.org/2000/svg" width="354mm" height="75mm" viewBox="0 0 354 75">',
-        "<title>A03 standalone rear panel — provisional connector apertures</title>",
+        "<title>A07 standalone rear panel — E23 inlet and switch apertures</title>",
         '<rect width="354" height="75" fill="#101214"/>',
         '<g font-family="Arial,Helvetica,sans-serif" fill="#d5dadd">',
-        '<text x="10" y="10" font-size="4">RMX / STANDALONE REAR I/O — A03</text>',
+        '<text x="10" y="10" font-size="4">RMX / STANDALONE REAR I/O — A07</text>',
         '<g transform="translate(10 52) scale(1 -1)">',
         '<rect width="334" height="36" rx="5" fill="#25292c" stroke="#69737b" stroke-width="0.4"/>',
         '<rect x="12" y="3" width="310" height="30" fill="#191c1f" stroke="#59646a" stroke-width="0.25"/>',
@@ -243,12 +293,13 @@ def rear_svg():
         '<text x="10" y="64" font-size="2.8" fill="#e7b46b">Standalone stereo line I/O · normally closed dry bypass · external DC power</text>'
     )
     items.append(
-        '<text x="10" y="70" font-size="2.4">RCA/service/power holes are interface reserves. Supplier drawings and analog gain design remain open.</text>'
+        '<text x="10" y="70" font-size="2.4">E23 inlet/switch apertures use candidate body/travel bounds. Exact parts, mating and physical fit remain open.</text>'
     )
     return "\n".join(items + ["</g></svg>"])
 
 
 def main():
+    (OUT / "internal-clearance.json").unlink(missing_ok=True)
     result = validate()
     OUT.mkdir(exist_ok=True)
     (OUT / "components.scad").write_text(
@@ -264,14 +315,22 @@ def main():
                 ("output_envelopes", OUTPUT_ENVELOPES),
                 ("control_envelopes", CONTROL_ENVELOPES),
                 ("control_obstacles", CONTROL_OBSTACLES),
+                ("carrier_envelopes", CARRIER_ENVELOPES),
+                ("carrier_obstacles", CARRIER_OBSTACLES),
+                ("led_envelopes", LED_ENVELOPES),
+                ("led_obstacles", LED_OBSTACLES),
+                ("input_envelopes", INPUT_ENVELOPES),
+                ("input_obstacles", INPUT_OBSTACLES),
+                ("input_outline", INPUT_PLACEMENT["outline_relative_mm"]),
                 ("daughterboard_mounts", DAUGHTER_MOUNTS),
                 ("floor_pockets", FLOOR_POCKETS),
-                ("port_envelopes", [[p[0], *port_box(p)] for p in PORTS]),
+                ("port_envelopes", [[p[0], *port_box(p)] for p in PORTS if p[0] not in MODELED_PORTS]),
             ]
         )
         + "\n"
     )
     (OUT / "internal-clearance.json").write_text(json.dumps(result, indent=2) + "\n")
+    (OUT / "input-power-placement.json").write_text(json.dumps(INPUT_PLACEMENT, indent=2) + "\n")
     (OUT / "rear-layout.svg").write_text(rear_svg())
 
 

@@ -2,6 +2,28 @@
 
 The hardware project combines the shared C++ audio engine with a processor module, stereo converters, analog stages, controls and an independent bypass path. The firmware targets **48 kHz / 128 frames**. Processor timing, physical fit, electrical performance and complete assembly still require measurement.
 
+The E20 LED/display driver is routed and included in the A06 housing model.
+Its [E21 load reconciliation](electronics/led_driver/generated/power-reconciliation.json)
+uses revised power/current/ramp and parallel-switch allocations. Their conditional
+screens pass; all-rail startup, gate timing, large-capacitor loop stability,
+thermal limits, remaining boards, front-panel wiring and physical testing must
+be finished before the unit is build-ready.
+
+The [E23 DC input/protection PCB](electronics/input_protection/README.md) is routed
+and incorporated into the A07 housing model, including dedicated mounts and
+rear inlet/switch apertures. Electrical/thermal and physical assembly qualification
+remain open; the main supply and rail-disconnect PCBs are still unfinished.
+
+The [E24 main-supply candidate](electronics/power_supply/README.md) now has all
+157 components placed, including corrected inductor candidates and checked land
+dimensions. Its 333 open connections, thermal/EMI layout and housing integration
+remain unfinished. The [current routing candidate](electronics/power_supply/routing/README.md)
+routes both bucks, including bulk power, separate load sense and IC-ground
+returns, soft-start and enables: 219 segments/53 vias, one filled ground region,
+zero native DRC/parity issues and 273 open connections. Fifty-three path checks
+and 36 tooling tests pass. Raw generators and linear/precision stages, actual
+voltage drop, loop/thermal/EMI, housing and physical qualification remain open.
+
 ## Start here
 
 | Area | Sources and current instructions |

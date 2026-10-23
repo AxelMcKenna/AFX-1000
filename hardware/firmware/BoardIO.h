@@ -94,8 +94,14 @@ class BoardIO {
             blank.Write(true);
             return false;
         }
+        // TLC5947: XLAT high >=30ns, recovery to SCLK >=100ns and
+        // XLAT-to-BLANK >=30ns. Explicit 1us guards avoid relying on GPIO
+        // wrapper instruction counts or compiler optimization for these edges.
+        daisy::System::DelayUs(1);
         latch.Write(true);
+        daisy::System::DelayUs(1);
         latch.Write(false);
+        daisy::System::DelayUs(1);
         blank.Write(false);
         return true;
     }

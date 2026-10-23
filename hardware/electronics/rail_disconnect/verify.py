@@ -80,6 +80,10 @@ def contract(parts, pins):
         for ref, drain in [(f"Q{2 * i - 1}", src), (f"Q{2 * i}", name)]:
             ic(ref, "CSD18540Q5B" if i <= 4 else "CSD18510Q5B", {1: common, 2: gate, 3: drain})
             assert parts[ref].findtext("footprint") == FET_FP
+        if name == "5V_DIG":
+            for ref, drain in (("Q13", src), ("Q14", name)):
+                ic(ref, "CSD18510Q5B", {1: common, 2: gate, 3: drain})
+                assert parts[ref].findtext("footprint") == FET_FP
         ic(
             f"U{i}",
             "SI8751AB-ISR",
@@ -220,12 +224,12 @@ def contract(parts, pins):
         ("J6", ["AGND", "ALL_RAILS_ALLOW", "PROTECT_REF"]),
     ]:
         ic(ref, "Header" + str(len(nets)), dict(enumerate(nets, 1)))
-    assert used == set(parts) and len(parts) == 162, (len(used), set(parts) - used)
+    assert used == set(parts) and len(parts) == 164, (len(used), set(parts) - used)
     return dict(
-        physical_components=162,
+        physical_components=164,
         resistors=sum(r.startswith("R") for r in parts),
         capacitors=sum(r.startswith("C") for r in parts),
-        mosfets=12,
+        mosfets=14,
         isolated_drivers=6,
         other_ics=6,
         headers=6,
@@ -360,8 +364,22 @@ def screens(parts, pins, supply, input_report):
         )
     # Loaded gate output includes2uA total FET leakage and20M bleed. All are
     # engineering hot allocations; datasheet values are not extrapolated silently.
-    gate_min = (9 - 2e-6 * 370000) / (1 + 370000 / (20e6 * 0.99))
-    gate_max = (13 + 2e-6 * 370000) / (1 + 370000 / (20e6 * 1.01))
+    gate_rows = []
+    for name in RAILS:
+        count = 4 if name == "5V_DIG" else 2
+        leakage = count * 1e-6
+        gate_rows.append(
+            dict(
+                name=name,
+                mosfets=count,
+                hot_total_gate_leakage_allocation_a=leakage,
+                minimum_loaded_v=(9 - leakage * 370000) / (1 + 370000 / (20e6 * 0.99)),
+                maximum_loaded_v=(13 + leakage * 370000) / (1 + 370000 / (20e6 * 1.01)),
+                actual_gate_charge_and_switch_timing_verified=False,
+            )
+        )
+    gate_min = min(row["minimum_loaded_v"] for row in gate_rows)
+    gate_max = max(row["maximum_loaded_v"] for row in gate_rows)
     assert gate_min > 4.5 and gate_max < 20
     input_high = (1.9 / 101 - 10e-6) / (1 / 101 + 1 / 9900)
     input_low = (0.4 / 99 + 10e-6) / (1 / 99 + 1 / 10100)
@@ -405,24 +423,44 @@ def screens(parts, pins, supply, input_report):
     for mask in itertools.product((False, True), repeat=6):
         for i, name in enumerate(RAILS):
             nodes = [pins[f"Q{2 * i + j}"] for j in (1, 2)]
+            if name == "5V_DIG":
+                nodes += [pins["Q13"], pins["Q14"]]
             common = nodes[0]["1"]
-            assert common == nodes[1]["1"]
+            assert all(common == q["1"] for q in nodes)
             edges = [(q["1"], q["3"]) for q in nodes]  # NFET body diode:S->D.
             if mask[i]:
                 edges.extend((q["3"], q["1"]) for q in nodes)
             for a, b in ((name + "_SRC", name), (name, name + "_SRC")):
                 assert reachable(edges, a, b) == mask[i]
                 diode_cases += 1
+    # Independent failed/stuck gate states for the four digital FETs. A single
+    # enabled side already conducts one way through the opposing body diode;
+    # parallel parts are for voltage drop, not redundant fault isolation.
+    digital_gate_cases = []
+    digital_refs = ("Q11", "Q13", "Q12", "Q14")
+    for mask in itertools.product((False, True), repeat=4):
+        nodes = [pins[r] for r in digital_refs]
+        edges = [(q["1"], q["3"]) for q in nodes]
+        for q, on in zip(nodes, mask):
+            if on:
+                edges.append((q["3"], q["1"]))
+        forward = reachable(edges, "5V_DIG_SRC", "5V_DIG")
+        reverse = reachable(edges, "5V_DIG", "5V_DIG_SRC")
+        assert forward == any(mask[:2]) and reverse == any(mask[2:])
+        digital_gate_cases.append(
+            dict(gates=dict(zip(digital_refs, mask)), forward_conducts=forward, reverse_conducts=reverse)
+        )
     drop = []
     linear = {r["name"]: r for r in supply["linear_stages"]}
     buck = next(b for b in supply["bucks"] if b["name"] == "DIG")
     for name in RAILS:
-        current = {"P19": 0.026, "N19": 0.026, "P12": 0.151, "N12": 0.151, "V5_REG": 0.251, "5V_DIG": 1.201}[
+        current = {"P19": 0.026, "N19": 0.026, "P12": 0.151, "N12": 0.151, "V5_REG": 0.251, "5V_DIG": 1.801}[
             name
         ]
         hot = 0.006 if name in RAILS[:4] else 0.003
         copper = 0.001 if name in RAILS[:4] else 0.0005
-        resistance = 2 * hot + copper
+        parallel = 2 if name == "5V_DIG" else 1
+        resistance = 2 * hot / parallel + copper
         delta = current * resistance
         src = buck if name == "5V_DIG" else linear[name]
         lo = src["minimum_dc_v"] if name == "5V_DIG" else src["minimum_magnitude_v"]
@@ -442,6 +480,8 @@ def screens(parts, pins, supply, input_report):
                 name=name,
                 maximum_current_screen_a=current,
                 hot_resistance_each_fet_allocation_ohm=hot,
+                parallel_devices_per_side=parallel,
+                effective_switch_and_star_path_allocation_ohm=resistance,
                 copper_star_path_allocation_ohm=copper,
                 maximum_voltage_drop_v=delta,
                 source_dc_v=[lo, hi],
@@ -480,13 +520,16 @@ def screens(parts, pins, supply, input_report):
         if r.startswith("C") and "electrolytic" in parts[r].findtext("value")
     )
     budget = input_report["load"]
-    headroom = 2.488681874253972 - budget["combined_load_plus_ramp_a"]
+    headroom = budget["efuse_allocated_limit_a"][0] - budget["combined_load_plus_ramp_a"]
+    assert headroom > 0
     return dict(
         rail_thresholds=rows,
         threshold_corner_cases=sum(2 * r["corners_per_edge"] for r in rows),
         interlock_powered_boolean_cases=cases,
         source_sensing_does_not_disappear_when_switches_open=True,
         ideal_body_diode_direction_cases=diode_cases,
+        independent_digital_gate_state_cases=digital_gate_cases,
+        single_fet_fault_isolation_guaranteed=False,
         reference_window=dict(
             normal_corner_margin_min_v=min(reference_margins),
             settled_open_reference_max_v=ref_open_max,
@@ -496,7 +539,9 @@ def screens(parts, pins, supply, input_report):
         gate_drive=dict(
             minimum_loaded_v=gate_min,
             maximum_loaded_v=gate_max,
-            hot_gate_leakage_total_allocation_a=2e-6,
+            per_rail_loaded_gate_cases=gate_rows,
+            digital_gate_charge_device_count_doubled=True,
+            increased_gate_load_is_covered_by_100pf_timing_spec=False,
             manufacturer_turnoff_max_at_100pf_s=35e-6,
             manufacturer_gate_load_f=100e-12,
             actual_gate_charge_and_switch_timing_verified=False,
@@ -581,6 +626,9 @@ def main():
         parts, pins = eda.netlist(OUT / "netlist.xml")
         counts = contract(parts, pins)
         plan = json.loads((ROOT / "integration.json").read_text())
+        assert plan["load_update_revision"] == "E21"
+        assert plan["digital_parallel_fets"] == {"source_side": ["Q11", "Q13"], "load_side": ["Q12", "Q14"]}
+        assert math.isclose(plan["digital_load_current_allocation_including_bleed_a"], 1.801)
         assert plan["source_analog"] == [pins["J1"][str(i)] for i in range(1, 7)]
         assert plan["protected_analog"] == [pins["J3"][str(i)] for i in range(1, 7)]
         assert plan["auxiliary_control"] == [pins["J5"][str(i)] for i in range(1, 4)]
@@ -629,6 +677,10 @@ def main():
             for path, h in report["source_sha256"].items():
                 assert sha(base / path) == h, (name, path)
         supply = json.loads((ROOT.parent / "power_supply/generated/electrical-screens.json").read_text())
+        assert math.isclose(
+            plan["digital_load_current_allocation_including_bleed_a"],
+            supply["load_budget"]["provided_digital_budget_a"] + 0.001,
+        )
         input_report = json.loads(
             (ROOT.parent / "input_protection/generated/electrical-screens.json").read_text()
         )
@@ -666,6 +718,7 @@ def main():
             )
         report = dict(
             revision="E17",
+            load_update_revision="E21",
             checked_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
             kicad_version=version,
             native_erc_violations=0,
@@ -689,7 +742,7 @@ def main():
         )
         (OUT / "verification.json").write_text(json.dumps(report, indent=2) + "\n")
     print(
-        f"KiCad{version}: zero ERC;162 complete exported contracts;{screen['threshold_corner_cases']} threshold corners;512 interlock cases. Actual fault current/timing/stability/fit remain open."
+        f"KiCad{version}: zero ERC;164 complete exported contracts;{screen['threshold_corner_cases']} threshold corners;512 interlock cases. Actual fault current/timing/stability/fit remain open."
     )
 
 

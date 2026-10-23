@@ -34,17 +34,17 @@ POSES = {
     "J8": (14, 23, 0, "F"),
     "J9": (24, 23, 0, "F"),
     "J10": (34, 23, 0, "F"),
-    "J11": (44, 20, 0, "F"),
-    "J12": (56, 18, 0, "F"),
+    "J11": (45, 19, 0, "F"),
+    "J12": (53, 23, 90, "F"),
     "R1": (66, 45, 90, "F"),
     "R2": (24, 37, 90, "F"),
-    "R3": (68, 23, 90, "F"),
-    "R4": (30, 41.5, 90, "F"),
+    "R3": (71, 31, 90, "F"),
+    "R4": (29.15, 41.5, 90, "F"),
     "R5": (68, 27.5, 90, "F"),
     "R6": (64, 38, 90, "F"),
     "R10": (42, 41.5, 90, "F"),
-    "R11": (38.5, 41.5, 90, "F"),
-    "R12": (34.5, 41.5, 90, "F"),
+    "R11": (39.31, 41.5, 90, "F"),
+    "R12": (34.23, 41.5, 90, "F"),
     "R13": (24, 41.5, 90, "F"),
     "R14": (40, 58, 90, "B"),
     "R15": (50, 41.5, 90, "F"),
@@ -58,10 +58,10 @@ POSES = {
     "C3": (7, 49, 90, "F"),
     "C4": (7, 53.5, 90, "F"),
     "C5": (65, 60.8, 0, "F"),
-    "C6": (65, 63.4, 0, "F"),
+    "C6": (70, 48, 0, "F"),
 }
 for index in range(10):
-    POSES[f"J{20 + index}"] = (69 + 7.5 * index, 57.2, 0, "F")
+    POSES[f"J{20 + index}"] = (69 + 7.5 * index, 57.8, 0, "F")
     x = round(13.91 + 2.54 * index, 6)
     POSES[f"R{31 + index}"] = (x, 58.1, 270, "B")
     POSES[f"C{11 + index}"] = (x, 53.6, 90, "B")
@@ -131,7 +131,7 @@ def route(board, nets):
     for index in range(10):
         net = f"POT_RAW_{index:02d}"
         at = tasks[net][-1]
-        end = (round(at[0] + 1.27, 6), 44.0)
+        end = (round(at[0] + 1.27, 6), 34.0)
         router.path(net, "F", at, (end[0], round(at[1] - 1.27, 6)), end)
         router.via(net, end)
         tasks[net][-1] = end
@@ -169,6 +169,63 @@ def route(board, nets):
     return router
 
 
+def remove_redundant_vias(cli, fp_root):
+    """Use native connectivity to remove only vias with no layer transition.
+
+    This is generator cleanup, not approval: the independent verifier reruns
+    every check and rejects other errors and remaining open connections.
+    """
+    with tempfile.TemporaryDirectory(prefix="rmx-e19-cleanup-") as folder:
+        temp = Path(folder)
+        font = temp / "fonts.conf"
+        font.write_text(
+            f"<fontconfig><dir>/System/Library/Fonts</dir><cachedir>{temp}/cache</cachedir></fontconfig>"
+        )
+        env = dict(
+            os.environ,
+            KICAD_CONFIG_HOME=str(temp / "config"),
+            FONTCONFIG_FILE=str(font),
+            KICAD10_FOOTPRINT_DIR=str(fp_root),
+        )
+        report = OUT / "generator-drc.json"
+        pcb = ROOT / "processor_carrier.kicad_pcb"
+        result = subprocess.run(
+            [
+                str(cli),
+                "pcb",
+                "drc",
+                "--refill-zones",
+                "--save-board",
+                "--all-track-errors",
+                "--schematic-parity",
+                "--severity-all",
+                "--format",
+                "json",
+                "-o",
+                str(report),
+                str(pcb),
+            ],
+            env=env,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, (result.stdout, result.stderr)
+        drc = json.loads(report.read_text())
+        ids = {
+            item["uuid"]
+            for violation in drc["violations"]
+            if violation["type"] == "via_dangling"
+            for item in violation["items"]
+        }
+        tree = read(pcb.read_text())
+        removed = [via for via in children(tree, "via") if str(first(via, "uuid")[1]) in ids]
+        assert len(removed) == len(ids)
+        assert all(str(first(via, "net")[1]) != "/AGND" for via in removed)
+        tree = [node for node in tree if node not in removed]
+        pcb.write_text("(kicad_pcb\n" + "\n".join(sexpr(node) for node in tree[1:]) + "\n)\n")
+        return len(removed), {"segments": len(children(tree, "segment")), "vias": len(children(tree, "via"))}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--kicad-cli", required=True)
@@ -177,6 +234,7 @@ def main():
     cli = Path(args.kicad_cli).resolve()
     fp_root = helper.footprint_root(str(cli))
     OUT.mkdir(exist_ok=True)
+    (OUT / "verification.json").unlink(missing_ok=True)
     with tempfile.TemporaryDirectory(prefix="rmx-e19-place-") as temp:
         result = subprocess.run(
             [
@@ -271,6 +329,7 @@ def main():
     (ROOT / "processor_carrier.kicad_pcb").write_text(
         "(kicad_pcb\n" + "\n".join(sexpr(v) for v in board[1:]) + "\n)\n"
     )
+    removed, saved_counts = remove_redundant_vias(cli, fp_root) if routed else (0, {})
     (OUT / "routing-inputs.json").write_text(
         json.dumps(
             dict(
@@ -279,7 +338,8 @@ def main():
                 layout_origin_mm=DATUM,
                 mounts_relative_mm=MOUNTS,
                 footprint_library_sha256=hashes,
-                counts=routed.counts if routed else {},
+                counts=saved_counts,
+                redundant_vias_removed_by_native_connectivity=removed,
                 paths=routed.paths if routed else [],
                 pcb_routed=routed is not None,
                 native_verified=False,

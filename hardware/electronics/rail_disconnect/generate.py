@@ -115,7 +115,7 @@ def schematic():
     root = uid("root")
     out = [
         f'(kicad_sch (version 20250114) (generator eeschema) (uuid {root}) (paper "User" 1250 1230)',
-        '(title_block (title "Standalone RMX - Rail disconnects / independent OV") (rev "E17") (comment 1 "Schematic prototype; no routed board or bench validation"))',
+        '(title_block (title "Standalone RMX - Rail disconnects / independent OV") (rev "E17/E21") (comment 1 "Schematic prototype; no routed board or bench validation"))',
         "(lib_symbols " + "\n".join(symbol(c) for c in COMPONENTS) + ")",
     ]
     for c in COMPONENTS:

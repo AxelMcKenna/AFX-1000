@@ -7,7 +7,7 @@ cross-compiled, **not run on a physical board**. Analog circuitry, power, bypass
 hardware, assembled controls and on-device validation remain required.
 
 The default build uses the onboard codec for bring-up. The
-[E04 noise screen](../electronics/README.md#e04-converter-gain-and-noise-screen)
+[E04 noise screen](../../research/hardware/audio-design-history.md#e04-converter-gain-and-noise-screen)
 does not approve that converter for the final reference-performance design.
 The [F04 external-converter profile](EXTERNAL-CONVERTER.md) implements a
 separate ES9292QPRO/SAI2 adapter with configuration/readback, silent startup and
@@ -202,6 +202,15 @@ Current limits are hardware-set; PWM brightness is not a current limiter. Use
 common-anode display parts and the TLC5947 manufacturer's required current-set,
 decoupling and thermal design. Default/User currently changes the shared flag;
 loading user settings/presets from storage remains open.
+
+The [E20 driver core](../electronics/led_driver/README.md) implements the four-chip
+chain, 3.3-to-5 V translation and supervised BLANK gating. `BoardIO.h` supplies
+explicit 1 µs latch guards; startup and SPI failure hold BLANK high. Frames update
+every 33 ms. Host wire tests walk all 1,152 PWM bits through an independent
+four-register cascade model. Native PCB checks and host tests do not establish
+physical signal timing, brightness, partial-power recovery or optics. E20 also
+exposes an unclosed system power allocation; its panel emitters and harnesses
+remain unfinished.
 
 ## Prototype calibration and first-power procedure
 

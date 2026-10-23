@@ -1,10 +1,13 @@
-# Standalone housing and controls - A04 / E07 / E18
+# Standalone housing and controls - A05 / E07 / E18 / E19
 
-Preserved from `hardware/cad/README.md` during the folder reorganisation. Current setup and status are in the [repository guide](../../../README.md). Existing citations are retained without new verification.
+Preserved from `hardware/cad/README.md` on 23 October 2026. This records the earlier design discussion; current setup and status are linked from the [repository guide](../../../README.md). Existing source citations have been carried forward without new verification.
 
 The physical unit is a standalone stereo effects processor. The RMX-style layout
 includes a removable rear I/O plate, processor/power reserves, routed output and digital-input
 PCBs, mounting bosses, optical apertures, a draft release mechanism and ventilation.
+E19 now replaces the processor reserve with a routed four-layer carrier.
+The [A05/E19 review package](../../../hardware/releases/README.md#processor-and-housing-review-a05-e19)
+contains the checked processor/input/output placement and housing sources.
 
 ![A04 standalone assembly](../../assets/hardware/assembly.png)
 
@@ -25,21 +28,33 @@ The converter/input and final power circuits still need
 placement, so this is not proof that the complete electronics fit.
 
 [E18](../../../hardware/electronics/control_inputs/README.md) adds a routed64 ×54mm digital
-input hub above the processor-carrier reserve. Its15 circuit components,
+input hub above the E19 processor carrier. Its15 circuit components,
 four mounting holes,32 front inputs and four rear/status inputs pass native
 ERC/DRC/parity with zero open connections. Actual PCB courtyards, THT lead
 bounds, connector allocations and spacer/screw-head bounds are now part of
-A04's241-reserve model. The [F04 map](../../../hardware/firmware/control-inputs.json) retains
+A05's451-reserve model. The [F04 map](../../../hardware/firmware/control-inputs.json) retains
 logical control order and avoids the MCP23017's output-only GPA7/GPB7 pins.
 
 ![Digital input hub component and mounting reserves](../../assets/hardware/control-board.png)
 
-The hub uses nominal4mm spacers, with board seat Z=12.1mm. Matching processor-
-carrier holes and routing keepouts are proposed, not implemented on a routed
-carrier. Connector/harness height11mm, maximum3mm trimmed solder/lead
+The hub shifts2mm left to layout(109,43), uses nominal4mm spacers, and retains
+board seat Z=12.1mm. Matching processor-carrier holes and copper keepouts are
+implemented. Connector/harness height11mm, maximum3mm trimmed solder/lead
 protrusion, spacer/screw sizes and stated assembly allowances still need exact
-parts and physical qualification. This models the digital input hub; pots,
-LED drivers, touch electrodes and the angle-sensor board remain unfinished.
+parts and physical qualification. E18 models the digital inputs; E19 provides
+the knob interfaces. LED drivers, touch electrodes and the angle-sensor board
+remain unfinished.
+
+[E19](../../../hardware/electronics/processor_carrier/README.md) adds76 circuit parts and eight
+mounting holes on a150 ×65mm processor/knob carrier. Native ERC/DRC/parity and
+open-connection checks pass. The socket/module stack moves to the front slot;
+ADC filters remain beside the processor on the board underside. The model now
+includes actual footprint/courtyard positions, trimmed socket/header tails,
+lower daughterboard fixing heads, wider insert bosses, and a right-facing USB
+socket/plug allocation. Exact parts, cable routing and electrical/physical
+qualification remain open.
+
+![Processor carrier component and mounting reserves](../../assets/hardware/processor-board.png)
 
 E08–E17 converter, analog-input, sequencing, monitoring and power circuits are
 still outside this placement. That includes E17's six bulk capacitors and12
@@ -71,8 +86,10 @@ includes F04 firmware, the routed input hub and updated CAD evidence.
 | `../electronics/output_stage/generated/placement.json` | Actual PCB-derived body/solder bounds and mounting datum |
 | `../electronics/control_inputs/control_inputs.kicad_pcb` | E18 routed digital input hub |
 | `../electronics/control_inputs/generated/placement.json` | Actual input-hub body/lead/mounting bounds |
+| `../electronics/processor_carrier/processor_carrier.kicad_pcb` | E19 routed processor/knob carrier |
+| `../electronics/processor_carrier/generated/placement.json` | Actual carrier, socket, solder-tail, fixing and USB allocations |
 
-Related: [standalone architecture](../../../hardware/README.md), [component shortlist](../../../research/hardware/components.md),
+Related: [standalone architecture](2026-10-23-system-design.md), [component shortlist](../../../research/hardware/components.md),
 and the physical control dispatcher in `include/rmx/controls/HardwareControls.h`.
 
 ## Regeneration
@@ -86,13 +103,16 @@ python3 -m hardware.electronics.output_stage.place --kicad-cli /path/to/kicad-cl
 python3 -m hardware.electronics.output_stage.route
 python3 -m hardware.electronics.output_stage.check_placement --kicad-cli /path/to/kicad-cli
 python3 -m hardware.electronics.control_inputs.generate
-build-cad-tools/bin/python hardware/electronics/control_inputs/board.py --kicad-cli /path/to/kicad-cli
+build-cad-tools/bin/python -m hardware.electronics.control_inputs.board --kicad-cli /path/to/kicad-cli
+python3 -m hardware.electronics.processor_carrier.generate
+build-cad-tools/bin/python -m hardware.electronics.processor_carrier.board --kicad-cli /path/to/kicad-cli
+python3 -m hardware.electronics.processor_carrier.verify --kicad-cli /path/to/kicad-cli
 python3 -m hardware.electronics.control_inputs.verify --kicad-cli /path/to/kicad-cli
 python3 -m hardware.cad.standalone
-build-cad-tools/bin/python hardware/cad/render.py --openscad /path/to/openscad
+build-cad-tools/bin/python -m hardware.cad.render --openscad /path/to/openscad
 ```
 
-Most generators use the standard library. E18 routing uses numpy; mesh
+Most generators use the standard library. E18/E19 routing uses numpy; mesh
 validation additionally uses trimesh and numpy. OpenSCAD 2026.10.15 was used for this revision. Printed parts
 use its CGAL backend: the snapshot's Manifold exporter left zero-thickness
 remnants at some coplanar junctions. The exported files themselves are checked;
@@ -110,7 +130,7 @@ right-handed XYZ coordinate frame with Z up.
 
 ## Dimensions
 
-| Feature | A04 nominal dimension (mm) |
+| Feature | A05 nominal dimension (mm) |
 | --- | --- |
 | Body | 334 x 157 x 36 |
 | Corner radius | 7 |
@@ -135,8 +155,11 @@ right-handed XYZ coordinate frame with Z up.
 | Internal floor pocket under E07 | 81 × 33 at (206.5,40.5); remaining floor Z=1.6, bosses preserved |
 | Rear audio connector axes | Z=13.2, lowered 0.8 to clear conservative Auto-switch leads |
 | Revised upper scene-board support | Layout (234,28), clearing Scene-2 switch leads |
-| E18 input hub |64 ×54 ×1.6, at layout(111,43), seat Z=12.1 |
+| E18 input hub |64 ×54 ×1.6, at layout(109,43), seat Z=12.1 |
 | E18 mounting |Ø2.4 at relative(4,4),(60,4),(4,50),(60,50);4mm spacers on carrier |
+| E19 processor carrier |150 ×65 ×1.6 at layout(30,42), seat Z=6.5 |
+| E19 main mounts |Ø2.4 at relative(4,4),(146,4),(4,61),(146,61); Ø7.2 bosses/Ø3.2 through insert bores |
+| E19 daughter mounts |Ø2.4 at layout(113,47),(169,47),(113,93),(169,93); eight total copper keepouts |
 
 Feet are not yet modeled; a later 3 mm foot would give about 57 mm overall height
 including the tallest cap/pointer. The existing image asset and [Pioneer DJ's
@@ -152,14 +175,21 @@ the full enclosure assembly.
 
 ## Placement and mechanism checks
 
-The Python check covers241 named board/component/lead/port/mounting reserves, shell
+The Python check covers451 named board/component/lead/port/mounting reserves, shell
 mounting bosses and carrier/lever mounts. It checks conservative boxes. E07 uses
 actual footprint positions/courtyards with documented height and assembly bounds;
-E18 adds the digital input hub in the same way. The native control-clearance
+E18 adds the digital input hub and E19 the processor carrier in the same way. The native control-clearance
 intersection includes the base/panel, other boards, switch/lead reserves and
 scene-board allowance. These are not complete manufacturer STEP models. Other board outlines remain
 placement proposals. E07 adds routed copper without changing the board outline
 or enclosure mounts; R10 moves within the existing component area.
+Native control/carrier checks report only intended spacer landing-face contacts.
+The checker restricts every exported contact triangle to named fixing footprints
+and planes, with0.00001mm numerical tolerance; the independent box check rejects
+volumetric overlap at1e-7mm. Five regression cases verify that real penetration,
+wrong heights and remote-plane contacts are rejected. Lever/output checks retain
+empty intersections. This is a numerical contact treatment, not a physical-fit claim.
+
 PCB-mounted switches touch their mounting planes intentionally; wiring exits,
 headers, fasteners and any detail beyond the listed reserve must be added before
 fabrication.

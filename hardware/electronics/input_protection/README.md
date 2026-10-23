@@ -1,4 +1,4 @@
-# E16 fast input overvoltage shutdown (E15 input stage)
+# E23 input/protection PCB and A07 housing integration (E16/E21 circuit)
 
 The current 48-component input schematic extends E15 with a separate fast
 overvoltage comparator, shutdown transistor and auxiliary startup qualification. It
@@ -6,6 +6,49 @@ uses an external 12 V, 3 A adapter, a center-positive PJ-102AH inlet, a backup
 fuse/TVS, external reverse-blocking MOSFET and TPS26630 eFuse. An independent
 auxiliary supply powers the rear shutdown switch and converter-enable pull-up.
 This is a design prototype, not a fabrication or assembly release.
+
+E23 retains the 48-part E16/E21 circuit and uses a relieved 64 × 44 × 1.6 mm
+four-layer PCB, with four M2 clearance holes. The independent
+[PCB record](generated/routing-verification.json) checks native all-severity
+DRC, schematic parity and connectivity separately from the schematic analysis.
+The main trunks use 1.2 mm copper, with short 0.6 mm fuse/via branches, paired
+0.25 mm eFuse terminal necks and parallel conventional vias where the input path
+changes layers. In1 and B have
+saved AGND fills. Widths, via arrays and heat spreading still require an actual
+stackup, loss/temperature analysis and physical qualification.
+
+The fast shutdown transistor Q3 has a dedicated local F.Cu path to U1 SHDN.
+The independent checker measures that path from the actual PCB and requires it
+below 8 mm. This is a layout guard, not a guaranteed fault interruption time.
+The [placement packet](generated/placement.json) records actual courtyards,
+mounts and unqualified component-height allocations.
+
+J1 and S1 retain 14 mm relative X spacing. A07 incorporates this board at
+layout datum (248, 1.4, 7.9) mm. Rear and front profile reliefs clear the housing
+web and existing output-stage parts. The fuse moves clear of the service USB
+reserve. Four dedicated bosses match the actual mounting holes.
+
+The jack's nominal mating face reaches the rear plate outer plane; a rectangular
+opening accommodates its body. The switch uses a lower access slot and a
+conservative full-travel/height reserve. The 690-reserve check and native 3D
+intersection test pass, including the rear plate. Exact plug mating, actuator
+access/feel, supplier tolerances and physical assembly still require qualification.
+Do not use the remaining generic power reserve as proof of complete electronics fit.
+
+Local `RMX_Input` variants retain all pads from KiCad's PJ-102AH and
+JS102011SAQN footprints and trim rear silkscreen to the board edge. The PCB
+checker independently compares their complete pad definitions with the source
+library; hashes are in `generated/placement-inputs.json`. Complete manufacturer
+land/stencil approval, thermal-via solder process, startup/fault,
+SOA, reverse-input and noise measurements remain open. E14 and E17 still have no
+routed power boards. No full-unit fit or build-readiness claim follows.
+
+E21 changes R7 to 5.62 kΩ and C5 to 330 nF to accommodate E20's added load.
+The [load reconciliation](../led_driver/generated/power-reconciliation.json)
+includes steady input, the direct-bus ramp and a conditional preconnected digital
+bulk ramp: 2.773 A against a 2.874 A minimum current-limit allocation. Other-rail
+charging, late switch closure, real current-limit error, adapter/fuse coordination
+and thermal/fault behavior remain unqualified.
 
 The native schematic passes all-severity ERC, independent exported pin/value
 and critical footprint contracts, 80 eFuse and2,048 fast-OV threshold corners,
@@ -45,8 +88,10 @@ AUX regulator PG + delay capacitor ------> SHDN held low during aux startup
 The exact adapter remains unselected. Its required delivered voltage at the
 inlet is 11.4–12.6 V, including cable drop. Engineering headers do not establish
 production connector current ratings or keying. AUX must never be tied to the
-Seed3 3.3 V output. S1 is the panel switch component; J4 describes its harness
-boundary, not a second switch.
+Seed3 3.3 V output. S1 is fitted to this candidate PCB; J4 exposes the same
+engineering control nodes. It does not authorize a second operating switch in
+parallel with S1. A remote production switch would require a deliberate assembly
+variant and revised mechanical/wiring checks.
 
 Q1 source pins1–3 face VIN_SYS; its drain pad5 faces VIN_IC. Its body diode
 allows cold positive startup. The eFuse's internal body diode points from OUT
@@ -85,12 +130,14 @@ actuator orientation, panel fit and mechanical startup behavior remain open.
 | Main buck EN high / low | 1.464–1.772 V / at most0.277 V |
 | Main buck EN, guard cable absent | At most0.223 V under current allocation |
 | Switch ON with E17 / missing switch | At least2.123 V / at most0.523 V |
-| Current limit | Nominal2.773 A; allocated2.489–3.061 A |
-| Steady input plus direct-bus ramp current | About2.421 A, including10mA input-stage overhead and65mA E17 allowance |
-| Minimum protected input at steady load | About11.027 V under resistance allocations |
+| Current limit | Nominal3.203 A; allocated2.874–3.534 A |
+| Steady input current | About2.497 A, including10mA input-stage overhead and65mA E17 allowance |
+| Direct-bus / conditional digital bulk ramp | About81mA /195mA additional input current |
+| Combined current / remaining margin | About2.773 A /101mA; excludes other-rail charging and late closure |
+| Minimum protected input at steady load | About10.968 V under resistance allocations |
 
 The current-limit error allocation is10%, not a manufacturer guarantee at the
-unlisted6.49k setting. The input path uses the eFuse's53mOhm full-temperature
+unlisted5.62k setting. The input path uses the eFuse's53mOhm full-temperature
 maximum, jack30mOhm maximum, and hot blocking-FET40mOhm/fuse30mOhm/wiring20mOhm
 allocations. Q1's datasheet resistance conditions use10V gate drive; the eFuse
 driver can supply only8.3V at its minimum. Qualify the hot40mOhm allocation.
@@ -102,7 +149,7 @@ temperature, lifetime and PCB fit remain unchecked. The direct E14 capacitors
 have a35uF minimum effective allocation. Including bulk tolerance and E15 C4
 gives211.1uF minimum bus capacitance. The nominal-tolerance maximum is392.88uF;
 the startup calculation allocates400uF and uses the nominal ramp-gain equation
-with dVdT-current extremes and80–120nF timing capacitance. It does not prove
+with dVdT-current extremes and264–396nF timing capacitance. It does not prove
 load-step response, full-temperature ramp timing or MOSFET safe operating area.
 
 ## Separate fast overvoltage path
@@ -184,26 +231,35 @@ charge and revise capacitance, thresholds or protection architecture if needed.
 [E17](../rail_disconnect/README.md) now draws the analog/digital rail
 disconnects. Its added gate-driver/sense load is allocated65mA on AUX; normal
 auxiliary current/dissipation screen is about71mA/0.73W. The input current screen
-retains about68mA to the allocated minimum eFuse limit after normal load and the
-direct-input ramp. Added downstream rail-capacitor charging is separate; startup
-current, fault timers, regulation and thermal behavior still need qualification.
+retains about101mA to the allocated minimum eFuse limit after steady load,
+direct-input ramp and the conditional preconnected digital-bulk ramp. Other-rail
+charging and late switch closure remain outside that allocation; startup current,
+fault timers, regulation and thermal behavior still need qualification.
 E17's100k run receiver and5uA logic leakage are included in the connected switch
 high/low checks. A missing run harness reads at most0.505V in that receiving model.
-Complete PCB layout, enclosure placement, real protection timing/current,
+The E23 PCB and conditional A07 housing placement are implemented; real protection timing/current,
 startup/shutdown and reverse/charged-output tests remain unfinished.
 
 ## Regeneration
 
 ```sh
 python3 -m hardware.electronics.input_protection.generate
+python3 -m hardware.electronics.input_protection.place --kicad-cli /path/to/kicad-cli
+python3 -m hardware.electronics.input_protection.route
+python3 -m hardware.electronics.input_protection.cleanup --kicad-cli /path/to/kicad-cli
+python3 -m hardware.electronics.input_protection.check_board --kicad-cli /path/to/kicad-cli
 python3 -m hardware.electronics.power_supply.verify --kicad-cli /path/to/kicad-cli
 python3 -m hardware.electronics.input_protection.verify --kicad-cli /path/to/kicad-cli
 ```
 
-The E14 verifier must run first. The input verifier checks its captured source hashes and freshly
+The E14 schematic verifier must precede the input schematic verifier. Run the
+PCB checker after any PCB, project, placement/routing/checker or shared-helper
+change. The input verifier checks its captured source hashes and freshly
 exports the current supply schematic. See `dependencies.json`, `integration.json`
 and `generated/verification.json` for sources, boundaries and evidence.
 
 The E15 and E16 review ZIPs remain immutable earlier snapshots. E17 retains the same
 project filenames and symbol-library IDs for the input stage, adds J6, and checks
-the downstream load/receiver. No full PCB or enclosure-fit claim follows.
+the downstream load/receiver. E22 is the immutable first routed-board snapshot.
+E23 changes placement/profile and rear silkscreen while retaining E21
+component/net/value contracts. Historical ZIPs retain their recorded sources.

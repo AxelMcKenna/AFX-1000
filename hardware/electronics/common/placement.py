@@ -77,6 +77,15 @@ def placed_footprint(component, pose, library, nets, origin=(100, 100), namespac
             footprint.append(extra)
     for pad in children(footprint, "pad"):
         number = str(pad[1])
+        # Mechanical locating holes have no electrical terminal even though
+        # KiCad expresses their through-board extent with the *.Cu wildcard.
+        if not number and pad[2] == "np_thru_hole":
+            assert not children(pad, "net"), "Nonplated locating hole must not carry a net"
+            continue
+        # Exposed-pad packages can have unnumbered stencil/mask-only windows.
+        # Preserve those manufacturing apertures without inventing a net.
+        if not number and not any(str(layer).endswith(".Cu") for layer in first(pad, "layers")[1:]):
+            continue
         net = component["nets"][number]
         pad[:] = [v for v in pad if not (isinstance(v, list) and v and v[0] == "net")]
         pad.append([a("net"), nets[net], "/" + net])
