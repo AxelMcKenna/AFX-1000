@@ -1,4 +1,4 @@
-<img src="assets/readme-hero.svg" alt="AFX-1000. Angled charcoal housing with ribbed knobs, circular Scene FX controls, recessed X-Pad and a release lever." width="100%">
+<img src="assets/readme-hero.svg" alt="AFX-1000. Charcoal housing viewed straight on, with blue drum pads, green/yellow/red level meters, ribbed knobs and recessed controls." width="100%">
 
 [![Build](https://github.com/AxelMcKenna/afx-1000/actions/workflows/build.yml/badge.svg)](https://github.com/AxelMcKenna/afx-1000/actions/workflows/build.yml)
 ![macOS 12+](https://img.shields.io/badge/macOS-12%2B-222222?style=flat-square&logo=apple&logoColor=white)

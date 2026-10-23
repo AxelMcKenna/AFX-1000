@@ -36,14 +36,16 @@ def recess(x, y, w, h, radius=5):
     rect(x+1, y, w-2, h-2, '#090909', radius)
 
 
-def button(x, y, w, h, label, active=False, size=13):
+def button(x, y, w, h, label, active=False, size=13, blue=False):
     rect(x-3, y, w+6, h+9, '#090909', 6)
     rect(x, y, w, h, 'url(#button)', 4, '#656562')
-    rect(x+4, y+4, w-8, h-9, 'url(#buttonFace)', 3)
-    line(x+7, y+4, x+w-7, y+4, '#858581')
+    rect(x+4, y+4, w-8, h-9, 'url(#padFace)' if blue else 'url(#buttonFace)', 3)
+    line(x+7, y+4, x+w-7, y+4, '#8daac3' if blue else '#858581')
     line(x+7, y+h-6, x+w-7, y+h-6, '#111111', 2)
-    text(label, x+w/2, y+h*.58, size, '#dadad5', 700)
-    rect(x+9, y+h-9, w-18, 2, '#b99a66' if active else '#676762', 1)
+    text(label, x+w/2, y+h*.58, size, '#ddeaf7' if blue else '#dadad5', 700)
+    rect(x+9, y+h-9, w-18, 3 if blue else 2, '#70b3f0' if blue else '#b99a66' if active else '#676762', 1)
+    if blue:
+        line(x+10, y+h-9, x+w-10, y+h-9, '#b5dcff', .6)
 
 
 def knob(x, y, r, mark=0):
@@ -51,7 +53,11 @@ def knob(x, y, r, mark=0):
         a=radians(-225+i*9)
         major=i%5==0
         line(x+cos(a)*(r+9), y+sin(a)*(r+9), x+cos(a)*(r+(18 if major else 13)), y+sin(a)*(r+(18 if major else 13)), '#9b9b94' if major else '#65655f', 2 if major else 1)
-    circle(x, y+9, r+7, '#090909')
+    emit('<g opacity=".22">')
+    circle(x+2, y+8, r+8, '#000000')
+    circle(x+2, y+9, r+5, '#000000')
+    emit('</g>')
+    circle(x, y+6, r+4, '#090909')
     circle(x, y+2, r+5, 'url(#collar)')
     circle(x, y, r+2, '#080808', '#72726c')
     points=[]
@@ -79,31 +85,30 @@ def sector(inner, outer, start, end, fill, stroke=None):
     emit(f'<polygon points="{" ".join(points)}" fill="{fill}"{border}/>')
 
 
-emit('''<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="800" viewBox="0 0 1600 800" fill="none" role="img" aria-labelledby="title desc">
+emit('''<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="740" viewBox="0 0 1600 740" fill="none" role="img" aria-labelledby="title desc">
 <title id="title">AFX-1000</title>
-<desc id="desc">An angled view of the charcoal AFX-1000 housing, with a deep front lip, ribbed knobs, a circular Scene FX button bank, recessed X-Pad and release lever. Off-white panel lettering and small amber status lights.</desc>
+<desc id="desc">A straight-on view of the charcoal AFX-1000 housing. Directional lighting reveals ribbed knobs and recessed controls. Four blue drum pads and green, yellow and red stereo level meters sit beneath off-white panel lettering. Transparent background.</desc>
 <defs>
  <linearGradient id="body" x2="0" y2="1"><stop stop-color="#363635"/><stop offset=".55" stop-color="#161616"/><stop offset="1" stop-color="#080808"/></linearGradient>
- <linearGradient id="face" x2=".4" y2="1"><stop stop-color="#3b3b39"/><stop offset=".45" stop-color="#2b2b29"/><stop offset="1" stop-color="#222220"/></linearGradient>
+ <linearGradient id="face" x2=".7" y2="1"><stop stop-color="#41413e"/><stop offset=".45" stop-color="#2d2d2b"/><stop offset="1" stop-color="#20201f"/></linearGradient>
  <linearGradient id="collar" x2="0" y2="1"><stop stop-color="#101010"/><stop offset="1" stop-color="#6b6b65"/></linearGradient>
  <linearGradient id="grip" x2=".3" y2="1"><stop stop-color="#686862"/><stop offset=".4" stop-color="#363633"/><stop offset="1" stop-color="#101010"/></linearGradient>
  <linearGradient id="capRim" x2="0" y2="1"><stop stop-color="#a2a298"/><stop offset=".25" stop-color="#686862"/><stop offset="1" stop-color="#20201e"/></linearGradient>
- <linearGradient id="cap" x2=".3" y2="1"><stop stop-color="#52524d"/><stop offset=".45" stop-color="#333330"/><stop offset="1" stop-color="#1c1c1a"/></linearGradient>
+ <radialGradient id="cap" cx=".25" cy=".18" r=".92"><stop stop-color="#5b5b55"/><stop offset=".42" stop-color="#363633"/><stop offset=".82" stop-color="#212120"/><stop offset="1" stop-color="#171716"/></radialGradient>
  <linearGradient id="button" x2="0" y2="1"><stop stop-color="#72726c"/><stop offset=".13" stop-color="#4b4b47"/><stop offset="1" stop-color="#222220"/></linearGradient>
  <linearGradient id="buttonFace" x2="0" y2="1"><stop stop-color="#50504b"/><stop offset="1" stop-color="#2b2b28"/></linearGradient>
+ <linearGradient id="padFace" x2=".25" y2="1"><stop stop-color="#40576d"/><stop offset=".25" stop-color="#30455a"/><stop offset="1" stop-color="#192a3b"/></linearGradient>
  <linearGradient id="strip" x2="0" y2="1"><stop stop-color="#262624"/><stop offset=".3" stop-color="#141413"/><stop offset="1" stop-color="#090909"/></linearGradient>
  <linearGradient id="lever" x2="0" y2="1"><stop stop-color="#c9c9c0"/><stop offset=".15" stop-color="#95958c"/><stop offset=".75" stop-color="#575751"/><stop offset="1" stop-color="#31312d"/></linearGradient>
  <pattern id="finish" width="7" height="4" patternUnits="userSpaceOnUse"><path d="M0 .5H7" stroke="#fff" stroke-opacity=".018"/><path d="M2 2.5H6" stroke="#000" stroke-opacity=".04"/></pattern>
 </defs>''')
-# The ground shadow and visible front edge give the enclosure its thickness.
-emit('<g transform="rotate(-2.2 828 657)">')
-for i in range(22,0,-1):
-    emit(f'<ellipse cx="828" cy="657" rx="{666+i*3}" ry="{20+i*1.6}" fill="#151513" opacity=".014"/>')
-emit('</g>')
-emit('<g transform="matrix(.66 -.025 .06 .62 94 88)">')
-rect(1,23,2046,923,'#080808',30)
-rect(1,17,2046,921,'url(#body)',30,'#151515',2)
-line(40,929,2008,929,'#444440',2)
+# A shallow contact shadow and front lip, with no tilt or perspective skew.
+for i in range(16,0,-1):
+    emit(f'<ellipse cx="800" cy="681" rx="{681+i*2}" ry="{9+i*1.2}" fill="#101010" opacity=".014"/>')
+emit('<g transform="translate(83 28) scale(.7)">')
+rect(1,16,2046,921,'#080808',30)
+rect(1,10,2046,921,'url(#body)',30,'#151515',2)
+line(40,928,2008,928,'#444440',2)
 # Faceplate with a narrow machined seam and a separate moulded shell.
 rect(0,0,2048,921,'#111111',28,'#595955',2)
 rect(9,8,2030,900,'#52524e',22)
@@ -124,11 +129,16 @@ line(1135,302,1135,856,'#565650')
 knob(112,180,42,-24); knob(690,180,42,15)
 text('INPUT',112,122,16,'#cecec5',700)
 text('OUTPUT',690,122,16,'#cecec5',700)
-for y,label in [(133,'INPUT'),(217,'OUTPUT')]:
+for y,label,lit in [(133,'INPUT',25),(217,'OUTPUT',23)]:
     text(label,235,y+16,12,'#b2b2a9',500,'end')
     recess(260,y,375,29)
     for i in range(27):
-        rect(270+i*13.2,y+8,9,12,'#aaa589' if i<17 else '#2a2a25',1)
+        colour = '#64c97a' if i<18 else '#e2c15b' if i<24 else '#dd6257'
+        dim = '#173321' if i<18 else '#3b331c' if i<24 else '#3e211f'
+        x=270+i*13.2
+        rect(x,y+7,9,14,colour if i<lit else dim,.8)
+        if i<lit:
+            line(x+1,y+8,x+8,y+8,'#b3e7bd' if i<18 else '#f6e1a0' if i<24 else '#f5a399',.7)
 text('−∞      −24      −12       −6       0     +6',445,189,11,'#88887f')
 button(768,114,120,47,'QUANTIZE',True,12)
 text('NUDGE',829,200,12)
@@ -155,7 +165,7 @@ button(198,664,52,50,'BANK',False,10)
 button(342,664,89,50,'ROLL',False,12)
 for i,label in enumerate(['KICK','SNARE','CLAP','HI-HAT']):
     x=458+i*115
-    button(x,664,89,50,label,False,13)
+    button(x,664,89,50,label,False,13,blue=True)
     text(str(i+1),x+44.5,644,12,'#99998f')
 button(993,664,54,50,'OVER',False,11)
 text('DELETE',1020,733,10,'#93938a')
