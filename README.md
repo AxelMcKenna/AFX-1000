@@ -89,11 +89,11 @@ The renderer's preset argument is optional. Benchmarks measure DSP time, not phy
 The DSP is composed of sampler, sequencer, isolator, scene and release components. Platform adapters share parameter definitions and MIDI/control rules. JUCE parameters directly access the engine's atomic parameter store; message-thread notifications never replay older values. The native application controller serializes audio lifecycle, preset and sample workflows on one control queue.
 
 ```sh
-python3 -m pip install -r tools/requirements-quality.txt
-python3 tools/check_format.py
+python3 -m pip install -r tools/quality/requirements.txt
+python3 tools/quality/check_format.py
 ruff check hardware tests tools
 ruff format --check hardware tests tools
-python3 -m unittest discover -s tests -p test_electronics.py
+python3 -m unittest discover -s tests/tooling -p 'test_*.py'
 cmake -S . -B build-sanitize -DCMAKE_BUILD_TYPE=Debug -DRMX_BUILD_NATIVE=OFF -DRMX_SANITIZER=address
 cmake --build build-sanitize --parallel 4
 ctest --test-dir build-sanitize --output-on-failure
@@ -119,11 +119,25 @@ Still in development. Mac-only rekordbox audio has been tested, and universal Ma
 
 The engine uses stereo floating-point audio, with checks at 44.1, 48, 88.2 and 96 kHz. Processing is preallocated; the core audio callback does no allocation, locking, file I/O or UI work. See [validation](docs/validation.md) and [specifications](docs/specifications.md) for the details.
 
+## Repository layout
+
+| Directory | Ownership |
+| --- | --- |
+| `include/rmx/`, `src/core/` | Public engine API and portable DSP; shared headers are grouped into `dsp/`, `controls/`, `app/` and `realtime/` |
+| `src/macos/`, `src/plugin/` | Native macOS and JUCE adapters |
+| [`tests/`](tests/README.md) | Tests grouped by the component or platform they exercise |
+| `tools/audio/`, `tools/quality/`, `tools/artifacts/` | Rendering/profiling, development checks and archive recovery |
+| [`hardware/`](hardware/README.md) | Firmware, editable CAD/electronics designs and verification records |
+| [`research/`](research/README.md) | Source-backed investigations, component notes and experiment summaries |
+| `docs/`, `docs/hardware/history/` | Current guides and dated design narratives |
+| [`prototypes/`](prototypes/README.md) | Historical browser experiment |
+| `build/artifacts/` | Ignored generated exports and large review bundles; see the [artifact policy](docs/artifacts.md) |
+
 ## Reference
 
 [Controls](docs/controls.md) / [Routing](docs/routing.md) / [Specifications](docs/specifications.md) / [Validation](docs/validation.md) / [Standalone hardware and CAD](hardware/README.md)
 
-The original browser prototype remains in `web/`; see its [guide](docs/legacy-prototypes.md). The Swift tap/player prototype was retired because it allocated and locked in its audio callback. The native app and plugin adapters use the shared C++ engine.
+The original browser prototype remains in `prototypes/web/`; see its [guide](docs/legacy-prototypes.md). The Swift tap/player prototype was retired because it allocated and locked in its audio callback. The native app and plugin adapters use the shared C++ engine.
 
 ## Assets and licensing
 

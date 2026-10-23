@@ -5,9 +5,9 @@ cap sizes, a D-shaped stem, retaining clip, return-spring reserve, compliant
 contact and a positive travel stop. It has **not been printed, assembled or
 force-tested** and is not yet installed across the A02 control surface.
 
-![Section at rest](generated/button-section.png)
+![Section at rest](../../docs/assets/hardware/button-section.png)
 
-![Section at the cap stop](generated/button-pressed.png)
+![Section at the cap stop](../../docs/assets/hardware/button-pressed.png)
 
 The transparent cylinder is the spring's envelope. The red silicone shape only
 illustrates contact/compression geometry; it is not a material or force simulation.
@@ -16,11 +16,11 @@ illustrates contact/compression geometry; it is not a material or force simulati
 
 | Hard part | File | Per fixture |
 | --- | --- | ---: |
-| Pad key, 15 × 8 mm | [button-key_pad.stl](generated/button-key_pad.stl) | 1, or nudge key |
-| Nudge key, 9 × 8 mm | [button-key_nudge.stl](generated/button-key_nudge.stl) | 1, or pad key |
-| Matching 2 mm sample panel | [pad](generated/button-panel_pad.stl), [nudge](generated/button-panel_nudge.stl) | 1 |
-| Guide, total clearance | [0.2](generated/button-guide_020.stl), [0.4](generated/button-guide_040.stl), [0.6 mm](generated/button-guide_060.stl) | 1; trial all three |
-| Retaining C clip | [button-clip.stl](generated/button-clip.stl) | 1 |
+| Pad key, 15 × 8 mm | `button-key_pad.stl` | 1, or nudge key |
+| Nudge key, 9 × 8 mm | `button-key_nudge.stl` | 1, or pad key |
+| Matching 2 mm sample panel | `button-panel_pad.stl`, `button-panel_nudge.stl` | 1 |
+| Guide, total clearance | `button-guide_020.stl`, `button-guide_040.stl`, `button-guide_060.stl` | 1; trial all three |
+| Retaining C clip | `button-clip.stl` | 1 |
 | Switch PCB | [Native KiCad project](../electronics/button_test/README.md) | 1 |
 
 All eight STLs passed closed-mesh, winding, positive-volume and connectivity

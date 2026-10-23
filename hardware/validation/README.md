@@ -7,6 +7,8 @@ The [memory profile](host-memory.json)
 records engine/factory-bank heap payload at 48 and 96 kHz. These are host/build
 checks, not physical unit tests.
 
+Packaged historical firmware and review ZIPs are listed in the [release catalog](../releases/README.md), with checksums and recovery instructions. Historical records retain their original snapshot paths and hashes.
+
 | Check | Evidence | Scope / limit |
 | --- | --- | --- |
 | Existing DSP | CTest `engine` | Rates, finite output, allocations and existing control checks |

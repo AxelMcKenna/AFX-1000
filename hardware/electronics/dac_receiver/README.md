@@ -10,7 +10,7 @@ Open the [KiCad project](dac_receiver.kicad_pro),
 [native schematic view](generated/dac_receiver.svg), [BOM](bom.csv),
 [pin schedule](components.json), [verification record](generated/verification.json)
 or [loaded circuit analysis](generated/circuit-analysis.json).
-The [current hardware review](../../cad/generated/standalone-review-E08.zip)
+The [current hardware review](../../releases/README.md#standalone-review-e08)
 includes E08 sources and the existing A03/E07 CAD/output PCB.
 
 ```mermaid

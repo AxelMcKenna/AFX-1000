@@ -1,9 +1,9 @@
 #pragma once
 #include "BinaryData.h"
 #include "RMXProcessor.h"
-#include "rmx/Panel.h"
-#include "rmx/PanelController.h"
-#include "rmx/Skin.h"
+#include "rmx/controls/Panel.h"
+#include "rmx/controls/PanelController.h"
+#include "rmx/controls/Skin.h"
 
 class RMXEditor final : public juce::AudioProcessorEditor, private juce::Timer {
     RMXProcessor& processor;

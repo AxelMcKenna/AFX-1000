@@ -3,7 +3,7 @@
 #include "ConnectionMode.h"
 #include "RelayFeedback.h"
 #include "daisy_seed.h"
-#include "rmx/HardwareControls.h"
+#include "rmx/controls/HardwareControls.h"
 #if RMX_EXTERNAL_CONVERTER
 #include "ConverterPower.h"
 #include "Es9292.h"

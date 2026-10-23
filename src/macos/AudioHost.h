@@ -1,6 +1,6 @@
 #pragma once
 #include "rmx/Engine.h"
-#include "rmx/MidiControls.h"
+#include "rmx/controls/MidiControls.h"
 #include <CoreAudio/CoreAudio.h>
 #include <CoreMIDI/CoreMIDI.h>
 #include <array>

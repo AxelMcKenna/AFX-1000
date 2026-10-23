@@ -22,7 +22,7 @@ Open [the native project](output_stage.kicad_pro),
 [verification record](generated/verification.json). The
 [circuit analysis](generated/circuit-analysis.json) uses the actual exported
 netlist and explicitly identifies its ideal-device assumptions.
-The [A03/E07 review package](../../cad/generated/standalone-review-A03-E07.zip)
+The [A03/E07 review package](../../releases/README.md#standalone-review-a03-e07)
 includes the current hardware sources, native projects, CAD and check records.
 Standard KiCad/OpenSCAD and the documented Python packages remain external.
 

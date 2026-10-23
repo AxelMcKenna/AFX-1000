@@ -10,7 +10,7 @@ Open [the KiCad project](audio_bypass.kicad_pro),
 [connection schedule](components.json). The
 [native verification record](generated/verification.json) checks the exported
 pin nets and E02 coil interface, not just the generator's intended connections.
-The [combined E02/E03 review archive](../generated/bypass-review-E03.zip)
+The [combined E02/E03 review archive](../../releases/README.md#bypass-review-e03)
 keeps both native projects and their checks together; it contains no production
 fabrication files.
 

@@ -36,6 +36,14 @@ The expanded 25-workload matrix passed its p99 < 50% gate across 225 configurati
 
 Both firmware profiles cross-compiled after the changes and all nine firmware host suites passed. The 48 kHz engine buffer payload remains 26,433,392 bytes, with zero processing allocations in the measured workload. These checks do not establish MCU execution time, physical round-trip latency or the real-device underrun/latency tradeoff.
 
+## Folder reorganisation, 23 October 2026
+
+Tests are grouped by owner and registered in `tests/CMakeLists.txt`. Shared headers are grouped into `app/`, `controls/`, `dsp/` and `realtime/`; engine entry points remain under `include/rmx/`. Audio utilities, quality checks and artifact recovery have separate tool directories. The browser experiment moved to `prototypes/web/`; the [research index](../research/README.md) groups component notes and investigations. Earlier hardware/CAD narratives are preserved under `docs/hardware/history/` and the research notes.
+
+The organisation commit was checked independently from ongoing electronics work: its clean Release/native build passed all 28 CTests and all 12 Python tooling tests. Formatting and lint checks passed, and local Markdown links resolved. Python tooling is discovered as one suite so additional hardware/CAD tests can be included with the changes they exercise.
+
+The working-tree migration accounted for every original file, and C++ bodies were unchanged after excluding includes and formatting. All 21 archived review/firmware artifacts matched their recorded checksums; recovery of a historical review ZIP from its original Git object was exercised in a temporary directory. The local-only review bundle remains identified as such in the catalog. Research notes retain existing citations without new verification. Git history was not rewritten. Newer hardware designs, measurements and validation results remain separate from the organisation commit.
+
 A subsequent direct-capture restart timed out in desktop automation, followed by automation failures on other applications. Audio initialization now runs on a separate control queue and reports progress so a slow system call cannot block the interface. The new live restart path still needs verification; the automation failure does not establish its cause.
 
 Do not describe this build as a certified hardware emulation or as fully qualified for live sets based only on the synthetic checks.

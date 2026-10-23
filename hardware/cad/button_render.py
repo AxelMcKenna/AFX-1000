@@ -7,6 +7,7 @@ import json
 import subprocess
 from pathlib import Path
 
+from .paths import ARTIFACTS, update_previews
 from .render import check_solid
 
 ROOT = Path(__file__).resolve().parent
@@ -16,7 +17,13 @@ OUT = ROOT / "generated"
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--openscad", default="openscad")
+    parser.add_argument(
+        "--update-previews",
+        action="store_true",
+        help="Update tracked documentation previews after successful checks",
+    )
     args = parser.parse_args()
+    ARTIFACTS.mkdir(parents=True, exist_ok=True)
     version = subprocess.run([args.openscad, "--version"], text=True, capture_output=True, check=True)
 
     def run(options, empty=False):
@@ -40,7 +47,7 @@ def main():
         ("guide_040", "guide", ["-D", "guide_clearance=0.4"]),
         ("guide_060", "guide", ["-D", "guide_clearance=0.6"]),
     ]:
-        path = OUT / ("button-" + name + ".stl")
+        path = ARTIFACTS / ("button-" + name + ".stl")
         run(
             [
                 "--backend",
@@ -57,7 +64,7 @@ def main():
         report["solids"][name] = check_solid(path, "CGAL")
         print(f"{name}: one closed connected solid", flush=True)
     for sample in ["pad", "nudge"]:
-        collision = OUT / ("button-" + sample + "-collision.stl")
+        collision = ARTIFACTS / ("button-" + sample + "-collision.stl")
         run(
             [
                 "--backend",
@@ -107,7 +114,7 @@ def main():
                 "--colorscheme",
                 "Tomorrow Night",
                 "-o",
-                str(OUT / ("button-" + name + ".png")),
+                str(ARTIFACTS / ("button-" + name + ".png")),
                 *settings,
             ]
         )
@@ -117,10 +124,13 @@ def main():
             "button_fixture.scad",
             "button_fixture.py",
             "button_render.py",
+            "paths.py",
             "generated/button-fixture.scad",
         ]
     }
     (OUT / "button-solid-validation.json").write_text(json.dumps(report, indent=2) + "\n")
+    if args.update_previews:
+        update_previews(["button-section", "button-pressed"])
     print("Eight B01 solids and both rigid sweeps passed; physical operation remains unverified.")
 
 

@@ -12,6 +12,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from .paths import ARTIFACTS, update_previews
+
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "generated"
 
@@ -52,7 +54,13 @@ def check_solid(path, backend):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--openscad", default="openscad")
+    parser.add_argument(
+        "--update-previews",
+        action="store_true",
+        help="Update tracked documentation previews after successful checks",
+    )
     args = parser.parse_args()
+    ARTIFACTS.mkdir(parents=True, exist_ok=True)
     version = subprocess.run([args.openscad, "--version"], capture_output=True, text=True, check=True)
     output_root = ROOT.parent / "electronics/output_stage"
     packet = json.loads((output_root / "generated/placement.json").read_text())
@@ -109,7 +117,7 @@ def main():
             "fit_coupon",
             "strip_backer",
         ]:
-            path = OUT / (part + ".stl")
+            path = ARTIFACTS / (part + ".stl")
             # Use CGAL for printable exports: the 2026.10.15 Manifold exporter
             # leaves zero-thickness remnants on some coplanar junctions here.
             # Validate the actual exported STL rather than trusting backend status.
@@ -177,7 +185,7 @@ def main():
             physical_fit_verified=False,
             limitation="connector/harness, height, spacer/screw and carrier-drill targets unqualified; excludes remaining electronics",
         )
-        run("panel_dxf", ["-o", str(OUT / "panel.dxf"), "-D", 'part="panel_2d"'])
+        run("panel_dxf", ["-o", str(ARTIFACTS / "panel.dxf"), "-D", 'part="panel_2d"'])
         for name, settings in [
             ("assembly", []),
             ("assembly-pulled", ["-D", "lever_angle=35"]),
@@ -203,11 +211,13 @@ def main():
                     "--colorscheme",
                     "Tomorrow Night",
                     "-o",
-                    str(OUT / (name + ".png")),
+                    str(ARTIFACTS / (name + ".png")),
                     *settings,
                 ],
             )
         (OUT / "solid-validation.json").write_text(json.dumps(report, indent=2) + "\n")
+    if args.update_previews:
+        update_previews(["assembly", "internals", "output-board", "control-board"])
     print(
         "A04/E07/E18 solid/mesh, output/control placement and conservative lever checks passed. Physical fit remains unverified."
     )

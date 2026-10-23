@@ -2,10 +2,10 @@
 
 ## Run the historical web prototype
 
-The browser version lives in `web/` and uses an `AudioWorklet` processor for the stereo isolator and beat echo. It is the quickest version to run and modify. No package install or build step is needed.
+The browser version lives in `prototypes/web/` and uses an `AudioWorklet` processor for the stereo isolator and beat echo. It is the quickest version to run and modify. No package install or build step is needed.
 
 1. In Terminal, go to this folder and run `python3 -m http.server 8000`.
-2. Open `http://localhost:8000/web/` in a recent desktop browser.
+2. Open `http://localhost:8000/prototypes/web/` in a recent desktop browser.
 3. Allow microphone access, select an audio input if the browser offers it, and click **Start Audio**.
 4. Select an output device if the browser supports output selection. Otherwise set the interface as the macOS default output in Audio settings or Audio MIDI Setup.
 5. Start with the isolator at 0 dB and echo wet at 0%. Use headphones while checking the send/return path.

@@ -1,6 +1,6 @@
 #include "AudioHost.h"
-#include "rmx/AudioBuffering.h"
 #include "rmx/State.h"
+#include "rmx/app/AudioBuffering.h"
 #import <AppKit/NSRunningApplication.h>
 #import <CoreAudio/AudioHardwareTapping.h>
 #import <CoreAudio/CATapDescription.h>

@@ -1,13 +1,13 @@
 #pragma once
 #include "AudioTypes.h"
 #include "Parameters.h"
-#include "SpscQueue.h"
 #include "TempoTracker.h"
 #include "dsp/Isolator.h"
 #include "dsp/ReleaseEffects.h"
 #include "dsp/Sampler.h"
 #include "dsp/SceneEffects.h"
 #include "dsp/Sequencer.h"
+#include "rmx/realtime/SpscQueue.h"
 #include <span>
 #include <type_traits>
 namespace rmx {

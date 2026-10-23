@@ -224,6 +224,7 @@ def main():
         FIRMWARE / "Makefile",
         FIRMWARE / "control-inputs.csv",
         ROOT / "CMakeLists.txt",
+        ROOT / "tests/CMakeLists.txt",
         *sorted((ROOT / "src/core").glob("*.cpp")),
         ROOT / "hardware/electronics/converter/interface-plan.json",
         ROOT / "hardware/electronics/converter/dependencies.json",
@@ -232,7 +233,8 @@ def main():
         control_path,
         ROOT / "hardware/cad/generate.py",
     ]
-    sources += sorted((ROOT / "tests").glob("*tests.cpp"))
+    sources += sorted((ROOT / "tests").rglob("*tests.cpp"))
+    sources += sorted((ROOT / "tests/support").glob("*.h"))
     sources += sorted((ROOT / "include/rmx").rglob("*.h"))
     sources += sorted(p for p in (ROOT / "src/core").rglob("*") if p.is_file() and p.suffix in (".h", ".cpp"))
     report = dict(

@@ -13,7 +13,7 @@ Open the [KiCad project](converter.kicad_pro),
 [pin schedule](components.json), [verification record](generated/verification.json),
 [electrical screens](generated/electrical-screens.json) or
 [proposed MCU interface](interface-plan.json).
-The [E09 review bundle](../../cad/generated/standalone-review-E09.zip) includes
+The [E09 review bundle](../../releases/README.md#standalone-review-e09) includes
 this work alongside E08 and the existing A03/E07 CAD/output PCB.
 
 ## Core and supplies

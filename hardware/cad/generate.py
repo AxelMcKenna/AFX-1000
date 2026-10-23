@@ -284,7 +284,7 @@ def validate():
         for target in c["target"].split(" + "):
             if target != "events" and not target.startswith("EventType::"):
                 assert f'"{target}"' in params, target
-    hardware = (ROOT / "../../include/rmx/HardwareControls.h").resolve().read_text()
+    hardware = (ROOT / "../../include/rmx/controls/HardwareControls.h").resolve().read_text()
     for name, kinds in [("knobIds", ("knob",)), ("buttonIds", ("button", "sector"))]:
         source = re.search(rf"{name}\s*\{{(.*?)\}};", hardware, re.S).group(1)
         ids = re.findall(r'"([a-z0-9_]+)"', source)

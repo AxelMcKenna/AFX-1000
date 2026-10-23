@@ -1,9 +1,9 @@
 #include "ApplicationController.h"
-#include "rmx/Panel.h"
-#include "rmx/PanelController.h"
-#include "rmx/Skin.h"
 #include "rmx/State.h"
 #include "rmx/Wav.h"
+#include "rmx/controls/Panel.h"
+#include "rmx/controls/PanelController.h"
+#include "rmx/controls/Skin.h"
 #import <AVFoundation/AVFoundation.h>
 #import <Cocoa/Cocoa.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>

@@ -86,8 +86,16 @@ def route(board, nets):
     # independently of the much smaller NPTH drill-clearance rule.
     for index, (x, y) in enumerate(MOUNTS):
         radius = 3.8 if index < 4 else 2.85
-        router.geometry.append(dict(kind="circle", net=f"MOUNT_KEEP_OUT_{index}",
-            layers=["F.Cu", "B.Cu", "In1.Cu", "In2.Cu"], x=x, y=y, r=radius))
+        router.geometry.append(
+            dict(
+                kind="circle",
+                net=f"MOUNT_KEEP_OUT_{index}",
+                layers=["F.Cu", "B.Cu", "In1.Cu", "In2.Cu"],
+                x=x,
+                y=y,
+                r=radius,
+            )
+        )
     tasks = defaultdict(list)
     # All SMD terminals get short same-side escapes. Bottom filters remain near
     # the ADC pins; their long knob-harness traces carry the unfiltered signal.
@@ -110,10 +118,10 @@ def route(board, nets):
     # component column; no grid detours or extra digital-layer vias are needed.
     for index in range(10):
         net = f"POT_ADC_{index:02d}"
-        r, c, bleed = f"R{31+index}", f"C{11+index}", f"R{41+index}"
+        r, c, bleed = f"R{31 + index}", f"C{11 + index}", f"R{41 + index}"
         front = router.p(r, 2)
-        side_x = round(front[0]+1.2, 6)
-        router.path(net, "B", front, router.p("U1", 22+index))
+        side_x = round(front[0] + 1.2, 6)
+        router.path(net, "B", front, router.p("U1", 22 + index))
         router.path(net, "B", front, (side_x, front[1]), (side_x, router.p(bleed, 1)[1]), router.p(bleed, 1))
         router.path(net, "B", router.p(c, 1), (side_x, router.p(c, 1)[1]))
         tasks.pop(net)
@@ -123,8 +131,8 @@ def route(board, nets):
     for index in range(10):
         net = f"POT_RAW_{index:02d}"
         at = tasks[net][-1]
-        end = (round(at[0]+1.27, 6), 44.0)
-        router.path(net, "F", at, (end[0], round(at[1]-1.27, 6)), end)
+        end = (round(at[0] + 1.27, 6), 44.0)
+        router.path(net, "F", at, (end[0], round(at[1] - 1.27, 6)), end)
         router.via(net, end)
         tasks[net][-1] = end
     # A quiet excitation trunk outside the module/knob-header pin rows. Clock
@@ -216,15 +224,20 @@ def main():
         board.append(mount(f"H{index}", xy, index > 4))
         # 32-sided circumscribed keepout, with .05mm beyond the hardware's
         # largest nominal radius. Router masks are slightly larger again.
-        radius = (3.75 if index <= 4 else 2.8) / math.cos(math.pi/32)
-        points = " ".join(f"(xy {100+xy[0]+radius*math.cos(i*math.pi/16):.6f} "
-                          f"{100+xy[1]+radius*math.sin(i*math.pi/16):.6f})" for i in range(32))
-        board.append(read(f'''(zone (net 0) (net_name "")
+        radius = (3.75 if index <= 4 else 2.8) / math.cos(math.pi / 32)
+        points = " ".join(
+            f"(xy {100 + xy[0] + radius * math.cos(i * math.pi / 16):.6f} "
+            f"{100 + xy[1] + radius * math.sin(i * math.pi / 16):.6f})"
+            for i in range(32)
+        )
+        board.append(
+            read(f"""(zone (net 0) (net_name "")
           (layers "F.Cu" "In1.Cu" "In2.Cu" "B.Cu") (hatch edge .5)
           (connect_pads (clearance 0)) (min_thickness .25)
           (keepout (tracks not_allowed) (vias not_allowed) (pads allowed)
                    (copperpour not_allowed) (footprints allowed))
-          (polygon (pts {points})))'''))
+          (polygon (pts {points})))""")
+        )
     for p, q in [((0, 0), (150, 0)), ((150, 0), (150, 65)), ((150, 65), (0, 65)), ((0, 65), (0, 0))]:
         board.append(
             read(

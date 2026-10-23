@@ -1,6 +1,6 @@
 #pragma once
 #include "AudioHost.h"
-#include "rmx/ApplicationSession.h"
+#include "rmx/app/ApplicationSession.h"
 #include <dispatch/dispatch.h>
 #include <functional>
 #include <memory>

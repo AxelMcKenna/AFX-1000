@@ -1,10 +1,10 @@
 #pragma once
 #include "EngineParameter.h"
 #include "rmx/Engine.h"
-#include "rmx/MidiControls.h"
-#include "rmx/RealtimeSnapshot.h"
 #include "rmx/State.h"
 #include "rmx/Wav.h"
+#include "rmx/controls/MidiControls.h"
+#include "rmx/realtime/RealtimeSnapshot.h"
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <memory>
 

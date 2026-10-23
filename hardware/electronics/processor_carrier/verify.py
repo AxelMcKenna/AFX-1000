@@ -186,7 +186,7 @@ def firmware_contract(pins):
         assert pins["U1"][str(physical)] == net
     main = (FIRMWARE / "main.cpp").read_text()
     assert re.search(r"adc\[i\]\.InitSingle\(daisy::DaisySeed::GetPin\(15\s*\+\s*i\)\)", main)
-    header = (REPO / "include/rmx/HardwareControls.h").read_text()
+    header = (REPO / "include/rmx/controls/HardwareControls.h").read_text()
     ids = re.search(r"\bknobIds\s*\{([^}]+)\}", header, re.S).group(1)
     assert re.findall(r'"([a-z_]+)"', ids) == KNOBS
     external = json.loads((FIRMWARE / "external-profile.json").read_text())
@@ -343,7 +343,7 @@ def main():
                 )
             ]
             + [
-                REPO / "include/rmx/HardwareControls.h",
+                REPO / "include/rmx/controls/HardwareControls.h",
                 OUT / "connector-map.csv",
                 OUT / "passive-screen.json",
             ]

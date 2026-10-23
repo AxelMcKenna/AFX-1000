@@ -19,7 +19,7 @@ def outputs():
     panel = runpy.run_path(str(ROOT / "hardware/cad/generate.py"))
     controls = panel["CONTROLS"]
     buttons = [c for c in controls if c["kind"] in ("button", "sector")]
-    header = (ROOT / "include/rmx/HardwareControls.h").read_text()
+    header = (ROOT / "include/rmx/controls/HardwareControls.h").read_text()
     ids = re.findall(r'"([a-z0-9_]+)"', re.search(r"buttonIds\s*\{(.*?)\};", header, re.S).group(1))
     assert ids == [c["id"] for c in buttons] and len(ids) == 29
     selectors = {c["id"]: c for c in controls if c["kind"] == "switch"}
@@ -81,7 +81,7 @@ def outputs():
     assert not any(p["gpio"].endswith("7") for p in front + rear)
     sources = [
         "hardware/cad/generate.py",
-        "include/rmx/HardwareControls.h",
+        "include/rmx/controls/HardwareControls.h",
         "hardware/firmware/control_map.py",
     ]
     data = dict(

@@ -21,7 +21,7 @@ It is not ready to connect directly to the E09 ADC inputs or to fabricate.
 Open the [project](input_range.kicad_pro), [schematic view](generated/input_range.svg),
 [BOM](bom.csv), [pin schedule](components.json), [native verification](generated/verification.json)
 or [loaded circuit analysis](generated/circuit-analysis.json).
-The [E10 design review package](../../cad/generated/standalone-review-E10.zip)
+The [E10 design review package](../../releases/README.md#standalone-review-e10)
 contains current sources, drawings and earlier-stage evidence; it is not a
 fabrication or assembly release.
 

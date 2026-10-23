@@ -13,7 +13,7 @@ The saved PCB has424 segments,62 through vias and a filled inner AGND plane.
 These checks establish the saved connectivity and design-rule result; they
 do not establish real scan latency, signal integrity, EMC/ESD or physical fit.
 
-![PCB-derived component and mounting bounds](../../cad/generated/control-board.png)
+![PCB-derived component and mounting bounds](../../../docs/assets/hardware/control-board.png)
 
 The PCB sits at layout(111,43), seat Z=12.1mm, above the existing processor
 carrier on four nominal4mm spacers. Its four Ø2.4mm mounting holes are board-
