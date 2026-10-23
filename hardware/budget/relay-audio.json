@@ -1,0 +1,557 @@
+{
+  "schema": 1,
+  "revision": "B1-5V-draft",
+  "project": "relay-audio",
+  "title": "RMX - B1 single stereo dry relay",
+  "paper": "A2",
+  "mcu_gpio": {},
+  "bom_file": "relay-audio-bom.csv",
+  "sheet_notes": [
+    "RMX B1 / SINGLE STEREO RELAY / NC = DRY WITHOUT POWER",
+    "One pole switches each unbalanced channel. Ground is common; this interface is not balanced.",
+    "Independent 5V-powered supervisor clamps the gate during 3.3V loss. TVS is drain-to-GND, not a diode across the coil.",
+    "No separate analog input-mute relay. Physical startup/fault pop and complete fault-to-dry timing remain unqualified."
+  ],
+  "components": [
+    {
+      "ref": "J_RY1",
+      "value": "REGULATED POWER",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+5V",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        68.58
+      ]
+    },
+    {
+      "ref": "J_RY2",
+      "value": "BYPASS PERMISSION",
+      "pins": [
+        {
+          "number": "1",
+          "name": "RELAY_PERMISSION",
+          "type": "passive",
+          "net": "RELAY_PERMISSION"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "package": "1x2 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        68.58
+      ]
+    },
+    {
+      "ref": "J_RY3",
+      "value": "DRY INPUTS",
+      "pins": [
+        {
+          "number": "1",
+          "name": "IN_L",
+          "type": "passive",
+          "net": "IN_L"
+        },
+        {
+          "number": "2",
+          "name": "IN_R",
+          "type": "passive",
+          "net": "IN_R"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        68.58
+      ]
+    },
+    {
+      "ref": "J_RY4",
+      "value": "PROCESSED INPUTS",
+      "pins": [
+        {
+          "number": "1",
+          "name": "WET_L",
+          "type": "passive",
+          "net": "WET_L"
+        },
+        {
+          "number": "2",
+          "name": "WET_R",
+          "type": "passive",
+          "net": "WET_R"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        68.58
+      ]
+    },
+    {
+      "ref": "J_RY5",
+      "value": "OUTPUTS",
+      "pins": [
+        {
+          "number": "1",
+          "name": "OUT_L",
+          "type": "passive",
+          "net": "OUT_L"
+        },
+        {
+          "number": "2",
+          "name": "OUT_R",
+          "type": "passive",
+          "net": "OUT_R"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "package": "1x3 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        68.58
+      ]
+    },
+    {
+      "ref": "K1",
+      "value": "G5V-2 DC5",
+      "pins": [
+        {
+          "number": "1",
+          "name": "COIL_A",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "16",
+          "name": "COIL_B",
+          "type": "passive",
+          "net": "COIL_LOW"
+        },
+        {
+          "number": "4",
+          "name": "COM_L",
+          "type": "passive",
+          "net": "OUT_L"
+        },
+        {
+          "number": "6",
+          "name": "NC_L",
+          "type": "passive",
+          "net": "IN_L"
+        },
+        {
+          "number": "8",
+          "name": "NO_L",
+          "type": "passive",
+          "net": "WET_L"
+        },
+        {
+          "number": "13",
+          "name": "COM_R",
+          "type": "passive",
+          "net": "OUT_R"
+        },
+        {
+          "number": "11",
+          "name": "NC_R",
+          "type": "passive",
+          "net": "IN_R"
+        },
+        {
+          "number": "9",
+          "name": "NO_R",
+          "type": "passive",
+          "net": "WET_R"
+        }
+      ],
+      "source": "https://omronfs.omron.com/en_US/ecb/products/pdf/en-g5v_2.pdf",
+      "footprint": "Relay_THT:Relay_DPDT_Omron_G5V-2",
+      "package": "DPDT standard 500mW",
+      "mpn": "G5V-2 DC5",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        102.87
+      ]
+    },
+    {
+      "ref": "Q1",
+      "value": "DMN3023L-7",
+      "pins": [
+        {
+          "number": "1",
+          "name": "G",
+          "type": "input",
+          "net": "RELAY_GATE"
+        },
+        {
+          "number": "2",
+          "name": "S",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "D",
+          "type": "passive",
+          "net": "COIL_LOW"
+        }
+      ],
+      "source": "https://www.diodes.com/datasheet/download/DMN3023L.pdf",
+      "footprint": "Package_TO_SOT_SMD:SOT-23",
+      "package": "SOT-23",
+      "mpn": "DMN3023L-7",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        102.87
+      ]
+    },
+    {
+      "ref": "D1",
+      "value": "SMAJ12A (Littelfuse)",
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "type": "passive",
+          "net": "COIL_LOW"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "https://www.littelfuse.com/assetdocs/tvs-diodes-smaj-datasheet?assetguid=13c2a823-03b8-4d1f-9ddc-9b44670aed9d",
+      "footprint": "Diode_SMD:D_SMA",
+      "package": "SMA",
+      "mpn": "SMAJ12A",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        102.87
+      ]
+    },
+    {
+      "ref": "R30",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTACTS_DRIVE"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "RELAY_GATE"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-0710KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        102.87
+      ]
+    },
+    {
+      "ref": "R31",
+      "value": "100k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "RELAY_GATE"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-07100KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        102.87
+      ]
+    },
+    {
+      "ref": "U27",
+      "value": "TPS3808G33DBVR",
+      "pins": [
+        {
+          "number": "1",
+          "name": "RESET_N",
+          "type": "open_collector",
+          "net": "RELAY_GATE"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+5V"
+        },
+        {
+          "number": "4",
+          "name": "CT",
+          "type": "input",
+          "no_connect": true
+        },
+        {
+          "number": "5",
+          "name": "SENSE",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "6",
+          "name": "VDD",
+          "type": "power_in",
+          "net": "+5V"
+        }
+      ],
+      "source": "https://www.ti.com/lit/gpn/tps3808",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "package": "SOT-23-6",
+      "mpn": "TPS3808G33DBVR",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        151.13
+      ]
+    },
+    {
+      "ref": "U35",
+      "value": "74HCT14D,653",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1A",
+          "type": "input",
+          "net": "RELAY_PERMISSION"
+        },
+        {
+          "number": "2",
+          "name": "1Y",
+          "type": "output",
+          "net": "PERMISSION_N"
+        },
+        {
+          "number": "3",
+          "name": "2A",
+          "type": "input",
+          "net": "PERMISSION_N"
+        },
+        {
+          "number": "4",
+          "name": "2Y",
+          "type": "output",
+          "net": "CONTACTS_DRIVE"
+        },
+        {
+          "number": "5",
+          "name": "3A",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "6",
+          "name": "3Y",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "7",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "8",
+          "name": "4Y",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "9",
+          "name": "4A",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "10",
+          "name": "5Y",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "11",
+          "name": "5A",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "12",
+          "name": "6Y",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "13",
+          "name": "6A",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "14",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+5V"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT14.pdf",
+      "footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "package": "SOIC-14",
+      "mpn": "74HCT14D,653",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        151.13
+      ]
+    },
+    {
+      "ref": "C30",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        151.13
+      ]
+    },
+    {
+      "ref": "C33",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        151.13
+      ]
+    }
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "schema": 1,
+  "revision": "B1-5V-draft",
+  "project": "reference-health",
+  "title": "RMX - B1 midrail startup qualification",
+  "paper": "A2",
+  "mcu_gpio": {},
+  "bom_file": "reference-health-bom.csv",
+  "sheet_notes": [
+    "RMX B1 / MIDRAIL HEALTH / no high-voltage analog rails",
+    "U32 monitors the filtered midrail. Recovery starts only after VREF exceeds the G25 threshold, then nominal 300ms CT delay.",
+    "The unbuffered midrail RC settles slowly. Verify thresholds, supply ripple, temperature and pop/click behavior physically."
+  ],
+  "components": [
+    {
+      "ref": "J_HL1",
+      "value": "POWER AND MIDRAIL",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+5V",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "2",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "VREF_2V5",
+          "type": "passive",
+          "net": "VREF_2V5"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical",
+      "package": "1x4 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        72.39
+      ]
+    },
+    {
+      "ref": "J_HL2",
+      "value": "BYPASS ANALOG HEALTH",
+      "pins": [
+        {
+          "number": "1",
+          "name": "EXT_RAILS_OK",
+          "type": "passive",
+          "net": "EXT_RAILS_OK"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "package": "1x2 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        72.39
+      ]
+    },
+    {
+      "ref": "U32",
+      "value": "TPS3808G25DBVR",
+      "pins": [
+        {
+          "number": "1",
+          "name": "RESET_N",
+          "type": "open_collector",
+          "net": "EXT_RAILS_OK"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "4",
+          "name": "CT",
+          "type": "input",
+          "net": "CT_ANALOG"
+        },
+        {
+          "number": "5",
+          "name": "SENSE",
+          "type": "input",
+          "net": "VREF_2V5"
+        },
+        {
+          "number": "6",
+          "name": "VDD",
+          "type": "power_in",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://www.ti.com/lit/gpn/tps3808",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "package": "SOT-23-6",
+      "mpn": "TPS3808G25DBVR",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        72.39
+      ]
+    },
+    {
+      "ref": "R528",
+      "value": "10k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "EXT_RAILS_OK"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-0710KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        72.39
+      ]
+    },
+    {
+      "ref": "R529",
+      "value": "100k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CT_ANALOG"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-07100KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        72.39
+      ]
+    },
+    {
+      "ref": "C521",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        102.87
+      ]
+    }
+  ]
+}

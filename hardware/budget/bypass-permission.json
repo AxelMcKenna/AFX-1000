@@ -1,0 +1,1058 @@
+{
+  "schema": 1,
+  "revision": "B1-5V-draft",
+  "mcu_gpio": {
+    "watchdog_heartbeat": 28,
+    "dsp_ready": 17
+  },
+  "timing": {
+    "watchdog_part": "TPS3435AFACADDFRQ1",
+    "cwd_components_nf": {
+      "C21": 10,
+      "C28": 0.1
+    },
+    "crst_components_nf": {
+      "C29": 10
+    },
+    "capacitor_tolerance": 0.01,
+    "device_factors": [
+      0.8,
+      1.2
+    ],
+    "nominal_ms": 49.995,
+    "target_nominal_ms": 50,
+    "nominal_error_ms": -0.005,
+    "target_worst_case_ms": null,
+    "watchdog_startup_nominal_ms": 10000,
+    "qualification_edge": "two rising edges with intervening falling WDI edge",
+    "startup_exit": "valid WDI falling edge",
+    "physical_validation": false
+  },
+  "sheet_notes": [
+    "RMX A0.1 / BYPASS PERMISSION LOGIC / DRAFT - native KiCad/ERC and full carrier validation pending",
+    "U22/U23 clear both U24 stages on faults. Two rising heartbeat edges are needed; the intervening falling edge starts watchdog monitoring.",
+    "B1 external 5V/3.3V, midrail health and one stereo dry relay; original watchdog/stage logic retained.",
+    "TPS3435AFACADDFRQ1: 10.1 nF CWD gives 49.995 ms nominal; 20% timer tolerance applies. This is not a 50 ms maximum fault-to-dry guarantee."
+  ],
+  "components": [
+    {
+      "ref": "U21",
+      "value": "TPS3435AFACADDFRQ1",
+      "package": "DDF SOT-23-THIN-8",
+      "source": "https://www.ti.com/lit/gpn/tps3435-q1",
+      "qualification": "Pinout A; adjustable timeout/pulse; startup F 10s exits on first valid WDI falling edge; source stocked through NZ storefronts with overseas dispatch; footprint review pending",
+      "footprint": "Package_TO_SOT_SMD:Texas_DDF0008A_SOT-8_1.6x2.9mm_P0.65mm",
+      "at": [
+        45.72,
+        55.88
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "MR_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "CWD",
+          "type": "input",
+          "net": "CWD"
+        },
+        {
+          "number": "3",
+          "name": "CRST",
+          "type": "input",
+          "net": "CRST"
+        },
+        {
+          "number": "4",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "5",
+          "name": "SET0",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "6",
+          "name": "WDI",
+          "type": "input",
+          "net": "HEARTBEAT"
+        },
+        {
+          "number": "7",
+          "name": "WDO_N",
+          "type": "open_collector",
+          "net": "WD_OK"
+        },
+        {
+          "number": "8",
+          "name": "VDD",
+          "type": "power_in",
+          "net": "+3V3"
+        }
+      ]
+    },
+    {
+      "ref": "U25",
+      "value": "TPS3808G33DBVR",
+      "package": "DBV SOT-23-6",
+      "source": "https://www.ti.com/lit/gpn/tps3808",
+      "qualification": "300 ms nominal recovery via 100k CT resistor; verify thresholds and source availability",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "at": [
+        157.48,
+        55.88
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "RESET_N",
+          "type": "open_collector",
+          "net": "PG_OK"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MR_N",
+          "type": "input",
+          "net": "MANUAL_N"
+        },
+        {
+          "number": "4",
+          "name": "CT",
+          "type": "input",
+          "net": "CT_3V3"
+        },
+        {
+          "number": "5",
+          "name": "SENSE",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "6",
+          "name": "VDD",
+          "type": "power_in",
+          "net": "+3V3"
+        }
+      ]
+    },
+    {
+      "ref": "U26",
+      "value": "TPS3808G50DBVR",
+      "package": "DBV SOT-23-6",
+      "source": "https://www.ti.com/lit/gpn/tps3808",
+      "qualification": "300 ms nominal recovery via 100k CT resistor; verify thresholds and source availability",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "at": [
+        269.24,
+        55.88
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "RESET_N",
+          "type": "open_collector",
+          "net": "PG_OK"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MR_N",
+          "type": "input",
+          "net": "MANUAL_N"
+        },
+        {
+          "number": "4",
+          "name": "CT",
+          "type": "input",
+          "net": "CT_5V"
+        },
+        {
+          "number": "5",
+          "name": "SENSE",
+          "type": "input",
+          "net": "+5V"
+        },
+        {
+          "number": "6",
+          "name": "VDD",
+          "type": "power_in",
+          "net": "+3V3"
+        }
+      ]
+    },
+    {
+      "ref": "J_BP1",
+      "value": "REGULATED POWER",
+      "package": "1x3 2.54 mm",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Bench interface; power generation/protection outside sheet",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "at": [
+        381.0,
+        55.88
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "5V",
+          "type": "passive",
+          "net": "+5V"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "J_BP2",
+      "value": "SEED D28 / D17",
+      "package": "1x3 2.54 mm",
+      "source": "hardware/electrical/README.md",
+      "qualification": "GPIO index is not physical Seed header pin; disconnect either control -> dry after its guard timeout",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "at": [
+        492.76,
+        55.88
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "D28",
+          "type": "passive",
+          "net": "HEARTBEAT"
+        },
+        {
+          "number": "2",
+          "name": "D17",
+          "type": "passive",
+          "net": "DSP_READY"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "U22",
+      "value": "74LVC2G08DP",
+      "package": "SOT505-2 TSSOP-8",
+      "source": "https://assets.nexperia.com/documents/data-sheet/74LVC2G08.pdf",
+      "qualification": "Dual AND; pin mapping for DP package only",
+      "footprint": "Package_SO:TSSOP-8_3x3mm_P0.65mm",
+      "at": [
+        45.72,
+        109.22
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1A",
+          "type": "input",
+          "net": "WD_OK"
+        },
+        {
+          "number": "2",
+          "name": "1B",
+          "type": "input",
+          "net": "DSP_READY"
+        },
+        {
+          "number": "3",
+          "name": "2Y",
+          "type": "output",
+          "net": "RAILS_OK"
+        },
+        {
+          "number": "4",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "5",
+          "name": "2A",
+          "type": "input",
+          "net": "PG_OK"
+        },
+        {
+          "number": "6",
+          "name": "2B",
+          "type": "input",
+          "net": "EXT_RAILS_OK"
+        },
+        {
+          "number": "7",
+          "name": "1Y",
+          "type": "output",
+          "net": "DSP_HEALTHY"
+        },
+        {
+          "number": "8",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        }
+      ]
+    },
+    {
+      "ref": "U23",
+      "value": "74LVC1G08GV",
+      "package": "SOT753 SC-74A",
+      "source": "https://assets.nexperia.com/documents/data-sheet/74LVC1G08.pdf",
+      "qualification": "Clear permission asynchronously on any health fault",
+      "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+      "at": [
+        157.48,
+        109.22
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "B",
+          "type": "input",
+          "net": "DSP_HEALTHY"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "type": "input",
+          "net": "RAILS_OK"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "Y",
+          "type": "output",
+          "net": "CLEAR_N"
+        },
+        {
+          "number": "5",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        }
+      ]
+    },
+    {
+      "ref": "U24",
+      "value": "74LVC74APW",
+      "package": "SOT402-1 TSSOP-14",
+      "source": "https://assets.nexperia.com/documents/data-sheet/74LVC74A.pdf",
+      "qualification": "Ordering suffix 74LVC74APW,118; two rising-edge stages require a complete heartbeat pulse after clear; intermediate falling edge starts watchdog monitoring; clock/reset recovery and stage hold margins need review",
+      "footprint": "Package_SO:TSSOP-14_4.4x5mm_P0.65mm",
+      "at": [
+        269.24,
+        109.22
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1RD_N",
+          "type": "input",
+          "net": "CLEAR_N"
+        },
+        {
+          "number": "2",
+          "name": "1D",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "3",
+          "name": "1CP",
+          "type": "input",
+          "net": "HEARTBEAT"
+        },
+        {
+          "number": "4",
+          "name": "1SD_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "5",
+          "name": "1Q",
+          "type": "output",
+          "net": "HEARTBEAT_SEEN"
+        },
+        {
+          "number": "6",
+          "name": "1Q_N",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "7",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "8",
+          "name": "2Q_N",
+          "type": "output",
+          "no_connect": true
+        },
+        {
+          "number": "9",
+          "name": "2Q",
+          "type": "output",
+          "net": "RELAY_PERMISSION"
+        },
+        {
+          "number": "10",
+          "name": "2SD_N",
+          "type": "input",
+          "net": "+3V3"
+        },
+        {
+          "number": "11",
+          "name": "2CP",
+          "type": "input",
+          "net": "HEARTBEAT"
+        },
+        {
+          "number": "12",
+          "name": "2D",
+          "type": "input",
+          "net": "HEARTBEAT_SEEN"
+        },
+        {
+          "number": "13",
+          "name": "2RD_N",
+          "type": "input",
+          "net": "CLEAR_N"
+        },
+        {
+          "number": "14",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        }
+      ],
+      "mpn": "74LVC74APW,118"
+    },
+    {
+      "ref": "J_BP3",
+      "value": "ANALOG RAIL HEALTH",
+      "package": "1x2 2.54 mm",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Active-high 3.3 V from analog rail supervisor/settling circuit; missing signal keeps dry; circuit unfinished",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "at": [
+        381.0,
+        109.22
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "ALL_GOOD",
+          "type": "passive",
+          "net": "EXT_RAILS_OK"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "J_BP4",
+      "value": "TO RELAY DRIVER",
+      "package": "1x2 2.54 mm",
+      "source": "hardware/electrical/README.md",
+      "qualification": "3.3 V logic only; no relay coil; driver/muting and NC dry contacts outside this sheet",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "at": [
+        492.76,
+        109.22
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "PERMIT",
+          "type": "passive",
+          "net": "RELAY_PERMISSION"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "R21",
+      "value": "10k",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "WDO open-drain pull-up; exact stocked resistor MPN not selected",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "at": [
+        45.72,
+        162.56
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "WD_OK"
+        }
+      ],
+      "mpn": "RC0603FR-0710KL"
+    },
+    {
+      "ref": "R22",
+      "value": "47k",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Ready defaults low when MCU disconnected/reset; exact stocked resistor MPN not selected",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "at": [
+        157.48,
+        162.56
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "DSP_READY"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "mpn": "RC0603FR-0747KL"
+    },
+    {
+      "ref": "R23",
+      "value": "47k",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Heartbeat defaults low when MCU disconnected/reset; exact stocked resistor MPN not selected",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "at": [
+        269.24,
+        162.56
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "HEARTBEAT"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "mpn": "RC0603FR-0747KL"
+    },
+    {
+      "ref": "R24",
+      "value": "47k",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Missing analog health keeps dry; source must drive high; exact stocked resistor MPN not selected",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "at": [
+        381.0,
+        162.56
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "EXT_RAILS_OK"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "mpn": "RC0603FR-0747KL"
+    },
+    {
+      "ref": "R25",
+      "value": "10k",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Shared supervisor open-drain pull-up; exact stocked resistor MPN not selected",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "at": [
+        492.76,
+        162.56
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "PG_OK"
+        }
+      ],
+      "mpn": "RC0603FR-0710KL"
+    },
+    {
+      "ref": "R26",
+      "value": "10k",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Manual bypass switch pull-up; exact stocked resistor MPN not selected",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "at": [
+        45.72,
+        215.9
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "MANUAL_N"
+        }
+      ],
+      "mpn": "RC0603FR-0710KL"
+    },
+    {
+      "ref": "R27",
+      "value": "100k",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "CT strap inside 40k-200k range; 300 ms nominal; exact stocked resistor MPN not selected",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "at": [
+        157.48,
+        215.9
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CT_3V3"
+        }
+      ],
+      "mpn": "RC0603FR-07100KL"
+    },
+    {
+      "ref": "R28",
+      "value": "100k",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "CT strap inside 40k-200k range; 300 ms nominal; exact stocked resistor MPN not selected",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "at": [
+        269.24,
+        215.9
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CT_5V"
+        }
+      ],
+      "mpn": "RC0603FR-07100KL"
+    },
+    {
+      "ref": "R29",
+      "value": "47k",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Pull-down at driver input; duplicate at remote MOSFET gate if wired; exact stocked resistor MPN not selected",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "at": [
+        381.0,
+        215.9
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "RELAY_PERMISSION"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "mpn": "RC0603FR-0747KL"
+    },
+    {
+      "ref": "SW32",
+      "value": "MANUAL DRY BYPASS",
+      "package": "SPST maintained; footprint TBD",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Closed forces both supervisors RESET low; open requires recovery delay plus fresh heartbeat",
+      "footprint": "",
+      "at": [
+        492.76,
+        215.9
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "MANUAL_N"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "C21",
+      "value": "10nF C0G 1%",
+      "package": "0805 metric 2012",
+      "source": "https://search.kemet.com/download/specsheet/C0805X103F5GACTU",
+      "qualification": "C0805X103F5GACTU candidate; with C28 total 10.1nF gives 49.995ms nominal; tolerance/temperature/leakage still apply",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "at": [
+        45.72,
+        269.24
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CWD"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "mpn": "C0805X103F5GACTU"
+    },
+    {
+      "ref": "C22",
+      "value": "100nF X7R >=10V",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Local decoupling next to U21; exact stocked capacitor MPN not selected",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "at": [
+        157.48,
+        269.24
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "C23",
+      "value": "100nF X7R >=10V",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Local decoupling next to U25; exact stocked capacitor MPN not selected",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "at": [
+        269.24,
+        269.24
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "C24",
+      "value": "100nF X7R >=10V",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Local decoupling next to U26; exact stocked capacitor MPN not selected",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "at": [
+        381.0,
+        269.24
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "C25",
+      "value": "100nF X7R >=10V",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Local decoupling next to U22; exact stocked capacitor MPN not selected",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "at": [
+        492.76,
+        269.24
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "C26",
+      "value": "100nF X7R >=10V",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Local decoupling next to U23; exact stocked capacitor MPN not selected",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "at": [
+        45.72,
+        322.58
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "C27",
+      "value": "100nF X7R >=10V",
+      "package": "0603 metric 1608",
+      "source": "hardware/electrical/README.md",
+      "qualification": "Local decoupling next to U24; exact stocked capacitor MPN not selected",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "at": [
+        157.48,
+        322.58
+      ],
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ]
+    },
+    {
+      "ref": "C28",
+      "value": "100pF C0G 1%",
+      "package": "0603 metric 1608",
+      "footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "source": "https://search.kemet.com/download/specsheet/C0603C101F5GACTU",
+      "qualification": "KEMET C0603C101F5GACTU; parallel 100pF trim with C21; 1% C0G 50V; physical timing and leakage require qualification",
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CWD"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "at": [
+        269.24,
+        322.58
+      ],
+      "mpn": "C0603C101F5GACTU"
+    },
+    {
+      "ref": "C29",
+      "value": "10nF C0G 1%",
+      "package": "0805 metric 2012",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "source": "https://search.kemet.com/download/specsheet/C0805X103F5GACTU",
+      "qualification": "C0805X103F5GACTU candidate; nominal WDO low pulse 49.5ms; CWD < 200*CRST constraint satisfied",
+      "virtual": false,
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CRST"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "at": [
+        381.0,
+        322.58
+      ],
+      "mpn": "C0805X103F5GACTU"
+    }
+  ],
+  "project": "bypass-permission"
+}

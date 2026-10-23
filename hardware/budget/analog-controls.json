@@ -1,0 +1,1312 @@
+{
+  "schema": 1,
+  "revision": "B1-5V-draft",
+  "project": "analog-controls",
+  "title": "RMX - knob and release-lever scan",
+  "paper": "A2",
+  "mcu_gpio": {
+    "adc_mux_a": 15,
+    "adc_mux_b": 16,
+    "mux_s0": 25,
+    "mux_s1": 26,
+    "mux_s2": 27
+  },
+  "bom_file": "analog-controls-bom.csv",
+  "sheet_notes": [
+    "RMX A0.2 / ANALOG CONTROLS / DRAFT - 10k linear pots, 1k / 10nF pre-mux filter",
+    "All pot high terminals and mux VCC use the same 3.3V source as the Seed ADC reference. Never feed 5V into these inputs.",
+    "Mux B Y3..Y7 are grounded. Shared address lines require synchronized eight-position scans; verify on the board."
+  ],
+  "components": [
+    {
+      "ref": "J_ADC1",
+      "value": "SEED ADC/MUX",
+      "pins": [
+        {
+          "number": "1",
+          "name": "+3V3",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "3",
+          "name": "MUX_A",
+          "type": "passive",
+          "net": "MUX_A"
+        },
+        {
+          "number": "4",
+          "name": "MUX_B",
+          "type": "passive",
+          "net": "MUX_B"
+        },
+        {
+          "number": "5",
+          "name": "MUX_S0",
+          "type": "passive",
+          "net": "MUX_S0"
+        },
+        {
+          "number": "6",
+          "name": "MUX_S1",
+          "type": "passive",
+          "net": "MUX_S1"
+        },
+        {
+          "number": "7",
+          "name": "MUX_S2",
+          "type": "passive",
+          "net": "MUX_S2"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical",
+      "package": "1x7 2.54 mm; shrouded/keyed production connector pending",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        85.09
+      ]
+    },
+    {
+      "ref": "U6",
+      "value": "74HC4051D,653",
+      "pins": [
+        {
+          "number": "3",
+          "name": "Z",
+          "type": "passive",
+          "net": "MUX_A"
+        },
+        {
+          "number": "6",
+          "name": "E",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "7",
+          "name": "VEE",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "S2",
+          "type": "input",
+          "net": "MUX_S2"
+        },
+        {
+          "number": "10",
+          "name": "S1",
+          "type": "input",
+          "net": "MUX_S1"
+        },
+        {
+          "number": "11",
+          "name": "S0",
+          "type": "input",
+          "net": "MUX_S0"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "13",
+          "name": "Y0",
+          "type": "passive",
+          "net": "CONTROL_00"
+        },
+        {
+          "number": "14",
+          "name": "Y1",
+          "type": "passive",
+          "net": "CONTROL_01"
+        },
+        {
+          "number": "15",
+          "name": "Y2",
+          "type": "passive",
+          "net": "CONTROL_02"
+        },
+        {
+          "number": "12",
+          "name": "Y3",
+          "type": "passive",
+          "net": "CONTROL_03"
+        },
+        {
+          "number": "1",
+          "name": "Y4",
+          "type": "passive",
+          "net": "CONTROL_04"
+        },
+        {
+          "number": "5",
+          "name": "Y5",
+          "type": "passive",
+          "net": "CONTROL_05"
+        },
+        {
+          "number": "2",
+          "name": "Y6",
+          "type": "passive",
+          "net": "CONTROL_06"
+        },
+        {
+          "number": "4",
+          "name": "Y7",
+          "type": "passive",
+          "net": "CONTROL_07"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT4051.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC4051D,653",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        85.09
+      ]
+    },
+    {
+      "ref": "C110",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        85.09
+      ]
+    },
+    {
+      "ref": "U7",
+      "value": "74HC4051D,653",
+      "pins": [
+        {
+          "number": "3",
+          "name": "Z",
+          "type": "passive",
+          "net": "MUX_B"
+        },
+        {
+          "number": "6",
+          "name": "E",
+          "type": "input",
+          "net": "GND"
+        },
+        {
+          "number": "7",
+          "name": "VEE",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "8",
+          "name": "GND",
+          "type": "power_in",
+          "net": "GND"
+        },
+        {
+          "number": "9",
+          "name": "S2",
+          "type": "input",
+          "net": "MUX_S2"
+        },
+        {
+          "number": "10",
+          "name": "S1",
+          "type": "input",
+          "net": "MUX_S1"
+        },
+        {
+          "number": "11",
+          "name": "S0",
+          "type": "input",
+          "net": "MUX_S0"
+        },
+        {
+          "number": "16",
+          "name": "VCC",
+          "type": "power_in",
+          "net": "+3V3"
+        },
+        {
+          "number": "13",
+          "name": "Y0",
+          "type": "passive",
+          "net": "CONTROL_08"
+        },
+        {
+          "number": "14",
+          "name": "Y1",
+          "type": "passive",
+          "net": "CONTROL_09"
+        },
+        {
+          "number": "15",
+          "name": "Y2",
+          "type": "passive",
+          "net": "CONTROL_10"
+        },
+        {
+          "number": "12",
+          "name": "Y3",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "1",
+          "name": "Y4",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "5",
+          "name": "Y5",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "Y6",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "4",
+          "name": "Y7",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "https://assets.nexperia.com/documents/data-sheet/74HC_HCT4051.pdf",
+      "footprint": "Package_SO:SOIC-16_3.9x9.9mm_P1.27mm",
+      "package": "SOIC-16",
+      "mpn": "74HC4051D,653",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        85.09
+      ]
+    },
+    {
+      "ref": "C111",
+      "value": "100nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "+3V3"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        85.09
+      ]
+    },
+    {
+      "ref": "RV1",
+      "value": "10k linear InputGain",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_00"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        129.54
+      ]
+    },
+    {
+      "ref": "R140",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_00"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_00"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        129.54
+      ]
+    },
+    {
+      "ref": "C120",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_00"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        129.54
+      ]
+    },
+    {
+      "ref": "RV2",
+      "value": "10k linear OutputGain",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_01"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        129.54
+      ]
+    },
+    {
+      "ref": "R141",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_01"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_01"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        129.54
+      ]
+    },
+    {
+      "ref": "C121",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_01"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        157.48
+      ]
+    },
+    {
+      "ref": "RV3",
+      "value": "10k linear Low",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_02"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        157.48
+      ]
+    },
+    {
+      "ref": "R142",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_02"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_02"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        157.48
+      ]
+    },
+    {
+      "ref": "C122",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_02"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        157.48
+      ]
+    },
+    {
+      "ref": "RV4",
+      "value": "10k linear Mid",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_03"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        157.48
+      ]
+    },
+    {
+      "ref": "R143",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_03"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_03"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        185.42
+      ]
+    },
+    {
+      "ref": "C123",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_03"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        185.42
+      ]
+    },
+    {
+      "ref": "RV5",
+      "value": "10k linear High",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_04"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        185.42
+      ]
+    },
+    {
+      "ref": "R144",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_04"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_04"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        185.42
+      ]
+    },
+    {
+      "ref": "C124",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_04"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        185.42
+      ]
+    },
+    {
+      "ref": "RV6",
+      "value": "10k linear SceneDepth",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_05"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        213.36
+      ]
+    },
+    {
+      "ref": "R145",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_05"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_05"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        213.36
+      ]
+    },
+    {
+      "ref": "C125",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_05"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        213.36
+      ]
+    },
+    {
+      "ref": "RV7",
+      "value": "10k linear SceneTime",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_06"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        213.36
+      ]
+    },
+    {
+      "ref": "R146",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_06"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_06"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        213.36
+      ]
+    },
+    {
+      "ref": "C126",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_06"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        241.3
+      ]
+    },
+    {
+      "ref": "RV8",
+      "value": "10k linear SceneResonance",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_07"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        241.3
+      ]
+    },
+    {
+      "ref": "R147",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_07"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_07"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        241.3
+      ]
+    },
+    {
+      "ref": "C127",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_07"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        241.3
+      ]
+    },
+    {
+      "ref": "RV9",
+      "value": "10k linear XLevel",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_08"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        241.3
+      ]
+    },
+    {
+      "ref": "R148",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_08"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_08"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        269.24
+      ]
+    },
+    {
+      "ref": "C128",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_08"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        269.24
+      ]
+    },
+    {
+      "ref": "RV10",
+      "value": "10k linear XPitch",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_09"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        269.24
+      ]
+    },
+    {
+      "ref": "R149",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_09"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_09"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        381.0,
+        269.24
+      ]
+    },
+    {
+      "ref": "C129",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_09"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        492.76,
+        269.24
+      ]
+    },
+    {
+      "ref": "RV11",
+      "value": "10k linear ReleaseAmount",
+      "pins": [
+        {
+          "number": "1",
+          "name": "CCW",
+          "type": "passive",
+          "net": "GND"
+        },
+        {
+          "number": "2",
+          "name": "WIPER",
+          "type": "passive",
+          "net": "WIPER_10"
+        },
+        {
+          "number": "3",
+          "name": "CW",
+          "type": "passive",
+          "net": "+3V3"
+        }
+      ],
+      "source": "https://surplustronics.co.nz/categories/198-potentiometers-trimpots",
+      "footprint": "",
+      "package": "24mm panel pot, split shaft; rear body/shaft measurement and harness terminal check required",
+      "mpn": "CR0208 (supplier code)",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        45.72,
+        297.18
+      ]
+    },
+    {
+      "ref": "R150",
+      "value": "1k 1%",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "WIPER_10"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "CONTROL_10"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Resistor_SMD:R_0603_1608Metric",
+      "package": "0603",
+      "mpn": "RC0603FR-071KL",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        157.48,
+        297.18
+      ]
+    },
+    {
+      "ref": "C130",
+      "value": "10nF X7R 25V",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "type": "passive",
+          "net": "CONTROL_10"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "type": "passive",
+          "net": "GND"
+        }
+      ],
+      "source": "hardware/budget/README.md",
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "package": "0805; dielectric/voltage per value",
+      "mpn": "",
+      "qualification": "Native ERC, footprint and bench qualification pending",
+      "at": [
+        269.24,
+        297.18
+      ]
+    }
+  ]
+}
