@@ -3,6 +3,7 @@
 #include "sys/fatfs.h"
 #include "rmx/CardSamples.h"
 #include "rmx/CardSettings.h"
+#include "rmx/HardwareCalibration.h"
 
 namespace rmx::board {
 enum class CardState : uint8_t { Absent,NoManifest,ManifestError,Loaded,Partial,IoError };
@@ -12,6 +13,8 @@ public:
     CardState load(SampleBank&,ParameterStore&) noexcept;
     CardReport report;
     CardError settingsError{CardError::NotRequested};
+    CardError calibrationError{CardError::NotRequested};
+    ControlCalibration calibration;
 private:
     struct Reader final : SampleFile {
         alignas(32) FIL file{};
@@ -26,6 +29,7 @@ private:
     alignas(32) daisy::FatFSInterface filesystem;
     daisy::SdmmcHandler sdmmc;
     CardError loadSettings(ParameterStore&) noexcept;
+    CardError loadCalibration() noexcept;
     SampleFile* open(unsigned slot) noexcept override;
     bool close() noexcept override {return reader.closeFile();}
 };

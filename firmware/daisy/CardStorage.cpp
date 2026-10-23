@@ -40,14 +40,26 @@ CardError CardStorage::loadSettings(ParameterStore& parameters) noexcept {
     if(error==CardError::None)user.apply(parameters);
     return error;
 }
+CardError CardStorage::loadCalibration() noexcept {
+    const auto opened=reader.openPath("0:/RMX/CALIB.TXT");
+    if(opened==FR_NO_FILE||opened==FR_NO_PATH)return CardError::NotRequested;
+    if(opened!=FR_OK)return CardError::Open;
+    ControlCalibration staged;std::array<std::byte,maximumCalibrationBytes> scratch{};
+    auto error=readControlCalibration(reader,staged,scratch);
+    if(!reader.closeFile())error=CardError::Read;
+    if(error==CardError::None)calibration=staged;
+    return error;
+}
 CardState CardStorage::load(SampleBank& bank,ParameterStore& parameters) noexcept {
     report={};report.banks.fill(CardError::NotRequested);settingsError=CardError::NotRequested;
+    calibrationError=CardError::NotRequested;calibration={};
     daisy::SdmmcHandler::Config config;config.Defaults();config.speed=daisy::SdmmcHandler::Speed::STANDARD;
     if(sdmmc.Init(config)!=daisy::SdmmcHandler::Result::OK||filesystem.Init(daisy::FatFSInterface::Config::MEDIA_SD)!=daisy::FatFSInterface::OK)return CardState::IoError;
     auto finish=[&](CardState state) {
         reader.closeFile();f_mount(nullptr,filesystem.GetSDPath(),0);filesystem.DeInit();
-        const bool settingsFailed=settingsError!=CardError::None&&settingsError!=CardError::NotRequested;
-        if(state==CardState::NoManifest&&settingsError==CardError::None)return CardState::Loaded;
+        const bool settingsFailed=(settingsError!=CardError::None&&settingsError!=CardError::NotRequested)
+            ||(calibrationError!=CardError::None&&calibrationError!=CardError::NotRequested);
+        if(state==CardState::NoManifest&&!settingsFailed&&(settingsError==CardError::None||calibrationError==CardError::None))return CardState::Loaded;
         if((state==CardState::Loaded||state==CardState::NoManifest)&&settingsFailed)return CardState::Partial;
         if((state==CardState::ManifestError||state==CardState::IoError)&&settingsError==CardError::None)return CardState::Partial;
         return state;
@@ -57,6 +69,7 @@ CardState CardStorage::load(SampleBank& bank,ParameterStore& parameters) noexcep
     // Settings and sample banks install independently; an invalid profile must
     // not overwrite physical controls or prevent valid sample banks loading.
     settingsError=loadSettings(parameters);
+    calibrationError=loadCalibration();
     const auto opened=reader.openPath("0:/RMX/SAMPLES.TXT");
     if(opened!=FR_OK)return finish(opened==FR_NO_FILE||opened==FR_NO_PATH?CardState::NoManifest:CardState::IoError);
     const auto length=reader.size();if(!length||length>2048)return finish(CardState::ManifestError);

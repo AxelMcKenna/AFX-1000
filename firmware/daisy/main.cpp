@@ -22,6 +22,7 @@ alignas(rmx::SampleBank) std::byte bankStorage[sizeof(rmx::SampleBank)];
 rmx::Engine* engine{};
 std::atomic<uint32_t> audioBlocks{};
 rmx::EmbeddedControls controls;
+rmx::StartupEnvelope startupEnvelope;
 GPIO buttonLoad,buttonClock,buttonData,ledData,ledClock,ledLatch,ledOe,heartbeat,dspReady;
 I2CHandle touchBus;
 bool touchReady{},audioStarted{};
@@ -35,6 +36,7 @@ void output(GPIO& pin,unsigned number,bool high=false) {
 }
 void audio(AudioHandle::InputBuffer input,AudioHandle::OutputBuffer output,size_t size) {
     engine->process(input[0],input[1],output[0],output[1],static_cast<uint32_t>(size));
+    startupEnvelope.process(output[0],output[1],size);
     audioBlocks.fetch_add(1,std::memory_order_relaxed);
 }
 bool touchWrite(uint8_t reg,uint8_t value) {
@@ -124,7 +126,11 @@ int main() {
         while(true) {
             const auto now=System::GetNow(); if(now-lastTick<1) continue;lastTick=now;
             controls.buttons(readButtons(),read,write,send);
-            for(unsigned i=0;i<std::size(rmx::board::adcParameters);++i) controls.analog(i,rmx::board::adcParameters[i],hardware.adc.GetMuxFloat(i/8,i%8),write);
+            for(unsigned i=0;i<std::size(rmx::board::adcParameters);++i) {
+                const auto p=rmx::board::adcParameters[i];
+                const bool centered=p==rmx::Param::Low||p==rmx::Param::Mid||p==rmx::Param::High||p==rmx::Param::XPitch;
+                controls.analog(i,p,card.calibration.apply(i,hardware.adc.GetMuxFloat(i/8,i%8),centered),write);
+            }
             uint8_t status[2]{};
             if(touchReady) {
                 const bool ok=touchBus.ReadDataAtAddress(touchAddress,0,1,status,2,2)==I2CHandle::Result::OK;
@@ -132,7 +138,8 @@ int main() {
                 controls.touch(ok?status[0]:0,write,send);
             }
             const auto blocks=audioBlocks.load(std::memory_order_relaxed);
-            if(blocks!=previousBlocks) {heartbeatState=!heartbeatState;heartbeat.Write(heartbeatState);previousBlocks=blocks;lastProgress=now;dspReady.Write(blocks>=3);}
+            constexpr unsigned startupBlocks=(rmx::StartupEnvelope::fadeFrames+63)/64;
+            if(blocks!=previousBlocks) {heartbeatState=!heartbeatState;heartbeat.Write(heartbeatState);previousBlocks=blocks;lastProgress=now;dspReady.Write(blocks>=startupBlocks);}
             if(now-lastProgress>10) dspReady.Write(false);
             if(now-ledTick>=25) {
                 ledFrame();ledTick=now;
