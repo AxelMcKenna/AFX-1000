@@ -17,6 +17,14 @@ Works with rekordbox through audio capture or an interface. The effects are orig
 
 Auto BPM, tap tempo, quantized rolls, MIDI learn, soft takeover and DAW automation are included.
 
+## Hardware design
+
+The standalone hardware prototype has a 334 × 157 mm enclosure, custom control layout and a separate button-mechanism fixture. The CAD overview shows the assembled housing, exploded internals, printable parts and a button cutaway.
+
+[![RMX CAD overview: assembled housing, exploded internals, printable parts and button mechanism cutaway](docs/assets/hardware/cad-overview.png)](docs/assets/hardware/cad-overview.png)
+
+This is a CAD prototype snapshot. Full-unit button caps are simplified envelopes; the detailed B01 mechanism is shown separately. Translucent blocks represent component clearances. Physical fit and assembly remain to be validated. See the [hardware guide](hardware/README.md) and [editable CAD models](hardware/cad/README.md).
+
 ## Run it
 
 Requires macOS 12+, Xcode Command Line Tools and CMake 3.24+. The native app has no external library dependencies.
