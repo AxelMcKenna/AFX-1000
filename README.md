@@ -3,10 +3,12 @@
 [![Build](https://github.com/AxelMcKenna/RMX-1000-Clone/actions/workflows/build.yml/badge.svg)](https://github.com/AxelMcKenna/RMX-1000-Clone/actions/workflows/build.yml)
 ![macOS 12+](https://img.shields.io/badge/macOS-12%2B-222222?style=flat-square&logo=apple&logoColor=white)
 ![Standalone / AU / VST3](https://img.shields.io/badge/Standalone-AU_%2F_VST3-222222?style=flat-square)
+![C++20](https://img.shields.io/badge/C%2B%2B-20-167d8d?style=flat-square)
+![Hardware prototype](https://img.shields.io/badge/Hardware-B1_prototype-d69a36?style=flat-square)
 
-A software take on the RMX-1000. Native macOS app, AU and VST3, with an amber/teal panel and a shared C++20 audio engine.
+A take on the RMX-1000, built around a shared C++20 audio engine. Native Mac app, AU and VST3, with a hardware-style amber/teal panel. A standalone Daisy Seed version is in development too.
 
-Works with rekordbox through audio capture or an interface. The effects are original implementations; matching the hardware's sound is still a work in progress.
+Use it with rekordbox through app capture or an audio interface. The effects and factory drums are original implementations. Matching the reference unit's sound, timing and full feature set is still work in progress.
 
 ## What's in it
 
@@ -21,9 +23,15 @@ Loop tempo and pitch have separate playback controls. AUTO can follow detected b
 
 Overdub runs a four-beat pattern. Each bank holds 16 seconds of audio; slot 1 supports BPM-tagged loops. Sample editing includes trim, reverse, normalization and BPM/loop settings. Pad one-shots trigger immediately.
 
+### Latest sound pass
+
+Rebuilt kick, snare, clap and hat voices, with independent gain, decay and envelope choices. Noise now has a resonant filter sweep, shaped modulation and a damped echo return. Faster pitched playback uses a band-limited reader; a linked stereo peak limiter catches output overshoots.
+
+Pitch travel has separate up/down ranges from 1 to 24 semitones. The extra range is a project extension. These changes are implemented, but have not been matched against recordings of an RMX-1000. [DSP notes](docs/dsp-model.md) cover the details and limits.
+
 ## Run it
 
-Requires macOS 12+, Xcode Command Line Tools and CMake 3.24+. The native app has no external library dependencies.
+Requires macOS 12+, Xcode Command Line Tools and CMake 3.24+. The default native app needs no third-party SDK. Ableton Link is optional and disabled by default.
 
 ```sh
 git clone git@github.com:AxelMcKenna/RMX-1000-Clone.git
@@ -33,6 +41,8 @@ open build/RMX.app
 ```
 
 **Cmd+,** opens audio setup. Pick an input and output, then start audio.
+
+Audio setup remembers devices, channel pairs and buffer size. A previously active route can resume on launch when its devices are available. **Stop Audio** disables that automatic resume.
 
 **Space** bypasses. **Esc** resets the effects. **T** taps tempo. **1-4** trigger the pads. Hold **Shift** while dragging for fine adjustments.
 
@@ -86,17 +96,42 @@ ctest --test-dir build --output-on-failure
 
 The renderer's preset argument is optional. Benchmarks measure DSP time, not physical audio latency.
 
+To render 21 drum/pitch/roll and Noise audition clips without opening an audio device:
+
+```sh
+cmake --build build --target rmx_sound_preview --parallel 4
+./build/rmx_sound_preview build/sound-audition
+```
+
+Choose a new output directory each time. These clips use the current engine; they are not recordings of the original hardware.
+
 </details>
 
 ## Status
 
-Still in development. Mac-only rekordbox audio has been tested, and universal Mac artifacts build. Intel runtime testing, DAW validation, physical FLX routing, long sessions and hardware sound comparisons remain open. The latest capture restart changes need a live check.
+| Area | Current state |
+| --- | --- |
+| Native Mac audio | Direct rekordbox capture and speaker output have worked in a live session. The latest saved-route/restart behavior still needs a live check. |
+| AU / VST3 | Build locally. Earlier universal artifacts include Apple Silicon and Intel slices; the latest sound review builds are arm64. Full DAW validation and Intel runtime checks remain open. |
+| Engine and firmware | The latest validation record reports 26 passing Release checks and an ARM firmware cross-build. Earlier sanitizer and plugin-probe results are recorded separately. |
+| Synchronization | AUTO, tap, host transport and MIDI clock are implemented. Optional Link needs its SDK; enabled builds and peer synchronization remain unverified. |
+| Sound matching | Latest drum/Noise changes are ready for listening. No reference-unit comparison or claim of identical effects. |
+| Live use | Physical FLX4/FLX6 routing, cue separation, a live two-hour soak and measured round-trip latency remain open. |
 
-The engine uses stereo floating-point audio, with checks at 44.1, 48, 88.2 and 96 kHz. Processing is preallocated; the core audio callback does no allocation, locking, file I/O or UI work. See [validation](docs/validation.md) and [specifications](docs/specifications.md) for the details.
+The engine uses stereo floating-point audio and preallocated processing buffers. The core audio callback does no allocation, locking, file I/O or UI work. Signal checks cover 44.1, 48, 88.2 and 96 kHz. Results belong to the revisions and configurations documented in [validation](docs/validation.md); they do not establish MCU deadlines or hardware-equivalent specifications. See [specifications](docs/specifications.md) for the remaining measurements.
 
 ### Hardware
 
-The [hardware prototype](hardware/README.md) includes a parametric OpenSCAD enclosure, generated panel DXF/SVG, control/pin manifest, preliminary wiring/BOM and a Daisy Seed firmware adapter. The [clone requirements and remaining work](docs/clone-roadmap.md) track the full hardware/software objective. This is an unbuilt prototype design; effect sound matching, board testing and the analog carrier are still outstanding. The Daisy firmware now cross-builds with pinned dependencies and checked ELF memory placement.
+**[B1: 5 V budget prototype](hardware/budget/README.md)** is the active standalone design:
+
+- Daisy Seed with 64 MB SDRAM, physical controls, touch strip, SD loading and watchdog-qualified relay bypass.
+- Pin-connected KiCad schematics, BOM and a routed 100 x 100 mm four-layer audio/power/bypass carrier. Recorded native ERC and DRC are clean; draft Gerbers and drill files are included for engineering review.
+- Split panel STL files, seam joiner, shaft coupon, DXF/SVG and OpenSCAD enclosure source. Full tray/control solids and assembled fit still need validation.
+- Boot-time sample banks, User settings and ADC calibration, plus a 50 ms startup fade. Firmware cross-builds with pinned dependencies and checked ELF placement; it has not been flashed or measured on a board.
+
+The provisional cost ledger is **NZ$295.77**, assuming free printing, DIY assembly and reused power/cables. It is not a confirmed delivered basket. B1 targets consumer line levels and does not retain the original's high-level analogue headroom. The earlier [A0.2 higher-headroom carrier](hardware/electrical/README.md) is a separate design.
+
+**No hardware has been ordered or assembled.** Audio performance, relay fault timing, power/thermal behavior, card I/O and physical fit remain unmeasured. Draft fabrication files are not a production release. Start with the [hardware guide](hardware/README.md) and [clone roadmap](docs/clone-roadmap.md).
 
 ```sh
 ./build/rmx_memory_budget
@@ -104,7 +139,7 @@ python3 tools/generate_hardware.py --check
 ./build/rmx_card_export Performance.rmx /path/to/new-card-folder
 ```
 
-The firmware now cross-builds with boot-time SD sample loading. The exporter writes the project card layout; original RSD/SD interoperability and physical card testing remain unfinished. See the hardware guide for supported sample formats and bank replacement behavior.
+The exporter writes the project's card layout. `--settings-only` exports User settings without needing audio files; `--samples-only` exports samples. Original RSD/SD interoperability, USB MIDI, live card insertion and complete lighting feedback remain unfinished. See the hardware guide for supported formats and calibration instructions.
 
 ## Reference
 

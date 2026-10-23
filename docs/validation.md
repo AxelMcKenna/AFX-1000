@@ -66,7 +66,7 @@ The `card_storage` suite adds real PCM/manifest decoding and exporter roundtrips
 
 The Daisy image links the same decoder with a FatFS adapter. Card/file/bounce storage is global, aligned AXI SRAM; decoder stack buffers are isolated from DMA. The linker verifier checks the actual card object placement and records the new firmware sources. Sample loading and unmounting finish before audio starts. Original RSD format, SD effect presets and physical card/DMA/boot tests remain unverified.
 
-The exporter writes only sample banks and loop/BPM metadata. It requires a fresh output folder, 48 kHz sources within PCM range, and writes the project `RMX/SAMPLES.TXT` plus stereo PCM24 WAVs. A failed export leaves no partial output; an existing destination is rejected. Host roundtrips use the same parser/decoder that compiles into the firmware, not the desktop's general WAV reader.
+The initial exporter wrote sample banks and loop/BPM metadata; User profile export was added subsequently, as recorded below. Sample export requires a fresh output folder and 48 kHz sources within PCM range, and writes the project `RMX/SAMPLES.TXT` plus stereo PCM24 WAVs. A failed export leaves no partial output; an existing destination is rejected. Host roundtrips use the same parser/decoder that compiles into the firmware, not the desktop's general WAV reader.
 
 All eight Release and universal CTest suites pass. The full sanitizer run passed after initial SD integration (49.75 seconds); the final card suite was rerun under AddressSanitizer/UndefinedBehaviorSanitizer after adding empty-bank and overflow/error cases and passed. The final Daisy image uses 190,616 QSPI bytes, 48,408 AXI SRAM bytes and 18,204 DMA-region bytes. The linked card object is 5,952 bytes at 0x24000640, aligned to 32 bytes; the firmware artifact/source and placement checks pass. The command-line exporter was also run on the repository's Spiral Build preset and produced a manifest plus all sixteen PCM24 WAVs.
 
@@ -87,3 +87,135 @@ The native and universal builds pass all ten CTest suites. The nine existing sui
 An incremental firmware build exposed a real dependency bug: eager `CPPFLAGS :=` expansion erased the per-object `-MF` filename, leaving C++ headers untracked. The adapter now preserves recursive flag expansion and overrides the SDK's exception/RTTI/unwind defaults with final compiler flags. All C++ objects rebuilt with dependency files. The checker rejects absent/stale translation units, modified makefiles and unlinked objects, and records object/dependency content hashes. Six temporary-file regression cases cover these failures, escaped dependency paths and preserved-timestamp content changes. The actual stale firmware was rejected before rebuilding; a Make dry run with `Parameters.h` changed schedules both `main.o` and `Engine.o` (plus `Scene.o`).
 
 The corrected ARM image and current record pass: 194,100 QSPI bytes, 49,752 AXI SRAM bytes and 18,204 DMA-region bytes; engine/bank static storage is 25,856/800 bytes. The 60 MiB external arena remains at 0xc0000000. Board boot, cache/DMA behavior, stack high-water, callback deadlines and physical audio remain unverified.
+
+
+## Boot-time User profiles and octave regression, 22 October 2026
+
+The card exporter now writes `RMX/USER.TXT` with the preset's stored advanced User settings. `--settings-only` avoids loading WAV references; `--samples-only` preserves the sample-only workflow. Exporter-to-firmware-parser roundtrips compare every implemented advanced field, even when the preset's current mode is Default. Invalid User settings reject the staged export without leaving a partial destination.
+
+The shared parser streams at most 16 KiB through caller scratch with 128-byte bounded lines and no allocation. Stable-ID rows accept finite decimal/scientific values and preserve float precision, including host subnormal roundtrips. Unknown/duplicate/non-User fields, invalid ranges and fractional choices are rejected. Read/seek/truncation/adapter-count/format errors preserve the output candidate. Tests verify physical/performance controls remain untouched and a loaded X-Pad assignment changes emitted sample timing only in User mode. The FatFS adapter commits after a successful read and file close, loads samples independently and reports profile errors separately. Actual card reads/close failures and boot behavior still need board testing.
+
+The full build exposed a plain-kick 173 BPM half-time regression in the current incremental tempo tracker. Octave candidates are now compared against the same current window, with half-hop interpolation to reduce lag-grid bias. Tests retain the original engine BPM checks and add plain 173 BPM patterns at four input offsets; busy stereo/phase/silence/tempo-change fixtures remain passing. The octave recheck adds at most four bounded correlations on a sweep's final hop; MCU deadlines remain unmeasured.
+
+All 14 native Release and universal suites pass. The full AddressSanitizer/UndefinedBehaviorSanitizer run passes all 14 suites (64.88 seconds). Native, JUCE standalone, AU and VST3 artifacts rebuilt against the current workspace, including its concurrent Link/panel/transport changes; no runtime Link or fresh live capture validation is claimed here. The 1,000-block benchmark across all 40 effect/mode combinations reports worst p99 at 0.670313% of the desktop deadline. This is a host measurement.
+
+The Daisy firmware and current-source/object/artifact checks pass with the new profile loader and current tempo code: 205,704 QSPI bytes, 47,640 AXI SRAM bytes and 18,204 DMA-region bytes; static engine/bank objects occupy 23,744/800 bytes. The card object remains 5,952 bytes, aligned at 0x24000640. The audio arena remains 60 MiB at 0xc0000000. A command-line settings-only export of the repository's Spiral Build preset produced a 2,618-byte profile with 108 parameter rows and no sample manifest/WAVs. Original SD/RSD interoperability, USB synchronization, live insertion/loading, nonvolatile User storage and physical board qualification remain unfinished.
+
+
+## NZ sourcing and bypass permission CAD, 22 October 2026
+
+The [NZ sourcing record](../hardware/sourcing-nz.md) records the user's local-sourcing preference and distinguishes the 64 MB Seed's NZ pre-order from verified immediate stock. No purchase has been made. Relay candidates from an NZ storefront dispatch from overseas; most carrier/control/mechanical parts remain unselected.
+
+The earlier nominal 50 ms TPS3431 recommendation was incorrect: TI's adjustable equation has a 55 ms offset and a tested capacitor minimum of 100pF. The new draft uses 120pF C0G 1% (64.288 ms nominal) so negative capacitor tolerance stays inside the tested range. This leaves the 50 ms target unresolved rather than claiming the longer interval meets it.
+
+`hardware/electrical` now contains a generated KiCad schematic with embedded pin-block symbols, matching SVG and 27-part physical BOM (plus two virtual power flags). TPS3808 supervisors monitor 3.3 V/5 V, with a shared manual-bypass input and nominal 300 ms recovery. Health gates asynchronously clear a 74LVC1G74; a fresh heartbeat rising edge is required before relay permission can return. A stalled common heartbeat cannot periodically re-enable permission when the watchdog's low fault pulse ends. The firmware source drives that heartbeat only after completed audio callbacks advance; its execution is still unverified on a board.
+
+The restricted CAD reader reconstructs connectivity from emitted symbols/wires/labels/NC markers rather than importing the generator's JSON nets. Seven tests check selected IC values/pin tables, power and bias connections, all 128 prior-state/current-input combinations, independent faults/recovery, repeated watchdog pulses with frozen high/low heartbeat and broken-clear/clock mutations. Generated artifacts and the panel manifest are consistent. A raster rendering of the SVG primitives was inspected for legibility and overlaps; this was not a native KiCad render. The Release build and all 16 CTest suites passed; the ARM current-source/artifact checker remains passing. After the final unused-pin naming correction, the two bypass suites were rerun.
+
+These are ideal digital logic and generation checks, not KiCad ERC, timing closure, analog simulation or physical fault injection. Native import/ERC, DRB exposed-pad/footprint review, exact NZ-stocked parts, final watchdog selection, relay driver/suppression, line-level circuits, analog rails/mute, PCB layout and complete mechanical integration remain required. No PCB, Gerber release or assembled prototype is claimed.
+
+
+## Watchdog replacement and startup qualification, 22 October 2026
+
+The A0.1 permission draft supersedes the TPS3431/120pF and single-flip-flop selection above. U21 is now TPS3435AFACADDFRQ1, using its exact pinout A: MR high, SET0 low, 10.1nF CWD and 10nF CRST. Manufacturer specifications verify the selected 10nF/100pF KEMET capacitors as C0G 1%, 50V in 0805/0603 packages. The resulting watchdog interval is 49.995 ms nominal, with 39.596–60.594 ms initial device/capacitor tolerance bounds; the nominal output pulse is 49.5 ms. Capacitor temperature effects, parasitics, output-driver and relay timing still need qualification. This resolves the nominal timing selection, not a maximum complete fault-to-dry limit. The former DRB exposed-pad gate no longer applies to the new DDF package; its replacement footprint still needs review.
+
+The selected suffix has a nominal ten-second startup frame after power-up and each output pulse. A valid falling WDI edge exits that frame early. U24 is now a 74LVC74APW dual flip-flop: both asynchronous resets and clocks are common, stage 1 D is high, stage 1 Q feeds stage 2 D, and only stage 2 Q grants permission. Two fresh rising edges ensure an intervening falling edge starts watchdog monitoring before permission. This also avoids qualifying on an edge at fault-pulse release when the watchdog may have ignored the preceding falling edge. Physical reset recovery, stage setup/hold and clock skew remain unverified.
+
+Eleven bypass tests now read the emitted CAD, cover all 256 prior-two-stage/clock and current-input combinations, validate timing-network connectivity/ranges/tolerances, and use a separate ideal watchdog-frame model. Twelve freeze points across startup, power-good and healthy operation are swept at three timeout values for twelve seconds each. Recovery stalls after a single rising edge remain dry; repeated long startup/output-pulse frames cannot reconnect a frozen heartbeat. A bypassed-first-stage mutation demonstrates premature permission before monitoring, and broken-clear/clock mutations exercise fault clearance and qualification. The frame model assumes valid pulse widths and settled supplies/calibration, and does not prove analog or propagation behavior.
+
+All 16 Release CTest suites pass, with the final two bypass suites rerun after adding MPN fields. The current ARM source/object/artifact check remains passing. The current generated SVG was inspected through a raster rendering of its primitives, including the expanded 14-pin U24 symbol and added timing capacitors. The sheet now has 29 physical components plus two virtual power flags. Native KiCad remains unavailable: there is no local CLI, Docker's daemon is stopped, shell DNS failed and the Safari download action returned `cgWindowNotFound` without saving a KiCad image. No native import/ERC/render or installed software is claimed. Remaining work includes the relay driver, analog circuits/power/mute, PCB, mechanical fit and real-board qualification.
+
+NZ sourcing records now include indexed overseas-stock listings through NZ storefronts for the selected watchdog and dual flip-flop. Counts/prices are observations that must be reconfirmed at purchase; local warehouse stock is not established. The Seed remains a NZ pre-order, and no parts were ordered.
+
+
+## Integrated carrier native checks, 22 October 2026
+
+The A0.2 electrical draft adds eight circuit sheets alongside the permission
+sheet: relay drivers/input mute/delayed reconnect, line audio/gain modes, analog
+and digital power, analog/reference health, switches, pot muxes, LED chain, and
+Seed/SD/touch/USB wiring. The consolidated BOM contains 470 physical components.
+Thirteen host circuit tests read emitted CAD pins/wires/labels and check scan
+positions, physical module pads, harness order, NC dry paths, driver polarity,
+power polarity, and ideal gain/rail budgets. They do not simulate analog dynamics.
+
+Earlier statements that no local KiCad CLI existed are superseded. A pre-existing
+signed KiCad 10.0.7 bundle was found under `/private/tmp/rmx-kicad`. The integrated
+`hardware/electrical/carrier.kicad_pro` / `.kicad_sch` now opens nine child sheets
+with global harness nets and local internal nets. A generated RMX symbol library
+and project symbol/footprint tables resolve the cached symbols. Initial native
+checks found missing library configuration, unverified cross-sheet supplies, an
+internally parallel LDO pad modeled as two power drivers, and unannotated jack/
+socket references. Those issues were corrected; no custom ERC exclusions or
+error suppression were added. Two standalone bypass power flags are omitted in
+the integrated project so actual carrier sources drive its power nets.
+
+The final native ERC reports zero violations across ten pages. Native XML netlist
+export completes without warnings and matches every physical component/value/
+assigned footprint and all 1,486 connected physical pins, including cross-sheet
+nets and explicit NC handling. All 333 assigned footprints have matching
+pad-number sets in the bundled KiCad libraries. **137 physical parts still lack
+footprints**, and pad-number agreement does not validate manufacturer geometry,
+orientation, rated operation or physical fit. Ten native pages were plotted and
+visually inspected for overall placement; detailed manufacturer-symbol/footprint
+review remains open. The source-hashed `hardware/electrical/native-check.json`
+records native tool identity, source hashes, report/export hashes, default ignored
+ERC checks and footprint-library hashes. `tools/check_carrier.py --check` rejects
+stale source evidence without requiring KiCad; regenerating evidence requires
+native KiCad and the footprint libraries.
+
+All 19 Release CTest entries pass, including the new current-source native-record
+check. The ARM firmware source/object/artifact record remains current; no firmware
+behavior changed in this carrier work. No board has been fabricated or flashed,
+and no physical audio, callback deadline, fault-to-dry, thermal or reference-sound
+measurements were performed. Input protection, mono normalling, part/footprint
+completion, PCB layout/DRC, rear-panel reconciliation, enclosure interference and
+physical commissioning remain required. A pre-existing OpenSCAD bundle was also
+located, but has not been used to validate the solids. No browser download block
+was overridden. No parts have been ordered.
+
+
+## B1 budget hardware implementation, 23 October 2026
+
+The active [B1 variant](../hardware/budget/README.md) implements the 5 V,
+consumer-level redesign while retaining the existing Seed engine, control scan,
+SD sample/User loading and heartbeat permission circuit. A0.2 remains separately
+available. B1 includes AC-coupled stereo input/output, TLV9064 gain recovery and
+unity trimmers, a single normally-dry stereo relay, midrail health supervision,
+fused switched USB power and lower-current LED resistors. Native ERC found and
+helped correct an orphan manual-bypass header net; a regression now verifies its
+connection to the actual MANUAL_N reset input.
+
+KiCad 10.0.7 reports zero ERC violations across nine pages. The exported netlist
+matches all 423 physical components and 1,312 connected pins. Assigned footprint
+pad-number sets match the bundled libraries; this does not establish manufacturer
+geometry or physical fit. The 100 x 100 mm four-layer carrier contains 106 circuit
+footprints plus four mounting holes. Its saved values, footprints and pad nets
+match the carrier circuit subset. Native DRC reports zero violations and zero
+unconnected items, with no custom exclusions. Gerbers and drill files are exported
+as an engineering-review draft with source/output hashes; nothing was ordered.
+The Seed, controls, LEDs, touch strip and SD module remain wired assemblies.
+
+The split panel, joiner and shaft coupon STL meshes pass planar coverage, positive
+volume and two-faces-per-edge checks. Their panel drawing and a native PCB top/
+fabrication plot were visually inspected. Full tray, knobs, buttons and lever
+SCAD solids remain unrendered: the available OpenSCAD bundle fails signature
+verification and was not executed. Purchased-part dimensions, lever mechanics,
+underside interference, tolerances and a physical fit print remain open.
+
+Firmware adds bounded, atomic boot-time RMX/CALIB.TXT parsing, endpoint/inversion/
+center calibration and a 2,400-frame stereo startup fade. DSP-ready waits for 38
+complete 64-frame callbacks. Calibration tests cover malformed and fragmented
+files, failure rollback, control mapping and fade timing; the standalone test also
+passes AddressSanitizer/UndefinedBehaviorSanitizer. All 26 current Release CTest
+entries pass. The ARM build and current-source artifact check pass: QSPI 495,964
+bytes, AXI SRAM 48,472 bytes, DMA-region 18,204 bytes, backup SRAM 12 bytes and
+SDRAM 62,914,560 bytes. No flashing or real callback timing measurement is claimed.
+
+The cost ledger totals NZ$295.77 with only NZ$4.23 remaining, assuming free
+printing, DIY assembly, reused USB power/cables and consolidated delivery. Many
+rows are allowances and the NZ Seed price is a pre-order; this is not a confirmed
+delivered basket. No revision/replacement reserve is secured. Real rail/current/
+thermal/SD/USB checks, audio/noise/headroom measurements, fault-to-dry timing,
+startup/dropout tests and reference-unit comparisons remain required. B1 does not
+add USB audio/MIDI or complete original SD/RSD compatibility, lighting feedback
+or exact original effect behavior.

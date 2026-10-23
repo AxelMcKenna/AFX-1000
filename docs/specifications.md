@@ -22,7 +22,7 @@ The C++ engine takes planar float audio, a sample rate, timestamped pad events, 
 
 The Linux CI configuration builds the headless core on x86-64 and ARM64. A real ARM hardware benchmark and round-trip latency measurement remain required. The desktop process-tap route is an Apple adapter, not part of the portable engine.
 
-The [A0 hardware design](../hardware/README.md) proposes a Seed with 64 MB external SDRAM, scanned physical controls, touch sensing, storage pin reservations, an independent watchdog and a normally closed relay bypass path. The shared engine can now use a bounded SDRAM arena; the host memory check proves the 48 kHz buffers and 64 seconds of sample storage fit. The firmware is cross-compiled and its linker placement is checked; it has not been run or measured on the MCU. Boot-time SD sample loading now cross-builds. The analog carrier, calibrated gain ranges, PCB layout, power design, SD effect presets and physical storage/control validation remain unfinished.
+The [A0 hardware design](../hardware/README.md) proposes a Seed with 64 MB external SDRAM, scanned physical controls, touch sensing, storage pin reservations, an independent watchdog and a normally closed relay bypass path. The shared engine can now use a bounded SDRAM arena; the host memory check proves the 48 kHz buffers and 64 seconds of sample storage fit. The firmware is cross-compiled and its linker placement is checked; it has not been run or measured on the MCU. Boot-time SD sample banks and project User profiles now cross-build. The analog carrier, calibrated gain ranges, PCB layout, power design, original SD/RSD compatibility and physical storage/control validation remain unfinished.
 
 ## Fidelity checks to complete
 
