@@ -83,7 +83,6 @@ emit('''<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="800" viewBo
 <title id="title">AFX-1000</title>
 <desc id="desc">An angled view of the charcoal AFX-1000 housing, with a deep front lip, ribbed knobs, a circular Scene FX button bank, recessed X-Pad and release lever. Off-white panel lettering and small amber status lights.</desc>
 <defs>
- <linearGradient id="background" x2="0" y2="1"><stop stop-color="#ededeb"/><stop offset="1" stop-color="#d5d5d1"/></linearGradient>
  <linearGradient id="body" x2="0" y2="1"><stop stop-color="#363635"/><stop offset=".55" stop-color="#161616"/><stop offset="1" stop-color="#080808"/></linearGradient>
  <linearGradient id="face" x2=".4" y2="1"><stop stop-color="#3b3b39"/><stop offset=".45" stop-color="#2b2b29"/><stop offset="1" stop-color="#222220"/></linearGradient>
  <linearGradient id="collar" x2="0" y2="1"><stop stop-color="#101010"/><stop offset="1" stop-color="#6b6b65"/></linearGradient>
@@ -96,7 +95,6 @@ emit('''<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="800" viewBo
  <linearGradient id="lever" x2="0" y2="1"><stop stop-color="#c9c9c0"/><stop offset=".15" stop-color="#95958c"/><stop offset=".75" stop-color="#575751"/><stop offset="1" stop-color="#31312d"/></linearGradient>
  <pattern id="finish" width="7" height="4" patternUnits="userSpaceOnUse"><path d="M0 .5H7" stroke="#fff" stroke-opacity=".018"/><path d="M2 2.5H6" stroke="#000" stroke-opacity=".04"/></pattern>
 </defs>''')
-rect(0,0,1600,800,'url(#background)',12)
 # The ground shadow and visible front edge give the enclosure its thickness.
 emit('<g transform="rotate(-2.2 828 657)">')
 for i in range(22,0,-1):
