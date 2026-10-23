@@ -28,6 +28,9 @@ class Engine {
     // Install between callbacks or with processing stopped. The adapter retains
     // the bank until all callbacks using it have completed.
     void setBank(const SampleBank* bank) noexcept {
+        setBank(SampleBankView(bank));
+    }
+    void setBank(SampleBankView bank) noexcept {
         sampler.setBank(bank);
     }
     bool enqueue(Event event) noexcept;
@@ -52,6 +55,8 @@ class Engine {
     float smoothing{}, bypassMix{}, sceneMix{};
     float isolateInputMix{1}, isolatePadMix{1}, sceneInputMix{1}, scenePadMix{1};
     TempoTracker tempoTracker;
+    dsp::CachedValue<float> inputGain, outputGain;
+    bool trackingTempo{};
     float get(Param x) const noexcept {
         return p[static_cast<size_t>(x)];
     }

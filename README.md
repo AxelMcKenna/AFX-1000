@@ -101,6 +101,18 @@ ctest --test-dir build-sanitize --output-on-failure
 
 Python tooling requires Python 3.11+. Use `RMX_SANITIZER=thread` in a separate build directory for race checks. Plugin builds also run the processor state regressions, including panic/release resets and automation superseding deferred notifications. Physical audio-device and hardware validation remains separate.
 
+### Performance checks
+
+```sh
+./build/rmx_benchmark 2000 --csv benchmark.csv
+./build/rmx_benchmark 10000 --quick --csv benchmark-48k.csv
+./build/rmx_hardware_profile 48000
+```
+
+The default benchmark covers 25 workloads at 44.1/48/96 kHz and 32/128/512 frames: all scenes, bypass, release effects, capture bursts, 32 voices, dense events, automation, auto tempo, variable blocks, silence tails and combined effects/voices/capture. It reports p99, p99.9, maximum deadline use and wall-time overruns. `--rate` and `--block` select a configuration; `--strict-max` additionally rejects any overrun. The default p99 gate is 50% of the deadline. CI retains CSV results for each platform. Offline timing includes OS scheduling and does not establish live-device or MCU deadline compliance.
+
+Plugin sample banks use a fixed three-slot handoff and share unchanged immutable samples. Imports coalesce while playback is stopped; the callback never allocates, locks, reference-counts or deletes assets. Regression tests cover stopped imports, concurrent replacement and reclamation outside the callback. DSP caches settled control transforms, keeps roll history warm, and drains reverb tails before sleeping. Manual tempo does not run onset analysis; enabling Auto BPM starts a fresh analysis window.
+
 ## Status
 
 Still in development. Mac-only rekordbox audio has been tested, and universal Mac artifacts build. Intel runtime testing, DAW validation, physical FLX routing, long sessions and hardware sound comparisons remain open. The latest capture restart changes need a live check.
@@ -111,7 +123,7 @@ The engine uses stereo floating-point audio, with checks at 44.1, 48, 88.2 and 9
 
 [Controls](docs/controls.md) / [Routing](docs/routing.md) / [Specifications](docs/specifications.md) / [Validation](docs/validation.md) / [Standalone hardware and CAD](hardware/README.md)
 
-The original Swift and browser prototypes are kept in `Sources/` and `web/`. Their guide is [here](docs/legacy-prototypes.md).
+The original browser prototype remains in `web/`; see its [guide](docs/legacy-prototypes.md). The Swift tap/player prototype was retired because it allocated and locked in its audio callback. The native app and plugin adapters use the shared C++ engine.
 
 ## Assets and licensing
 

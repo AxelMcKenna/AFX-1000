@@ -1,16 +1,30 @@
 #include "RMXProcessor.h"
 
+RMXProcessor::Assets::Assets(rmx::SampleBank bank) {
+    for (size_t i = 0; i < samples.size(); ++i)
+        samples[i] = std::make_shared<const rmx::Sample>(std::move(bank.slots[i]));
+}
+
+rmx::SampleBankView RMXProcessor::Assets::view() const noexcept {
+    rmx::SampleBankView result;
+    for (size_t i = 0; i < samples.size(); ++i)
+        result.slots[i] = samples[i].get();
+    return result;
+}
+
 RMXProcessor::RMXProcessor()
     : AudioProcessor(BusesProperties()
                          .withInput("Stereo input", juce::AudioChannelSet::stereo(), true)
-                         .withOutput("Stereo output", juce::AudioChannelSet::stereo(), true)) {
+                         .withOutput("Stereo output", juce::AudioChannelSet::stereo(), true)),
+      assets(Assets(rmx::makeFactoryBank())) {
     for (size_t i = 0; i < rmx::parameterCount; ++i) {
         auto* parameter = new EngineParameter(engine.params, static_cast<rmx::Param>(i));
         hostParameters[i] = parameter;
         addParameter(parameter);
         lastNotified[i] = parameter->getValue();
     }
-    publish(rmx::makeFactoryBank());
+    for (size_t i = 0; i < 128; ++i)
+        midiControls.cc[i].store(state.cc[i]);
     startTimerHz(30);
 }
 
@@ -31,7 +45,7 @@ double RMXProcessor::getTailLengthSeconds() const {
 void RMXProcessor::prepareToPlay(double rate, int block) {
     midiControls.reset();
     sampleClock = 0;
-    engine.setBank(&published.load()->bank);
+    engine.setBank(assets.read().view());
     engine.prepare(rate, static_cast<uint32_t>(block));
 }
 
@@ -41,11 +55,16 @@ void RMXProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuff
         buffer.clear();
         return;
     }
-    const auto* assets = published.load(std::memory_order_acquire);
-    engine.setBank(&assets->bank);
+    engine.setBank(assets.read().view());
     std::array<rmx::Event, 256> events{};
     size_t count = 0;
+    unsigned messages = 0;
     for (const auto metadata : midi) {
+        // Bound host-supplied work even when the host batches a large MIDI dump.
+        if (messages++ == 1024) {
+            engine.meters.droppedEvents.fetch_add(1, std::memory_order_relaxed);
+            break;
+        }
         const auto* bytes = metadata.data;
         const int size = metadata.numBytes;
         if (size < 1)
@@ -79,7 +98,6 @@ void RMXProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuff
     engine.process(buffer.getReadPointer(0), buffer.getReadPointer(1), buffer.getWritePointer(0),
                    buffer.getWritePointer(1), static_cast<uint32_t>(buffer.getNumSamples()), transport,
                    {events.data(), count});
-    acknowledged.store(assets->generation, std::memory_order_release);
     sampleClock += static_cast<uint64_t>(buffer.getNumSamples());
 }
 
@@ -109,10 +127,12 @@ void RMXProcessor::change(rmx::Param p, float value) {
 }
 
 void RMXProcessor::importSample(int slot, const juce::File& file) {
+    if (slot < 0 || slot >= 16)
+        throw std::out_of_range("Sample slot must be between 0 and 15");
     auto sample = rmx::readWav(file.getFullPathName().toStdString());
     const juce::ScopedLock lock(assetLock);
-    auto next = published.load()->bank;
-    next.slots[static_cast<size_t>(slot)] = std::move(sample);
+    auto next = assets.latest();
+    next.samples[static_cast<size_t>(slot)] = std::make_shared<const rmx::Sample>(std::move(sample));
     state.samplePaths[static_cast<size_t>(slot)] = file.getFullPathName().toStdString();
     publish(std::move(next));
     assetMessage = "Sample installed";
@@ -128,13 +148,8 @@ void RMXProcessor::load(const juce::File& file) {
     restore(rmx::State::load(file.getFullPathName().toStdString()));
 }
 
-void RMXProcessor::publish(rmx::SampleBank bank) {
-    auto next = std::make_unique<Assets>(Assets{std::move(bank), ++generation});
-    const auto* ptr = next.get();
-    owned.push_back(std::move(next));
-    published.store(ptr, std::memory_order_release);
-    const auto safe = acknowledged.load(std::memory_order_acquire);
-    std::erase_if(owned, [&](const auto& asset) { return asset->generation < safe; });
+void RMXProcessor::publish(Assets bank) {
+    assets.publish(std::move(bank));
     for (size_t i = 0; i < 128; ++i)
         midiControls.cc[i].store(state.cc[i]);
 }
@@ -152,7 +167,7 @@ void RMXProcessor::restore(rmx::State next) {
         }
     const juce::ScopedLock lock(assetLock);
     state = std::move(next);
-    publish(std::move(bank));
+    publish(Assets(std::move(bank)));
     for (size_t i = 0; i < rmx::parameterCount; ++i)
         change(static_cast<rmx::Param>(i), state.values[i]);
     assetMessage =

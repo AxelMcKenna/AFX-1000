@@ -35,6 +35,9 @@ void Engine::reset() noexcept {
     sceneInputMix = (get(Param::SceneSource) == 0 || get(Param::SceneSource) == 2) ? 1.f : 0.f;
     scenePadMix = (get(Param::SceneSource) == 1 || get(Param::SceneSource) == 2) ? 1.f : 0.f;
     tempoTracker.reset();
+    trackingTempo = false;
+    inputGain = {};
+    outputGain = {};
     Event e;
     while (queue.pop(e)) {
     }
@@ -114,22 +117,36 @@ void Engine::process(const float* left, const float* right, float* outL, float* 
         bpm = get(Param::Tempo);
     isolator.configure(get(Param::LowCrossover), get(Param::HighCrossover), sr);
     Event e;
-    while (queue.pop(e))
+    for (unsigned count = 0; count < 255 && queue.pop(e); ++count)
         event(e);
+    const bool trackTempo = !transport.synced && get(Param::AutoTempo) > .5f;
+    if (trackTempo != trackingTempo) {
+        tempoTracker.reset();
+        meters.confidence.store(0, std::memory_order_relaxed);
+        trackingTempo = trackTempo;
+    }
     size_t eventIndex = 0;
     float inputPeak = 0, outputPeak = 0;
     for (uint32_t i = 0; i < frames; ++i, ++frame) {
         while (eventIndex < events.size() && events[eventIndex].offset <= i)
             event(events[eventIndex++]);
-        for (size_t k = 0; k < parameterCount; ++k)
+        // Only values consumed through sm() need interpolation. Discrete choices
+        // and block settings never use these smoothed copies.
+        for (auto parameter :
+             {Param::InputGain, Param::OutputGain, Param::SceneDepth, Param::SceneResonance, Param::Low,
+              Param::Mid, Param::High, Param::XLevel, Param::XPitch, Param::ReleaseAmount, Param::Feedback,
+              Param::ReverbDecay, Param::NoiseColor, Param::SamplerMute}) {
+            const auto k = static_cast<size_t>(parameter);
             smooth[k] += (p[k] - smooth[k]) * smoothing;
+        }
         sequencer.process(context(), transport.playing,
                           [&](int pad, float velocity) { sampler.trigger(pad, velocity, context()); });
         Stereo raw{left ? left[i] : 0, right ? right[i] : (left ? left[i] : 0)};
         raw = finite(raw);
-        Stereo input = raw * db(sm(Param::InputGain));
+        const float gain = inputGain.get(sm(Param::InputGain), db);
+        Stereo input = raw * gain;
         inputPeak = std::max(inputPeak, level(input));
-        if (!transport.synced)
+        if (trackTempo)
             detectTempo(input);
         sampler.capture(input);
         Stereo drums = sampler.process(context(), sequencer.rolling()), processed{};
@@ -148,8 +165,8 @@ void Engine::process(const float* left, const float* right, float* outL, float* 
             resetEffects(false);
         processed = releaseEffects.process(processed, context());
         if (get(Param::WetOnly) > .5f)
-            processed = processed - raw * db(sm(Param::InputGain));
-        processed = processed * db(sm(Param::OutputGain));
+            processed = processed - raw * gain;
+        processed = processed * outputGain.get(sm(Param::OutputGain), db);
         bypassMix += (get(Param::Bypass) - bypassMix) * smoothing;
         processed = finite(mix(processed, raw, bypassMix));
         // Transparent below unity; bounded soft protection above unity.

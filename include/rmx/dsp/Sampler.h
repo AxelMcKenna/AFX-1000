@@ -12,7 +12,7 @@ class Sampler {
     void stopRoll() noexcept {
         sourceRoll = false;
     }
-    void setBank(const SampleBank* bank) noexcept {
+    void setBank(SampleBankView bank) noexcept {
         samples = bank;
     }
     void capture(Stereo input) noexcept {
@@ -29,12 +29,13 @@ class Sampler {
         uint32_t age{};
     };
     std::array<Voice, 32> voices{};
-    const SampleBank* samples{};
+    SampleBankView samples;
     Delay rollHistory;
     std::vector<Stereo> capturedRoll;
     size_t capturedLength{}, captureCopied{};
     double capturePosition{};
     uint64_t captureFrame{};
     bool sourceRoll{};
+    CachedValue<double> pitchRatio;
 };
 } // namespace rmx::dsp

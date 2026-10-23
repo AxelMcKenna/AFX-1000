@@ -19,15 +19,30 @@ void Isolator::reset() noexcept {
         }
     lowSplit = {};
     highSplit = {};
+    lowCoefficient = {};
+    highCoefficient = {};
+    driveNormalization = {};
+    hasSignal = {};
 }
 void Isolator::configure(float lowHz, float highHz, double sampleRate) noexcept {
-    lowAlpha = coefficient(lowHz, sampleRate);
-    highAlpha = coefficient(highHz, sampleRate);
+    lowAlpha = lowCoefficient.get(lowHz, [&](float hz) { return coefficient(hz, sampleRate); });
+    highAlpha = highCoefficient.get(highHz, [&](float hz) { return coefficient(hz, sampleRate); });
 }
 Stereo Isolator::process(Stereo x, size_t bus, const Context& ctx) noexcept {
+    // An untouched, silent bus has no filter or capture history to maintain.
+    // Once used, keep its histories running so a later roll captures prehistory.
+    if (!hasSignal[bus]) {
+        const bool freezing =
+            static_cast<int>(ctx.get(Param::IsolateMode)) == 2 &&
+            (ctx.sm(Param::Low) > .0001f || ctx.sm(Param::Mid) > .0001f || ctx.sm(Param::High) > .0001f);
+        if (level(x) == 0 && !freezing)
+            return {};
+        hasSignal[bus] = true;
+    }
     Stereo low = lowSplit[bus].low(x, lowAlpha), upper = highSplit[bus].low(x, highAlpha);
     std::array<Stereo, 3> bands{low, upper - low, x - upper};
     const int mode = static_cast<int>(ctx.get(Param::IsolateMode));
+    const float gate = mode == 1 || mode == 2 ? static_cast<float>(std::fmod(ctx.beat * 4, 1.) < .5) : 0.f;
     Stereo out{};
     for (size_t b = 0; b < 3; ++b) {
         const float k = ctx.sm(static_cast<Param>(static_cast<int>(Param::Low) + b));
@@ -39,16 +54,15 @@ Stereo Isolator::process(Stereo x, size_t bus, const Context& ctx) noexcept {
         if (mode == 0)
             y = y * (k < 0 ? 1 + k : 1 + k * 2);
         else if (mode == 1) {
-            const float gate = static_cast<float>(std::fmod(ctx.beat * 4, 1.) < .5);
             y = k < 0 ? y * (1 + k) : y * (1 + k * gate * 2);
         } else if (mode == 2) {
-            const double phase = std::fmod(ctx.beat * 4, 1.);
-            const float gate = static_cast<float>(phase < .5);
             if (k < 0)
                 y = y * (1 + k * (1 - gate));
             else if (k > .0001f) {
-                const auto length = std::max(size_t(8), static_cast<size_t>(60 * ctx.sr / ctx.bpm * .25 /
-                                                                            std::pow(2., std::floor(k * 4))));
+                constexpr std::array<double, 5> subdivisions{1, 2, 4, 8, 16};
+                const auto length = std::max(
+                    size_t(8), static_cast<size_t>(60 * ctx.sr / ctx.bpm * .25 /
+                                                   subdivisions[static_cast<size_t>(std::floor(k * 4))]));
                 if (!loop.active || loop.length != length) {
                     loop.active = true;
                     loop.length = std::min(length, loop.frozen.size());
@@ -79,7 +93,9 @@ Stereo Isolator::process(Stereo x, size_t bus, const Context& ctx) noexcept {
                 y = y * std::clamp((magnitude - threshold) * 50.f, 0.f, 1.f);
             } else if (k > 1.e-5f) {
                 const float drive = 1 + k * 12;
-                y = {std::tanh(y.l * drive) / std::sqrt(drive), std::tanh(y.r * drive) / std::sqrt(drive)};
+                const float normalization =
+                    driveNormalization[b].get(drive, [](float d) { return std::sqrt(d); });
+                y = {std::tanh(y.l * drive) / normalization, std::tanh(y.r * drive) / normalization};
             }
         }
         out = out + y;

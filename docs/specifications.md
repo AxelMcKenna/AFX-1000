@@ -10,7 +10,7 @@ Pioneer's [published RMX-1000 specifications](https://forums.pioneerdj.com/hc/en
 | Arithmetic | Stereo floating-point DSP | Implemented. Not a claim about physical converter resolution. |
 | Audio callback | No allocation, locks, file I/O, or UI work | Allocation test covers processing, variable block sizes, sample roll, and band roll. |
 | Live buffer | 64–128 frames where supported | Native buffer selector; hardware may choose a different actual size. |
-| DSP deadline | p99 below 50% at 48 kHz / 128 frames | Benchmark executable reports each Scene FX. Full live-device latency is separate. |
+| DSP deadline | p99 below 50% across the desktop benchmark matrix | 25 workloads at 44.1/48/96 kHz and 32/128/512 frames; p99.9, maximum and overruns are also reported. Live-device and MCU timing are separate. |
 | Neutral response | Preserve stereo samples within floating-point rounding error | Neutral and wet-only null checks. |
 | Analog noise / distortion / headroom | At least the reference specs; prefer ≥110 dB S/N and ≤0.003% THD for future converters | Requires interface/PCB selection, gain calibration, and measurement. Not established by this software build. |
 | Long-session reliability | Two hours with rekordbox, active controls, no sustained dropouts | Still needs a live soak test on the intended setup. |

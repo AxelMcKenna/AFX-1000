@@ -20,5 +20,8 @@ class Isolator {
     std::array<std::array<BandLoop, 3>, 2> bandLoops;
     std::array<Filter, 2> lowSplit, highSplit;
     float lowAlpha{}, highAlpha{};
+    CachedValue<float> lowCoefficient, highCoefficient;
+    std::array<CachedValue<float>, 3> driveNormalization;
+    std::array<bool, 2> hasSignal{};
 };
 } // namespace rmx::dsp

@@ -40,7 +40,12 @@ jobs:
       - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build --parallel 3
       - run: ctest --test-dir build --output-on-failure
-      - run: ./build/rmx_benchmark 2000
+      - run: ./build/rmx_benchmark 2000 --csv benchmark.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: RMX-performance-${{ matrix.os }}
+          path: benchmark.csv
   plugins:
     runs-on: macos-14
     steps:

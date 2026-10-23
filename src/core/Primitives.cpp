@@ -6,6 +6,7 @@ Stereo Delay::read(double ago) const noexcept {
     if (pos < 0)
         pos += buffer.size();
     const auto index = static_cast<size_t>(pos);
-    return mix(buffer[index], buffer[(index + 1) % buffer.size()], static_cast<float>(pos - index));
+    const auto next = index + 1 == buffer.size() ? 0 : index + 1;
+    return mix(buffer[index], buffer[next], static_cast<float>(pos - index));
 }
 } // namespace rmx::dsp

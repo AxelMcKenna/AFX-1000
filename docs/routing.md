@@ -31,3 +31,5 @@ Never return RMX's output to its own BlackHole input. Do not send both the dry c
 A physical send/return loop uses `mixer SEND → interface input → RMX → interface output → mixer RETURN`. Wet Only is for a parallel loop where the mixer retains the dry source. Leave it off for an insert that replaces the source.
 
 The displayed I/O latency is calculated from device/buffer information. It is not a physical round-trip measurement. Software bypass still depends on the application and computer running.
+
+When input and output use separate devices, RMX initially reserves two negotiated callback quanta plus interpolation headroom. Frame counts are converted to the input device's sample rate. An underrun increases the reserve by up to one additional quantum until the route restarts. At matching 48 kHz/128-frame settings the initial reserve is about 5.4 ms; device and callback latency are additional. Verify the latency/dropout tradeoff on the actual devices with a loopback test.

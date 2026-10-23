@@ -14,6 +14,11 @@ class SceneEffects {
     std::array<Filter, 8> reverbDamping;
     double sceneRead{};
     uint32_t random{0x12345678};
+    CachedValue<float> bandCoefficient, feedbackCoefficient, noiseCoefficient;
+    CachedValue<float> highpassCoefficient, lowpassCoefficient, crushSteps;
+    CachedValue<double> spiralSpeed;
+    size_t quietReverbFrames{}, quietInputFrames{}, reverbBufferFrames{};
+    bool reverbActive{};
     float noise() noexcept;
     Stereo room(Stereo x, const Context& ctx) noexcept;
 };

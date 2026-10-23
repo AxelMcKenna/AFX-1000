@@ -1,4 +1,5 @@
 #include "AudioHost.h"
+#include "rmx/AudioBuffering.h"
 #include "rmx/State.h"
 #import <AppKit/NSRunningApplication.h>
 #import <CoreAudio/AudioHardwareTapping.h>
@@ -263,28 +264,52 @@ bool AudioHost::start(AudioDeviceID input, AudioDeviceID output, uint32_t inPair
         AudioObjectSetPropertyData(input, &bs, 0, nullptr, sizeof(bufferFrames), &bufferFrames);
     outputRate = deviceRate(output);
     inputRate = input ? deviceRate(input) : outputRate;
+    auto actualFrames = [&](AudioDeviceID id, uint32_t fallback) {
+        UInt32 value = fallback, size = sizeof(value);
+        AudioObjectGetPropertyData(id, &bs, 0, nullptr, &size, &value);
+        return value;
+    };
+    bufferFrames = actualFrames(output, bufferFrames);
+    const uint32_t inputFrames = input ? actualFrames(input, bufferFrames) : 0;
+    if (!bufferFrames || bufferFrames > maxFrames || !std::isfinite(outputRate) || outputRate < 8000 ||
+        outputRate > 192000) {
+        error = "The selected output rate or buffer size is unsupported.";
+        return false;
+    }
+    targetFill = maximumFill = fillStep = 0;
+    if (input && input != output) {
+        const auto buffering =
+            rmx::inputBuffering(inputFrames, inputRate, bufferFrames, outputRate, ringSize);
+        if (!buffering) {
+            error = "The device rates and buffer sizes exceed the input routing buffer.";
+            return false;
+        }
+        targetFill = buffering->initial;
+        maximumFill = buffering->maximum;
+        fillStep = buffering->step;
+    }
     startupStage.store("Preparing audio processing");
     engine.prepare(outputRate, maxFrames);
     writeIndex.store(0);
     readIndex.store(0);
     fraction = 0;
     primed = false;
-    targetFill = std::min(bufferFrames * 3, 4096u);
     underruns.store(0);
     overruns.store(0);
+    deadlineMisses.store(0);
+    callbackLoad.store(0);
+    peakCallbackLoad.store(0);
     midiControls.reset();
-    UInt32 actual = sizeof(bufferFrames);
-    AudioObjectGetPropertyData(output, &bs, 0, nullptr, &actual, &bufferFrames);
     auto latency = [&](AudioDeviceID id, AudioObjectPropertyScope scope) {
         UInt32 v = 0, s = sizeof(v);
         AudioObjectPropertyAddress a{kAudioDevicePropertyLatency, scope, kAudioObjectPropertyElementMain};
         AudioObjectGetPropertyData(id, &a, 0, nullptr, &s, &v);
         return v;
     };
-    latencyMs.store(static_cast<float>((bufferFrames * 2 + latency(output, kAudioObjectPropertyScopeOutput) +
-                                        (input ? latency(input, kAudioObjectPropertyScopeInput) : 0) +
-                                        (input && input != output ? targetFill : 0)) *
-                                       1000 / outputRate));
+    deviceLatencyMs = static_cast<float>(
+        (bufferFrames + latency(output, kAudioObjectPropertyScopeOutput)) * 1000. / outputRate +
+        (input ? (inputFrames + latency(input, kAudioObjectPropertyScopeInput)) * 1000. / inputRate : 0));
+    latencyMs.store(deviceLatencyMs + static_cast<float>(targetFill * 1000. / inputRate));
     startupStage.store("Opening the audio output");
     OSStatus status = AudioDeviceCreateIOProcID(output, callback, this, &outputProc);
     if (status) {
@@ -389,6 +414,8 @@ void AudioHost::render(const AudioBufferList* input, AudioBufferList* output) no
         return;
     const auto start = mach_absolute_time();
     const uint32_t count = framesIn(output);
+    if (!count)
+        return;
     for (UInt32 b = 0; b < output->mNumberBuffers; ++b)
         if (output->mBuffers[b].mData)
             std::memset(output->mBuffers[b].mData, 0, output->mBuffers[b].mDataByteSize);
@@ -431,6 +458,9 @@ void AudioHost::render(const AudioBufferList* input, AudioBufferList* output) no
         underruns.fetch_add(1, std::memory_order_relaxed);
         primed = false;
         fraction = 0;
+        targetFill = std::min(targetFill + fillStep, maximumFill);
+        latencyMs.store(deviceLatencyMs + static_cast<float>(targetFill * 1000. / inputRate),
+                        std::memory_order_relaxed);
     }
     readIndex.store(r, std::memory_order_release);
     std::array<rmx::Event, 256> events{};
@@ -445,6 +475,10 @@ void AudioHost::render(const AudioBufferList* input, AudioBufferList* output) no
     }
     const float load = static_cast<float>(hostSeconds(mach_absolute_time() - start) / (count / outputRate));
     callbackLoad.store(load, std::memory_order_relaxed);
+    if (load > peakCallbackLoad.load(std::memory_order_relaxed))
+        peakCallbackLoad.store(load, std::memory_order_relaxed);
+    if (load >= 1)
+        deadlineMisses.fetch_add(1, std::memory_order_relaxed);
     engine.meters.load.store(load, std::memory_order_relaxed);
 }
 void AudioHost::midiCallback(const MIDIPacketList* list, void* user, void*) {
@@ -487,7 +521,7 @@ void AudioHost::midiCallback(const MIDIPacketList* list, void* user, void*) {
 }
 void AudioHost::processMidi(std::array<rmx::Event, 256>& events, size_t& count) noexcept {
     Midi m;
-    while (midi.pop(m)) {
+    for (unsigned processed = 0; processed < 1023 && midi.pop(m); ++processed) {
         midiControls.process(m.status, m.a, m.b, hostSeconds(m.time), engine.params, [&](rmx::Event event) {
             if (count < events.size())
                 events[count++] = event;

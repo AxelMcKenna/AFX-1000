@@ -1,10 +1,26 @@
 #pragma once
 #include "rmx/AudioTypes.h"
 #include "rmx/Parameters.h"
+#include <limits>
 #include <numbers>
 
 namespace rmx::dsp {
 inline constexpr float pi = std::numbers::pi_v<float>;
+// Recompute nonlinear control transforms only while their input changes. Keep
+// sample-by-sample smoothing; reset caches when the sample rate changes.
+template <class T> class CachedValue {
+  public:
+    template <class Transform> T get(T value, Transform transform) noexcept {
+        if (value != input) {
+            input = value;
+            output = transform(value);
+        }
+        return output;
+    }
+
+  private:
+    T input{std::numeric_limits<T>::quiet_NaN()}, output{};
+};
 inline float db(float x) noexcept {
     return std::pow(10.f, x / 20.f);
 }
@@ -44,7 +60,8 @@ class Delay {
     Stereo read(double ago) const noexcept;
     void push(Stereo v) noexcept {
         buffer[head] = v;
-        head = (head + 1) % buffer.size();
+        if (++head == buffer.size())
+            head = 0;
     }
 
   private:

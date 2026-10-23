@@ -5,6 +5,7 @@ void SceneEffects::prepare(double sampleRate) {
     constexpr std::array<double, 8> seconds{.0297, .0371, .0411, .0437, .0531, .0613, .0719, .0797};
     for (size_t i = 0; i < 8; ++i)
         reverb[i].prepare(static_cast<size_t>(seconds[i] * sampleRate * 2) + 3);
+    reverbBufferFrames = static_cast<size_t>(seconds.back() * sampleRate * 2) + 3;
     reset();
 }
 void SceneEffects::reset() noexcept {
@@ -15,6 +16,12 @@ void SceneEffects::reset() noexcept {
     feedbackFilter = {};
     reverbDamping = {};
     sceneRead = 0;
+    quietReverbFrames = 0;
+    quietInputFrames = 0;
+    reverbActive = false;
+    bandCoefficient = feedbackCoefficient = noiseCoefficient = {};
+    highpassCoefficient = lowpassCoefficient = crushSteps = {};
+    spiralSpeed = {};
 }
 float SceneEffects::noise() noexcept {
     random ^= random << 13;
@@ -23,6 +30,10 @@ float SceneEffects::noise() noexcept {
     return static_cast<float>(static_cast<int32_t>(random)) / 2147483648.f;
 }
 Stereo SceneEffects::room(Stereo x, const Context& ctx) noexcept {
+    if (!reverbActive && level(x) == 0)
+        return {};
+    reverbActive = true;
+    quietInputFrames = level(x) < 1.e-15f ? std::min(quietInputFrames + 1, reverbBufferFrames) : 0;
     constexpr std::array<double, 8> seconds{.0297, .0371, .0411, .0437, .0531, .0613, .0719, .0797};
     std::array<Stereo, 8> taps{};
     Stereo sum{}, wet{};
@@ -35,8 +46,29 @@ Stereo SceneEffects::room(Stereo x, const Context& ctx) noexcept {
         sum = sum + taps[i];
         wet = wet + taps[i] * (i % 2 ? .16f : -.16f);
     }
-    for (size_t i = 0; i < 8; ++i)
-        reverb[i].push(finite(x * .2f + (sum * .25f - taps[i]) * decay));
+    if (quietInputFrames < reverbBufferFrames) {
+        // Keep active processing free of per-delay sleep detection.
+        for (size_t i = 0; i < 8; ++i)
+            reverb[i].push(finite(x * .2f + (sum * .25f - taps[i]) * decay));
+        quietReverbFrames = 0;
+    } else {
+        // Flush only inaudible residue, then drain every ring cell before sleep.
+        // No buffer clearing or complete delay scan occurs in the callback.
+        bool silent = true;
+        for (size_t i = 0; i < 8; ++i) {
+            if (level(taps[i]) < 1.e-15f)
+                taps[i] = reverbDamping[i].z = {};
+            Stereo next = finite(x * .2f + (sum * .25f - taps[i]) * decay);
+            if (level(next) < 1.e-15f)
+                next = {};
+            else
+                silent = false;
+            reverb[i].push(next);
+        }
+        quietReverbFrames = silent ? quietReverbFrames + 1 : 0;
+        if (quietReverbFrames >= reverbBufferFrames)
+            reverbActive = false;
+    }
     return {wet.l + sum.r * .1f, wet.r + sum.l * .1f};
 }
 Stereo SceneEffects::process(Stereo x, float sceneMix, const Context& ctx) noexcept {
@@ -48,17 +80,23 @@ Stereo SceneEffects::process(Stereo x, float sceneMix, const Context& ctx) noexc
     Stereo echo = sceneDelay.read(delay), send = x, wet = echo;
     const float cutoff = 300 + depth * 10000;
     if (type == 0) {
-        const Stereo lo = sceneFilter.low(x, coefficient(cutoff, ctx.sr));
-        send = lo - feedbackFilter.low(lo, coefficient(cutoff * .35f, ctx.sr));
+        const Stereo lo = sceneFilter.low(
+            x, bandCoefficient.get(cutoff, [&](float hz) { return coefficient(hz, ctx.sr); }));
+        send = lo - feedbackFilter.low(lo, feedbackCoefficient.get(cutoff * .35f, [&](float hz) {
+            return coefficient(hz, ctx.sr);
+        }));
         wet = echo;
     }
     if (type == 2) {
         const float n = noise() * .35f;
-        send = sceneFilter.low({n, n}, coefficient(300 + ctx.sm(Param::NoiseColor) * 12000, ctx.sr));
+        send =
+            sceneFilter.low({n, n}, noiseCoefficient.get(300 + ctx.sm(Param::NoiseColor) * 12000,
+                                                         [&](float hz) { return coefficient(hz, ctx.sr); }));
         wet = send + echo * .5f;
     }
     if (type == 3 || type == 8) {
-        const double speed = std::pow(2., static_cast<double>(depth) * (type == 3 ? 1 : -1));
+        const double speed = spiralSpeed.get(static_cast<double>(depth) * (type == 3 ? 1 : -1),
+                                             [](double pitch) { return std::pow(2., pitch); });
         sceneRead += 1 - speed;
         if (sceneRead < 0)
             sceneRead += delay;
@@ -70,17 +108,22 @@ Stereo SceneEffects::process(Stereo x, float sceneMix, const Context& ctx) noexc
               sceneDelay.read(2 + std::fmod(sceneRead + delay * .5, delay)) * (1 - weight);
     }
     if (type == 5)
-        send = x - sceneFilter.low(x, coefficient(80 + depth * 7000, ctx.sr));
+        send = x - sceneFilter.low(x, highpassCoefficient.get(80 + depth * 7000, [&](float hz) {
+            return coefficient(hz, ctx.sr);
+        }));
     if (type == 6)
-        send = sceneFilter.low(x, coefficient(18000 * std::pow(.02f, depth), ctx.sr));
+        send = sceneFilter.low(x, lowpassCoefficient.get(depth, [&](float d) {
+            return coefficient(18000 * std::pow(.02f, d), ctx.sr);
+        }));
     if (type == 7) {
-        const float steps = std::pow(2.f, 14 - depth * 11);
+        const float steps = crushSteps.get(depth, [](float d) { return std::pow(2.f, 14 - d * 11); });
         send = {std::round(x.l * steps) / steps, std::round(x.r * steps) / steps};
         wet = echo + send * .3f;
     }
-    if (type == 4 || type == 9)
-        wet = room(type == 9 ? x * (1 - depth * .8f) : x, ctx);
-    else
+    if (type == 4 || type == 9) {
+        const bool enabled = ctx.get(Param::SceneOn) > .5f || sceneMix > 1.e-6f;
+        wet = room(enabled ? (type == 9 ? x * (1 - depth * .8f) : x) : Stereo{}, ctx);
+    } else
         (void)room({}, ctx); // Allow existing reverb to decay without stale frozen state.
     const float feedback =
         std::min(.96f, ctx.sm(Param::Feedback) * (.7f + ctx.sm(Param::SceneResonance) * .6f));

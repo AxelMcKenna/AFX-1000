@@ -2,6 +2,7 @@
 #include "EngineParameter.h"
 #include "rmx/Engine.h"
 #include "rmx/MidiControls.h"
+#include "rmx/RealtimeSnapshot.h"
 #include "rmx/State.h"
 #include "rmx/Wav.h"
 #include <juce_audio_utils/juce_audio_utils.h>
@@ -67,19 +68,17 @@ class RMXProcessor final : public juce::AudioProcessor, private juce::Timer {
   private:
     rmx::State state;
     struct Assets {
-        rmx::SampleBank bank;
-        uint64_t generation;
+        std::array<std::shared_ptr<const rmx::Sample>, 16> samples;
+        explicit Assets(rmx::SampleBank bank);
+        rmx::SampleBankView view() const noexcept;
     };
-    std::vector<std::unique_ptr<Assets>> owned;
-    std::atomic<const Assets*> published{};
-    std::atomic<uint64_t> acknowledged{};
-    uint64_t generation{};
+    rmx::RealtimeSnapshot<Assets> assets;
     juce::CriticalSection assetLock;
     std::array<EngineParameter*, rmx::parameterCount> hostParameters{};
     std::array<float, rmx::parameterCount> lastNotified{};
     rmx::MidiControls midiControls;
     uint64_t sampleClock{};
-    void publish(rmx::SampleBank bank);
+    void publish(Assets bank);
     void restore(rmx::State next);
 
     void timerCallback() override;

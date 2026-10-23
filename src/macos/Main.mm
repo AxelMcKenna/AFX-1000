@@ -533,10 +533,11 @@ std::filesystem::path sessionPath() {
     deviceStatus.stringValue =
         host->running()
             ? [NSString
-                  stringWithFormat:
-                      @"%.0f Hz · CPU %.1f%% · est. I/O %.1f ms\nUnder/overruns %llu/%llu · MIDI drops %llu",
-                      host->rate(), cpu, host->latencyMs.load(), host->underruns.load(),
-                      host->overruns.load(), host->midiDrops.load()]
+                  stringWithFormat:@"%.0f Hz · CPU %.1f%% (peak %.1f%%) · est. I/O %.1f ms\nUnder/overruns "
+                                   @"%llu/%llu · MIDI drops %llu · deadline misses %llu",
+                                   host->rate(), cpu, host->peakCallbackLoad.load() * 100,
+                                   host->latencyMs.load(), host->underruns.load(), host->overruns.load(),
+                                   host->midiDrops.load(), host->deadlineMisses.load()]
             : @"Audio stopped · presets and samples remain editable";
     const int learned = host->midiControls.learnedCC.exchange(-1);
     if (learned >= 0)

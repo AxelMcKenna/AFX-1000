@@ -38,8 +38,8 @@ class AudioHost {
     }
     void sendFeedback(rmx::Param, float normalized);
     rmx::MidiControls midiControls;
-    std::atomic<uint64_t> underruns{}, overruns{}, midiDrops{};
-    std::atomic<float> latencyMs{}, callbackLoad{};
+    std::atomic<uint64_t> underruns{}, overruns{}, midiDrops{}, deadlineMisses{};
+    std::atomic<float> latencyMs{}, callbackLoad{}, peakCallbackLoad{};
     std::atomic<bool> active{};
     std::atomic<bool> deviceChanged{};
     std::atomic<const char*> startupStage{"Audio stopped"};
@@ -61,7 +61,8 @@ class AudioHost {
     std::atomic<uint64_t> writeIndex{}, readIndex{};
     double fraction{};
     bool primed{};
-    uint32_t targetFill{256};
+    uint32_t targetFill{}, maximumFill{}, fillStep{};
+    float deviceLatencyMs{};
     std::array<float, maxFrames> left{}, right{}, outLeft{}, outRight{};
     struct Midi {
         uint8_t status{}, a{}, b{};

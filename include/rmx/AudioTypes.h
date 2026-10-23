@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -25,6 +26,17 @@ struct Sample {
 };
 struct SampleBank {
     std::array<Sample, 16> slots;
+};
+// Non-owning bank for adapters that share immutable sample payloads. Every
+// referenced sample must outlive the process() call that uses this view.
+struct SampleBankView {
+    std::array<const Sample*, 16> slots{};
+    SampleBankView() = default;
+    explicit SampleBankView(const SampleBank* bank) noexcept {
+        if (bank)
+            for (size_t i = 0; i < slots.size(); ++i)
+                slots[i] = &bank->slots[i];
+    }
 };
 SampleBank makeFactoryBank(double rate = 48000);
 

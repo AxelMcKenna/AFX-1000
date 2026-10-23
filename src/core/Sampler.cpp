@@ -12,6 +12,7 @@ void Sampler::reset() noexcept {
     captureCopied = 0;
     capturePosition = 0;
     captureFrame = 0;
+    pitchRatio = {};
 }
 void Sampler::trigger(int pad, float velocity, const Context& ctx) noexcept {
     if (ctx.get(Param::XSource) > .5f) {
@@ -38,13 +39,17 @@ void Sampler::trigger(int pad, float velocity, const Context& ctx) noexcept {
 }
 Stereo Sampler::process(const Context& ctx, bool rolling) noexcept {
     Stereo out{};
-    if (!samples)
-        return out;
-    const double ratio = std::pow(2., ctx.sm(Param::XPitch) / 12.);
+    const double ratio =
+        pitchRatio.get(ctx.sm(Param::XPitch), [](double pitch) { return std::pow(2., pitch / 12.); });
     for (auto& v : voices) {
         if (v.slot < 0)
             continue;
-        const auto& asset = samples->slots[static_cast<size_t>(v.slot)];
+        const auto* sample = samples.slots[static_cast<size_t>(v.slot)];
+        if (!sample) {
+            v.slot = -1;
+            continue;
+        }
+        const auto& asset = *sample;
         const auto index = static_cast<size_t>(v.position);
         if (index + 1 >= asset.frames.size()) {
             v.slot = -1;
