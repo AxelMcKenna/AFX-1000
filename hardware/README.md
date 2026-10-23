@@ -18,11 +18,12 @@ The [E24 main-supply candidate](electronics/power_supply/README.md) now has all
 157 components placed, including corrected inductor candidates and checked land
 dimensions. Its 333 open connections, thermal/EMI layout and housing integration
 remain unfinished. The [current routing candidate](electronics/power_supply/routing/README.md)
-routes both bucks, including bulk power, separate load sense and IC-ground
-returns, soft-start and enables: 219 segments/53 vias, one filled ground region,
-zero native DRC/parity issues and 273 open connections. Fifty-three path checks
-and 36 tooling tests pass. Raw generators and linear/precision stages, actual
-voltage drop, loop/thermal/EMI, housing and physical qualification remain open.
+routes both bucks and the ±17 V boost/Cuk stage, including power, feedback,
+quiet returns and startup controls: 510 segments/87 vias, one filled ground
+region, zero native DRC/parity issues and 219 open connections. Its 105 path
+checks and 43 tooling tests pass. The ±22 V generator, linear/precision stages,
+actual voltage drop, loop/thermal/EMI, housing and physical qualification remain
+open.
 
 ## Start here
 

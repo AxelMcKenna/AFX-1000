@@ -14,13 +14,14 @@ Physical power/protection and assembly qualification remain open.
 [E24 main-supply placement](power_supply/README.md) adds all 157 supply components
 on a six-layer 84 × 38 mm candidate. Nonrouting native DRC and parity pass;
 333 open connections remain in that preserved snapshot. The separate
-[current copper work](power_supply/routing/README.md) has 219 segments/53 vias
-across both bucks, a filled ground region and 273 open connections, with zero
-native DRC/parity issues. Its 53 path checks and 36 tooling tests pass. The 5.8 V
-pre-rail feeds the 5 V linear-regulator IN lands and engineering test header;
-separate feedback and quiet returns are included. Raw generators, linear/
-precision stages, actual copper/reference loss, loop/thermal/EMI and housing/
-physical qualification remain unfinished.
+[current copper work](power_supply/routing/README.md) has 510 segments/87 vias
+across both bucks and the ±17 V boost/Cuk stage, one filled ground region and
+219 open connections, with zero native DRC/parity issues. Its 105 path checks
+and 43 tooling tests pass. The 5.8 V pre-rail feeds the analog 5 V regulator IN
+lands and engineering test header. Separate sense/quiet returns and startup
+controls are included. The ±22 V generator, linear/precision stages, actual
+copper/reference loss, loop/thermal/EMI and housing/physical qualification remain
+unfinished.
 
 | Board | Scope |
 | --- | --- |

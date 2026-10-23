@@ -153,8 +153,18 @@ def route(r):
     r.path("AGND", "In1", (50, 5.3), (50, 10.8), (48.9, 10.8), width=0.8)
     # Shorter power-return spine to the EP; it clears both feedback escapes
     # and the isolated divider-return via rather than sharing their copper.
-    r.path("AGND", "In1", (37.25,3.8), (40.45,3.8), (40.45,9.5),
-           (39.7,9.5), (39.7,11.8), (43.25,11.8), (43.25,10.8), width=.8)
+    r.path(
+        "AGND",
+        "In1",
+        (37.25, 3.8),
+        (40.45, 3.8),
+        (40.45, 9.5),
+        (39.7, 9.5),
+        (39.7, 11.8),
+        (43.25, 11.8),
+        (43.25, 10.8),
+        width=0.8,
+    )
     r.path("AGND", "B", p("C67", 2), (56.2, 6.4), width=0.5)
     r.path("AGND", "In1", (56.2, 6.4), (56.5, 5.5), width=0.8)
     r.path("AGND", "B", p("C69", 2), (54.8, 16.5), width=0.5)

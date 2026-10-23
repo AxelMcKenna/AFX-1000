@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate explicit dual-buck routing; this is an incomplete board."""
+"""Generate explicit buck and raw +/-17V routing; this is an incomplete board."""
 
 import argparse
 import json
@@ -233,7 +233,7 @@ def generate(library):
         .replace("${KIPRJMOD}/RMX_Power.pretty", "${KIPRJMOD}/../RMX_Power.pretty")
     )
     inputs = dict(
-        stage="dual-buck-paths",
+        stage="dual-buck-and-raw-17V-paths",
         source_placement_sha256=sha(source),
         source_poses_sha256=sha(SUPPLY / "generated/placement-inputs.json"),
         moved_components={
@@ -242,7 +242,7 @@ def generate(library):
         routed_segments=r.counts["segments"],
         through_vias=r.counts["vias"],
         via_banks=banks,
-        ground_plane="In1.Cu dual-buck region",
+        ground_plane="In1.Cu dual-buck and raw-generator region",
         fully_routed=False,
         thermal_or_ampacity_qualified=False,
         switching_or_emi_qualified=False,
@@ -251,7 +251,7 @@ def generate(library):
     )
     (OUT / "routing-inputs.json").write_text(json.dumps(inputs, indent=2) + "\n")
     print(
-        f"Dual-buck candidate: {r.counts['segments']} segments, {r.counts['vias']} vias; incomplete routing"
+        f"Partial supply candidate: {r.counts['segments']} segments, {r.counts['vias']} vias; incomplete routing"
     )
 
 

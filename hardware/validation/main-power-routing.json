@@ -1,15 +1,15 @@
 {
-  "stage": "main-power-dual-buck-routing",
-  "checked_at_utc": "2026-10-23T22:31:10.075949+00:00",
-  "scope": "Both buck candidates: local/bulk power, separate load sense and IC-ground returns, soft-start and enable networks; analog pre-rail feed to U9 IN and test header; remaining circuitry and all physical qualification open.",
+  "stage": "main-power-bucks-and-raw-17V-routing",
+  "checked_at_utc": "2026-10-23T23:30:25.923248+00:00",
+  "scope": "Both buck candidates and the +/-17 V boost/Cuk generator: explicit power, feedback/reference, separate quiet returns and startup controls; analog pre-rail feed to U9 IN/test header, raw negative feed to C56 input capacitor. The +/-22 V generator, linear/precision circuitry and physical qualification remain open.",
   "circuit_components": 157,
-  "routed_segments": 219,
-  "through_vias": 53,
-  "independent_local_paths": 53,
+  "routed_segments": 510,
+  "through_vias": 87,
+  "independent_local_paths": 105,
   "native_drc_violations": 0,
   "schematic_parity_issues": 0,
-  "unconnected_items": 273,
-  "tooling_tests_passed": 36,
+  "unconnected_items": 219,
+  "tooling_tests_passed": 43,
   "main_supply_fully_routed": false,
   "housing_updated": false,
   "physical_fit_verified": false,
@@ -19,18 +19,23 @@
   "build_ready": false,
   "fabrication_or_assembly_release": false,
   "evidence_sha256": {
-    "hardware/electronics/power_supply/routing/generated/verification.json": "0885d1187d97b1b24a4f2320d58bbdcf681831e733dfe8af864450106b16d3f9",
-    "hardware/electronics/power_supply/routing/generated/tooling-tests.txt": "de81010c7a1b4d7e20c32e7501080469af8c17708f8d643e3ada43d6eedff24f",
-    "hardware/electronics/power_supply/routing/generated/drc.json": "6fe22635e8ab9cc6d437a7a240121895ecf5ec6ba1e81b551a6189ab60466719",
-    "hardware/electronics/power_supply/routing/generated/routing-inputs.json": "81a938feb7cdd2d46095897262519ea2698f09e563c3c37ea0755331133b4c1a",
-    "hardware/electronics/power_supply/routing/generated/filled.kicad_pcb": "922842ad253a25eaaaab7199a02b7bc3d6e44e147b71ab554e160a5df7f02ec8",
-    "hardware/electronics/power_supply/routing/generated/placement.json": "45629e1016f5a960b939dd010cdf80b81b0cf550559afc69547a4faa7bf72989"
+    "hardware/electronics/power_supply/routing/generated/verification.json": "f05c6afc5d720940d6fee297449bdfe699013b7e68f06a97103919c64de2f008",
+    "hardware/electronics/power_supply/routing/generated/tooling-tests.txt": "9110d628793db5a4ba72361a62a60bf4cb4608584cf7a0fa12ffb40656ebe885",
+    "hardware/electronics/power_supply/routing/generated/drc.json": "72569047c311205f9e7fbf3e98b876bd4c1f4b82421b08a8fa7f1a1877ae13a2",
+    "hardware/electronics/power_supply/routing/generated/routing-inputs.json": "67e298df8411f18740930fc549167fe3e3b82d3afa67cfc8bb771206cf66ecb7",
+    "hardware/electronics/power_supply/routing/generated/filled.kicad_pcb": "38d5ea969dd623762768a575d27b1c9270ac42bb0b1342d3e7366e6e90e9862a",
+    "hardware/electronics/power_supply/routing/generated/placement.json": "17a3420d2a944f14b6bd8a3fb176a9933668eb6447b030fb51bd17f7047ee6ed",
+    "hardware/electronics/power_supply/routing/generated/top.svg": "07c95478150505a88f4cabc0c05757dabedc6ca3e6154503894b060c707f73ad",
+    "hardware/electronics/power_supply/routing/generated/bottom.svg": "3363104aedbf6937971b7e2be029759383fc1c5f9f91ffc72a89d19248a64e2c",
+    "hardware/electronics/power_supply/routing/generated/copper.svg": "db20282959b6b2665240b6aa993ea69a1adc93313a9b9c7e05cfea13b4ca28ca",
+    "hardware/electronics/power_supply/routing/generated/ground.svg": "f7a8a801d5dc06dc1189efde4f8bd92f8cadf645d5c426016c12f7302f5fa067"
   },
   "source_sha256": {
-    "hardware/README.md": "718e4575dbaba55416d8a3a2e3f370792e989ce301d2f0468aee36752f0075a8",
-    "hardware/electronics/README.md": "fad0ca3e3d0eb493cbbccaf4ba03b654c37e13b17df7ea754a94c52ee93b1ba6",
-    "hardware/validation/README.md": "ca9787ea3b356facb577e4c0f7495e0a2f6415f5f520e23fd626a8d454a60860",
-    "tests/tooling/test_power_local_routing.py": "6f2f9ae41ebe52bae656d267d5de085a6dc19400f0185d8253de7d03f8bcaab8"
+    "hardware/README.md": "13cb8a8bb37d4c4dec2d703167bfd3a87b292f26145ebc955f4a902c76e67229",
+    "hardware/electronics/README.md": "5543b56045092e2289e14b80b06c0fad4176b695761ad52f909e8ba118abdbe6",
+    "hardware/validation/README.md": "5c9f8dfc18e6405079f2a0664601e73fe5eb2ebf407f4a2e43ec2aac7ec0ea22",
+    "tests/tooling/test_power_local_routing.py": "f8f35bee0764806a66a9ada21bd4fb33002b5a1a386c0b04d7924cae6c4f8aef",
+    "hardware/electronics/power_supply/routing/README.md": "21515e8cf0fdaeb1ef0a35103f3c0ee3aac7b1916fd0ff471e81fa977f507af2"
   },
   "preserved_a07_inputs_sha256": {
     "hardware/electronics/output_stage/output_stage.kicad_pcb": "850f473a234f4af4ded939dce5412a0467df2d64e794724863fc551f045f70a1",
@@ -68,16 +73,16 @@
     "git_blob": null
   },
   "open_work": [
-    "Boost/Cuk raw generators, precision target sources and linear-regulator placement/routing, reference and thermal copper/vias",
+    "The +/-22 V generator, precision target sources and linear-regulator placement/routing; remaining distribution, bypass decoupling and reference/thermal copper/vias",
     "Actual copper/contact loss, source-to-load ground displacement, ripple and tight rail-voltage budget",
-    "Separate sense/quiet returns and large-bulk loop stability, full stackup, thermal/via/stencil process and EMI qualification",
+    "Feedback/startup path compaction and noise/loop validation, large-bulk stability, full stackup, thermal/via/stencil process and EMI qualification",
     "Actual board heights, leads/harnesses, housing and assembly integration",
     "All-rail startup/late closure, fault/SOA and physical electrical/thermal/audio/soak tests",
     "E17 and remaining analog/control/display boards, wiring and storage"
   ],
   "saved_ground_planes_filled": 1,
   "front_buck_components": 24,
-  "minimum_via_drill_to_land_mm": 0.25697051490249445,
+  "minimum_via_drill_to_land_mm": 0.24999999999999148,
   "source_sense_pad": [
     "J3",
     1
@@ -86,7 +91,7 @@
     "U2",
     4
   ],
-  "quiet_return_plane_antipads": 4,
+  "quiet_return_plane_antipads": 7,
   "ground_drop_budget_verified": false,
   "feedback_loop_stability_verified": false,
   "analog_pre_sense_pad": [
@@ -96,5 +101,17 @@
   "analog_pre_reference_pad": [
     "U3",
     4
-  ]
+  ],
+  "front_raw_components": 16,
+  "raw_negative_linear_input_cap": [
+    "C56",
+    1
+  ],
+  "raw_linear_regulator_feed_complete": false,
+  "raw_reference_pad": [
+    "U13",
+    11
+  ],
+  "raw_feedforward_and_startup_paths_qualified": false,
+  "current_native_sources_match": true
 }

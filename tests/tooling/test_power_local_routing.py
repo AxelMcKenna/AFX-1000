@@ -6,6 +6,7 @@ from hardware.electronics.common.sexpr import children, first, read_sexpr
 from hardware.electronics.power_supply.routing.check import (
     ROOT,
     front_buck,
+    front_raw,
     ground_layout,
     local_paths,
     via_lands,
@@ -120,6 +121,86 @@ class PowerLocalRoutingTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(AssertionError, "quiet via shunted by In1 track"):
             ground_layout(tree)
+
+    def test_missing_cuk_switch_connection_is_rejected(self):
+        tree = self.tree()
+        segment = next(
+            s
+            for s in children(tree, "segment")
+            if list(map(float, first(s, "start")[1:3])) == [145.45, 109.2]
+            and list(map(float, first(s, "end")[1:3])) == [145.45, 111.7]
+        )
+        tree.remove(segment)
+        with self.assertRaisesRegex(AssertionError, "raw_cuk_switch"):
+            local_paths(tree)
+
+    def test_thin_negative_output_cannot_satisfy_bulk_power_path(self):
+        tree = self.tree()
+        segment = next(
+            s
+            for s in children(tree, "segment")
+            if list(map(float, first(s, "end")[1:3])) == [154.6, 117.9] and first(s, "layer")[1] == "F.Cu"
+        )
+        first(segment, "width")[1] = 0.15
+        with self.assertRaisesRegex(AssertionError, "raw_negative_bulk_1"):
+            local_paths(tree)
+
+    def test_removed_negative_bulk_feed_is_rejected(self):
+        tree = self.tree()
+        segment = next(
+            s
+            for s in children(tree, "segment")
+            if list(map(float, first(s, "start")[1:3])) == [147.1, 118]
+            and list(map(float, first(s, "end")[1:3])) == [147.1, 116.5]
+            and first(s, "layer")[1] == "B.Cu"
+        )
+        tree.remove(segment)
+        with self.assertRaisesRegex(AssertionError, "raw_negative_bulk_2"):
+            local_paths(tree)
+
+    def test_raw_enable_network_needs_its_power_feed(self):
+        tree = self.tree()
+        segment = next(
+            s
+            for s in children(tree, "segment")
+            if list(map(float, first(s, "start")[1:3])) == [169.375, 104.5]
+            and list(map(float, first(s, "end")[1:3])) == [169.375, 101.5]
+            and first(s, "layer")[1] == "In4.Cu"
+        )
+        tree.remove(segment)
+        with self.assertRaisesRegex(AssertionError, "raw_positive_enable_feed"):
+            local_paths(tree)
+
+    def test_raw_quiet_return_cannot_be_shunted_on_another_inner_layer(self):
+        tree = self.tree()
+        net = next(n[1] for n in children(tree, "net") if str(n[2]) == "/AGND")
+        tree.append(
+            read_sexpr(
+                f'(segment (start 144.6 109.9) (end 145 112.8) (width .26) (layer "In4.Cu") (net {net}))'
+            )
+        )
+        with self.assertRaisesRegex(AssertionError, "quiet via shunted on reserved layer"):
+            ground_layout(tree)
+
+    def test_negative_bulk_ground_via_must_clear_its_own_land(self):
+        tree = self.tree()
+        via = next(
+            v for v in children(tree, "via") if list(map(float, first(v, "at")[1:3])) == [147.2, 111.525]
+        )
+        first(via, "at")[1:3] = [148, 111.525]
+        with self.assertRaisesRegex(AssertionError, "conventional via drill too close"):
+            via_lands(tree)
+
+    def test_cuk_transfer_capacitor_must_stay_on_component_face(self):
+        tree = self.tree()
+        fp = next(
+            f
+            for f in children(tree, "footprint")
+            if any(p[1:3] == ["Reference", "C63"] for p in children(f, "property"))
+        )
+        first(fp, "layer")[1] = "B.Cu"
+        with self.assertRaisesRegex(AssertionError, "raw supply component moved off front"):
+            front_raw(tree)
 
 
 if __name__ == "__main__":

@@ -158,33 +158,33 @@ def local_paths(tree):
         ("raw_negative_start_ground", "AGND", ("C76", 2), ("C20", 2), 12, ("F.Cu", "B.Cu", "In1.Cu")),
     ]:
         minimum_width = {
-            "raw_input_feed": .8,
-            "raw_boost_input": .8,
-            "raw_cuk_input": .8,
-            "raw_ic_input_feed": .35,
-            "raw_ic_bypass": .35,
-            "raw_boost_switch": .3,
-            "raw_boost_diode": .3,
-            "raw_positive_bulk_1": .8,
-            "raw_positive_bulk_2": .8,
-            "raw_positive_bypass": .8,
-            "raw_cuk_switch": .3,
-            "raw_cuk_transfer": .3,
-            "raw_cuk_diode": .5,
-            "raw_cuk_choke": .5,
-            "raw_negative_bulk_1": .5,
-            "raw_negative_bulk_2": .5,
-            "raw_negative_bypass": .5,
-            "raw_negative_linear_input_cap": .5,
-            "raw_bulk_ground_1": .5,
-            "raw_bulk_ground_2": .5,
-            "raw_bypass_ground": .5,
-            "raw_input_ground": .5,
-            "raw_ic_ground": .35,
-            "raw_diode_ground": .5,
-            "raw_negative_ground_1": .5,
-            "raw_negative_ground_2": .5,
-            "raw_negative_ground_3": .26,
+            "raw_input_feed": 0.8,
+            "raw_boost_input": 0.8,
+            "raw_cuk_input": 0.8,
+            "raw_ic_input_feed": 0.35,
+            "raw_ic_bypass": 0.35,
+            "raw_boost_switch": 0.3,
+            "raw_boost_diode": 0.3,
+            "raw_positive_bulk_1": 0.8,
+            "raw_positive_bulk_2": 0.8,
+            "raw_positive_bypass": 0.8,
+            "raw_cuk_switch": 0.3,
+            "raw_cuk_transfer": 0.3,
+            "raw_cuk_diode": 0.5,
+            "raw_cuk_choke": 0.5,
+            "raw_negative_bulk_1": 0.5,
+            "raw_negative_bulk_2": 0.5,
+            "raw_negative_bypass": 0.5,
+            "raw_negative_linear_input_cap": 0.5,
+            "raw_bulk_ground_1": 0.5,
+            "raw_bulk_ground_2": 0.5,
+            "raw_bypass_ground": 0.5,
+            "raw_input_ground": 0.5,
+            "raw_ic_ground": 0.35,
+            "raw_diode_ground": 0.5,
+            "raw_negative_ground_1": 0.5,
+            "raw_negative_ground_2": 0.5,
+            "raw_negative_ground_3": 0.26,
             "pre_test_header": 0.5,
             "pre_bulk_input": 0.8,
             "pre_input_feed": 0.8,
@@ -342,12 +342,41 @@ def via_lands(tree):
     return minimum
 
 
+def front_raw(tree):
+    expected = {
+        "U13",
+        "L6",
+        "L7",
+        "L8",
+        "D3",
+        "D4",
+        "C63",
+        "C64",
+        "C65",
+        "C66",
+        "C70",
+        "C71",
+        "R44",
+        "R45",
+        "R46",
+        "R47",
+    }
+    found = set()
+    for fp in children(tree, "footprint"):
+        ref = next(p[2] for p in children(fp, "property") if p[1] == "Reference")
+        if ref in expected:
+            assert first(fp, "layer")[1] == "F.Cu", (ref, "raw supply component moved off front")
+            found.add(ref)
+    assert found == expected
+    return len(found)
+
+
 def ground_layout(tree):
     zones = children(tree, "zone")
     keepouts = [z for z in zones if children(z, "keepout") and children(z, "layers")]
     quiet = [z for z in zones if children(z, "keepout") and children(z, "layer")]
     planes = [z for z in zones if not children(z, "keepout")]
-    assert len(keepouts) == 4 and len(planes) == 1 and len(quiet) == 4
+    assert len(keepouts) == 4 and len(planes) == 1 and len(quiet) == 7
     centers = {(104, 104), (174, 104), (104, 134), (174, 134)}
     seen = set()
     for zone in keepouts:
@@ -370,7 +399,16 @@ def ground_layout(tree):
             ) / math.dist(a, b)
             assert distance >= 3.7 - 1e-5, ("mount copper clearance reduced", center, distance)
     assert seen == centers
-    quiet_centers = {(165, 104.75), (158, 115.2), (163.4, 118.2), (174.3, 121.6125)}
+    quiet_layers = {
+        (165, 104.75): {"F.Cu", "In4.Cu"},
+        (158, 115.2): {"F.Cu", "In4.Cu"},
+        (163.4, 118.2): {"F.Cu", "In4.Cu"},
+        (174.3, 121.6125): {"F.Cu", "In4.Cu"},
+        (135.4125, 110.8): {"F.Cu", "In3.Cu"},
+        (144.6, 109.9): {"F.Cu", "In3.Cu"},
+        (136.35, 102.9): {"B.Cu", "In3.Cu"},
+    }
+    quiet_centers = set(quiet_layers)
     seen_quiet = set()
     for zone in quiet:
         assert first(zone, "layer")[1] == "In1.Cu"
@@ -393,7 +431,8 @@ def ground_layout(tree):
             ) / math.dist(a, b)
             assert distance >= 0.75 - 1e-5, ("quiet return plane isolation reduced", center, distance)
         for segment in children(tree, "segment"):
-            if first(segment, "layer")[1] != "In1.Cu":
+            layer = first(segment, "layer")[1]
+            if layer in quiet_layers[center]:
                 continue
             a, b = [tuple(map(float, first(segment, tag)[1:3])) for tag in ("start", "end")]
             dx, dy = b[0] - a[0], b[1] - a[1]
@@ -401,6 +440,8 @@ def ground_layout(tree):
             distance = math.dist(center, (a[0] + t * dx, a[1] + t * dy))
             assert distance >= 0.3 + float(first(segment, "width")[1]) / 2 + 0.15, (
                 "quiet via shunted by In1 track"
+                if layer == "In1.Cu"
+                else "quiet via shunted on reserved layer"
             )
     assert seen_quiet == quiet_centers
     plane = planes[0]
@@ -411,7 +452,7 @@ def ground_layout(tree):
         mounting_copper_clearance_mm=3.7,
         mount_keepouts=4,
         solid_pad_connections=True,
-        quiet_return_plane_antipads=4,
+        quiet_return_plane_antipads=7,
     )
 
 
@@ -425,8 +466,9 @@ def main():
     pcb = ROOT / "power_supply.kicad_pcb"
     tree = read_sexpr(pcb.read_text())
     paths = local_paths(tree)
-    assert len(children(tree, "via")) == 53
+    assert len(children(tree, "via")) == 87
     front_count = front_buck(tree)
+    raw_front_count = front_raw(tree)
     drill_clearance = via_lands(tree)
     ground = ground_layout(tree)
     inputs = json.loads((OUT / "routing-inputs.json").read_text())
@@ -482,7 +524,7 @@ def main():
         bare_path.write_text(sexpr(bare) + "\n")
         packet = mechanical(bare_path, pins)
         packet.update(
-            revision="dual-buck-routing-in-progress",
+            revision="dual-buck-and-raw-17V-routing-in-progress",
             pcb_sha256=sha(pcb),
             pcb_partially_routed=True,
             pcb_routed=False,
@@ -562,9 +604,13 @@ def main():
     files += list((SUPPLY / "RMX_Power.pretty").glob("*.kicad_mod"))
     files += list((SUPPLY.parent / "dac_receiver").glob("*.py"))
     files += list((SUPPLY.parent / "common").glob("*.py"))
-    files += [SUPPLY.parent / "control_inputs/board.py", SUPPLY.parent / "output_stage/check_placement.py"]
+    files += [
+        SUPPLY.parent / "control_inputs/board.py",
+        SUPPLY.parent / "output_stage/check_placement.py",
+        SUPPLY.parent / "input_protection/route_grid.py",
+    ]
     record = dict(
-        stage="dual-buck-paths",
+        stage="dual-buck-and-raw-17V-paths",
         checked_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
         kicad_version=version,
         components=157,
@@ -580,6 +626,7 @@ def main():
         analog_pre_sense_pad=list(paths["pre_output_sense"]["from_pad"]),
         analog_pre_reference_pad=list(paths["pre_quiet_ground"]["to_pad"]),
         front_buck_components=front_count,
+        front_raw_components=raw_front_count,
         minimum_via_drill_to_land_mm=drill_clearance,
         ground_layout=ground,
         exposed_pad_nets=packet["exposed_pad_nets"],
@@ -596,7 +643,7 @@ def main():
     )
     (OUT / "verification.json").write_text(json.dumps(record, indent=2) + "\n")
     print(
-        f"Local buck copper: {record['segments']} segments, zero native DRC/parity issues, {record['unconnected_items']} open connections"
+        f"Partial supply copper: {record['segments']} segments, zero native DRC/parity issues, {record['unconnected_items']} open connections"
     )
     for name, result in paths.items():
         print(f"  {name}: {result['length_mm']:.3f} mm")
