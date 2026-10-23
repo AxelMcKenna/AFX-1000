@@ -1,12 +1,12 @@
 # AFX-1000
 
-<img src="assets/readme-hero.svg" alt="AFX-1000. Charcoal housing viewed straight on, with blue drum pads, green/yellow/red level meters, ribbed knobs and recessed controls." width="100%">
-
 [![Build](https://github.com/AxelMcKenna/afx-1000/actions/workflows/build.yml/badge.svg)](https://github.com/AxelMcKenna/afx-1000/actions/workflows/build.yml)
 ![macOS 12+](https://img.shields.io/badge/macOS-12%2B-222222?style=flat-square&logo=apple&logoColor=white)
 ![Standalone / AU / VST3](https://img.shields.io/badge/Standalone-AU_%2F_VST3-222222?style=flat-square)
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-167d8d?style=flat-square)
 ![Hardware prototype](https://img.shields.io/badge/Hardware-B1_prototype-d69a36?style=flat-square)
+
+<img src="assets/readme-hero.svg" alt="AFX-1000. Charcoal housing viewed straight on, with blue drum pads, green/yellow/red level meters, ribbed knobs and recessed controls." width="100%">
 
 **AFX-1000** is a take on the RMX-1000, built around a shared C++20 audio engine. Native Mac app, AU and VST3, with a hardware-style amber/teal panel. A standalone Daisy Seed version is in development too.
 
