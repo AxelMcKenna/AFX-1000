@@ -31,6 +31,14 @@ Rebuilt kick, snare, clap and hat voices, with independent gain, decay and envel
 
 Pitch travel has separate up/down ranges from 1 to 24 semitones. The extra range is a project extension. These changes are implemented, but have not been matched against recordings of an RMX-1000. [DSP notes](docs/dsp-model.md) cover the details and limits.
 
+## Hardware design
+
+The A07 housing study has a 334 × 157 mm enclosure, custom control layout and a separate B01 button-mechanism fixture. The CAD overview shows the assembled housing, exploded internals, printable parts and a button cutaway.
+
+[![RMX CAD overview: assembled housing, exploded internals, printable parts and button mechanism cutaway](docs/assets/hardware/cad-overview.png)](docs/assets/hardware/cad-overview.png)
+
+This is a CAD prototype snapshot. Full-unit button caps are simplified envelopes; the detailed B01 mechanism is shown separately. Translucent blocks represent component clearances. Physical fit and assembly remain to be validated. This study is separate from the active B1 budget prototype. See the [hardware guide](hardware/README.md).
+
 ## Run it
 
 Requires macOS 12+, Xcode Command Line Tools and CMake 3.24+. The default native app needs no third-party SDK. Ableton Link is optional and disabled by default.
