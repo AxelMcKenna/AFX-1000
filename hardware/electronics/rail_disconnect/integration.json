@@ -1,0 +1,67 @@
+{
+  "revision": "E17",
+  "status": "Candidate six-rail disconnect schematic; conditional screens,no physical protection proof",
+  "standalone": true,
+  "source_analog": [
+    "P19_SRC",
+    "AGND",
+    "N19_SRC",
+    "P12_SRC",
+    "N12_SRC",
+    "V5_REG_SRC"
+  ],
+  "source_analog_from": "E14 J2",
+  "source_digital": [
+    "5V_DIG_SRC",
+    "AGND"
+  ],
+  "source_digital_from": "E14 J3",
+  "protected_analog": [
+    "P19",
+    "AGND",
+    "N19",
+    "P12",
+    "N12",
+    "V5_REG"
+  ],
+  "protected_digital": [
+    "5V_DIG",
+    "AGND"
+  ],
+  "auxiliary_control": [
+    "V2V5_AUX",
+    "AGND",
+    "POWER_RUN"
+  ],
+  "auxiliary_control_from": "E16 J6",
+  "auxiliary_current_allocation_a": 0.065,
+  "run_receiver_pulldown_ohm": 100000,
+  "sense_location": "Unprotected source rails; fault remains visible after opening switches",
+  "interlock": "AND of six OV_OK,REF_LOW_OK,REF_HIGH_OK and POWER_RUN; any low opens all rails",
+  "requires_protected_rail_power_to_start": false,
+  "switching_topology": "Common-source, common-gate opposing NFET banks; two parallel FETs per side on 5V_DIG, one per side on the other five rails",
+  "digital_source_nominal_v": 5.004,
+  "normal_protected_load_targets_unchanged": true,
+  "fault_response": "Level-controlled shutdown; does not create a separate latched fault; E13/E11/F03 still qualify wet-audio recovery",
+  "startup_reference_window_is_redundant_precision_fault_monitor": false,
+  "physical_current_or_interruption_bounds_verified": false,
+  "rail_disconnect_schematic_implemented": true,
+  "pcb_routed": false,
+  "enclosure_placement_complete": false,
+  "physical_protection_verified": false,
+  "complete_weighted_system_noise_closed": false,
+  "load_update_revision": "E21",
+  "full_unit_power_budget_closed": false,
+  "digital_parallel_fets": {
+    "source_side": [
+      "Q11",
+      "Q13"
+    ],
+    "load_side": [
+      "Q12",
+      "Q14"
+    ]
+  },
+  "digital_load_current_allocation_including_bleed_a": 1.801,
+  "digital_gate_charge_and_timing_verified": false
+}

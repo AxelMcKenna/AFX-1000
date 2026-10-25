@@ -1,0 +1,150 @@
+{
+  "revision": "E09",
+  "supervisors": {
+    "fixed_3v3_falling_trip_min_v": 3.1383,
+    "fixed_3v3_rising_trip_max_v": 3.228114025,
+    "adjustable_4v5_falling_trip_min_v": 4.283076780989011,
+    "adjustable_4v5_rising_trip_max_v": 4.424247614398149,
+    "divider_corner_cases": 16,
+    "pg_high_min_with_leakage_v": 3.1173249999999997,
+    "limit": "UV qualification only; finite response/ramp/glitch behavior and overvoltage protection not verified"
+  },
+  "local_supplies": [
+    {
+      "nominal_v": 3.3,
+      "dc_range_v": [
+        3.2504999999999997,
+        3.3494999999999995
+      ],
+      "ldo_input_range_v": [
+        4.9,
+        5.1
+      ],
+      "minimum_input_above_high_output_v": 1.5505000000000009,
+      "ldo_accuracy_condition_input_min_v": 3.5999999999999996,
+      "allocated_load_a": 0.03,
+      "maximum_dissipation_at_allocation_w": 0.05548499999999999,
+      "dropout_reference_v": 0.145,
+      "dropout_reference_condition": "300mA, VOUT in2.5..5.5V, SOT23-5; load/temperature review still required"
+    },
+    {
+      "nominal_v": 4.5,
+      "dc_range_v": [
+        4.4325,
+        4.5675
+      ],
+      "ldo_input_range_v": [
+        4.9,
+        5.1
+      ],
+      "minimum_input_above_high_output_v": 0.33250000000000046,
+      "ldo_accuracy_condition_input_min_v": 4.8,
+      "allocated_load_a": 0.1,
+      "maximum_dissipation_at_allocation_w": 0.06674999999999996,
+      "dropout_reference_v": 0.145,
+      "dropout_reference_condition": "300mA, VOUT in2.5..5.5V, SOT23-5; load/temperature review still required"
+    }
+  ],
+  "qualification": {
+    "required_from_e08_s": 1,
+    "minimum_delay_s": 1.2103448275862068,
+    "nominal_delay_s": 2.3530684782608695,
+    "maximum_delay_s": 4.515025,
+    "ct_effective_range_f": [
+      1.5e-06,
+      2.8e-06
+    ],
+    "allowed_total_ct_injected_leakage_a": 1e-07,
+    "current_bounds_a": [
+      9e-07,
+      1.35e-06
+    ],
+    "threshold_bounds_v": [
+      1.17,
+      1.29
+    ],
+    "native_logic_combinations": 256,
+    "event_level_fault_cases": [
+      {
+        "fault": "CODEC_PGOOD",
+        "drop_without_waiting_for_timer": true,
+        "requalification_required": true
+      },
+      {
+        "fault": "PRE_ANALOG_OK",
+        "drop_without_waiting_for_timer": true,
+        "requalification_required": true
+      },
+      {
+        "fault": "CODEC_RUN",
+        "drop_without_waiting_for_timer": true,
+        "requalification_required": true
+      },
+      {
+        "fault": "CLK_VALID",
+        "drop_without_waiting_for_timer": true,
+        "requalification_required": true
+      },
+      {
+        "fault": "RAMP_DONE",
+        "drop_without_waiting_for_timer": true,
+        "requalification_required": true
+      }
+    ],
+    "limits": [
+      "Timing bound conditional on qualified capacitor/leakage",
+      "Event model assumes recognized reset intervals",
+      "No CT discharge, power-ramp, glitch, clock-loss or transistor simulation",
+      "No MCU permit until ANALOG_OK is read high; current prototype firmware does not implement this interface"
+    ]
+  },
+  "clock": {
+    "source": "ECS-2520MVLC-245.7-BN-TR",
+    "nominal_hz": 24576000.0,
+    "combined_first_year_frequency_screen_ppm": 53,
+    "mclk_range_hz": [
+      24574697.472,
+      24577302.528
+    ],
+    "codec_is_master": true,
+    "bclk_divisor": 8,
+    "bclk_hz": 3072000.0,
+    "bits_per_frame": 64,
+    "frame_rate_hz": 48000.0,
+    "frame_rate_range_hz": [
+      47997.456,
+      48002.544
+    ],
+    "oscillator_duty_range_percent": [
+      45,
+      55
+    ],
+    "maximum_declared_clock_load_pf": 15,
+    "startup_datasheet_max_s": 0.005,
+    "jitter_actual_at_24m576_verified": false,
+    "note": "150fs typical jitter is specified at50MHz; do not claim it at24.576MHz. MCLK and serial clocks share this source."
+  },
+  "i2c": {
+    "seven_bit_address": 24,
+    "wire_write": 48,
+    "wire_read": 49,
+    "chip_id_register": 225,
+    "chip_id_expected": 175,
+    "bus_clock_hz": 400000,
+    "single_pair_pullup_ohm": 2000.0,
+    "maximum_lumped_capacitance_f": 1.7528012685607046e-10,
+    "worst_single_pair_sink_current_a": 0.00175,
+    "other_known_seven_bit_addresses": [
+      32,
+      33,
+      34,
+      48,
+      54
+    ],
+    "note": "Figure4 distinguishes write0x30/read0x31; divide wire address by2. Include all module pullups and wiring in actual bus budget."
+  },
+  "codec_footprint_qualified": false,
+  "pcb_routed": false,
+  "complete_converter_implemented": false,
+  "physical_audio_verified": false
+}

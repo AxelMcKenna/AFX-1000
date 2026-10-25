@@ -1,0 +1,213 @@
+{
+  "revision": "A07/E07/E18/E19/E20/E23",
+  "renderer": "OpenSCAD version 2026.10.15",
+  "solids": {
+    "base": {
+      "backend": "CGAL",
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_solids": 1,
+      "triangles": 22392,
+      "volume_mm3": 228850.527,
+      "size_mm": [
+        334.0,
+        157.0,
+        36.0
+      ]
+    },
+    "panel": {
+      "backend": "CGAL",
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_solids": 1,
+      "triangles": 11796,
+      "volume_mm3": 84083.36,
+      "size_mm": [
+        327.8,
+        150.8,
+        2.0
+      ]
+    },
+    "rear_panel": {
+      "backend": "CGAL",
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_solids": 1,
+      "triangles": 3636,
+      "volume_mm3": 13192.787,
+      "size_mm": [
+        310.0,
+        1.6,
+        30.0
+      ]
+    },
+    "lever_bracket": {
+      "backend": "CGAL",
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_solids": 1,
+      "triangles": 2720,
+      "volume_mm3": 7421.057,
+      "size_mm": [
+        26.0,
+        39.0,
+        23.0
+      ]
+    },
+    "lever_arm": {
+      "backend": "CGAL",
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_solids": 1,
+      "triangles": 1228,
+      "volume_mm3": 1977.153,
+      "size_mm": [
+        19.0,
+        10.0,
+        34.0
+      ]
+    },
+    "fit_coupon": {
+      "backend": "CGAL",
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_solids": 1,
+      "triangles": 1096,
+      "volume_mm3": 8128.115,
+      "size_mm": [
+        90.0,
+        60.0,
+        2.0
+      ]
+    },
+    "strip_backer": {
+      "backend": "CGAL",
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_solids": 1,
+      "triangles": 556,
+      "volume_mm3": 2629.364,
+      "size_mm": [
+        72.0,
+        24.0,
+        2.2
+      ]
+    }
+  },
+  "checks": {
+    "lever_clearance": {
+      "result": "empty intersection",
+      "range_degrees": [
+        0,
+        35
+      ],
+      "interval_degrees": 1,
+      "expansion_mm": 0.1,
+      "method": "per-convex-primitive hull between adjacent expanded poses; chord error <0.001 mm at R25",
+      "against": [
+        "base including mounts",
+        "top panel",
+        "bracket including stops",
+        "listed internal envelopes"
+      ],
+      "limitation": "excludes spring, fasteners, wiring, and component detail outside reserves"
+    },
+    "output_clearance": {
+      "result": "empty intersection",
+      "against": [
+        "actual base including floor recess/insert bosses",
+        "top panel",
+        "other board/component/port reserves",
+        "scene PCB including 0.2mm vertical allowance",
+        "switch and conservative untrimmed lead reserves",
+        "lever bracket"
+      ],
+      "source": "native E07 PCB-derived component and solder envelopes",
+      "pcb_routed": true,
+      "physical_fit_verified": false,
+      "limitation": "conditional part/assembly limits; excludes insert process, wire bends, final converter/input/power placement and physical fit"
+    },
+    "control_clearance": {
+      "result": "intended mounting-face contact only",
+      "contact_evidence": {
+        "intersection": "intended mounting-face contact only",
+        "contact_faces": [
+          "daughter_landing_3"
+        ],
+        "numerical_plane_tolerance_mm": 1e-05,
+        "maximum_plane_deviation_mm": 0.0,
+        "intersection_triangles": 8
+      },
+      "against": [
+        "base/panel/lever bracket",
+        "other boards and component/port envelopes",
+        "switch and lead reserves",
+        "scene-board envelope"
+      ],
+      "source": "native E18 PCB-derived courtyard, lead, spacer and screw-head bounds",
+      "pcb_sha256": "7560e71cd57209193c61e934fcca032af4b2007a9e3858c8d8fbede99ff1ba8b",
+      "pcb_routed": true,
+      "physical_fit_verified": false,
+      "limitation": "connector/harness, height, spacer/screw and carrier-drill targets unqualified; excludes remaining electronics"
+    },
+    "carrier_clearance": {
+      "result": "intended mounting-face contact only",
+      "contact_evidence": {
+        "intersection": "intended mounting-face contact only",
+        "contact_faces": [
+          "daughter_landing_1",
+          "daughter_landing_2",
+          "daughter_landing_3",
+          "daughter_landing_4"
+        ],
+        "numerical_plane_tolerance_mm": 1e-05,
+        "maximum_plane_deviation_mm": 0.0,
+        "intersection_triangles": 536
+      },
+      "pcb_sha256": "659c70a318dc44e8b3df89a8778a94db3cb88e2ac121685434c14b6d0365c92e",
+      "pcb_routed": true,
+      "source": "native E19 footprint, socket/module, solder-tail, fixing and USB allocations",
+      "against": [
+        "base/panel/lever bracket",
+        "other board/component/port reserves",
+        "conservative switch lead bounds",
+        "scene-board envelope"
+      ],
+      "physical_fit_verified": false,
+      "limitation": "conditional part/assembly bounds; complete converter/power/LED/sensor/SD placement, pigtail routing and physical fit unfinished"
+    },
+    "led_clearance": {
+      "result": "empty intersection",
+      "contact_evidence": {},
+      "pcb_sha256": "ebb365ece677efbc31c7d98dea3bdf95b1c30c8a3d4a7932c6d84491d489570b",
+      "pcb_routed": true,
+      "source": "native E20 footprint, header/harness, solder-tail and fixing bounds",
+      "against": [
+        "base/panel/lever bracket",
+        "other board/component/port reserves",
+        "switch and untrimmed lead bounds",
+        "scene-board envelope"
+      ],
+      "physical_fit_verified": false,
+      "full_unit_power_budget_closed": false,
+      "limitation": "conditional part/assembly bounds; emitter boards, harness routing, power integration and physical fit unfinished"
+    },
+    "input_power_placement": {
+      "result": "empty intersection",
+      "contact_evidence": {},
+      "pcb_sha256": "06fefb4cea59a9508427152c6b1cbf2b1a6f26a8a587af905950fa98f17312d0",
+      "pcb_routed": true,
+      "placement_packet_sha256": "add6b1d967f5111185c6fcdade28a5319b3d6cc1f0a703893d81a116a88fc807",
+      "source": "actual E23 notched PCB, component/lead/harness and fixing bounds; candidate jack/actuator reserves",
+      "against": [
+        "base and rear I/O plate",
+        "top panel and lever bracket",
+        "other board/component/port reserves",
+        "scene-board envelope"
+      ],
+      "physical_fit_verified": false,
+      "full_unit_power_budget_closed": false,
+      "limitation": "conditional part/assembly dimensions; exact plug mating, actuator access, mounts, harness and physical fit unqualified"
+    }
+  }
+}

@@ -1,0 +1,213 @@
+{
+  "revision": "E21",
+  "checked_at_utc": "2026-10-23T11:41:47.569439+00:00",
+  "scope": "E20 load reconciliation, revised E14/E16/E17 candidate power schematics and unchanged E20 native PCB recheck; no new ARM, mechanical-render or physical proof",
+  "review_package": "build/artifacts/releases/power-load-review-E21.zip",
+  "changes": {
+    "digital_provision_a": [
+      1.2,
+      1.8
+    ],
+    "allocated_digital_load_a": 1.574,
+    "E14_C17_f": [
+      3.3e-08,
+      1e-06
+    ],
+    "E16_R7_ohm": [
+      6490,
+      5620
+    ],
+    "E16_C5_f": [
+      1e-07,
+      3.3e-07
+    ],
+    "digital_parallel_fets": {
+      "source_side": [
+        "Q11",
+        "Q13"
+      ],
+      "load_side": [
+        "Q12",
+        "Q14"
+      ]
+    }
+  },
+  "native_schematic_components": {
+    "power_supply": 157,
+    "input_protection": 48,
+    "rail_disconnect": 164,
+    "led_driver": 49
+  },
+  "native_erc_violations": {
+    "power_supply": 0,
+    "input_protection": 0,
+    "rail_disconnect": 0,
+    "led_driver": 0
+  },
+  "reconciliation": {
+    "load_update_revision": "E21",
+    "e20_board_and_emitters_allocation_a": 0.764,
+    "revised_allocated_load_a": 1.574,
+    "existing_digital_provision_a": 1.8,
+    "available_steady_load_headroom_a": 0.22599999999999998,
+    "digital_load_exceeds_existing_provision": false,
+    "e20_counted_exactly_once": true,
+    "conditional_revised_input_power_w": 25.426000000000002,
+    "conditional_input_steady_a": 2.4965238095238096,
+    "conditional_input_plus_existing_ramp_a": 2.7728807277747634,
+    "input_bus_ramp_a": 0.0810387529137529,
+    "preconnected_digital_bulk_ramp_input_a": 0.19531816533720087,
+    "existing_efuse_allocated_minimum_a": 2.873940456211437,
+    "existing_efuse_allocated_maximum_a": 3.533732871211499,
+    "input_current_margin_a": 0.10105972843667343,
+    "input_current_allocation_pass": true,
+    "revised_protected_5v_current_a": 1.801,
+    "existing_protected_path_resistance_allocation_ohm": 0.0035,
+    "conditional_protected_5v_range_v": [
+      4.902787970106395,
+      5.099180739162662
+    ],
+    "protected_star_target_v": [
+      4.9,
+      5.1
+    ],
+    "protected_star_voltage_allocation_pass": true,
+    "protected_star_margin_v": [
+      0.002787970106394866,
+      0.00081926083733741
+    ],
+    "includes_e20_pcb_or_production_harness_drop": false,
+    "other_rail_charging_and_late_switch_close_bounded": false,
+    "physical_load_and_protection_validated": false,
+    "full_unit_power_budget_closed": false,
+    "required_work": "Route/qualify the power hardware, symmetric parallel FET branches, increased gate charge/leakage, all-rail startup/late closure, connected capacitance and large-capacitor loop, thermal limits, actual low-current LED ICC, 3V3 loads and distribution/contact drops. Passing allocations are not physical proof.",
+    "historical_a06_e20": {
+      "digital_provision_a": 1.2,
+      "missing_driver_and_sink_allocation_a": 0.476,
+      "input_plus_ramp_a": 2.693094551282051,
+      "input_minimum_limit_a": 2.488681874253972,
+      "protected_5v_minimum_v": 4.898190970106395,
+      "scope": "Immutable led-and-housing-review-A06-E20.zip; earlier failed allocation screens"
+    },
+    "fresh_upstream_screen_sha256": {
+      "power_supply/generated/verification.json": "3c0188c7ca34359b3063005670af90948ef9ffa63f65c43eeff1b4034ec6af1f",
+      "power_supply/generated/electrical-screens.json": "89d5627f4ab736da793643908c12e39f3e58b2a9e61482ee7006530d760d60f5",
+      "input_protection/generated/verification.json": "d93aea4482a9a4f6e1ec71e0820375425b5193d87cbd356cd4acc8b4ed20f200",
+      "input_protection/generated/electrical-screens.json": "74459beed68afa134c7cff3d411ce4d954045d78650846efd356f828fb1a247c",
+      "rail_disconnect/generated/verification.json": "4055c6bda0f376d19f2c54eb61240ebb911c505ad9d49e816cc454783b511e53",
+      "rail_disconnect/generated/electrical-screens.json": "5cbde24044f6524971c2fd79e850a9673fe18975407c530cc8ce75b6734f5d61"
+    }
+  },
+  "tooling_tests": {
+    "passed": 21,
+    "failed": 0,
+    "record": "hardware/validation/power-tooling-tests.txt"
+  },
+  "power_boards_routed": false,
+  "complete_power_housing_placement": false,
+  "existing_a06_inputs_unchanged_sha256": {
+    "hardware/electronics/led_driver/led_driver.kicad_pcb": "ebb365ece677efbc31c7d98dea3bdf95b1c30c8a3d4a7932c6d84491d489570b",
+    "hardware/electronics/led_driver/generated/placement.json": "d5830bbd7f38970db2b939112f24d0374d30ca48b96981e380f3ceb829b7b3e3",
+    "hardware/cad/enclosure.scad": "d59c7600d594ed09f7c25e29c8c6ade802685f41476ac5fda26ad770a221cdb6",
+    "hardware/cad/standalone.py": "23ac89bd15d86a376178fb152befe550bb9cabc61db7582d3803a5058b6cc0e8",
+    "hardware/cad/render.py": "826bb333cb62244075578288a88bb36fd13e9c2acd23c33530f221d8569dc47e",
+    "hardware/cad/generated/components.scad": "7b2d4dcbf14587c8e2ede993711f3041dfc1bb00666af774ec4ed6281c1cba1e",
+    "hardware/cad/generated/internal-clearance.json": "aef4b1896febb6aff5169c0d1d47a382fb884cf61aa186885385e82c98fdc390",
+    "hardware/cad/generated/solid-validation.json": "d8a301ce5689e8ded0d9e9097367b4e3c6c1cdea85dcde7e6d8f98075d3078e0"
+  },
+  "firmware_build_performed": false,
+  "hardware_flashed": false,
+  "physical_qualification": false,
+  "fabrication_released": false,
+  "assembly_released": false,
+  "build_ready": false,
+  "full_unit_power_budget_closed": false,
+  "evidence_sha256": {
+    "hardware/electronics/power_supply/generated/verification.json": "3c0188c7ca34359b3063005670af90948ef9ffa63f65c43eeff1b4034ec6af1f",
+    "hardware/electronics/input_protection/generated/verification.json": "d93aea4482a9a4f6e1ec71e0820375425b5193d87cbd356cd4acc8b4ed20f200",
+    "hardware/electronics/rail_disconnect/generated/verification.json": "4055c6bda0f376d19f2c54eb61240ebb911c505ad9d49e816cc454783b511e53",
+    "hardware/electronics/led_driver/generated/verification.json": "2f76899658659729b57e8d67bed218f785327a28cf31ed221c931560c9dfd791",
+    "hardware/electronics/power_supply/generated/electrical-screens.json": "89d5627f4ab736da793643908c12e39f3e58b2a9e61482ee7006530d760d60f5",
+    "hardware/electronics/input_protection/generated/electrical-screens.json": "74459beed68afa134c7cff3d411ce4d954045d78650846efd356f828fb1a247c",
+    "hardware/electronics/rail_disconnect/generated/electrical-screens.json": "5cbde24044f6524971c2fd79e850a9673fe18975407c530cc8ce75b6734f5d61",
+    "hardware/electronics/led_driver/generated/power-reconciliation.json": "3b538c7aaa0e7237f741d9594901c21d99663f272a363b5d7d6e7a53a92206b7",
+    "hardware/validation/power-tooling-tests.txt": "8872eefb8c931b1eeb7575ce74154d809837e0686675a207e92acc42c67b23b4"
+  },
+  "source_sha256": {
+    "hardware/cad/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hardware/cad/button_fixture.py": "408aa80ef8bb39767c8471d7c3f2d1c4fc9b881bf4eb28a3db4292a9905d9448",
+    "hardware/cad/button_render.py": "afd93d46f5d88d761d3c95843ae6a301f6a72ddd69b6afc7c6cc09da5bb1fa5a",
+    "hardware/cad/generate.py": "dc2bb0222756c9a9bb4ee676f5d7ccb879db854018e287474294e035eab5acaf",
+    "hardware/cad/paths.py": "7a8b912cb57ad35a92a7c0ae66b7cd6107d03883234030e6ae2f239e5da4113f",
+    "hardware/cad/render.py": "826bb333cb62244075578288a88bb36fd13e9c2acd23c33530f221d8569dc47e",
+    "hardware/cad/standalone.py": "23ac89bd15d86a376178fb152befe550bb9cabc61db7582d3803a5058b6cc0e8",
+    "hardware/electronics/POWER-LOAD-E21.md": "40c741be5d7f2e25753c4bc6021c0240d128a6092bf8b8e92d96337a4cc88ee4",
+    "hardware/electronics/input_protection/README.md": "b7d26a00293eb7816a69c3307734d08cdbf96fcbe3ef28ccd21adbaedf03dd16",
+    "hardware/electronics/input_protection/RMX_E15.kicad_sym": "ea97bd1ffd51c2fc82090bf56ca611a382c45e00161c1d083f84273fbbe4c51f",
+    "hardware/electronics/input_protection/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hardware/electronics/input_protection/bom.csv": "8b21473ed45a6cbcce23b78d03a6ffa435b701c1504f51ae4de1640276329782",
+    "hardware/electronics/input_protection/components.json": "33b7f35ee1ae0af0ccea8825df975b61d58a53aebe8d60007d09f99f7fb51d19",
+    "hardware/electronics/input_protection/dependencies.json": "f19dfde4e5330dd162c7136737ce11e307f549932cd0380ab5a525c05c0a8f37",
+    "hardware/electronics/input_protection/generate.py": "602add7ec76fb7f272580335a263710f8cbe15e789b01eaa7ed81bd263b48b75",
+    "hardware/electronics/input_protection/input_protection.kicad_pro": "29810dc691e9b7307f5ca1573f65ed7021fea0524f3657547f8bef3993c466fd",
+    "hardware/electronics/input_protection/input_protection.kicad_sch": "51ebc1f42bcde8c14df31f91ec29098768cfa1708e9e3898a62011ddcf708795",
+    "hardware/electronics/input_protection/integration.json": "c6c5a3f8e20abfbae8c14fe34d08b72de164e687a7c27695717f499bb8090ea5",
+    "hardware/electronics/input_protection/spec.py": "cca50917af89c39e1da4f79be12613aaa1ccf2eabc9a4cd223f159f760390b90",
+    "hardware/electronics/input_protection/verify.py": "b5e241ff6d722df6304caa3078b661f03ded6c9d1b2631f9666b0b5210104b0c",
+    "hardware/electronics/led_driver/README.md": "e75cd5bc7abac0df39fb3fe134048e9c7a3c379447b886c522b98b7ce88a2e81",
+    "hardware/electronics/led_driver/RMX_E20.kicad_sym": "87a8c7f15f58c4aeef582ab4317b58c795551b06ceb870ccfa230d3e5659a580",
+    "hardware/electronics/led_driver/bom.csv": "0f043eeaf062709da8018159fa9770813aec6b584ddb62661eca0da014b5168d",
+    "hardware/electronics/led_driver/check_board.py": "387b0f2b09991516aff7f0b624d97032f7a444a4705c6e049b1237e361543a5f",
+    "hardware/electronics/led_driver/cleanup.py": "6c19d1dd899cce4ab13060d664a19b26db1e53f6d436bed3b7493f308df1b68f",
+    "hardware/electronics/led_driver/components.json": "475605ce4375ea0578350c9860b226070de83523e9f9d77510c6d10c8bdaa5ae",
+    "hardware/electronics/led_driver/dependencies.json": "f382de1a70fae3a320feb70f64d6d46efb96a4991d2965a415a054c872592f46",
+    "hardware/electronics/led_driver/generate.py": "e979c2e5146e7f162aeb3b1ebbc432507878e22b3726994de0712a0dfa2d291b",
+    "hardware/electronics/led_driver/integration.json": "33bd77659b819dd313c0dd4fa2db013f301d251af34af5c151448acbe88378fd",
+    "hardware/electronics/led_driver/led_driver.kicad_pcb": "ebb365ece677efbc31c7d98dea3bdf95b1c30c8a3d4a7932c6d84491d489570b",
+    "hardware/electronics/led_driver/led_driver.kicad_pro": "dbd042049ee95bde7be6ab97e40aff1b8f002cdec93dd09cdc48bc75d86fa235",
+    "hardware/electronics/led_driver/led_driver.kicad_sch": "0dc028d635948986a2bf2ce4b594d4813cc84d83b37c59fc9a7918c2ffb254cb",
+    "hardware/electronics/led_driver/place.py": "c35552777c016f6471c18feacd6a366146761abaf46e41801ce704c23f745a03",
+    "hardware/electronics/led_driver/power_review.py": "45e8a9f6d2d85b5479716f6f91481cb4bf45624c54fbdb7aad62ca4623a1a2c2",
+    "hardware/electronics/led_driver/route.py": "da599c86aaeb0a6528ba07ef9cc35dab03f31cce910b169536d0fe75f8cb17df",
+    "hardware/electronics/led_driver/route_grid.py": "c5e96e86e15a2bcdd8183c25cbeadf96857a90861e6550a1dd13521352bfbbd2",
+    "hardware/electronics/led_driver/spec.py": "7dbf26ae1c7b4e48b8b9b7d734440a246202cc5cf4da87454174b648e6789259",
+    "hardware/electronics/led_driver/verify.py": "1babf8f4389f70254b30bbe0efd3b4aa295b03ae86d25a921071271e25192f4b",
+    "hardware/electronics/power_supply/README.md": "c045253d06f9eb06360af1b0102f03535c3f411b56ad1bec0310f5294a12a6cf",
+    "hardware/electronics/power_supply/RMX_E14.kicad_sym": "cc0408cf54cd2a5073501b54678dd6863929c83ee4542cd5499dd99060a9b125",
+    "hardware/electronics/power_supply/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hardware/electronics/power_supply/bom.csv": "61d353010ab2f14bdcffd99f00b04215c7e9df4c8bc4a47cf8aef875d9abce8f",
+    "hardware/electronics/power_supply/components.json": "bf604b92429164cc65c2bdf623d2cd235d545e9bdb32c0e8e220098f6d54ec81",
+    "hardware/electronics/power_supply/dependencies.json": "f4fa63c5399859f591f36713eb75dacae62a1b333a4710c42635fb4e6125d64d",
+    "hardware/electronics/power_supply/generate.py": "5e121426a19a8cc3954fcedd2cba924491ea76e427bb5df1b30f7c09df949a85",
+    "hardware/electronics/power_supply/integration.json": "8df6357cba8afdefc7696817de9bebba40b3f9e8400ae596df21cdf68e90b17c",
+    "hardware/electronics/power_supply/power_supply.kicad_pro": "701b7afb487c585f96d2c2f34bb64d090c885c3d6700667bdb9a981521a6f96c",
+    "hardware/electronics/power_supply/power_supply.kicad_sch": "d238d6cd715fb125704b1ed82c2b54a7b788088ccbb2f82bf43e9d1873cfe28c",
+    "hardware/electronics/power_supply/spec.py": "2c2afc91cf716c03430a258439ece8cc9e8d9715c412cc7a1c519e94e80d1995",
+    "hardware/electronics/power_supply/supply-map.json": "812d7ed6c38aebb2897c548415bc7201c6dd0cc3aef263ebd0f64d177ad92f89",
+    "hardware/electronics/power_supply/verify.py": "47435cb482c96f9dc84553a2a6460b4717f3eaf54bd0f304bc177f71d5222d7d",
+    "hardware/electronics/rail_disconnect/README.md": "11e0a225fb90f305e5bac0f80a45fc03eb462c107492e0574133b90fda43a67b",
+    "hardware/electronics/rail_disconnect/RMX_E17.kicad_sym": "af6f236a727adba3e19c3a856ce5131105f8acbbcf56d07e151fa927aa5b4b85",
+    "hardware/electronics/rail_disconnect/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "hardware/electronics/rail_disconnect/bom.csv": "699a80479cb673a29aea0d9a3d41e220bc07bf0aa43e5e7071fd2bc76a4cdb7d",
+    "hardware/electronics/rail_disconnect/components.json": "d30cd318db68b4f5efdb3cb6054f1413391fe3ca762f9ce6a0c991a71128a982",
+    "hardware/electronics/rail_disconnect/dependencies.json": "73a8908b186f01125afe84f0b2e3653d8887523ba55da74731534c7e4e902ebb",
+    "hardware/electronics/rail_disconnect/generate.py": "39374b697f047c47748ab1367ccc348596f9e05f91ddda5bb1483005eb74e20d",
+    "hardware/electronics/rail_disconnect/integration.json": "015a3625d882f24b57047fe95c076f12249d40afe083ca53e89fd21946775a7f",
+    "hardware/electronics/rail_disconnect/rail_disconnect.kicad_pro": "01085dee0b28e064d48a4bf2cbed6b48924de52808ca3ad492ecf1ae31758de6",
+    "hardware/electronics/rail_disconnect/rail_disconnect.kicad_sch": "34d964adac712c03cca65b6f0cf1dc67780b28a26622c1bdf7765f86020ea2eb",
+    "hardware/electronics/rail_disconnect/spec.py": "f856771f77019b4ba2f200cb904a3afb5fde9791e5366f7dca7dddb5fb72c6d6",
+    "hardware/electronics/rail_disconnect/switch-map.json": "f10a9c1f2570ba0887de77cd8c3e54cdc18872adf5d49b6805dc06ce8327846d",
+    "hardware/electronics/rail_disconnect/verify.py": "ddd7ec4ecc6800873606f755fa081e2e5634fa49278e43ed83aa5a5a8045903f",
+    "tests/tooling/test_artifacts.py": "d2296e2dfc2ccb5337a158c5e4c49cf96782e60cc98f60bdee79813763078f54",
+    "tests/tooling/test_cad_contacts.py": "f70932c1d95853215b3f77d6a55f41347c158474d1949394768d7ea3e14eaf3e",
+    "tests/tooling/test_electronics.py": "29ae1c462a82c5abef5e49c9ecda79f558198bd72879c302fc9de2f460b42743",
+    "tools/artifacts/restore.py": "8fadc0e6bbef870358402837ca434ea0e92baa6983cc15f8d59c95f2ed1ca732"
+  },
+  "remaining": [
+    "Power PCB layout and complete physical fit, including bulk capacitor heights",
+    "All-rail charging, initial/late switch closure and real startup coordination",
+    "Large-capacitor converter stability, increased FET gate charge and real fault interruption",
+    "Thermal, supply/contact distribution, actual low-current LED ICC and complete3V3 budget",
+    "Remaining control/emitter/sensor/analog/converter boards, SD storage and physical audio/soak qualification"
+  ]
+}

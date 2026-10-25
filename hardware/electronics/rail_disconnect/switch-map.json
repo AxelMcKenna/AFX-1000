@@ -1,0 +1,246 @@
+{
+  "channels": [
+    {
+      "name": "P19",
+      "source": "P19_SRC",
+      "common": "P19_COMMON",
+      "gate": "P19_GATE",
+      "drive": "P19_DRIVE",
+      "enable": "P19_ALLOW",
+      "driver": "U1",
+      "fets": [
+        "Q1",
+        "Q2"
+      ],
+      "gate_resistor": "R1",
+      "gate_bleed": "R2",
+      "tt": "R3",
+      "input_resistor": "R4",
+      "input_pulldown": "R5",
+      "bulk": "C4",
+      "discharge": "R8"
+    },
+    {
+      "name": "N19",
+      "source": "N19_SRC",
+      "common": "N19_COMMON",
+      "gate": "N19_GATE",
+      "drive": "N19_DRIVE",
+      "enable": "N19_ALLOW",
+      "driver": "U2",
+      "fets": [
+        "Q3",
+        "Q4"
+      ],
+      "gate_resistor": "R9",
+      "gate_bleed": "R10",
+      "tt": "R11",
+      "input_resistor": "R12",
+      "input_pulldown": "R13",
+      "bulk": "C8",
+      "discharge": "R16"
+    },
+    {
+      "name": "P12",
+      "source": "P12_SRC",
+      "common": "P12_COMMON",
+      "gate": "P12_GATE",
+      "drive": "P12_DRIVE",
+      "enable": "P12_ALLOW",
+      "driver": "U3",
+      "fets": [
+        "Q5",
+        "Q6"
+      ],
+      "gate_resistor": "R17",
+      "gate_bleed": "R18",
+      "tt": "R19",
+      "input_resistor": "R20",
+      "input_pulldown": "R21",
+      "bulk": "C12",
+      "discharge": "R24"
+    },
+    {
+      "name": "N12",
+      "source": "N12_SRC",
+      "common": "N12_COMMON",
+      "gate": "N12_GATE",
+      "drive": "N12_DRIVE",
+      "enable": "N12_ALLOW",
+      "driver": "U4",
+      "fets": [
+        "Q7",
+        "Q8"
+      ],
+      "gate_resistor": "R25",
+      "gate_bleed": "R26",
+      "tt": "R27",
+      "input_resistor": "R28",
+      "input_pulldown": "R29",
+      "bulk": "C16",
+      "discharge": "R32"
+    },
+    {
+      "name": "V5_REG",
+      "source": "V5_REG_SRC",
+      "common": "V5_REG_COMMON",
+      "gate": "V5_REG_GATE",
+      "drive": "V5_REG_DRIVE",
+      "enable": "V5_REG_ALLOW",
+      "driver": "U5",
+      "fets": [
+        "Q9",
+        "Q10"
+      ],
+      "gate_resistor": "R33",
+      "gate_bleed": "R34",
+      "tt": "R35",
+      "input_resistor": "R36",
+      "input_pulldown": "R37",
+      "bulk": "C20",
+      "discharge": "R40"
+    },
+    {
+      "name": "5V_DIG",
+      "source": "5V_DIG_SRC",
+      "common": "5V_DIG_COMMON",
+      "gate": "5V_DIG_GATE",
+      "drive": "5V_DIG_DRIVE",
+      "enable": "5V_DIG_ALLOW",
+      "driver": "U6",
+      "fets": [
+        "Q11",
+        "Q12",
+        "Q13",
+        "Q14"
+      ],
+      "gate_resistor": "R41",
+      "gate_bleed": "R42",
+      "tt": "R43",
+      "input_resistor": "R44",
+      "input_pulldown": "R45",
+      "bulk": "C24",
+      "discharge": "R48"
+    }
+  ],
+  "comparators": [
+    {
+      "name": "P19",
+      "positive": "P19_OV_REF",
+      "negative": "P19_OV_SENSE",
+      "output": "P19_OV_OK",
+      "sense_parts": [
+        "R56",
+        "R57",
+        "R58"
+      ],
+      "reference_series": "R59",
+      "hysteresis": "R60",
+      "pullup": "R61",
+      "negative_amplifier": null
+    },
+    {
+      "name": "N19",
+      "positive": "N19_OV_REF",
+      "negative": "N19_OV_SENSE",
+      "output": "N19_OV_OK",
+      "sense_parts": [],
+      "reference_series": "R62",
+      "hysteresis": "R63",
+      "pullup": "R64",
+      "negative_amplifier": {
+        "input": [
+          "R49",
+          "R50"
+        ],
+        "feedback": "R51",
+        "series": "R52"
+      }
+    },
+    {
+      "name": "P12",
+      "positive": "P12_OV_REF",
+      "negative": "P12_OV_SENSE",
+      "output": "P12_OV_OK",
+      "sense_parts": [
+        "R65",
+        "R66"
+      ],
+      "reference_series": "R67",
+      "hysteresis": "R68",
+      "pullup": "R69",
+      "negative_amplifier": null
+    },
+    {
+      "name": "N12",
+      "positive": "N12_OV_REF",
+      "negative": "N12_OV_SENSE",
+      "output": "N12_OV_OK",
+      "sense_parts": [],
+      "reference_series": "R70",
+      "hysteresis": "R71",
+      "pullup": "R72",
+      "negative_amplifier": {
+        "input": [
+          "R53"
+        ],
+        "feedback": "R54",
+        "series": "R55"
+      }
+    },
+    {
+      "name": "V5_REG",
+      "positive": "V5_REG_OV_REF",
+      "negative": "V5_REG_OV_SENSE",
+      "output": "V5_REG_OV_OK",
+      "sense_parts": [
+        "R73",
+        "R74"
+      ],
+      "reference_series": "R75",
+      "hysteresis": "R76",
+      "pullup": "R77",
+      "negative_amplifier": null
+    },
+    {
+      "name": "5V_DIG",
+      "positive": "5V_DIG_OV_REF",
+      "negative": "5V_DIG_OV_SENSE",
+      "output": "5V_DIG_OV_OK",
+      "sense_parts": [
+        "R78",
+        "R79"
+      ],
+      "reference_series": "R80",
+      "hysteresis": "R81",
+      "pullup": "R82",
+      "negative_amplifier": null
+    },
+    {
+      "name": "REF_LOW",
+      "positive": "REF_LOW_POSITIVE",
+      "negative": "REF_LOW_AUX",
+      "output": "REF_LOW_OK",
+      "sense_parts": [
+        "R83",
+        "R84"
+      ],
+      "reference_series": "R85",
+      "hysteresis": "R86",
+      "pullup": "R87"
+    },
+    {
+      "name": "REF_HIGH",
+      "positive": "REF_HIGH_POSITIVE",
+      "negative": "PROTECT_REF",
+      "output": "REF_HIGH_OK",
+      "sense_parts": [
+        "R88",
+        "R89"
+      ],
+      "reference_series": "R90",
+      "hysteresis": "R91",
+      "pullup": "R92"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+# Preserve executable locations for the firmware verifier and local workflows.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+find_package(Threads REQUIRED)
+add_library(rmx_test_support INTERFACE)
+target_include_directories(rmx_test_support INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/support" "${RMX_REPOSITORY_ROOT}" "${PROJECT_SOURCE_DIR}/include")
+
+function(rmx_add_test suite group)
+  add_executable(rmx_${suite}_tests ${group}/${suite}_tests.cpp)
+  target_link_libraries(rmx_${suite}_tests PRIVATE rmx_test_support ${ARGN})
+  add_test(NAME ${suite} COMMAND rmx_${suite}_tests)
+endfunction()
+
+add_executable(rmx_tests core/core_tests.cpp)
+target_link_libraries(rmx_tests PRIVATE rmx_core rmx_test_support)
+add_test(NAME engine COMMAND rmx_tests)
+foreach(case neutral_stereo sampler_panic echo_tail effect_extremes scene_processing realtime_allocations
+             state_roundtrip queue_bounds panel_actions tempo_detection wav_roundtrip)
+  add_test(NAME engine_${case} COMMAND rmx_tests ${case})
+endforeach()
+foreach(suite dsp_state queue_concurrency realtime_snapshot)
+  rmx_add_test(${suite} core rmx_core Threads::Threads)
+endforeach()
+foreach(suite application_session audio_buffering)
+  rmx_add_test(${suite} app rmx_core)
+endforeach()
+foreach(suite midi_controls hardware_controls)
+  rmx_add_test(${suite} controls rmx_core)
+endforeach()
+foreach(suite audio_arena hardware_wire control_expanders connection_mode relay_feedback external_converter input_qualification)
+  rmx_add_test(${suite} firmware)
+endforeach()
+target_compile_definitions(rmx_external_converter_tests PRIVATE RMX_EXTERNAL_CONVERTER=1)
+

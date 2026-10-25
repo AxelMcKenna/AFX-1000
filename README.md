@@ -33,11 +33,13 @@ Pitch travel has separate up/down ranges from 1 to 24 semitones. The extra range
 
 ## Hardware design
 
-The A08 housing model includes a 334 × 157 × 38 mm chassis, all 29 guided buttons, ten shaft-mount knobs, selector caps, optical inserts and the release mechanism. The print pack exports each part separately and includes a 3MF inventory with the required quantities.
+The standalone A11 design has a 334 × 157 × 38 mm chassis, 29 guided buttons, ten knobs, selector caps, optical inserts and the release mechanism. It includes mounts and clearances for the routed main supply and the placed E25 disconnect board.
 
-[![A08 CAD overview: assembled housing, integrated controls, printable parts and button mechanism cutaway](docs/assets/hardware/cad-overview.png)](docs/assets/hardware/cad-overview.png)
+[![A11 housing, controls and internal board placement](docs/assets/hardware/a11-overview.png)](docs/assets/hardware/a11-overview.png)
 
-See the [editable CAD and rebuild instructions](hardware/cad/a08/README.md) and [printer handoff](hardware/cad/a08/PRINTING.md). Geometry and motion checks are recorded by the exporter; physical print fit, return force, optics and full electronics assembly remain to be validated. A08 is separate from the active B1 budget hardware prototype in the [hardware guide](hardware/README.md).
+See the [A11 editable CAD](hardware/cad/a11/README.md), [printer handoff](hardware/cad/a11/PRINTING.md), [electronics and wiring status](hardware/validation/disconnect-placement.json) and [saved review package](docs/reviews/standalone-E25-A11/). The unit is not build-ready: disconnect routing, 5 V distribution changes, remaining boards/wiring and physical qualification are unfinished.
+
+The standalone firmware uses its own [preserved runtime and host checks](hardware/runtime/README.md). The desktop engine and adapters retain their current features and build commands. Earlier [A08 mechanics](hardware/cad/a08/README.md), the [B1 budget prototype](hardware/budget/README.md) and the [A0 enclosure reference](hardware/cad/a0-reference/) remain available as separate designs.
 
 ## Run it
 

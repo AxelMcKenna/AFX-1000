@@ -1,0 +1,251 @@
+{
+  "revision": "E09",
+  "status": "proposed external-converter profile; current Seed3 onboard-codec firmware is unchanged",
+  "module_gpio": {
+    "D0": {
+      "net": "CODEC_RUN",
+      "direction": "output",
+      "additional_function": "shared active-low RESET_N for all MCP23017 devices; low resets both codec request and expanders",
+      "stm32_pin": "PB12"
+    },
+    "D1": {
+      "net": "SDMMC_D3",
+      "direction": "reserved_sdmmc",
+      "stm32_pin": "PC11"
+    },
+    "D2": {
+      "net": "SDMMC_D2",
+      "direction": "reserved_sdmmc",
+      "stm32_pin": "PC10"
+    },
+    "D3": {
+      "net": "SDMMC_D1",
+      "direction": "reserved_sdmmc",
+      "stm32_pin": "PC9"
+    },
+    "D4": {
+      "net": "SDMMC_D0",
+      "direction": "reserved_sdmmc",
+      "stm32_pin": "PC8"
+    },
+    "D5": {
+      "net": "SDMMC_CMD",
+      "direction": "reserved_sdmmc",
+      "stm32_pin": "PD2"
+    },
+    "D6": {
+      "net": "SDMMC_CLK",
+      "direction": "reserved_sdmmc",
+      "stm32_pin": "PC12"
+    },
+    "D7": {
+      "net": "LED_XLAT",
+      "direction": "output",
+      "stm32_pin": "PG10"
+    },
+    "D8": {
+      "net": "LED_SCK",
+      "direction": "spi_output",
+      "stm32_pin": "PG11"
+    },
+    "D9": {
+      "net": "GAIN_REQ",
+      "direction": "output",
+      "stm32_pin": "PB4"
+    },
+    "D10": {
+      "net": "LED_MOSI",
+      "direction": "spi_output",
+      "stm32_pin": "PB5"
+    },
+    "D11": {
+      "net": "SCL",
+      "direction": "i2c",
+      "stm32_pin": "PB8"
+    },
+    "D12": {
+      "net": "SDA",
+      "direction": "i2c",
+      "stm32_pin": "PB9"
+    },
+    "D13": {
+      "net": "HEARTBEAT",
+      "direction": "output",
+      "stm32_pin": "PB6"
+    },
+    "D14": {
+      "net": "LED_BLANK",
+      "direction": "output",
+      "stm32_pin": "PB7"
+    },
+    "D15": {
+      "net": "POT_INPUT",
+      "direction": "adc_input",
+      "stm32_pin": "PC0"
+    },
+    "D16": {
+      "net": "POT_OUTPUT",
+      "direction": "adc_input",
+      "stm32_pin": "PA3"
+    },
+    "D17": {
+      "net": "POT_LOW",
+      "direction": "adc_input",
+      "stm32_pin": "PB1"
+    },
+    "D18": {
+      "net": "POT_MID",
+      "direction": "adc_input",
+      "stm32_pin": "PA7"
+    },
+    "D19": {
+      "net": "POT_HI",
+      "direction": "adc_input",
+      "stm32_pin": "PA6"
+    },
+    "D20": {
+      "net": "POT_SCENE_DEPTH",
+      "direction": "adc_input",
+      "stm32_pin": "PC1"
+    },
+    "D21": {
+      "net": "POT_X_LEVEL",
+      "direction": "adc_input",
+      "stm32_pin": "PC4"
+    },
+    "D22": {
+      "net": "POT_PITCH",
+      "direction": "adc_input",
+      "stm32_pin": "PA5"
+    },
+    "D23": {
+      "net": "POT_SUB1",
+      "direction": "adc_input",
+      "stm32_pin": "PA4"
+    },
+    "D24": {
+      "net": "POT_SUB2",
+      "direction": "adc_input",
+      "stm32_pin": "PA1"
+    },
+    "D25": {
+      "net": "ADC_DATA",
+      "direction": "sai_input",
+      "stm32_pin": "PA0",
+      "alternate_function": 10,
+      "sai_block": "B RECEIVE"
+    },
+    "D26": {
+      "net": "DAC_DATA",
+      "direction": "sai_output",
+      "stm32_pin": "PD11",
+      "alternate_function": 10,
+      "sai_block": "A TRANSMIT"
+    },
+    "D27": {
+      "net": "WS",
+      "direction": "sai_input",
+      "stm32_pin": "PG9",
+      "alternate_function": 10,
+      "sai_block": "B external frame sync"
+    },
+    "D28": {
+      "net": "BCLK",
+      "direction": "sai_input",
+      "stm32_pin": "PA2",
+      "alternate_function": 8,
+      "sai_block": "B external serial clock"
+    },
+    "D29": {
+      "net": "MCU_PERMIT",
+      "direction": "output",
+      "stm32_pin": "PB14",
+      "wire": "E02 J2.3"
+    },
+    "D30": {
+      "net": "ARMED",
+      "direction": "input",
+      "stm32_pin": "PB15",
+      "wire": "E02 J2.5"
+    }
+  },
+  "i2c_seven_bit_devices": {
+    "0x18": "ES9292QPRO",
+    "0x20": "MCP23017 controls0",
+    "0x21": "MCP23017 controls1",
+    "0x22": "additional MCP23017 rear/status inputs, not yet implemented",
+    "0x30": "Trill Craft",
+    "0x36": "AS5600"
+  },
+  "new_mcp23017_0x22": {
+    "GPA0": "connection mode; replaces D25",
+    "GPA1": "manual bypass sense; replaces D0",
+    "GPA2": "ANALOG_OK status input; new firmware arming prerequisite",
+    "remaining_inputs": "unassigned; hardware/control PCB incomplete"
+  },
+  "sai": {
+    "peripheral": "SAI2",
+    "sample_rate_hz": 48000,
+    "word_bits": 32,
+    "channels": 2,
+    "a_sync": "SLAVE",
+    "b_sync": "SLAVE",
+    "a_direction": "TRANSMIT",
+    "b_direction": "RECEIVE",
+    "mclk_pin": null,
+    "implementation_note": "Pinned SDK supports dual-slave B external clocks/A internal sync. Its 32-bit mode is marked untested; compile and hardware verification still required."
+  },
+  "codec": {
+    "address_seven_bit": 24,
+    "wire_write": 48,
+    "wire_read": 49,
+    "id_register": 225,
+    "id_expected": 175,
+    "clock_source": "ACLK1 from 24.576MHz XO",
+    "codec_master": true,
+    "bclk_divisor": 8,
+    "bits_per_frame": 64,
+    "gpio3_function": {
+      "register": 62,
+      "mask": 15,
+      "value": 2,
+      "net": "CLK_VALID"
+    },
+    "gpio4_function": {
+      "register": 62,
+      "mask": 240,
+      "value": 96,
+      "net": "RAMP_DONE"
+    },
+    "ramp_both_channels": {
+      "register": 77,
+      "and_bit": 2,
+      "or_override_bit": 5
+    },
+    "notes": [
+      "Configuration requirements, not an executable register recipe",
+      "Preserve reserved bits and configure/verify the complete analog/reference, PCM format, filter, volume and clock-monitor state",
+      "Keep direct monitor muted so standalone audio routes through MCU DSP",
+      "Never infer bare DAC scale or calibration range from nominal evaluation-board output"
+    ]
+  },
+  "startup_and_fault_requirements": [
+    "Hold D0 CODEC_RUN low for at least20ms on startup/reconfiguration; this also holds the three MCP devices in reset",
+    "Require hardware CODEC_PGOOD and PRE_ANALOG_OK before raising CODEC_RUN",
+    "Initialize MCPs and muted codec, verify0xAF chip ID and all required register readbacks",
+    "Start 48kHz/32-bit dual-slave SAI2 with silent output before unmuting the configured DAC",
+    "Configure hardware clock-valid and both-channel ramp-done flags; verify real clock/soft-ramp behavior",
+    "Read ANALOG_OK high before allowing the existing healthy/rearm logic to generate a fresh D29 permit edge",
+    "Drop D29 immediately on any status/read/configuration fault; E02 must continue to clear independently through hardware ANALOG_OK/watchdog",
+    "Restart converter qualification after any operation capable of changing analog DC state",
+    "Do not wire this profile to the existing D25..D28 control assignment; use its matching carrier and firmware adapter"
+  ],
+  "sdk_source_sha256": {
+    "build-hardware/libDaisy/src/daisy_seed.h": "ad6e1bd5351d7fb3b63e21e6d5aed9c12734dfcd9bfb32e52cb0b288dd2c39b4",
+    "build-hardware/libDaisy/src/per/sai.h": "f645a8357ae328bdb741ed200b21bf543be1c16841183282ad597302e58b92fe",
+    "build-hardware/libDaisy/src/per/sai.cpp": "569e25eed170dba6cdc23bca8565303c89e31e179a00f43fabfa7f7cfe74bfb7"
+  },
+  "firmware_adapter_implemented": false,
+  "control_board_implemented": false,
+  "hardware_verified": false
+}

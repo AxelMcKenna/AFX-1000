@@ -1,0 +1,807 @@
+[
+  {
+    "ref": "U1",
+    "part": "OPA1656ID",
+    "footprint": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "OUT_A",
+        "kind": "output",
+        "side": "R",
+        "net": "BUF_OUT_L"
+      },
+      {
+        "number": "2",
+        "name": "IN_A_N",
+        "kind": "input",
+        "side": "L",
+        "net": "GAIN_FB_L"
+      },
+      {
+        "number": "3",
+        "name": "IN_A_P",
+        "kind": "input",
+        "side": "L",
+        "net": "BUF_IN_L"
+      },
+      {
+        "number": "4",
+        "name": "V_N",
+        "kind": "power_in",
+        "side": "L",
+        "net": "N12"
+      },
+      {
+        "number": "5",
+        "name": "IN_B_P",
+        "kind": "input",
+        "side": "L",
+        "net": "BUF_IN_R"
+      },
+      {
+        "number": "6",
+        "name": "IN_B_N",
+        "kind": "input",
+        "side": "L",
+        "net": "GAIN_FB_R"
+      },
+      {
+        "number": "7",
+        "name": "OUT_B",
+        "kind": "output",
+        "side": "R",
+        "net": "BUF_OUT_R"
+      },
+      {
+        "number": "8",
+        "name": "V_P",
+        "kind": "power_in",
+        "side": "R",
+        "net": "P12"
+      }
+    ],
+    "x": 100.33,
+    "y": 80.01,
+    "source": "https://www.ti.com/lit/ds/symlink/opa1656.pdf",
+    "note": "Dual FET input preamplifier, nominal gain1.365. +/-12V only. Gain resistor remains subject to full ADC-scale calibration."
+  },
+  {
+    "ref": "K1",
+    "part": "G6K-2F-Y DC5",
+    "footprint": "Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y",
+    "pins": [
+      {
+        "number": "1",
+        "name": "COIL_P",
+        "kind": "passive",
+        "side": "L",
+        "net": "5V"
+      },
+      {
+        "number": "8",
+        "name": "COIL_N",
+        "kind": "passive",
+        "side": "L",
+        "net": "GAIN_LOW"
+      },
+      {
+        "number": "3",
+        "name": "COM_L",
+        "kind": "passive",
+        "side": "R",
+        "net": "RANGE_L"
+      },
+      {
+        "number": "2",
+        "name": "NC_L",
+        "kind": "passive",
+        "side": "L",
+        "net": "ATTN_L"
+      },
+      {
+        "number": "4",
+        "name": "NO_L",
+        "kind": "passive",
+        "side": "L",
+        "net": "PROC_IN_L"
+      },
+      {
+        "number": "6",
+        "name": "COM_R",
+        "kind": "passive",
+        "side": "R",
+        "net": "RANGE_R"
+      },
+      {
+        "number": "7",
+        "name": "NC_R",
+        "kind": "passive",
+        "side": "L",
+        "net": "ATTN_R"
+      },
+      {
+        "number": "5",
+        "name": "NO_R",
+        "kind": "passive",
+        "side": "L",
+        "net": "PROC_IN_R"
+      }
+    ],
+    "x": 289.56,
+    "y": 80.01,
+    "source": "https://omronfs.omron.com/en_US/ecb/products/pdf/en-g6k.pdf",
+    "note": "Released NC=Master attenuated; energized NO=Send/Return. Second gain coil on E02 driver, independent of wet/dry selection."
+  },
+  {
+    "ref": "J1",
+    "part": "Conn_01x03",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "PROC_IN_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      },
+      {
+        "number": "3",
+        "name": "3",
+        "kind": "passive",
+        "side": "L",
+        "net": "PROC_IN_R"
+      }
+    ],
+    "x": 459.74,
+    "y": 69.85,
+    "source": "",
+    "note": "E03 processing input J3.1..3. Its input-isolation coil currently shares wet/dry enable; independent precharge sequencing is not implemented."
+  },
+  {
+    "ref": "J2",
+    "part": "Conn_01x03",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "PRE_OUT_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      },
+      {
+        "number": "3",
+        "name": "3",
+        "kind": "passive",
+        "side": "L",
+        "net": "PRE_OUT_R"
+      }
+    ],
+    "x": 580.39,
+    "y": 69.85,
+    "source": "",
+    "note": "Single-ended preamplifier output to future ADC driver, NOT E09 raw ADC input. Analysis assumes load>=100kOhm; scale/bias/protection unresolved."
+  },
+  {
+    "ref": "J3",
+    "part": "Conn_01x03",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "P12"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "L",
+        "net": "AGND"
+      },
+      {
+        "number": "3",
+        "name": "3",
+        "kind": "passive",
+        "side": "L",
+        "net": "N12"
+      }
+    ],
+    "x": 459.74,
+    "y": 144.78,
+    "source": "",
+    "note": "Qualified regulated +/-12V; rail generation/monitoring external."
+  },
+  {
+    "ref": "J4",
+    "part": "Conn_01x02",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "5V"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "L",
+        "net": "GAIN_LOW"
+      }
+    ],
+    "x": 580.39,
+    "y": 144.78,
+    "source": "",
+    "note": "Same pair/order as E02 J5 and E05 J3; second of two proposed gain coils."
+  },
+  {
+    "ref": "R1",
+    "part": "33.2k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "PROC_IN_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "ATTN_L"
+      }
+    ],
+    "x": 49.53,
+    "y": 219.71,
+    "source": "",
+    "note": "Master divider upper; remains connected in both ranges."
+  },
+  {
+    "ref": "R2",
+    "part": "13.7k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "ATTN_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 133.35,
+    "y": 219.71,
+    "source": "",
+    "note": "Master divider lower; includes the actual following bias network load."
+  },
+  {
+    "ref": "R3",
+    "part": "4.99k 0.1% 1W",
+    "footprint": "Resistor_SMD:R_2512_6332Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "RANGE_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "HP_SRC_L"
+      }
+    ],
+    "x": 215.9,
+    "y": 219.71,
+    "source": "",
+    "note": "Limits a hypothetical48V input/capacitor step to<10mA; exact resistor/pulse/temperature qualification open."
+  },
+  {
+    "ref": "R4",
+    "part": "68k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "BUF_IN_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 298.45,
+    "y": 219.71,
+    "source": "",
+    "note": "FET input DC return; hot bias/leakage allocation and input precharge interval required."
+  },
+  {
+    "ref": "R5",
+    "part": "365 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "GAIN_FB_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "BUF_OUT_L"
+      }
+    ],
+    "x": 382.27,
+    "y": 219.71,
+    "source": "",
+    "note": "Nominal gain resistor. Final value requires complete ADC input-scale measurements."
+  },
+  {
+    "ref": "R6",
+    "part": "1k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "GAIN_FB_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 464.82,
+    "y": 219.71,
+    "source": "",
+    "note": "Noninverting gain ground leg."
+  },
+  {
+    "ref": "R7",
+    "part": "33.2 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "BUF_OUT_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "PRE_OUT_L"
+      }
+    ],
+    "x": 547.37,
+    "y": 219.71,
+    "source": "",
+    "note": "Output isolation; future ADC driver must present>=100kOhm in-band."
+  },
+  {
+    "ref": "C1",
+    "part": "1uF film 63V 10%",
+    "footprint": "Capacitor_THT:C_Rect_L7.2mm_W5.0mm_P5.00mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "HP_SRC_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "BUF_IN_L"
+      }
+    ],
+    "x": 49.53,
+    "y": 265.43,
+    "source": "https://wima.de/wp-content/uploads/media/e_WIMA_MKS_2.pdf",
+    "note": "WIMA MKS2C041001F00KSSD candidate: nominal7.2x5x10mm body,5mm pitch. Nonpolar; leakage/temperature/fit not measured."
+  },
+  {
+    "ref": "C2",
+    "part": "47pF 50V C0G 5%",
+    "footprint": "Capacitor_SMD:C_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "BUF_IN_L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 133.35,
+    "y": 265.43,
+    "source": "",
+    "note": "RF shunt; not a rated surge/ESD suppressor."
+  },
+  {
+    "ref": "R8",
+    "part": "33.2k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "PROC_IN_R"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "ATTN_R"
+      }
+    ],
+    "x": 215.9,
+    "y": 265.43,
+    "source": "",
+    "note": "Master divider upper; remains connected in both ranges."
+  },
+  {
+    "ref": "R9",
+    "part": "13.7k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "ATTN_R"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 298.45,
+    "y": 265.43,
+    "source": "",
+    "note": "Master divider lower; includes the actual following bias network load."
+  },
+  {
+    "ref": "R10",
+    "part": "4.99k 0.1% 1W",
+    "footprint": "Resistor_SMD:R_2512_6332Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "RANGE_R"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "HP_SRC_R"
+      }
+    ],
+    "x": 382.27,
+    "y": 265.43,
+    "source": "",
+    "note": "Limits a hypothetical48V input/capacitor step to<10mA; exact resistor/pulse/temperature qualification open."
+  },
+  {
+    "ref": "R11",
+    "part": "68k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "BUF_IN_R"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 464.82,
+    "y": 265.43,
+    "source": "",
+    "note": "FET input DC return; hot bias/leakage allocation and input precharge interval required."
+  },
+  {
+    "ref": "R12",
+    "part": "365 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "GAIN_FB_R"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "BUF_OUT_R"
+      }
+    ],
+    "x": 547.37,
+    "y": 265.43,
+    "source": "",
+    "note": "Nominal gain resistor. Final value requires complete ADC input-scale measurements."
+  },
+  {
+    "ref": "R13",
+    "part": "1k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "GAIN_FB_R"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 49.53,
+    "y": 309.88,
+    "source": "",
+    "note": "Noninverting gain ground leg."
+  },
+  {
+    "ref": "R14",
+    "part": "33.2 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "BUF_OUT_R"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "PRE_OUT_R"
+      }
+    ],
+    "x": 133.35,
+    "y": 309.88,
+    "source": "",
+    "note": "Output isolation; future ADC driver must present>=100kOhm in-band."
+  },
+  {
+    "ref": "C3",
+    "part": "1uF film 63V 10%",
+    "footprint": "Capacitor_THT:C_Rect_L7.2mm_W5.0mm_P5.00mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "HP_SRC_R"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "BUF_IN_R"
+      }
+    ],
+    "x": 215.9,
+    "y": 309.88,
+    "source": "https://wima.de/wp-content/uploads/media/e_WIMA_MKS_2.pdf",
+    "note": "WIMA MKS2C041001F00KSSD candidate: nominal7.2x5x10mm body,5mm pitch. Nonpolar; leakage/temperature/fit not measured."
+  },
+  {
+    "ref": "C4",
+    "part": "47pF 50V C0G 5%",
+    "footprint": "Capacitor_SMD:C_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "BUF_IN_R"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 298.45,
+    "y": 309.88,
+    "source": "",
+    "note": "RF shunt; not a rated surge/ESD suppressor."
+  },
+  {
+    "ref": "C5",
+    "part": "100nF 50V X7R",
+    "footprint": "Capacitor_SMD:C_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "P12"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 382.27,
+    "y": 309.88,
+    "source": "",
+    "note": "Local U1 supply bypass"
+  },
+  {
+    "ref": "C6",
+    "part": "100nF 50V X7R",
+    "footprint": "Capacitor_SMD:C_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "N12"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 464.82,
+    "y": 309.88,
+    "source": "",
+    "note": "Local U1 supply bypass"
+  },
+  {
+    "ref": "C7",
+    "part": "10uF 50V X7R 10%",
+    "footprint": "Capacitor_SMD:C_1210_3225Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "P12"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 547.37,
+    "y": 309.88,
+    "source": "",
+    "note": "Require effective>=4.7uF on +/-12V; exact MPN, bias/temperature/ESR unqualified."
+  },
+  {
+    "ref": "C8",
+    "part": "10uF 50V X7R 10%",
+    "footprint": "Capacitor_SMD:C_1210_3225Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "kind": "passive",
+        "side": "L",
+        "net": "N12"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "kind": "passive",
+        "side": "R",
+        "net": "AGND"
+      }
+    ],
+    "x": 49.53,
+    "y": 355.6,
+    "source": "",
+    "note": "Require effective>=4.7uF on +/-12V; exact MPN, bias/temperature/ESR unqualified."
+  }
+]

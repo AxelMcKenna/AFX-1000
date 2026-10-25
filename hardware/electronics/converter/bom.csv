@@ -1,0 +1,61 @@
+Reference,Part_or_value,Footprint_candidate,Datasheet,Design_note
+U1,ES9292QPRO,,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,Unassigned footprint: manufacturer dimensioned QFN/EP drawing required. REXT NC = internal fixed 3.3V references with AVCCH4.5. I2C 7-bit0x18 (wire0x30/0x31).
+U2,TPS7A2033PDBVR,Package_TO_SOT_SMD:SOT-23-5,https://www.ti.com/lit/ds/symlink/tps7a20.pdf,V5_REG must remain4.90..5.10V; enables tied to input. Output capacitance/bias and reverse-current behavior require qualification.
+U3,TPS7A2045PDBVR,Package_TO_SOT_SMD:SOT-23-5,https://www.ti.com/lit/ds/symlink/tps7a20.pdf,V5_REG must remain4.90..5.10V; enables tied to input. Output capacitance/bias and reverse-current behavior require qualification.
+Y1,ECS-2520MVLC-245.7-BN-TR,Oscillator:Oscillator_SMD_ECS_2520MV-xxx-xx-4Pin_2.5x2.0mm,https://ecsxtal.com/store/pdf/ECS-2520MVLC.pdf,24.576MHz; 50ppm plus3ppm first-year aging screen. MVLC package land matches MV family drawing. Frequency/order availability and loaded clock timing unverified.
+U4,TPS389033DSET,RMX_Converter:TI_DSE0006A_TPS3890,https://www.ti.com/lit/ds/symlink/tps3890.pdf,CT open. Open-drain PG wire-AND; precision thresholds include hysteresis and sense current. No rail-overvoltage protection.
+U5,TPS389033DSET,RMX_Converter:TI_DSE0006A_TPS3890,https://www.ti.com/lit/ds/symlink/tps3890.pdf,CT open. Open-drain PG wire-AND; precision thresholds include hysteresis and sense current. No rail-overvoltage protection.
+U6,TPS389001DSET,RMX_Converter:TI_DSE0006A_TPS3890,https://www.ti.com/lit/ds/symlink/tps3890.pdf,CT open. Open-drain PG wire-AND; precision thresholds include hysteresis and sense current. No rail-overvoltage protection.
+U8,TPS389033DSET,RMX_Converter:TI_DSE0006A_TPS3890,https://www.ti.com/lit/ds/symlink/tps3890.pdf,"U8:2.2uF CT, require effective>=1.5uF and total injected leakage<=100nA; qualification after flags/rails stable."
+U7,SN74HCS08DR,Package_SO:SOIC-14_3.9x8.7mm_P1.27mm,https://www.ti.com/lit/ds/symlink/sn74hcs08.pdf,Schmitt gates hold CHIP_EN and timer low unless qualified rails/run/codec flags are high.
+U9,SN74LVC1G08DCKR,Package_TO_SOT_SMD:SOT-353_SC-70-5,https://www.ti.com/lit/ds/symlink/sn74lvc1g08.pdf,Direct qualification AND drops ANALOG_OK independently of timer discharge latency.
+J1,Conn_01x05,Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical,,Same order as E08 J1. Short converter-board connections; not a long raw-DAC harness.
+J2,Conn_01x07,Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical,,ADC/input driver incomplete. Reference outputs are for high-impedance bias inputs only; reference load unqualified.
+J3,Conn_01x05,Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical,,"Codec master; MCU SAI2 dual-slave,32bit I2S,64 BCLK/frame. DAC_DATA needs source series resistor on MCU carrier."
+J4,Conn_01x03,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,,4.90..5.10V regulated input; IO rail must be same3.3V as MCU. Do not join independent3.3V regulator outputs.
+J5,Conn_01x08,Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical,,"PRE_ANALOG_OK from all +/-19V,+/-12V hardware monitors. ANALOG_OK -> E02 J3.3; firmware must wait for it before permit."
+R1,2k 1%,Resistor_SMD:R_0805_2012Metric,,One fitted pullup pair for the total bus; include module pullups in parallel/load budget.
+R2,2k 1%,Resistor_SMD:R_0805_2012Metric,,One fitted pullup pair for the total bus; include module pullups in parallel/load budget.
+R3,10k 1%,Resistor_SMD:R_0805_2012Metric,,
+R4,10k 1%,Resistor_SMD:R_0805_2012Metric,,
+R5,47k 1%,Resistor_SMD:R_0805_2012Metric,,Missing drive/power fails low.
+R6,47k 1%,Resistor_SMD:R_0805_2012Metric,,Missing drive/power fails low.
+R7,100k 1%,Resistor_SMD:R_0805_2012Metric,,Missing drive/power fails low.
+R8,100k 1%,Resistor_SMD:R_0805_2012Metric,,Missing drive/power fails low.
+R9,100k 1%,Resistor_SMD:R_0805_2012Metric,,Missing drive/power fails low.
+R10,100k 1%,Resistor_SMD:R_0805_2012Metric,,Missing drive/power fails low.
+R11,27.7k 0.1%,Resistor_SMD:R_0805_2012Metric,,TPS389001 divider upper; include reference/hysteresis/input-current bounds.
+R12,10k 0.1%,Resistor_SMD:R_0805_2012Metric,,
+R13,33 1%,Resistor_SMD:R_0805_2012Metric,,Place at the clock/data source; actual edge/load/SI qualification pending.
+R14,33 1%,Resistor_SMD:R_0805_2012Metric,,Place at the clock/data source; actual edge/load/SI qualification pending.
+R15,33 1%,Resistor_SMD:R_0805_2012Metric,,Place at the clock/data source; actual edge/load/SI qualification pending.
+R16,33 1%,Resistor_SMD:R_0805_2012Metric,,Place at the clock/data source; actual edge/load/SI qualification pending.
+C1,1uF 10V X7R 10%,Capacitor_SMD:C_0805_2012Metric,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C2,1uF 10V X7R 10%,Capacitor_SMD:C_0805_2012Metric,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C3,100nF 50V C0G 5%,Capacitor_SMD:C_1210_3225Metric,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C4,1uF 10V tantalum 10%,Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C5,1uF 10V X7R 10%,Capacitor_SMD:C_0805_2012Metric,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C6,1uF 10V tantalum 10%,Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C7,1uF 10V tantalum 10%,Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C8,1uF 10V tantalum 10%,Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C9,1uF 10V tantalum 10%,Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C10,100nF 50V C0G 5%,Capacitor_SMD:C_1210_3225Metric,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C11,1uF 10V tantalum 10%,Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C12,100nF 50V C0G 5%,Capacitor_SMD:C_1210_3225Metric,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C13,1uF 10V tantalum 10%,Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C14,100nF 50V C0G 5%,Capacitor_SMD:C_1210_3225Metric,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C15,1uF 10V tantalum 10%,Capacitor_Tantalum_SMD:CP_EIA-3216-18_Kemet-A,https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf,"ESS reference capacitor; tantalum positive pad1, ground pad2. Final MPN/ESR and effective values unselected."
+C16,2.2uF 25V X7R 10%,Capacitor_SMD:C_1210_3225Metric,,Input effective>=1uF; output effective>=4.7uF; qualify bias/temperature/ESR.
+C17,10uF 16V X7R 10%,Capacitor_SMD:C_1210_3225Metric,,Input effective>=1uF; output effective>=4.7uF; qualify bias/temperature/ESR.
+C18,2.2uF 25V X7R 10%,Capacitor_SMD:C_1210_3225Metric,,Input effective>=1uF; output effective>=4.7uF; qualify bias/temperature/ESR.
+C19,10uF 16V X7R 10%,Capacitor_SMD:C_1210_3225Metric,,Input effective>=1uF; output effective>=4.7uF; qualify bias/temperature/ESR.
+C20,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U4
+C21,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U5
+C22,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U6
+C23,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U7
+C24,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U8
+C25,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U9
+C26,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for Y1
+C27,2.2uF 25V X7R 10%,Capacitor_SMD:C_1210_3225Metric,,Required effective1.5..2.8uF over bias/temperature/aging; total CT injected leakage<=100nA. Exact MPN unselected.
+C28,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,Additional local codec AVDD bypass
+C29,100nF 50V X7R,Capacitor_SMD:C_0805_2012Metric,,Additional local AVCC_3V3 bypass

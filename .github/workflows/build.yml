@@ -1,6 +1,20 @@
 name: Build and engine checks
 on: [push, pull_request]
 jobs:
+  standalone:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r hardware/cad/a11/requirements.txt
+      - run: cmake -S hardware/runtime -B build/standalone-runtime -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build/standalone-runtime --parallel 3
+      - run: ctest --test-dir build/standalone-runtime --output-on-failure
+      - run: python -m hardware.firmware.control_map --check
+      - run: python -m unittest discover -s tests/tooling
+      - run: python -m unittest discover -s tests -p 'a*_integration_tests.py'
   core:
     strategy:
       matrix:

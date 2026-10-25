@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620">
+<title>E01 independent bypass and gain switching circuit draft</title>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#496a7a"/></marker></defs>
+<rect width="1200" height="620" fill="#f8fafb"/>
+<g font-family="Arial,sans-serif" fill="#172f3c">
+<text x="30" y="36" font-size="24" font-weight="bold">Standalone audio / bypass — E01 circuit contract</text>
+<text x="30" y="62" font-size="15">Design draft · no routed PCB · analog rails and protection parts remain open</text>
+<g fill="white" stroke="#91a9b5" stroke-width="1.5">
+<rect x="30" y="112" width="180" height="72" rx="8"/><rect x="290" y="112" width="210" height="72" rx="8"/>
+<rect x="590" y="112" width="210" height="72" rx="8"/><rect x="900" y="112" width="260" height="72" rx="8"/>
+<rect x="30" y="268" width="210" height="78" rx="8"/><rect x="290" y="268" width="220" height="78" rx="8"/>
+<rect x="590" y="268" width="210" height="78" rx="8"/><rect x="900" y="268" width="260" height="78" rx="8"/>
+<rect x="30" y="420" width="210" height="78" rx="8"/><rect x="290" y="420" width="220" height="78" rx="8"/>
+<rect x="590" y="420" width="210" height="78" rx="8"/><rect x="900" y="420" width="260" height="78" rx="8"/>
+</g>
+<g stroke="#496a7a" stroke-width="2" fill="none" marker-end="url(#a)">
+<path d="M210 148H290"/><path d="M500 148H590"/><path d="M800 148H900"/>
+<path d="M120 184V222H1030V184"/><path d="M135 346V394H615V346"/>
+<path d="M510 307H590"/><path d="M800 307H900"/>
+<path d="M240 459H270V307H290"/><path d="M510 459H550V325H590"/>
+<path d="M240 436H270V364H850V325H900"/>
+<path d="M1030 346V381H1178V148H1160"/>
+</g>
+<g font-size="17" text-anchor="middle">
+<text x="120" y="142">Stereo line input</text><text x="120" y="167" font-size="14">RCA / TS alternatives</text>
+<text x="395" y="141">Input isolation relay</text><text x="395" y="167" font-size="14">NO → gain / ADC</text>
+<text x="695" y="142">Local DSP / DAC</text><text x="695" y="167" font-size="14">48 kHz · gain / output amp</text>
+<text x="1030" y="141">Output selector relay</text><text x="1030" y="167" font-size="14">NC dry / NO processed → output</text>
+<text x="135" y="296">Manual bypass</text><text x="135" y="322" font-size="14">direct hardware fault pull-down</text>
+<text x="400" y="296">TPS3431 watchdog</text><text x="400" y="322" font-size="14">150 pF · ~67 ms typical</text>
+<text x="695" y="292">Fault latch</text><text x="695" y="313" font-size="13">async clear / new MCU</text><text x="695" y="332" font-size="13">permit rising edge arms Q</text>
+<text x="1030" y="296">Q AND MCU permit</text><text x="1030" y="322" font-size="14">MOSFET → both bypass coils</text>
+<text x="135" y="449">Audio callback</text><text x="135" y="475" font-size="14">D26 permit / D13 heartbeat</text>
+<text x="400" y="449">Power-good faults</text><text x="400" y="475" font-size="14">3.3 V / 5 V / both audio rails</text>
+<text x="695" y="449">D9 gain-relay driver</text><text x="695" y="475" font-size="14">2 × DPDT · one per channel</text>
+<text x="1030" y="449">CONNECTION switch</text><text x="1030" y="475" font-size="14">D25 sense · gain only</text>
+</g>
+<path d="M900 459H800" stroke="#496a7a" stroke-width="2" marker-end="url(#a)"/>
+<text x="520" y="216" font-size="14" fill="#317b63">Unpowered path: input directly to output; processing input disconnected</text>
+<text x="30" y="548" font-size="16">Gain change: debounce 8 ms → dry wait 20 ms → switch D9 → settle 30 ms → healthy rearm ≥350 ms</text>
+<text x="30" y="576" font-size="15">Watchdog recovery cannot rearm a permit stuck high. A new MCU permit edge is required.</text>
+<text x="30" y="602" font-size="13" fill="#687c88">Rails, suppression, input protection, footprints and relay timing require a full schematic and bench verification.</text>
+</g></svg>

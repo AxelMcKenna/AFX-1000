@@ -1,0 +1,56 @@
+Reference,Part_or_value,Footprint_candidate,Datasheet,Design_note
+U1,TPS3431SDRBR,Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm,https://www.ti.com/lit/ds/symlink/tps3431.pdf,150pF timing; EN/SET1 permanently high
+U2,SN74HCS08DR,Package_SO:SOIC-14_3.9x8.7mm_P1.27mm,https://www.ti.com/lit/ds/symlink/sn74hcs08.pdf,All gate inputs are Schmitt-trigger; no unused gates
+U3,SN74LVC1G74DCTR,Package_TO_SOT_SMD:SOT-23-8,https://www.ti.com/lit/ds/symlink/sn74lvc1g74.pdf,Positive edge arms Q; asynchronous clear prevents WDO recovery from rearming
+U4,TPS3808G33DBVR,Package_TO_SOT_SMD:SOT-23-6,https://www.ti.com/lit/ds/symlink/tps3808.pdf,"U4: CT via100k to3V3 selects180..420ms startup guard; U5: CT open,20ms nominal release"
+U5,TPS3808G50DBVR,Package_TO_SOT_SMD:SOT-23-6,https://www.ti.com/lit/ds/symlink/tps3808.pdf,"U4: CT via100k to3V3 selects180..420ms startup guard; U5: CT open,20ms nominal release"
+J1,Conn_01x03,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,,Regulated inputs only; common ground
+J2,Conn_01x06,Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical,,External F02: D13 heartbeat / D29 permit / D9 gain / D30 Q; bypass sense to MCP0x22 GPA1
+J3,Conn_01x05,Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical,,Process contact must close to 3V3; missing loop/analog-good wire fails low
+J4,Conn_01x04,Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical,,Optional coil access for included K1/K2; do not duplicate relays on another board
+J5,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,,Two parallel 5V gain coils; contacts on audio carrier
+Q1,AO3400A,Package_TO_SOT_SMD:SOT-23,https://www.aosmd.com/sites/default/files/res/datasheets/AO3400A.pdf,
+Q2,AO3400A,Package_TO_SOT_SMD:SOT-23,https://www.aosmd.com/sites/default/files/res/datasheets/AO3400A.pdf,
+C1,150pF C0G 5%,Capacitor_SMD:C_0805_2012Metric,,
+C2,100nF X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U1
+C3,100nF X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U2
+C4,100nF X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U3
+C5,100nF X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U4
+C6,100nF X7R,Capacitor_SMD:C_0805_2012Metric,,Local bypass for U5
+C7,1uF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,
+C8,22uF 16V X7R,Capacitor_SMD:C_1206_3216Metric,,Select effective capacitance >=10uF at 5V; confirm DC-bias curve
+R1,10k 1%,Resistor_SMD:R_0805_2012Metric,,
+R2,100k 1%,Resistor_SMD:R_0805_2012Metric,,
+R3,47k 1%,Resistor_SMD:R_0805_2012Metric,,
+R4,47k 1%,Resistor_SMD:R_0805_2012Metric,,
+R5,47k 1%,Resistor_SMD:R_0805_2012Metric,,
+R6,10k 1%,Resistor_SMD:R_0805_2012Metric,,
+R7,47k 1%,Resistor_SMD:R_0805_2012Metric,,
+R8,4.7k 1%,Resistor_SMD:R_0805_2012Metric,,
+R9,270k 1%,Resistor_SMD:R_0805_2012Metric,,
+R10,4.7k 1%,Resistor_SMD:R_0805_2012Metric,,
+R11,270k 1%,Resistor_SMD:R_0805_2012Metric,,
+D1,SMF9.0A,Diode_SMD:D_SOD-123F,https://www.mouser.com/datasheet/2/240/Littelfuse_TVS_Diode_SMF_Datasheet.pdf-1698977.pdf,
+D2,SMF9.0A,Diode_SMD:D_SOD-123F,https://www.mouser.com/datasheet/2/240/Littelfuse_TVS_Diode_SMF_Datasheet.pdf-1698977.pdf,
+U6,SN74HCS08DR,Package_SO:SOIC-14_3.9x8.7mm_P1.27mm,https://www.ti.com/lit/ds/symlink/sn74hcs08.pdf,"Direct health/gain qualification, asynchronous latch clear and final output gate."
+U7,LTC6994HS6-1#TRMPBF,Package_TO_SOT_SMD:TSOT-23-6,https://www.analog.com/media/en/technical-documentation/data-sheets/LTC6994-1-6994-2.pdf,"LTC6994-1 only: DIVCODE6/POL0; rising delay ~2.008s, falling edge immediate. No external CT charge memory."
+U8,SN74HCS86DR,Package_SO:SOIC-14_3.9x8.7mm_P1.27mm,https://www.ti.com/lit/ds/symlink/sn74hcs86.pdf,"Schmitt XOR detects both gain edges; second gate inverts pulse. Unused inputs grounded, outputs NC."
+Q3,AO3400A,Package_TO_SOT_SMD:SOT-23,https://www.aosmd.com/sites/default/files/res/datasheets/AO3400A.pdf,"Input relay follows local/analog health, independent of manual bypass and MCU permit."
+K1,G6K-2F-Y DC5,Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y,https://omronfs.omron.com/en_US/ecb/products/pdf/en-g6k.pdf,Released output selector is dry; energized is processed.
+K2,G6K-2F-Y DC5,Relay_SMD:Relay_DPDT_Omron_G6K-2F-Y,https://omronfs.omron.com/en_US/ecb/products/pdf/en-g6k.pdf,Input isolation has a separate driver; open NC contacts.
+J6,Conn_01x02,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,,MCP0x22 GPA3; active high; receiving-end 270k pull-down required
+J7,Conn_01x03,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,,Line input after RCA/TS source selection/normalling
+J8,Conn_01x03,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,,Stereo line output; common audio/logic reference
+J9,Conn_01x06,Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical,,Pins1..3 -> E10 J1; pins4..6 <- E05 J2. Not raw converter pins.
+R12,4.7k 1%,Resistor_SMD:R_0805_2012Metric,,Independent input coil gate series resistor
+R13,270k 1%,Resistor_SMD:R_0805_2012Metric,,Input gate defaults off
+R14,383k 0.1% 25ppm,Resistor_SMD:R_0805_2012Metric,,Allocate total RSET error <=1% including temperature/aging
+R15,47k 1%,Resistor_SMD:R_0805_2012Metric,,Both-edge RC reset; 3.3V Schmitt thresholds require qualification
+R16,147k 1%,Resistor_SMD:R_0805_2012Metric,,DIVCODE6/POL0; allocate total resistor error <=1.5% each
+R17,100k 1%,Resistor_SMD:R_0805_2012Metric,,Protect DIV from fast edges; total capacitance <100pF
+R18,100k 1%,Resistor_SMD:R_0805_2012Metric,,U4 selects300ms nominal release; require timer startup <=100ms before input enable
+C9,1uF 16V X7R 10%,Capacitor_SMD:C_0805_2012Metric,,Require effective 0.7..1.3uF over bias/temp/aging
+C10,100nF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,Local U6 bypass
+C11,100nF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,Local U7 bypass
+C12,100nF 16V X7R,Capacitor_SMD:C_0805_2012Metric,,Local U8 bypass
+D3,SMF9.0A,Diode_SMD:D_SOD-123F,,Input coil TVS; transient release/overshoot unmeasured

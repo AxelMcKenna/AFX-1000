@@ -1,0 +1,100 @@
+{
+  "revision": "E16",
+  "status": "Conditional native input/fast-OV/startup schematic; not a fabrication release",
+  "standalone": true,
+  "input": {
+    "nominal_v": 12,
+    "current_a": 3,
+    "required_delivered_at_inlet_v": [
+      11.4,
+      12.6
+    ],
+    "adapter_selected": false,
+    "jack": "PJ-102AH center-positive",
+    "steady_misplug_target_v": 24
+  },
+  "output": {
+    "normal_boundary_v": [
+      10.5,
+      13.2
+    ],
+    "header": [
+      "VIN_PROTECTED",
+      "AGND"
+    ],
+    "target": "E14 J1"
+  },
+  "guard": {
+    "header": [
+      "AGND",
+      "POWER_READY"
+    ],
+    "target": "E14 J5",
+    "auxiliary_v": [
+      2.4,
+      2.6
+    ],
+    "buck_enable_net": "SUPPLY_ENABLE",
+    "high_threshold_max_v": 1.28,
+    "low_threshold_min_v": 1.1,
+    "en_source_current_allocation_each_a": 1e-05,
+    "missing_cable_disables_under_leakage_allocation": true,
+    "gpio_required": false
+  },
+  "power_switch": {
+    "header": [
+      "SWITCH_SUPPLY",
+      "POWER_RUN",
+      "AGND"
+    ],
+    "common_pin": 2,
+    "on_pin": 1,
+    "off_pin": 3,
+    "carries_supply_load": false,
+    "missing_switch": "OFF via receiving47k pulldown; maximum0.523V including controller source current and auxiliary PG leakage",
+    "fault_reset": "SHDN cycles from switch,fast-OV guard or auxiliary PG can clear latched current/thermal fault"
+  },
+  "fault_mode": "MODE open latches current/thermal faults while SHDN stays high; internal UV/OV and added fast-OV have hysteretic recovery",
+  "input_protection_schematic_implemented": true,
+  "startup_guard_schematic_implemented": true,
+  "downstream_rail_ov_disconnect_implemented": false,
+  "physical_protection_verified": false,
+  "fuse_tvs_coordination_verified": false,
+  "pcb_routed": false,
+  "enclosure_placement_complete": false,
+  "fast_overvoltage_guard": {
+    "schematic_implemented": true,
+    "sense_net": "VIN_IC",
+    "comparator": "TLV7011DBVR",
+    "shutdown_sink": "DMN2056U-7",
+    "output_net": "POWER_RUN",
+    "uses_main_digital_or_mcu": false,
+    "functional_misplug_target_v": 24,
+    "delay_allocation_s": 3e-06,
+    "delay_and_fault_current_are_guaranteed_system_bounds": false,
+    "delay_and_charge_physically_verified": false
+  },
+  "auxiliary_startup_guard": {
+    "source": "TPS7A1601 PG to POWER_RUN",
+    "delay_capacitor": "C10 10nF",
+    "delay_threshold_minimum_allocation_v": 1.0,
+    "comparator_startup_maximum_allocation_s": 0.0001,
+    "physical_verified": false
+  },
+  "e17_interface": {
+    "header": "J6",
+    "pins": [
+      "V2V5_AUX",
+      "AGND",
+      "POWER_RUN"
+    ],
+    "auxiliary_load_allocation_a": 0.065,
+    "run_pulldown_ohm": 100000,
+    "external_input_leakage_allocation_a": 5e-06,
+    "downstream_schematic": "hardware/electronics/rail_disconnect/rail_disconnect.kicad_sch"
+  },
+  "load_update_revision": "E21",
+  "full_unit_power_budget_closed": false,
+  "current_limit_programming_resistor_ohm": 5620,
+  "protected_input_slew_cap_f": 3.3e-07
+}

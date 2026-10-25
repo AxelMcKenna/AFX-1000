@@ -1,0 +1,110 @@
+{
+  "model": "ideal positive-edge D flop, asynchronous active-low clear, D=1, PRE_N=1; Q AND permit",
+  "passed": true,
+  "events": [
+    {
+      "event": "reset",
+      "fault_n": false,
+      "mcu_permit": false,
+      "latched_armed": false,
+      "relay_drive": false
+    },
+    {
+      "event": "rails and watchdog ready",
+      "fault_n": true,
+      "mcu_permit": false,
+      "latched_armed": false,
+      "relay_drive": false
+    },
+    {
+      "event": "MCU requests processing",
+      "fault_n": true,
+      "mcu_permit": true,
+      "latched_armed": true,
+      "relay_drive": true
+    },
+    {
+      "event": "audio stops; watchdog expires",
+      "fault_n": false,
+      "mcu_permit": true,
+      "latched_armed": false,
+      "relay_drive": false
+    },
+    {
+      "event": "WDO auto recovers; MCU still frozen high",
+      "fault_n": true,
+      "mcu_permit": true,
+      "latched_armed": false,
+      "relay_drive": false
+    },
+    {
+      "event": "WDO faults again; MCU still frozen high",
+      "fault_n": false,
+      "mcu_permit": true,
+      "latched_armed": false,
+      "relay_drive": false
+    },
+    {
+      "event": "WDO auto recovers again",
+      "fault_n": true,
+      "mcu_permit": true,
+      "latched_armed": false,
+      "relay_drive": false
+    },
+    {
+      "event": "MCU drops request",
+      "fault_n": true,
+      "mcu_permit": false,
+      "latched_armed": false,
+      "relay_drive": false
+    },
+    {
+      "event": "new healthy MCU rising edge",
+      "fault_n": true,
+      "mcu_permit": true,
+      "latched_armed": true,
+      "relay_drive": true
+    },
+    {
+      "event": "manual bypass clears latch",
+      "fault_n": false,
+      "mcu_permit": true,
+      "latched_armed": false,
+      "relay_drive": false
+    },
+    {
+      "event": "manual bypass released with request stuck high",
+      "fault_n": true,
+      "mcu_permit": true,
+      "latched_armed": false,
+      "relay_drive": false
+    },
+    {
+      "event": "MCU drops request after bypass",
+      "fault_n": true,
+      "mcu_permit": false,
+      "latched_armed": false,
+      "relay_drive": false
+    },
+    {
+      "event": "new MCU request after bypass",
+      "fault_n": true,
+      "mcu_permit": true,
+      "latched_armed": true,
+      "relay_drive": true
+    },
+    {
+      "event": "MCU drops request without a hardware fault",
+      "fault_n": true,
+      "mcu_permit": false,
+      "latched_armed": true,
+      "relay_drive": false
+    }
+  ],
+  "excluded": [
+    "electrical/propagation timing",
+    "power ramp/undervoltage",
+    "relay/coil dynamics",
+    "faults in watchdog or gate ICs"
+  ]
+}
