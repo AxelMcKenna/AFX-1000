@@ -14,9 +14,9 @@ import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_DIRS = ('include', 'src', 'tools', 'tests', 'docs', 'assets', 'Sources', 'web', 'hardware', 'firmware', '.github')
+SOURCE_DIRS = ('include', 'src', 'tools', 'tests', 'docs', 'assets', 'prototypes', 'hardware', 'firmware', '.github')
 EXCLUDED_PARTS = {'build', '__pycache__', '.git', '.DS_Store'}
-SOURCE_SUFFIXES = {'.md', '.h', '.hpp', '.c', '.cpp', '.mm', '.swift', '.py', '.sh', '.json', '.svg', '.png', '.rmx', '.csv', '.scad', '.dxf', '.js', '.html', '.css', '.yml', '.yaml', '.plist', '.txt', '.lock'}
+SOURCE_SUFFIXES = {'.md', '.h', '.hpp', '.c', '.cpp', '.mm', '.py', '.sh', '.json', '.svg', '.png', '.rmx', '.csv', '.scad', '.dxf', '.js', '.html', '.css', '.yml', '.yaml', '.plist', '.txt', '.lock'}
 
 def digest(path: Path) -> str:
     h = hashlib.sha256()
@@ -38,7 +38,7 @@ def cache(build: Path) -> dict[str, str]:
 
 def source_files() -> list[Path]:
     paths = []
-    for name in ('CMakeLists.txt', 'Package.swift', 'build-app.sh', '.gitignore', '.python-version', 'pyproject.toml', 'uv.lock', 'README.md', 'Info.plist', 'THIRD_PARTY_NOTICES.md', 'LICENSE'):
+    for name in ('CMakeLists.txt', 'build-app.sh', '.gitignore', '.python-version', 'pyproject.toml', 'uv.lock', 'README.md', 'THIRD_PARTY_NOTICES.md', 'LICENSE'):
         if (ROOT / name).is_file(): paths.append(ROOT / name)
     for directory in SOURCE_DIRS:
         if not (ROOT / directory).exists(): continue

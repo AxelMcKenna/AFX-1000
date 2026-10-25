@@ -10,7 +10,7 @@
 | Large research measurements and experiment output | `build/artifacts/research/` | Ignore; link checksums/summaries from the research note |
 | SDKs, compiler output and caches | Existing ignored `build*/` and cache directories | Ignore |
 
-The [release artifact catalog](../hardware/releases/README.md) records exact filenames, sizes and SHA-256 values. Existing bundles were moved locally without altering their bytes. Previously committed artifacts can be restored from the recorded Git blob with `python3 tools/artifacts/restore.py`; uncommitted bundles require their retained local copy or a separately published release asset. No release assets were uploaded by this reorganisation.
+The [release artifact catalog](../hardware/releases/README.md) records exact filenames, sizes and SHA-256 values. Existing bundles, including the A08 and E25/A11 snapshots formerly under `docs/reviews/`, were moved locally without altering their bytes. Previously committed artifacts can be restored from the recorded Git blob with `uv run --locked python tools/artifacts/restore.py`; uncommitted bundles require their retained local copy or a separately published release asset. No release assets were uploaded by this reorganisation.
 
 Future distributable review bundles belong on versioned releases with checksum manifests. The source tree keeps their small manifest and instructions. Moving existing bundles out of the current tree does not rewrite their Git history.
 

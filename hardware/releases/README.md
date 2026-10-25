@@ -5,9 +5,9 @@ Review ZIPs and packaged firmware live outside the source tree in `build/artifac
 From the repository root:
 
 ```sh
-python3 tools/artifacts/restore.py --list
-python3 tools/artifacts/restore.py --verify
-python3 tools/artifacts/restore.py --name standalone-review-A04-E18.zip
+uv run --locked python tools/artifacts/restore.py --list
+uv run --locked python tools/artifacts/restore.py --verify
+uv run --locked python tools/artifacts/restore.py --name standalone-review-A04-E18.zip
 ```
 
 The restore command reads historical Git objects to restore a missing archived artifact. A shallow clone may need its history fetched first. Artifacts marked **local only** were uncommitted review bundles; they require the retained local copy or a separately published release asset. The command never overwrites a mismatching file. ZIP contents preserve the folder layout of their original snapshot.
@@ -252,3 +252,19 @@ Future release bundles should be published as versioned release assets with chec
 - Size: 139,084 bytes
 - SHA-256: `e6126a7dcef84637558fd860f966ba4d2e5b23d801bad69c280673fa062b0541`
 - Recovery: Git blob `985d6539cf83cf2502f4d5a9cd9e5f7e00944e13`
+
+## `RMX-A08-print-pack.zip`
+
+- Local path: `build/artifacts/releases/RMX-A08-print-pack.zip`
+- Original path: `docs/reviews/A08/RMX-A08-print-pack.zip`
+- Size: 4,157,177 bytes
+- SHA-256: `e3bdaa783c158dc17b5027ae2466ceb275ba07547d6f86f80e67713faf1be482`
+- Recovery: Git blob `292c9db5c891549d775e9eaf1eea0f1e5765112f`
+
+## `disconnect-placement-E25-A11-review-20261024T234402Z.zip`
+
+- Local path: `build/artifacts/releases/disconnect-placement-E25-A11-review-20261024T234402Z.zip`
+- Original path: `docs/reviews/standalone-E25-A11/disconnect-placement-E25-A11-review-20261024T234402Z.zip`
+- Size: 16,295,363 bytes
+- SHA-256: `58c7469313def2ab038236de0ecea611d5880b044bcaf8a71d5a81a017325110`
+- Recovery: Git blob `30d8c6ca63b2f83a38c212f3e3bf3c775b75a20d`

@@ -201,7 +201,7 @@ The exporter writes the project's card layout. `--settings-only` exports User se
 
 [Mac packages](docs/release.md) / [Reference captures and runtime checks](docs/reference-validation.md) / [Engineering update](docs/engineering-update-2026-10-22.md)
 
-The original Swift and browser prototypes are kept in `Sources/` and `prototypes/web/`. Their guide is [here](docs/legacy-prototypes.md).
+The historical browser prototype is kept in `prototypes/web/`. Its guide is [here](docs/legacy-prototypes.md). The retired Swift prototype is available in Git history.
 
 ## Assets and licensing
 
