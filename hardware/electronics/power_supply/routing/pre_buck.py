@@ -66,7 +66,7 @@ def route(r):
     r.via("V5_PRE", (57.5, 35.5))
     r.path("V5_PRE", "In3", (57.5, 35.5), (68.6, 35.5), (68.6, 34.8), width=0.8)
     r.via("V5_PRE", (68.6, 34.8))
-    r.path("V5_PRE", "B", (68.6, 34.8), (68.6, 33.975), p("U9", 8), p("U9", 7), width=0.35)
+    r.path("V5_PRE", "B", (68.6, 34.8), (68.6, 33.975), p("U9", 8), p("U9", 7), width=0.5)
     # Raw-rail engineering access branches from the output bank. It stays
     # away from the separate U9 sense via and passes around the M2 reserve.
     r.path(

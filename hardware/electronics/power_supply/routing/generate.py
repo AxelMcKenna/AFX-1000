@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate explicit buck and raw +/-17V routing; this is an incomplete board."""
+"""Generate buck/raw/positive-linear/negative-reference copper; the board remains incomplete."""
 
 import argparse
 import json
@@ -10,12 +10,44 @@ from ...common.placement import footprint_root, placed_footprint
 from ...common.reports import sha
 from ...common.sexpr import children, first, read_sexpr, sexpr
 from ...control_inputs.board import Routing
+from .analog_5v import MOVES as ANALOG_MOVES
+from .analog_5v import QUIET_PAD as ANALOG_PAD
+from .analog_5v import QUIET_VIAS as ANALOG_QUIET
+from .analog_5v import add_output_plane
+from .analog_5v import route as route_analog
+from .junctions import split_ground_junctions
+from .negative_amp import MOVES as NEGATIVE_MOVES
+from .negative_amp import route as route_negative_amp
+from .negative_amp import route_distribution as negative_amp_distribution
+from .negative_power import MOVES as POWER_MOVES
+from .negative_power import add_input_planes
+from .negative_power import route as route_negative_power
+from .negative_power import route_distribution as negative_power_distribution
+from .negative_reference import QUIET_PAD as NREF_PAD
+from .negative_reference import QUIET_VIAS as NREF_QUIET
+from .negative_reference import route as route_nref
+from .negative_reference import route_distribution as nref_distribution
+from .negative_target import ALIASES as TARGET_ALIASES
+from .negative_target import MOVES as TARGET_MOVES
+from .negative_target import route as route_negative_target
+from .negative_target import route_distribution as negative_target_distribution
+from .positive_linear import MOVES as POSITIVE_MOVES
+from .positive_linear import QUIET_VIAS as POSITIVE_QUIET
+from .positive_linear import add_output_planes as add_positive_planes
+from .positive_linear import route as route_positive
+from .positive_linear import route_distribution as positive_distribution
 from .pre_buck import MOVES as PRE_MOVES
 from .pre_buck import QUIET_VIAS
 from .pre_buck import route as route_pre
 from .raw_17 import MOVES as RAW_MOVES
 from .raw_17 import QUIET_VIAS as RAW_QUIET
 from .raw_17 import route as route_raw
+from .raw_17 import route_controls as controls_raw
+from .raw_22 import MOVES as HI_MOVES
+from .raw_22 import QUIET_VIAS as HI_QUIET
+from .raw_22 import route as route_hi
+from .raw_22 import route_controls as controls_hi
+from .raw_22 import route_power as power_hi
 
 ROOT = Path(__file__).resolve().parent
 SUPPLY = ROOT.parent
@@ -30,6 +62,15 @@ def generate(library):
     board = read_sexpr(source.read_text())
     assert not any(children(board, key) for key in ("segment", "via", "zone"))
     nets = {str(n[2]).lstrip("/"): int(n[1]) for n in children(board, "net") if str(n[1]) != "0"}
+    # Preserve the checked E24 source; enlarge only this routing candidate.
+    for line in children(board, "gr_line"):
+        if first(line, "layer")[1] == "Edge.Cuts":
+            for tag in ("start", "end"):
+                point = first(line, tag)
+                point[1:3] = [
+                    190 if float(point[1]) == 184 else point[1],
+                    144 if float(point[2]) == 138 else point[2],
+                ]
     # Keep the two-terminal nets and complete standard footprint geometry.
     # Recreate from the original KiCad library rather than rotating only pads.
     components = {c["ref"]: c for c in json.loads((SUPPLY / "components.json").read_text())}
@@ -50,6 +91,12 @@ def generate(library):
     }
     moves.update(PRE_MOVES)
     moves.update(RAW_MOVES)
+    moves.update(HI_MOVES)
+    moves.update(ANALOG_MOVES)
+    moves.update(POSITIVE_MOVES)
+    moves.update(NEGATIVE_MOVES)
+    moves.update(TARGET_MOVES)
+    moves.update(POWER_MOVES)
     for index, fp in enumerate(board):
         if not isinstance(fp, list) or not fp or fp[0] != "footprint":
             continue
@@ -187,12 +234,34 @@ def generate(library):
     r.path("POWER_READY", "In3", p("J5", 2), (66.54, 1), (51, 1), (51, 14), width=0.26)
     r.via("POWER_READY", (51, 14))
     r.path("POWER_READY", "B", (51, 14), (51, 11.5), p("R8", 1), width=0.26)
-    r.path("AGND", "B", p("R9", 2), (54.8, 16.5), width=0.26)
+    r.path("AGND", "B", p("R9", 2), (54, 15), (54, 16.5), (54.8, 16.5), width=0.26)
     r.via("AGND", (54.8, 16.5))
     r.path("AGND", "In1", (54.8, 16.5), (55.3, 16.5), width=0.26)
     r.path("AGND", "In1", p("J5", 1), (64, 8.6), width=0.8)
     route_pre(r)
-    route_raw(r)
+    raw_tasks = route_raw(r, controls=False)
+    hi_tasks = route_hi(r, controls=False)
+    route_analog(r)
+    route_positive(r)
+    route_nref(r)
+    route_negative_amp(r)
+    route_negative_target(r)
+    route_negative_power(r)
+    power_hi(r)
+    controls_raw(r, raw_tasks)
+    controls_hi(r, hi_tasks)
+    positive_distribution(r)
+    nref_distribution(r)
+    negative_amp_distribution(r)
+    negative_target_distribution(r)
+    negative_power_distribution(r)
+    from .negative_power import remove_redundant_vias
+
+    remove_redundant_vias(r)
+    split_ground_junctions(board, "In1.Cu")
+    split_ground_junctions(board, "In2.Cu")
+    split_ground_junctions(board, "In3.Cu")
+    r.counts["segments"] = len(children(board, "segment"))
     # All-layer fixing clearance, including the underside washer/head reserve.
     copper = '"F.Cu" "In1.Cu" "In2.Cu" "In3.Cu" "In4.Cu" "B.Cu"'
     for x, y in ((4, 4), (74, 4), (4, 34), (74, 34)):
@@ -209,11 +278,21 @@ def generate(library):
     board.append(
         read_sexpr(f"""(zone (net {nets["AGND"]}) (net_name "/AGND") (layer "In1.Cu") (hatch edge .5)
       (connect_pads yes (clearance .15)) (min_thickness .15) (fill yes (thermal_gap .2) (thermal_bridge_width .3))
-      (polygon (pts (xy 125 100.6) (xy 183.4 100.6) (xy 183.4 137.4) (xy 158 137.4) (xy 158 125.6) (xy 125 125.6))))""")
+      (polygon (pts (xy 100.6 100.6) (xy 189.4 100.6) (xy 189.4 143.4) (xy 158 143.4) (xy 158 125.6) (xy 100.6 125.6))))""")
     )
     # Only the quiet-return via annuli are isolated from the power ground
     # plane; the separate In4 return reaches the regulator's ground pad.
-    for x, y in ((65, 4.75), (58, 15.2), *QUIET_VIAS, *RAW_QUIET):
+    for x, y in (
+        (65, 4.75),
+        (58, 15.2),
+        *QUIET_VIAS,
+        *RAW_QUIET,
+        *HI_QUIET,
+        *ANALOG_QUIET,
+        *POSITIVE_QUIET,
+        *NREF_QUIET,
+        *[at for net, at in r.vias if net == "NEG_TARGET_RETURN_ROUTE"],
+    ):
         radius = 0.75 / math.cos(math.pi / 32)
         points = " ".join(
             f"(xy {100 + x + radius * math.cos(i * math.pi / 16):.6f} {100 + y + radius * math.sin(i * math.pi / 16):.6f})"
@@ -224,6 +303,21 @@ def generate(library):
           (keepout (tracks allowed) (vias allowed) (pads allowed) (copperpour not_allowed) (footprints allowed))
           (polygon (pts {points})))""")
         )
+    # The film filter's through-hole ground pad has a larger annulus.
+    for x, y in (ANALOG_PAD, NREF_PAD):
+        radius = 1.2 / math.cos(math.pi / 32)
+        points = " ".join(
+            f"(xy {100 + x + radius * math.cos(i * math.pi / 16):.6f} {100 + y + radius * math.sin(i * math.pi / 16):.6f})"
+            for i in range(32)
+        )
+        board.append(
+            read_sexpr(f"""(zone (net 0) (net_name "") (layer "In1.Cu") (hatch edge .5) (connect_pads (clearance 0)) (min_thickness .15)
+      (keepout (tracks allowed) (vias allowed) (pads allowed) (copperpour not_allowed) (footprints allowed))
+      (polygon (pts {points})))""")
+        )
+    add_output_plane(board, nets)
+    add_positive_planes(board, nets)
+    add_input_planes(board, nets)
     pcb = ROOT / "power_supply.kicad_pcb"
     pcb.write_text("(kicad_pcb\n" + "\n".join(sexpr(v) for v in board[1:]) + "\n)\n")
     (ROOT / "power_supply.kicad_pro").write_bytes((SUPPLY / "power_supply.kicad_pro").read_bytes())
@@ -233,7 +327,11 @@ def generate(library):
         .replace("${KIPRJMOD}/RMX_Power.pretty", "${KIPRJMOD}/../RMX_Power.pretty")
     )
     inputs = dict(
-        stage="dual-buck-and-raw-17V-paths",
+        stage="main-power-complete-routing-candidate",
+        board_size_mm=[90, 44, 1.6],
+        negative_target_route_masks=TARGET_ALIASES,
+        negative_target_quiet_vias_mm=[list(at) for net, at in r.vias if net == "NEG_TARGET_RETURN_ROUTE"],
+        negative_set_neck_width_mm=0.15,
         source_placement_sha256=sha(source),
         source_poses_sha256=sha(SUPPLY / "generated/placement-inputs.json"),
         moved_components={
@@ -242,8 +340,10 @@ def generate(library):
         routed_segments=r.counts["segments"],
         through_vias=r.counts["vias"],
         via_banks=banks,
-        ground_plane="In1.Cu dual-buck and raw-generator region",
+        ground_plane="In1.Cu both bucks and both raw generators",
+        analog_output_plane="In4.Cu V5_REG_SRC",
         fully_routed=False,
+        native_verification_required=True,
         thermal_or_ampacity_qualified=False,
         switching_or_emi_qualified=False,
         housing_fit_verified=False,
@@ -251,7 +351,7 @@ def generate(library):
     )
     (OUT / "routing-inputs.json").write_text(json.dumps(inputs, indent=2) + "\n")
     print(
-        f"Partial supply candidate: {r.counts['segments']} segments, {r.counts['vias']} vias; incomplete routing"
+        f"Unverified supply candidate: {r.counts['segments']} segments, {r.counts['vias']} vias; native verification required"
     )
 
 

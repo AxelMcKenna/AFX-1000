@@ -14,14 +14,9 @@ Physical power/protection and assembly qualification remain open.
 [E24 main-supply placement](power_supply/README.md) adds all 157 supply components
 on a six-layer 84 × 38 mm candidate. Nonrouting native DRC and parity pass;
 333 open connections remain in that preserved snapshot. The separate
-[current copper work](power_supply/routing/README.md) has 510 segments/87 vias
-across both bucks and the ±17 V boost/Cuk stage, one filled ground region and
-219 open connections, with zero native DRC/parity issues. Its 105 path checks
-and 43 tooling tests pass. The 5.8 V pre-rail feeds the analog 5 V regulator IN
-lands and engineering test header. Separate sense/quiet returns and startup
-controls are included. The ±22 V generator, linear/precision stages, actual
-copper/reference loss, loop/thermal/EMI and housing/physical qualification remain
-unfinished.
+[current copper work](power_supply/routing/README.md) extends that candidate to 90 × 44 mm with 2,600 segments/285 vias. Both bucks, both bipolar raw generators, all three positive linear rails and the negative reference are routed; both negative DC targets and their regulators have power, output, enable, SET sense, feedback/filter and quiet-return copper. Native DRC/parity pass with zero open connections. All 322 measured paths and 135 tooling tests pass. SET drive/sense separation, quiet-to-power clearances, seven saved fills and all 157 contracts are checked. Actual loss, stability, thermal/EMI and physical qualification remain open. [A10](../cad/a10/README.md) supplies conditional modeled housing integration. A09 retains its frozen 84 × 38 mm snapshot.
+
+[E25 physical continuation](rail_disconnect/placement/README.md) places the 164-part interlock on a relieved 156 × 45.25 mm candidate. Native placement/parity pass with 365 opens; E25 is unrouted. [A11](../cad/a11/README.md) adds its mounts and vent clearances with passing native solids/sweeps/collisions. [Power interconnects](../wiring/README.md) map eleven source-side pins; the trial wiring exceeds the remaining 5 V loss budgets. Routing, distribution and full-unit qualification remain open.
 
 | Board | Scope |
 | --- | --- |

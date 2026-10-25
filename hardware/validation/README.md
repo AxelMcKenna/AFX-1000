@@ -31,17 +31,7 @@ connections. Copper, hot-loop/thermal/EMI work and housing integration remain
 open. The A07 CAD packet and earlier routed boards are unchanged.
 Twenty-six tooling tests pass, including wrong-inductor-land and through-hole
 thermal-region regressions. No new ARM build or mechanical render is claimed.
-The [current main-power routing record](main-power-routing.json) covers both
-bucks and the ±17 V boost/Cuk stage: power, feedback/reference, quiet returns,
-soft-start and enable paths. Its 510 segments, 87 vias and saved ground fill
-pass native DRC/parity with 219 connections still open. Its 105 path measurements
-and 43 tooling tests pass. These include removed Cuk/bulk/startup feeds, thin
-negative-power copper, same-net drills in lands and quiet-return shunts.
-Via/land and fixing clearances, seven return antipads, 40 front critical parts
-and all 157 part/net contracts are checked. The E24 placement and A07 housing
-are preserved. The ±22 V generator, linear/precision circuitry, actual voltage
-loss, loop/thermal/EMI, housing and physical tests remain open. No new firmware
-build or physical qualification is claimed.
+The [current main-power routing record](main-power-routing.json) covers both bucks, both bipolar raw generators, the +19 V/+12 V/analog 5 V linear stages, the negative reference and DC target paths. The candidate grows to 90 × 44 mm, preserving the E24 parent. Its 2,600 segments, 285 vias and seven saved fills pass native DRC/parity with zero open connections. All 322 path measurements and 135 tooling tests pass. SET Kelvin separation, output-tab/header feeds, 31 quiet-return antipads, quiet-to-power contact clearances and the negative-reference copper return domain are checked. A10 integrates the current component positions; native solids/sweeps/collisions and seven integration regressions pass under provisional heights. A09 keeps frozen supply inputs and its seven historical regressions pass. Actual loss/stability/thermal/EMI and physical qualification remain open.
 The [memory profile](host-memory.json)
 records engine/factory-bank heap payload at 48 and 96 kHz. These are host/build
 checks, not physical unit tests.
@@ -50,7 +40,8 @@ Packaged historical firmware and review ZIPs now live in the [release artifact c
 
 | Check | Evidence | Scope / limit |
 | --- | --- | --- |
-| Main-supply routing in progress | [Copper record](../electronics/power_supply/routing/generated/verification.json) and [scope](../electronics/power_supply/routing/README.md) | Both bucks and ±17 V boost/Cuk: 510 segments, 87 vias, one saved ground fill, 219 open connections; 105 path graphs and zero native DRC/parity issues. Feedback/quiet returns, startup controls, 40 front critical parts, via/mount clearances and seven return antipads checked. The ±22 V generator, linear/precision circuitry, actual losses, loop/thermal/EMI, housing and physical qualification remain open |
+| Main-supply routing in progress | [Copper record](../electronics/power_supply/routing/generated/verification.json) and [scope](../electronics/power_supply/routing/README.md) | 90 × 44 mm: both bucks, both raw generators, all positive linear rails, negative reference and DC target paths; 2,600 segments, 285 vias, seven fills, zero opens, 322 path graphs, zero native DRC/parity issues and 135 tooling tests. Kelvin separation, physical output-tab/header feeds and quiet-to-power contacts checked. Electrical/physical qualification and other standalone boards remain open |
+| E25/A11 disconnect placement and source wiring | [Record](disconnect-placement.json), [E25 scope](../electronics/rail_disconnect/placement/README.md), [A11](../cad/a11/README.md), [wiring](../wiring/README.md) | 164 parts; zero native nonrouting DRC/parity, 365 opens; 54 A11 solids/117 copies and eight collision checks pass. 150 tooling/23 CAD integration tests pass. Eleven power/control pin pairs checked; trial 18 AWG supply wiring fails remaining analog/digital 5 V loss budgets. E25 routing, production distribution and physical qualification remain open |
 | E24 main-supply placement | [Placement record](../electronics/power_supply/generated/placement-verification.json), [PCB packet](../electronics/power_supply/generated/placement.json) and [part screen](../electronics/power_supply/generated/part-selection.json) | 157 parts, four holes, six proposed layers and 84 × 38 mm outline; zero nonrouting DRC/parity issues, 333 open connections. No tracks/vias/planes. Positive OUT and negative IN exposed pads checked independently. Inductor lands checked against manufacturer dimensions; current/bias/thermal limits remain unqualified. No housing-fit or build-ready claim |
 | E23 DC input/protection PCB and A07 placement | [PCB record](../electronics/input_protection/generated/routing-verification.json), [PCB packet](../electronics/input_protection/generated/placement.json) and [housing packet](../cad/generated/input-power-placement.json) | 48 circuit parts, four M2 holes, relieved 64 × 44 × 1.6 mm profile, four layers, 763 segments/125 vias, two saved AGND fills; zero native DRC/parity/open items. Q3-to-SHDN F.Cu path 7.05 mm. Native input/housing/rear-plate intersection empty; full-unit power, ampacity, thermal, physical protection/mating/assembly remain unqualified |
 | Existing DSP | CTest `engine` | Rates, finite output, allocations and existing control checks |

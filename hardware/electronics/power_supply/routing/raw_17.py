@@ -31,15 +31,15 @@ MOVES = {
 QUIET_VIAS = ((35.4125, 10.8), (44.6, 9.9), (36.35, 2.9))
 
 
-def route(r):
+def route(r, controls=True):
     p = r.p
     # Conventional through vias stay outside solder lands. Current, ringing
     # and loss in the narrow DFN necks still need qualification.
     r.path("VIN_PROTECTED", "F", p("C70", 1), p("L6", 1), width=0.8)
     r.path("VIN_PROTECTED", "F", p("C70", 1), (28.2, 19.5), p("L7", 1), width=0.8)
     r.path("VIN_PROTECTED", "F", p("U13", 8), (47.7, 8.2), p("C71", 1), (47.6, 9), width=0.35)
-    r.via("VIN_PROTECTED", (27.7, 10))
-    r.path("VIN_PROTECTED", "F", p("C70", 1), (27.7, 10), width=0.8)
+    r.via("VIN_PROTECTED", (29, 10.075))
+    r.path("VIN_PROTECTED", "F", p("C70", 1), (29, 10.075), width=0.8)
     r.path(
         "VIN_PROTECTED",
         "In4",
@@ -50,7 +50,7 @@ def route(r):
         (35, 1.9),
         (35, 2.5),
         (27.5, 2.5),
-        (27.7, 10),
+        (29, 10.075),
         (27.5, 12.8),
         (49, 12.8),
         (49, 9),
@@ -167,7 +167,7 @@ def route(r):
     )
     r.path("AGND", "B", p("C67", 2), (56.2, 6.4), width=0.5)
     r.path("AGND", "In1", (56.2, 6.4), (56.5, 5.5), width=0.8)
-    r.path("AGND", "B", p("C69", 2), (54.8, 16.5), width=0.5)
+    r.path("AGND", "B", p("C69", 2), (52.5,16.5), (54.8, 16.5), width=0.5)
     r.via("AGND", (47.2, 11.525))
     r.path("AGND", "B", p("C68", 2), (47.2, 11.525), width=0.5)
     r.path("AGND", "In1", (47.2, 11.525), (47.2, 10.8), (47.6, 10.8), width=0.8)
@@ -234,6 +234,12 @@ def route(r):
         "LO_N_FB": [(40.5875, 10.8), p("C75", 2)],
         "RAW_N17": [p("C69", 1), p("R48", 2), p("C75", 1)],
     }
+    if controls:
+        route_controls(r, tasks)
+    return tasks
+
+
+def route_controls(r, tasks):
     r.route_width = {net: 0.26 for net in tasks}
     original = control_grid.LAYERS
     try:

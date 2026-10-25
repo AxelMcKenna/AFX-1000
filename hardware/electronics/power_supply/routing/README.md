@@ -1,81 +1,35 @@
-# Main-supply copper in progress
+# Main-supply routing candidate
 
-This editable candidate starts from the checked E24 157-component placement.
-The parent `power_supply.kicad_pcb` and immutable E24 review ZIP retain the
-placed-only snapshot; **this directory is the current routing work**.
+This directory owns the higher-headroom standalone supply candidate, separate from the B1 budget design and the main checkout's A08 edits. It starts from the immutable E24 157-part placement and extends the PCB to **90 × 44 × 1.6 mm**, retaining six proposed copper layers and all four M2 fixing holes. The parent E24 PCB remains an 84 × 38 mm placed-only snapshot. Neither is a fabrication release.
 
-Both buck candidates have explicit input/output power, feedback, soft-start
-and enable connections. Their critical capacitors and dividers sit on the
-front with their switching ICs and inductors. The analog 5.8 V pre-rail feeds
-both U9 IN pins and the J4 engineering test pin. Its feedback senses U9's IN
-land separately from the power feed. R8/R9 and R12/R13 remain underneath;
-C57/C58 clear U3's thermal reserve. J3 moves 0.3 mm to make space for C28.
+The main supply now has complete native connectivity: both bucks, both ±17 V/±22 V boost/Cuk generators, +19 V/+12 V/analog 5 V linear stages, the negative reference, both negative SET targets and both negative regulators' input/output, ground, bypass and SHDN connections. Four raw-rail test-header feeds are connected. Schematic values and rail targets are unchanged.
 
-The ±17 V LT3471 stage now includes its boost and Cuk switch paths, transfer
-capacitor, rectifiers, inductors, output banks, divider/reference networks,
-feedforward capacitors and RC startup controls. Sixteen critical parts are on
-the front. C67–C69, the feedforward/startup capacitors and R48–R50 remain on
-the back. The negative output reaches C56, the linear-regulator input capacitor;
-U11's IN/EP connections and the rest of that linear stage remain unfinished.
-C61/C62 move clear of U13's thermal allocation; their RAW_N22 supply-bypass
-connections still need routing. All schematic values, rail targets and pin maps
-are unchanged.
+KiCad 10.0.7 reports **zero all-severity geometry/library/all-track DRC issues, zero schematic-parity issues and zero open connections**. The PCB has **2,600 segments and 285 vias**. Independent checks measure **322 paths**, enforce widths/faces, separate SET drive/sense and quiet returns, and check all 157 pin/value contracts, outline, holes, conventional drills and thermal reserves. The tooling suite includes mutations for missing input straps, SHDN, output headers and raw test feeds, thinned load copper, missing physical via endpoints and disconnected filled spreaders.
 
-The digital sense starts at J3's source-output pin; analog pre-rail sense starts
-at U9 IN. R11 and R16 return separately to their buck IC ground pins on In4.
-The raw-stage divider and reference bypass return separately to U13's exposed
-pad on In3. Seven pour keepouts isolate these quiet-return vias from In1;
-tracks on their unused layers must also clear the vias. Actual source-to-load
-ground displacement, trace/contact losses, feedback noise and loop stability
-remain unqualified. Some feedback and startup paths are long; measured path
-limits are geometric regression guards, not electrical-performance limits.
+Seven native saved fills are retained: In1 power ground, In4 analog 5 V output, underside +19 V/+12 V output spreaders, a front RAW_N22 input spreader and front/back RAW_N17 input spreaders. Each spreader's three declared thermal vias share an actual filled region. All analog 5 V source/bleed/header annuli remain in one In4 island. Positive regulator exposed pads carry OUT; **LT3090 exposed pads carry negative IN**. ILIM is strapped to IN for the internal limit. This establishes connectivity, not heat dissipation or fault/SOA approval.
 
-One filled In1 region serves the three switching stages. Explicit power-ground
-spines allow path checks without relying on the fill. Conventional via drills
-stay at least 0.25 mm outside every solder land, including same-net lands.
-Four all-layer keepouts retain 3.7 mm mounting clearance. The saved native fill
-is retained for review. Copper weight, stackup, via losses and heat spreading
-still need qualification; the reserved thermal regions are not heatsinks.
+The −19 V header path uses at least 0.8 mm track and measures 69.730 mm. The −12 V path uses at least 0.5 mm track and measures 53.085 mm. At the specified 50/150 mA loads, a provisional 35 µm copper/1.8e−8 Ωm estimate gives 2.24/8.19 mV trace drop against a 30 mV allocation. These estimates exclude vias, connectors, temperature and fabricated thickness; they are not ampacity or complete voltage-budget qualification. Fine-pitch OUT straps are checked separately at 0.35 mm. SHDN is fed from the existing positive digital rail. Conventional bypass/filter/bleeder escapes avoid solder lands. Single-face escape drills that became redundant after routing are removed.
 
-Native KiCad reports **zero all-severity geometry/library/track DRC and
-schematic-parity issues, 219 open connections, 510 segments and 87 vias**.
-The checker measures 105 segment/via paths, imposes minimum power-path widths,
-requires 24 buck and 16 raw-stage critical parts on the front, and rechecks all
-157 part/net contracts, exposed-pad rails, outline, holes and thermal reserves.
-Forty-three tooling tests pass, including removed Cuk/bulk/startup feeds,
-insufficient negative power width, same-net via-in-land and quiet-return shunts.
-These checks do not prove regulation, noise, current capacity, startup or
-operating temperature.
+Thirty-one In1 antipads isolate declared quiet vias and both film-filter ground lands. Four all-layer keepouts preserve 3.7 mm copper clearance from fixing centres. Conventional drills remain at least 0.25 mm from solder lands. Quiet In2/In3/In4 returns clear other power-ground vias and plated lands; the measured minimum copper gap is 0.164 mm. Actual copper-intersection checks reject a drive/sense merge before any regulator SET land and a power-ground shunt on the six checked negative-reference/target return terminals before J2. Same-net ground junctions are explicit on In1/In2/In3. These checks catch same-net contacts ordinary DRC permits.
 
-The [TI TPS62933F layout guidance, pp. 40–41](https://www.ti.com/lit/ds/symlink/tps62933f.pdf)
-and [LT3471 layout discussion](https://www.analog.com/media/en/technical-documentation/data-sheets/lt3471.pdf)
-are design references. The ±22 V raw generator, precision sources, linear
-regulators and remaining distribution still need placement/routing refinement,
-return/shielding and thermal copper/vias. Input harness behavior, EMI, startup,
-late switch closure and large-capacitor loop stability remain open. No regulator
-is approved for power-up from this record.
+The negative power routing uses available signal/surface layers and limited In1 sections. In1 therefore includes clearances around those routes; it must not be assumed to be an uninterrupted return sheet. Return displacement, switcher hot-loop refinement, noise, crosstalk and EMI remain open. The N19 SET sense can use In4 to leave its crowded pin corridor while preserving Kelvin separation and the filled analog 5 V output island.
 
-Six proposed layers do not establish a production stackup, ampacity, heatsinking
-or EMC performance. Actual housing fit, heights, leads, harnesses, assembly and
-physical electrical/audio/thermal tests remain open. This directory is **not a
-fabrication/assembly release** and the unit is not build-ready.
+Existing layout concerns remain. The +19 V input bypass is 12.906 mm, the +12 V source/header route is 67.406 mm and the N12 amplifier HF return is 15.885 mm. Negative precision returns and the relocated output bypass routes are recorded in [verification](generated/verification.json); their routing limits are not qualified stability/noise limits. Effective capacitance/ESR, real loop models, startup, all-rail charging, late closure, faults and thermal behavior require qualification. Design references remain the [LT3090](https://www.analog.com/media/en/technical-documentation/data-sheets/3090fa.pdf), [LT1634](https://www.analog.com/media/en/technical-documentation/data-sheets/1634ff.pdf), [OPA2192](https://www.ti.com/lit/ds/symlink/opa2192.pdf), [TPS62933F](https://www.ti.com/lit/ds/symlink/tps62933f.pdf), [LT3471](https://www.analog.com/media/en/technical-documentation/data-sheets/lt3471.pdf) and [LT3080](https://www.analog.com/media/en/technical-documentation/data-sheets/3080fc.pdf).
 
-From the repository root:
+[A10 housing integration](../../../cad/a10/README.md) retains its 334 × 157 × 38 mm RMX-style chassis and current component positions. This copper continuation changes no component pose, outline, mount or printed geometry. Its earlier native mesh/button/lever/collision evidence is retained after an exact spatial comparison, with current PCB hashes refreshed. Height, lead, header and harness dimensions remain conditional allocations; minimum allocated floor clearance is 0.35 mm. A09 retains frozen historical 84 × 38 mm supply inputs.
+
+Other standalone PCBs, wiring and full-unit integration remain unfinished. Actual loss, stability/startup, thermal/EMI and physical electrical/audio/assembly tests remain open. **The complete unit is not build-ready; this record does not approve power-up or fabrication.** No new firmware build or physical test is claimed.
+
+## Rebuild
+
+From the isolated repository root with matching KiCad libraries and Python tooling:
 
 ```sh
 python3 -m hardware.electronics.power_supply.routing.generate --kicad-cli /path/to/kicad-cli
 python3 -m hardware.electronics.power_supply.routing.check --kicad-cli /path/to/kicad-cli
+python3 -m unittest discover -s tests/tooling -v
 ```
 
-Generation resets this candidate from E24 and removes its old verification and
-filled snapshot. The parent PCB stays unchanged. Open this directory's PCB/
-project for copper work and the parent's schematic for circuit review. The
-checker fills/saves an isolated matching project for native parity, retaining
-that board at `generated/filled.kicad_pcb`. The editable input has the zone
-boundary; its saved fill is in the review snapshot. Native exports, clearances
-and source hashes are in [generated/verification.json](generated/verification.json).
-The [placement packet](generated/placement.json) records current courtyards for
-future housing work; its datum and physical fit are unverified. Source paths
-in the verification record are relative to this directory. Evidence is stale
-if the report is absent or any hash no longer matches. No new firmware build,
-mechanical render or physical-test result is claimed.
+Generation resets the candidate from E24 and removes stale verification/fill evidence. It produces an unverified routing candidate. The checker fills/saves an isolated matching project, checks parity, every native open and independent copper requirements, then certifies routing closure in source-hashed records. The saved native board is `generated/filled.kicad_pcb`. Evidence is stale if any recorded hash differs.
+
+This continuation belongs to preserved higher-headroom commit `7abd80c928c1402ec783bfe170113efaa957e3f7` under `build/workspaces/high-headroom-standalone`. `SOURCE_REVISION.json` identifies the source base. The active main checkout and A08 edits remain untouched.

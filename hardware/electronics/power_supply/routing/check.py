@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check partial supply copper against native DRC and independent path limits."""
+"""Check supply copper against native DRC and independent path limits."""
 
 import argparse
 import datetime
@@ -17,8 +17,45 @@ from ...common.placement import footprint_root
 from ...common.reports import sha
 from ...common.sexpr import children, first, read_sexpr, sexpr
 from ...output_stage.check_placement import transform
-from ..check_placement import mechanical
 from ..verify import contract
+from .analog_5v_check import MINIMUM_WIDTHS as ANALOG_WIDTHS
+from .analog_5v_check import PATHS as ANALOG_PATHS
+from .analog_5v_check import component_faces as analog_faces
+from .analog_5v_check import kelvin_separation, output_plane_contacts
+from .mechanical import mechanical
+from .negative_amp_check import MINIMUM_WIDTHS as NEGATIVE_AMP_WIDTHS
+from .negative_amp_check import PATHS as NEGATIVE_AMP_PATHS
+from .negative_amp_check import component_faces as negative_amp_faces
+from .negative_power_check import MINIMUM_WIDTHS as NEGATIVE_POWER_WIDTHS
+from .negative_power_check import PATHS as NEGATIVE_POWER_PATHS
+from .negative_power_check import (
+    dc_route_estimates,
+)
+from .negative_power_check import (
+    input_planes as negative_input_planes,
+)
+from .negative_power_check import (
+    native_connections as negative_power_connections,
+)
+from .negative_reference_check import MINIMUM_WIDTHS as NREF_WIDTHS
+from .negative_reference_check import PATHS as NREF_PATHS
+from .negative_reference_check import component_faces as nref_faces
+from .negative_reference_check import native_connections as nref_connections
+from .negative_reference_check import reference_return
+from .negative_target_check import MINIMUM_WIDTHS as NEGATIVE_TARGET_WIDTHS
+from .negative_target_check import PATHS as NEGATIVE_TARGET_PATHS
+from .negative_target_check import component_faces as negative_target_faces
+from .negative_target_check import native_connections as negative_target_connections
+from .negative_target_check import quiet_return as negative_target_return
+from .negative_target_check import set_kelvin as negative_target_kelvin
+from .positive_linear_check import MINIMUM_WIDTHS as POSITIVE_WIDTHS
+from .positive_linear_check import PATHS as POSITIVE_PATHS
+from .positive_linear_check import component_faces as positive_faces
+from .positive_linear_check import output_planes as positive_planes
+from .positive_linear_check import set_kelvin as positive_kelvin
+from .raw_22_check import MINIMUM_WIDTHS as HI_WIDTHS
+from .raw_22_check import PATHS as HI_PATHS
+from .raw_22_check import component_faces as hi_faces
 
 ROOT = Path(__file__).resolve().parent
 SUPPLY = ROOT.parent
@@ -34,130 +71,175 @@ def local_paths(tree):
     net_names = {str(n[1]): str(n[2]).lstrip("/") for n in children(tree, "net")}
 
     def pad(ref, number, net, allowed):
+        if ref == "@via":
+            x, y, layer = number
+            assert layer in allowed
+            xy = (round(100 + x, 6), round(100 + y, 6))
+            found = [
+                v
+                for v in children(tree, "via")
+                if tuple(round(float(a), 6) for a in first(v, "at")[1:3]) == xy
+            ]
+            assert len(found) == 1, ("missing or ambiguous via endpoint", number)
+            assert net_names[str(first(found[0], "net")[1])] == net, (
+                "via endpoint net mismatch",
+                number,
+                net,
+            )
+            assert list(first(found[0], "layers")[1:]) == ["F.Cu", "B.Cu"]
+            return (*xy, layer)
         fp = footprints[ref]
         layer = str(first(fp, "layer")[1])
         assert layer in allowed
-        p = next(p for p in children(fp, "pad") if str(p[1]) == str(number))
+        # A package can expose two physical lands with the same electrical pin.
+        # (pin, index) selects an instance; ordinary pin selectors retain index 0.
+        number, instance = number if isinstance(number, (tuple, list)) else (number, 0)
+        physical = [p for p in children(fp, "pad") if str(p[1]) == str(number)]
+        assert 0 <= instance < len(physical), (ref, number, instance, "missing physical pad")
+        p = physical[instance]
         assert str(first(p, "net")[-1]).lstrip("/") == net
         return (*[round(v, 6) for v in transform(fp, first(p, "at")[1:3])], layer)
 
     front = ("F.Cu",)
     results = {}
-    for name, net, start, end, limit, allowed in [
-        ("input_bypass_vin", "VIN_PROTECTED", ("U2", 3), ("C22", 1), 4, front),
-        ("input_bypass_ground", "AGND", ("U2", 4), ("C22", 2), 4, front),
-        ("bootstrap_drive", "DIG_BST", ("U2", 6), ("C16", 1), 3, front),
-        ("bootstrap_return", "DIG_SW", ("U2", 5), ("C16", 2), 7, front),
-        ("switch_to_inductor", "DIG_SW", ("U2", 5), ("L4", 1), 9, front),
-        ("feedback_to_pin", "DIG_FB", ("R51", 2), ("U2", 8), 6, front),
-        ("feedback_lower_arm", "DIG_FB", ("R11", 1), ("R51", 2), 8, front),
-        ("feedback_trim", "DIG_FB_TRIM", ("R10", 2), ("R51", 1), 3, front),
-        ("feedback_ground", "AGND", ("R11", 2), ("U2", 4), 28, ("F.Cu", "In4.Cu")),
-        ("output_kelvin", "5V_DIG_SRC", ("J3", 1), ("R10", 1), 38, ("F.Cu", "In2.Cu")),
-        ("bulk_input_local", "VIN_PROTECTED", ("C20", 1), ("U2", 3), 8, front),
-        ("bulk_input_pair", "VIN_PROTECTED", ("C21", 1), ("C20", 1), 6, front),
-        ("input_feed", "VIN_PROTECTED", ("J1", 1), ("C21", 1), 15, ("F.Cu", "In4.Cu")),
-        ("output_cap_1", "5V_DIG_SRC", ("L4", 2), ("C18", 1), 13, front),
-        ("output_cap_2", "5V_DIG_SRC", ("L4", 2), ("C19", 1), 6, front),
-        ("output_header", "5V_DIG_SRC", ("C19", 1), ("J3", 1), 12, front),
-        ("ground_input_pair", "AGND", ("C21", 2), ("C20", 2), 9, front),
-        ("ground_input_local", "AGND", ("C20", 2), ("U2", 4), 22, ("F.Cu", "In1.Cu")),
-        ("ground_input_header", "AGND", ("J1", 2), ("C20", 2), 6, front),
-        ("ground_output_pair", "AGND", ("C18", 2), ("C19", 2), 30, ("F.Cu", "In1.Cu")),
-        ("ground_output_header", "AGND", ("C19", 2), ("J3", 2), 22, ("F.Cu", "In1.Cu")),
-        ("soft_start", "DIG_SS", ("U2", 7), ("C17", 1), 9, ("F.Cu", "In3.Cu")),
-        ("soft_start_ground", "AGND", ("C17", 2), ("U2", 4), 18, ("F.Cu", "In1.Cu")),
-        ("enable_pin", "SUPPLY_ENABLE", ("R8", 2), ("U2", 2), 11, ("F.Cu", "B.Cu", "In3.Cu")),
-        ("enable_pulldown", "SUPPLY_ENABLE", ("R8", 2), ("R9", 1), 7, ("B.Cu",)),
-        ("power_ready", "POWER_READY", ("J5", 2), ("R8", 1), 38, ("F.Cu", "B.Cu", "In3.Cu")),
-        ("enable_ground", "AGND", ("R9", 2), ("C22", 2), 8, ("F.Cu", "B.Cu", "In1.Cu")),
-        ("guard_ground", "AGND", ("J5", 1), ("R9", 2), 28, ("F.Cu", "B.Cu", "In1.Cu")),
-        ("pre_input_bypass", "VIN_PROTECTED", ("U3", 3), ("C29", 1), 5, front),
-        ("pre_bypass_ground", "AGND", ("U3", 4), ("C29", 2), 3, front),
-        ("pre_bootstrap", "PRE_BST", ("U3", 6), ("C23", 1), 6, front),
-        ("pre_switch", "PRE_SW", ("U3", 5), ("L5", 1), 9, front),
-        ("pre_bulk_input", "VIN_PROTECTED", ("C27", 1), ("C28", 1), 5, front),
-        ("pre_input_feed", "VIN_PROTECTED", ("J1", 1), ("C27", 1), 55, ("F.Cu", "In4.Cu")),
-        ("pre_input_to_bypass", "VIN_PROTECTED", ("C27", 1), ("C29", 1), 24, ("F.Cu", "In4.Cu")),
-        ("pre_output_cap_1", "V5_PRE", ("L5", 2), ("C25", 1), 20, front),
-        ("pre_output_cap_2", "V5_PRE", ("L5", 2), ("C26", 1), 15, front),
-        ("pre_linear_feed", "V5_PRE", ("C26", 1), ("U9", 7), 20, ("F.Cu", "B.Cu", "In3.Cu")),
-        ("pre_test_header", "V5_PRE", ("C26", 1), ("J4", 6), 45, ("F.Cu", "In3.Cu")),
-        ("pre_output_sense", "V5_PRE", ("U9", 7), ("R14", 1), 12, ("F.Cu", "B.Cu", "In2.Cu")),
-        ("pre_feedback_mid", "PRE_RMID", ("R14", 2), ("R15", 1), 4, front),
-        ("pre_feedback_upper", "PRE_FB", ("R15", 2), ("U3", 8), 35, ("F.Cu", "In2.Cu")),
-        ("pre_feedback_lower", "PRE_FB", ("R16", 1), ("U3", 8), 20, ("F.Cu", "In2.Cu")),
-        ("pre_quiet_ground", "AGND", ("R16", 2), ("U3", 4), 23, ("F.Cu", "In4.Cu")),
-        ("pre_bulk_ground", "AGND", ("C27", 2), ("C29", 2), 20, ("F.Cu", "In1.Cu")),
-        ("pre_output_ground", "AGND", ("C25", 2), ("C26", 2), 15, ("F.Cu", "In1.Cu")),
-        ("pre_soft_start", "PRE_SS", ("U3", 7), ("C24", 1), 13, ("F.Cu", "In3.Cu")),
-        ("pre_soft_ground", "AGND", ("C24", 2), ("J3", 2), 13, ("F.Cu", "In1.Cu")),
-        ("pre_enable_pin", "SUPPLY_ENABLE", ("U2", 2), ("U3", 2), 22, ("F.Cu", "In3.Cu")),
-        (
-            "pre_enable_network",
-            "SUPPLY_ENABLE",
-            ("R12", 2),
-            ("U3", 2),
-            20,
-            ("F.Cu", "B.Cu", "In2.Cu", "In3.Cu"),
-        ),
-        ("pre_enable_pulldown", "SUPPLY_ENABLE", ("R12", 2), ("R13", 1), 4, ("B.Cu",)),
-        ("pre_ready", "POWER_READY", ("J5", 2), ("R12", 1), 34, ("F.Cu", "B.Cu", "In2.Cu", "In3.Cu")),
-        ("pre_enable_ground", "AGND", ("R13", 2), ("J3", 2), 6, ("F.Cu", "B.Cu", "In1.Cu")),
-        ("raw_input_feed", "VIN_PROTECTED", ("J1", 1), ("C70", 1), 55, ("F.Cu", "In4.Cu")),
-        ("raw_boost_input", "VIN_PROTECTED", ("C70", 1), ("L6", 1), 6, front),
-        ("raw_cuk_input", "VIN_PROTECTED", ("C70", 1), ("L7", 1), 16, front),
-        ("raw_ic_input_feed", "VIN_PROTECTED", ("C70", 1), ("C71", 1), 45, ("F.Cu", "In4.Cu")),
-        ("raw_ic_bypass", "VIN_PROTECTED", ("C71", 1), ("U13", 8), 4, front),
-        ("raw_boost_switch", "LO_P_SW", ("U13", 10), ("L6", 2), 14, front),
-        ("raw_boost_diode", "LO_P_SW", ("U13", 10), ("D3", 2), 6, front),
-        ("raw_positive_bulk_1", "RAW_P17", ("D3", 1), ("C64", 1), 20, front),
-        ("raw_positive_bulk_2", "RAW_P17", ("D3", 1), ("C65", 1), 16, front),
-        ("raw_positive_bypass", "RAW_P17", ("D3", 1), ("C66", 1), 12, front),
-        ("raw_cuk_switch", "LO_N_SW", ("U13", 6), ("L7", 2), 26, front),
-        ("raw_cuk_transfer", "LO_N_SW", ("U13", 6), ("C63", 1), 9, front),
-        ("raw_cuk_diode", "LO_CUK_NODE", ("D4", 2), ("C63", 2), 6, front),
-        ("raw_cuk_choke", "LO_CUK_NODE", ("C63", 2), ("L8", 1), 22, front),
-        ("raw_negative_bulk_1", "RAW_N17", ("L8", 2), ("C67", 1), 35, ("F.Cu", "B.Cu", "In3.Cu")),
-        ("raw_negative_bulk_2", "RAW_N17", ("L8", 2), ("C68", 1), 25, ("F.Cu", "B.Cu", "In3.Cu")),
-        ("raw_negative_bypass", "RAW_N17", ("L8", 2), ("C69", 1), 20, ("F.Cu", "B.Cu", "In3.Cu")),
-        ("raw_negative_linear_input_cap", "RAW_N17", ("L8", 2), ("C56", 1), 12, ("F.Cu", "B.Cu")),
-        ("raw_bulk_ground_1", "AGND", ("C64", 2), ("U13", 11), 40, ("F.Cu", "In1.Cu")),
-        ("raw_bulk_ground_2", "AGND", ("C65", 2), ("U13", 11), 30, ("F.Cu", "In1.Cu")),
-        ("raw_bypass_ground", "AGND", ("C66", 2), ("U13", 11), 24, ("F.Cu", "In1.Cu")),
-        ("raw_input_ground", "AGND", ("C70", 2), ("U13", 11), 40, ("F.Cu", "In1.Cu")),
-        ("raw_ic_ground", "AGND", ("C71", 2), ("U13", 11), 20, ("F.Cu", "In1.Cu")),
-        ("raw_diode_ground", "AGND", ("D4", 1), ("U13", 11), 20, ("F.Cu", "In1.Cu")),
-        ("raw_negative_ground_1", "AGND", ("C67", 2), ("C20", 2), 10, ("F.Cu", "B.Cu", "In1.Cu")),
-        ("raw_negative_ground_2", "AGND", ("C68", 2), ("U13", 11), 15, ("F.Cu", "B.Cu", "In1.Cu")),
-        ("raw_negative_ground_3", "AGND", ("C69", 2), ("C22", 2), 10, ("F.Cu", "B.Cu", "In1.Cu")),
-        ("raw_reference_pins", "LO_REF_1V", ("U13", 2), ("U13", 3), 3, front),
-        ("raw_reference_bypass", "LO_REF_1V", ("U13", 2), ("C72", 1), 15, ("F.Cu", "B.Cu")),
-        ("raw_reference_divider", "LO_REF_1V", ("C72", 1), ("R46", 1), 12, ("F.Cu", "B.Cu")),
-        ("raw_feedback_reference", "AGND", ("U13", 5), ("U13", 11), 4, front),
-        ("raw_quiet_divider_ground", "AGND", ("R45", 2), ("U13", 11), 18, ("F.Cu", "In3.Cu")),
-        ("raw_quiet_bypass_ground", "AGND", ("C72", 2), ("U13", 11), 25, ("F.Cu", "B.Cu", "In3.Cu")),
-        ("raw_positive_sense", "RAW_P17", ("C66", 1), ("R44", 1), 30, ("F.Cu", "In2.Cu")),
-        ("raw_positive_feedback", "LO_P_FB", ("R44", 2), ("U13", 1), 25, ("F.Cu", "In2.Cu")),
-        ("raw_positive_lower_arm", "LO_P_FB", ("R44", 2), ("R45", 1), 4, front),
-        ("raw_positive_feedforward_upper", "RAW_P17", ("R44", 1), ("C73", 1), 30, ("F.Cu", "B.Cu")),
-        ("raw_positive_feedforward_lower", "LO_P_FB", ("R44", 2), ("C73", 2), 30, ("F.Cu", "B.Cu")),
-        ("raw_negative_feedback", "LO_N_FB", ("R47", 1), ("U13", 4), 10, ("F.Cu", "In2.Cu")),
-        ("raw_negative_reference_arm", "LO_N_FB", ("R46", 2), ("R47", 1), 4, front),
-        ("raw_negative_mid_arm", "LO_N_RMID", ("R47", 2), ("R48", 1), 22, ("F.Cu", "B.Cu", "In2.Cu")),
-        ("raw_negative_sense", "RAW_N17", ("C69", 1), ("R48", 2), 20, ("B.Cu",)),
-        ("raw_negative_feedforward_upper", "RAW_N17", ("R48", 2), ("C75", 1), 55, ("B.Cu",)),
-        ("raw_negative_feedforward_lower", "LO_N_FB", ("R47", 1), ("C75", 2), 45, ("F.Cu", "B.Cu")),
-        ("raw_positive_enable_feed", "5V_DIG_SRC", ("C18", 1), ("R49", 1), 45, ("F.Cu", "B.Cu", "In4.Cu")),
-        ("raw_negative_enable_feed", "5V_DIG_SRC", ("R49", 1), ("R50", 1), 10, ("B.Cu",)),
-        ("raw_positive_enable", "LO_P_SS", ("R49", 2), ("U13", 9), 20, ("F.Cu", "B.Cu")),
-        ("raw_positive_start_cap", "LO_P_SS", ("C74", 1), ("U13", 9), 30, ("F.Cu", "B.Cu")),
-        ("raw_negative_enable", "LO_N_SS", ("R50", 2), ("U13", 7), 28, ("F.Cu", "B.Cu")),
-        ("raw_negative_start_cap", "LO_N_SS", ("C76", 1), ("U13", 7), 40, ("F.Cu", "B.Cu")),
-        ("raw_positive_start_ground", "AGND", ("C74", 2), ("U13", 11), 22, ("F.Cu", "B.Cu", "In1.Cu")),
-        ("raw_negative_start_ground", "AGND", ("C76", 2), ("C20", 2), 12, ("F.Cu", "B.Cu", "In1.Cu")),
-    ]:
+    for name, net, start, end, limit, allowed in (
+        [
+            ("input_bypass_vin", "VIN_PROTECTED", ("U2", 3), ("C22", 1), 4, front),
+            ("input_bypass_ground", "AGND", ("U2", 4), ("C22", 2), 4, front),
+            ("bootstrap_drive", "DIG_BST", ("U2", 6), ("C16", 1), 3, front),
+            ("bootstrap_return", "DIG_SW", ("U2", 5), ("C16", 2), 7, front),
+            ("switch_to_inductor", "DIG_SW", ("U2", 5), ("L4", 1), 9, front),
+            ("feedback_to_pin", "DIG_FB", ("R51", 2), ("U2", 8), 6, front),
+            ("feedback_lower_arm", "DIG_FB", ("R11", 1), ("R51", 2), 8, front),
+            ("feedback_trim", "DIG_FB_TRIM", ("R10", 2), ("R51", 1), 3, front),
+            ("feedback_ground", "AGND", ("R11", 2), ("U2", 4), 28, ("F.Cu", "In4.Cu")),
+            ("output_kelvin", "5V_DIG_SRC", ("J3", 1), ("R10", 1), 38, ("F.Cu", "In2.Cu")),
+            ("bulk_input_local", "VIN_PROTECTED", ("C20", 1), ("U2", 3), 8, front),
+            ("bulk_input_pair", "VIN_PROTECTED", ("C21", 1), ("C20", 1), 6, front),
+            ("input_feed", "VIN_PROTECTED", ("J1", 1), ("C21", 1), 15, ("F.Cu", "In4.Cu")),
+            ("output_cap_1", "5V_DIG_SRC", ("L4", 2), ("C18", 1), 13, front),
+            ("output_cap_2", "5V_DIG_SRC", ("L4", 2), ("C19", 1), 6, front),
+            ("output_header", "5V_DIG_SRC", ("C19", 1), ("J3", 1), 12, front),
+            ("ground_input_pair", "AGND", ("C21", 2), ("C20", 2), 9, front),
+            ("ground_input_local", "AGND", ("C20", 2), ("U2", 4), 22, ("F.Cu", "In1.Cu")),
+            ("ground_input_header", "AGND", ("J1", 2), ("C20", 2), 6, front),
+            ("ground_output_pair", "AGND", ("C18", 2), ("C19", 2), 30, ("F.Cu", "In1.Cu")),
+            ("ground_output_header", "AGND", ("C19", 2), ("J3", 2), 22, ("F.Cu", "In1.Cu")),
+            ("soft_start", "DIG_SS", ("U2", 7), ("C17", 1), 9, ("F.Cu", "In3.Cu")),
+            ("soft_start_ground", "AGND", ("C17", 2), ("U2", 4), 18, ("F.Cu", "In1.Cu")),
+            ("enable_pin", "SUPPLY_ENABLE", ("R8", 2), ("U2", 2), 11, ("F.Cu", "B.Cu", "In3.Cu")),
+            ("enable_pulldown", "SUPPLY_ENABLE", ("R8", 2), ("R9", 1), 7, ("B.Cu",)),
+            ("power_ready", "POWER_READY", ("J5", 2), ("R8", 1), 38, ("F.Cu", "B.Cu", "In3.Cu")),
+            ("enable_ground", "AGND", ("R9", 2), ("C22", 2), 8, ("F.Cu", "B.Cu", "In1.Cu")),
+            ("guard_ground", "AGND", ("J5", 1), ("R9", 2), 28, ("F.Cu", "B.Cu", "In1.Cu")),
+            ("pre_input_bypass", "VIN_PROTECTED", ("U3", 3), ("C29", 1), 5, front),
+            ("pre_bypass_ground", "AGND", ("U3", 4), ("C29", 2), 3, front),
+            ("pre_bootstrap", "PRE_BST", ("U3", 6), ("C23", 1), 6, front),
+            ("pre_switch", "PRE_SW", ("U3", 5), ("L5", 1), 9, front),
+            ("pre_bulk_input", "VIN_PROTECTED", ("C27", 1), ("C28", 1), 5, front),
+            ("pre_input_feed", "VIN_PROTECTED", ("J1", 1), ("C27", 1), 55, ("F.Cu", "In4.Cu")),
+            ("pre_input_to_bypass", "VIN_PROTECTED", ("C27", 1), ("C29", 1), 24, ("F.Cu", "In4.Cu")),
+            ("pre_output_cap_1", "V5_PRE", ("L5", 2), ("C25", 1), 20, front),
+            ("pre_output_cap_2", "V5_PRE", ("L5", 2), ("C26", 1), 15, front),
+            ("pre_linear_feed", "V5_PRE", ("C26", 1), ("U9", 7), 20, ("F.Cu", "B.Cu", "In3.Cu")),
+            ("pre_test_header", "V5_PRE", ("C26", 1), ("J4", 6), 45, ("F.Cu", "In3.Cu")),
+            ("pre_output_sense", "V5_PRE", ("U9", 7), ("R14", 1), 12, ("F.Cu", "B.Cu", "In2.Cu")),
+            ("pre_feedback_mid", "PRE_RMID", ("R14", 2), ("R15", 1), 4, front),
+            ("pre_feedback_upper", "PRE_FB", ("R15", 2), ("U3", 8), 35, ("F.Cu", "In2.Cu")),
+            ("pre_feedback_lower", "PRE_FB", ("R16", 1), ("U3", 8), 20, ("F.Cu", "In2.Cu")),
+            ("pre_quiet_ground", "AGND", ("R16", 2), ("U3", 4), 23, ("F.Cu", "In4.Cu")),
+            ("pre_bulk_ground", "AGND", ("C27", 2), ("C29", 2), 20, ("F.Cu", "In1.Cu")),
+            ("pre_output_ground", "AGND", ("C25", 2), ("C26", 2), 15, ("F.Cu", "In1.Cu")),
+            ("pre_soft_start", "PRE_SS", ("U3", 7), ("C24", 1), 13, ("F.Cu", "In3.Cu")),
+            ("pre_soft_ground", "AGND", ("C24", 2), ("J3", 2), 13, ("F.Cu", "In1.Cu")),
+            ("pre_enable_pin", "SUPPLY_ENABLE", ("U2", 2), ("U3", 2), 22, ("F.Cu", "In3.Cu")),
+            (
+                "pre_enable_network",
+                "SUPPLY_ENABLE",
+                ("R12", 2),
+                ("U3", 2),
+                20,
+                ("F.Cu", "B.Cu", "In2.Cu", "In3.Cu"),
+            ),
+            ("pre_enable_pulldown", "SUPPLY_ENABLE", ("R12", 2), ("R13", 1), 4, ("B.Cu",)),
+            ("pre_ready", "POWER_READY", ("J5", 2), ("R12", 1), 34, ("F.Cu", "B.Cu", "In2.Cu", "In3.Cu")),
+            ("pre_enable_ground", "AGND", ("R13", 2), ("J3", 2), 6, ("F.Cu", "B.Cu", "In1.Cu")),
+            ("raw_input_feed", "VIN_PROTECTED", ("J1", 1), ("C70", 1), 55, ("F.Cu", "In4.Cu")),
+            ("raw_boost_input", "VIN_PROTECTED", ("C70", 1), ("L6", 1), 6, front),
+            ("raw_cuk_input", "VIN_PROTECTED", ("C70", 1), ("L7", 1), 16, front),
+            ("raw_ic_input_feed", "VIN_PROTECTED", ("C70", 1), ("C71", 1), 45, ("F.Cu", "In4.Cu")),
+            ("raw_ic_bypass", "VIN_PROTECTED", ("C71", 1), ("U13", 8), 4, front),
+            ("raw_boost_switch", "LO_P_SW", ("U13", 10), ("L6", 2), 14, front),
+            ("raw_boost_diode", "LO_P_SW", ("U13", 10), ("D3", 2), 6, front),
+            ("raw_positive_bulk_1", "RAW_P17", ("D3", 1), ("C64", 1), 20, front),
+            ("raw_positive_bulk_2", "RAW_P17", ("D3", 1), ("C65", 1), 16, front),
+            ("raw_positive_bypass", "RAW_P17", ("D3", 1), ("C66", 1), 12, front),
+            ("raw_cuk_switch", "LO_N_SW", ("U13", 6), ("L7", 2), 26, front),
+            ("raw_cuk_transfer", "LO_N_SW", ("U13", 6), ("C63", 1), 9, front),
+            ("raw_cuk_diode", "LO_CUK_NODE", ("D4", 2), ("C63", 2), 6, front),
+            ("raw_cuk_choke", "LO_CUK_NODE", ("C63", 2), ("L8", 1), 22, front),
+            ("raw_negative_bulk_1", "RAW_N17", ("L8", 2), ("C67", 1), 35, ("F.Cu", "B.Cu", "In3.Cu")),
+            ("raw_negative_bulk_2", "RAW_N17", ("L8", 2), ("C68", 1), 25, ("F.Cu", "B.Cu", "In3.Cu")),
+            ("raw_negative_bypass", "RAW_N17", ("L8", 2), ("C69", 1), 20, ("F.Cu", "B.Cu", "In3.Cu")),
+            ("raw_negative_linear_input_cap", "RAW_N17", ("L8", 2), ("C56", 1), 12, ("F.Cu", "B.Cu")),
+            ("raw_bulk_ground_1", "AGND", ("C64", 2), ("U13", 11), 40, ("F.Cu", "In1.Cu")),
+            ("raw_bulk_ground_2", "AGND", ("C65", 2), ("U13", 11), 30, ("F.Cu", "In1.Cu")),
+            ("raw_bypass_ground", "AGND", ("C66", 2), ("U13", 11), 24, ("F.Cu", "In1.Cu")),
+            ("raw_input_ground", "AGND", ("C70", 2), ("U13", 11), 40, ("F.Cu", "In1.Cu")),
+            ("raw_ic_ground", "AGND", ("C71", 2), ("U13", 11), 20, ("F.Cu", "In1.Cu")),
+            ("raw_diode_ground", "AGND", ("D4", 1), ("U13", 11), 20, ("F.Cu", "In1.Cu")),
+            ("raw_negative_ground_1", "AGND", ("C67", 2), ("C20", 2), 10, ("F.Cu", "B.Cu", "In1.Cu")),
+            ("raw_negative_ground_2", "AGND", ("C68", 2), ("U13", 11), 15, ("F.Cu", "B.Cu", "In1.Cu")),
+            ("raw_negative_ground_3", "AGND", ("C69", 2), ("C22", 2), 10, ("F.Cu", "B.Cu", "In1.Cu")),
+            ("raw_reference_pins", "LO_REF_1V", ("U13", 2), ("U13", 3), 3, front),
+            ("raw_reference_bypass", "LO_REF_1V", ("U13", 2), ("C72", 1), 15, ("F.Cu", "B.Cu")),
+            ("raw_reference_divider", "LO_REF_1V", ("C72", 1), ("R46", 1), 12, ("F.Cu", "B.Cu")),
+            ("raw_feedback_reference", "AGND", ("U13", 5), ("U13", 11), 4, front),
+            ("raw_quiet_divider_ground", "AGND", ("R45", 2), ("U13", 11), 18, ("F.Cu", "In3.Cu")),
+            ("raw_quiet_bypass_ground", "AGND", ("C72", 2), ("U13", 11), 25, ("F.Cu", "B.Cu", "In3.Cu")),
+            ("raw_positive_sense", "RAW_P17", ("C66", 1), ("R44", 1), 30, ("F.Cu", "In2.Cu")),
+            ("raw_positive_feedback", "LO_P_FB", ("R44", 2), ("U13", 1), 25, ("F.Cu", "In2.Cu")),
+            ("raw_positive_lower_arm", "LO_P_FB", ("R44", 2), ("R45", 1), 4, front),
+            ("raw_positive_feedforward_upper", "RAW_P17", ("R44", 1), ("C73", 1), 30, ("F.Cu", "B.Cu")),
+            ("raw_positive_feedforward_lower", "LO_P_FB", ("R44", 2), ("C73", 2), 30, ("F.Cu", "B.Cu")),
+            ("raw_negative_feedback", "LO_N_FB", ("R47", 1), ("U13", 4), 10, ("F.Cu", "In2.Cu")),
+            ("raw_negative_reference_arm", "LO_N_FB", ("R46", 2), ("R47", 1), 4, front),
+            ("raw_negative_mid_arm", "LO_N_RMID", ("R47", 2), ("R48", 1), 22, ("F.Cu", "B.Cu", "In2.Cu")),
+            ("raw_negative_sense", "RAW_N17", ("C69", 1), ("R48", 2), 20, ("B.Cu",)),
+            ("raw_negative_feedforward_upper", "RAW_N17", ("R48", 2), ("C75", 1), 55, ("B.Cu",)),
+            ("raw_negative_feedforward_lower", "LO_N_FB", ("R47", 1), ("C75", 2), 45, ("F.Cu", "B.Cu")),
+            (
+                "raw_positive_enable_feed",
+                "5V_DIG_SRC",
+                ("C18", 1),
+                ("R49", 1),
+                45,
+                ("F.Cu", "B.Cu", "In4.Cu"),
+            ),
+            ("raw_negative_enable_feed", "5V_DIG_SRC", ("R49", 1), ("R50", 1), 10, ("B.Cu",)),
+            ("raw_positive_enable", "LO_P_SS", ("R49", 2), ("U13", 9), 20, ("F.Cu", "B.Cu")),
+            ("raw_positive_start_cap", "LO_P_SS", ("C74", 1), ("U13", 9), 30, ("F.Cu", "B.Cu")),
+            ("raw_negative_enable", "LO_N_SS", ("R50", 2), ("U13", 7), 28, ("F.Cu", "B.Cu")),
+            ("raw_negative_start_cap", "LO_N_SS", ("C76", 1), ("U13", 7), 40, ("F.Cu", "B.Cu")),
+            ("raw_positive_start_ground", "AGND", ("C74", 2), ("U13", 11), 22, ("F.Cu", "B.Cu", "In1.Cu")),
+            ("raw_negative_start_ground", "AGND", ("C76", 2), ("C20", 2), 12, ("F.Cu", "B.Cu", "In1.Cu")),
+        ]
+        + HI_PATHS
+        + ANALOG_PATHS
+        + POSITIVE_PATHS
+        + NREF_PATHS
+        + NEGATIVE_AMP_PATHS
+        + NEGATIVE_TARGET_PATHS
+        + NEGATIVE_POWER_PATHS
+    ):
         minimum_width = {
+            **HI_WIDTHS,
+            **ANALOG_WIDTHS,
+            **POSITIVE_WIDTHS,
+            **NREF_WIDTHS,
+            **NEGATIVE_AMP_WIDTHS,
+            **NEGATIVE_TARGET_WIDTHS,
+            **NEGATIVE_POWER_WIDTHS,
             "raw_input_feed": 0.8,
             "raw_boost_input": 0.8,
             "raw_cuk_input": 0.8,
@@ -376,7 +458,7 @@ def ground_layout(tree):
     keepouts = [z for z in zones if children(z, "keepout") and children(z, "layers")]
     quiet = [z for z in zones if children(z, "keepout") and children(z, "layer")]
     planes = [z for z in zones if not children(z, "keepout")]
-    assert len(keepouts) == 4 and len(planes) == 1 and len(quiet) == 7
+    assert len(keepouts) == 4 and len(planes) == 7 and len(quiet) == 31
     centers = {(104, 104), (174, 104), (104, 134), (174, 134)}
     seen = set()
     for zone in keepouts:
@@ -408,6 +490,50 @@ def ground_layout(tree):
         (144.6, 109.9): {"F.Cu", "In3.Cu"},
         (136.35, 102.9): {"B.Cu", "In3.Cu"},
     }
+    quiet_layers.update(
+        {
+            (111, 117.5): {"F.Cu", "In3.Cu"},
+            (121.8, 108.6): {"F.Cu", "In3.Cu"},
+            (118.15, 112.4): {"B.Cu", "In3.Cu"},
+        }
+    )
+    quiet_layers.update(
+        {
+            (119, 122.9): {"B.Cu", "In3.Cu"},
+            (123.95, 131.6): {"F.Cu", "B.Cu", "In3.Cu"},
+            (131.4, 131): {"F.Cu", "In3.Cu"},
+            (169, 136.5): {"B.Cu", "In3.Cu"},
+            (130.5, 134): {"In3.Cu"},
+        }
+    )
+    quiet_layers.update(
+        {
+            (101.1, 127.5): {"B.Cu", "In3.Cu", "In4.Cu"},
+            (112.8, 138): {"B.Cu", "In3.Cu"},
+            (130.8, 138.2): {"B.Cu", "In3.Cu"},
+            (140.3, 140): {"B.Cu", "In3.Cu"},
+            (113.6, 106.8): {"In3.Cu", "In4.Cu"},
+        }
+    )
+    quiet_layers.update({(118.25, 120.125): {"B.Cu", "In3.Cu"}, (106.8, 108.2): {"In3.Cu"}})
+    quiet_layers.update(
+        {
+            (133.875, 111.25): {"B.Cu", "In2.Cu", "In3.Cu"},
+            (133, 120.25): {"B.Cu", "In2.Cu", "In3.Cu"},
+            (168.125, 107.25): {"B.Cu", "In2.Cu", "In3.Cu"},
+            (155.625, 122.125): {"B.Cu", "In2.Cu", "In3.Cu"},
+        }
+    )
+    quiet_layers.update(
+        {
+            (127.125, 122.125): {"In2.Cu", "In3.Cu"},
+            (133.875, 119.875): {"In2.Cu", "In3.Cu"},
+            (133.875, 118.625): {"In2.Cu", "In3.Cu"},
+            (133, 118.625): {"In2.Cu", "In3.Cu"},
+            (159, 115.25): {"In2.Cu", "In3.Cu"},
+        }
+    )
+    film_centers = {(130.5, 134), (106.8, 108.2)}
     quiet_centers = set(quiet_layers)
     seen_quiet = set()
     for zone in quiet:
@@ -429,7 +555,11 @@ def ground_layout(tree):
             distance = abs(
                 (b[0] - a[0]) * (a[1] - center[1]) - (a[0] - center[0]) * (b[1] - a[1])
             ) / math.dist(a, b)
-            assert distance >= 0.75 - 1e-5, ("quiet return plane isolation reduced", center, distance)
+            assert distance >= (1.2 if center in film_centers else 0.75) - 1e-5, (
+                "quiet return plane isolation reduced",
+                center,
+                distance,
+            )
         for segment in children(tree, "segment"):
             layer = first(segment, "layer")[1]
             if layer in quiet_layers[center]:
@@ -438,13 +568,64 @@ def ground_layout(tree):
             dx, dy = b[0] - a[0], b[1] - a[1]
             t = max(0, min(1, ((center[0] - a[0]) * dx + (center[1] - a[1]) * dy) / (dx * dx + dy * dy)))
             distance = math.dist(center, (a[0] + t * dx, a[1] + t * dy))
-            assert distance >= 0.3 + float(first(segment, "width")[1]) / 2 + 0.15, (
+            assert (
+                distance
+                >= (0.75 if center in film_centers else 0.3) + float(first(segment, "width")[1]) / 2 + 0.15
+            ), (
                 "quiet via shunted by In1 track"
                 if layer == "In1.Cu"
-                else "quiet via shunted on reserved layer"
+                else "quiet via shunted on reserved layer",
+                center,
+                layer,
+                a,
+                b,
+                distance,
             )
     assert seen_quiet == quiet_centers
-    plane = planes[0]
+    # All AGND traces on these inner signal layers are declared quiet returns.
+    # A same-net power via or plated PGND land must not short that return path.
+    names = {str(n[1]): str(n[2]).lstrip("/") for n in children(tree, "net")}
+    power_contacts = []
+    for via in children(tree, "via"):
+        center = tuple(map(float, first(via, "at")[1:3]))
+        if names[str(first(via, "net")[1])] == "AGND" and center not in quiet_centers:
+            power_contacts.append((center, float(first(via, "size")[1]) / 2))
+    for fp in children(tree, "footprint"):
+        ref = next(p[2] for p in children(fp, "property") if p[1] == "Reference")
+        for pad in children(fp, "pad"):
+            if (
+                pad[2] != "thru_hole"
+                or not children(pad, "net")
+                or str(first(pad, "net")[-1]).lstrip("/") != "AGND"
+            ):
+                continue
+            if (ref, str(pad[1])) in (("J2", "2"), ("C32", "2"), ("C33", "2")):
+                continue
+            power_contacts.append(
+                (tuple(transform(fp, first(pad, "at")[1:3])), max(map(float, first(pad, "size")[1:3])) / 2)
+            )
+    minimum_quiet_gap = math.inf
+    for segment in children(tree, "segment"):
+        if (
+            first(segment, "layer")[1] not in ("In2.Cu", "In3.Cu", "In4.Cu")
+            or names[str(first(segment, "net")[1])] != "AGND"
+        ):
+            continue
+        a, b = [tuple(map(float, first(segment, k)[1:3])) for k in ("start", "end")]
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        for center, radius in power_contacts:
+            t = max(0, min(1, ((center[0] - a[0]) * dx + (center[1] - a[1]) * dy) / (dx * dx + dy * dy)))
+            gap = (
+                math.dist(center, (a[0] + t * dx, a[1] + t * dy))
+                - radius
+                - float(first(segment, "width")[1]) / 2
+            )
+            assert gap >= 0.15 - 1e-6, ("quiet inner return shunted by power-ground contact", center, gap)
+            minimum_quiet_gap = min(minimum_quiet_gap, gap)
+    plane = next(p for p in planes if first(p, "layer")[1] == "In1.Cu")
+    output = next(p for p in planes if first(p, "layer")[1] == "In4.Cu")
+    assert first(output, "net_name")[1] == "/V5_REG_SRC"
+    assert first(output, "connect_pads")[1] == "yes", "Output plane needs solid connections"
     assert first(plane, "layer")[1] == "In1.Cu" and first(plane, "net_name")[1] == "/AGND"
     assert first(plane, "connect_pads")[1] == "yes", "Ground plane needs solid pad/via connections"
     return dict(
@@ -452,7 +633,9 @@ def ground_layout(tree):
         mounting_copper_clearance_mm=3.7,
         mount_keepouts=4,
         solid_pad_connections=True,
-        quiet_return_plane_antipads=7,
+        quiet_return_plane_antipads=31,
+        output_power_layer="In4.Cu",
+        minimum_quiet_to_power_contact_gap_mm=minimum_quiet_gap,
     )
 
 
@@ -466,9 +649,22 @@ def main():
     pcb = ROOT / "power_supply.kicad_pcb"
     tree = read_sexpr(pcb.read_text())
     paths = local_paths(tree)
-    assert len(children(tree, "via")) == 87
+    inputs = json.loads((OUT / "routing-inputs.json").read_text())
+    assert len(children(tree, "via")) == inputs["through_vias"]
+    assert len(children(tree, "segment")) == inputs["routed_segments"]
     front_count = front_buck(tree)
     raw_front_count = front_raw(tree)
+    hi_components = hi_faces(tree)
+    analog_components = analog_faces(tree)
+    analog_kelvin = kelvin_separation(tree)
+    positive_components = positive_faces(tree)
+    positive_sense = positive_kelvin(tree)
+    negative_reference_components = nref_faces(tree)
+    negative_reference_return = reference_return(tree)
+    negative_amplifier_components = negative_amp_faces(tree)
+    negative_target_components = negative_target_faces(tree)
+    negative_target_sense = negative_target_kelvin(tree)
+    negative_target_ground = negative_target_return(tree)
     drill_clearance = via_lands(tree)
     ground = ground_layout(tree)
     inputs = json.loads((OUT / "routing-inputs.json").read_text())
@@ -524,7 +720,7 @@ def main():
         bare_path.write_text(sexpr(bare) + "\n")
         packet = mechanical(bare_path, pins)
         packet.update(
-            revision="dual-buck-and-raw-17V-routing-in-progress",
+            revision="main-power-complete-routing-candidate-in-progress",
             pcb_sha256=sha(pcb),
             pcb_partially_routed=True,
             pcb_routed=False,
@@ -555,17 +751,41 @@ def main():
             drc["violations"],
             drc["schematic_parity"],
         )
-        assert drc["unconnected_items"], "This stage is intentionally incomplete"
+        negative_power_contacts = negative_power_connections(drc)
+        inputs.update(fully_routed=True, native_open_items=0, native_verification_required=False)
+        (OUT / "routing-inputs.json").write_text(json.dumps(inputs, indent=2) + "\n")
+        packet.update(pcb_partially_routed=False, pcb_routed=True)
+        packet["remaining"] = [
+            item for item in packet["remaining"] if "remaining supply circuitry" not in item
+        ]
+        (OUT / "placement.json").write_text(json.dumps(packet, indent=2) + "\n")
         filled = temp / "power_supply.kicad_pcb"
+        # Retain the native fill even when an independent contact/island check
+        # fails. Only verification.json certifies the complete check sequence.
+        shutil.copy2(filled, OUT / "filled.kicad_pcb")
         saved = read_sexpr(filled.read_text())
         planes = [z for z in children(saved, "zone") if not children(z, "keepout")]
-        assert len(planes) == 1 and str(first(planes[0], "net")[-1]) == "/AGND"
-        assert first(planes[0], "layer")[1] == "In1.Cu" and children(planes[0], "filled_polygon")
-        shutil.copy2(filled, OUT / "filled.kicad_pcb")
+        assert len(planes) == 7
+        assert {(first(z, "layer")[1], str(first(z, "net")[-1])) for z in planes} == {
+            ("In1.Cu", "/AGND"),
+            ("In4.Cu", "/V5_REG_SRC"),
+            ("B.Cu", "/P19_SRC"),
+            ("B.Cu", "/P12_SRC"),
+            ("F.Cu", "/RAW_N22"),
+            ("F.Cu", "/RAW_N17"),
+            ("B.Cu", "/RAW_N17"),
+        }
+        assert all(children(z, "filled_polygon") for z in planes)
+        output_contacts = output_plane_contacts(saved, drc)
+        positive_contacts = positive_planes(saved, drc)
+        negative_input_contacts = negative_input_planes(saved)
+        negative_reference_contacts = nref_connections(drc)
+        negative_target_contacts = negative_target_connections(drc)
         for name, layers in [
             ("top", "F.Cu,F.Fab,F.SilkS,Edge.Cuts"),
             ("copper", "F.Cu,Edge.Cuts"),
             ("ground", "In1.Cu,Edge.Cuts"),
+            ("analog_output", "In4.Cu,Edge.Cuts"),
             ("bottom", "B.Cu,B.Fab,B.SilkS,Edge.Cuts"),
         ]:
             run(
@@ -610,7 +830,7 @@ def main():
         SUPPLY.parent / "input_protection/route_grid.py",
     ]
     record = dict(
-        stage="dual-buck-and-raw-17V-paths",
+        stage="main-power-complete-routing-candidate",
         checked_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
         kicad_version=version,
         components=157,
@@ -621,12 +841,32 @@ def main():
         through_vias=len(children(tree, "via")),
         local_paths=paths,
         saved_ground_planes_filled=1,
+        saved_analog_output_planes_filled=1,
+        analog_5v_component_faces=analog_components,
+        analog_5v_set_kelvin=analog_kelvin,
+        positive_linear_component_faces=positive_components,
+        positive_linear_set_kelvin=positive_sense,
+        saved_positive_output_planes_filled=2,
+        positive_linear_output_planes=positive_contacts,
+        negative_reference_component_faces=negative_reference_components,
+        negative_reference_connections=negative_reference_contacts,
+        negative_reference_return=negative_reference_return,
+        negative_amplifier_component_faces=negative_amplifier_components,
+        negative_target_component_faces=negative_target_components,
+        negative_target_set_kelvin=negative_target_sense,
+        negative_target_quiet_return=negative_target_ground,
+        negative_target_connections=negative_target_contacts,
+        negative_power_connections=negative_power_contacts,
+        negative_input_planes=negative_input_contacts,
+        negative_output_dc_estimates=dc_route_estimates(paths),
+        analog_5v_output_plane=output_contacts,
         digital_buck_bulk_parts_front=True,
         analog_pre_buck_bulk_parts_front=True,
         analog_pre_sense_pad=list(paths["pre_output_sense"]["from_pad"]),
         analog_pre_reference_pad=list(paths["pre_quiet_ground"]["to_pad"]),
         front_buck_components=front_count,
         front_raw_components=raw_front_count,
+        raw_22_component_faces=hi_components,
         minimum_via_drill_to_land_mm=drill_clearance,
         ground_layout=ground,
         exposed_pad_nets=packet["exposed_pad_nets"],
@@ -634,7 +874,7 @@ def main():
         feedback_ground_reference_pad=list(paths["feedback_ground"]["to_pad"]),
         ground_drop_budget_verified=False,
         feedback_loop_stability_verified=False,
-        fully_routed=False,
+        fully_routed=True,
         thermal_or_ampacity_qualified=False,
         switching_or_emi_qualified=False,
         housing_fit_verified=False,
@@ -643,7 +883,7 @@ def main():
     )
     (OUT / "verification.json").write_text(json.dumps(record, indent=2) + "\n")
     print(
-        f"Partial supply copper: {record['segments']} segments, zero native DRC/parity issues, {record['unconnected_items']} open connections"
+        f"Supply routing candidate: {record['segments']} segments, zero native DRC/parity issues, {record['unconnected_items']} open connections"
     )
     for name, result in paths.items():
         print(f"  {name}: {result['length_mm']:.3f} mm")

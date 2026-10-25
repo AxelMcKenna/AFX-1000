@@ -8,6 +8,7 @@ from hardware.electronics.power_supply.routing.check import (
     front_buck,
     front_raw,
     ground_layout,
+    hi_faces,
     local_paths,
     via_lands,
 )
@@ -201,6 +202,89 @@ class PowerLocalRoutingTests(unittest.TestCase):
         first(fp, "layer")[1] = "B.Cu"
         with self.assertRaisesRegex(AssertionError, "raw supply component moved off front"):
             front_raw(tree)
+
+    def test_hi_positive_bank_needs_its_rectifier_via(self):
+        tree = self.tree()
+        net = next(n[1] for n in children(tree, "net") if str(n[2]) == "/AGND")
+        via = next(
+            v for v in children(tree, "via") if list(map(float, first(v, "at")[1:3])) == [123.4, 105.2]
+        )
+        first(via, "net")[1] = net
+        with self.assertRaisesRegex(AssertionError, "hi_positive_bulk_1"):
+            local_paths(tree)
+
+    def test_hi_cuk_bulk_feed_cannot_use_the_pin_neck_width(self):
+        tree = self.tree()
+        segment = next(
+            s
+            for s in children(tree, "segment")
+            if list(map(float, first(s, "start")[1:3])) == [111.825, 117.2]
+            and list(map(float, first(s, "end")[1:3])) == [123.1, 117.2]
+        )
+        first(segment, "width")[1] = 0.35
+        with self.assertRaisesRegex(AssertionError, "hi_cuk_inductor"):
+            local_paths(tree)
+
+    def test_hi_enable_feed_requires_its_in4_power_branch(self):
+        tree = self.tree()
+        segment = next(
+            s
+            for s in children(tree, "segment")
+            if list(map(float, first(s, "start")[1:3])) == [124.8, 101]
+            and list(map(float, first(s, "end")[1:3])) == [124.8, 107]
+            and first(s, "layer")[1] == "In4.Cu"
+        )
+        tree.remove(segment)
+        with self.assertRaisesRegex(AssertionError, "hi_enable_feed"):
+            local_paths(tree)
+
+    def test_hi_quiet_exposed_pad_return_cannot_join_the_power_plane(self):
+        tree = self.tree()
+        net = next(n[1] for n in children(tree, "net") if str(n[2]) == "/AGND")
+        tree.append(
+            read_sexpr(
+                f'(segment (start 121.8 108.6) (end 122 108.6) (width .26) (layer "In1.Cu") (net {net}))'
+            )
+        )
+        with self.assertRaisesRegex(AssertionError, "quiet via shunted by In1 track"):
+            ground_layout(tree)
+
+    def test_hi_local_bypass_must_keep_its_checked_face(self):
+        tree = self.tree()
+        fp = next(
+            f
+            for f in children(tree, "footprint")
+            if any(p[1:3] == ["Reference", "C4"] for p in children(f, "property"))
+        )
+        first(fp, "layer")[1] = "F.Cu"
+        with self.assertRaisesRegex(AssertionError, "raw 22V component face changed"):
+            hi_faces(tree)
+
+    def test_hi_negative_bank_cannot_be_fed_by_a_sense_width(self):
+        tree = self.tree()
+        segment = next(
+            s
+            for s in children(tree, "segment")
+            if list(map(float, first(s, "start")[1:3])) == [126.2, 113.8]
+            and list(map(float, first(s, "end")[1:3])) == [126.2, 113.6]
+            and first(s, "layer")[1] == "B.Cu"
+        )
+        first(segment, "width")[1] = 0.26
+        with self.assertRaisesRegex(AssertionError, "hi_negative_bulk_1"):
+            local_paths(tree)
+
+    def test_hi_reference_bypass_needs_its_own_quiet_ground(self):
+        tree = self.tree()
+        segment = next(
+            s
+            for s in children(tree, "segment")
+            if list(map(float, first(s, "start")[1:3])) == [118, 111]
+            and list(map(float, first(s, "end")[1:3])) == [118.15, 112.4]
+            and first(s, "layer")[1] == "B.Cu"
+        )
+        tree.remove(segment)
+        with self.assertRaisesRegex(AssertionError, "hi_quiet_bypass_ground"):
+            local_paths(tree)
 
 
 if __name__ == "__main__":
