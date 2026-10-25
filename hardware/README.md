@@ -2,6 +2,10 @@
 
 **Active budget variant:** [B1 5V design](budget/README.md), with a routed carrier PCB, source-hashed native checks, split-panel fit meshes and an explicitly provisional cost ledger. The A0.2 design below remains a separate higher-headroom variant; its BOM is not the budget shopping list.
 
+## A08 mechanical design
+
+The [A08 CAD model](cad/a08/README.md) is the housing/control study shown in the main README. It includes the full modeled printable control set, individual STL exports, a quantity-correct 3MF inventory and a [printer handoff](cad/a08/PRINTING.md). It is a separate mechanical variant; its inherited E-series electronics reserves are not interchangeable with the B1 carrier. Physical printing, fit and complete electronics integration remain unverified.
+
 ## A0.2 reference design
 
 This is the physical implementation path toward the full clone. It is a development design, not a fabrication release or an assertion of measured RMX sound. Deliverables include the common control/pin manifest, generated panel DXF/SVG, editable OpenSCAD enclosure, Daisy firmware adapter, and the [A0.2 carrier circuit set](electrical/carrier.md): eight new pin-connected KiCad/SVG/JSON sheets alongside the bypass permission sheet, with consolidated BOM and connection tables. The integrated KiCad 10 project passes native ERC and physical-component/netlist checks; see the source-hashed [record](electrical/native-check.json). Electrical drafts are ahead of the A0 rear-panel CAD; component/footprint completion, PCB layout, physical fit and commissioning remain open.

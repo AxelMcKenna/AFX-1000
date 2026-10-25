@@ -33,11 +33,11 @@ Pitch travel has separate up/down ranges from 1 to 24 semitones. The extra range
 
 ## Hardware design
 
-The A07 housing study has a 334 × 157 mm enclosure, custom control layout and a separate B01 button-mechanism fixture. The CAD overview shows the assembled housing, exploded internals, printable parts and a button cutaway.
+The A08 housing model includes a 334 × 157 × 38 mm chassis, all 29 guided buttons, ten shaft-mount knobs, selector caps, optical inserts and the release mechanism. The print pack exports each part separately and includes a 3MF inventory with the required quantities.
 
-[![RMX CAD overview: assembled housing, exploded internals, printable parts and button mechanism cutaway](docs/assets/hardware/cad-overview.png)](docs/assets/hardware/cad-overview.png)
+[![A08 CAD overview: assembled housing, integrated controls, printable parts and button mechanism cutaway](docs/assets/hardware/cad-overview.png)](docs/assets/hardware/cad-overview.png)
 
-This is a CAD prototype snapshot. Full-unit button caps are simplified envelopes; the detailed B01 mechanism is shown separately. Translucent blocks represent component clearances. Physical fit and assembly remain to be validated. This study is separate from the active B1 budget prototype. See the [hardware guide](hardware/README.md).
+See the [editable CAD and rebuild instructions](hardware/cad/a08/README.md) and [printer handoff](hardware/cad/a08/PRINTING.md). Geometry and motion checks are recorded by the exporter; physical print fit, return force, optics and full electronics assembly remain to be validated. A08 is separate from the active B1 budget hardware prototype in the [hardware guide](hardware/README.md).
 
 ## Run it
 
