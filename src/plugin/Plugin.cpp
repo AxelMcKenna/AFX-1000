@@ -46,7 +46,9 @@ public:
         const int type=static_cast<int>(effective(rmx::Param::SceneType));
         double beats=1;
         for(const auto group:rmx::sceneDelayGroups)if(group.scene==type) {
-            const auto p=static_cast<rmx::Param>(static_cast<size_t>(group.first)+rmx::sceneDelayRegion(effective(rmx::Param::SceneTime)));
+            const auto position=effective(rmx::Param::SceneTime);
+            const auto region=type==1?rmx::echoDelayRegion(position):rmx::sceneDelayRegion(position);
+            const auto p=static_cast<rmx::Param>(static_cast<size_t>(group.first)+region);
             beats=rmx::sceneDelayBeats[static_cast<size_t>(effective(p))];
         }
         constexpr std::array feedbackParams{rmx::Param::BpfFeedbackChar,rmx::Param::EchoFeedbackChar,
@@ -107,8 +109,9 @@ public:
             }
         }
         midi.clear();rmx::Transport hostTransport;
+        const bool automaticTempo=engine.params.get(rmx::Param::AutoTempo)>.5f;
         if(auto* head=getPlayHead()) if(auto position=head->getPosition()) {
-            if(auto tempo=position->getBpm();tempo&&std::isfinite(*tempo)&&*tempo>=40&&*tempo<=240) { hostTransport.bpm=*tempo;hostTransport.synced=true; }
+            if(auto tempo=position->getBpm();automaticTempo&&tempo&&std::isfinite(*tempo)&&*tempo>=40&&*tempo<=240) { hostTransport.bpm=*tempo;hostTransport.synced=true; }
             if(auto ppq=position->getPpqPosition();ppq&&std::isfinite(*ppq))hostBeatEstimate=std::max(0.,*ppq);
             hostTransport.playing=position->getIsPlaying();
             hostTransport.beat=hostBeatEstimate;
@@ -120,7 +123,7 @@ public:
             if(transport.synced) { if(transport.playing)transport.beat+=begin*transport.bpm/(60*getSampleRate()); }
             else {
                 const auto clock=midiClock.position(static_cast<double>(sampleClock+begin)/getSampleRate());
-                if(clock.synced) { transport.synced=true;transport.bpm=clock.bpm;transport.beat=clock.beat;transport.playing=clock.playing; }
+                if(automaticTempo&&clock.synced) { transport.synced=true;transport.bpm=clock.bpm;transport.beat=clock.beat;transport.playing=clock.playing; }
             }
             std::array<rmx::Event,256> local{};size_t localCount=0;
             if(midiRollStopPending) { local[localCount++]={rmx::EventType::RollStop};midiRollStopPending=false; }

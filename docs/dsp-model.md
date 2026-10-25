@@ -1,6 +1,8 @@
 # DSP behavior and remaining matching work
 
-The engine now has separate portable Scene and Isolate processors. Both use bounded PMR audio storage and receive smoothed performance controls. The algorithms implement the documented signal functions; their numerical curves, rhythms and sound are project implementations pending comparison with an original RMX-1000. Passing these tests does not establish sonic equivalence.
+The engine has separate portable Scene and Isolate processors with bounded PMR audio storage and smoothed performance controls. Static factory Isolator, Echo and default Noise have now been fitted against the original RMX-1000 Plug-in 2.2.0 at 48 kHz. Noise uses statistical acceptance with original project excitation. Other effects, gestures, User profiles and hardware equivalence remain unverified. The [capture workflow and current results](audio-matching.md) state the measurement scope.
+
+The [25 October sound-matching investigation](../research/audio/rmx1000-fidelity.md) reviews primary sources, the current DSP and measurement gaps, and proposes a capture and fitting campaign with explicit accuracy criteria.
 
 The source references are Pioneer's [operating manual, effect types on pages 15–17](https://manualzz.com/doc/79710635/pioneer-rmx-1000-dj-effector-owner-s-manual) and [remixbox manual, parameter ranges on pages 12–14](https://manualzz.com/doc/58880568/pioneer-rmx-1000-remix-station-owner-s-manual). The linked pages are mirrors of the manufacturer-authored manuals.
 
@@ -59,11 +61,19 @@ The first implementation of the research recommendations is a separately built s
 
 The arm64 native Mac app, AU and VST3 compiled for review. No automated test suite, real-device soak, firmware deadline run, alias-rejection measurement or original-unit listening comparison was performed for this sound revision. Earlier test counts and performance measurements apply to their earlier snapshots. The next review should compare the offline pairs and exercise gain/decay/envelope settings before promoting this revision for live use.
 
+## Measured Noise update: 26 October 2026
+
+`CalibratedNoise.h` implements a fitted third-order IIR with numerator `b0*(1-z^-2)` and a 21-point shape-preserving coefficient/gain map from public original output measurements. It uses independently excited project noise in the two channels. At 48 kHz with Normal width and modulation mode, this replaces the earlier mono source, provisional sweep, bandwidth and gain compensation. The static Sub2-zero result passes the [documented statistical screen](audio-matching.md#noise-identification-and-statistics); the original random generator is not reproduced.
+
+Default Noise level now uses the measured −18/+6 dB span and central deadband. Its half-beat echo has a 0.35 first return and 0.5 feedback, without the earlier return damping. It continues after Noise is disabled. Other rates, widths and resonance settings retain the earlier project implementation. Modulation shapes, activation/release trajectories, User curves and effect switching still need measurement. Historical Noise values above describe their earlier revision.
+
 ## Isolate
 
-`include/rmx/Isolator.h` / `src/core/Isolator.cpp` own the state for each selected audio bus. The complementary crossover remains a first-order project implementation so all three neutral bands sum transparently. Matching the hardware's crossover slopes/phase still requires measurement.
+`include/rmx/Isolator.h` / `src/core/Isolator.cpp` own the state for each selected audio bus. At 48 kHz, the factory Isolator matches fourth-order Linkwitz–Riley branches at fitted crossovers of approximately 284 and 4649.04 Hz: low is LP4, mid is HP4 followed by LP4, and high is HP4. The branches sum directly, without phase compensation on low/high. The active centre therefore changes phase. Trans/Roll and Gate/Drive have the same measured neutral response and use these branches; their non-neutral processing remains unmatched. Cut/Add retains the earlier first-order project split pending its separate fit.
 
-- **Isolator:** individual per-band minimum choices of −6, −12, −18 dB or full kill; maximum choices of 0, +3, +6 or +9 dB. Current defaults are full kill / +6 dB. Finite ranges interpolate in dB; full kill uses a smooth amplitude curve. These defaults and intermediate knob curves are not claimed as measured factory calibration.
+`isolate_on` is appended after existing host parameter indices. It defaults off, and pressing a selected section button toggles it off. Knobs do not affect the disabled section. Older presets lacking the parameter retain enabled routing, as those versions always ran the section.
+
+- **Isolator:** individual per-band minimum choices of −6, −12, −18 dB or full kill; maximum choices of 0, +3, +6 or +9 dB. Factory full kill / +6 dB uses measured 8-bit travel: raw 0–1 is kill, 124–131 is unity, and 254–255 reaches +6 dB. The two remaining spans interpolate amplitude linearly. Raw position maps from the bipolar knob through `floor((control+1)*127.5)`. Other User endpoints use the same interpolation as a project extension; their original curves have not been measured.
 - **Cut:** a filtered bass/transient detector estimates the kick component. LOW reduces that detected component; MID high-passes the remaining signal; HI low-passes it. MID/HI filter resonance and kick-reduction strength are independently configurable. The detector currently uses a 180 Hz low-pass, 1 ms attack, 25 ms fast-envelope release, 250 ms baseline, 120 ms retrigger exclusion and 90 ms decay. These are tunable project values, not extracted hardware constants. Simultaneous instruments can overlap the detected component.
 - **Add:** clockwise controls add delayed audio from their respective original bands. Each band has its own User pattern. The current Pattern 1 taps are 1/8, 1/4, 1/2 and 1 beat; Pattern 2 is 1/8, 3/8, 5/8 and 7/8; Pattern 3 is 1/4, 1/2, 3/4 and 1. Gains decay across taps. These tap patterns have not yet been matched to the three original pattern choices.
 - **Trans:** counterclockwise position selects a musical rate and cut depth. The phase follows the performance beat, including Nudge. A short edge slew avoids discontinuous gate transitions. Three per-band rate maps are available; the original maps/waveforms remain unmeasured.
@@ -78,7 +88,7 @@ The parameter IDs `scene_depth`, `scene_time`, and `scene_resonance` remain stab
 | Effect | Main | Sub1 | Sub2 |
 | --- | --- | --- | --- |
 | BPF Echo | Band-pass cutoff | Echo division | Output modulation or filter resonance |
-| Echo | Dry/echo balance | Echo division | Output filter cutoff |
+| Echo | Added echo-return level; dry stays at unity | Echo division | Output filter cutoff |
 | Noise | Generated-noise filter cutoff | Generated-noise level | Modulation or resonance |
 | Spiral Up | Spiral delay-window length | Feedback echo division | Upward pitch amount |
 | Reverb Up | Reverb amount, additive dry path | Reverb level | High-pass output cutoff |
@@ -90,7 +100,9 @@ The parameter IDs `scene_depth`, `scene_time`, and `scene_resonance` remain stab
 
 These replace the former generic Sub2-to-feedback mapping. Echo repeat feedback is now independent of Sub2. Feedback character is stored separately for each applicable effect. Echo has filter width and Hold/DJM settings; the earlier filter-type option remains a project extension, rather than a claim that remixbox exposes that option. Hold/DJM controls the feedback mode; Hold freezes the circulating delay when Main reaches its full end.
 
-The four regions currently cover equal quarters of normalized knob travel, with provisional default divisions of 1/8, 1/4, 1/2 and 1 beat. The original boundaries, hysteresis and per-effect factory assignments still need measurement; old `scene_time` positions now follow this four-region map rather than the previous eight-step approximation. Echo's longest setting is exercised at 40 BPM, producing a measured 12-second delay.
+Factory Echo now uses measured static transitions at raw 66, 132 and 194, with divisions of 1/4, 1/2, 3/4 and 1 beat. Its Main gain is `clamp((raw-3)/189,0,1)`. The default output filter is a second-order Butterworth high-pass, with fitted cutoff `60*exp(max(rawSub2-4,0)*0.0168583737)` Hz and Q = 1/√2. Feedback is 0.7; the shared feedback default has been updated accordingly. Echo and calibrated Noise first truncate `60000/BPM` to whole milliseconds before applying their beat division. Original integer/fractional-tempo captures support this timing rule. Auto follows external clock in the plug-in; Auto off holds manual BPM. Resting controls now use original Auto-on, Main/Sub2 zero, Sub1 raw 128 and the Echo Release selection.
+
+Other Scene modes still use provisional equal-quarter regions and 1/8, 1/4, 1/2, 1-beat defaults. Their feedback/control maps remain unmatched. Echo's assignable User maximum is still exercised at 40 BPM, producing a 12-second delay. Gesture hysteresis, tempo changes and User settings require further captures. Selecting Echo for Release does not establish a measured Release model.
 
 BPF/HPF/LPF/Noise have separately saved modulation-versus-resonance modes, waveforms and resonance character. Supported waveforms are triangle, saw, square, deterministic sample-and-hold random, and side-chain. The current modulation acts on output amplitude; the exact original modulation circuit, rate/depth maps and side-chain behavior must be measured before sonic matching can be claimed. Filter width and Noise min/max level choices are stored independently. The old global Noise Color is retained as a project-specific tilt option; 0.5 leaves the generated noise untilted.
 

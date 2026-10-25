@@ -2,7 +2,7 @@
 
 We need recordings from a physical RMX-1000 before making claims about matching its sound. This workflow makes those recordings repeatable, keeps conversion delay separate from effect timing and produces measurements that can be reviewed alongside listening tests.
 
-There are no hardware reference recordings in this repository. Generated probes, synthetic measurement tests and offline engine stress are software evidence only.
+There are no hardware reference recordings in this repository. The [offline plug-in capture and fidelity tools](audio-matching.md) now have original RMX-1000 Plug-in 2.2.0 measurements, fitted static factory Isolator/Echo checks, Noise statistics and additional-tempo timing checks at 48 kHz. They support timestamped AU/VST2/VST3 capture, fractional bypass calibration, spectral diagnostics and stationary harmonic analysis. Software measurements do not establish hardware equivalence.
 
 ## Generate a session
 
@@ -24,7 +24,7 @@ Use a fresh directory for each session and render batch. Generation refuses a no
 | `rhythm.wav` | Different pitched decaying pulses in each channel, 120 BPM from 2 to 10 s | Delay divisions, pitch change, rhythm and stereo behavior |
 | `noise.wav` | Independent seeded white noise, from 2 to 10 s | Broad band levels, stereo width and continuous effect behavior |
 
-Probes last 16 seconds by default. Use `--duration 60` to extend trailing silence for feedback or reverb tails. The renderer adds another four seconds. Comparisons use the overlapping duration and report uncompared frame counts. Record long enough that the effect reaches the measured noise floor; a truncated tail cannot support a decay-time claim.
+Probes last 16 seconds by default. Use `--duration 60` to extend trailing silence for feedback or reverb tails. The renderer adds another four seconds by default; its optional final argument selects a tail of 0–120 seconds (`rmx_render input.wav output.wav preset.rmx 20`). Comparisons use the overlapping duration and report uncompared frame counts. Record long enough that the effect reaches the measured noise floor; a truncated tail cannot support a decay-time claim.
 
 The preset set covers neutral processing, all ten Scene FX and minimum/maximum positions for each Isolate band. These are starting points. Add cases for depth, resonance and Sub1 regions before deciding how close a particular effect is. Isolate modes with rhythmic actions, sampler triggering and Release FX require the event checks below. Static presets cannot test their transitions.
 

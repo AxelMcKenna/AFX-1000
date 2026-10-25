@@ -77,7 +77,7 @@ void ledFrame() {
     bits[0]=get(rmx::Param::Quantize)>.5f; bits[1]=get(rmx::Param::AutoTempo)>.5f;
     const int source=static_cast<int>(get(rmx::Param::SceneSource));
     bits[5]=source==0||source==2;bits[6]=source==1||source==2;
-    bits[7+static_cast<unsigned>(get(rmx::Param::IsolateMode))]=true;
+    if(get(rmx::Param::IsolateOn)>.5f)bits[7+static_cast<unsigned>(get(rmx::Param::IsolateMode))]=true;
     bits[12]=get(rmx::Param::XSource)>.5f;
     bits[17]=get(rmx::Param::Overdub)>.5f;bits[18]=get(rmx::Param::XHold)>.5f;
     if(get(rmx::Param::SceneOn)>.5f) bits[19+static_cast<unsigned>(get(rmx::Param::SceneType))]=true;

@@ -4,6 +4,11 @@ Investigations that inform the product: reference behavior, component candidates
 
 | Note | Purpose |
 | --- | --- |
+| [RMX-1000 sound matching](audio/rmx1000-fidelity.md) | Primary-source findings, DSP gap review, reference capture plan and proposed fidelity acceptance criteria |
+| [Factory 48 kHz measurements](audio/measurements/2026-10-26-factory-48k.json) | Original plug-in provenance, fitted Isolator/Echo findings and independent per-case waveform errors |
+| [Noise filter identification](audio/measurements/2026-10-26-noise-filter.json) | Common-seed output identification, coefficient calibration and excluded-position transfer checks |
+| [Noise statistical validation](audio/measurements/2026-10-26-noise-validation-48k.json) | Long stereo renders, per-channel band/level equivalence intervals and capture provenance |
+| [Clock and tempo measurements](audio/measurements/2026-10-26-clock-48k.json) | Whole-millisecond beat periods, Auto/manual behavior and additional-tempo impulse checks |
 | [Hardware component shortlist](hardware/components.md) | Control, sensor, mechanical and component candidates, source links and unresolved selections |
 | [Audio-design history](hardware/audio-design-history.md) | Preserved circuit/converter/gain/noise investigations and historical stage discussion |
 | [Reference and fidelity targets](../docs/specifications.md) | Current comparison targets and effect-characterization work still to perform |

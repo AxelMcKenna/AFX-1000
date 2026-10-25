@@ -299,7 +299,7 @@ def generate(directory, rate, duration=16):
                          "active_seconds": [2, 6] if name == "impulses" else [2, 10]})
     common = {"input_gain": 0, "output_gain": 0, "wet_only": 0, "auto_tempo": 0,
               "quantize": 0, "tempo": 120, "scene_source": 0, "isolate_source": 0,
-              "sample_source": 0, "sampler_mute": 1, "scene_on": 0,
+              "sample_source": 0, "sampler_mute": 1, "scene_on": 0, "isolate_on": 0,
               "scene_depth": .65, "scene_time": 3, "scene_resonance": .3}
     cases = [{"id": "neutral", "parameters": common.copy()}]
     scene_names = ["bpf-echo", "echo", "noise", "spiral-up", "reverb-up", "hpf-echo",
@@ -309,7 +309,7 @@ def generate(directory, rate, duration=16):
     for band in ("low", "mid", "high"):
         for position, value in (("cut", -1), ("boost", 1)):
             cases.append({"id": "isolate-" + band + "-" + position,
-                          "parameters": dict(common, isolate_mode=0, **{band: value})})
+                          "parameters": dict(common, isolate_mode=0, isolate_on=1, **{band: value})})
     for case in cases:
         case["preset"] = case["id"] + ".rmx"
         case["stimuli"] = list(names)

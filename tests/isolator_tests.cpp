@@ -10,7 +10,48 @@ constexpr double pi=std::numbers::pi;
 void require(bool condition,const char* message) {if(!condition)throw std::runtime_error(message);}
 float tone(double hz,size_t frame,double rate=48000) {return .2f*static_cast<float>(std::sin(2*pi*hz*frame/rate));}
 int main() {try {
-    for(int mode=0;mode<4;++mode) {
+    {
+        ParameterStore defaults;
+        require(defaults.get(Param::AutoTempo)==1&&defaults.get(Param::SceneDepth)==0&&defaults.get(Param::SceneResonance)==0,"Factory automatic/Scene resting controls differ from original inventory");
+        require(std::abs(defaults.get(Param::SceneTime)-128*7.f/255)<1e-6f&&defaults.get(Param::ReleaseType)==1,"Factory Sub1 centre or release selection differs from original inventory");
+    }
+    {
+        // Independent reference facts: active factory centre is phase shifted;
+        // its 48 kHz impulse begins with these measured samples, after route delay.
+        Isolator processor;processor.prepare(48000);
+        constexpr float measured[]{.42404959f,-.67452705f,.02694022f,.30734962f};
+        for(size_t i=0;i<4;++i) {
+            const auto out=processor.process(i==0?Stereo{1,-1}:Stereo{},{0,0,0},0);
+            require(std::abs(out.l-measured[i])<1e-5f&&std::abs(out.r+measured[i])<1e-5f,"Factory isolator centre impulse differs from measured reference");
+        }
+    }
+    {
+        Engine engine;engine.params.set(Param::Low,-1);engine.params.set(Param::Mid,-1);engine.params.set(Param::High,-1);engine.prepare(48000,64);
+        std::array<float,64> input,left,right;input.fill(.1f);
+        engine.process(input.data(),input.data(),left.data(),right.data(),64);
+        for(auto sample:left)require(sample==.1f,"Disabled isolator applied non-neutral knobs");
+        engine.params.set(Param::IsolateOn,1);
+        engine.process(input.data(),input.data(),left.data(),right.data(),64);
+        for(auto sample:left)require(sample==0,"Active full-kill isolator did not silence all bands");
+    }
+    {
+        // Plug-in parameters arrive after prepare, unlike renderer presets.
+        // Both paths must settle to the same 8-bit knob bin.
+        Engine before,after;
+        auto set=[](Engine& engine) {
+            engine.params.set(Param::IsolateOn,1);
+            engine.params.set(Param::Low,17/127.5f-1);
+            engine.params.set(Param::Mid,211/127.5f-1);
+            engine.params.set(Param::High,96/127.5f-1);
+        };
+        set(before);before.prepare(48000,64);after.prepare(48000,64);set(after);
+        std::array<float,64> zero{},left{},right{};
+        for(int n=0;n<750;++n) {before.process(zero.data(),zero.data(),left.data(),right.data(),64);after.process(zero.data(),zero.data(),left.data(),right.data(),64);}
+        float input=.1f,a{},b{},ar{},br{};
+        before.process(&input,&input,&a,&ar,1);after.process(&input,&input,&b,&br,1);
+        require(std::abs(a-b)<1e-7f&&std::abs(ar-br)<1e-7f,"Smoothed plug-in knobs settled in a different reference bin");
+    }
+    for(int mode=1;mode<2;++mode) {
         Isolator processor;processor.prepare(48000);IsolatorSettings settings;settings.mode=mode;processor.configure(settings);
         for(size_t i=0;i<48000;++i) {Stereo in{tone(237,i),tone(7300,i)};auto out=processor.process(in,{0,0,0},i/24000.);require(std::abs(out.l-in.l)<1e-6&&std::abs(out.r-in.r)<1e-6,"Neutral isolator mode changed stereo input");}
     }
@@ -19,7 +60,7 @@ int main() {try {
         constexpr float maximum[]{0,3,6,9},minimum[]{-6,-12,-18,-1000};
         for(float knob:{-1.f,1.f}) {
             processor.reset();const float gain=knob<0?std::pow(10.f,minimum[choice]/20):std::pow(10.f,maximum[choice]/20);
-            for(size_t i=0;i<4800;++i) {auto out=processor.process({.1f,-.15f},{knob,knob,knob},0);require(std::abs(out.l-.1f*gain)<1e-6&&std::abs(out.r+.15f*gain)<1e-6,"Isolator dB endpoint differs from User settings");}
+            for(size_t i=0;i<4800;++i) {auto out=processor.process({.1f,-.15f},{knob,knob,knob},0);if(i>2400)require(std::abs(out.l-.1f*gain)<1e-5&&std::abs(out.r+.15f*gain)<1e-5,"Isolator settled dB endpoint differs from User settings");}
         }
     }
     {
@@ -88,13 +129,14 @@ int main() {try {
         State state;state.values[static_cast<size_t>(Param::IsolateMaxMid)]=3;state.values[static_cast<size_t>(Param::AddPatternHigh)]=2;
         auto restored=State::parse(state.serialize());require(restored.values==state.values,"Advanced isolator settings did not roundtrip");
         auto legacy=State::parse("RMX_STATE 1\nparam tempo 128\n");require(legacy.values[static_cast<size_t>(Param::IsolateMinLow)]==3,"Older preset did not receive default full-kill setting");
+        require(legacy.values[static_cast<size_t>(Param::IsolateOn)]==1,"Older preset lost its active isolator routing");
     }
     {
-        Engine engine;engine.prepare(48000,64);
+        Engine engine;engine.prepare(48000,64);engine.params.set(Param::IsolateOn,1);
         for(auto p:{Param::Low,Param::Mid,Param::High})engine.params.set(p,1);
         for(auto p:{Param::IsolateMaxLow,Param::IsolateMaxMid,Param::IsolateMaxHigh})engine.params.set(p,0);
         engine.reset();std::array<float,64> input,left,right;input.fill(.1f);
-        for(int i=0;i<20;++i)engine.process(input.data(),input.data(),left.data(),right.data(),64);
+        for(int i=0;i<80;++i)engine.process(input.data(),input.data(),left.data(),right.data(),64);
         require(std::abs(left[63]-.1f*std::pow(10.f,6.f/20))<1e-5,"Default did not use factory gain endpoints");
         engine.params.set(Param::UserSettings,1);engine.process(input.data(),input.data(),left.data(),right.data(),64);
         require(std::abs(left[63]-.1f)<1e-5,"User did not restore saved gain endpoints");

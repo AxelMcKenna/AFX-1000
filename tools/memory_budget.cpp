@@ -22,6 +22,7 @@ int main() {
             std::array<float,64> in{},left{},right{};
             const auto before=arena.allocations();
             engine.params.set(rmx::Param::SceneOn,1);
+            engine.params.set(rmx::Param::IsolateOn,1);
             for(int mode=0;mode<4;++mode) for(int scene=0;scene<10;++scene) {
                 engine.params.set(rmx::Param::IsolateMode,static_cast<float>(mode));engine.params.set(rmx::Param::SceneType,static_cast<float>(scene));
                 for(auto p:{rmx::Param::Low,rmx::Param::Mid,rmx::Param::High}) engine.params.set(p,mode%2?-.9f:1.f);

@@ -8,7 +8,8 @@
 namespace rmx {
 struct IsolatorSettings {
     int mode{};
-    float lowHz{250},highHz{4000};
+    // Fitted to the factory isolator's measured 48 kHz transfer functions.
+    float lowHz{283.99944f},highHz{4649.0398f};
     std::array<int,3> minimum{3,3,3},maximum{2,2,2};
     std::array<int,3> addPattern{},transPattern{},rollPattern{},gateDepth{1,1,1},driveDepth{1,1,1};
     int kickStrength{1}; bool cutHpfResonance{},cutLpfResonance{};
@@ -29,6 +30,8 @@ private:
     };
     std::array<Band,3> bands;
     StateFilter kickFilter,cutHighPass,cutLowPass;
+    std::array<StateFilter,3> lowCrossover;
+    std::array<StateFilter,4> highCrossover;
     Stereo lowState{},highState{};
     IsolatorSettings settings;
     double secondsPerBeat{.5},rate{48000}; uint64_t frame{};

@@ -53,8 +53,8 @@ int main() { try {
         require(r.engine.params.get(Param::SceneOn)==1&&r.engine.params.get(Param::Low)==.5f&&r.engine.params.get(Param::Overdub)==1,"User release retention ignored");
     }
     {
-        Rig r; r.engine.enqueue({EventType::NudgeStart,0,1}); r.run(48000); r.engine.enqueue({EventType::NudgeStop}); r.run(128);
-        require(r.engine.params.get(Param::Tempo)==120&&r.engine.params.get(Param::AutoTempo)==0,"Nudge changed tempo settings");
+        Rig r;const auto automatic=r.engine.params.get(Param::AutoTempo); r.engine.enqueue({EventType::NudgeStart,0,1}); r.run(48000); r.engine.enqueue({EventType::NudgeStop}); r.run(128);
+        require(r.engine.params.get(Param::Tempo)==120&&r.engine.params.get(Param::AutoTempo)==automatic,"Nudge changed tempo settings");
         r.engine.params.set(Param::Quantize,1); r.engine.params.set(Param::XRoll,5); r.engine.enqueue({EventType::RollStart,0});
         require(r.run(10000)<1e-9,"Quantized roll started away from the beat grid");
     }
@@ -70,6 +70,12 @@ int main() { try {
         ControlSurface surface; ParameterStore p; std::vector<Event> events;
         auto read=[&](Param x){return p.get(x);}; auto write=[&](Param x,float v){p.set(x,v);}; auto send=[&](Event e){events.push_back(e);};
         auto edge=[&](Button b,bool down){surface.button(b,down,read,write,send);};
+        edge(Button::Isolator,true);edge(Button::Isolator,false);
+        require(p.get(Param::IsolateOn)==1&&p.get(Param::IsolateMode)==0,"First isolator button press did not enable the section");
+        edge(Button::Isolator,true);edge(Button::Isolator,false);
+        require(p.get(Param::IsolateOn)==0,"Second isolator button press did not bypass the section");
+        edge(Button::GateDrive,true);edge(Button::GateDrive,false);
+        require(p.get(Param::IsolateOn)==1&&p.get(Param::IsolateMode)==3,"Selecting another isolator mode did not enable it");
         edge(Button::Bank,true); edge(Button::Clap,true); edge(Button::Clap,false); edge(Button::Bank,false);
         require(p.get(Param::Bank)==2&&p.get(Param::SampleSource)==1&&events.empty(),"Bank chord did not silently select bank samples");
         edge(Button::Bank,true);edge(Button::Clap,true);edge(Button::Clap,false);edge(Button::Bank,false);

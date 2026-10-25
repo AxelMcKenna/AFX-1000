@@ -74,8 +74,11 @@ public:
                 const float next=bits==0?3.f:bits==1?0.f:bits==2?1.f:2.f;
                 write(Param::SceneSource,next); write(Param::IsolateSource,next); break;
             }
-            case Button::Isolator: case Button::CutAdd: case Button::TransRoll: case Button::GateDrive:
-                write(Param::IsolateMode,static_cast<float>(static_cast<int>(button)-static_cast<int>(Button::Isolator))); break;
+            case Button::Isolator: case Button::CutAdd: case Button::TransRoll: case Button::GateDrive: {
+                const auto mode=static_cast<float>(static_cast<int>(button)-static_cast<int>(Button::Isolator));
+                const bool same=read(Param::IsolateOn)>.5f&&read(Param::IsolateMode)==mode;
+                write(Param::IsolateMode,mode);write(Param::IsolateOn,same?0.f:1.f);break;
+            }
             case Button::Roll: write(Param::XSource,1); break;
             default: break;
         }

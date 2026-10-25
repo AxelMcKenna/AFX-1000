@@ -46,7 +46,7 @@ int main() {
             for(size_t i=0;i<256;++i) rig.l[i]=rig.r[i]=std::sin(i*.2f)*.4f;
             for(int scene=0;scene<10;++scene) for(int mode=0;mode<4;++mode) {
                 rig.engine.params.set(rmx::Param::SceneType,static_cast<float>(scene)); rig.engine.params.set(rmx::Param::SceneOn,1); rig.engine.params.set(rmx::Param::SceneDepth,1);
-                rig.engine.params.set(rmx::Param::IsolateMode,static_cast<float>(mode)); rig.engine.params.set(rmx::Param::Low,-1); rig.engine.params.set(rmx::Param::Mid,1); rig.engine.params.set(rmx::Param::High,1); rig.run(15);
+                rig.engine.params.set(rmx::Param::IsolateOn,1);rig.engine.params.set(rmx::Param::IsolateMode,static_cast<float>(mode)); rig.engine.params.set(rmx::Param::Low,-1); rig.engine.params.set(rmx::Param::Mid,1); rig.engine.params.set(rmx::Param::High,1); rig.run(15);
             }
             for(int release=0;release<3;++release) {
                 rig.engine.params.set(rmx::Param::ReleaseType,static_cast<float>(release)); rig.engine.params.set(rmx::Param::ReleaseAmount,1); rig.run(200);
@@ -65,7 +65,7 @@ int main() {
             require(difference>.01,"An enabled Scene FX has no audible processing");
         }
         {
-            Rig rig; rig.engine.params.set(rmx::Param::Quantize,0); rig.engine.params.set(rmx::Param::IsolateMode,2); rig.engine.params.set(rmx::Param::Low,1); rig.engine.params.set(rmx::Param::Mid,1); rig.engine.params.set(rmx::Param::High,1);
+            Rig rig; rig.engine.params.set(rmx::Param::IsolateOn,1);rig.engine.params.set(rmx::Param::Quantize,0); rig.engine.params.set(rmx::Param::IsolateMode,2); rig.engine.params.set(rmx::Param::Low,1); rig.engine.params.set(rmx::Param::Mid,1); rig.engine.params.set(rmx::Param::High,1);
             rig.engine.params.set(rmx::Param::SampleSource,1);rig.bank.slots[0].playback={120,true};rig.engine.enqueue({rmx::EventType::Trigger,0});rig.run(1);
             rig.engine.params.set(rmx::Param::XSource,1); rig.engine.enqueue({rmx::EventType::RollStart,0});
             trackAllocations=true;

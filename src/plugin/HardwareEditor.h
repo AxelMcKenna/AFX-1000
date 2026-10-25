@@ -34,7 +34,7 @@ public:
             }
             if(c.action==8) { const int source=static_cast<int>(value(Param::SceneSource)); const bool on=source==2||source==static_cast<int>(c.value); if(!on) { g.setColour(juce::Colours::black.withAlpha(.65f)); g.fillRoundedRectangle(r.reduced(3),4); } }
             if((c.kind==Kind::Toggle||c.kind==Kind::Choice||c.kind==Kind::Pad)&&c.param!=Param::UserSettings) {
-                const bool on=c.kind==Kind::Toggle?value(c.param)>.5f:c.kind==Kind::Choice?std::abs(value(c.param)-c.value)<.01f:selectedPad==static_cast<int>(c.value);
+                const bool on=(c.param!=Param::IsolateMode||value(Param::IsolateOn)>.5f)&&(c.kind==Kind::Toggle?value(c.param)>.5f:c.kind==Kind::Choice?std::abs(value(c.param)-c.value)<.01f:selectedPad==static_cast<int>(c.value));
                 const juce::Rectangle<float> lamp{r.getX()+8,r.getBottom()-9,r.getWidth()-16,3};
                 g.setColour(on?(c.param==Param::Quantize||c.param==Param::AutoTempo?juce::Colour(0xffffa83d):juce::Colour(0xff59efc2)):juce::Colour(0xff13251e));g.fillRoundedRectangle(lamp,1);
             }

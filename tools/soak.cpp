@@ -51,6 +51,7 @@ int main(int argc, char** argv) {
                 engine.params.set(rmx::Param::SceneTime, static_cast<float>(switches % 8));
                 engine.params.set(rmx::Param::SceneSource, static_cast<float>(switches % 4));
                 engine.params.set(rmx::Param::IsolateMode, static_cast<float>((switches / 10) % 4));
+                engine.params.set(rmx::Param::IsolateOn, switches % 7 != 0);
                 for (auto p : {rmx::Param::Low, rmx::Param::Mid, rmx::Param::High})
                     engine.params.set(p, static_cast<float>(static_cast<int>(random() % 201) - 100) / 100);
                 engine.params.set(rmx::Param::ReleaseType, static_cast<float>((switches / 3) % 3));

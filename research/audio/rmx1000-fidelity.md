@@ -1,0 +1,179 @@
+# RMX-1000 sound matching research
+
+- Updated: 2026-10-26
+- Status: active; original plug-in captured, static Isolator/Echo/Noise fitted at 48 kHz; full-device validation incomplete
+- Question: what evidence, DSP work and validation would support a defensible claim of very close RMX-1000 sound matching?
+- Related implementation: [Scene](../../src/core/Scene.cpp), [Isolate](../../src/core/Isolator.cpp), [engine and Release](../../src/core/Engine.cpp), [drums](../../include/rmx/FactoryDrums.h), [capture tools](../../tools/reference_audio.py).
+- Initial source audit revision: `5f1887fa9fbaa8b655b4a633b282121c802aba58`; linked manufacturer documents and papers were accessed on 2026-10-25. Implementation and numerical measurement updates below are dated 2026-10-26.
+
+Controlled input/output measurement has now replaced several provisional DSP choices. Static factory Isolator and Echo satisfy the declared waveform criterion against the original plug-in, and default Noise satisfies its statistical screen, within the scopes recorded below. The remaining effects and behaviors still use substantial project voicing. No full-device accuracy percentage or hardware equivalence has been established.
+
+## What the primary evidence establishes
+
+Pioneer's original [launch announcement](https://jpn.pioneer/ja/corp/news/press/index/1078) specifies 48 kHz processing, 24-bit converters, 20 Hz–20 kHz bandwidth, 0.005% THD, 102 dB S/N and 20 dB headroom. These are device specifications, not filter coefficients or effect algorithms. Start characterization at 48 kHz; resolve other host rates after the reference-rate behavior is understood.
+
+The manufacturer-authored [operating manual](https://www.adamasyn.sk/subory/952.pdf), particularly pages 15–17 and 26, describes routing, control functions and effect behavior. Noise is generated white noise with filtering and echo. Spiral has separate controls for its delay, echo timing and pitch shift. Reverb's user controls include effect amount and output filtering. These descriptions constrain a model without identifying its numerical implementation. This PDF is a retailer-hosted copy of Pioneer's document.
+
+The manufacturer-authored [remixbox manual](https://cf3.zzounds.com/media/RMX-1000_software_manual_remixbox_EN-7f81d750b47ca76a1b62fa66b08acabd.pdf), pages 12–14, provides the customization schema: four echo-time regions, filter widths, feedback characters, modulation/resonance choices, reverb sizes/times, per-mode crossover choices, drum gain/decay/envelope, asymmetric pitch ranges and Release settings. It does not publish the numerical values behind labels such as Default or Wild. Use the table to define coverage; measure the values. This is also a retailer-hosted manufacturer document.
+
+Pioneer's [product-planner interview](https://blog.pioneerdj.com/pioneer-dj-history/from-efx-to-rmx-we-explore-the-evolution-of-our-dj-effectors/), RMX-1000 section, explains that the macro knobs were intentionally designed to produce a build-up through a simple left-to-right gesture. This supports treating the complete control trajectory as part of the sound, including intermediate positions and transitions.
+
+Firmware version changes the target. Pioneer's [firmware history](https://downloads.support.alphatheta.com/firmwares/dj-effectors/RMX-1000/RMX-1000-Firmware-Change-History-Ver220-en.pdf) records changes to Spiral level, Back Spin fade-out, quantize/overdub and an Echo no-output fault. Capture firmware version, Default/User mode and the actual settings file for every session. Do not combine recordings of different revisions into one supposedly fixed target.
+
+## The official plug-in as an initial reference
+
+The [RMX-1000 Plug-in manual](https://www.eprodance.cz/user/documents/related_files/Pioneer/RMX_1000_manual_EN.pdf), pages 2–4, confirms that the plug-in runs in a compatible host, loads remixbox custom settings and can process audio without the physical RMX connected. It is a practical candidate for automated digital reference capture. Compatibility, installation, available formats and timing must be checked on the actual host; the manual does not establish support for this computer.
+
+Use the plug-in to isolate algorithm behavior from analog converters. Record its binary version/hash, host version, sample rate, block size, reported latency, transport, reset method and exported settings. Verify repeated renders before assuming deterministic behavior. Noise, modulation phase, unreset delay state or host scheduling can prevent a sample null even when the same plug-in is rendered twice.
+
+Treat a plug-in match and a physical-device match as separate milestones. Manufacturer descriptions of the same effects are not proof of bit-identical DSP or identical overload behavior. The eventual hardware comparison must include the analog path, connection-level setting and physical control response.
+
+## Define the accuracy target before fitting
+
+For a deterministic, repeatable signal with independently calibrated routing, define:
+
+```text
+relative RMS error = sqrt(sum((reference - candidate)^2) / sum(reference^2))
+error dB = 20 * log10(relative RMS error)
+```
+
+A proposed strict engineering target is relative RMS error at or below 0.01, equivalent to -40 dB error. This is a definition of one-percent waveform error, not a universal definition of 99-percent perceived similarity. One-percent error energy instead corresponds to -20 dB and ten-percent relative RMS error. Report which quantity is used. Exclude silent references from the ratio and test their absolute noise separately.
+
+Require absolute level, wet output and individual channels to pass their own checks. A strong dry path can conceal an incorrect effect in a whole-output metric. Where the measured routing permits it, characterize the direct and effect paths separately; do not subtract an assumed dry signal from an unknown topology.
+
+The repository's comparator demonstrates why correlation cannot be the headline score. A synthetic 1 kHz sine reduced to half amplitude returns correlation 1.0 while its level and relative RMS error are both -6.0206 dB. Its gain-fitted residual is essentially zero. Gain fitting is useful for diagnosis but must not erase a level mismatch from acceptance.
+
+Timing requires similar care. At 48 kHz, a one-sample shift of a 1 kHz sine gives 13.08% relative RMS error; at 10 kHz it gives 121.75%. These are analytical calculations, checked in Python. Establish fractional delay from independent bypass/calibration signals. Never optimize a separate shift for every wet recording: doing so can hide an incorrect echo or release onset.
+
+For stochastic noise and modulated late reverb, compare repeated-reference distributions: averaged spectra, band envelopes, decay curves, stereo coherence and modulation statistics. A different random sequence should not automatically fail a waveform-null requirement. Conversely, similar long-term spectra cannot excuse wrong transients, routing or audible modulation.
+
+Use blind listening as a second axis. [ITU-R BS.1116-3](https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1116-3-201502-I!!PDF-E.pdf), section 4, specifies a double-blind triple-stimulus hidden-reference method for small impairments. [ITU-R BS.1534-3](https://www.itu.int/rec/R-REC-BS.1534-3-201510-I/en) addresses intermediate quality and is useful earlier when alternatives are clearly different. Neither scale is a percentage of sonic identity. Randomized ABX can supplement these tests; failing to achieve statistical significance alone does not prove equivalence. Predeclare a practical equivalence margin, analysis and stopping rule, and account for repeated trials within listeners.
+
+## Findings in the current implementation
+
+These are source observations and measurement priorities, not findings from reference audio.
+
+| Area | Current code | What must be identified |
+| --- | --- | --- |
+| Isolate crossover | First-order complementary split with default 250 Hz / 4 kHz settings; shared crossover controls | Reference slopes, phase, frequency choices by mode, gain/kill curves and band interaction |
+| Cut and Gate | Project envelope detectors, thresholds, attack/release and kick extraction | Threshold versus input level, detector sidechain, retrigger behavior, pumping and frequency selectivity |
+| Add, Trans and Roll | Project tap/rate tables and capture boundaries | Each pattern's actual tap times/gains, duty cycle, beat phase, boundary behavior and transitions |
+| Echo family | Project cutoff/Q curves, feedback-character multipliers and hold threshold | Feedback-loop filtering versus output filtering, stereo topology, repeat gains, application ranges and complete knob maps |
+| Noise | Identical generated source in both channels before downstream processing; 90 Hz–12.5 kHz sweep, project compensation and one-beat echo | Bandwidth, resonance, gain, stereo correlation, modulation destination, sidechain law and echo coloration |
+| Spiral | Two crossfaded delay heads; one-octave endpoint, cosine weighting and project window sizes | Pitch trajectory, head/window topology, periodic artifacts, repeat-dependent pitch and feedback coloration |
+| Reverb | Eight fixed delay lines, Householder mixing, one-pole damping and project T60 mapping | Early reflections, frequency-dependent decay, diffusion, density, stereo behavior and motion during macro changes |
+| Crush | Rounded amplitude quantization followed by low-pass filtering | Quantizer law, signal-level dependence, possible sample holding/rate reduction, alias products and control law |
+| Factory drums | Original synthesized kick, snare, clap and hat with project normalization and envelopes | Actual reference transient, spectrum, pitch contour, noise distribution, gain, decay and retrigger behavior |
+| Release | Project Back Spin, Echo and Brake trajectories and lever thresholds | All lever regions, source capture, speed/time curves, fade, reset/keep logic and return-to-dry timing |
+| Output | Linked sample-peak limiter at 0.9995 with 50 ms recovery | Reference overload transfer, level-dependent pumping and interaction with feedback and summed drums |
+
+A specific reverb question needs resolution rather than an immediate code change. The launch description mentions reverb pitch/time movement, whereas the operating manual emphasizes effect amount and output filtering. The current code keeps room lengths independent of the Main macro. Capture sustained tones and impulses during Main sweeps to distinguish actual delay/pitch motion from filtering or increased wet level. Do not add a generic shimmer pitch shifter based solely on marketing wording.
+
+There are multiple engine paths. The preserved [standalone runtime](../../hardware/runtime/src/core/SceneEffects.cpp) contains different Scene algorithms. The [F06 build](../../hardware/firmware/full_engine/CMakeLists.txt) compiles the maintained desktop Engine, Scene and Isolator sources directly. Calibrate the maintained engine first, identify which firmware variant is being evaluated, and keep desktop/embedded parity tests alongside later measured comparisons.
+
+## Measurement campaign
+
+### 1. Freeze the reference and establish repeatability
+
+Use a known unit and firmware, one documented settings export and a fixed connection-level mode. Begin with Default, then add deliberately changed User cases. Capture photographs/control logs and asset hashes. Repeat representative captures at least three times before choosing tolerances; characterize variation in noise and modulation with more repetitions where necessary.
+
+Measure interface loopback, reference bypass and candidate bypass with unchanged gain/cabling. Record absolute gain, polarity, channel order, fractional delay, impulse response, noise and crosstalk. Add independent timing markers throughout longer sessions. A shared interface clock does not make a separate hardware processor's internal clock identical. Apply any justified correction from calibration evidence only and retain the raw capture.
+
+Compare digital reference against digital candidate first. For hardware comparisons, characterize the additional converter path explicitly or pass both candidates through equivalent conversion. An inverse filter that makes the waveform null can also erase real hardware character; distinguish diagnostic de-embedding from the delivered sound.
+
+### 2. Identify stationary structures
+
+Use channel-separated impulses, long exponential sine sweeps, stepped tones, two-tone inputs, independent noise, amplitude steps and silence. Acquire low-level linear responses before overload tests. Use measured analog levels as well as dBFS: interface gain and device connection mode can otherwise produce inconsistent operating points.
+
+[Farina's swept-sine method](https://www.angelofarina.it/Public/Papers/134-AES00.PDF) separates linear response and harmonic contributions through deconvolution for suitable approximately time-invariant systems. Extend the existing sweep generator with an inverse filter and proper analysis before treating its recordings as transfer-function measurements. Freeze controls and modulation during this test; one impulse response cannot represent a time-varying, nonlinear effect under arbitrary input.
+
+For Echo, estimate every repeat's delay, gain, spectral change and cross-channel leakage. In a simplified fixed feedback loop, repeat gain g and delay D imply T60 = -3D / log10(abs(g)). Use that relation as a diagnostic, not as proof of the reference topology. Filtering, saturation and mixed direct paths require richer fitting.
+
+For Drive and Crush, measure harmonics, intermodulation and alias products at multiple levels and frequencies. A low-level frequency sweep alone cannot identify their nonlinear behavior. For Gate/Cut, include isolated kick, bass, mixed kick+bass, transient steps and sustained tones so detector dynamics are not fitted to only one musical example.
+
+### 3. Map the controls and performance transitions
+
+Begin with nine positions across each main continuous control, including endpoints and center; refine around abrupt transitions, hold boundaries and resonance peaks. Sweep one control with the others fixed, then add targeted interactions rather than an enormous uninformative Cartesian product. Log the physically observed position or MIDI value; equal normalized positions are not evidence of equal internal parameters.
+
+Test at 80, 120 and 160 BPM initially, then extremes and triplets. Measure timing under manual tempo before AUTO/quantize so tracking errors do not contaminate delay identification. Capture slow sweeps, fast throws, effect changes with a live tail, on/off, retrigger, Panic, Release engagement and return. Add host block-size and sample-offset tests separately.
+
+### 4. Capture the distinctive sources
+
+For drums, start with four instruments times three decay choices times two envelopes: 24 settings at neutral pitch/gain, each with repeated isolated hits and sufficient silence. Then test pitch endpoints, intermediate bends, rapid rolls, overlapping instruments and level changes. Infer deterministic playback versus randomized generation from repeated captures. Do not assume an oscillator design or drum-machine ancestry from timbre alone.
+
+For Noise, use silence at the input to isolate its generated source, then add rhythmic sidechain stimuli. For reverb, record long tails until the measured floor; compare octave-band decay, early energy, buildup, stereo correlation and modulation. For Spiral, use harmonic material, a stable tone and clicks to distinguish pitch motion from moving delay and to expose crossfade artifacts. For Release, use both sustained tones and rhythmic material at every lever region, starting from neutral and active effects.
+
+### 5. Validate unseen material and combinations
+
+Reserve complete input clips, control positions and tempos that are never used for fitting. Include percussion, vocals, sustained harmonics, bass-heavy material and dense mixes with suitable provenance. Split by source performance/session rather than adjacent windows of the same recording. Evaluate the full routing, including INPUT/X-PAD selection, scene+isolate combinations and Release during feedback tails. A model that matches isolated blocks can still fail when level or internal state interacts.
+
+## Recommended modelling approach
+
+Use a structured model with measured parameter maps: filters and curves for static response, explicit delays and pitch heads for timing, envelope detectors for dynamics and a fitted reverb network for tails. Fit in stages and retain a small held-out suite after every change. Prefer monotonic constrained curves for controls where measurements support monotonicity; retain discontinuities and hysteresis when the reference actually has them.
+
+For reverb, fitting one broadband decay is insufficient. [Prawda, Välimäki and Schlecht](https://www.dafx.de/paper-archive/2019/DAFx2019_paper_46.pdf) study frequency-dependent decay control in feedback delay networks. Their method is relevant to matching damping once the target has been measured; it does not identify the RMX algorithm. The current eight-line architecture is a candidate, not a requirement. Change the topology if early reflections, density or modulation cannot be fitted adequately.
+
+Use learned models selectively if a measured nonlinear block resists a compact model. [Wright, Damskägg and Välimäki](https://dafx.de/paper-archive/2019/DAFx2019_paper_43.pdf) demonstrate recurrent models for specific amplifiers/distortion devices. Their error-to-signal ratio is an energy ratio; reported percentages cannot be read as percent perceptual accuracy. This work does not establish that a small network can learn an entire tempo-synced RMX with long feedback memory, generated noise, state transitions and unseen controls. Benchmark any learned block on the actual embedded budget before adopting it.
+
+Keep protective output behavior explicit. Begin matching below limiter activation, then characterize reference overload and candidate protection independently. A protection stage that changes normal operation becomes part of the measured difference. Preserve existing preset compatibility and expose reference-calibrated behavior separately from project extensions such as the wider pitch range.
+
+## Acceptance proposal
+
+These are proposed starting targets for review after reference repeatability is measured. They are not measured results or universal audibility thresholds.
+
+| Dimension | Proposed initial criterion |
+| --- | --- |
+| Deterministic digital waveform | At most 1% relative RMS error after independently established calibration; require both whole-output and isolated-effect tests where meaningful |
+| Level and filter response | Absolute level within 0.1 dB; band/transfer magnitude typically within 0.25 dB over declared passbands; inspect phase/group delay and excluded notches separately |
+| Delay and events | Digital repeat/onset timing within one 48 kHz sample where reference behavior permits; fractional route calibration assessed independently; analog trigger distributions reported separately |
+| Pitch | Within 2 cents for steady deterministic pitch tests; trajectories and transition artifacts evaluated separately |
+| Reverb/noise | Band decay within 5% and averaged band level within 0.5 dB as initial screening; confidence intervals from repeated captures, stereo and transient checks, then listening |
+| Controls and routing | Every documented mode and reset/source action covered; no missing Release or roll behavior hidden by an aggregate score |
+| Listening | Blind hidden-reference assessment with a predeclared equivalence margin and confidence intervals; no claim of identity from a small nonsignificant ABX result |
+
+The auxiliary limits are separate engineering screens and are not mathematically equivalent to one-percent waveform error. For example, 0.1 dB alone is about 1.16% amplitude difference. A deterministic case must satisfy its waveform criterion as well as the relevant screens. For stochastic cases, replace an invalid sample-null criterion with the specified statistical and listening evidence and label that distinction.
+
+Do not average all settings into a single flattering number. Report per-effect coverage, worst cases, parameter-range exclusions, repeatability floor and confidence intervals. A possible future statement is that a named version meets specified tolerances on a published suite; the suite and capture provenance make that claim reviewable.
+
+## Work to do next
+
+1. Use the acquired official plug-in 2.2.0 for further digital characterization; obtain physical-unit captures for the final hardware target.
+2. Extend the now-implemented [event/capture/fidelity workflow](../../docs/audio-matching.md) with remaining sweep, intermodulation, stereo/coherence and listening work. The earlier 17-preset/four-probe suite is only a seed.
+3. Extend the fitted bypass/Isolator/Echo/Noise work to other profiles, transitions and rates. Preserve measured timing quirks and independently calibrated routing.
+4. Fit the captured drums and remaining filter effects; then complete Spiral, Release, other Isolate modes, reverb and combined gestures against fresh data.
+5. Validate the maintained desktop core, F06 embedded path, host rate conversion and physical input/output as separate stages. Preserve the existing real-time allocation, memory and correctness tests throughout.
+
+Store raw captures and analysis output under `build/artifacts/research/` with hashes, settings, control logs and calibration metadata. Reference recordings used for analysis are not automatically cleared for redistribution as factory sample assets. Leave unmeasured cases marked as such in the [capture manifest](../../docs/reference-manifest.schema.json).
+
+## Open questions
+
+- A compatible official plug-in 2.2.0 is now captured. Can a physical RMX-1000 be measured, and which hardware/firmware version should be the final target?
+- How repeatable are Noise, modulation, drums and reverb after a documented reset?
+- Which control maps and defaults differ between the plug-in and hardware?
+- Does reverb macro motion change delay/pitch or mainly filtering and wet amount?
+- Which original behavior is required at overload, host rates other than 48 kHz and the extended project pitch range?
+- Can measured matching fit the F06 CPU/memory deadline on a real board, including worst-case simultaneous effects?
+
+## Implementation progress on 26 October 2026
+
+The [offline capture and measurement workflow](../../docs/audio-matching.md) now has a native AU/VST3 host, sample-timestamped parameter/MIDI events, preserved state and hash receipts, fractional bypass calibration, per-channel unscaled waveform criteria, STFT/band diagnostics and stationary harmonic fitting. The host shares its process-local modern AU registration and transport implementation with the existing plug-in probe.
+
+Thirty CTest groups passed, including twelve new known-signal numerical regressions. Seven native host tests passed with the current project VST3 and seven with the project AU. The project smoke probe also passed with all 152 parameters. A persistent host fixture under `build/artifacts/research/host-validation-2026-10-26/` demonstrates block-size invariance and correctly fails a known -6 dB level change. These remain project/synthetic checks.
+
+The official Mac plug-in 2.2.0 was downloaded from AlphaTheta's support link; its installer notarization and bundle signatures verified using macOS trust services. Its Intel-only AU was unavailable to the modern registry on macOS 26.6.2. A minimal original public VST2 ABI adapter subsequently loaded the package's signed VST2 bundle successfully under Rosetta, without installer scripts or importing manufacturer DSP implementation.
+
+Actual reference captures now establish a bit-exact digital bypass with 32 samples of unreported latency at 48 kHz. Static Isolator and Echo captures were bit-exact across checked host block sizes of 32, 128 and 256. At 44.1 and 96 kHz, bypass instead shows filtering and different latency, so those rates are excluded from the first fitted model.
+
+Factory Isolator was identified as directly summed LP4 / HP4–LP4 / HP4 branches, with fitted crossovers near 284 and 4649.04 Hz. Its active centre has phase shift; disabling the section is a true dry bypass, even with non-neutral knobs. The measured full-kill/+6 dB knob law is linear in amplitude outside raw centre deadband 124–131. The engine now implements those findings and appends an explicit section-enable parameter while preserving earlier parameter indices and legacy preset routing.
+
+Factory Echo preserves unity dry signal, has output amount `clamp((rawMain-3)/189,0,1)`, and uses quarter/half/three-quarter/one-beat divisions with static boundaries at raw 66, 132 and 194. Its output is high-passed with a second-order Butterworth response; Sub2 follows the fitted exponential cutoff described in the [DSP notes](../../docs/dsp-model.md). Repeats decay by approximately 0.7 in amplitude. These measured behaviors replace the earlier dry/wet crossfade, provisional beat defaults and filter map.
+
+Independent validation uses stereo broadband, chirp, percussive and multitone signals, including mixed positions withheld from fitting. Thirty-five Isolator cases and twenty-five Echo cases at 120 BPM passed the one-percent unscaled per-channel RMS criterion, followed by another twenty-five Echo cases at 137 BPM. Numerical results and capture/renderer hashes are retained in the [48 kHz measurement summary](measurements/2026-10-26-factory-48k.json). No gain matching or wet delay search was used. The [reproduction recipe](../../docs/audio-matching.md) preserves raw recordings locally and checks file hashes before comparison.
+
+Further clock measurements show that synchronized Echo and Noise truncate the beat period to whole milliseconds before applying the delay division. At 128 BPM the half-beat delay is 11,232 frames at 48 kHz, instead of the ideal 11,250. Integer and fractional BPM captures support this map. Original Auto-off holds manual tempo; Auto-on follows the supplied host tempo. The clone's plug-in now follows that selection, and resting controls match the original inventory. The [clock record](measurements/2026-10-26-clock-48k.json) retains the observations and impulse comparisons.
+
+Noise was then activated using a processing-time button event; initialization-only requests had read back off. Its original output is independently excited in stereo and repeatable after the same reset. Common-seed captures identify a third-order filter with a fixed differencing numerator. The project now uses that fitted response with its own stereo generator, the measured −18/+6 dB level span/deadband, and a half-beat echo with 0.35 first return and 0.5 feedback. Four positions excluded from coefficient fitting pass the [600-second statistical screen](measurements/2026-10-26-noise-validation-48k.json) at Default/Normal width, Sub2 zero, 48 kHz and 120 BPM. This is statistical response evidence, not a sample null or listening result.
+
+Factory one-shot drum outputs have also been captured locally for analysis; the distributed synthesized substitutes have not yet been matched or replaced. Manufacturer audio remains outside Git.
+
+This is a measured static software milestone. It does not establish full-device 99% similarity, hardware equivalence, overload behavior, host-rate conversion, modulation/resonance/reverb matching, sampler/Release matching, control-transition accuracy or listening equivalence. Those remain the next stages of the same measurement campaign.

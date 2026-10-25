@@ -17,7 +17,8 @@ enum class Param : uint16_t {
     LowCrossover, HighCrossover, Feedback, ReverbDecay, NoiseColor,
     Swing,SamplerMute,UserSettings,ReleaseKeepScene,ReleaseKeepIsolate,ReleaseKeepSampler,IsolateMinLow,IsolateMinMid,IsolateMinHigh,IsolateMaxLow,IsolateMaxMid,IsolateMaxHigh,CutKickStrength,CutHpfResonance,CutLpfResonance,AddPatternLow,AddPatternMid,AddPatternHigh,TransPatternLow,TransPatternMid,TransPatternHigh,BandRollPatternLow,BandRollPatternMid,BandRollPatternHigh,GateDepthLow,GateDepthMid,GateDepthHigh,DriveDepthLow,DriveDepthMid,DriveDepthHigh,BpfModMode,BpfWave,BpfResonance,BpfFeedbackChar,HpfModMode,HpfWave,HpfResonance,HpfFeedbackChar,LpfModMode,LpfWave,LpfResonance,LpfFeedbackChar,BpfWidth,CrushWave,CrushWidth,CrushFeedbackChar,NoiseModMode,NoiseWave,NoiseResonance,NoiseWidth,NoiseMinimum,NoiseMaximum,EchoFilter,EchoFeedbackMode,EchoFeedbackChar,SpiralUpPitchMode,SpiralUpTimeSpan,SpiralUpFeedbackChar,SpiralDownPitchMode,SpiralDownTimeSpan,SpiralDownFeedbackChar,ReverbUpRoomSize,ReverbUpTime,ReverbDownRoomSize,ReverbDownTime,
     BpfDelay1, BpfDelay2, BpfDelay3, BpfDelay4, EchoDelay1, EchoDelay2, EchoDelay3, EchoDelay4, SpiralUpDelay1, SpiralUpDelay2, SpiralUpDelay3, SpiralUpDelay4, HpfDelay1, HpfDelay2, HpfDelay3, HpfDelay4, LpfDelay1, LpfDelay2, LpfDelay3, LpfDelay4, CrushDelay1, CrushDelay2, CrushDelay3, CrushDelay4, SpiralDownDelay1, SpiralDownDelay2, SpiralDownDelay3, SpiralDownDelay4, EchoWidth, ReverbUpFilter, ReverbDownFilter, SampleSource,
-    XPadBeat1, XPadBeat2, XPadBeat3, XPadBeat4, XPadBeat5, XPadBeat6, XPadBeat7, XPadBeat8, KickGain, SnareGain, ClapGain, HatGain, KickDecay, SnareDecay, ClapDecay, HatDecay, KickEnvelope, SnareEnvelope, ClapEnvelope, HatEnvelope, PitchDownRange, PitchUpRange, Count
+    XPadBeat1, XPadBeat2, XPadBeat3, XPadBeat4, XPadBeat5, XPadBeat6, XPadBeat7, XPadBeat8, KickGain, SnareGain, ClapGain, HatGain, KickDecay, SnareDecay, ClapDecay, HatDecay, KickEnvelope, SnareEnvelope, ClapEnvelope, HatEnvelope, PitchDownRange, PitchUpRange,
+    IsolateOn, Count // Append new host parameters to preserve existing indices.
 };
 inline constexpr size_t parameterCount = static_cast<size_t>(Param::Count);
 struct ParameterInfo { std::string_view id, name; float min, max, initial; bool discrete; bool advanced{}; };
@@ -28,12 +29,12 @@ inline constexpr std::array<ParameterInfo, parameterCount> parameters {{
     {"wet_only", "Send/return", 0, 1, 0, true},
     {"tempo", "BPM", 40, 240, 120, false},
     {"quantize", "Quantize", 0, 1, 1, true},
-    {"auto_tempo", "Auto BPM", 0, 1, 0, true},
+    {"auto_tempo", "Auto BPM", 0, 1, 1, true},
     {"scene_type", "Scene FX", 0, 9, 0, true},
     {"scene_on", "Scene enabled", 0, 1, 0, true},
-    {"scene_depth", "Scene depth", 0, 1, 0.35f, false},
-    {"scene_time", "Scene sub parameter 1", 0, 7, 3, false},
-    {"scene_resonance", "Scene sub parameter 2", 0, 1, 0.3f, false},
+    {"scene_depth", "Scene depth", 0, 1, 0, false},
+    {"scene_time", "Scene sub parameter 1", 0, 7, 128*7.f/255, false},
+    {"scene_resonance", "Scene sub parameter 2", 0, 1, 0, false},
     {"scene_source", "Scene source", 0, 3, 2, true},
     {"isolate_mode", "Isolator mode", 0, 3, 0, true},
     {"low", "Low", -1, 1, 0, false},
@@ -47,12 +48,12 @@ inline constexpr std::array<ParameterInfo, parameterCount> parameters {{
     {"x_source", "X-Pad source", 0, 1, 0, true},
     {"bank", "Sample bank", 0, 3, 0, true},
     {"overdub", "Overdub", 0, 1, 0, true},
-    {"release_type", "Release FX", 0, 2, 0, true},
+    {"release_type", "Release FX", 0, 2, 1, true},
     {"release_amount", "Release lever", 0, 1, 0, false},
     {"release_time", "Release time", 0.125f, 4, 1, false, true},
-    {"low_crossover", "Low crossover", 80, 500, 250, false, true},
-    {"high_crossover", "High crossover", 1000, 10000, 4000, false, true},
-    {"feedback", "Delay feedback", 0, 0.94f, 0.55f, false, true},
+    {"low_crossover", "Low crossover", 80, 500, 283.99944f, false, true},
+    {"high_crossover", "High crossover", 1000, 10000, 4649.0398f, false, true},
+    {"feedback", "Delay feedback", 0, 0.94f, 0.7f, false, true},
     {"reverb_decay", "Reverb decay", 0.1f, 0.95f, 0.72f, false, true},
     {"noise_color", "Noise color", 0, 1, 0.5f, false, true},
     {"swing", "Swing", 0, 0.45f, 0, false, true},
@@ -105,9 +106,9 @@ inline constexpr std::array<ParameterInfo, parameterCount> parameters {{
     {"noise_wave", "Noise modulation wave", 0, 4, 0, true, true},
     {"noise_resonance", "Noise resonance character", 0, 2, 0, true, true},
     {"noise_width", "Noise filter width", 0, 2, 1, true, true},
-    {"noise_minimum", "Noise minimum level", 0, 3, 0, true, true},
-    {"noise_maximum", "Noise maximum level", 0, 3, 0, true, true},
-    {"echo_filter", "Echo filter type", 0, 2, 0, true, true},
+    {"noise_minimum", "Noise minimum level", 0, 3, 1, true, true},
+    {"noise_maximum", "Noise maximum level", 0, 3, 2, true, true},
+    {"echo_filter", "Echo filter type", 0, 2, 2, true, true},
     {"echo_feedback_mode", "Echo feedback mode", 0, 1, 1, true, true},
     {"echo_feedback_character", "Echo feedback character", 0, 2, 1, true, true},
     {"spiral_up_pitch_mode", "Spiral Up pitch variation", 0, 1, 0, true, true},
@@ -124,9 +125,9 @@ inline constexpr std::array<ParameterInfo, parameterCount> parameters {{
     {"bpf_delay_2", "BPF Echo delay region 2", 0, 6, 2, true, true},
     {"bpf_delay_3", "BPF Echo delay region 3", 0, 6, 3, true, true},
     {"bpf_delay_4", "BPF Echo delay region 4", 0, 6, 5, true, true},
-    {"echo_delay_1", "Echo delay region 1", 0, 8, 1, true, true},
-    {"echo_delay_2", "Echo delay region 2", 0, 8, 2, true, true},
-    {"echo_delay_3", "Echo delay region 3", 0, 8, 3, true, true},
+    {"echo_delay_1", "Echo delay region 1", 0, 8, 2, true, true},
+    {"echo_delay_2", "Echo delay region 2", 0, 8, 3, true, true},
+    {"echo_delay_3", "Echo delay region 3", 0, 8, 4, true, true},
     {"echo_delay_4", "Echo delay region 4", 0, 8, 5, true, true},
     {"spiral_up_delay_1", "Spiral Up delay region 1", 0, 6, 1, true, true},
     {"spiral_up_delay_2", "Spiral Up delay region 2", 0, 6, 2, true, true},
@@ -173,7 +174,8 @@ inline constexpr std::array<ParameterInfo, parameterCount> parameters {{
     {"clap_envelope", "Clap envelope", 0, 1, 0, true, true},
     {"hat_envelope", "Hi-hat envelope", 0, 1, 0, true, true},
     {"pitch_down_range", "Pitch down range (semitones)", 1, 24, 24, true, true},
-    {"pitch_up_range", "Pitch up range (semitones)", 1, 24, 24, true, true}
+    {"pitch_up_range", "Pitch up range (semitones)", 1, 24, 24, true, true},
+    {"isolate_on", "Isolate enabled", 0, 1, 0, true}
 }};
 inline constexpr std::array<std::string_view, 10> sceneNames {"BPF Echo", "Echo", "Noise", "Spiral Up", "Reverb Up", "HPF Echo", "LPF Echo", "Crush Echo", "Spiral Down", "Reverb Down"};
 inline constexpr std::array<std::string_view, 4> isolateNames {"Isolate", "Cut / Add", "Trans / Roll", "Gate / Drive"};
@@ -199,6 +201,12 @@ inline constexpr std::array<SceneDelayGroup,7> sceneDelayGroups{{
 inline size_t sceneDelayRegion(float sub1) noexcept {
     if(!std::isfinite(sub1))return 0;
     return std::min(size_t{3},static_cast<size_t>(static_cast<double>(std::clamp(sub1,0.f,7.f))*(4./7)));
+}
+inline size_t echoDelayRegion(float sub1) noexcept {
+    if(!std::isfinite(sub1))return 0;
+    const auto raw=std::clamp(static_cast<int>(std::floor(std::clamp(sub1,0.f,7.f)*(255.f/7)+1.e-4f)),0,255);
+    // Independent static factory captures locate these three transitions.
+    return raw<66?0:raw<132?1:raw<194?2:3;
 }
 inline constexpr std::array<std::string_view,4> isolatorMinNames{"-6 dB","-12 dB","-18 dB","Full kill"};
 inline constexpr std::array<std::string_view,4> isolatorMaxNames{"0 dB","+3 dB","+6 dB","+9 dB"};

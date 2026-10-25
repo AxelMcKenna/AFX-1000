@@ -1,5 +1,6 @@
 #pragma once
 #include "Dsp.h"
+#include "CalibratedNoise.h"
 #include <array>
 #include <memory_resource>
 #include <vector>
@@ -9,15 +10,16 @@ namespace rmx {
 struct SceneSettings {
     int type{};
     std::array<int,10> sub2Mode{},waveform{},resonance{},width{1,1,1,1,1,1,1,1,1,1},feedbackCharacter{1,1,1,1,1,1,1,1,1,1};
-    int echoFilter{},echoFeedbackMode{1},noiseMinimum{},noiseMaximum{};
+    int echoFilter{2},echoFeedbackMode{1},noiseMinimum{1},noiseMaximum{2};
     std::array<int,2> spiralPitchMode{},spiralTimeSpan{1,1},roomSize{},reverbTime{1,1};
     std::array<int,2> reverbFilter{2,0};
     std::array<std::array<int,4>,10> delayBeats=[] {
         std::array<std::array<int,4>,10> choices{};
         for(auto& regions:choices)regions={1,2,3,5};
+        choices[1]={2,3,4,5};
         return choices;
     }();
-    float feedback{.55f},decay{.72f},noiseColor{.5f};
+    float feedback{.7f},decay{.72f},noiseColor{.5f};
     bool operator==(const SceneSettings&) const=default;
 };
 class SceneProcessor {
@@ -31,6 +33,7 @@ private:
     std::array<FractionalDelay,8> room;
     std::array<Stereo,8> damping{};
     StateFilter mainFilter,echoFilter,noiseTilt,noisePolish;
+    CalibratedNoise calibratedNoise;
     SceneSettings settings;
     double rate{48000},pitchPhase{};uint64_t frame{};
     uint32_t random{0x12345678};

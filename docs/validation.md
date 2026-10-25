@@ -238,3 +238,15 @@ thermal/SD/USB checks, audio/noise/headroom measurements, fault-to-dry timing,
 startup/dropout tests and reference-unit comparisons remain required. B1 does not
 add USB audio/MIDI or complete original SD/RSD compatibility, lighting feedback
 or exact original effect behavior.
+
+## Measured DSP checkpoint: 26 October 2026
+
+The original RMX-1000 Plug-in 2.2.0 is now captured through its public VST2 interface. The [measurement workflow](audio-matching.md) and [research records](../research/audio/measurements/) define the exact settings, hashes and exclusions.
+
+- A clean snapshot of `5f1887f` plus the audio changes passes all 31 CTest groups. The latest shared-worktree run separately encountered failures in the ongoing rail-disconnect/thermal electronics fixtures; those uncommitted hardware changes are outside this audio checkpoint.
+- Eight offline-host regressions pass for each current project AU and VST3, including event timing, parameter readback logs, state preservation and Auto/manual tempo selection. The project VST3 smoke probe passes 359 checks across 153 project parameters.
+- Thirty-five static Isolator cases and fifty static Echo cases across 120/137 BPM pass the declared per-channel waveform criterion. The worst errors are approximately 0.0014% and 0.017%; isolated Echo returns also pass. These are scoped error ratios, not percentages of perceived similarity.
+- Four default-Noise positions excluded from coefficient fitting pass 600-second per-channel band/level statistical screens. The original random generator is not reproduced.
+- Integer/fractional tempo impulses and Noise tails confirm whole-millisecond beat periods before subdivision. Auto off holds manual tempo in the plug-in; Auto on follows the host.
+
+Native app/AU/VST3 builds succeed. Desktop timing remains below the benchmark budget. Original hardware, other sample rates, overload, modulation/resonance, remaining effects, factory sampler matching, Release and combined gestures remain unverified; this is not full-device 99% conformance or an embedded deadline result.

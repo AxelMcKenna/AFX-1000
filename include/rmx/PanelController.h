@@ -11,7 +11,12 @@ bool activate(const Control& c,Read read,Write write,Send send,bool shift=false,
             else if(shift&&c.param==Param::XHold) toggle(Param::SamplerMute);
             else { toggle(c.param); if(c.param==Param::XHold&&read(c.param)<.5f) send(Event{EventType::RollStop}); }
             return true;
-        case Kind::Choice: write(c.param,c.value); return true;
+        case Kind::Choice:
+            if(c.param==Param::IsolateMode) {
+                const bool same=read(Param::IsolateOn)>.5f&&read(c.param)==c.value;
+                write(c.param,c.value);write(Param::IsolateOn,same?0.f:1.f);
+            } else write(c.param,c.value);
+            return true;
         case Kind::Pad:
             if(shift) send(Event{EventType::DeletePad,static_cast<uint8_t>(c.value)});
             else if(alt) send(Event{read(Param::Overdub)>.5f?EventType::MutePad:EventType::SelectPad,static_cast<uint8_t>(c.value)});

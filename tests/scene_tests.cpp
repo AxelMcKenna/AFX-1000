@@ -13,6 +13,29 @@ float sine(double frequency,size_t i) {return .2f*static_cast<float>(std::sin(2*
 double energy(Stereo x) {return x.l*x.l+x.r*x.r;}
 int main() {try {
     {
+        for(unsigned raw:{0u,65u,66u,131u,132u,193u,194u,255u}) {
+            const size_t expected=raw<66?0:raw<132?1:raw<194?2:3;
+            require(echoDelayRegion(raw*7.f/255)==expected,"Echo region differs from measured public control boundary");
+        }
+        for(const auto [bpm,expected]:std::array<std::pair<double,size_t>,5>{{{90,15984},{128,11232},{137,10488},{128.5,11184},{123.9,11616}}}) {
+            SceneProcessor processor;processor.prepare(48000);SceneSettings settings;settings.type=1;processor.configure(settings);
+            size_t onset=0;
+            for(size_t i=0;i<=expected;++i) {
+                const auto out=processor.process(i==0?Stereo{.25f,0}:Stereo{},1,128*7.f/255,0,1,bpm,0,0);
+                if(i>0&&onset==0&&std::abs(out.l)>1e-5f)onset=i;
+            }
+            require(onset==expected,"Echo timing differs from measured whole-millisecond beat period");
+        }
+        SceneProcessor processor;processor.prepare(48000);SceneSettings settings;settings.type=1;processor.configure(settings);
+        for(size_t i=0;i<=24000;++i) {
+            const auto out=processor.process(i==0?Stereo{.25f,0}:Stereo{},1,128*7.f/255,0,1,120,i/24000.,0);
+            if(i==0)require(out.l==.25f,"Factory Echo reduced its dry signal");
+            if(i==12000)require(std::abs(out.l-.24861544f)<1e-5f,"Factory Echo first tap differs from measured reference");
+            if(i==24000)require(std::abs(out.l-.1740308f)<1e-5f,"Factory Echo repeat differs from measured reference");
+            require(out.r==0,"Factory Echo introduced cross-channel output");
+        }
+    }
+    {
         FractionalDelay delay;
         require(energy(delay.read(1))==0,"Unprepared delay read was not silent");
         delay.push({1,-1});
@@ -62,14 +85,14 @@ int main() {try {
         // Verify the adapter-independent parameter path and Default/User
         // switching using the actual engine, rather than only Scene settings.
         Engine engine;
-        engine.params.set(Param::Tempo,40);engine.params.set(Param::SceneType,1);engine.params.set(Param::SceneOn,1);
+        engine.params.set(Param::AutoTempo,0);engine.params.set(Param::Tempo,40);engine.params.set(Param::SceneType,1);engine.params.set(Param::SceneOn,1);
         engine.params.set(Param::SceneDepth,1);engine.params.set(Param::SceneTime,.5f);engine.params.set(Param::SceneResonance,0);
         engine.params.set(Param::EchoDelay1,4);
         for(int user=0;user<2;++user) {
             engine.params.set(Param::UserSettings,static_cast<float>(user));engine.prepare(8000,64);
             std::array<float,64> zero{},left{},right{};
             for(unsigned block=0;block<20;++block)engine.process(zero.data(),zero.data(),left.data(),right.data(),64);
-            size_t onset=0;const size_t expected=user?9000:1500;
+            size_t onset=0;const size_t expected=user?9000:3000;
             for(size_t i=0;i<=expected+2;++i) {
                 const float input=i==0?.5f:0;float l{},r{};engine.process(&input,&input,&l,&r,1);
                 if(i>0&&onset==0&&std::abs(l)>1e-8)onset=i;
@@ -93,39 +116,55 @@ int main() {try {
         }
     }
     {
-        auto noisePower=[](float sub1,float macro,float sidechain,int wave) {
-            SceneProcessor p;p.prepare(48000);SceneSettings s;s.type=2;s.feedback=0;s.waveform[2]=wave;p.configure(s);
+        auto noisePower=[](float sub1,float macro,float sidechain,int wave,int minimum=1) {
+            SceneProcessor p;p.prepare(48000);SceneSettings s;s.type=2;s.feedback=0;s.waveform[2]=wave;s.noiseMinimum=minimum;p.configure(s);
             double sum=0;unsigned crossings=0;bool positive=false;std::array<double,4> spectrum{};
             for(size_t i=0;i<96000;++i) {
                 const auto out=p.process({},macro,sub1,wave==4?.8f:0,1,120,i/24000.,sidechain);
                 if(i>=48000) {
                     sum+=energy(out);const bool next=out.l>0;if(next&&!positive)++crossings;positive=next;
-                    spectrum[0]+=out.l*std::cos(2*pi*100*i/48000);spectrum[1]+=out.l*std::sin(2*pi*100*i/48000);
+                    spectrum[0]+=out.l*std::cos(2*pi*600*i/48000);spectrum[1]+=out.l*std::sin(2*pi*600*i/48000);
                     spectrum[2]+=out.l*std::cos(2*pi*5000*i/48000);spectrum[3]+=out.l*std::sin(2*pi*5000*i/48000);
                 }
             }
             return std::array<double,4>{sum,static_cast<double>(crossings),spectrum[0]*spectrum[0]+spectrum[1]*spectrum[1],spectrum[2]*spectrum[2]+spectrum[3]*spectrum[3]};
         };
-        require(noisePower(0,.5f,0,0)[0]==0,"Noise Sub1 zero does not mute the white-noise source");
+        require(noisePower(0,.5f,0,0,0)[0]==0,"Noise User minimum Off does not mute the white-noise source");
+        const double factoryMinimum=noisePower(0,.5f,0,0)[0],factoryMaximum=noisePower(7,.5f,0,0)[0];
+        require(std::abs(factoryMinimum/factoryMaximum-std::pow(10.,-24./10))<1e-6,"Factory Noise level endpoints differ from measured -18/+6 dB span");
         const auto low=noisePower(7,.2f,0,0),high=noisePower(7,.8f,0,0);
-        std::cout<<"Noise low/high cutoff: energy "<<low[0]<<"/"<<high[0]<<", crossings "<<low[1]<<"/"<<high[1]<<", 100:5000 Hz power "<<low[2]/low[3]<<"/"<<high[2]/high[3]<<'\n';
+        std::cout<<"Noise low/high cutoff: energy "<<low[0]<<"/"<<high[0]<<", crossings "<<low[1]<<"/"<<high[1]<<", 600:5000 Hz power "<<low[2]/low[3]<<"/"<<high[2]/high[3]<<'\n';
         require(low[0]>1&&low[2]>low[3]*20&&high[3]>high[2]*20,"Noise macro does not sweep the noise filter");
         const auto noDuck=noisePower(7,.5f,0,4)[0],duck=noisePower(7,.5f,.8f,4)[0];
         require(duck<noDuck*.08,"Noise side-chain modulation did not duck the generated source");
+    }
+    for(const auto [bpm,delay]:std::array<std::pair<double,size_t>,4>{{{120,12000},{90,15984},{128,11232},{137,10488}}}) {
+        SceneProcessor p;p.prepare(48000);SceneSettings s;s.type=2;p.configure(s);
+        std::vector<Stereo> tail(delay*2);double lr=0,ll=0,rr=0;
+        for(size_t i=0;i<48000+tail.size();++i) {
+            const auto output=p.process({},128.f/255,128*7.f/255,0,i<48000?1:0,bpm,i*bpm/(60*48000.),0);
+            if(i>=24000&&i<48000) {lr+=output.l*output.r;ll+=output.l*output.l;rr+=output.r*output.r;}
+            if(i>=48000)tail[i-48000]=output;
+        }
+        require(std::abs(lr/std::sqrt(ll*rr))<.1,"Factory Noise is not independently excited in stereo");
+        for(size_t i=0;i<delay;++i) {
+            const auto error=tail[i+delay]-tail[i]*.5f;
+            require(peak(error)<1e-7f,"Noise tail does not repeat after half a beat with measured 0.5 feedback");
+        }
     }
     {
         for(float cutoff:{0.f,1.f}) {
             SceneProcessor p;p.prepare(48000);SceneSettings s;s.type=1;s.feedback=.55f;p.configure(s);
             size_t onset=0;double first=0,second=0;
-            for(size_t i=0;i<31000;++i) {
+            for(size_t i=0;i<43000;++i) {
                 const auto out=p.process(i==0?Stereo{.5f,0}:Stereo{},1,4,cutoff,1,120,i/24000.,0);
                 require(out.r==0,"Echo leaked a mono impulse into the other channel");
                 if(i>0&&onset==0&&std::abs(out.l)>1e-9)onset=i;
-                if(i>=12000&&i<18000)first+=energy(out);
-                if(i>=24000&&i<30000)second+=energy(out);
+                if(i>=18000&&i<24000)first+=energy(out);
+                if(i>=36000&&i<42000)second+=energy(out);
             }
             std::cout<<"Echo Sub2 "<<cutoff<<": onset "<<onset<<", repeat energy ratio "<<second/first<<'\n';
-            require(onset>=12000&&onset<=12001,"Echo Sub1 did not set the beat delay");
+            require(onset==18000,"Echo Sub1 did not set the beat delay");
             require(std::abs(second/first-.55*.55)<.002,"Echo Sub2 changed feedback instead of filter cutoff");
         }
     }
@@ -167,10 +206,10 @@ int main() {try {
     {
         auto echoPower=[](int width) {
             SceneProcessor p;p.prepare(8000);SceneSettings s;s.type=1;s.feedback=0;s.width[1]=width;s.delayBeats[1].fill(0);p.configure(s);
-            const float sub2=1-static_cast<float>(std::log(1000./25)/std::log(18000./25));double sum=0;
+            const float sub2=171.f/255;double sum=0;
             for(size_t i=0;i<16000;++i) {
                 const float x=.2f*static_cast<float>(std::sin(2*pi*1000*i/8000));
-                const auto y=p.process({x,x},1,0,sub2,1,120,i/4000.,0);if(i>=8000)sum+=energy(y);
+                const auto y=p.process({x,x},1,0,sub2,1,120,i/4000.,0)-Stereo{x,x};if(i>=8000)sum+=energy(y);
             }
             return sum;
         };

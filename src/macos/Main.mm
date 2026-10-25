@@ -131,7 +131,7 @@ AudioDeviceID audioDeviceForUID(NSString* uid,const std::vector<AudioDevice>& de
     Surface* s=self.surface; if(!s) return @0;
     if(self.controlIndex>=static_cast<NSInteger>(s->controls.size())) { const int scene=static_cast<int>(self.controlIndex-s->controls.size()); return @(s->engine->params.get(Param::SceneOn)>.5f&&static_cast<int>(s->engine->params.get(Param::SceneType))==scene); }
     const auto& c=s->controls[static_cast<size_t>(self.controlIndex)];
-    if(c.kind==Kind::Choice) return @(s->engine->params.get(c.param)==c.value);
+    if(c.kind==Kind::Choice) return @((c.param!=Param::IsolateMode||s->engine->params.get(Param::IsolateOn)>.5f)&&s->engine->params.get(c.param)==c.value);
     if(c.kind==Kind::Pad) return @(s->selectedPad==static_cast<int>(c.value));
     return c.param==Param::Count?@0:@(s->engine->params.get(c.param));
 }
@@ -160,7 +160,7 @@ AudioDeviceID audioDeviceForUID(NSString* uid,const std::vector<AudioDevice>& de
         if(tapTime>0&&now>tapTime) { const double bpm=60/(now-tapTime); if(bpm>=40&&bpm<=240) { [self change:Param::Tempo value:static_cast<float>(bpm)]; [self change:Param::AutoTempo value:0]; } }
         tapTime=now;
     } else if(event.type==rmx::EventType::Panic) {
-        for(auto p:{Param::SceneOn,Param::Low,Param::Mid,Param::High,Param::ReleaseAmount,Param::XHold,Param::Overdub}) [self change:p value:0];
+        for(auto p:{Param::SceneOn,Param::IsolateOn,Param::Low,Param::Mid,Param::High,Param::ReleaseAmount,Param::XHold,Param::Overdub}) [self change:p value:0];
     } else engine->enqueue(event);
 }
 - (BOOL)isAccessibilityElement { return YES; }
@@ -348,7 +348,7 @@ AudioDeviceID audioDeviceForUID(NSString* uid,const std::vector<AudioDevice>& de
         }
         if(c.action==8) { const int source=static_cast<int>(engine->params.get(Param::SceneSource)); const bool on=source==2||source==static_cast<int>(c.value); if(!on) box(NSInsetRect(c.rect,3,3),color(0,0,0,.65),4); }
         if((c.kind==Kind::Toggle||c.kind==Kind::Choice||c.kind==Kind::Pad)&&c.param!=Param::UserSettings) {
-            const float v=engine->params.get(c.param); const bool on=c.kind==Kind::Toggle?v>.5f:c.kind==Kind::Choice?std::abs(v-c.value)<.01f:selectedPad==static_cast<int>(c.value);
+            const float v=engine->params.get(c.param); const bool on=(c.param!=Param::IsolateMode||engine->params.get(Param::IsolateOn)>.5f)&&(c.kind==Kind::Toggle?v>.5f:c.kind==Kind::Choice?std::abs(v-c.value)<.01f:selectedPad==static_cast<int>(c.value));
             const NSRect lamp={c.rect.origin.x+8,NSMaxY(c.rect)-9,c.rect.size.width-16,3};
             if(!on) box(lamp,color(0,0,0,.75),1);
             else { [NSGraphicsContext saveGraphicsState];NSShadow* glow=[NSShadow new];glow.shadowColor=(c.param==Param::Quantize||c.param==Param::AutoTempo)?color(1,.66,.24,.85):color(.35,.94,.76,.85);glow.shadowBlurRadius=9;[glow set];box(lamp,glow.shadowColor,1);[NSGraphicsContext restoreGraphicsState]; }

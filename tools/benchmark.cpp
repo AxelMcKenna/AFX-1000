@@ -8,7 +8,7 @@ int main(int argc,char** argv) {
     const int blocks=argc>1?std::max(100,std::atoi(argv[1])):10000;
     auto bank=rmx::makeFactoryBank(); rmx::Engine engine; engine.setBank(&bank); engine.prepare(48000,128);
     engine.params.set(rmx::Param::SceneOn,1); engine.params.set(rmx::Param::SceneDepth,1);
-    engine.params.set(rmx::Param::IsolateMode,3); engine.params.set(rmx::Param::Low,.8f); engine.params.set(rmx::Param::Mid,.8f); engine.params.set(rmx::Param::High,.8f);
+    engine.params.set(rmx::Param::IsolateOn,1);engine.params.set(rmx::Param::IsolateMode,3); engine.params.set(rmx::Param::Low,.8f); engine.params.set(rmx::Param::Mid,.8f); engine.params.set(rmx::Param::High,.8f);
     std::array<float,128> l{},r{},ol{},orr{}; for(size_t i=0;i<128;++i) l[i]=r[i]=std::sin(i*.13f)*.2f;
     double worst99=0;
     for(int mode=0;mode<4;++mode) for(int scene=0;scene<10;++scene) {

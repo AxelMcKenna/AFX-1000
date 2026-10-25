@@ -122,7 +122,7 @@ void Engine::event(Event e) noexcept {
         case EventType::NudgeStop: nudgeDirection=0; break;
         case EventType::Panic:
             voices={}; rollPad=-1; sourceRoll=false; sequence.clear(); nudgeDirection=0; nudgeOffset=0;
-            set(Param::SceneOn,0); set(Param::ReleaseAmount,0); set(Param::Low,0); set(Param::Mid,0); set(Param::High,0); set(Param::XHold,0); set(Param::Overdub,0);
+            set(Param::SceneOn,0); set(Param::IsolateOn,0); set(Param::ReleaseAmount,0); set(Param::Low,0); set(Param::Mid,0); set(Param::High,0); set(Param::XHold,0); set(Param::Overdub,0);
             break;
         case EventType::Tap:
             if(tapped&&frame>lastTap) {
@@ -271,7 +271,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     for(uint32_t i=0;i<frames;++i,++frame) {
         while(eventIndex<events.size()&&events[eventIndex].offset<=i) event(events[eventIndex++]);
         for(auto parameter:smoothedParameters) {
-            const auto k=static_cast<size_t>(parameter);smooth[k]+=(p[k]-smooth[k])*smoothing;
+            const auto k=static_cast<size_t>(parameter);approach(smooth[k],p[k],smoothing);
         }
         const double performanceBeat=beat+nudgeOffset;
         sequence.advance(performanceBeat,transport.playing,[&](Sequencer::Hit hit) {
@@ -303,7 +303,8 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         const int isoSource=static_cast<int>(get(Param::IsolateSource));
         approach(isolateInputMix,(isoSource==0||isoSource==2)?1.f:0.f,smoothing);
         approach(isolatePadMix,(isoSource==1||isoSource==2)?1.f:0.f,smoothing);
-        input=mix(input,isolate(input,0),isolateInputMix); drums=mix(drums,isolate(drums,1),isolatePadMix);
+        const float isolateEnabled=get(Param::IsolateOn)>.5f?1.f:0.f;
+        input=mix(input,isolate(input,0),isolateInputMix*isolateEnabled); drums=mix(drums,isolate(drums,1),isolatePadMix*isolateEnabled);
         const int sceneSource=static_cast<int>(get(Param::SceneSource));
         approach(sceneInputMix,(sceneSource==0||sceneSource==2)?1.f:0.f,smoothing);
         approach(scenePadMix,(sceneSource==1||sceneSource==2)?1.f:0.f,smoothing);

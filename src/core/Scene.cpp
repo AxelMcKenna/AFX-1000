@@ -9,6 +9,16 @@ constexpr std::array<double,8> roomSeconds{.0297,.0371,.0411,.0437,.0531,.0613,.
 float db(float dB) {return std::pow(10.f,dB/20);}
 Stereo bounded(Stereo x) {return {std::clamp(x.l,-8.f,8.f),std::clamp(x.r,-8.f,8.f)};}
 float sweep(float position,float bottom=25,float top=18000) {return bottom*std::pow(top/bottom,std::clamp(position,0.f,1.f));}
+float noiseLevel(float sub1,int minimum,int maximum) {
+    constexpr float minima[]{-1000,-18,-12,-6},maxima[]{0,3,6,9};
+    const int raw=std::clamp(static_cast<int>(std::floor(sub1*(255.f/7)+1.e-4f)),0,255);
+    const float low=minimum==0?0:db(minima[std::clamp(minimum,0,3)]);
+    const float high=db(maxima[std::clamp(maximum,0,3)]),middle=(low+high)*.5f;
+    const float gain=raw<124?low+(middle-low)*std::clamp((raw-3)/121.f,0.f,1.f):
+        middle+(high-middle)*std::clamp((raw-131)/121.f,0.f,1.f);
+    // Calibration audio used the factory -18/+6 dB centre position.
+    return gain/((db(-18)+db(6))*.5f);
+}
 }
 void SceneProcessor::prepare(double sampleRate) {
     rate=sampleRate;echo.prepare(static_cast<size_t>(rate*16)+4);spiral.prepare(static_cast<size_t>(rate*.75)+4);
@@ -21,7 +31,7 @@ void SceneProcessor::prepare(double sampleRate) {
 }
 void SceneProcessor::reset() noexcept {
     echo.reset();spiral.reset();for(auto& delay:room)delay.reset();damping={};
-    mainFilter.reset();echoFilter.reset();noiseTilt.reset();noisePolish.reset();pitchPhase=0;frame=0;random=0x12345678;
+    mainFilter.reset();echoFilter.reset();noiseTilt.reset();noisePolish.reset();calibratedNoise.reset();pitchPhase=0;frame=0;random=0x12345678;
     noiseCutoff=90;noiseModGain=1;noiseReturn={};noiseAge=0;
     previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;
 }
@@ -99,18 +109,33 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
     const bool modulated=type==0||type==2||type==5||type==6||type==7;
     const bool resonance=modulated&&settings.sub2Mode[type]==1;
     const float activation=std::min(1.f,macro*10);
-    const auto choice=type==2?5:std::clamp(settings.delayBeats[type][sceneDelayRegion(sub1)],0,type==1?8:6);
-    const double delay=std::clamp(rate*60/std::clamp(bpm,40.,240.)*sceneDelayBeats[static_cast<size_t>(choice)],2.,rate*14);
+    const auto region=type==1?echoDelayRegion(sub1):sceneDelayRegion(sub1);
+    const bool measuredNoise=type==2&&rate==48000&&settings.width[2]==1&&!resonance;
+    const auto choice=type==2?(measuredNoise?3:5):std::clamp(settings.delayBeats[type][region],0,type==1?8:6);
+    // Original synchronized Echo first truncates the beat period to whole
+    // milliseconds, then applies the chosen division. At 128 BPM, a half beat
+    // is 11232 frames at 48 kHz, rather than the ideal-clock 11250 frames.
+    const double safeBpm=std::clamp(bpm,40.,240.);
+    const double beatFrames=(type==1||measuredNoise)?rate*std::floor(60000/safeBpm)/1000:rate*60/safeBpm;
+    const double delay=std::clamp(beatFrames*sceneDelayBeats[static_cast<size_t>(choice)],2.,rate*14);
     const auto delayed=echo.read(delay);
     sidechainEnvelope+=(sidechain-sidechainEnvelope)*(sidechain>sidechainEnvelope?sideAttack:sideRelease);
     float cutoff=sweep(macro);
     if(type==2) {noiseCutoff+=(sweep(macro,90,12500)-noiseCutoff)*noiseCutoffSlew;cutoff=noiseCutoff;}
     if(type==6)cutoff=sweep(1-macro);
     if(type==1)cutoff=sweep(settings.echoFilter==2?sub2:1-sub2);
+    if(type==1&&settings.echoFilter==2) {
+        const int raw=std::clamp(static_cast<int>(std::floor(sub2*255+1.e-4f)),0,255);
+        cutoff=60*std::exp(std::max(0,raw-4)*.0168583737f);
+    }
     if(type==4)cutoff=sweep(sub2,25,10000);
     if(type==9)cutoff=sweep(1-sub2);
     constexpr float widthQ[]{2,.8f,.5f};
     float q=widthQ[std::clamp(settings.width[type],0,2)];
+    if(type==1) {
+        constexpr float echoQ[]{2.f,.70710678f,.5f};
+        q=echoQ[std::clamp(settings.width[1],0,2)];
+    }
     if(type==2) {constexpr float noiseQ[]{2.8f,1.6f,.9f};q=noiseQ[std::clamp(settings.width[2],0,2)];}
     if(resonance) {const int character=settings.resonance[type];if(character!=2)q+=sub2*(character==1?1.3f:7.3f);}
     if((frame&31u)==0||previousCutoff<0) {
@@ -158,7 +183,21 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
             // Bit reduction is followed by a filter before the echo circuit.
             send=echoFilter.process(crushed).low;
         }
-        if(type==2) {
+        if(measuredNoise) {
+            calibratedNoise.configure(static_cast<int>(std::floor(macro*255+1.e-4f)));
+            send=calibratedNoise.process({noise(),noise()});
+            const auto tilt=noiseTilt.process(send);
+            send=mix(send,settings.noiseColor<.5f?tilt.low:tilt.high,std::abs(settings.noiseColor-.5f)*2);
+            noiseModGain+=((noiseModulation(sub2,beat))-noiseModGain)*noiseModSlew;
+            send=send*(noiseLevel(sub1,settings.noiseMinimum,settings.noiseMaximum)*noiseModGain*enabled);
+            const auto returned=noiseAge>=static_cast<uint64_t>(delay)?delayed:Stereo{};
+            // Independent tail captures identify a half-beat return of 0.35,
+            // recirculating at exactly 0.5. The return survives button-off.
+            result=input+send+returned*.35f;
+            echo.push(bounded(send+returned*.5f));
+            spiral.push({});(void)reverb({});++noiseAge;++frame;
+            return result;
+        } else if(type==2) {
             const float n=noise()*.28f;const auto generated=echoFilter.process({n,n});
             // Partial energy compensation keeps a sweep from becoming a sudden
             // blast of treble. Resonance still changes the contour audibly.
@@ -180,12 +219,14 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
         } else if(type==1) {
             const auto wetFiltered=echoFilter.process(delayed);
             const auto wet=settings.echoFilter==2?wetFiltered.high:settings.echoFilter==1?wetFiltered.band*(1/q):wetFiltered.low;
-            result=mix(input,wet,macro*enabled);
+            const auto raw=std::clamp(static_cast<int>(std::floor(macro*255+1.e-4f)),0,255);
+            const float amount=std::clamp((raw-3)/189.f,0.f,1.f);
+            result=input+wet*(amount*enabled);
         } else if(type==0)result=input+delayed*(macro*enabled*.8f*modGain);
         else result=mix(input,send*modGain+delayed*(macro*modGain),macro*enabled);
         // HOLD freezes the currently circulating echo at the full macro end.
         const bool hold=type==1&&settings.echoFeedbackMode==0&&macro>.985f;
-        echo.push(type==2?bounded(send*enabled+noiseReturn*feedback):hold?delayed:bounded(send*(enabled*activation)+delayed*feedback));
+        echo.push(type==2?bounded(send*enabled+noiseReturn*feedback):hold?delayed:bounded(send*(enabled*(type==1?1:activation))+delayed*feedback));
         spiral.push({});(void)reverb({});
     }
     ++frame;return result;

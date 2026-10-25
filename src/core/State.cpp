@@ -42,13 +42,14 @@ State State::parse(std::string_view text) {
     if(text.size()>1024*1024) throw std::runtime_error("Preset exceeds 1 MB");
     std::istringstream in{std::string(text)}; std::string magic; int version=0;
     if(!(in>>magic>>version)||magic!="RMX_STATE"||version!=1) throw std::runtime_error("Unsupported RMX state version");
-    State state; state.cc.fill(-1); std::string line; std::getline(in,line);bool hasSampleSource=false;
+    State state; state.cc.fill(-1); std::string line; std::getline(in,line);bool hasSampleSource=false,hasIsolateOn=false;
     while(std::getline(in,line)) {
         std::istringstream row(line); std::string kind,id; row>>kind;
         if(kind=="param") {
             float value;
             if(!(row>>id>>value)||!std::isfinite(value)) throw std::runtime_error("Invalid parameter value");
             if(id=="sample_source")hasSampleSource=true;
+            if(id=="isolate_on")hasIsolateOn=true;
             for(size_t i=0;i<parameterCount;++i) if(parameters[i].id==id) state.values[i]=sanitize(static_cast<Param>(i),value);
         } else if(kind=="sample") {
             size_t slot; std::string path;
@@ -69,6 +70,9 @@ State State::parse(std::string_view text) {
     state.values[static_cast<size_t>(Param::XHold)]=0;
     // Earlier project presets always played bank slots, including loop assets.
     if(!hasSampleSource)state.values[static_cast<size_t>(Param::SampleSource)]=1;
+    // Earlier presets had no section bypass: every selected source ran through
+    // the isolator. Preserve that routing when reading those presets.
+    if(!hasIsolateOn)state.values[static_cast<size_t>(Param::IsolateOn)]=1;
     return state;
 }
 void State::save(const std::filesystem::path& path) const {

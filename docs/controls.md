@@ -6,12 +6,12 @@ The main surface follows the RMX-1000 layout. The amber and teal skin and RMX ba
 | --- | --- |
 | Input / Output level | Drag vertically; Shift makes fine changes. Double-click or right-click for an exact value. |
 | Quantize | Align repeat/roll starts to the selected beat grid. Pad one-shots remain immediate. |
-| Auto | Analyze incoming audio and follow detected tempo. The button pulses while confidence is low. Detection targets 70–180 BPM; half/double-time ambiguity remains possible on music. |
+| Auto | Follow the host/MIDI tempo in the plug-in, or analyze incoming audio when no external clock is available. Switch off to hold manual BPM. The button pulses while confidence is low. Detection targets 70–180 BPM; half/double-time ambiguity remains possible on music. |
 | BPM display | Drag or double-click to enter manual tempo, 40–240 BPM. Switch Auto off for manual control. |
 | Tap | Tap in time at least twice. Tempo averages up to four valid tap intervals and disables Auto. |
 | Nudge − / + | Press and hold to advance/delay X-Pad timing without changing the stored BPM. Accessibility activation applies one small timing step. The current 2% hold rate still needs reference-unit calibration. |
 | Input / X-Pad source | Independently include or exclude each source from the effects. Both may be off. Selection applies to Release FX too; Noise remains available with both off. |
-| Isolator / Cut-Add / Trans-Roll / Gate-Drive | Select the band processing mode. Low / Mid / Hi control their respective bands. |
+| Isolator / Cut-Add / Trans-Roll / Gate-Drive | Select and enable the band processing mode; press the selected mode again to bypass the section. Low / Mid / Hi control their respective bands. |
 | Scene FX ring | Select an effect; press the selected effect again to bypass Scene FX. |
 | Large Scene knob | Control the selected effect: filter cutoff, echo/reverb balance, crush amount or spiral delay window. Moving it enables Scene FX. |
 | Sub parameter 1 | Select one of four echo regions; each effect has independent User beat assignments. In Noise it changes generated-noise level, and in reverbs it changes reverb level. |
@@ -37,7 +37,7 @@ Each bank holds at most 16 seconds across its four slots. Imports and preset loa
 
 Sample edits/imports and preset loads briefly suspend native audio to install assets safely. The plugin installs immutable sample banks at block boundaries. Presets reference sample files: keep those files available when moving presets to another computer.
 
-MIDI input defaults to Off. Select a separate controller, then right-click a native knob and choose **Learn next MIDI CC**. Move through the current value for soft takeover. Notes 36–39 trigger the four pads. MIDI feedback defaults to disabled. A connected DAW's transport takes precedence over tap/automatic tempo in the plugin.
+MIDI input defaults to Off. Select a separate controller, then right-click a native knob and choose **Learn next MIDI CC**. Move through the current value for soft takeover. Notes 36–39 trigger the four pads. MIDI feedback defaults to disabled. With Auto enabled, a connected DAW's tempo takes priority over MIDI clock or input analysis in the plug-in. Switching Auto off uses the stored manual BPM.
 
 The physical prototype's shared decoder supports Bank+pad bank selection; repeating the selected bank chord returns to internal drums and plays that pad. Hold+pad selects silently when Overdub is off and mutes the recorded lane when on. Overdub+pad deletes a lane; Tap+Nudge enters manual tempo. These are physical button chords; the desktop exposes corresponding mouse gestures above. Card-availability feedback, exact bank LEDs/chords and voice behavior still need comparison with a reference unit. Recorded touch-strip transformations and their mute/delete chords remain outstanding. The hardware design and firmware status are in [hardware/README.md](../hardware/README.md).
 

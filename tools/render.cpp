@@ -4,12 +4,17 @@
 #include <iostream>
 
 int main(int argc,char** argv) {
-    if(argc<3||argc>4) { std::cerr<<"Usage: rmx_render input.wav output.wav [preset.rmx]\n"; return 1; }
+    if(argc<3||argc>5) { std::cerr<<"Usage: rmx_render input.wav output.wav [preset.rmx [tail-seconds]]\n"; return 1; }
     try {
+        double tail=4;
+        if(argc==5) {
+            size_t used{};const std::string text=argv[4];tail=std::stod(text,&used);
+            if(used!=text.size()||!std::isfinite(tail)||tail<0||tail>120)throw std::runtime_error("Tail must be 0..120 seconds");
+        }
         auto input=rmx::readWav(argv[1],60*60); auto bank=rmx::makeFactoryBank(); rmx::Engine engine;
-        if(argc==4) { auto state=rmx::State::load(argv[3]); state.apply(engine.params); for(size_t i=0;i<16;++i) if(!state.samplePaths[i].empty()) bank.slots[i]=rmx::readWav(state.samplePaths[i]); state.applySamples(bank); }
+        if(argc>=4) { auto state=rmx::State::load(argv[3]); state.apply(engine.params); for(size_t i=0;i<16;++i) if(!state.samplePaths[i].empty()) bank.slots[i]=rmx::readWav(state.samplePaths[i]); state.applySamples(bank); }
         engine.setBank(&bank); engine.prepare(input.rate,256);
-        rmx::Sample output; output.rate=input.rate; output.frames.resize(input.frames.size()+static_cast<size_t>(input.rate*4));
+        rmx::Sample output; output.rate=input.rate; output.frames.resize(input.frames.size()+static_cast<size_t>(std::llround(input.rate*tail)));
         std::array<float,256> l{},r{},ol{},orr{};
         for(size_t start=0;start<output.frames.size();start+=256) {
             const auto n=static_cast<uint32_t>(std::min(size_t(256),output.frames.size()-start));

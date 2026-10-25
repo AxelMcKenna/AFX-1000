@@ -7,8 +7,16 @@ float db(float value) { return std::pow(10.f,value/20); }
 double wrap(double value) { return value-std::floor(value); }
 float gain(float control,int minimum,int maximum) {
     constexpr float maxima[]{0,3,6,9},minima[]{6,12,18,0};
-    if(control<0) return minimum==3?(1+control)*(1+control):db(control*minima[std::clamp(minimum,0,3)]);
-    return db(control*maxima[std::clamp(maximum,0,3)]);
+    // Public reference controls quantize to 8-bit travel. Factory measurements
+    // show unity at raw 124..131, with linear amplitude on either side.
+    const auto raw=std::clamp(static_cast<int>(std::floor((control+1)*127.5f+1.e-4f)),0,255);
+    if(raw<124) {
+        const float travel=std::clamp((124-raw)/123.f,0.f,1.f);
+        const float endpoint=minimum==3?0.f:db(-minima[std::clamp(minimum,0,3)]);
+        return 1+travel*(endpoint-1);
+    }
+    const float travel=std::clamp((raw-131)/123.f,0.f,1.f);
+    return 1+travel*(db(maxima[std::clamp(maximum,0,3)])-1);
 }
 constexpr std::array<std::array<double,4>,3> addTimes{{{{.125,.25,.5,1}},{{.125,.375,.625,.875}},{{.25,.5,.75,1}}}};
 constexpr std::array<std::array<double,5>,3> rollTimes{{{{1,.5,.25,.125,.0625}},{{1,.75,.5,.25,.125}},{{.5,.25,.125,.0625,.03125}}}};
@@ -26,6 +34,8 @@ void Isolator::prepare(double sampleRate) {
 }
 void Isolator::reset() noexcept {
     lowState={};highState={};kickFilter.reset();cutHighPass.reset();cutLowPass.reset();
+    for(auto& filter:lowCrossover)filter.reset();
+    for(auto& filter:highCrossover)filter.reset();
     kickFast=kickSlow=kickGate=0;kickRefractory=0;frame=0;lastMid=lastHigh=2;
     for(auto& band:bands) {band.history.reset();band.captured=band.length=0;band.position=0;band.recording=false;band.envelope=0;band.gate=band.transGain=1;}
 }
@@ -34,6 +44,8 @@ void Isolator::configure(const IsolatorSettings& next) noexcept {
     configured=true;settings=next;
     lowAlpha=poleCoefficient(std::clamp(settings.lowHz,40.f,1000.f),rate);
     highAlpha=poleCoefficient(std::clamp(settings.highHz,settings.lowHz+100,static_cast<float>(rate*.45)),rate);
+    for(auto& filter:lowCrossover)filter.configure(settings.lowHz,std::numbers::sqrt2_v<float>*.5f,rate);
+    for(auto& filter:highCrossover)filter.configure(settings.highHz,std::numbers::sqrt2_v<float>*.5f,rate);
     lastMid=lastHigh=2;
 }
 Stereo Isolator::cut(Stereo input,const std::array<float,3>& controls) noexcept {
@@ -71,7 +83,17 @@ Stereo Isolator::roll(Band& band,Stereo input,float control,size_t length) noexc
 }
 Stereo Isolator::process(Stereo input,const std::array<float,3>& controls,double beat) noexcept {
     lowState=lowState+(input-lowState)*lowAlpha;highState=highState+(input-highState)*highAlpha;
-    const std::array<Stereo,3> split{lowState,highState-lowState,input-highState};
+    std::array<Stereo,3> split{lowState,highState-lowState,input-highState};
+    if(settings.mode!=1) {
+        const auto first=lowCrossover[0].process(input);
+        const auto low=lowCrossover[1].process(first.low).low;
+        const auto midHigh=lowCrossover[2].process(first.high).high;
+        const auto mid=highCrossover[1].process(highCrossover[0].process(midHigh).low).low;
+        const auto high=highCrossover[3].process(highCrossover[2].process(input).high).high;
+        // The reference sums these branches directly; adding phase compensation
+        // to low/high would change its measured centre-position response.
+        split={low,mid,high};
+    }
     Stereo result=settings.mode==1?cut(input,controls):Stereo{};
     for(size_t b=0;b<3;++b) {
         auto& band=bands[b];const float k=std::clamp(controls[b],-1.f,1.f);const auto dry=split[b];
