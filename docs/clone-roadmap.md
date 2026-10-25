@@ -20,7 +20,7 @@ The offline stress run processed 7200 simulated seconds with no non-finite outpu
 - [ ] Verify AU runtime. The component built, but process-local registration returned null during the probe; the cause is undetermined.
 - [ ] Build and exercise the Link-enabled configuration with the separately supplied SDK.
 - [ ] Flash and validate physical hardware, including audio, controls, storage and fault recovery.
-- [ ] Select the project source license; retain dependency terms separately.
+- [x] Add the proprietary project rights notice; retain third-party terms separately. Commercial permission for combined JUCE/Link distribution and legal review remain separate requirements.
 
 See the [engineering report](engineering-update-2026-10-22.md) for measurements and limitations, plus [synchronization](synchronization.md), [sample stretching](sample-stretching.md), [reference validation](reference-validation.md) and [release packaging](release.md).
 

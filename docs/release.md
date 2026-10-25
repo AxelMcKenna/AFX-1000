@@ -3,14 +3,14 @@
 Build a fresh universal Release tree with the pinned local JUCE checkout:
 
 ```sh
-cmake -S . -B build-release \
+uv run --locked cmake -S . -B build-release \
   -DCMAKE_BUILD_TYPE=Release \
   -DRMX_BUILD_PLUGINS=ON \
   -DRMX_JUCE_PATH=/absolute/path/to/JUCE-8.0.6 \
   '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
 cmake --build build-release --parallel 4
 ctest --test-dir build-release --output-on-failure
-python3 tools/package_macos.py --build-dir build-release --output-dir build/packages-new
+uv run --locked python tools/package_macos.py --build-dir build-release --output-dir build/packages-new
 ```
 
 The destination must not exist. The packager checks every bundle's architecture, signs copies, verifies those signatures and publishes the complete output directory in one rename. Original build products are untouched.
@@ -41,7 +41,11 @@ Use a fresh build tree when replacing an old app bundle so obsolete resources ar
 
 ## Dependency and source licensing
 
-See [the dependency notices](../THIRD_PARTY_NOTICES.md). A project license has not yet been selected. That decision remains with the owner. JUCE-based builds use JUCE's AGPLv3 or commercial license route; optional Link and embedded SDK components retain their own terms. Packaging source and notices is evidence of the shipped inputs, not a declaration that every license obligation or distribution requirement has been satisfied.
+Original project material is covered by the [AFX-1000 Proprietary Rights Notice](../LICENSE), all rights reserved. Reuse, personal builds, manufacture and redistribution require separate written permission, subject to that notice's exceptions. Existing packaging includes the root `LICENSE` with source snapshots and native/plugin package groups.
+
+CI builds and tests the native app and plugins, but binary artifact uploads are disabled by default. Set the repository variable `AFX_ENABLE_LICENSED_BINARY_DISTRIBUTION` to `true` only after confirming the distribution rights for all included components, including the appropriate JUCE license. The variable is an operator decision, not a technical check of license entitlement.
+
+See [the dependency notices](../THIRD_PARTY_NOTICES.md). Restrictive distribution of combined JUCE or Link builds requires an appropriate separate licensing route; the project notice does not remove AGPL/GPL obligations or establish that commercial permissions have been obtained. Embedded SDK components and supplied hardware library elements retain their own terms. Packaging source and notices is evidence of the shipped inputs, not a declaration that every license obligation or distribution requirement has been satisfied.
 
 ## Runtime acceptance
 

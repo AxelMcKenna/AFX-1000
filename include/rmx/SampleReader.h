@@ -48,7 +48,15 @@ template<unsigned Index> inline constexpr Level kernelLevel=makeLevel(Index);
 template<size_t... Index> consteval auto makeTable(std::index_sequence<Index...>) {
     return std::array<const Level*,sizeof...(Index)>{&kernelLevel<Index>...};
 }
+#if defined(RMX_EMBEDDED_COMPRESSED_KERNELS)
+// The SRAM-boot firmware restores the exact table into SDRAM before audio.
+// Initialization is explicit and checked; the callback never builds kernels.
+extern const std::array<const Level*,levels> table;
+bool initializeTable() noexcept;
+bool tableReady() noexcept;
+#else
 inline constexpr auto table=makeTable(std::make_index_sequence<levels>{});
+#endif
 }
 
 // Faster-than-unity reads use a centered low-pass windowed sinc. Resident
@@ -56,6 +64,9 @@ inline constexpr auto table=makeTable(std::make_index_sequence<levels>{});
 // cubic interpolation; integer unity playback remains bit-exact.
 inline Stereo readOneShot(std::span<const Stereo> frames,double position,double step) noexcept {
     using namespace sample_reader;
+#if defined(RMX_EMBEDDED_COMPRESSED_KERNELS)
+    if(!tableReady())return {};
+#endif
     if(frames.empty()||!std::isfinite(position)||position<0||position>=frames.size())return {};
     const auto index=static_cast<size_t>(position);
     const double fraction=position-index;

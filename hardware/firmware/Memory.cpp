@@ -17,6 +17,10 @@ void initializeAudioMemory() {
         exhausted();
     ready = true;
 }
+// Only use before audio/interrupt users can allocate; paired with vector.reserve.
+bool audioMemoryCanAllocate(size_t bytes) noexcept {
+    return ready && bytes >= 4096 && arena.canAllocate(bytes);
+}
 size_t audioMemoryUsed() {
     return arena.usedBytes();
 }

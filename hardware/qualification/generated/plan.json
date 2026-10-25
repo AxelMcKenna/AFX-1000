@@ -1,0 +1,2289 @@
+{
+  "schema_version": 1,
+  "profile": "higher-headroom standalone external-converter",
+  "hardware_variant": "E14/E25 baseline interfaces; P01 is a separate unimplemented candidate",
+  "source_base_commit": "7c1c5499899335468585d33bc2848c46cc645e4a",
+  "source_sha256": {
+    "hardware/electronics/power_supply/integration.json": "4b4a24e997577f84d969e24fa33a8dd0c5246f3699da3f92855808111b78c2ca",
+    "hardware/electronics/power_supply/routing/generated/verification.json": "6ede54f1ab43cc512683e07b18ab9b031d48793d959b3346a636c3e2cb55f711",
+    "hardware/electronics/rail_disconnect/placement/generated/verification.json": "18c2cfb883b8752e988b9c2e0ff8526c2d0eff0ff21f7869d65922e60f177898",
+    "hardware/electronics/rail_disconnect/generated/electrical-screens.json": "5cbde24044f6524971c2fd79e850a9673fe18975407c530cc8ce75b6734f5d61",
+    "hardware/electronics/rail_monitor/generated/electrical-screens.json": "ef3b69395f96d823ee7efe0f8053cd15f40c41d3b854190565e03e752b945f39",
+    "hardware/electronics/power_distribution/generated/analysis.json": "26f52d85283263ceed26fc73e28b6d7a796954e1fe4be19efb5ae6eb0edcd029",
+    "hardware/firmware/external-profile.json": "b79d26f49cccb4f3ec0a59bc5ced1ef8a96e6dc9b38dc998f1cacc3b45fe04d8",
+    "hardware/firmware/main.cpp": "8225e1761e92f83cdfe7ba63df7678f66599e9deec0d5b339ceff0393251f331",
+    "hardware/firmware/BootCard.cpp": "7bb82a1876839e471b0b4b06a6d8538160ad44898e5b84d544ab2b9d88cdcec0",
+    "hardware/firmware/StorageMemory.ld": "299d72fdc40aba22b1049a6fbd67d4486a895d77fff027375c2ab40c40cd1098",
+    "hardware/firmware/STORAGE.md": "6b61c77ec99de8a45daa2592f180cc70be70b1dc8e466f7a8926a6a142fc3766",
+    "hardware/validation/standalone-storage/verification.json": "ec91ccfb1a465dfd893c57e562f99550e3dfd80eac9232d4516989e737d6f621",
+    "hardware/wiring/generated/system-interconnect.json": "3410524cfe3bfc5834fe6acdfc76cbe2274915ff6c335be77cba07d3c869afee",
+    "docs/specifications.md": "581c92f40a112cecca0730f3caf2aa59c1aff95d7895589dd848b41c1d5c1bac",
+    "hardware/qualification/spec.py": "8be2966eaeff10f1da5c2965e8820c4b19f3b92249bf43d916e3e89e75bb1632",
+    "hardware/qualification/check.py": "53565e44a3ea61e5fae4050bf89714a9f933f7548070b9e9f6c80756f37175cc",
+    "hardware/qualification/generate.py": "e76651fa1693ff8d98b23f9d46e772479924f7f9b1bc3acfb6357945061de45a",
+    "hardware/qualification/README.md": "d5129dd4828627da2ec9fe36b7b88b399ea29f30648c6829806d8bdcca356814",
+    "hardware/qualification/__init__.py": "ef1c3d4b3763250f0284043380ac64e611a526336fd4b9290835f5d68f690043",
+    "hardware/qualification/verify.py": "cf0ac791a84c2e12704c7f3f4e2d5b1f05de8ed6b79bbd5019d0dc2029aa8681",
+    "hardware/electronics/rail_disconnect/routing/generated/verification.json": "78c00b5f0bc5b08420c7b30b0c5acfe0a68fb6fc385ee064b81ba5188bcf8115"
+  },
+  "hard_holds": {
+    "e25_route_incomplete": "E25 has 123 native open connections",
+    "source_redesign_not_implemented": "P01 requires new schematic/layout and renewed qualification",
+    "downstream_distribution_open": "P01 DC budget ends at E25 output star; outgoing contacts/fanouts remain open",
+    "large_capacitance_stability_open": "TPS62903 direct50uF recommendation versus connected5.88mF requires a new loop/inrush study",
+    "peripheral_and_fanout_assemblies_open": "24 required peripheral/anode pins and unselected fanouts",
+    "remaining_boards_open": "Converter, analog/monitor/bypass and peripheral assemblies are not a qualified routed full-unit design"
+  },
+  "cases": [
+    {
+      "id": "input_protection",
+      "stage": 1,
+      "title": "Isolated E23 protected input under approved source/load conditions",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": 10.5,
+          "maximum": 13.2,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": 10.5,
+          "maximum": 13.2,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "no_uncommanded_output": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "normal_input_no_load",
+        "normal_input_representative_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": false,
+      "prerequisite": "Independent source-bound fixture and isolated-board release",
+      "procedure": "Review polarity, input ratings, selected fuse/source and bounded fault fixture first. Test E23 alone into a dummy load. Record actual input/output/current; these bounds are E14's downstream normal-input allocation, not proof of E23 current-limit/SOA protection.",
+      "requires_case_ids": []
+    },
+    {
+      "id": "source_P19",
+      "stage": 2,
+      "title": "P19 signed DC at source",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": 18.81,
+          "maximum": 19.19,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": 18.81,
+          "maximum": 19.19,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": false,
+      "prerequisite": "Independent source-bound fixture and isolated-board release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 0.026 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": []
+    },
+    {
+      "id": "protected_star_P19",
+      "stage": 3,
+      "title": "P19 signed DC at protected_star",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": 18.81,
+          "maximum": 19.19,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": 18.81,
+          "maximum": 19.19,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 0.026 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "source_N19",
+        "source_P12",
+        "source_N12",
+        "source_V5_REG",
+        "source_5V_DIG"
+      ]
+    },
+    {
+      "id": "source_N19",
+      "stage": 2,
+      "title": "N19 signed DC at source",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": -19.19,
+          "maximum": -18.81,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": -19.19,
+          "maximum": -18.81,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": false,
+      "prerequisite": "Independent source-bound fixture and isolated-board release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 0.026 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": []
+    },
+    {
+      "id": "protected_star_N19",
+      "stage": 3,
+      "title": "N19 signed DC at protected_star",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": -19.19,
+          "maximum": -18.81,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": -19.19,
+          "maximum": -18.81,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 0.026 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "source_N19",
+        "source_P12",
+        "source_N12",
+        "source_V5_REG",
+        "source_5V_DIG"
+      ]
+    },
+    {
+      "id": "source_P12",
+      "stage": 2,
+      "title": "P12 signed DC at source",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": 11.88,
+          "maximum": 12.12,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": 11.88,
+          "maximum": 12.12,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": false,
+      "prerequisite": "Independent source-bound fixture and isolated-board release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 0.151 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": []
+    },
+    {
+      "id": "protected_star_P12",
+      "stage": 3,
+      "title": "P12 signed DC at protected_star",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": 11.88,
+          "maximum": 12.12,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": 11.88,
+          "maximum": 12.12,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 0.151 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "source_N19",
+        "source_P12",
+        "source_N12",
+        "source_V5_REG",
+        "source_5V_DIG"
+      ]
+    },
+    {
+      "id": "source_N12",
+      "stage": 2,
+      "title": "N12 signed DC at source",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": -12.12,
+          "maximum": -11.88,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": -12.12,
+          "maximum": -11.88,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": false,
+      "prerequisite": "Independent source-bound fixture and isolated-board release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 0.151 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": []
+    },
+    {
+      "id": "protected_star_N12",
+      "stage": 3,
+      "title": "N12 signed DC at protected_star",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": -12.12,
+          "maximum": -11.88,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": -12.12,
+          "maximum": -11.88,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 0.151 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "source_N19",
+        "source_P12",
+        "source_N12",
+        "source_V5_REG",
+        "source_5V_DIG"
+      ]
+    },
+    {
+      "id": "source_V5_REG",
+      "stage": 2,
+      "title": "V5_REG signed DC at source",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": 4.975,
+          "maximum": 5.025,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": 4.975,
+          "maximum": 5.025,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": false,
+      "prerequisite": "Independent source-bound fixture and isolated-board release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 0.251 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": []
+    },
+    {
+      "id": "protected_star_V5_REG",
+      "stage": 3,
+      "title": "V5_REG signed DC at protected_star",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": 4.975,
+          "maximum": 5.025,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": 4.975,
+          "maximum": 5.025,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 0.251 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "source_N19",
+        "source_P12",
+        "source_N12",
+        "source_V5_REG",
+        "source_5V_DIG"
+      ]
+    },
+    {
+      "id": "source_5V_DIG",
+      "stage": 2,
+      "title": "5V_DIG signed DC at source",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": 4.9,
+          "maximum": 5.1,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": 4.9,
+          "maximum": 5.1,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": false,
+      "prerequisite": "Independent source-bound fixture and isolated-board release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 1.801 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": []
+    },
+    {
+      "id": "protected_star_5V_DIG",
+      "stage": 3,
+      "title": "5V_DIG signed DC at protected_star",
+      "metrics": {
+        "minimum_v": {
+          "unit": "V",
+          "minimum": 4.9,
+          "maximum": 5.1,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_v": {
+          "unit": "V",
+          "minimum": 4.9,
+          "maximum": 5.1,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "no_load",
+        "half_allocated_load",
+        "maximum_allocated_load"
+      ],
+      "instrument_kinds": [
+        "dmm",
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use the selected hardware variant and local reference return. Sweep the three load conditions up to the E17 allocation 1.801 A. Source limits are a necessary design-target screen; protected-star measurements do not qualify outgoing load-harness voltage. Record shared-return/cross-domain loading and temperature. Negative rails are signed, never absolute-valued.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "source_N19",
+        "source_P12",
+        "source_N12",
+        "source_V5_REG",
+        "source_5V_DIG"
+      ]
+    },
+    {
+      "id": "input_faults",
+      "stage": 3,
+      "title": "Input interruption/reversal/current-limit and fault energy",
+      "metrics": {
+        "protected_output_safe": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "fault_current_a": {
+          "unit": "A",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "device_peak_c": {
+          "unit": "degC",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "interruption",
+        "approved_reverse_fixture",
+        "approved_overcurrent_fixture"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe",
+        "temperature"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Inject only a separately reviewed, current/energy-limited fixture. Capture input, eFuse output/current and relevant temperatures. Programming-error allocations are not an established protection envelope.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "source_N19",
+        "source_P12",
+        "source_N12",
+        "source_V5_REG",
+        "source_5V_DIG"
+      ]
+    },
+    {
+      "id": "ripple_load_steps",
+      "stage": 3,
+      "title": "Six-rail ripple and load-step response",
+      "metrics": {
+        "digital_absolute_ripple_v": {
+          "unit": "V",
+          "minimum": 0,
+          "maximum": 0.01,
+          "expected": null,
+          "limit_status": "design_allocation"
+        },
+        "analog_peak_excursion_v": {
+          "unit": "V",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "settling_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "no_sustained_oscillation": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "all_rails_idle",
+        "all_rails_allocated_load",
+        "cross_domain_load_step"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Capture every source/protected rail and return movement with probe bandwidth/connection documented. The digital 10 mV excursion is an E17 allocation; analog dynamic and settling limits remain unqualified.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "source_N19",
+        "source_P12",
+        "source_N12",
+        "source_V5_REG",
+        "source_5V_DIG"
+      ]
+    },
+    {
+      "id": "startup",
+      "stage": 3,
+      "title": "All-rail start, ramp, shutdown and quick replug",
+      "metrics": {
+        "dry_until_qualified": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "startup_ms": {
+          "unit": "ms",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "peak_inrush_a": {
+          "unit": "A",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "cold_start",
+        "slow_ramp",
+        "shutdown",
+        "quick_replug"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Capture input/current, six source and protected rails, reference, gates, ready/permit and relay contacts. Repeat across an approved ramp/temperature matrix. An energy-derived minimum time is not a startup upper bound.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "source_N19",
+        "source_P12",
+        "source_N12",
+        "source_V5_REG",
+        "source_5V_DIG"
+      ]
+    },
+    {
+      "id": "late_gate_closure",
+      "stage": 3,
+      "title": "Close E25 onto discharged protected bulk after the source is running",
+      "metrics": {
+        "no_unsafe_permit": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "peak_inrush_a": {
+          "unit": "A",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "peak_overshoot_v": {
+          "unit": "V",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "settling_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "fully_discharged",
+        "partially_charged",
+        "restart_after_fault"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use a reviewed dummy-load fixture and selected capacitor/ESR inventory. A source soft-start does not limit a later disconnect closure. P01's direct-output capacitance recommendation does not validate the connected millifarad network.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "source_N19",
+        "source_P12",
+        "source_N12",
+        "source_V5_REG",
+        "source_5V_DIG"
+      ]
+    },
+    {
+      "id": "brownout",
+      "stage": 4,
+      "title": "Rail/reference/logic brownout and fresh rearm",
+      "metrics": {
+        "dry_on_fault": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "fresh_permit_required": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "fault_to_dry_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "each_source_rail",
+        "aux_reference",
+        "logic_3v3",
+        "rapid_recovery"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Remove one domain at a time using an approved isolation fixture; hold MCU permit high through the event. Observe gates, latch, coil current, actual contact continuity and audio. Do not infer contact state from latch Q.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure"
+      ]
+    },
+    {
+      "id": "disconnect_fault_P19",
+      "stage": 4,
+      "title": "P19 loaded overvoltage/interruption behavior",
+      "metrics": {
+        "protected_absolute_peak_v": {
+          "unit": "V",
+          "minimum": 0,
+          "maximum": 20,
+          "expected": null,
+          "limit_status": "design_allocation"
+        },
+        "fault_to_open_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "all_rails_disable": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "minimum_load",
+        "maximum_allocated_load",
+        "approved_hot_condition"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Record source threshold, protected voltage, all gate-source voltages and fault current with the reviewed energy-limited fixture. The old 125 us interruption term is an unproved allocation, not a guaranteed full-device or fault-to-dry limit.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure"
+      ]
+    },
+    {
+      "id": "disconnect_fault_N19",
+      "stage": 4,
+      "title": "N19 loaded overvoltage/interruption behavior",
+      "metrics": {
+        "protected_absolute_peak_v": {
+          "unit": "V",
+          "minimum": 0,
+          "maximum": 20,
+          "expected": null,
+          "limit_status": "design_allocation"
+        },
+        "fault_to_open_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "all_rails_disable": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "minimum_load",
+        "maximum_allocated_load",
+        "approved_hot_condition"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Record source threshold, protected voltage, all gate-source voltages and fault current with the reviewed energy-limited fixture. The old 125 us interruption term is an unproved allocation, not a guaranteed full-device or fault-to-dry limit.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure"
+      ]
+    },
+    {
+      "id": "disconnect_fault_P12",
+      "stage": 4,
+      "title": "P12 loaded overvoltage/interruption behavior",
+      "metrics": {
+        "protected_absolute_peak_v": {
+          "unit": "V",
+          "minimum": 0,
+          "maximum": 18,
+          "expected": null,
+          "limit_status": "design_allocation"
+        },
+        "fault_to_open_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "all_rails_disable": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "minimum_load",
+        "maximum_allocated_load",
+        "approved_hot_condition"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Record source threshold, protected voltage, all gate-source voltages and fault current with the reviewed energy-limited fixture. The old 125 us interruption term is an unproved allocation, not a guaranteed full-device or fault-to-dry limit.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure"
+      ]
+    },
+    {
+      "id": "disconnect_fault_N12",
+      "stage": 4,
+      "title": "N12 loaded overvoltage/interruption behavior",
+      "metrics": {
+        "protected_absolute_peak_v": {
+          "unit": "V",
+          "minimum": 0,
+          "maximum": 18,
+          "expected": null,
+          "limit_status": "design_allocation"
+        },
+        "fault_to_open_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "all_rails_disable": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "minimum_load",
+        "maximum_allocated_load",
+        "approved_hot_condition"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Record source threshold, protected voltage, all gate-source voltages and fault current with the reviewed energy-limited fixture. The old 125 us interruption term is an unproved allocation, not a guaranteed full-device or fault-to-dry limit.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure"
+      ]
+    },
+    {
+      "id": "disconnect_fault_V5_REG",
+      "stage": 4,
+      "title": "V5_REG loaded overvoltage/interruption behavior",
+      "metrics": {
+        "protected_absolute_peak_v": {
+          "unit": "V",
+          "minimum": 0,
+          "maximum": 5.5,
+          "expected": null,
+          "limit_status": "design_allocation"
+        },
+        "fault_to_open_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "all_rails_disable": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "minimum_load",
+        "maximum_allocated_load",
+        "approved_hot_condition"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Record source threshold, protected voltage, all gate-source voltages and fault current with the reviewed energy-limited fixture. The old 125 us interruption term is an unproved allocation, not a guaranteed full-device or fault-to-dry limit.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure"
+      ]
+    },
+    {
+      "id": "disconnect_fault_5V_DIG",
+      "stage": 4,
+      "title": "5V_DIG loaded overvoltage/interruption behavior",
+      "metrics": {
+        "protected_absolute_peak_v": {
+          "unit": "V",
+          "minimum": 0,
+          "maximum": 5.5,
+          "expected": null,
+          "limit_status": "design_allocation"
+        },
+        "fault_to_open_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "all_rails_disable": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "minimum_load",
+        "maximum_allocated_load",
+        "approved_hot_condition"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe",
+        "load"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Record source threshold, protected voltage, all gate-source voltages and fault current with the reviewed energy-limited fixture. The old 125 us interruption term is an unproved allocation, not a guaranteed full-device or fault-to-dry limit.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure"
+      ]
+    },
+    {
+      "id": "gate_banks",
+      "stage": 4,
+      "title": "Opposing MOSFET banks, leakage and power-domain transitions",
+      "metrics": {
+        "banks_disable_on_fault": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "no_unintended_backfeed": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "turnoff_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "hot_vgs_v": {
+          "unit": "V",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "cold",
+        "approved_hot_condition",
+        "asymmetric_power_loss"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "current_probe",
+        "temperature"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Observe every gate relative to its own common-source node, including the two parallel digital devices on each side. Measure current sharing and residual conduction. Datasheet timing at a different gate load is not an acceptance limit here.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure"
+      ]
+    },
+    {
+      "id": "manual_bypass",
+      "stage": 4,
+      "title": "Manual contacts, gain change and independent relay qualification",
+      "metrics": {
+        "dry_on_manual_bypass": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "fresh_permit_after_fault": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "contact_bounce_ms": {
+          "unit": "ms",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "audio_click_peak_v": {
+          "unit": "V",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "manual_press_release",
+        "both_gain_edges",
+        "switch_pole_skew"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "audio_analyzer"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Measure actual wet/dry and input contact continuity independently of latch Q. Exercise manual bypass and mode contacts; capture coil/TVS, gain request, readiness, permit and audio. E11 contains K1/K2; its optional J4 must not add duplicate coils.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure"
+      ]
+    },
+    {
+      "id": "watchdog",
+      "stage": 4,
+      "title": "Real audio and foreground stalls, frozen heartbeat and permit",
+      "metrics": {
+        "dry_on_stall": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "no_false_rearm": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "fault_to_dry_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "audio_isr_stopped",
+        "foreground_stopped",
+        "heartbeat_frozen_high",
+        "heartbeat_frozen_low",
+        "permit_frozen_high"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "debug_trace"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use a source-hashed fault-injection firmware image; stop each execution path independently. Pulling a GPIO manually is not a processor-stall test. Record real contacts and remaining signal behavior across watchdog phases.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure"
+      ]
+    },
+    {
+      "id": "front_controls",
+      "stage": 5,
+      "title": "All controls, touch/angle sensors and bus failure behavior",
+      "metrics": {
+        "wrong_control_count": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "stuck_control_count": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "safe_on_bus_fault": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "scan_latency_us": {
+          "unit": "us",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "32_contact_functions",
+        "10_pots_endpoints_centers",
+        "touch_angle_full_travel",
+        "i2c_disconnect_chatter"
+      ],
+      "instrument_kinds": [
+        "logic_analyzer",
+        "debug_trace"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Walk the 320-pair logical map against purchased terminal assignments. Exercise every contact, selector endpoint, pot, touch region and full release stroke; disconnect each bus/sensor and verify fault policy. Physical switch pin numbering is not established by logical labels.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog"
+      ]
+    },
+    {
+      "id": "led_display",
+      "stage": 5,
+      "title": "All 96 sinks, emitter anodes and partial-power/latch behavior",
+      "metrics": {
+        "wrong_channel_count": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "safe_partial_power": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "peak_supply_a": {
+          "unit": "A",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "walking_96_channels",
+        "maximum_selected_pattern",
+        "partial_power_restore"
+      ],
+      "instrument_kinds": [
+        "logic_analyzer",
+        "current_probe",
+        "oscilloscope"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use the selected 2.54-to-1.27 mm adapter and reviewed common-anode assignments. Verify scan order, brightness/current, blank/latch edges and restore behavior. Schematic sink channels do not complete a physical emitter board.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog"
+      ]
+    },
+    {
+      "id": "sd_boot",
+      "stage": 5,
+      "title": "Real-card startup, malformed files, removal and fallback",
+      "metrics": {
+        "safe_factory_fallback": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "no_partial_asset_commit": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "no_filesystem_after_audio_start": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        },
+        "boot_elapsed_ms": {
+          "unit": "ms",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "peak_card_current_a": {
+          "unit": "A",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "missing_card",
+        "valid_card",
+        "malformed_assets",
+        "card_removed_during_read",
+        "slow_or_faulting_card",
+        "allocation_refusal"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "logic_analyzer",
+        "debug_trace",
+        "current_probe"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Capture J12 power/inrush, SD lines, file-result diagnostics, heartbeat/converter/permit and elapsed time. The software checks an 8 s inter-operation budget; blocking SDK calls may exceed it. Do not use 8 s as a hard test limit or qualify current from a host file test.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog"
+      ]
+    },
+    {
+      "id": "sd_dma_cache",
+      "stage": 5,
+      "title": "SDMMC DMA/cache and SRAM behavior on the real MCU",
+      "metrics": {
+        "corrupt_read_count": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "memory_guard_failures": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "dma_region_correct": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "cold_cache",
+        "repeated_fragmented_reads",
+        "card_errors"
+      ],
+      "instrument_kinds": [
+        "debug_trace",
+        "logic_analyzer"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Bind captures to the actual ELF and selected SDK; inspect AXI DMA addresses/cache maintenance, guard data and checksums across repeated/error reads. ELF addresses alone do not demonstrate live DMA/cache correctness.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog"
+      ]
+    },
+    {
+      "id": "audio_callback",
+      "stage": 5,
+      "title": "Physical callback deadline and no filesystem/allocation in audio",
+      "metrics": {
+        "callback_allocations": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "callback_filesystem_calls": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "deadline_misses": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "maximum_callback_us": {
+          "unit": "us",
+          "minimum": 0,
+          "maximum": 2400,
+          "expected": null,
+          "limit_status": "firmware_trip_threshold"
+        }
+      },
+      "conditions": [
+        "neutral",
+        "effect_control_stress",
+        "sensor_faults",
+        "after_sd_boot"
+      ],
+      "instrument_kinds": [
+        "oscilloscope",
+        "debug_trace"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use calibrated timing capture and source-hashed instrumentation around the real 48 kHz/128-frame callback. Include interrupt/control load. The firmware trips above 2400 us; passing this test does not establish end-to-end latency.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog"
+      ]
+    },
+    {
+      "id": "analog_gain",
+      "stage": 6,
+      "title": "Full stereo gain calibration and mode transitions",
+      "metrics": {
+        "gain_error_db": {
+          "unit": "dB",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "channel_mismatch_db": {
+          "unit": "dB",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "no_clipping_at_rated_level": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "master_left_right",
+        "send_return_left_right",
+        "mode_transition"
+      ],
+      "instrument_kinds": [
+        "audio_analyzer",
+        "oscilloscope",
+        "dmm"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Calibrate the complete analog chain, not an isolated software gain. Record source/output level conventions, load, trims, neutral DSP and bypass comparisons. Approved trim range/gain-error and transition limits are still needed.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog",
+        "front_controls",
+        "led_display",
+        "sd_boot",
+        "sd_dma_cache",
+        "audio_callback"
+      ]
+    },
+    {
+      "id": "audio_quality",
+      "stage": 6,
+      "title": "Noise/distortion/frequency response against declared project targets",
+      "metrics": {
+        "snr_db": {
+          "unit": "dB",
+          "minimum": 98,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "thd_percent": {
+          "unit": "percent",
+          "minimum": 0,
+          "maximum": 0.005,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "response_error_db": {
+          "unit": "dB",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        }
+      },
+      "conditions": [
+        "master",
+        "send_return"
+      ],
+      "instrument_kinds": [
+        "audio_analyzer"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Record 20 Hz-20 kHz sweep, noise, distortion, residual source/analyzer floor, weighting, bandwidth, reference level and load. Master SNR target is98 dB; Send/Return target is102 dB (a case-specific check enforces it). Frequency-response tolerance and the final comparison method remain unqualified; do not substitute THD+N for a THD target silently.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog",
+        "front_controls",
+        "led_display",
+        "sd_boot",
+        "sd_dma_cache",
+        "audio_callback"
+      ]
+    },
+    {
+      "id": "headroom_impedance",
+      "stage": 6,
+      "title": "Analog headroom and interface loading",
+      "metrics": {
+        "headroom_db": {
+          "unit": "dB",
+          "minimum": 20,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "input_impedance_ohm": {
+          "unit": "ohm",
+          "minimum": 22000,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "output_impedance_ohm": {
+          "unit": "ohm",
+          "minimum": 0,
+          "maximum": 1000,
+          "expected": null,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "master",
+        "send_return"
+      ],
+      "instrument_kinds": [
+        "audio_analyzer",
+        "oscilloscope",
+        "dmm"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Use a reviewed overload/protection fixture and declared clipping criterion. Record reference level, frequency and10k output load. These are project interface targets; raw ADC full-scale/bias stability still needs independent qualification.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog",
+        "front_controls",
+        "led_display",
+        "sd_boot",
+        "sd_dma_cache",
+        "audio_callback"
+      ]
+    },
+    {
+      "id": "audio_latency",
+      "stage": 6,
+      "title": "Stereo round-trip latency, crosstalk and effects fidelity",
+      "metrics": {
+        "latency_ms": {
+          "unit": "ms",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "crosstalk_db": {
+          "unit": "dB",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "reference_comparison_completed": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "master",
+        "send_return",
+        "effect_reference_corpus"
+      ],
+      "instrument_kinds": [
+        "audio_analyzer",
+        "oscilloscope"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Capture dry and processed stereo impulses/sweeps at declared gain/control positions, including converter and bypass latency. Reference matching and acceptable latency/crosstalk tolerances are not established by host tests.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog",
+        "front_controls",
+        "led_display",
+        "sd_boot",
+        "sd_dma_cache",
+        "audio_callback"
+      ]
+    },
+    {
+      "id": "thermal",
+      "stage": 7,
+      "title": "Enclosed full-load thermal behavior and regulator stability",
+      "metrics": {
+        "maximum_hotspot_c": {
+          "unit": "degC",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "thermal_shutdown_count": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "stable_all_rails": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "idle",
+        "all_selected_loads",
+        "approved_warm_ambient"
+      ],
+      "instrument_kinds": [
+        "temperature",
+        "oscilloscope",
+        "current_probe"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Record ambient, case/component hotspots, estimated junction temperatures and actual stackup/airflow. For baseline digital-source accuracy the0..85 C junction allocation matters; P01 has a different source and needs its own thermal review. Do not treat an absolute maximum or the CAD vent gap as a thermal qualification.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog",
+        "front_controls",
+        "led_display",
+        "sd_boot",
+        "sd_dma_cache",
+        "audio_callback",
+        "analog_gain",
+        "audio_quality",
+        "headroom_impedance",
+        "audio_latency"
+      ]
+    },
+    {
+      "id": "emi",
+      "stage": 7,
+      "title": "Conducted/radiated emissions and audio coupling characterization",
+      "metrics": {
+        "worst_spur_level": {
+          "unit": "declared_unit",
+          "minimum": null,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "unqualified"
+        },
+        "no_observed_functional_upset": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "clocks_leds_active",
+        "sd_boot",
+        "power_load_steps"
+      ],
+      "instrument_kinds": [
+        "spectrum_analyzer",
+        "oscilloscope"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "Document probe/antenna/coupler geometry, bandwidth, detector and environment. Applicable standard, limits and compliance setup have not been selected; this is characterization, not an EMI-compliance pass.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog",
+        "front_controls",
+        "led_display",
+        "sd_boot",
+        "sd_dma_cache",
+        "audio_callback",
+        "analog_gain",
+        "audio_quality",
+        "headroom_impedance",
+        "audio_latency"
+      ]
+    },
+    {
+      "id": "soak",
+      "stage": 7,
+      "title": "Two-hour powered standalone audio/control session",
+      "metrics": {
+        "duration_s": {
+          "unit": "s",
+          "minimum": 7200,
+          "maximum": null,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "sustained_dropout_count": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "uncommanded_rearm_count": {
+          "unit": "count",
+          "minimum": 0,
+          "maximum": 0,
+          "expected": null,
+          "limit_status": "project_target"
+        },
+        "post_test_fault_policy_passes": {
+          "unit": "bool",
+          "minimum": null,
+          "maximum": null,
+          "expected": true,
+          "limit_status": "project_target"
+        }
+      },
+      "conditions": [
+        "continuous_session"
+      ],
+      "instrument_kinds": [
+        "audio_analyzer",
+        "debug_trace",
+        "temperature"
+      ],
+      "requires_completed_system_design": true,
+      "prerequisite": "Completed/reviewed system design and staged assembly release",
+      "procedure": "After the earlier stages pass, exercise effects/controls and completed storage behavior in the actual enclosure. Retain continuous recordings/logs and warm repeat-fault captures. This standalone test does not claim a rekordbox routing soak.",
+      "requires_case_ids": [
+        "input_protection",
+        "source_P19",
+        "protected_star_P19",
+        "source_N19",
+        "protected_star_N19",
+        "source_P12",
+        "protected_star_P12",
+        "source_N12",
+        "protected_star_N12",
+        "source_V5_REG",
+        "protected_star_V5_REG",
+        "source_5V_DIG",
+        "protected_star_5V_DIG",
+        "input_faults",
+        "ripple_load_steps",
+        "startup",
+        "late_gate_closure",
+        "brownout",
+        "disconnect_fault_P19",
+        "disconnect_fault_N19",
+        "disconnect_fault_P12",
+        "disconnect_fault_N12",
+        "disconnect_fault_V5_REG",
+        "disconnect_fault_5V_DIG",
+        "gate_banks",
+        "manual_bypass",
+        "watchdog",
+        "front_controls",
+        "led_display",
+        "sd_boot",
+        "sd_dma_cache",
+        "audio_callback",
+        "analog_gain",
+        "audio_quality",
+        "headroom_impedance",
+        "audio_latency"
+      ]
+    }
+  ],
+  "full_unit_power_up_released": false,
+  "actual_measurements_performed": false,
+  "build_ready": false,
+  "plan_sha256": "a036f6e93b10afe2d19fc71f2524e56d79f44191dcbcbb16c1681dec42f975c2"
+}

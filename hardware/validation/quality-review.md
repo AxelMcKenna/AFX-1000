@@ -1,0 +1,19 @@
+# Complete standalone acceptance boundary
+
+The intended result is an assembled standalone RMX-style processor with working audio, every physical control and indicator, boot storage, bypass/protection, and the expected enclosure fit and feel. The working unit is the acceptance target. Native CAD, compilation and host tests are supporting evidence; no physical measurements have been performed.
+
+| Area | Current evidence | Work required for complete-unit acceptance |
+| --- | --- | --- |
+| Maintained DSP and controls | F06 uses the current engine, all 152 parameters and 122 advanced User settings. Host suites exercise shared gestures, faults, storage and exact kernel restoration. Both SRAM audio profiles have separate build records. | Run the actual MCU, characterize callback deadlines and SDRAM/cache behavior, test every fitted control/indicator and failure recovery, and measure the complete audio path. |
+| Boot media | Transactional cold-boot WAV/project-profile reading, fixed slots and explicit limits. | Select and wire the real SD assembly, measure current/inrush and boot behavior, and exercise actual cards/failures. Original RSD, writing and live reload remain unimplemented. |
+| Source and distribution | P02 native schematic and conditional independent source-to-load interval analysis. | Implement the replacement source PCB and ≥4 A input profile, precise return attachments and actual harness/fanout system. Extract copper losses and qualify regulation, startup/late closure, SOA, stability and thermal behavior. The old E23 input profile is incompatible. |
+| Disconnect | E26 is an explicit placement/routing revision. E25 and original A11 geometry remain preserved. | Close native routing, demonstrate actual power/return resistance and switch behavior, then integrate its changed component/header positions into a new mechanical revision. |
+| Analog and converter | E10 input and E12 ADC candidates have native copper evidence. ESS register/pin review checks 49 pins and 45 settings. | Obtain the dimensioned ESS package/land guidance or select a documented replacement; finish converter, rail-monitor, DAC-receiver and sequenced-bypass PCBs. E12 header sensing does not close converter-pin feedback. Qualify the real analog chain. |
+| Housing and purchased controls | Compact A11 kit has 30 printable designs, 38 copies and native motion/solid checks. | Fill all 46 pending measurement rows using prints and purchased parts. Integrate new boards, bars, insulation, fasteners and thermal paths into a new housing revision; check the final assembly and repeat fit/force/durability trials. |
+| Powered behavior | Q01 defines 39 unmeasured cases for the earlier E14/E25/F05 baseline. | Revise the plan for the selected compatible assembly. Measure rails, interlocks, physical relay contacts, failures, audio, thermal/EMI behavior and standalone soak using actual fixtures and instruments. |
+
+The P02/E26 attachment interfaces are proposed top-side land regions, not installed terminals. Copper bars require selected joints, supported bends, insulation and a complete fastener stack; A11's existing underside clearance does not establish room for nuts. Voltage analysis that assumes those interfaces cannot qualify an assembly that omits them.
+
+The baseline 320-pair logical wiring map is preserved. P02 requires additional return paths and real fanouts. The SD/sensor and LED-anode assemblies still include 24 required unassigned header pins, and 19 distribution/fanout assemblies remain unselected. Do not combine independently passing candidates into an undocumented final assembly.
+
+The [development handoff](../DEVELOPMENT.md) links each reviewable source packet. Historical archives and records retain their original scope. All complete-unit, physical, fabrication and build-ready flags remain false until the corresponding work is completed and supported by real evidence.

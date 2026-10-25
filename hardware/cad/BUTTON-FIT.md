@@ -107,10 +107,10 @@ wedges, illumination and the production carrier remain separate work.
 
 ## Regenerate
 
-    python3 -m hardware.cad.button_fixture
-    build-cad-tools/bin/python -m hardware.cad.button_render --openscad /path/to/openscad
-    python3 -m hardware.electronics.button_test.generate
-    python3 -m hardware.electronics.button_test.verify --kicad-cli /path/to/kicad-cli
+    uv run --locked python -m hardware.cad.button_fixture
+    uv run --locked python -m hardware.cad.button_render --openscad /path/to/openscad
+    uv run --locked python -m hardware.electronics.button_test.generate
+    uv run --locked python -m hardware.electronics.button_test.verify --kicad-cli /path/to/kicad-cli
 
 Cap dimensions come from the existing front-panel schedule. Mesh dependencies
 are the same as the A02 enclosure. The PCB has its own native electrical/layout

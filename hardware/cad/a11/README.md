@@ -8,10 +8,12 @@ Native checks cover all printable solids, full button travel and release-lever s
 
 E25 is placed only: 365 native open connections remain. Its six-rail interlock has no routed copper, fault timing or physical protection approval. The source-harness trial also exceeds the remaining analog/digital 5 V loss budgets. Other standalone boards and full-unit integration remain unfinished. This is a mechanical review package, not a build-ready electronics release.
 
+Use the root [uv environment](../../../README.md#python-tooling) and a native OpenSCAD build. Run from the repository root:
+
 ```sh
-python3 hardware/cad/a11/build.py --openscad /path/to/openscad
-python3 -m hardware.cad.a11.verify
-python3 -m unittest discover -s tests -p 'a11_integration_tests.py' -v
+uv run --locked python hardware/cad/a11/build.py --openscad /path/to/openscad
+uv run --locked python -m hardware.cad.a11.verify
+uv run --locked python -m unittest discover -s tests -p 'a11_integration_tests.py' -v
 ```
 
 The source base remains the preserved higher-headroom design; the main checkout's B1 budget/A08 edits and earlier A09/A10 review archives remain separate. See [E25](../../electronics/rail_disconnect/placement/README.md) and the [power interconnect plan](../../wiring/README.md).

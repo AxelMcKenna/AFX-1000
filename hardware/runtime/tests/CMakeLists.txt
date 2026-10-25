@@ -30,3 +30,5 @@ foreach(suite audio_arena hardware_wire control_expanders connection_mode relay_
   rmx_add_test(${suite} firmware)
 endforeach()
 target_compile_definitions(rmx_external_converter_tests PRIVATE RMX_EXTERNAL_CONVERTER=1)
+
+rmx_add_test(boot_storage firmware rmx_core)

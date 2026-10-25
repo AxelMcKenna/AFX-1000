@@ -1,0 +1,49 @@
+Reference,Part_or_value,Footprint,Source,Note
+U1,TPSM63606RDLR,,https://www.ti.com/lit/ds/symlink/tpsm63606.pdf,Integrated 6 A module. RDL20 manufacturer land pattern must be authored/reviewed; empty footprint is an explicit fabrication hold.
+U2,LT3083IQ#PBF,Package_TO_SOT_SMD:TO-263-5_TabPin3,https://www.analog.com/media/en/technical-documentation/data-sheets/LT3083.pdf,"DD-PAK tab is 5V_DIG_SRC, never chassis/ground. Separate 10uF IN/2.2uF CONTROL/10uF OUT effective minima; thermal interface required."
+U3,LT3045IDD#PBF,Package_DFN_QFN:DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm,https://www.analog.com/media/en/technical-documentation/data-sheets/3045fa.pdf,"OUTS stays at local output capacitor, upstream of E26. Ground EP differs from old LT3080 output EP."
+U4,ADR4550BRZ,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,https://www.analog.com/media/en/technical-documentation/data-sheets/adr4520_4525_4530_4533_4540_4550.pdf,B grade; reference drift/humidity/assembly limits require qualification beyond guaranteed initial/TC/line/load terms.
+U5,OPA2192ID,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,https://www.ti.com/lit/ds/symlink/opa2192.pdf,Independent local SET loops; gain1.008 digital/1.0012 analog. No load-side or E26 feedback sense wires.
+R1,50k 0.01% 5ppm,Resistor_SMD:R_0805_2012Metric,,
+R2,10k 0.01% 5ppm,Resistor_SMD:R_0805_2012Metric,,
+R3,13k 1%,Resistor_SMD:R_0805_2012Metric,,
+R4,10k 1%,Resistor_SMD:R_0805_2012Metric,,
+R5,22k 1%,Resistor_SMD:R_0805_2012Metric,,Receiving pulldown; verify actual off-state leakage/noise. Module EN is not MCU power permission.
+R6,10k 0.01% 5ppm,Resistor_SMD:R_0805_2012Metric,,Filtered SET ramp; effective C>=12.69uF and aggregate capacitor leakage<=30nA are requirements.
+R7,6.8k 1%,Resistor_SMD:R_0805_2012Metric,,Fault SET-current limit; amplifier can sink full regulator SET current.
+R8,800 0.01% 5ppm,Resistor_SMD:R_0805_2012Metric,,
+R9,100k 0.01% 5ppm,Resistor_SMD:R_0805_2012Metric,,
+R10,100k 0.01% 5ppm,Resistor_SMD:R_0805_2012Metric,,
+C1,47nF 50V C0G 5%,Capacitor_SMD:C_1210_3225Metric,,Local high-frequency feedback; finite loop stability remains a qualification hold.
+C2,100nF 25V X7R,Capacitor_SMD:C_1210_3225Metric,,
+R11,6.8k 1%,Resistor_SMD:R_0805_2012Metric,,Fault SET-current limit; amplifier can sink full regulator SET current.
+R12,120 0.01% 5ppm,Resistor_SMD:R_0805_2012Metric,,
+R13,100k 0.01% 5ppm,Resistor_SMD:R_0805_2012Metric,,
+R14,100k 0.01% 5ppm,Resistor_SMD:R_0805_2012Metric,,
+C3,47nF 50V C0G 5%,Capacitor_SMD:C_1210_3225Metric,,Local high-frequency feedback; finite loop stability remains a qualification hold.
+C4,100nF 25V X7R,Capacitor_SMD:C_1210_3225Metric,,
+R15,909 1%,Resistor_SMD:R_0805_2012Metric,,"Source-side minimum-load bleed, >=5mA at normal corners; choose>=0.125W rating."
+R16,2.21k 1%,Resistor_SMD:R_0805_2012Metric,,Source-side analog bleed; own current added beyond the 0.251A protected budget.
+C5,10uF 50V X7R,Capacitor_SMD:C_1210_3225Metric,,TPSM63606 local CIN; candidate effective>=5uF each; MPN/DC bias qualification open.
+C6,10uF 50V X7R,Capacitor_SMD:C_1210_3225Metric,,TPSM63606 local CIN; candidate effective>=5uF each; MPN/DC bias qualification open.
+C7,47uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,"Module local COUT; candidate effective>=15uF each, combined local/direct PRE bounds checked."
+C8,47uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,"Module local COUT; candidate effective>=15uF each, combined local/direct PRE bounds checked."
+C9,22uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,LT3083 local IN; effective>=10uF.
+C10,10uF 25V X7R,Capacitor_SMD:C_1210_3225Metric,,LT3083 local VCONTROL; effective>=2.2uF.
+C11,10uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,LT3045 local IN; effective>=4.7uF.
+C12,1uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,ADR4550 local IN; effective>=0.1uF.
+C13,1uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,ADR4550 local output; effective0.1..100uF requirement.
+C14,4.7uF film 63V 10%,,https://www.wima.de/wp-content/uploads/media/d_WIMA_MKS_2.pdf,Combined effective>=12.69uF. Hot/aged leakage<=10nA per capacitor requires component qualification.
+C15,4.7uF film 63V 10%,,https://www.wima.de/wp-content/uploads/media/d_WIMA_MKS_2.pdf,Combined effective>=12.69uF. Hot/aged leakage<=10nA per capacitor requires component qualification.
+C16,4.7uF film 63V 10%,,https://www.wima.de/wp-content/uploads/media/d_WIMA_MKS_2.pdf,Combined effective>=12.69uF. Hot/aged leakage<=10nA per capacitor requires component qualification.
+C17,22uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,"LT3083 local COUT; effective>=10uF, ESR<=0.5ohm; remote E26 bulk is beyond the postreg."
+C18,22uF 16V X7R,Capacitor_SMD:C_1210_3225Metric,,LT3045 local COUT; effective>=10uF and local OUTS Kelvin connection.
+C19,100nF 25V X7R,Capacitor_SMD:C_1210_3225Metric,,OPA2192 local supply bypass.
+C20,100nF 25V X7R,Capacitor_SMD:C_1210_3225Metric,,VLDOIN bypass at module pin5.
+C21,18pF 50V C0G 5%,Capacitor_SMD:C_1210_3225Metric,,"Feedforward candidate, 50k x 18pF = 0.9us; validate TI compensation and actual effective capacitors."
+J1,Header3,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,,Logical engineering boundary only; production current/contact/retention interface must replace/review these headers.
+J2,Header2,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,,Logical engineering boundary only; production current/contact/retention interface must replace/review these headers.
+J3,Header2,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,,Logical engineering boundary only; production current/contact/retention interface must replace/review these headers.
+J4,Header2,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,,Logical engineering boundary only; production current/contact/retention interface must replace/review these headers.
+J5,AGND_TOP_STRAP_ATTACHMENT,,,Separate source quiet-star top attachment to E26 analog AGND star; <=2mohm full connection; contact/stud/support/land not fabrication released.
+J6,AGND_TOP_STRAP_ATTACHMENT,,,Separate source quiet-star top attachment to E26 digital AGND star; <=2mohm full connection; contact/stud/support/land not fabrication released.

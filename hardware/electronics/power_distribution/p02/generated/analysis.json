@@ -1,0 +1,1230 @@
+{
+  "revision": "P02",
+  "native_contract": {
+    "components": 48,
+    "exact_native_pin_value_contract": true,
+    "unassigned_land_patterns": [
+      "U1:TI_RDL20_TPSM63606",
+      "C14:C15:C16 selected film packages",
+      "J5:J6 source top strap attachments"
+    ]
+  },
+  "source_corners": {
+    "reference_symmetric_terms_v": {
+      "initial": 0.001,
+      "box_temperature": 0.0016499999999999998,
+      "line": 0.000495,
+      "load": 4.0000000000000003e-07,
+      "assembly_aging_humidity_allocation": 0.002,
+      "opamp_offset": 0.00035,
+      "positive_bias": 0.0001
+    },
+    "one_sided_filter_leakage_v": 0.0003,
+    "capacitor_leakage_guaranteed": false,
+    "precision_total_resistor_error_fraction": 0.001,
+    "channels": {
+      "DIG": {
+        "nominal_v": 5.04,
+        "source_interval_v": [
+          5.022169619007684,
+          5.05752834096766
+        ],
+        "regulator_offset_load_line_thermal_sum_v": 0.011300000000000001,
+        "negative_bias_v": 0.000503968253968254,
+        "gain_interval": [
+          1.0079840159840159,
+          1.008016016016016
+        ]
+      },
+      "ANA": {
+        "nominal_v": 5.006,
+        "source_interval_v": [
+          4.996730352843075,
+          5.014969341137055
+        ],
+        "regulator_offset_load_line_thermal_sum_v": 0.0028539999999999998,
+        "negative_bias_v": 0.0005005992808629644,
+        "gain_interval": [
+          1.0011976023976024,
+          1.0012024024024024
+        ]
+      }
+    }
+  },
+  "legacy_native_power_domains": {
+    "raw_converter_vin_net": "VIN_PROTECTED",
+    "raw_inductors_vin_net": "VIN_PROTECTED",
+    "digital_source_local_consumers": [
+      "R6",
+      "R7",
+      "R49",
+      "R50",
+      "U4.2 REF5025",
+      "U10.5 LT3090 SHDN",
+      "U11.5 LT3090 SHDN"
+    ],
+    "digital_local_allocation_a": 0.018,
+    "source_sha256": "38efeb26e997bac2d366377e27748420344160390fd7b9f155b817ddea228b00"
+  },
+  "actual_endpoint_contract": {
+    "interboard_5v_positive_wires": 9,
+    "native_boards_checked": 8,
+    "led_anode_groups": 4,
+    "gain_returns_are_gain_low": true,
+    "additional_converter_ground_required": true,
+    "source_sha256": {
+      "hardware/electronics/adc_driver/generated/netlist.xml": "885a2cf83365ef9d072bae969b5e9d61e9f1d8e3f9f5000f22a8ac12b0bcc1d2",
+      "hardware/electronics/converter/generated/netlist.xml": "9ca3e981ae832ed2ea9c3d0676836f066183dec038d1c9d847365ec002d71915",
+      "hardware/electronics/rail_monitor/generated/netlist.xml": "07f25446f58dac14dac5967508275aa04cff29c556e74aaab7efbb52de6f24d4",
+      "hardware/electronics/processor_carrier/generated/netlist.xml": "ca01191418b3e20de8b627ab95fdd07cb8fd421d9715fd79d49d9f0c5543f821",
+      "hardware/electronics/sequenced_bypass/generated/netlist.xml": "ce771ea26cafaefb20ceb1da511070f3c19d21bf1a64658aea92f6a7d25cc0ac",
+      "hardware/electronics/input_range/generated/netlist.xml": "3ee827ca05721188518211ef3fc9e43c615f8bbebcdb9eb75b9e313fd562691d",
+      "hardware/electronics/output_stage/generated/netlist.xml": "3a53c901b2303cd81f04a9104af5a2ded6c4eb49f3ab591634d686960d791410",
+      "hardware/electronics/led_driver/generated/netlist.xml": "2600895cd7f1f05ed5aa2e36d455d3c803307c0ceed56099d6b6f236b337b3ec"
+    }
+  },
+  "module_to_existing_psu_binding": {
+    "P02.J1.1": "power_supply.J1.1 VIN_PROTECTED",
+    "P02.J1.2": "power_supply quiet AGND",
+    "P02.J1.3": "power_supply.J5.2 POWER_READY",
+    "P02.J2.1": "power_supply.J3.1 5V_DIG_SRC (old source removed)",
+    "P02.J3.1": "power_supply.J2.6 V5_REG_SRC (old source removed)",
+    "direct_connector_interchangeable": false,
+    "native_existing_psu_replacement_layout_implemented": false
+  },
+  "return_architecture": {
+    "bars": {
+      "analog": {
+        "maximum_copper_length_m": 0.18,
+        "minimum_section_mm2": 20,
+        "example_section_mm": [
+          10,
+          2
+        ],
+        "copper_at_100c_ohm": 0.00020394230399999996,
+        "two_hot_eol_joint_allocation_ohm": 0.0007,
+        "combined_source_and_e26_access_allocation_ohm": 0.001,
+        "total_ohm": 0.001903942304,
+        "analysis_upper_ohm": 0.002
+      },
+      "digital": {
+        "maximum_copper_length_m": 0.09,
+        "minimum_section_mm2": 20,
+        "example_section_mm": [
+          10,
+          2
+        ],
+        "copper_at_100c_ohm": 0.00010197115199999998,
+        "two_hot_eol_joint_allocation_ohm": 0.0007,
+        "combined_source_and_e26_access_allocation_ohm": 0.001,
+        "total_ohm": 0.0018019711520000001,
+        "analysis_upper_ohm": 0.002
+      }
+    },
+    "quiet_source_attachments": [
+      "P02.J5.1",
+      "P02.J6.1"
+    ],
+    "e26_top_attachment_proposals": {
+      "analog": {
+        "centre_board_mm": [
+          111,
+          39.5
+        ],
+        "area_mm": [
+          10,
+          8
+        ]
+      },
+      "digital": {
+        "centre_board_mm": [
+          128,
+          27
+        ],
+        "area_mm": [
+          10,
+          8
+        ]
+      },
+      "datum_enclosure_mm": [
+        8,
+        108.5,
+        4.6
+      ],
+      "implemented_in_pcb": false,
+      "reservation_to_original_header_star_path_included_in_access_allocation": true
+    },
+    "full_strap_length_includes_bends": true,
+    "top_studs_supports_and_insulation_implemented": false,
+    "a11_clearance_or_support_demonstrated": false,
+    "existing_0p3mm_underside_gap_accepts_nuts": false,
+    "supplemental_converter_return": "E26.J3.2 -> converter.J4.2 AGND; requires real fanout assembly",
+    "contact_limits_guaranteed": false,
+    "mechanical_fit_verified": false
+  },
+  "source_to_load": {
+    "endpoints": {
+      "processor_5v": {
+        "rail": "DIG",
+        "board": "processor_carrier",
+        "pin": "J1.1",
+        "loads": [
+          "seed_local",
+          "led_logic",
+          "led_group_1",
+          "led_group_2",
+          "led_group_3",
+          "led_group_4"
+        ],
+        "paths": {
+          "DIG": 0.015960983692307692,
+          "processor": 0.006634153076923077
+        },
+        "minimum_v": 4.939900121190664,
+        "maximum_v": 5.083497106271301,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.02658266139675594
+          ],
+          [
+            "led_logic",
+            0.010101411330767258
+          ],
+          [
+            "digital_reserve",
+            0.007025782860061169
+          ],
+          [
+            "led_group_1",
+            0.0025519354940885704
+          ]
+        ]
+      },
+      "led_5v": {
+        "rail": "DIG",
+        "board": "led_driver",
+        "pin": "J1.2",
+        "loads": [
+          "led_logic",
+          "led_group_1",
+          "led_group_2",
+          "led_group_3",
+          "led_group_4"
+        ],
+        "paths": {
+          "DIG": 0.015960983692307692,
+          "processor": 0.006634153076923077,
+          "led": 0.007075748641221374
+        },
+        "minimum_v": 4.9311914760594195,
+        "maximum_v": 5.0838220310065365,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.02658266139675594
+          ],
+          [
+            "led_logic",
+            0.014134588056263442
+          ],
+          [
+            "digital_reserve",
+            0.007025782860061169
+          ],
+          [
+            "led_group_1",
+            0.0035708432984244485
+          ]
+        ]
+      },
+      "bypass_5v": {
+        "rail": "DIG",
+        "board": "sequenced_bypass",
+        "pin": "J1.1",
+        "loads": [
+          "bypass",
+          "gain_input",
+          "gain_output"
+        ],
+        "paths": {
+          "DIG": 0.015960983692307692,
+          "bypass": 0.00913005880923451
+        },
+        "minimum_v": 4.949572682587408,
+        "maximum_v": 5.0836062463118346,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.019948508319832865
+          ],
+          [
+            "led_logic",
+            0.00781590447648238
+          ],
+          [
+            "digital_reserve",
+            0.007025782860061169
+          ],
+          [
+            "bypass",
+            0.0023758582787350513
+          ]
+        ]
+      },
+      "monitor_digital": {
+        "rail": "DIG",
+        "board": "rail_monitor",
+        "pin": "J1.1",
+        "loads": [
+          "monitor_digital"
+        ],
+        "paths": {
+          "DIG": 0.015960983692307692,
+          "branch": 0.00913005880923451
+        },
+        "minimum_v": 4.9507685093015885,
+        "maximum_v": 5.083511202911278,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.019948508319832865
+          ],
+          [
+            "led_logic",
+            0.00761069713436773
+          ],
+          [
+            "digital_reserve",
+            0.007025782860061169
+          ],
+          [
+            "monitor_digital",
+            0.002332656733026704
+          ]
+        ]
+      },
+      "adc_5v": {
+        "rail": "ANA",
+        "board": "adc_driver",
+        "pin": "J3.4",
+        "loads": [
+          "adc_5v"
+        ],
+        "paths": {
+          "ANA": 0.015960983692307692,
+          "branch": 0.00913005880923451
+        },
+        "minimum_v": 4.976798101742225,
+        "maximum_v": 5.022630376758436,
+        "target_v": [
+          4.975,
+          5.025
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.003987524627525174
+          ],
+          [
+            "adc_5v",
+            0.003017055960467386
+          ],
+          [
+            "converter_5v",
+            0.002778536958522624
+          ],
+          [
+            "led_logic",
+            0.0019302164991900307
+          ]
+        ]
+      },
+      "converter_5v": {
+        "rail": "ANA",
+        "board": "converter",
+        "pin": "J4.1",
+        "loads": [
+          "converter_5v"
+        ],
+        "paths": {
+          "ANA": 0.015960983692307692,
+          "branch": 0.00913005880923451
+        },
+        "minimum_v": 4.977920030283864,
+        "maximum_v": 5.022420085051359,
+        "target_v": [
+          4.975,
+          5.025
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "converter_5v",
+            0.0040567451918154555
+          ],
+          [
+            "seed_local",
+            0.0038857088685681903
+          ],
+          [
+            "adc_5v",
+            0.0019846692560875883
+          ],
+          [
+            "led_logic",
+            0.0014765693700559124
+          ]
+        ]
+      },
+      "monitor_5v": {
+        "rail": "ANA",
+        "board": "rail_monitor",
+        "pin": "J2.6",
+        "loads": [
+          "monitor_5v"
+        ],
+        "paths": {
+          "ANA": 0.015960983692307692,
+          "branch": 0.00913005880923451
+        },
+        "minimum_v": 4.978832411620059,
+        "maximum_v": 5.022452203080673,
+        "target_v": [
+          4.975,
+          5.025
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.003987524627525174
+          ],
+          [
+            "converter_5v",
+            0.002778536958522624
+          ],
+          [
+            "adc_5v",
+            0.002002815035359929
+          ],
+          [
+            "led_logic",
+            0.0015455233312908078
+          ]
+        ]
+      },
+      "led_anode_1": {
+        "rail": "DIG",
+        "board": "led_driver",
+        "pin": "J2.25/26 -> emitter anode",
+        "loads": [
+          "led_group_1"
+        ],
+        "paths": {
+          "DIG": 0.015960983692307692,
+          "processor": 0.006634153076923077,
+          "led": 0.007075748641221374,
+          "branch": 0.015426498159509205
+        },
+        "minimum_v": 4.929710532236107,
+        "maximum_v": 5.0838220310065365,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.02658266139675594
+          ],
+          [
+            "led_logic",
+            0.014134588056263442
+          ],
+          [
+            "digital_reserve",
+            0.007025782860061169
+          ],
+          [
+            "led_group_1",
+            0.005051787121737332
+          ]
+        ]
+      },
+      "led_anode_2": {
+        "rail": "DIG",
+        "board": "led_driver",
+        "pin": "J3.25/26 -> emitter anode",
+        "loads": [
+          "led_group_2"
+        ],
+        "paths": {
+          "DIG": 0.015960983692307692,
+          "processor": 0.006634153076923077,
+          "led": 0.007075748641221374,
+          "branch": 0.015426498159509205
+        },
+        "minimum_v": 4.929710532236107,
+        "maximum_v": 5.0838220310065365,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.02658266139675594
+          ],
+          [
+            "led_logic",
+            0.014134588056263442
+          ],
+          [
+            "digital_reserve",
+            0.007025782860061169
+          ],
+          [
+            "led_group_2",
+            0.005051787121737332
+          ]
+        ]
+      },
+      "led_anode_3": {
+        "rail": "DIG",
+        "board": "led_driver",
+        "pin": "J4.25/26 -> emitter anode",
+        "loads": [
+          "led_group_3"
+        ],
+        "paths": {
+          "DIG": 0.015960983692307692,
+          "processor": 0.006634153076923077,
+          "led": 0.007075748641221374,
+          "branch": 0.015426498159509205
+        },
+        "minimum_v": 4.929710532236107,
+        "maximum_v": 5.0838220310065365,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.02658266139675594
+          ],
+          [
+            "led_logic",
+            0.014134588056263442
+          ],
+          [
+            "digital_reserve",
+            0.007025782860061169
+          ],
+          [
+            "led_group_3",
+            0.005051787121737332
+          ]
+        ]
+      },
+      "led_anode_4": {
+        "rail": "DIG",
+        "board": "led_driver",
+        "pin": "J5.25/26 -> emitter anode",
+        "loads": [
+          "led_group_4"
+        ],
+        "paths": {
+          "DIG": 0.015960983692307692,
+          "processor": 0.006634153076923077,
+          "led": 0.007075748641221374,
+          "branch": 0.015426498159509205
+        },
+        "minimum_v": 4.929710532236107,
+        "maximum_v": 5.0838220310065365,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.02658266139675594
+          ],
+          [
+            "led_logic",
+            0.014134588056263442
+          ],
+          [
+            "digital_reserve",
+            0.007025782860061169
+          ],
+          [
+            "led_group_4",
+            0.005051787121737332
+          ]
+        ]
+      },
+      "gain_input": {
+        "rail": "DIG",
+        "board": "sequenced_bypass",
+        "pin": "J4.1-2 coil on input_range",
+        "loads": [
+          "gain_input"
+        ],
+        "paths": {
+          "DIG": 0.015960983692307692,
+          "bypass": 0.00913005880923451,
+          "gain_fet": 0.15,
+          "branch": 0.03085299631901841
+        },
+        "minimum_v": 4.939647092697837,
+        "maximum_v": 5.0836062463118346,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.019948508319832865
+          ],
+          [
+            "led_logic",
+            0.00781590447648238
+          ],
+          [
+            "digital_reserve",
+            0.007025782860061169
+          ],
+          [
+            "gain_input",
+            0.006316536744096196
+          ]
+        ]
+      },
+      "gain_output": {
+        "rail": "DIG",
+        "board": "sequenced_bypass",
+        "pin": "J3.1-2 coil on output_stage",
+        "loads": [
+          "gain_output"
+        ],
+        "paths": {
+          "DIG": 0.015960983692307692,
+          "bypass": 0.00913005880923451,
+          "gain_fet": 0.15,
+          "branch": 0.03085299631901841
+        },
+        "minimum_v": 4.939647092697837,
+        "maximum_v": 5.0836062463118346,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.019948508319832865
+          ],
+          [
+            "led_logic",
+            0.00781590447648238
+          ],
+          [
+            "digital_reserve",
+            0.007025782860061169
+          ],
+          [
+            "gain_output",
+            0.006316536744096196
+          ]
+        ]
+      }
+    },
+    "all_pass": true,
+    "ground_nodes": [
+      "E26_A_GND",
+      "E26_D_GND",
+      "adc_driver",
+      "control_inputs",
+      "converter",
+      "dac_receiver",
+      "input_protection",
+      "input_range",
+      "led_driver",
+      "output_stage",
+      "processor_carrier",
+      "rail_monitor",
+      "sequenced_bypass"
+    ],
+    "ground_edges": [
+      {
+        "a": "input_protection",
+        "b": "power_supply",
+        "max_ohm": 0.001,
+        "min_ohm": 0,
+        "harness": "DC-PROTECTED"
+      },
+      {
+        "a": "power_supply",
+        "b": "input_protection",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "POWER-READY"
+      },
+      {
+        "a": "power_supply",
+        "b": "E26_A_GND",
+        "max_ohm": 0.006960983692307692,
+        "min_ohm": 0,
+        "harness": "PWR-ANALOG"
+      },
+      {
+        "a": "power_supply",
+        "b": "E26_D_GND",
+        "max_ohm": 0.006960983692307692,
+        "min_ohm": 0,
+        "harness": "PWR-DIGITAL"
+      },
+      {
+        "a": "input_protection",
+        "b": "E26_A_GND",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "PWR-AUX-RUN"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "output_stage",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "LOAD-OUTPUT_STAGE"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "input_range",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "LOAD-INPUT_RANGE"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "adc_driver",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "LOAD-ADC_DRIVER"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "dac_receiver",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "LOAD-DAC_RECEIVER"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "rail_monitor",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "LOAD-RAIL_MONITOR"
+      },
+      {
+        "a": "E26_D_GND",
+        "b": "processor_carrier",
+        "max_ohm": 0.006634153076923077,
+        "min_ohm": 0,
+        "harness": "DIG-PROCESSOR"
+      },
+      {
+        "a": "E26_D_GND",
+        "b": "sequenced_bypass",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "DIG-BYPASS"
+      },
+      {
+        "a": "E26_D_GND",
+        "b": "rail_monitor",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "DIG-MONITOR"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "control_inputs",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "CONTROL-BUS"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "sequenced_bypass",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "BYPASS-CONTROL"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "control_inputs",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "REAR-STATUS"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "converter",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "SAI-AUDIO"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "converter",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "CODEC-IO-POWER"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "converter",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "CODEC-CONTROL"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "sequenced_bypass",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "INPUT-READY"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "led_driver",
+        "max_ohm": 0.007075748641221374,
+        "min_ohm": 0,
+        "harness": "LED-CONTROL"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "led_driver",
+        "max_ohm": 0.007075748641221374,
+        "min_ohm": 0,
+        "harness": "LED-CONTROL"
+      },
+      {
+        "a": "rail_monitor",
+        "b": "converter",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "RAIL-HEALTH"
+      },
+      {
+        "a": "adc_driver",
+        "b": "rail_monitor",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "ADC-BIAS-SENSE"
+      },
+      {
+        "a": "sequenced_bypass",
+        "b": "input_range",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "ANALOG-IN"
+      },
+      {
+        "a": "input_range",
+        "b": "adc_driver",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "PREAMP-ADC"
+      },
+      {
+        "a": "adc_driver",
+        "b": "converter",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "ADC-CODEC"
+      },
+      {
+        "a": "converter",
+        "b": "dac_receiver",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "CODEC-DAC"
+      },
+      {
+        "a": "dac_receiver",
+        "b": "output_stage",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "DAC-OUTPUT"
+      },
+      {
+        "a": "output_stage",
+        "b": "sequenced_bypass",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "ANALOG-OUT"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "E26_D_GND",
+        "max_ohm": 0.001,
+        "min_ohm": 0,
+        "harness": "E26-defined-star-bridge"
+      },
+      {
+        "a": "power_supply",
+        "b": "E26_A_GND",
+        "max_ohm": 0.002,
+        "min_ohm": 0,
+        "harness": "P02-NEW-ANALOG-RETURN-STRAP"
+      },
+      {
+        "a": "power_supply",
+        "b": "E26_D_GND",
+        "max_ohm": 0.002,
+        "min_ohm": 0,
+        "harness": "P02-NEW-DIGITAL-RETURN-STRAP"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "converter",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "P02-CONVERTER-RETURN"
+      }
+    ],
+    "independent_load_allocations": {
+      "seed_local": {
+        "rail": "DIG",
+        "return_node": "processor_carrier",
+        "min_a": 0,
+        "max_a": 1.0
+      },
+      "led_logic": {
+        "rail": "DIG",
+        "return_node": "led_driver",
+        "min_a": 0,
+        "max_a": 0.38
+      },
+      "led_group_1": {
+        "rail": "DIG",
+        "return_node": "led_driver",
+        "min_a": 0,
+        "max_a": 0.096
+      },
+      "led_group_2": {
+        "rail": "DIG",
+        "return_node": "led_driver",
+        "min_a": 0,
+        "max_a": 0.096
+      },
+      "led_group_3": {
+        "rail": "DIG",
+        "return_node": "led_driver",
+        "min_a": 0,
+        "max_a": 0.096
+      },
+      "led_group_4": {
+        "rail": "DIG",
+        "return_node": "led_driver",
+        "min_a": 0,
+        "max_a": 0.096
+      },
+      "bypass": {
+        "rail": "DIG",
+        "return_node": "sequenced_bypass",
+        "min_a": 0,
+        "max_a": 0.08
+      },
+      "gain_input": {
+        "rail": "DIG",
+        "return_node": "sequenced_bypass",
+        "min_a": 0,
+        "max_a": 0.03
+      },
+      "gain_output": {
+        "rail": "DIG",
+        "return_node": "sequenced_bypass",
+        "min_a": 0,
+        "max_a": 0.03
+      },
+      "monitor_digital": {
+        "rail": "DIG",
+        "return_node": "rail_monitor",
+        "min_a": 0,
+        "max_a": 0.08
+      },
+      "digital_reserve": {
+        "rail": "DIG",
+        "return_node": "E26_D_GND",
+        "min_a": 0,
+        "max_a": 0.416
+      },
+      "adc_5v": {
+        "rail": "ANA",
+        "return_node": "adc_driver",
+        "min_a": 0,
+        "max_a": 0.1
+      },
+      "converter_5v": {
+        "rail": "ANA",
+        "return_node": "converter",
+        "min_a": 0,
+        "max_a": 0.14
+      },
+      "monitor_5v": {
+        "rail": "ANA",
+        "return_node": "rail_monitor",
+        "min_a": 0,
+        "max_a": 0.003
+      },
+      "analog_reserve": {
+        "rail": "ANA",
+        "return_node": "E26_A_GND",
+        "min_a": 0,
+        "max_a": 0.008
+      },
+      "dac_receiver_-112": {
+        "rail": "OTHER",
+        "return_node": "dac_receiver",
+        "min_a": -0.075,
+        "max_a": 0
+      },
+      "dac_receiver_112": {
+        "rail": "OTHER",
+        "return_node": "dac_receiver",
+        "min_a": 0,
+        "max_a": 0.075
+      },
+      "adc_driver_-112": {
+        "rail": "OTHER",
+        "return_node": "adc_driver",
+        "min_a": -0.035,
+        "max_a": 0
+      },
+      "adc_driver_112": {
+        "rail": "OTHER",
+        "return_node": "adc_driver",
+        "min_a": 0,
+        "max_a": 0.035
+      },
+      "input_range_-112": {
+        "rail": "OTHER",
+        "return_node": "input_range",
+        "min_a": -0.025,
+        "max_a": 0
+      },
+      "input_range_112": {
+        "rail": "OTHER",
+        "return_node": "input_range",
+        "min_a": 0,
+        "max_a": 0.025
+      },
+      "output_stage_-112": {
+        "rail": "OTHER",
+        "return_node": "output_stage",
+        "min_a": -0.015,
+        "max_a": 0
+      },
+      "output_stage_112": {
+        "rail": "OTHER",
+        "return_node": "output_stage",
+        "min_a": 0,
+        "max_a": 0.015
+      },
+      "rail_monitor_-112": {
+        "rail": "OTHER",
+        "return_node": "rail_monitor",
+        "min_a": -0.001,
+        "max_a": 0
+      },
+      "rail_monitor_112": {
+        "rail": "OTHER",
+        "return_node": "rail_monitor",
+        "min_a": 0,
+        "max_a": 0.001
+      },
+      "output_p19": {
+        "rail": "OTHER",
+        "return_node": "output_stage",
+        "min_a": 0,
+        "max_a": 0.026
+      },
+      "output_n19": {
+        "rail": "OTHER",
+        "return_node": "output_stage",
+        "min_a": -0.026,
+        "max_a": 0
+      },
+      "converter_3v3": {
+        "rail": "OTHER",
+        "return_node": "converter",
+        "min_a": 0,
+        "max_a": 0.035
+      },
+      "controls_3v3": {
+        "rail": "OTHER",
+        "return_node": "control_inputs",
+        "min_a": 0,
+        "max_a": 0.02
+      },
+      "monitor_3v3": {
+        "rail": "OTHER",
+        "return_node": "rail_monitor",
+        "min_a": 0,
+        "max_a": 0.02
+      },
+      "input_return": {
+        "rail": "OTHER",
+        "return_node": "input_protection",
+        "min_a": -3.6,
+        "max_a": 0
+      }
+    },
+    "resistance_interval_method": "Rayleigh monotonicity plus effective-resistance polarization; all independent R in [0,Rmax]; independent current intervals",
+    "physical_harness_qualified": false
+  },
+  "operating_limits": {
+    "digital_protected_a": 2.4000000000000004,
+    "analog_protected_a": 0.251,
+    "digital_local_source_allocation_a": 0.018,
+    "digital_bleed_max_a": 0.005620037938202331,
+    "digital_regulator_total_a": 2.4236200379382025,
+    "analog_regulator_total_a": 0.25329213827923447,
+    "pre_regulator_total_a": 2.7029121762174366,
+    "module_rating_a": 6,
+    "pre_voltage_allocation_v": [
+      5.8,
+      6.199999999999999
+    ],
+    "pre_voltage_guaranteed": false,
+    "dropout": {
+      "digital_in_margin_v": 0.14247165903233994,
+      "digital_control_margin_v": 3.84247165903234,
+      "analog_in_margin_v": 0.33503065886294453,
+      "reference_input_margin_v": 0.5
+    },
+    "thermal": {
+      "digital_pass_plus_control_max_w": 3.5088397431447476,
+      "analog_pass_plus_ground_max_w": 0.4597787418548773,
+      "module_loss_at_85pct_allocation_w": 2.957303910449666,
+      "ambient_design_c": 60,
+      "junction_design_limit_c": 110,
+      "digital_total_theta_required_c_per_w": 14.249724598476023,
+      "digital_junction_case_c_per_w": 3,
+      "analog_total_theta_required_c_per_w": 108.74795950392547,
+      "measured_or_layout_qualified": false
+    },
+    "upstream": {
+      "raw_generators_input_w": 12.48,
+      "pre_buck_input_w": 19.715359402997773,
+      "auxiliaries_w": 0.9397120854000001,
+      "control_and_opamp_w": 1.254,
+      "total_input_w": 34.38907148839777,
+      "input_current_at_10v5_a": 3.2751496655616923,
+      "old_e23_min_limit_a": 2.874,
+      "old_adapter_rating_a": 3,
+      "existing_input_path_passes": false,
+      "new_guard_minimum_normal_capacity_a": 4,
+      "replacement_input_profile_implemented": false
+    },
+    "startup": {
+      "reference_tau_min_s": 0.1267731,
+      "ramp_screen_scope": "reference-acquired preconnected RC ramp only; initial SET-current floor is excluded",
+      "initial_set_floor_inrush_qualified": false,
+      "initial_set_floor_digital_cap_current_demand_a": 4.52625,
+      "initial_set_floor_analog_cap_current_demand_a": 1.4025,
+      "digital_preconnected_charge_allocation_a": 0.2832497684514332,
+      "digital_total_with_charge_a": 2.7068698063896357,
+      "analog_preconnected_charge_allocation_a": 0.043514485922098306,
+      "analog_total_with_charge_a": 0.29680662420133275,
+      "preconnected_ramp_current_screen_passes": true,
+      "digital_set_current_floor_v": 0.3468,
+      "analog_set_current_floor_v": 0.6936,
+      "late_e26_gate_closure_current_limited": false,
+      "digital_late_closure_stored_energy_j": 0.09080400486490338,
+      "analog_late_closure_stored_energy_j": 0.013832454620899548,
+      "measured_startup_stability": false
+    },
+    "minimum_load": {
+      "digital_min_a": 0.005470236707738548,
+      "required_for_load_reg_table_a": 0.005
+    },
+    "seed_filter": {
+      "native_r1_ohm": 0.47,
+      "tolerance": 0.01,
+      "allocated_module_current_a": 1,
+      "worst_drop_v": 0.47469999999999996,
+      "worst_heat_w": 0.47469999999999996,
+      "nameplate_w": 1,
+      "thermal_derating_qualified": false,
+      "minimum_module_vin_v": 4.465200121190664,
+      "project_bringup_threshold_v": 4.0,
+      "manufacturer_module_input_limit_verified": false
+    }
+  },
+  "qualification_holds": [
+    "New TPSM63606 manufacturer land pattern and entire P02 PCB/thermal design are absent.",
+    "All specified cable lengths, gauges, contact limits and fanout assemblies require selection and hot/EOL qualification.",
+    "Board AGND load/port spread and E26 multiport copper limits require extracted and measured confirmation.",
+    "New >=4A input guard/adapter/jack/fuse/return-star profile required; existing E23 profile fails the new normal input budget.",
+    "Reference assembly/aging/humidity, capacitor leakage and resistor total errors are allocations, not complete manufacturer guarantees.",
+    "Closed-loop SET buffer compensation, actual module effective capacitor range, ripple and load-step reserves need simulation/measurement.",
+    "Slow SET ramp screens preconnected bulk only; startup floor, shutdown, partial power and late E26 gate closure are unqualified.",
+    "SD-card 3V3 current/inrush, Seed 3V3 source capacity, emitters, coil current and R1 derating remain unverified actual-load budgets.",
+    "Two new <=2mohm source-to-E26 ground straps and a <=1mohm input-guard star path require new mounting/contact/return interfaces and qualification."
+  ],
+  "dc_endpoint_interval_screen_passes": true,
+  "stability_qualified": false,
+  "startup_qualified": false,
+  "thermal_qualified": false,
+  "actual_harness_qualified": false,
+  "physical_power_verified": false,
+  "complete_unit_qualified": false,
+  "fabrication_released": false,
+  "build_ready": false,
+  "source_sha256": {
+    "hardware/wiring/generated/system-interconnect.json": "3410524cfe3bfc5834fe6acdfc76cbe2274915ff6c335be77cba07d3c869afee",
+    "hardware/electronics/power_supply/generated/electrical-screens.json": "89d5627f4ab736da793643908c12e39f3e58b2a9e61482ee7006530d760d60f5",
+    "hardware/electronics/common/circuits.py": "9421113290b333f6a554de57d3544fe02688068b7448447c4e845e8231c58db6",
+    "hardware/electronics/power_distribution/p02/distribution.py": "aad5d2b0b4b3fce9ab2fb67fb6eb9b0b2e72a3b64426f6671e86401a38597f01",
+    "hardware/electronics/power_distribution/p02/analysis.py": "a8d317b217f42dd88e721ee047681c1d42207c1de7c36e7dd171c78ec6cccfb7",
+    "hardware/electronics/power_distribution/p02/check.py": "d740d965044afa158579b244f36a5aa681dc9136809d48fb99872b600a929e34",
+    "hardware/electronics/power_distribution/p02/loads.py": "fa69bda4adffe9183c364ebab9437ea9da3516e7575b984522c0c0a88190aa76",
+    "hardware/electronics/power_distribution/p02/spec.py": "5e9e04ed92be7736c350cf673e432485ad81c9635fa708f7df6b33d3811a2cf6",
+    "hardware/electronics/power_distribution/p02/generated/netlist.xml": "47247c385a02f57adc5af8c34c8bfa50eece34eae401925f2c13377d06e70bf9"
+  }
+}

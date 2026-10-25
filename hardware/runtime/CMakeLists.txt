@@ -8,7 +8,7 @@ get_filename_component(RMX_REPOSITORY_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." A
 add_library(rmx_core
   src/core/Engine.cpp src/core/Primitives.cpp src/core/Sampler.cpp
   src/core/Isolator.cpp src/core/SceneEffects.cpp src/core/ReleaseEffects.cpp
-  src/core/SampleBank.cpp src/core/State.cpp src/core/Wav.cpp)
+  src/core/SampleBank.cpp src/core/State.cpp src/core/Wav.cpp src/core/BootStorage.cpp)
 target_include_directories(rmx_core PUBLIC include)
 target_compile_options(rmx_core PRIVATE -Wall -Wextra -Wpedantic)
 

@@ -12,4 +12,4 @@ cmake --build build/standalone-runtime --parallel 4
 ctest --test-dir build/standalone-runtime --output-on-failure
 ```
 
-The standalone firmware Makefile selects this runtime explicitly. The earlier B1 adapter in `firmware/daisy/` continues to select the desktop engine. Neither runtime has been qualified on the complete standalone hardware. Sample/preset loading and physical timing, audio and assembly validation remain unfinished.
+The standalone firmware Makefile selects this runtime explicitly. The earlier B1 adapter in `firmware/daisy/` continues to select the desktop engine. Neither runtime has been qualified on the complete standalone hardware. The [F05 extension](../firmware/STORAGE.md) adds boot-only SD samples/presets/user settings. Added storage files and current test/build evidence are separate from the unmodified incoming source snapshot in `source.json`. Runtime writing/reloading, physical timing, audio and assembly validation remain unfinished.

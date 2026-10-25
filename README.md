@@ -4,7 +4,9 @@
 ![macOS 12+](https://img.shields.io/badge/macOS-12%2B-222222?style=flat-square&logo=apple&logoColor=white)
 ![Standalone / AU / VST3](https://img.shields.io/badge/Standalone-AU_%2F_VST3-222222?style=flat-square)
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-167d8d?style=flat-square)
-![Hardware prototype](https://img.shields.io/badge/Hardware-B1_prototype-d69a36?style=flat-square)
+![Standalone hardware development](https://img.shields.io/badge/Hardware-Standalone_development-d69a36?style=flat-square)
+
+**Proprietary — all rights reserved.** Original project code, firmware, PCB and housing designs require a separate written license for reuse, builds, manufacture or redistribution. Public access and build instructions do not grant that permission. Third-party licenses and GitHub's applicable platform permissions remain in effect. See [LICENSE](LICENSE) and [dependency notices](THIRD_PARTY_NOTICES.md).
 
 <img src="assets/readme-hero.svg" alt="AFX-1000. Charcoal housing viewed straight on, with blue drum pads, green/yellow/red level meters, ribbed knobs and recessed controls." width="100%">
 
@@ -39,7 +41,31 @@ The standalone A11 design has a 334 × 157 × 38 mm chassis, 29 guided buttons, 
 
 See the [A11 editable CAD](hardware/cad/a11/README.md), [printer handoff](hardware/cad/a11/PRINTING.md), [electronics and wiring status](hardware/validation/disconnect-placement.json) and [saved review package](docs/reviews/standalone-E25-A11/). The unit is not build-ready: disconnect routing, 5 V distribution changes, remaining boards/wiring and physical qualification are unfinished.
 
-The standalone firmware uses its own [preserved runtime and host checks](hardware/runtime/README.md). The desktop engine and adapters retain their current features and build commands. Earlier [A08 mechanics](hardware/cad/a08/README.md), the [B1 budget prototype](hardware/budget/README.md) and the [A0 enclosure reference](hardware/cad/a0-reference/) remain available as separate designs.
+### PCB design
+
+Native KiCad layouts from the standalone electronics work. These are engineering candidates; they have not been manufactured or electrically qualified. Click a layout for the full-resolution image.
+
+| E12 ADC driver · 110 × 78 mm | Main supply candidate · 90 × 44 mm |
+| --- | --- |
+| [![E12 ADC driver top copper and component outlines](docs/assets/hardware/e12-adc-layout.png)](docs/assets/hardware/e12-adc-layout.png) | [![Main supply candidate top copper and component outlines](docs/assets/hardware/main-power-layout.png)](docs/assets/hardware/main-power-layout.png) |
+| [Editable PCB and routing checks](hardware/electronics/adc_driver/pcb/) | [Editable PCB and routing checks](hardware/electronics/power_supply/routing/) |
+
+**E26 disconnect pilot · 156 × 45.25 mm**
+
+[![E26 six-rail disconnect pilot top copper, vias and component outlines](docs/assets/hardware/e26-disconnect-layout.png)](docs/assets/hardware/e26-disconnect-layout.png)
+
+The disconnect remains incomplete: **21 open connections and 30 native DRC warnings**. The ADC driver is a separate characterization board, and the main supply shown predates the proposed P02 source redesign. These layouts do not yet form one integrated assembly. See the [E26 source and findings](hardware/electronics/rail_disconnect/revision26/) and [current development handoff](hardware/DEVELOPMENT.md).
+
+<details>
+<summary>3D bare-board preview · E12 ADC driver</summary>
+
+![Native KiCad 3D render of the unpopulated E12 ADC driver PCB](docs/assets/hardware/e12-adc-3d.png)
+
+An unpopulated board rendered directly from the KiCad PCB. This is a CAD preview, not a photograph of manufactured hardware.
+
+</details>
+
+The [F06 standalone firmware candidate](hardware/firmware/full_engine/README.md) builds the maintained DSP engine with 152 parameters, bounded SDRAM storage and control-fault recovery. The earlier [preserved runtime and host checks](hardware/runtime/README.md) remain available separately. Earlier [A08 mechanics](hardware/cad/a08/README.md), the [B1 budget prototype](hardware/budget/README.md) and the [A0 enclosure reference](hardware/cad/a0-reference/) also remain separate designs.
 
 ## Run it
 
@@ -75,6 +101,22 @@ Physical FLX routing and cue separation still need testing. BlackHole and mixer 
 
 ## Build
 
+### Python tooling
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run from the repository root:
+
+```sh
+uv sync --locked
+uv run --locked python -m unittest discover -s tests/tooling
+uv run --locked python -m unittest discover -s tests -p 'a*_integration_tests.py'
+```
+
+uv uses Python 3.12 from `.python-version` and creates an ignored `.venv/`. The root `pyproject.toml` declares NumPy, Pillow and trimesh; `uv.lock` pins the resolved environment. Run Python tools with `uv run --locked python ...`. Use `uv add <package>==<version>` to change a pinned dependency, and commit both project metadata and the lockfile.
+
+Configure CMake through `uv run --locked cmake ...` so its Python tests use this environment. An existing CMake build may retain a previously selected interpreter; use a fresh build directory or explicitly set `-DPython3_EXECUTABLE=/absolute/path/to/.venv/bin/python` when reconfiguring.
+
+The six hardware `requirements.txt` files remain frozen dependency snapshots referenced by historical source hashes. New development and CI use the root uv project. OpenSCAD, KiCad and the ARM toolchain remain separate native dependencies; checks that need KiCad's `pcbnew` module still use KiCad's own Python interpreter.
+
 <details>
 <summary>AU, VST3 and JUCE standalone</summary>
 
@@ -99,7 +141,7 @@ JUCE's license applies to distribution of the plugin builds.
 The core builds on macOS and Linux, independently of the UI.
 
 ```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+uv run --locked cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --parallel 4
 ctest --test-dir build --output-on-failure
 ./build/rmx_benchmark
@@ -125,7 +167,7 @@ Choose a new output directory each time. These clips use the current engine; the
 | --- | --- |
 | Native Mac audio | Direct rekordbox capture and speaker output have worked in a live session. The latest saved-route/restart behavior still needs a live check. |
 | AU / VST3 | Build locally. Earlier universal artifacts include Apple Silicon and Intel slices; the latest sound review builds are arm64. Full DAW validation and Intel runtime checks remain open. |
-| Engine and firmware | Local validation records report 26 passing Release checks and an ARM firmware cross-build. Linux ARM CI exposed an exact-float interpolation assertion; its rounding-tolerance fix awaits a CI rerun. Earlier sanitizer and plugin-probe results are recorded separately. |
+| Engine and firmware | F06 records 16 passing host groups and clean ARM builds for onboard and external-converter profiles. The source snapshot also records five focused sanitizer groups. Actual MCU timing and hardware operation remain unverified. |
 | Synchronization | AUTO, tap, host transport and MIDI clock are implemented. Optional Link needs its SDK; enabled builds and peer synchronization remain unverified. |
 | Sound matching | Latest drum/Noise changes are ready for listening. No reference-unit comparison or claim of identical effects. |
 | Live use | Physical FLX4/FLX6 routing, cue separation, a live two-hour soak and measured round-trip latency remain open. |
@@ -134,7 +176,7 @@ The engine uses stereo floating-point audio and preallocated processing buffers.
 
 ### Hardware
 
-**[B1: 5 V budget prototype](hardware/budget/README.md)** is the active standalone design:
+**[B1: 5 V budget prototype](hardware/budget/README.md)** is the separate budget standalone design:
 
 - Daisy Seed with 64 MB SDRAM, physical controls, touch strip, SD loading and watchdog-qualified relay bypass.
 - Pin-connected KiCad schematics, BOM and a routed 100 x 100 mm four-layer audio/power/bypass carrier. Recorded native ERC and DRC are clean; draft Gerbers and drill files are included for engineering review.
@@ -147,7 +189,7 @@ The provisional cost ledger is **NZ$295.77**, assuming free printing, DIY assemb
 
 ```sh
 ./build/rmx_memory_budget
-python3 tools/generate_hardware.py --check
+uv run --locked python tools/generate_hardware.py --check
 ./build/rmx_card_export Performance.rmx /path/to/new-card-folder
 ```
 
@@ -159,8 +201,10 @@ The exporter writes the project's card layout. `--settings-only` exports User se
 
 [Mac packages](docs/release.md) / [Reference captures and runtime checks](docs/reference-validation.md) / [Engineering update](docs/engineering-update-2026-10-22.md)
 
-The original Swift and browser prototypes are kept in `Sources/` and `web/`. Their guide is [here](docs/legacy-prototypes.md).
+The original Swift and browser prototypes are kept in `Sources/` and `prototypes/web/`. Their guide is [here](docs/legacy-prototypes.md).
 
 ## Assets and licensing
 
-Factory drums and the current panel artwork are made by this project. The native and plugin interfaces use a panel generated from [drawing code](tools/generate_panel.mm), with no manufacturer photograph in current builds. A project license is still pending. JUCE, optional Link and embedded dependencies retain their own terms; see [source and dependency notices](THIRD_PARTY_NOTICES.md).
+Original project material is covered by the [AFX-1000 Proprietary Rights Notice](LICENSE), copyright 2026 Axel McKenna, all rights reserved. It covers the project's original software, firmware, legacy prototypes, PCB and mechanical design files, documentation and assets to the extent the owner holds the relevant rights. Reuse, personal builds, manufacture and redistribution require separate written permission, subject to the exceptions in the notice.
+
+Factory drums and the current panel artwork are made by this project. The native and plugin interfaces use a panel generated from [drawing code](tools/generate_panel.mm), with no manufacturer photograph in current builds. Third-party software, footprints and other supplied material retain their own terms. JUCE and optional Link need a compatible licensing route for distribution; the project notice does not override their copyleft obligations. See [source and dependency notices](THIRD_PARTY_NOTICES.md).

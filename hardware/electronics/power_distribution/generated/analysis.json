@@ -1,0 +1,384 @@
+{
+  "revision": "P01",
+  "scope": "Conditional new-PSU source and distribution requirements, no existing power certificate replaced",
+  "target_boundary": "E25 protected-board output star, before outgoing load harness contacts/fanouts",
+  "outgoing_load_harness_voltage_budget_closed": false,
+  "rails": {
+    "V5_REG": {
+      "target_v": [
+        4.975,
+        5.025
+      ],
+      "source": {
+        "dc_v": [
+          4.9911456,
+          5.0088544
+        ],
+        "corners": 4096,
+        "error_terms": {
+          "initial_v": 0.001,
+          "full_box_temperature_range_v": 0.0016499999999999998,
+          "line_full_input_range_v": 0.000495,
+          "reference_load_v": 4.0000000000000003e-07,
+          "assembly_aging_humidity_hysteresis_allocation_v": 0.002,
+          "buffer_offset_v": 0.00035,
+          "buffer_input_bias_v": 5e-06,
+          "buffer_feedback_bias_v": 0.0005,
+          "ldo_offset_v": 0.002,
+          "extra_ldo_load_v": 0.0005,
+          "extra_ldo_voltage_v": 0.0003,
+          "extra_ldo_line_v": 5.4e-05
+        }
+      },
+      "path": {
+        "supply_current_a": 0.251,
+        "shared_analog_return_magnitude_bound_a": 0.605,
+        "own_return_current_bound_a": 0.605,
+        "common_ground_transfer_current_bound_a": 2.4059999999999997,
+        "resistance_terms": {
+          "supply": {
+            "wire_ohm": 0.0038025649038461533,
+            "contacts_ohm": 0.002,
+            "source_pcb_ohm": 0.001,
+            "e25_pcb_ohm": 0.0005,
+            "destination_pcb_ohm": 0.0005
+          },
+          "return": {
+            "wire_ohm": 0.0038025649038461533,
+            "contacts_ohm": 0.002,
+            "source_pcb_ohm": 0.001,
+            "e25_pcb_ohm": 0.0005,
+            "destination_pcb_ohm": 0.0005
+          }
+        },
+        "fet_path_allocation_ohm": 0.006,
+        "supply_drop_v": 0.0034644437908653847,
+        "return_drop_or_rise_bound_v": 0.004720551766826923,
+        "common_ground_transfer_error_v": 0.0024059999999999997,
+        "maximum_low_side_loss_v": 0.010590995557692308,
+        "maximum_high_side_ground_rise_v": 0.007126551766826923,
+        "contact_and_copper_requirements_verified": false,
+        "wire_gauge_and_routing_selected": false
+      },
+      "ripple_and_load_step_allocation_v": 0.003,
+      "candidate_at_e25_protected_star_v": [
+        4.977554604442308,
+        5.018980951766827
+      ],
+      "low_side_margin_v": 0.0025546044423085945,
+      "high_side_margin_v": 0.00601904823317323,
+      "allocated_voltage_envelope_passes": true,
+      "baseline_with_same_complete_path_v": [
+        4.965210203743008,
+        5.031347772487547
+      ],
+      "implemented_on_current_psu": false,
+      "hardware_voltage_verified": false
+    },
+    "5V_DIG": {
+      "target_v": [
+        4.9,
+        5.1
+      ],
+      "source": {
+        "dc_v": [
+          4.96493913100031,
+          5.075039727796486
+        ],
+        "corners": 16,
+        "nominal_v": 5.0199
+      },
+      "path": {
+        "supply_current_a": 1.801,
+        "shared_analog_return_magnitude_bound_a": 0.605,
+        "own_return_current_bound_a": 1.801,
+        "common_ground_transfer_current_bound_a": 2.4059999999999997,
+        "resistance_terms": {
+          "supply": {
+            "wire_ohm": 0.0038025649038461533,
+            "contacts_ohm": 0.002,
+            "source_pcb_ohm": 0.0015,
+            "e25_pcb_ohm": 0.0015,
+            "destination_pcb_ohm": 0.001
+          },
+          "return": {
+            "wire_ohm": 0.0038025649038461533,
+            "contacts_ohm": 0.002,
+            "source_pcb_ohm": 0.0015,
+            "e25_pcb_ohm": 0.0015,
+            "destination_pcb_ohm": 0.001
+          }
+        },
+        "fet_path_allocation_ohm": 0.003,
+        "supply_drop_v": 0.02305741939182692,
+        "return_drop_or_rise_bound_v": 0.017654419391826923,
+        "common_ground_transfer_error_v": 0.0024059999999999997,
+        "maximum_low_side_loss_v": 0.04311783878365384,
+        "maximum_high_side_ground_rise_v": 0.0024059999999999997,
+        "contact_and_copper_requirements_verified": false,
+        "wire_gauge_and_routing_selected": false
+      },
+      "ripple_and_load_step_allocation_v": 0.02,
+      "candidate_at_e25_protected_star_v": [
+        4.901821292216657,
+        5.097445727796485
+      ],
+      "low_side_margin_v": 0.0018212922166567225,
+      "high_side_margin_v": 0.0025542722035147847,
+      "allocated_voltage_envelope_passes": true,
+      "baseline_with_same_complete_path_v": [
+        4.855973631322741,
+        5.111586739162662
+      ],
+      "implemented_on_current_psu": false,
+      "hardware_voltage_verified": false
+    }
+  },
+  "allocated_voltage_envelopes_pass": true,
+  "analog_input_and_set_screen": {
+    "pre_boundary_v": [
+      5.67628671515984,
+      5.92403703516016
+    ],
+    "source_to_ldo_dropout_margin_v": 0.06743231515984027,
+    "reference_input_margin_v": 0.37628671515984013,
+    "set_buffer_minimum_drive_v": 4.2906096,
+    "set_current_sink_requirement_a": 0.000102,
+    "conservative_set_clamp_current_a": 0.0035650623885918,
+    "set_clamp_current_screen_passes": true,
+    "input_output_screen_passes": true,
+    "required_pre_buck_current_a": 0.27695000000000003,
+    "ldo_dissipation_allocation_w": 0.38225667610420416,
+    "required_ldo_theta_ja_at55c_to85c_c_per_w": 78.4812977126969,
+    "reference_aging_hysteresis_humidity_bound_guaranteed": false,
+    "unity_set_buffer_loop_stability_verified": false
+  },
+  "digital_startup_and_thermal_screen": {
+    "soft_start_interval_allocation_s": [
+      0.231812865497076,
+      0.42683901292596943
+    ],
+    "connected_bulk_allocation_f": 0.00588,
+    "direct_local_capacitance_in_datasheet_range": true,
+    "connected_bulk_exceeds_direct_capacitance_limit": true,
+    "incremental_current_if_switch_on_before_ramp_a": 0.12872984221757847,
+    "inductor_peak_ramp_allocation_a": 3.039042863271539,
+    "peak_current_allocation_passes": true,
+    "switch_and_inductor_conduction_subtotal_allocation_w": 0.5139323091352738,
+    "converter_loss_allocation_w": 0.9,
+    "residual_for_switching_and_other_loss_w": 0.38606769086472625,
+    "required_inductor_hot_saturation_a": 5.5,
+    "maximum_switch_peak_limit_a": 5.5,
+    "existing_e17_fault_current_allocation_qualified_for_replacement": false,
+    "required_theta_ja_c_per_w": 77.77777777777777,
+    "capacitance_series_damping_and_closed_loop_stability_verified": false,
+    "late_disconnect_closure_inrush_limited": false,
+    "frequency_inductor_and_peak_ramp_assumptions_verified": false,
+    "total_switching_loss_or_thermal_verified": false
+  },
+  "circuit": {
+    "scope": "Replacement channels for a new PSU revision, not drop-in substitutions",
+    "feedback_crosses_disconnect": false,
+    "analog_output_sense_net": "V5_REG_SRC",
+    "digital_feedback_top_net": "5V_DIG_SRC",
+    "devices": {
+      "U2_NEW": {
+        "part": "TPS62903RPJR",
+        "package": "TI RPJ0009A; new pad/stencil review required",
+        "pins": {
+          "1": null,
+          "2": "DIG_SW_NEW",
+          "3": "5V_DIG_SRC",
+          "4": "AGND",
+          "5": "SUPPLY_ENABLE",
+          "6": "VIN_PROTECTED",
+          "7": "DIG_MODE_NEW",
+          "8": "DIG_SS_NEW",
+          "9": "DIG_FB_NEW"
+        }
+      },
+      "U9_NEW": {
+        "part": "LT3045IDD#PBF",
+        "package": "ADI DD 10-lead3x3 DFN plus ground exposed pad; not old U9 EP/OUT",
+        "pins": {
+          "1": "V5_PRE",
+          "2": "V5_PRE",
+          "3": "V5_PRE",
+          "4": null,
+          "5": "AGND",
+          "6": "V5_PRE",
+          "7": "V5_REG_SET",
+          "8": "AGND",
+          "9": "V5_REG_SRC",
+          "10": "V5_REG_SRC",
+          "11": "AGND"
+        }
+      },
+      "U14_NEW": {
+        "part": "ADR4550BRZ",
+        "package": "8-lead SOIC; new layout required",
+        "pins": {
+          "1": null,
+          "2": "V5_PRE",
+          "3": null,
+          "4": "AGND",
+          "5": null,
+          "6": "PREF_5V_NEW",
+          "7": null,
+          "8": null
+        }
+      },
+      "U5C_REUSED": {
+        "part": "OPA4192ID channel C",
+        "pins": {
+          "4": "RAW_P22",
+          "11": "AGND",
+          "10": "PREF_5V_FILTER_NEW",
+          "9": "V5_REG_FB",
+          "8": "V5_REG_DRIVE"
+        }
+      }
+    },
+    "passive_connections": [
+      [
+        "R_DIG_TOP_A",
+        14700,
+        "5V_DIG_SRC",
+        "DIG_TOP_MID_NEW"
+      ],
+      [
+        "R_DIG_TOP_B",
+        33,
+        "DIG_TOP_MID_NEW",
+        "DIG_FB_NEW"
+      ],
+      [
+        "R_DIG_BOTTOM",
+        2000,
+        "DIG_FB_NEW",
+        "AGND"
+      ],
+      [
+        "R_DIG_MODE",
+        21000,
+        "DIG_MODE_NEW",
+        "AGND"
+      ],
+      [
+        "L_DIG_NEW",
+        2.2e-06,
+        "DIG_SW_NEW",
+        "5V_DIG_SRC"
+      ],
+      [
+        "C_DIG_SS",
+        1e-06,
+        "DIG_SS_NEW",
+        "AGND"
+      ],
+      [
+        "R_REF_FILTER",
+        1000,
+        "PREF_5V_NEW",
+        "PREF_5V_FILTER_NEW"
+      ],
+      [
+        "C_REF_FILTER",
+        1e-06,
+        "PREF_5V_FILTER_NEW",
+        "AGND"
+      ],
+      [
+        "R_SET_LIMIT",
+        6800,
+        "V5_REG_DRIVE",
+        "V5_REG_SET"
+      ],
+      [
+        "R_SET_FB",
+        100000,
+        "V5_REG_SET",
+        "V5_REG_FB"
+      ],
+      [
+        "C_SET_COMP",
+        4.7e-08,
+        "V5_REG_DRIVE",
+        "V5_REG_FB"
+      ],
+      [
+        "C_SET",
+        1e-07,
+        "V5_REG_SET",
+        "AGND"
+      ]
+    ],
+    "change_notes": [
+      "Remove old V5_REG gain-two divider bottom resistor; use local unity DC SET feedback.",
+      "LT3045 OUTS ties to its local output capacitor, upstream of E25.",
+      "LT3045 PGFB ties to V5_PRE to disable its fast SET-charge mode; PG unused.",
+      "Add manufacturer-required local input/output/reference bypass capacitors; effective values, MPNs and placement remain open.",
+      "Replace old TPS62933F bootstrap/RT network; new part has different pins, mode and inductance."
+    ],
+    "native_erc_verified": false,
+    "native_pcb_layout_implemented": false,
+    "physical_fit_verified": false,
+    "build_ready": false
+  },
+  "manufacturer_sources": {
+    "TPS62903": {
+      "url": "https://www.ti.com/lit/ds/symlink/tps62903.pdf",
+      "revision": "SLVSES3A, March 2021",
+      "sections": "5, 6.3, 6.5, 7.3.1, 8.2",
+      "facts": "External FB full-temperature error \u00b10.9%; FB leakage max70nA; VIN3..17V; 3A. Direct COUT max50uF at1MHz; extra capacitance requires associated series resistance. MODE21k selects external FB,1MHz,forced PWM,no discharge."
+    },
+    "LT3045": {
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/3045fa.pdf",
+      "revision": "Rev. D",
+      "sections": "Electrical Characteristics; Pin Functions; Applications pp16,23",
+      "facts": "500mA. External SET drive must sink100uA and limit clamp current to20mA. Full-temperature output offset\u00b12mV; OUTS stays local at COUT. DD exposed pad is GND. COUT effective minimum10uF."
+    },
+    "ADR4550B": {
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/adr4520_4525_4530_4533_4540_4550.pdf",
+      "revision": "Rev. G, July 2025",
+      "sections": "Table6; Table9; Terminology",
+      "facts": "SOIC B grade initial error\u00b11mV; box TC2ppm/C over\u221240..125C; line max10ppm/V; source-load regulation max80ppm/mA. Minimum5.3V input reserved at\u22642mA. Solder, humidity, hysteresis and aging require independent allocations/qualification; typical drift is not a guaranteed lifetime limit."
+    },
+    "OPA4192": {
+      "url": "https://www.ti.com/lit/ds/symlink/opa4192.pdf",
+      "revision": "SBOS620E, November 2015",
+      "sections": "Pin Configuration; Electrical Characteristics",
+      "facts": "Retain the existing conservative full-temperature350uV offset and5nA input-bias allocations. Reuse U5C as a unity-gain local SET buffer; its changed compensation needs a fresh loop check."
+    }
+  },
+  "existing_voltage_targets_unchanged": true,
+  "source_and_protected_interfaces_unchanged": true,
+  "sd_card_3v3_current_inrush_and_partial_power_budget_closed": false,
+  "remaining_work": [
+    "New PSU schematic, ERC, footprint/stencil review, layout and updated CAD reserves are required; these replacements cannot be populated on the old PSU.",
+    "Prove each allocated PCB/contact/wire path including shared returns and common-ground transfer. Existing E25 connectivity routing does not establish these resistances.",
+    "Qualify ADR4550 assembly/aging/humidity/hysteresis reserve; its typical lifetime graphs are not guaranteed maximum bounds.",
+    "Recheck the unity SET buffer compensation and LT3045 output/load/capacitor stability, noise and load steps.",
+    "Reconcile the TPS62903 direct50uF output-capacitance limit with E25digital4700uF, ESR, harness impedance and loop damping. Direct-local-capacitance compliance alone is insufficient.",
+    "Bound late gate closure, discharge/restart, source overshoot and actual gate interruption; a slow buck ramp does not limit a later switch closure.",
+    "Close SD-card/external3V3 load/inrush, connector fanouts, remaining loads, total input power, thermal and EMI budgets.",
+    "Re-run independent E17 OV/hold-up/monitor/startup models for the completed new PSU before any assembly release."
+  ],
+  "native_schematic_implemented": false,
+  "native_pcb_routed": false,
+  "physical_fit_verified": false,
+  "physical_power_verified": false,
+  "design_qualified": false,
+  "fabrication_released": false,
+  "build_ready": false,
+  "source_sha256": {
+    "hardware/electronics/power_distribution/analyze.py": "97f3a7f6013fa498c3d6938a09ef8cb664c2eb45bfaa5239e418b4d003904968",
+    "hardware/electronics/power_distribution/spec.py": "fc1511ad19209c15f8395acfcd081ef087e612b6b6de3b450e0ff7c9d3af3678",
+    "hardware/electronics/power_distribution/__init__.py": "088031f07e21256b8264439e83a9b28c9833e3fdbed044d4ef57d6a5b5e0c789",
+    "hardware/electronics/power_distribution/README.md": "8b2f46a78a9e2216539ffb0ec7fc7e288f292acc44c5a408f92f5a0761382172",
+    "hardware/electronics/power_supply/generated/electrical-screens.json": "89d5627f4ab736da793643908c12e39f3e58b2a9e61482ee7006530d760d60f5",
+    "hardware/electronics/rail_disconnect/generated/electrical-screens.json": "5cbde24044f6524971c2fd79e850a9673fe18975407c530cc8ce75b6734f5d61",
+    "hardware/electronics/rail_disconnect/components.json": "d30cd318db68b4f5efdb3cb6054f1413391fe3ca762f9ce6a0c991a71128a982",
+    "tests/tooling/test_power_distribution.py": "5324739a48d8755b75196a14fdf8297460d00d42152c1b07ec7b604d2636f5ab"
+  }
+}

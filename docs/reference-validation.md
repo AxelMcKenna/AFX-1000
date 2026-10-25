@@ -9,8 +9,8 @@ There are no hardware reference recordings in this repository. Generated probes,
 From the repository root, with Python 3 and a built `rmx_render`:
 
 ```sh
-python3 tools/reference_audio.py generate build/reference-session --rate 48000
-python3 tools/reference_audio.py render build/reference-session/manifest.json build/reference-renders --renderer build/rmx_render
+uv run --locked python tools/reference_audio.py generate build/reference-session --rate 48000
+uv run --locked python tools/reference_audio.py render build/reference-session/manifest.json build/reference-renders --renderer build/rmx_render
 ```
 
 The output directory contains four deterministic, stereo, float32 WAV files, 17 static presets and a JSON capture plan. Rendering creates 68 wet files and `render-report.json`, including executable, preset, input manifest and output SHA-256 hashes. Rendering each file has a 120-second timeout. Use `--case echo` to render one case, or `--timeout 240` on a slower machine. Input hashes are checked before rendering.
@@ -46,8 +46,8 @@ The schema is a data contract; the tool checks its own generated paths and hashe
 The calibration command uses the strongest left/right peaks of the generated impulse probe. Run it on bypass captures only:
 
 ```sh
-python3 tools/reference_audio.py calibrate build/reference-session/impulses.wav captures/software-bypass.wav --report build/software-route-delay.json
-python3 tools/reference_audio.py calibrate build/reference-session/impulses.wav captures/hardware-bypass.wav --report build/hardware-route-delay.json
+uv run --locked python tools/reference_audio.py calibrate build/reference-session/impulses.wav captures/software-bypass.wav --report build/software-route-delay.json
+uv run --locked python tools/reference_audio.py calibrate build/reference-session/impulses.wav captures/hardware-bypass.wav --report build/hardware-route-delay.json
 ```
 
 It reports each channel's integer delay and the change in left/right impulse interval. More than two frames of disagreement makes integer alignment unsuitable. This can indicate clock drift, channel latency differences, a changed recording origin or an unsuitable capture. Correct the capture setup and repeat. The interval diagnostic alone cannot distinguish these causes. A four-second probe also cannot establish long-session clock stability.
@@ -61,7 +61,7 @@ Do not estimate a new shift from each wet effect recording. That would hide the 
 Example with a previously established candidate delay of 64 frames:
 
 ```sh
-python3 tools/reference_audio.py compare captures/echo-impulses.wav build/reference-renders/echo--impulses.wav --candidate-delay-frames 64 --tail-start 6.005 --report build/echo-impulses-comparison.json
+uv run --locked python tools/reference_audio.py compare captures/echo-impulses.wav build/reference-renders/echo--impulses.wav --candidate-delay-frames 64 --tail-start 6.005 --report build/echo-impulses-comparison.json
 ```
 
 Both WAVs must have the same sample rate. Supported inputs are mono or stereo RIFF PCM16/24/32 and float32, including ordinary extensible PCM/float WAV. Mono is duplicated to stereo. Files are limited to 180 seconds and individual RIFF chunks to 256 MiB. Non-finite samples, truncated audio and invalid frame alignment are rejected. This is an offline Python tool, so 96 kHz band analysis can take time. Use `--skip-bands` for a quick timing/level pass.
@@ -96,7 +96,7 @@ Keep the report with the executable hash, exact source revision, compiler, opera
 Run the measurement-tool checks with:
 
 ```sh
-python3 tests/reference_audio_tests.py
+uv run --locked python tests/reference_audio_tests.py
 ```
 
 These checks verify known synthetic gain, integer shift, stereo polarity, exponential decay, RIFF decoding, non-finite rejection, calibration disagreement and reproducible fixture hashes. They do not compare the DSP with physical hardware.

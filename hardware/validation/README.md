@@ -1,5 +1,9 @@
 # Standalone verification record
 
+The newer [second design review](second-review.json) and [complete-unit acceptance boundary](quality-review.md) distinguish current evidence from unfinished implementation and physical tests. The [F06 maintained-engine record](full-engine/verification.json) covers the opt-in exact kernel transport, current DSP/controls/storage host suites and both SRAM ARM builds. [Development status](../DEVELOPMENT.md) distinguishes the P02/E26/E12 variants from the earlier assembly. The first parallel-pass record below remains historical evidence; it does not qualify the newer variants or a physical unit.
+
+The [parallel workstream record](parallel-workstreams.json) and [development handoff](../DEVELOPMENT.md) cover the newer P01 power analysis, independent E25 routing, E10 PCB candidate, system interconnects, F05 storage, compact mechanical kit and Q01 unmeasured bench plan. These add design/software evidence without qualifying a physical complete unit. Earlier records below retain their original stage scope.
+
 The [main merge record](main-merge.json) verifies the integrated checkout, preserves the desktop implementation and isolates the standalone runtime. It records fresh desktop/runtime host tests, both ARM profile builds, relocated control-interface checks and source comparisons for the existing A09–A11 native CAD evidence. Earlier records retain their original snapshot paths; the committed review archive preserves their generated evidence. No physical qualification is implied.
 
 The historical [A04/E18 build record](build.json) captures source hashes, the firmware binary hash,

@@ -24,37 +24,36 @@ The [dated CAD design notes](../../docs/hardware/history/2026-10-23-cad-design.m
 
 ## Regeneration
 
-Run from the repository root with Python 3.11+, KiCad and OpenSCAD installed:
+Run from the repository root with the [uv environment](../../README.md#python-tooling), KiCad and OpenSCAD installed:
 
 ```sh
-python3 -m venv build-cad-tools
-build-cad-tools/bin/python -m pip install -r hardware/cad/requirements.txt
-python3 -m hardware.cad.generate
-python3 -m hardware.electronics.output_stage.generate
-python3 -m hardware.electronics.output_stage.place --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.output_stage.route
-python3 -m hardware.electronics.output_stage.check_placement --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.control_inputs.generate
-build-cad-tools/bin/python -m hardware.electronics.control_inputs.board --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.processor_carrier.generate
-build-cad-tools/bin/python -m hardware.electronics.processor_carrier.board --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.processor_carrier.verify --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.control_inputs.verify --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.led_driver.generate
-python3 -m hardware.electronics.led_driver.place --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.led_driver.route
-python3 -m hardware.electronics.led_driver.cleanup --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.input_protection.generate
-python3 -m hardware.electronics.input_protection.place --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.input_protection.route
-python3 -m hardware.electronics.input_protection.cleanup --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.input_protection.check_board --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.power_supply.verify --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.input_protection.verify --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.rail_disconnect.verify --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.led_driver.verify --kicad-cli /path/to/kicad-cli
-python3 -m hardware.cad.standalone
-build-cad-tools/bin/python -m hardware.cad.render --openscad /path/to/openscad
+uv sync --locked
+uv run --locked python -m hardware.cad.generate
+uv run --locked python -m hardware.electronics.output_stage.generate
+uv run --locked python -m hardware.electronics.output_stage.place --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.output_stage.route
+uv run --locked python -m hardware.electronics.output_stage.check_placement --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.control_inputs.generate
+uv run --locked python -m hardware.electronics.control_inputs.board --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.processor_carrier.generate
+uv run --locked python -m hardware.electronics.processor_carrier.board --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.processor_carrier.verify --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.control_inputs.verify --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.led_driver.generate
+uv run --locked python -m hardware.electronics.led_driver.place --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.led_driver.route
+uv run --locked python -m hardware.electronics.led_driver.cleanup --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.input_protection.generate
+uv run --locked python -m hardware.electronics.input_protection.place --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.input_protection.route
+uv run --locked python -m hardware.electronics.input_protection.cleanup --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.input_protection.check_board --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.power_supply.verify --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.input_protection.verify --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.rail_disconnect.verify --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.led_driver.verify --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.cad.standalone
+uv run --locked python -m hardware.cad.render --openscad /path/to/openscad
 ```
 
 Refresh `power_supply`, `input_protection` and `rail_disconnect` verification in

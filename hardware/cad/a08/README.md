@@ -25,10 +25,10 @@ The native build checks every STL for a single connected, closed, consistently w
 
 ## Rebuild
 
-Use Python 3.11+ with the versions in `requirements.txt`, plus an OpenSCAD build with the Manifold and CGAL backends. The original renders used OpenSCAD 2026.10.15. Run from the repository root:
+Use the root [uv environment](../../../README.md#python-tooling), plus an OpenSCAD build with the Manifold and CGAL backends. The original renders used OpenSCAD 2026.10.15. Run from the repository root:
 
 ```sh
-python3 hardware/cad/a08/build.py --openscad /path/to/openscad --update-previews
+uv run --locked python hardware/cad/a08/build.py --openscad /path/to/openscad --update-previews
 ```
 
 Outputs are ignored under `build/artifacts/cad/a08/`: all STL files, `parts.csv`, `validation.json`, the 3MF inventory, native review images and `RMX-A08-print-pack.zip`. `--update-previews` updates the selected README image only after a successful complete build. `--reuse-exports` reuses existing STL meshes only if their recorded geometry fingerprint matches the current sources; clearance checks still run. `--preview-only` is a visual review mode and does not qualify a print pack.

@@ -1,0 +1,705 @@
+{
+  "revision": "F06",
+  "checked_at_utc": "2026-10-25T05:17:18.370913+00:00",
+  "scope": "Maintained DSP engine in SRAM-boot firmware; host behavior, exact kernel transport and ARM linking; no physical verification",
+  "maintained_parameters": 152,
+  "advanced_user_settings": 122,
+  "libdaisy_commit": "f715e4875b2d28445d0c11a0a17f064a248f69d0",
+  "compiler_version": "arm-none-eabi-g++ (Arm GNU Toolchain 15.3.Rel2 (Build arm-15.181)) 15.3.1 20260627\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+  "sdk_archive_sha256": "a095744de911d9c80c077e89fd81c2c358e3997bfd7b98197441f50578e1fdcb",
+  "sdk_makefile_sha256": "641a4b58e5be587e3c238d4981c898afcfb0094f17776f82eac7a66d86f23ca4",
+  "sdk_clean_rebuild_performed": true,
+  "host_tests_passed": 16,
+  "test_summaries": {
+    "full_integration": "F06 callback recovery: 255 queued pad actions, rejected ordinary Panic, direct priority reset, late-ticket acknowledgement and post-ack physical-band restoration pass\nF06: 152 maintained parameters, 122 advanced User settings; shared gestures, startup suppression, long/chord actions and streaming profiles pass",
+    "full_kernels": "All 69,729 float words restored bit-exactly; invalid payloads stay unpublished.",
+    "full_memory": "48 kHz engine buffers: 26721456 bytes\nEngine + factory bank: 33345456 bytes\nEngine + 64 seconds of stereo samples: 52622256 bytes\nPeak during replacement: 52795056 bytes\nArena capacity: 62914536 bytes\nPASS: bounded allocation, sample replacement, coalescing, zero callback allocations",
+    "full_storage": "Boot storage: 32 valid WAV combinations; 12 malformed WAVs; 11 rejected profiles; 8 staged transaction faults; missing/open/timeout/arena-exhaustion and fragmented-free-block fallback passed",
+    "full_control_recovery": "F06 recovery gate: boot/fault-held suppression, full-frame validation, cached touch failure/staleness, 5 ms release chatter, independent controls, lever home and uint32 timer-wrap tests passed",
+    "full_allocator_storage": "Actual FixedArena fragmentation/coalescing and probe-to-PMR decode pass; post-probe bad_alloc and foreign allocators retain caller data"
+  },
+  "profiles": {
+    "onboard": {
+      "binary": "hardware/firmware/full_engine/build-verified-onboard/rmx_full_engine.bin",
+      "binary_bytes": 426668,
+      "binary_sha256": "ea54b6e6496c91b896b833780ed85989649bfbf8d1c9bd56159bc5bcd11ba3c3",
+      "elf_sha256": "303b55e2df05ffac3060dc2dd0776921db661cf6ca5a04312d7c7906e9138a6d",
+      "sections": {
+        ".isr_vector": {
+          "bytes": 664,
+          "address": "0x24000000"
+        },
+        ".text": {
+          "bytes": 422920,
+          "address": "0x240002a0"
+        },
+        ".ARM.extab.text._ZN12_GLOBAL__N_1L20initializationFailedEv": {
+          "bytes": 12,
+          "address": "0x240676a8"
+        },
+        ".ARM.extab.text._ZN3rmx6EngineC2Ev": {
+          "bytes": 12,
+          "address": "0x240676b4"
+        },
+        ".ARM.extab.text.startup.main": {
+          "bytes": 52,
+          "address": "0x240676c0"
+        },
+        ".ARM.extab.text._Z22audioMemoryCanAllocatej": {
+          "bytes": 28,
+          "address": "0x240676f4"
+        },
+        ".ARM.extab.text._ZZN3rmx7storage13decodeProfileERNS0_4FileENS0_4KindERNS0_7ProfileEENK6Reader4sizeEv": {
+          "bytes": 12,
+          "address": "0x24067710"
+        },
+        ".ARM.extab.text._ZN3rmx7storage13decodeProfileERNS0_4FileENS0_4KindERNS0_7ProfileE": {
+          "bytes": 16,
+          "address": "0x2406771c"
+        },
+        ".ARM.extab.text._ZN3rmx7storage10decodeWaveERNS0_4FileERNS_6SampleE": {
+          "bytes": 52,
+          "address": "0x2406772c"
+        },
+        ".ARM.extab.text._ZN3rmx7storage4loadERNS0_5FilesERNS_10SampleBankERNS_14ParameterStoreE": {
+          "bytes": 12,
+          "address": "0x24067760"
+        },
+        ".ARM.extab.text._ZNK3rmx8embedded12_GLOBAL__N_14Card7expiredEv": {
+          "bytes": 12,
+          "address": "0x2406776c"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded12_GLOBAL__N_14Card4readESt4spanISt4byteLj4294967295EE": {
+          "bytes": 12,
+          "address": "0x24067778"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded12_GLOBAL__N_14Card4seekEm": {
+          "bytes": 12,
+          "address": "0x24067784"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded12_GLOBAL__N_14Card4openENS_7storage4KindEjRNS3_5ErrorE": {
+          "bytes": 12,
+          "address": "0x24067790"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded12_GLOBAL__N_14Card5closeEv": {
+          "bytes": 16,
+          "address": "0x2406779c"
+        },
+        ".ARM.extab.text._ZThn4_N3rmx8embedded12_GLOBAL__N_14Card5closeEv": {
+          "bytes": 16,
+          "address": "0x240677ac"
+        },
+        ".ARM.extab.text._ZThn4_N3rmx8embedded12_GLOBAL__N_14Card4seekEm": {
+          "bytes": 12,
+          "address": "0x240677bc"
+        },
+        ".ARM.extab.text._ZThn4_N3rmx8embedded12_GLOBAL__N_14Card4readESt4spanISt4byteLj4294967295EE": {
+          "bytes": 12,
+          "address": "0x240677c8"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded12loadBootCardERNS_10SampleBankERNS_14ParameterStoreE": {
+          "bytes": 12,
+          "address": "0x240677d4"
+        },
+        ".ARM.extab.text._ZN3rmx14makeDrumSampleEjjd": {
+          "bytes": 28,
+          "address": "0x240677e0"
+        },
+        ".ARM.extab.text._ZN3rmx11readOneShotESt4spanIKNS_6StereoELj4294967295EEdd": {
+          "bytes": 12,
+          "address": "0x240677fc"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine5resetEv": {
+          "bytes": 12,
+          "address": "0x24067808"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine7prepareEdm": {
+          "bytes": 26,
+          "address": "0x24067814"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine6sampleEv": {
+          "bytes": 12,
+          "address": "0x24067830"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine7releaseENS_6StereoE": {
+          "bytes": 12,
+          "address": "0x2406783c"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine11detectTempoENS_6StereoE": {
+          "bytes": 12,
+          "address": "0x24067848"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine7processEPKfS2_PfS3_mNS_9TransportESt4spanIKNS_5EventELj4294967295EE": {
+          "bytes": 12,
+          "address": "0x24067854"
+        },
+        ".ARM.extab.text._ZN3rmx15makeFactoryBankEdb": {
+          "bytes": 45,
+          "address": "0x24067860"
+        },
+        ".ARM.extab.text._ZN3rmx14SceneProcessor10updateRoomEv": {
+          "bytes": 12,
+          "address": "0x24067890"
+        },
+        ".ARM.extab.text._ZN3rmx14SceneProcessor7prepareEd": {
+          "bytes": 32,
+          "address": "0x2406789c"
+        },
+        ".ARM.extab.text._ZN3rmx14SceneProcessor7processENS_6StereoEffffddf": {
+          "bytes": 12,
+          "address": "0x240678bc"
+        },
+        ".ARM.extab.text._ZN3rmx8Isolator7prepareEd": {
+          "bytes": 23,
+          "address": "0x240678c8"
+        },
+        ".ARM.extab.text._ZN3rmx8Isolator3cutENS_6StereoERKSt5arrayIfLj3EE": {
+          "bytes": 12,
+          "address": "0x240678e0"
+        },
+        ".ARM.extab.text._ZN3rmx8Isolator7processENS_6StereoERKSt5arrayIfLj3EEd": {
+          "bytes": 12,
+          "address": "0x240678ec"
+        },
+        ".ARM.extab.text._ZN3rmx12_GLOBAL__N_1L6numberESt17basic_string_viewIcSt11char_traitsIcEERd.constprop.0": {
+          "bytes": 12,
+          "address": "0x240678f8"
+        },
+        ".ARM.extab.text._Unwind_GetRegionStart": {
+          "bytes": 12,
+          "address": "0x24067904"
+        },
+        ".ARM.extab.text._Unwind_GetLanguageSpecificData": {
+          "bytes": 12,
+          "address": "0x24067910"
+        },
+        ".ARM.extab": {
+          "bytes": 0,
+          "address": "0x2406791c"
+        },
+        ".exidx": {
+          "bytes": 848,
+          "address": "0x2406791c"
+        },
+        ".ARM.attributes": {
+          "bytes": 46,
+          "address": "0x0"
+        },
+        ".init_array": {
+          "bytes": 60,
+          "address": "0x24067c6c"
+        },
+        ".fini_array": {
+          "bytes": 4,
+          "address": "0x24067ca8"
+        },
+        ".sram1_bss": {
+          "bytes": 18204,
+          "address": "0x30000000"
+        },
+        ".data": {
+          "bytes": 1536,
+          "address": "0x20000000"
+        },
+        ".bss": {
+          "bytes": 41820,
+          "address": "0x20000600"
+        },
+        ".dtcmram_bss": {
+          "bytes": 0,
+          "address": "0x2000a95c"
+        },
+        ".sdram_bss": {
+          "bytes": 63193476,
+          "address": "0xc0000000"
+        },
+        ".backup_sram": {
+          "bytes": 12,
+          "address": "0x38800000"
+        },
+        ".qspiflash_text": {
+          "bytes": 0,
+          "address": "0x90040000"
+        },
+        ".qspiflash_data": {
+          "bytes": 0,
+          "address": "0x90040000"
+        },
+        ".qspiflash_bss": {
+          "bytes": 0,
+          "address": "0x90040000"
+        },
+        ".heap": {
+          "bytes": 0,
+          "address": "0x30008000"
+        },
+        ".reserved_for_stack": {
+          "bytes": 0,
+          "address": "0x2000a95c"
+        },
+        ".sdmmc_bss": {
+          "bytes": 5888,
+          "address": "0x240682c0"
+        },
+        ".debug_info": {
+          "bytes": 1969257,
+          "address": "0x0"
+        },
+        ".debug_abbrev": {
+          "bytes": 112307,
+          "address": "0x0"
+        },
+        ".debug_loclists": {
+          "bytes": 594692,
+          "address": "0x0"
+        },
+        ".debug_aranges": {
+          "bytes": 15784,
+          "address": "0x0"
+        },
+        ".debug_rnglists": {
+          "bytes": 82495,
+          "address": "0x0"
+        },
+        ".debug_line": {
+          "bytes": 612739,
+          "address": "0x0"
+        },
+        ".debug_str": {
+          "bytes": 299419,
+          "address": "0x0"
+        },
+        ".comment": {
+          "bytes": 70,
+          "address": "0x0"
+        },
+        ".debug_frame": {
+          "bytes": 63412,
+          "address": "0x0"
+        },
+        ".debug_line_str": {
+          "bytes": 547,
+          "address": "0x0"
+        }
+      },
+      "executable_sections": {
+        ".text": {
+          "address": "0x240002a0",
+          "bytes": 422920
+        }
+      },
+      "sdmmc_dma_address": "0x240682c0",
+      "sdmmc_dma_bytes": 5888,
+      "kernel_sdram_address": "0xc3c00000",
+      "kernel_sdram_bytes": 278916,
+      "cross_compiled": true,
+      "flashed": false,
+      "hardware_verified": false
+    },
+    "external": {
+      "binary": "hardware/firmware/full_engine/build-verified-external/rmx_full_engine_external.bin",
+      "binary_bytes": 426056,
+      "binary_sha256": "c3870a9d4a6bd308dc7191530bdcdc4c23325f545cdae61dcc34c7ea8d7a257d",
+      "elf_sha256": "5cd6cfd96fc9b74a0a37c79afda8b241fb41309d7cac43faf5827a329af103fc",
+      "sections": {
+        ".isr_vector": {
+          "bytes": 664,
+          "address": "0x24000000"
+        },
+        ".text": {
+          "bytes": 422176,
+          "address": "0x240002a0"
+        },
+        ".ARM.extab.text._ZN12_GLOBAL__N_1L20initializationFailedEv": {
+          "bytes": 12,
+          "address": "0x240673c0"
+        },
+        ".ARM.extab.text._ZN3rmx6EngineC2Ev": {
+          "bytes": 12,
+          "address": "0x240673cc"
+        },
+        ".ARM.extab.text.startup.main": {
+          "bytes": 52,
+          "address": "0x240673d8"
+        },
+        ".ARM.extab.text._Z22audioMemoryCanAllocatej": {
+          "bytes": 28,
+          "address": "0x2406740c"
+        },
+        ".ARM.extab.text._ZZN3rmx7storage13decodeProfileERNS0_4FileENS0_4KindERNS0_7ProfileEENK6Reader4sizeEv": {
+          "bytes": 12,
+          "address": "0x24067428"
+        },
+        ".ARM.extab.text._ZN3rmx7storage13decodeProfileERNS0_4FileENS0_4KindERNS0_7ProfileE": {
+          "bytes": 16,
+          "address": "0x24067434"
+        },
+        ".ARM.extab.text._ZN3rmx7storage10decodeWaveERNS0_4FileERNS_6SampleE": {
+          "bytes": 52,
+          "address": "0x24067444"
+        },
+        ".ARM.extab.text._ZN3rmx7storage4loadERNS0_5FilesERNS_10SampleBankERNS_14ParameterStoreE": {
+          "bytes": 12,
+          "address": "0x24067478"
+        },
+        ".ARM.extab.text._ZNK3rmx8embedded12_GLOBAL__N_14Card7expiredEv": {
+          "bytes": 12,
+          "address": "0x24067484"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded12_GLOBAL__N_14Card4readESt4spanISt4byteLj4294967295EE": {
+          "bytes": 12,
+          "address": "0x24067490"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded12_GLOBAL__N_14Card4seekEm": {
+          "bytes": 12,
+          "address": "0x2406749c"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded12_GLOBAL__N_14Card4openENS_7storage4KindEjRNS3_5ErrorE": {
+          "bytes": 12,
+          "address": "0x240674a8"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded12_GLOBAL__N_14Card5closeEv": {
+          "bytes": 16,
+          "address": "0x240674b4"
+        },
+        ".ARM.extab.text._ZThn4_N3rmx8embedded12_GLOBAL__N_14Card5closeEv": {
+          "bytes": 16,
+          "address": "0x240674c4"
+        },
+        ".ARM.extab.text._ZThn4_N3rmx8embedded12_GLOBAL__N_14Card4seekEm": {
+          "bytes": 12,
+          "address": "0x240674d4"
+        },
+        ".ARM.extab.text._ZThn4_N3rmx8embedded12_GLOBAL__N_14Card4readESt4spanISt4byteLj4294967295EE": {
+          "bytes": 12,
+          "address": "0x240674e0"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded12loadBootCardERNS_10SampleBankERNS_14ParameterStoreE": {
+          "bytes": 12,
+          "address": "0x240674ec"
+        },
+        ".ARM.extab.text._ZN3rmx14makeDrumSampleEjjd": {
+          "bytes": 28,
+          "address": "0x240674f8"
+        },
+        ".ARM.extab.text._ZN3rmx11readOneShotESt4spanIKNS_6StereoELj4294967295EEdd": {
+          "bytes": 12,
+          "address": "0x24067514"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine5resetEv": {
+          "bytes": 12,
+          "address": "0x24067520"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine7prepareEdm": {
+          "bytes": 26,
+          "address": "0x2406752c"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine6sampleEv": {
+          "bytes": 12,
+          "address": "0x24067548"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine7releaseENS_6StereoE": {
+          "bytes": 12,
+          "address": "0x24067554"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine11detectTempoENS_6StereoE": {
+          "bytes": 12,
+          "address": "0x24067560"
+        },
+        ".ARM.extab.text._ZN3rmx6Engine7processEPKfS2_PfS3_mNS_9TransportESt4spanIKNS_5EventELj4294967295EE": {
+          "bytes": 12,
+          "address": "0x2406756c"
+        },
+        ".ARM.extab.text._ZN3rmx15makeFactoryBankEdb": {
+          "bytes": 45,
+          "address": "0x24067578"
+        },
+        ".ARM.extab.text._ZN3rmx14SceneProcessor10updateRoomEv": {
+          "bytes": 12,
+          "address": "0x240675a8"
+        },
+        ".ARM.extab.text._ZN3rmx14SceneProcessor7prepareEd": {
+          "bytes": 32,
+          "address": "0x240675b4"
+        },
+        ".ARM.extab.text._ZN3rmx14SceneProcessor7processENS_6StereoEffffddf": {
+          "bytes": 12,
+          "address": "0x240675d4"
+        },
+        ".ARM.extab.text._ZN3rmx8Isolator7prepareEd": {
+          "bytes": 23,
+          "address": "0x240675e0"
+        },
+        ".ARM.extab.text._ZN3rmx8Isolator3cutENS_6StereoERKSt5arrayIfLj3EE": {
+          "bytes": 12,
+          "address": "0x240675f8"
+        },
+        ".ARM.extab.text._ZN3rmx8Isolator7processENS_6StereoERKSt5arrayIfLj3EEd": {
+          "bytes": 12,
+          "address": "0x24067604"
+        },
+        ".ARM.extab.text._ZN3rmx12_GLOBAL__N_1L6numberESt17basic_string_viewIcSt11char_traitsIcEERd.constprop.0": {
+          "bytes": 12,
+          "address": "0x24067610"
+        },
+        ".ARM.extab.text._ZN3rmx8embedded13ExternalAudio4stopEv": {
+          "bytes": 12,
+          "address": "0x2406761c"
+        },
+        ".ARM.extab.text._Unwind_GetRegionStart": {
+          "bytes": 12,
+          "address": "0x24067628"
+        },
+        ".ARM.extab.text._Unwind_GetLanguageSpecificData": {
+          "bytes": 12,
+          "address": "0x24067634"
+        },
+        ".ARM.extab": {
+          "bytes": 0,
+          "address": "0x24067640"
+        },
+        ".exidx": {
+          "bytes": 968,
+          "address": "0x24067640"
+        },
+        ".ARM.attributes": {
+          "bytes": 46,
+          "address": "0x0"
+        },
+        ".init_array": {
+          "bytes": 60,
+          "address": "0x24067a08"
+        },
+        ".fini_array": {
+          "bytes": 4,
+          "address": "0x24067a44"
+        },
+        ".sram1_bss": {
+          "bytes": 22300,
+          "address": "0x30000000"
+        },
+        ".data": {
+          "bytes": 1536,
+          "address": "0x20000000"
+        },
+        ".bss": {
+          "bytes": 44964,
+          "address": "0x20000600"
+        },
+        ".dtcmram_bss": {
+          "bytes": 0,
+          "address": "0x2000b5a4"
+        },
+        ".sdram_bss": {
+          "bytes": 63193476,
+          "address": "0xc0000000"
+        },
+        ".backup_sram": {
+          "bytes": 12,
+          "address": "0x38800000"
+        },
+        ".qspiflash_text": {
+          "bytes": 0,
+          "address": "0x90040000"
+        },
+        ".qspiflash_data": {
+          "bytes": 0,
+          "address": "0x90040000"
+        },
+        ".qspiflash_bss": {
+          "bytes": 0,
+          "address": "0x90040000"
+        },
+        ".heap": {
+          "bytes": 0,
+          "address": "0x30008000"
+        },
+        ".reserved_for_stack": {
+          "bytes": 0,
+          "address": "0x2000b5a4"
+        },
+        ".sdmmc_bss": {
+          "bytes": 5888,
+          "address": "0x24068060"
+        },
+        ".debug_info": {
+          "bytes": 2018493,
+          "address": "0x0"
+        },
+        ".debug_abbrev": {
+          "bytes": 115405,
+          "address": "0x0"
+        },
+        ".debug_loclists": {
+          "bytes": 594123,
+          "address": "0x0"
+        },
+        ".debug_aranges": {
+          "bytes": 15952,
+          "address": "0x0"
+        },
+        ".debug_rnglists": {
+          "bytes": 81638,
+          "address": "0x0"
+        },
+        ".debug_line": {
+          "bytes": 616830,
+          "address": "0x0"
+        },
+        ".debug_str": {
+          "bytes": 307239,
+          "address": "0x0"
+        },
+        ".comment": {
+          "bytes": 70,
+          "address": "0x0"
+        },
+        ".debug_frame": {
+          "bytes": 64000,
+          "address": "0x0"
+        },
+        ".debug_line_str": {
+          "bytes": 547,
+          "address": "0x0"
+        }
+      },
+      "executable_sections": {
+        ".text": {
+          "address": "0x240002a0",
+          "bytes": 422176
+        }
+      },
+      "sdmmc_dma_address": "0x24068060",
+      "sdmmc_dma_bytes": 5888,
+      "kernel_sdram_address": "0xc3c00000",
+      "kernel_sdram_bytes": 278916,
+      "cross_compiled": true,
+      "flashed": false,
+      "hardware_verified": false
+    }
+  },
+  "source_sha256": {
+    "hardware/firmware/AudioArena.h": "a74719e2b5783cd7644c9128f59968567ee28d34ad60949934aa47718f8dd6a6",
+    "hardware/firmware/BoardIO.h": "1225c808a7e77ff4d8fe049b6c821ce13cc4ae9b7fa07d6dd1c768437a6db39c",
+    "hardware/firmware/BoardProfile.h": "22789e26755ca3ff761888612030784f9d642a762b1143db3066b0e27758b0e1",
+    "hardware/firmware/BootCard.cpp": "7bb82a1876839e471b0b4b06a6d8538160ad44898e5b84d544ab2b9d88cdcec0",
+    "hardware/firmware/BootCard.h": "10cc77a8d058c3618cf3111781a15d2ab049b9f74ffba998b302a80f8002da08",
+    "hardware/firmware/Calibration.h": "9f04d4da496db1b1ccad8512270fd869a66b2dbb8a574caa37e0b53f9d30d46f",
+    "hardware/firmware/ConnectionMode.h": "272893d445f19a2f461dd7907828b434f707711e9f6ee60efd428b5bb33a84fe",
+    "hardware/firmware/ControlExpanders.h": "a80d1e38acf40c4886a4b48131936eff1219072cff3e61e51bf51edfa05e5d38",
+    "hardware/firmware/ConverterPower.h": "6a1b94cf9900876ff47adea2fbfe70b7ad32a7db8d6eb0d1c07355afaf22782d",
+    "hardware/firmware/DmaHalf.h": "359aecb2fc740a4d3a965cd1a533526451ecd47d53089497e4995d0a3ee7d71c",
+    "hardware/firmware/Es9292.h": "93d666184d03c4666f2daac1bb9af98d9dfcf538fd19c26d3071d872a06f0bd8",
+    "hardware/firmware/ExternalAudio.cpp": "939f2d89eb27699f41985965f421e4ca43c87c1e2149647f42c3d4936152de8e",
+    "hardware/firmware/ExternalAudio.h": "836ac8c869bc3fc9f02cd69c20d653191e8356331e0ab79a0a9db80e25f973b3",
+    "hardware/firmware/InputQualification.h": "ba52563d438bdbe6106f84a324a31c4b6fafce2ba3e76540570daaba985f7a21",
+    "hardware/firmware/Memory.cpp": "0c27f41d079b1183b8494a896e09a7d7fd7eac88758c235b8a5a84e378880ff7",
+    "hardware/firmware/Pcm32.h": "76f0fbafa8c618952b243edbb47552a57915e7799d6135da596461be2a9eefb5",
+    "hardware/firmware/RelayFeedback.h": "342089157194d2f4293d0d552def5adc4f20ff0806fe23bf69ee608f908b9c45",
+    "hardware/firmware/StorageMemory.ld": "299d72fdc40aba22b1049a6fbd67d4486a895d77fff027375c2ab40c40cd1098",
+    "hardware/firmware/WireFormat.h": "68734f3c6e588847df122b4220a04947dfb1e945ed56450978102da25880a42f",
+    "hardware/firmware/control-inputs.json": "55c53d7b52c3de703a179e6c5423c01748d66bf433064027b2146c8c7369fcd7",
+    "hardware/firmware/dependencies.json": "ccd3ab60483f1905ec080d1b38749399db5188416339e374a6e31ea57d3c4655",
+    "hardware/firmware/external-profile.json": "b79d26f49cccb4f3ec0a59bc5ced1ef8a96e6dc9b38dc998f1cacc3b45fe04d8",
+    "hardware/firmware/full_engine/AudioMemory.h": "1c066c7ddfc11223256589e091df9ad8eea6503e7659196f5a02e988450532e8",
+    "hardware/firmware/full_engine/BootStorage.cpp": "80ab5f3ffa6918eab108624e9887740d9d5a192552f99abc59c1709480f34b93",
+    "hardware/firmware/full_engine/CMakeLists.txt": "4fa824297490c112dba53d4f398c1ab7cf05a7dc66d1a3a241f1068deb603077",
+    "hardware/firmware/full_engine/CONTROL_RECOVERY.md": "c7bf77ede1c7b3c3530ec90425c2e8df0045ad0d8e66a79bed565c83930fad91",
+    "hardware/firmware/full_engine/ControlRecovery.h": "a346909c2666bc8ff6ff0373a53dfd88f7315f7d924032a78d200e1f32850a1e",
+    "hardware/firmware/full_engine/ControlReset.h": "443387591a49c40aeafee80cc9e30a6ee7f4ee0c2fccf3c38b251b883fc33815",
+    "hardware/firmware/full_engine/KernelTransport.cpp": "859baf2722e65c99b8f676d220448ad9c7aa9375ddef0562d6c166a51b59b049",
+    "hardware/firmware/full_engine/KernelTransport.h": "0a56cee68b2b596149134a3b5d4d880583f260b6c986266da073b21e50c01ba7",
+    "hardware/firmware/full_engine/Makefile": "44644ae1a27a1403e8ef4a75b242f308a19551bdb23d60f57616b7d7f0f74df8",
+    "hardware/firmware/full_engine/Memory.cpp": "7372bf4268544dfd62a6c3fc1cf863bca6268878ba4527e4c56da9b5c65a08b7",
+    "hardware/firmware/full_engine/README.md": "041b2bb212b9186292feb8e757d64d00e5ff221530005582d05e0b4d9f3cc0c0",
+    "hardware/firmware/full_engine/generate_kernels.py": "a75aec79997b53d9482011e087b0b2d02178ec84e22a8a2bac1b64810f485039",
+    "hardware/firmware/full_engine/generated/kernel_data.inc": "61183c0af1433ca71be5063b320498261d8adbfafbb5ec9bd0b78aeba719ff1b",
+    "hardware/firmware/full_engine/generated/kernel_origin.json": "abafb8937d3ca4af58e1573c60128f0aecf03444b67c40757d57c7a0c18de598",
+    "hardware/firmware/full_engine/include/rmx/AudioTypes.h": "612c02c7eceb08f90f0005ad8ef445273cf43197c3de944d8cf714deebd2ecc4",
+    "hardware/firmware/full_engine/include/rmx/controls/HardwareControls.h": "80c8dd3fdfe450817c4c9b06a2d25b8ddb8defb9d3ddfd402559d344f7c4be9d",
+    "hardware/firmware/full_engine/include/rmx/storage/BootStorage.h": "532af158b0e6cee06adf19c772ebb861d3289f6d326ea9322aba38ece59849c3",
+    "hardware/firmware/full_engine/main.cpp": "f602565ab7af0d009decfd13c0ddb1e79aaaae856047d9e3aa427048d97f9ab5",
+    "hardware/firmware/full_engine/tests/allocator_storage_tests.cpp": "1df7f9486c3e2cbf0e4fe3f1e2fd99f635e23c08e58c2cb71d9bd2093a24932b",
+    "hardware/firmware/full_engine/tests/bootstrap.cpp": "efff3323d5a1241c9db2a686734b043507505160efba5a8241f2efb71a46f5eb",
+    "hardware/firmware/full_engine/tests/control_recovery_tests.cpp": "f4d59a760947f5a726fe73c2b7f40a9caf32f7fd57cbabc7d0f95740042a4223",
+    "hardware/firmware/full_engine/tests/integration_tests.cpp": "f77f7b5556ef87edce78b46f8be07de53bd0a067194fc5e3689c94e759893c51",
+    "hardware/firmware/full_engine/tests/kernel_tests.cpp": "f6a198482acf76102b93bfee07534a1085e55c14b6a1486515435f10986f1426",
+    "hardware/firmware/full_engine/tests/storage_fault_tests.cpp": "9927a9e4f4044c2bf40dda6daca2450848bdb561d6c46d1bd4942039e7cda26e",
+    "hardware/firmware/full_engine/verify.py": "f785cb094e698e263b2b12825542bd8200110d8906c459bf48cee966395f2114",
+    "hardware/firmware/main.cpp": "8225e1761e92f83cdfe7ba63df7678f66599e9deec0d5b339ceff0393251f331",
+    "hardware/runtime/tests/support/TestSupport.h": "ba6550d573af5f709b94efb59bb8b7b6722a30902b530b294e20a4d574ff39cb",
+    "include/rmx/CardExport.h": "d8fef657ae059821a12d58534b8e72f3754c54b6f2cbd089cf6c73c202b7339a",
+    "include/rmx/CardSamples.h": "90d1a31bbea4e429c66c5e0c8093137bb1e946ae31cdb061c15ee473b457edd5",
+    "include/rmx/CardSettings.h": "14fcf121c7d6452110bfd30e60d00ac3b56220fee492e807feff035367137fd7",
+    "include/rmx/ControlSurface.h": "047b1c5c0de9fdde653067f35cc89c859538e1b8bf0213e711bf7794a262a04a",
+    "include/rmx/Dsp.h": "ff22e0fcab3b7176fb53aac8926c2483bc5cf4ee009c9ee7d8bac0094d7f4b93",
+    "include/rmx/EmbeddedControls.h": "34d38e98944ce0579c0e7e57af9648cf6d5d4c10ddfac39979f947c2ca04956c",
+    "include/rmx/Engine.h": "dc90def5a4826e96c53ca6bbb4fe45bf07ebde17c88875d59354f94519681602",
+    "include/rmx/FactoryDrums.h": "1248233fa60af68d30e6f2f725a448101246c6fb1d9f30ab433d6a677d58c408",
+    "include/rmx/FixedArena.h": "7bc52e324661a348bdaae5bd2dffe9ebeda19a744e1f93dceeb784b89550d6f5",
+    "include/rmx/HardwareCalibration.h": "ccbef2c40c492b0986f3f4c2c7a255d4c0fb2dfed266b61a838895008f36643e",
+    "include/rmx/Isolator.h": "3e12e91a96851f05bc86014596990da561fb3b8476a6382b39dae3f802561a05",
+    "include/rmx/LoopStretch.h": "77dc0c3ef4514494901f878f642fab70d76b77e300cfb1143cc9684411c6c5fd",
+    "include/rmx/MidiClock.h": "9bd9f34bc641fb25d6b181ea9a8d1ce5b478f395ffd1bb5ca93f89868140eccf",
+    "include/rmx/Panel.h": "9a5cb32945258f58816cb761e33dca37368e4bbafa6a341d1275690acfa93c51",
+    "include/rmx/PanelController.h": "c8eda205f67cf1048f6f11519b7d9781aed633b6b060434c07658af6357647ad",
+    "include/rmx/Parameters.h": "828375e734ba98477c14a69ad30f579a071b0ef3c0e162b7402c35560e288ff6",
+    "include/rmx/Sample.h": "e0983d3deb320e7e823a0a5ae6fea79670376570e6039fc0e0550eabec36ded7",
+    "include/rmx/SampleReader.h": "6a33cad229e2a45749362c9a63a305e7e8a3e492f48e028114b0cfd1af0d0b5b",
+    "include/rmx/Scene.h": "e248e8325cc7d55489bf8e4999dcca8452bd1d2cce61143d9beb18ede1e2f79a",
+    "include/rmx/Sequencer.h": "1cef7c91c9f0de1e238467de2d5a27cff40b220c25392499f83ecec7c8c6a8f3",
+    "include/rmx/Skin.h": "bb0450236c602bc01060401b16531855fbbb5812fc92e65217605a82c7cac03b",
+    "include/rmx/State.h": "47de90d0787483495f9d475663507266ead864697f8e3f08caf3c96d5edb9c5e",
+    "include/rmx/TempoTracker.h": "b740b7a06c82bac58e27646ac1c49f9126ac2daf66b042035555f33fc0cfedec",
+    "include/rmx/Wav.h": "dc56a9df676cc549821adbec600ca0df60690e96b7d6fd92a1058dd98f9a2e14",
+    "src/core/CardExport.cpp": "9d4e371a49f0ca4b39256f974f9227f8ad9c587a50d3bee38462950530680a04",
+    "src/core/CardSamples.cpp": "77ad0bdab6cde2b32c8ddd4243919f45303ace9625285d3af30dd34039ca54bc",
+    "src/core/CardSettings.cpp": "8bf3e5d231c8297da6c094d0a94bf3af4bf0a340a2a6872b29a30d83586aa148",
+    "src/core/Engine.cpp": "d29deda495176b82ac5c396513699625e23168ae4c942fc72a2f206f90e7d87f",
+    "src/core/Isolator.cpp": "7e4c343134f01f70d0b2f348456c61787d9a1b4ea4196d5bf7fb57b6a4f6af5f",
+    "src/core/Scene.cpp": "f73572c436e1e4a56ab96e6103a5e14b38c738af292c31f771455b0f7b89d924",
+    "src/core/State.cpp": "e35907b8277ad33b712762930167a4615ae5c958aa2c2b781227e0f31f2bce6a",
+    "src/core/Wav.cpp": "bd8beeb2e3dd5efb39df4ea4d48ea9eaa38201b2173e1b94ca6cb90c8ede0e46",
+    "tests/card_settings_tests.cpp": "87df55764b9573c0ee61074bc3ff59284012a49813be38d089679bc7fcfb91d7",
+    "tests/card_tests.cpp": "6bbf1c751c1a92eb05b9dcc39da63d22918d7e0a95ff6410b5870f2584e45610",
+    "tests/core_tests.cpp": "430b82b89c179111b854aa105322eb56ab69f1d9c8ab95465a6d8563ffdf90b6",
+    "tests/hardware_calibration_tests.cpp": "bb6ffef9b492c05183d601cec684b47a6438a25f6a5601a5acf8d8d64cc4cf96",
+    "tests/isolator_tests.cpp": "2bd285d65b1f83754ac130debb497b46e178924f4ab88348c58513f7afb91a22",
+    "tests/parity_tests.cpp": "f4dab1df65265b411c3a96b60748f5ef587960c845c2eee59801abb623cdaac6",
+    "tests/sampler_tests.cpp": "ddb5f72d13a48a0ead3d728c25137fae3bd12aab7a3567c37212236825976e41",
+    "tests/scene_tests.cpp": "0d52eb313eed58d23498e189bf1bc505b82c4cc157f75525949c31a03a64513b",
+    "tests/tempo_tests.cpp": "f9c92a7e921b2d39890018b31b2456d554ff7a443b14aa21cad332abe666528c",
+    "tests/xpad_tests.cpp": "97c8f2917271451de1c56968d378f48dc53527d9e5c2d328e7eae54f0cdda40a",
+    "tools/memory_budget.cpp": "a23625d5948745fb439796e8246cd8eb40cbdfcf4836f5b3058127855483cfc7"
+  },
+  "shared_kernel_transport_opt_in": true,
+  "coefficient_quantization": false,
+  "calibration_qspi_sectors_unchanged": [
+    "0x007f0000",
+    "0x007f1000"
+  ],
+  "physical_controls_verified": false,
+  "real_time_audio_verified": false,
+  "build_ready": false,
+  "limitations": [
+    "No MCU callback deadline, SDRAM/cache integrity, storage, sensor or audio performance measurement",
+    "Read-only boot loading; no hot reload/card writing/original RSD compatibility",
+    "Each sample limited to 96000 decoded frames and 2 seconds; not complete RMX or desktop media compatibility",
+    "Cold boot budget is cooperative; blocking vendor SD operations can exceed 8 seconds",
+    "Fault Panic intentionally clears recorded sequence, scene and isolator engagement; fresh gestures required",
+    "Firmware build does not qualify electrical, mechanical, converter or full-unit behavior"
+  ],
+  "evidence_sha256": {
+    "sdk-clean.txt": "e4b8a1589b9a128d9111ea517bc5d449838ec140e59980a2933a936b0fa0c285",
+    "host-configure.txt": "6704c03cd41c7dc82507e85335c5447377398ab940b448c8d247eafde98b3b4f",
+    "host-tests.txt": "6c01f3d7e5b1ae667b8379abd853b09e4f91551dd0a654a25bf97580862a3d7f",
+    "arm-external-build.txt": "b455abe55790947b466959c3a43a01661b2a92554f743e96864f5a103822d1e4",
+    "host-build.txt": "cf9d453b203ba88a52ecb985e3eb46d03d5ecc20eae973a7dbf898e845c51377",
+    "arm-onboard-build.txt": "56f3d261d09734c9902dace06edc499bce0599057db275973693499a60f05f92",
+    "host-tests.xml": "f4de6e006da89be6c3de59aa1c9f71ece08b3dfc1350397fedc6bc946938af35",
+    "kernel-origin.txt": "ab8b75a9e018bed6f9afb283a163895c0d226b390c93088ee6c53f65f8f800f6",
+    "sdk-build.txt": "6efe76bc721f7a85fe930e20469a0574b2756aa731fec7ce0ac3003624055697",
+    "arm-onboard-clean.txt": "76a547ed1ce25a266f828d34d192437526eb89e2df6d1afabd889a1807c828fd",
+    "arm-external-clean.txt": "086d4a26a3199e00cdda528c3bf14198324151ad6154de26c24a19b9ba60e8a1"
+  }
+}

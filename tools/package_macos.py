@@ -38,7 +38,7 @@ def cache(build: Path) -> dict[str, str]:
 
 def source_files() -> list[Path]:
     paths = []
-    for name in ('CMakeLists.txt', 'Package.swift', 'build-app.sh', '.gitignore', 'README.md', 'Info.plist', 'THIRD_PARTY_NOTICES.md', 'LICENSE'):
+    for name in ('CMakeLists.txt', 'Package.swift', 'build-app.sh', '.gitignore', '.python-version', 'pyproject.toml', 'uv.lock', 'README.md', 'Info.plist', 'THIRD_PARTY_NOTICES.md', 'LICENSE'):
         if (ROOT / name).is_file(): paths.append(ROOT / name)
     for directory in SOURCE_DIRS:
         if not (ROOT / directory).exists(): continue

@@ -62,15 +62,15 @@ capacitance, ringing and actual scan cadence before accepting400kHz operation.
 All switch leads remain inside the enclosure; system-level ESD/EMI provisions
 and harness qualification are unfinished.
 
-Regenerate and verify with the existing CAD Python environment (numpy2.5.4)
+Regenerate and verify with the root [uv environment](../../../README.md#python-tooling)
 and KiCad10.0.7:
 
 ```sh
-python3 -m hardware.electronics.control_inputs.generate
-build-hardware/cad-tools/bin/python -m hardware.electronics.control_inputs.board --kicad-cli /path/to/kicad-cli
-python3 -m hardware.electronics.control_inputs.verify --kicad-cli /path/to/kicad-cli
-python3 -m hardware.cad.standalone
-build-hardware/cad-tools/bin/python -m hardware.cad.render --openscad /path/to/openscad
+uv run --locked python -m hardware.electronics.control_inputs.generate
+uv run --locked python -m hardware.electronics.control_inputs.board --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.electronics.control_inputs.verify --kicad-cli /path/to/kicad-cli
+uv run --locked python -m hardware.cad.standalone
+uv run --locked python -m hardware.cad.render --openscad /path/to/openscad
 ```
 
 `board.py` uses explicit GPIO fanouts and a conservative grid-routing aid for

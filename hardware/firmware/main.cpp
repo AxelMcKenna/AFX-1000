@@ -1,4 +1,5 @@
 #include "BoardIO.h"
+#include "BootCard.h"
 #include "Calibration.h"
 #include "ConnectionMode.h"
 #include "RelayFeedback.h"
@@ -28,6 +29,7 @@ rmx::embedded::RearmDelay rearmDelay;
 std::atomic<bool> fault{}, requestProcessing{};
 std::atomic<uint32_t> blocks{}, maxCallbackUs{}, deadlineMisses{}, lastHealthyControls{};
 std::atomic<uint32_t> audioHeapBytes{};
+rmx::embedded::CardReport cardReport;
 #if RMX_EXTERNAL_CONVERTER
 rmx::embedded::ExternalAudio externalAudio;
 rmx::embedded::ConverterSession<rmx::embedded::BoardIO> converter(io);
@@ -119,6 +121,8 @@ int main() {
     bank = rmx::makeFactoryBank(48000);
     engine.setBank(&bank);
     engine.prepare(48000, 128);
+    // Filesystem access ends before audio, heartbeat, converter startup or permit.
+    cardReport = rmx::embedded::loadBootCard(bank, engine.params);
     engine.params.set(rmx::Param::WetOnly, 0.f);
     audioHeapBytes.store(static_cast<uint32_t>(audioMemoryUsed()), std::memory_order_relaxed);
 #if RMX_EXTERNAL_CONVERTER

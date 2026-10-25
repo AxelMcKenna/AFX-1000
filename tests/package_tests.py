@@ -35,6 +35,7 @@ class PackageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for path in ("CMakeLists.txt", "README.md", "THIRD_PARTY_NOTICES.md", "src/main.cpp",
+                         "pyproject.toml", "uv.lock", ".python-version", ".venv/lib/private.py",
                          "firmware/daisy/Makefile", "firmware/daisy/build/secret.cpp",
                          "tools/__pycache__/private.py", "docs/build/private.md",
                          "assets/panel.png", "build/src/private.cpp", "docs/.DS_Store"):
@@ -45,7 +46,8 @@ class PackageTests(unittest.TestCase):
             with mock.patch.object(package, "ROOT", root):
                 names = [p.relative_to(root).as_posix() for p in package.source_files()]
             self.assertEqual(names, sorted(["CMakeLists.txt", "README.md", "THIRD_PARTY_NOTICES.md",
-                                          "assets/panel.png", "firmware/daisy/Makefile", "src/main.cpp"]))
+                                          "assets/panel.png", "firmware/daisy/Makefile", "src/main.cpp",
+                                          "pyproject.toml", "uv.lock", ".python-version"]))
 
     def test_archive_hash_manifest_and_permissions(self):
         with tempfile.TemporaryDirectory() as directory:

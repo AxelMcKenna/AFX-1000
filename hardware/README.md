@@ -1,5 +1,7 @@
 # Standalone RMX hardware
 
+The [parallel development handoff](DEVELOPMENT.md) covers the latest power candidate, independent E25 routing, E10 PCB, system wiring, F05 boot storage, compact mechanical kit and bench plan. These remain prototype deliverables; the complete unit is not build-ready.
+
 The [A11 housing study](cad/a11/README.md) integrates the 90 × 44 mm main supply and 164-part E25 disconnect placement with RMX-style controls inside a 334 × 157 × 38 mm chassis. Native solids, button/lever sweeps and eight collision checks pass under provisional component allocations. E25 routing, 5 V distribution changes, wiring and physical qualification remain unfinished.
 
 The standalone firmware uses the isolated [runtime](runtime/README.md); the desktop engine remains in the root source directories. The [merge verification record](validation/main-merge.json) covers both host builds, both ARM profiles and the preserved CAD evidence. Earlier [A08 mechanics](cad/a08/README.md), the [B1 budget design](budget/README.md) and the [A0 enclosure reference](cad/a0-reference/README.md) remain separate variants.

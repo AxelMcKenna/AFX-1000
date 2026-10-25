@@ -12,12 +12,12 @@ A09 is isolated under `build/workspaces/high-headroom-standalone`; the active ma
 
 ## Rebuild
 
-From the isolated repository root, use the Python dependencies in `requirements.txt` and a native OpenSCAD build with Manifold and CGAL:
+From the repository root, use the [uv environment](../../../README.md#python-tooling) and a native OpenSCAD build with Manifold and CGAL:
 
 ```sh
-python3 hardware/cad/a09/build.py --openscad /path/to/openscad
-python3 -m unittest discover -s tests -p a09_integration_tests.py -v
-python3 -m hardware.cad.a09.verify
+uv run --locked python hardware/cad/a09/build.py --openscad /path/to/openscad
+uv run --locked python -m unittest discover -s tests -p a09_integration_tests.py -v
+uv run --locked python -m hardware.cad.a09.verify
 ```
 
 Outputs go to `build/artifacts/cad/a09/`. The 3MF is a quantity-correct inventory, not a printer profile. Use `parts.csv` and [PRINTING.md](PRINTING.md) for the prototype mechanical inventory. No print-pack path from A07 or A08 is overwritten. The supplied PCB is an in-progress placement/routing source, not a fabrication file.

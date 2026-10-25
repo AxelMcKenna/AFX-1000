@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -82,6 +83,15 @@ class AudioArena {
                 } while (merged);
                 return true;
             }
+        return false;
+    }
+    bool canAllocate(size_t bytes) const noexcept {
+        if (!base || bytes > std::numeric_limits<uint32_t>::max() - 15)
+            return false;
+        const auto aligned = static_cast<uint32_t>((std::max<size_t>(bytes, 1) + 15) & ~size_t(15));
+        for (const auto& segment : segments)
+            if (segment.active && !segment.used && segment.bytes >= aligned)
+                return true;
         return false;
     }
     size_t usedBytes() const noexcept {

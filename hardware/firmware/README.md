@@ -1,5 +1,7 @@
 # Standalone embedded prototype
 
+The separate [F06 maintained-engine candidate](full_engine/README.md) builds the current 152-parameter DSP with exact kernel restoration, bounded SDRAM storage and control-fault recovery. The instructions below describe the preserved F05 runtime build. Neither build has been run or qualified on physical hardware.
+
 This application builds the existing RMX engine for Daisy Seed3. Audio processing,
 factory samples, tempo detection, front controls and feedback run on the module;
 no Mac, USB host or network connection is required for operation. It has been
@@ -87,8 +89,9 @@ The records do not depend on native filesystem/syscall support.
 
 The pinned SDK/newlib link emits warnings for unsupported host POSIX syscalls
 and the SDK SRAM linker segment's RWX permissions. No POSIX file or terminal I/O
-is used by this application. microSD must use the embedded FatFs adapter; it is
-not implemented yet. The linker map and actual hardware remain the authority for
+is used by this application. The [F05 boot-storage extension](STORAGE.md) uses the embedded FatFs adapter for
+optional samples, boot presets and the six user settings. It is read-only and
+finishes before audio starts; SD hardware and timing remain unqualified. The linker map and actual hardware remain the authority for
 memory use and timing.
 
 ## Wiring contract
@@ -100,7 +103,7 @@ connection. Do not power the processor from the logic output pins.
 | Seed logical pin | Function |
 | --- | --- |
 | D0 | Hardware bypass sense, active low; switch also directly gates relay enable |
-| D1-D6 | Reserved for SDMMC storage; not initialized by this revision |
+| D1-D6 | F05 boot-only SDMMC storage; socket/detect wiring and power remain unqualified |
 | D7 | TLC5947 XLAT |
 | D8 | SPI1 clock for TLC5947 |
 | D9 | Gain relay driver request; low Master / high Send-Return; external pull-down |
@@ -203,7 +206,7 @@ Global channel `n` maps to IC `n/24`, output `n%24`. IC0 is nearest the MCU.
 Current limits are hardware-set; PWM brightness is not a current limiter. Use
 common-anode display parts and the TLC5947 manufacturer's required current-set,
 decoupling and thermal design. Default/User currently changes the shared flag;
-loading user settings/presets from storage remains open.
+F05 [boot storage](STORAGE.md) loads those six settings and a bounded boot preset; runtime writing/reloading remains open.
 
 The [E20 driver core](../electronics/led_driver/README.md) implements the four-chip
 chain, 3.3-to-5 V translation and supervised BLANK gating. `BoardIO.h` supplies
@@ -239,7 +242,7 @@ calibration. Do not calibrate against an unsupported or forced lever position.
   noise/distortion and physical round-trip latency.
 - Build the external watchdog/bypass and verify boot, MCU halt, I/O fault,
   brownout, power loss and reset behavior with an audio signal.
-- Complete microSD sample/preset loading with the 32-second aggregate sample cap,
-  startup asset installation and an explicit full-bank replacement policy.
+- Physically validate the F05 SD socket, card power/inrush, DMA/cache transfers,
+  boot-time bounds and factory fallback. Runtime writing/reloading remains open.
 - Add calibration/preset recovery tests, measured ADC endpoints and physical
   control/LED tests. No claim of a two-hour hardware soak is made.

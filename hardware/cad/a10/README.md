@@ -10,12 +10,12 @@ Native checks cover all printed solids, the full button travel and release-lever
 
 ## Rebuild
 
-From the isolated repository root with the dependencies in `requirements.txt`, and OpenSCAD with Manifold and CGAL:
+From the repository root with the [uv environment](../../../README.md#python-tooling), and OpenSCAD with Manifold and CGAL:
 
 ```sh
-python3 hardware/cad/a10/build.py --openscad /path/to/openscad
-python3 -m unittest discover -s tests -p a10_integration_tests.py -v
-python3 -m hardware.cad.a10.verify
+uv run --locked python hardware/cad/a10/build.py --openscad /path/to/openscad
+uv run --locked python -m unittest discover -s tests -p a10_integration_tests.py -v
+uv run --locked python -m hardware.cad.a10.verify
 ```
 
 `--geometry-only` performs native mesh/collision checks and creates the 3MF without graphics previews. `--preview-only` creates review images without qualifying new solids. Outputs are under `build/artifacts/cad/a10/`. Use `parts.csv` and [PRINTING.md](PRINTING.md) for quantities and prototype assembly; the 3MF is an inventory, not a machine profile. This model does not overwrite A08 or A09. A09 keeps its frozen 84 × 38 mm source snapshot.
