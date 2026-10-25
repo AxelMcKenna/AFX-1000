@@ -25,18 +25,20 @@ void SceneProcessor::prepare(double sampleRate) {
     for(size_t i=0;i<room.size();++i)room[i].prepare(static_cast<size_t>(rate*roomSeconds[i]*2)+4);
     dampingAlpha=poleCoefficient(6000,rate);noiseTilt.configure(1000,.7071f,rate);
     noisePolish.configure(12500,.7071f,rate);
+    calibratedFilters.prepare(rate);
     noiseCutoffSlew=1-std::exp(-1.f/static_cast<float>(rate*.008));
     noiseModSlew=1-std::exp(-1.f/static_cast<float>(rate*.002));noiseReturnAlpha=poleCoefficient(6500,rate);
     sideAttack=1-std::exp(-1.f/static_cast<float>(rate*.003));sideRelease=1-std::exp(-1.f/static_cast<float>(rate*.08));updateRoom();reset();
 }
 void SceneProcessor::reset() noexcept {
     echo.reset();spiral.reset();for(auto& delay:room)delay.reset();damping={};
-    mainFilter.reset();echoFilter.reset();noiseTilt.reset();noisePolish.reset();calibratedNoise.reset();pitchPhase=0;frame=0;random=0x12345678;
+    mainFilter.reset();echoFilter.reset();noiseTilt.reset();noisePolish.reset();calibratedNoise.reset();calibratedFilters.reset();pitchPhase=0;frame=0;random=0x12345678;
     noiseCutoff=90;noiseModGain=1;noiseReturn={};noiseAge=0;
     previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;
 }
 void SceneProcessor::configure(const SceneSettings& next) noexcept {
     if(next==settings)return;
+    if(next.type!=settings.type)calibratedFilters.invalidate();
     if(next.type==2&&settings.type!=2) {noiseAge=0;noiseReturn={};}
     settings=next;settings.type=std::clamp(settings.type,0,9);previousCutoff=previousQ=previousEchoCutoff=-1;updateRoom();
 }
@@ -111,6 +113,13 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
     const float activation=std::min(1.f,macro*10);
     const auto region=type==1?echoDelayRegion(sub1):sceneDelayRegion(sub1);
     const bool measuredNoise=type==2&&rate==48000&&settings.width[2]==1&&!resonance;
+    if((type==0||type==5||type==6)&&rate==48000&&settings.width[type]==1&&!resonance&&sub2==0
+            &&settings.feedback==.7f&&settings.feedbackCharacter[type]==1
+            &&settings.delayBeats[type]==std::array<int,4>{2,3,4,5}) {
+        const auto raw=std::clamp(static_cast<int>(std::floor(macro*255+1.e-4f)),0,255);
+        const auto timeRaw=std::clamp(static_cast<int>(std::floor(sub1*(255.f/7)+1.e-4f)),0,255);
+        ++frame;return calibratedFilters.process(input,type,raw,timeRaw,enabled,bpm);
+    }
     const auto choice=type==2?(measuredNoise?3:5):std::clamp(settings.delayBeats[type][region],0,type==1?8:6);
     // Original synchronized Echo first truncates the beat period to whole
     // milliseconds, then applies the chosen division. At 128 BPM, a half beat

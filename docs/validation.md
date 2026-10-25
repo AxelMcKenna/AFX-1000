@@ -250,3 +250,11 @@ The original RMX-1000 Plug-in 2.2.0 is now captured through its public VST2 inte
 - Integer/fractional tempo impulses and Noise tails confirm whole-millisecond beat periods before subdivision. Auto off holds manual tempo in the plug-in; Auto on follows the host.
 
 Native app/AU/VST3 builds succeed. Desktop timing remains below the benchmark budget. Original hardware, other sample rates, overload, modulation/resonance, remaining effects, factory sampler matching, Release and combined gestures remain unverified; this is not full-device 99% conformance or an embedded deadline result.
+
+## Filter Echo checkpoint: 26 October 2026
+
+Static factory BPF/HPF/LPF Echo at 48 kHz, Normal width and Sub2 zero now pass 164 original-plug-in comparisons. The suite includes direct impulse windows, separate echo tails, six fresh stereo Main positions per effect and four crossfaded Sub1 positions per effect at 137 BPM. Maximum checked per-channel RMS errors are approximately 0.0018%, 0.0063% and 0.16%, respectively. Nine native VST3 captures also pass, including button-off tails. Exact settings, reference/candidate hashes and per-case results are in the [filter validation record](../research/audio/measurements/2026-10-26-filter-validation-48k.json).
+
+A real Git clone of `6488916` plus the owned audio source/test overlay passes all 31 CTest groups in 43.63 seconds. The clone excludes unrelated ongoing hardware edits. New regressions check measured direct/tap values, tails after button-off, stereo isolation and finite output across all 256 raw positions. Native app, AU and VST3 builds pass; eight offline-host regressions pass for each AU/VST3, and the VST3 smoke probe passes 359 checks across 153 parameters.
+
+The bounded-arena check reports 29,025,584 bytes for engine buffers, 35,649,584 with project factory samples, and 54,926,384 with 64 seconds of stereo bank storage. Replacement peaks at 55,099,184 bytes inside the 62,914,536-byte usable arena; audio processing allocates no arena storage. The desktop 2,000-block/configuration benchmark passes its 50% threshold, with worst p99 12.0782% during concurrent build/capture activity. This does not establish Cortex-M7 timing or hardware sound matching. Remaining effects, advanced profiles, changing controls, sampler, Release, overload and other host rates still require measured work.

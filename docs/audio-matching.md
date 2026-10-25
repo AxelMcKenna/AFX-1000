@@ -1,6 +1,6 @@
 # Measuring the RMX sound match
 
-The [sound-matching research](../research/audio/rmx1000-fidelity.md) defines the overall target. Static factory Isolator and Echo pass the declared waveform criterion at 48 kHz. Default Noise also passes its statistical screen at four positions excluded from coefficient fitting. This does not certify a complete device sound match.
+The [sound-matching research](../research/audio/rmx1000-fidelity.md) defines the overall target. Static factory Isolator, Echo, BPF Echo, HPF Echo and LPF Echo pass the declared waveform criterion at 48 kHz. Default Noise also passes its statistical screen at four positions excluded from coefficient fitting. This does not certify a complete device sound match.
 
 ## Current reference status
 
@@ -38,6 +38,33 @@ uv run --locked python -m tools.rmx_factory_match compare \
 For Echo, use `--effect echo` and fresh reference/candidate destinations. The recipe records at least a twelve-second tail, extends it at slow tempos, and supplies the actual reference duration to `rmx_render`. Add `--bpm 137` to capture another fixed tempo. It selects original Auto host synchronization for non-default tempos; simply supplying another host BPM while Auto is off leaves the original at manual tempo. Reference receipts and candidate hashes are checked before comparison. Static checks exclude User-profile maps, control gestures, changing tempo, combinations, overload, analog hardware and rates other than 48 kHz.
 
 Synchronized Echo and Noise use `floor(60000/BPM)` whole milliseconds per beat, before applying the selected division. Clean impulses at 90, 128, 137, 128.5 and 123.9 BPM verify the Echo rule; Noise tails verify it at 90, 128 and 137. See the [clock measurements](../research/audio/measurements/2026-10-26-clock-48k.json). Initial controls now match the original inventory: Auto on, Scene Main/Sub2 at zero, Sub1 at raw 128, and Echo selected for Release.
+
+## BPF, HPF and LPF Echo
+
+The [filter measurement record](../research/audio/measurements/2026-10-26-filter-validation-48k.json) contains 164 passing static comparisons, including fresh stereo broadband/chirp/transient/multitone signals at 120 and 137 BPM, direct impulses and separately assessed tails. The largest per-channel RMS errors across the checked segments are approximately 0.0018% for BPF, 0.0063% for HPF and 0.16% for LPF. Nine additional native VST3 cases pass, including button-off tails. These results apply to factory Normal width, Sub2 zero, default delay assignments and feedback character, at 48 kHz. Other profiles/rates and moving controls retain separate validation requirements.
+
+BPF adds its resonant band-pass output directly to dry input; its echo feed uses 0.85 times that band output. HPF and LPF replace the direct signal through resonant filters. Their common return is high-passed through two Butterworth sections at approximately 284 Hz. Four independent combs have 0.75 feedback and a 0.7 return gain. Sub1 crossfades between quarter, half, three-quarter and one-beat returns: `x=clamp((raw-3)/62.25,0,4)` selects adjacent weights, beginning with a fade from zero to the quarter-beat tap. Main gates the echo send with `clamp((raw-4)/5,0,1)`. Echo tails survive button-off. This differs from the standalone Echo's discrete time regions.
+
+The [numerical identification record](../research/audio/measurements/2026-10-26-filter-identification.json) fits every BPF raw position and a calibrated HPF/LPF feedback map. The latter uses a Butterworth biquad with one-sample-delayed band-pass feedback, itself high- or low-pass filtered through a first-order section. Model identification uses recurrence residuals and reconstructed response error; fresh-signal validation checks the final engine independently.
+
+To reproduce with a separately obtained original and an independently reviewed 48 kHz bypass calibration:
+
+```sh
+uv run --locked python -m tools.rmx_filter_capture \
+  --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
+  --output build/artifacts/research/filter-reference
+uv run --locked python -m tools.rmx_filter_identify \
+  --base build/artifacts/research/filter-reference \
+  --grid build/artifacts/research/filter-reference \
+  --calibration build/artifacts/research/filter-reference \
+  --report build/artifacts/research/filter-identification.json \
+  --header build/artifacts/research/FilterEchoCalibration.h
+uv run --locked python -m tools.rmx_filter_match \
+  --session build/artifacts/research/filter-reference --renderer build/rmx_render \
+  --calibration calibration-reviewed.json --output build/artifacts/research/filter-candidate
+```
+
+The capture takes several minutes and writes substantial local audio. Destinations must be new. The identifier verifies reference/input/plan hashes and exact impulse recipes. The matcher verifies capture hashes, applies only the reviewed bypass offset, and assesses each channel without gain fitting. Add `--include-grid` to screen the complete BPF identification grid too. Event plans are reported as skipped by the static CLI matcher and require the native timestamped host; they are not counted as static passes. Raw reference recordings and vendor binaries remain outside Git.
 
 ## Noise identification and statistics
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "Dsp.h"
 #include "CalibratedNoise.h"
+#include "CalibratedFilterEcho.h"
 #include <array>
 #include <memory_resource>
 #include <vector>
@@ -17,6 +18,7 @@ struct SceneSettings {
         std::array<std::array<int,4>,10> choices{};
         for(auto& regions:choices)regions={1,2,3,5};
         choices[1]={2,3,4,5};
+        choices[0]=choices[5]=choices[6]={2,3,4,5};
         return choices;
     }();
     float feedback{.7f},decay{.72f},noiseColor{.5f};
@@ -34,6 +36,7 @@ private:
     std::array<Stereo,8> damping{};
     StateFilter mainFilter,echoFilter,noiseTilt,noisePolish;
     CalibratedNoise calibratedNoise;
+    CalibratedFilterEcho calibratedFilters;
     SceneSettings settings;
     double rate{48000},pitchPhase{};uint64_t frame{};
     uint32_t random{0x12345678};

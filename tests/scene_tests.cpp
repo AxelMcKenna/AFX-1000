@@ -13,6 +13,35 @@ float sine(double frequency,size_t i) {return .2f*static_cast<float>(std::sin(2*
 double energy(Stereo x) {return x.l*x.l+x.r*x.r;}
 int main() {try {
     {
+        // Independent original impulse captures, with only the measured
+        // 32-frame bypass latency removed. Button-off precedes the first tap.
+        constexpr std::array<int,3> types{0,5,6};
+        constexpr std::array<std::array<float,4>,3> direct{{
+            {1.08466162f,.15784727f,.13931002f,.12431574f},
+            {.93282206f,-.07649630f,-.03058010f,-.04923788f},
+            {.00900096f,.03353484f,.06030561f,.07965446f}}};
+        constexpr std::array<float,3> first{.70622398f,.61455636f,.00592996f};
+        for(size_t effect=0;effect<types.size();++effect) {
+            SceneProcessor processor;processor.prepare(48000);SceneSettings settings;settings.type=types[effect];processor.configure(settings);
+            for(size_t i=0;i<=24000;++i) {
+                const auto output=processor.process(i==0?Stereo{.05f,-.04f}:Stereo{},128.f/255,128*7.f/255,0,i<4800?1:0,120,i/24000.,0);
+                if(i<4)require(std::abs(output.l-.05f*direct[effect][i])<1e-6f,"Factory filter direct impulse differs from reference");
+                if(i==12000)require(std::abs(output.l-.05f*first[effect])<1e-6f,"Factory filter echo disappeared on button-off or changed level");
+                if(i==18000)require(std::abs(output.l-.05f*first[effect]*(.5f/61.75f))<1e-6f,"Factory filter Sub1 lost its adjacent crossfaded tap");
+                if(i==24000)require(std::abs(output.l-.05f*first[effect]*.75f)<1e-6f,"Factory filter repeat differs from measured 0.75 feedback");
+                require(std::abs(output.r+output.l*.8f)<1e-6f,"Factory filter changed stereo routing");
+            }
+        }
+        CalibratedFilterEcho filter;filter.prepare(48000);
+        for(int type:types)for(int raw=0;raw<256;++raw) {
+            filter.invalidate();
+            for(unsigned i=0;i<1024;++i) {
+                const auto output=filter.process(i==0?Stereo{.05f,0}:Stereo{},type,raw,128,1,120);
+                require(std::isfinite(output.l)&&std::abs(output.l)<1&&output.r==0,"Calibrated filter became unstable across raw control range");
+            }
+        }
+    }
+    {
         for(unsigned raw:{0u,65u,66u,131u,132u,193u,194u,255u}) {
             const size_t expected=raw<66?0:raw<132?1:raw<194?2:3;
             require(echoDelayRegion(raw*7.f/255)==expected,"Echo region differs from measured public control boundary");

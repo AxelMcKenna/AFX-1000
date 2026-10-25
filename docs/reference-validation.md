@@ -2,7 +2,7 @@
 
 We need recordings from a physical RMX-1000 before making claims about matching its sound. This workflow makes those recordings repeatable, keeps conversion delay separate from effect timing and produces measurements that can be reviewed alongside listening tests.
 
-There are no hardware reference recordings in this repository. The [offline plug-in capture and fidelity tools](audio-matching.md) now have original RMX-1000 Plug-in 2.2.0 measurements, fitted static factory Isolator/Echo checks, Noise statistics and additional-tempo timing checks at 48 kHz. They support timestamped AU/VST2/VST3 capture, fractional bypass calibration, spectral diagnostics and stationary harmonic analysis. Software measurements do not establish hardware equivalence.
+There are no hardware reference recordings in this repository. The [offline plug-in capture and fidelity tools](audio-matching.md) now have original RMX-1000 Plug-in 2.2.0 measurements, fitted static factory Isolator/Echo/BPF/HPF/LPF checks, Noise statistics and additional-tempo timing checks at 48 kHz. They support timestamped AU/VST2/VST3 capture, fractional bypass calibration, spectral diagnostics and stationary harmonic analysis. Software measurements do not establish hardware equivalence.
 
 ## Generate a session
 
