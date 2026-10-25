@@ -76,7 +76,19 @@ class MechanicalInventory(unittest.TestCase):
         saved = json.loads(
             (ROOT / "hardware/cad/a08/generated/control-schedule.json").read_text()
         )
-        self.assertEqual(saved["buttons"], buttons)
+        self.assertEqual(len(saved["buttons"]), len(buttons))
+        for expected, actual in zip(saved["buttons"], buttons):
+            with self.subTest(button=actual[0]):
+                # Only sector centers use platform-dependent sin/cos results.
+                if actual[1] == "sector":
+                    self.assertEqual(expected[:5], actual[:5])
+                    self.assertEqual(expected[7:], actual[7:])
+                    for coordinate in (5, 6):
+                        self.assertAlmostEqual(
+                            expected[coordinate], actual[coordinate], delta=1e-9
+                        )
+                else:
+                    self.assertEqual(expected, actual)
         self.assertEqual(saved["knobs"], knobs)
 
 
