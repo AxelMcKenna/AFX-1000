@@ -78,7 +78,7 @@ Plan readPlan(const std::filesystem::path& path) {
 }
 class Model {
 public:
-    Model(std::string gateMode,bool cutoffAtInput,bool gainAtInput):gate(std::move(gateMode)),pre(cutoffAtInput),writeGain(gainAtInput) {
+    Model(std::string gateMode,std::string cutoffPosition,bool gainAtInput):gate(std::move(gateMode)),position(std::move(cutoffPosition)),writeGain(gainAtInput) {
         for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch) {
             size_t maximum=1;
             for(const auto& row:reverbDownControls)maximum=std::max(maximum,static_cast<size_t>(row.delays[j][ch]));
@@ -96,8 +96,8 @@ public:
         for(size_t j=0;j<5;++j){gl[j]=std::pow(row.gainL[j],exponent);gr[j]=std::pow(row.gainR[j],exponent);}
         wetGain=row.wetGain*reverbDownAmountGain[static_cast<size_t>(c.amount)]/reverbDownAmountGain[128];
         wetGain*=1+reverbDownMainCorrection[static_cast<size_t>(c.main)]*reverbDownAmountCorrection[static_cast<size_t>(c.amount)];
-        wetGain*=1+.5*c.cutoff/255;
-        dryGain=c.enabled?row.dryGain:1;
+        compensation=1+.5*c.cutoff/255;
+        dryGain=row.dryGain;
         const double hz=17330*std::pow(261./17330,std::max(0.,static_cast<double>(c.cutoff)-4)/251);
         for(auto& filter:outputFilter)filter.biquad(hz,false);
         if(gate=="reset"&&c.enabled!=state.enabled)clear();
@@ -106,10 +106,20 @@ public:
     std::array<rmx::Stereo,2> tick(rmx::Stereo input) noexcept {
         const bool feed=state.enabled||gate=="output";
         const bool emit=state.enabled||gate=="inlet";
-        std::array<double,2> source{feed?input.l:0.,feed?input.r:0.},wet{};
+        std::array<double,2> source{input.l,input.r},wet{};
         for(size_t ch=0;ch<2;++ch) {
             for(auto& f:inputFilters[ch])source[ch]=f.tick(source[ch]);
-            if(pre)source[ch]=outputFilter[ch].tick(source[ch]);
+        }
+        // The original has one 32-frame audio block of latency. Button gating
+        // acts on new input; knobs act on the already buffered audio.
+        const auto delayed=audioBlock[blockHead];
+        const auto gated=feed?source:std::array<double,2>{};
+        audioBlock[blockHead]={input,gated,state.enabled};
+        if(++blockHead==audioBlock.size())blockHead=0;
+        source=delayed.source;
+        for(size_t ch=0;ch<2;++ch) {
+            source[ch]*=wetGain;
+            if(position=="pre")source[ch]=outputFilter[ch].tick(source[ch]);
         }
         for(size_t j=0;j<5;++j) {
             const double left=combs[j][0].tap(static_cast<size_t>(delays[j][0]))*(writeGain?1:gl[j]);
@@ -119,12 +129,14 @@ public:
             wet[0]+=left;wet[1]+=right;
         }
         for(size_t ch=0;ch<2;++ch) {
+            if(position=="comb")wet[ch]=outputFilter[ch].tick(wet[ch])*compensation;
             for(auto& ap:allpasses[ch])wet[ch]=ap.tick(wet[ch]);
-            if(!pre)wet[ch]=outputFilter[ch].tick(wet[ch]);
+            if(position=="post")wet[ch]=outputFilter[ch].tick(wet[ch]);
         }
-        const rmx::Stereo dry{static_cast<float>(input.l*dryGain),static_cast<float>(input.r*dryGain)};
-        const rmx::Stereo output{static_cast<float>(input.l*dryGain+(emit?wetGain*wet[0]:0)),
-                                 static_cast<float>(input.r*dryGain+(emit?wetGain*wet[1]:0))};
+        const double direct=delayed.enabled?dryGain:1;
+        const rmx::Stereo dry{static_cast<float>(delayed.input.l*direct),static_cast<float>(delayed.input.r*direct)};
+        const rmx::Stereo output{static_cast<float>(delayed.input.l*direct+(emit?(position=="comb"?1:compensation)*wet[0]:0)),
+                                 static_cast<float>(delayed.input.r*direct+(emit?(position=="comb"?1:compensation)*wet[1]:0))};
         return {output,dry};
     }
 private:
@@ -141,16 +153,19 @@ private:
     std::array<std::array<int,2>,5> delays{};
     std::array<double,5> gl{},gr{};
     Controls state;
-    double wetGain{},dryGain{1};
-    std::string gate;bool pre{},writeGain{};
+    struct BufferedInput {rmx::Stereo input{};std::array<double,2> source{};int enabled{};};
+    std::array<BufferedInput,32> audioBlock{};
+    size_t blockHead{};
+    double wetGain{},dryGain{1},compensation{1};
+    std::string gate,position;bool writeGain{};
 };
 }
 int main(int argc,char** argv){try {
-    if(argc!=9)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|post read|write CONTROL_QUANTUM NEW_DRY_TRACE");
+    if(argc!=9)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE");
     if(std::filesystem::exists(argv[2])||std::filesystem::exists(argv[8]))throw std::runtime_error("Output/trace must be new");
     const std::string gate=argv[4],position=argv[5],gain=argv[6];
     if(gate!="inlet"&&gate!="output"&&gate!="inlet-output"&&gate!="reset")throw std::runtime_error("Invalid gate mode");
-    if(position!="pre"&&position!="post")throw std::runtime_error("Invalid cutoff position");
+    if(position!="pre"&&position!="comb"&&position!="post")throw std::runtime_error("Invalid cutoff position");
     if(gain!="read"&&gain!="write")throw std::runtime_error("Invalid gain position");
     const std::string quantumText=argv[7];size_t used{};const auto quantum=std::stoul(quantumText,&used);
     if(used!=quantumText.size()||(quantum!=1&&quantum!=32&&quantum!=128))throw std::runtime_error("Invalid control quantum");
@@ -159,10 +174,18 @@ int main(int argc,char** argv){try {
     rmx::Sample output,dry;output.rate=dry.rate=48000;
     output.frames.resize(input.frames.size()+static_cast<size_t>(std::llround(plan.tail*48000)));dry.frames.resize(output.frames.size());
     for(const auto& e:plan.events)if(e.frame>=output.frames.size())throw std::runtime_error("Event outside render extent");
-    Model model(gate,position=="pre",gain=="write");Controls target=plan.initial;model.configure(target);size_t event=0;bool dirty=false;
+    Model model(gate,position,gain=="write");Controls target=plan.initial,current=plan.initial;model.configure(current);size_t event=0;bool dirty=false;
     for(size_t n=0;n<output.frames.size();++n) {
         while(event<plan.events.size()&&plan.events[event].frame==n){apply(target,plan.events[event]);++event;dirty=true;}
-        if(dirty&&n%quantum==0){model.configure(target);dirty=false;}
+        if(dirty&&n%quantum==0){
+            const auto approach=[](int a,int b){return a+(a<b?1:(a>b?-1:0));};
+            current.main=approach(current.main,target.main);
+            current.amount=approach(current.amount,target.amount);
+            current.cutoff=approach(current.cutoff,target.cutoff);
+            current.enabled=target.enabled;
+            model.configure(current);
+            dirty=current.main!=target.main||current.amount!=target.amount||current.cutoff!=target.cutoff;
+        }
         const auto result=model.tick(n<input.frames.size()?input.frames[n]:rmx::Stereo{});
         output.frames[n]=result[0];dry.frames[n]=result[1];
     }

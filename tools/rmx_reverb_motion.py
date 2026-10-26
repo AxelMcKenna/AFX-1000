@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Capture Reverb Down state changes; timing diagnostics are not full fidelity."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
+CAPTURE_STAGES = (*STAGES,'cutoff-holdout')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
 
@@ -81,6 +83,27 @@ def recipe(stage):
             add(f'off-on-block-{block}','continuous',main=255,block=block,
                 events=[dict(frame=event_frame,control='enabled',value=0),dict(frame=288073,control='enabled',value=1)],
                 baseline='button/down-off-on-continuous-255')
+    elif stage == 'cutoff-holdout':
+        fresh=np.zeros((288000,2))
+        fresh[24000:264000]=np.random.default_rng(0xC039A7).normal(0,.019,(240000,2))
+        t=np.arange(240000)/48000
+        fresh[24000:264000]+=.012*np.column_stack((np.sin(2*np.pi*(173*t+180*t*t)),
+                                                  np.cos(2*np.pi*1831*t)+np.sin(2*np.pi*61*t)))
+        gap=fresh.copy();gap[96000:192000]=0
+        pulses=np.zeros_like(fresh)
+        pulses[[24000,96007,120111,192019,240017]]=[[.025,0],[0,-.017],[.013,.009],[-.019,.021],[.01,0]]
+        waves=dict(fresh=fresh,gap=gap,pulses=pulses)
+        specs=[(47,83,5,'fresh',32,[(120013,255),(121249,0),(144017,91)]),
+            (203,221,180,'fresh',256,[(96013,64),(96109,90),(144071,250)]),
+            (129,161,1,'fresh',128,[(72001,4),(72045,5),(120013,3)]),
+            (255,37,254,'fresh',32,[(96013,255),(96077,250),(144031,0)]),
+            (64,224,96,'pulses',256,[(48049,97),(48095,95),(192019,201)]),
+            (176,0,223,'gap',128,[(144019,9),(145111,201),(192071,0)]),
+            (128,128,0,'fresh',256,[(96013,192),(96111,224),(96143,223),(144197,77)]),
+            (143,255,241,'pulses',32,[(96013,1),(120013,241),(192013,255)])]
+        for i,(main,amount,cutoff,source,block,events) in enumerate(specs):
+            add(f'cutoff-holdout-{i}',source,main,amount,cutoff,block=block,
+                events=[dict(frame=frame,control='cutoff',value=value) for frame,value in events])
     else:
         raise ValueError('Unknown motion stage')
     if stage in ('steps','ramps'):
@@ -106,8 +129,40 @@ def event_values(case):
             for e in case['events']]
 
 
+def prediction_payload(stage):
+    waves,cases=recipe(stage)
+    repo=Path(__file__).resolve().parents[1]
+    paths=[Path(__file__),repo/'research/audio/experiments/reverb_down_motion_probe.cpp',
+           repo/'research/audio/experiments/ReverbDownControlCalibration.h']
+    return dict(stage=stage,cases=cases,source_files_sha256={str(p.relative_to(repo)):sha256(p) for p in paths},
+        source_samples_sha256={name:hashlib.sha256(x.astype('<f4').tobytes()).hexdigest() for name,x in waves.items()})
+
+
+def predict(args):
+    calibration(args.calibration)
+    payload=prediction_payload('cutoff-holdout')
+    save_json(args.report,dict(kind='rmx220-reverb-down-cutoff-motion-predictions',**payload,
+        model_path=str(args.model.resolve()),model_sha256=sha256(args.model),
+        renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),
+        calibration_sha256=sha256(args.calibration),candidate_config=dict(gate='inlet',cutoff_position='post',
+            gain_position='read',control_quantum=32,candidate_latency=32),
+        expected='All eight complete renders pass whole/wet/tail and every event window at relative RMS <=0.01.',
+        scope='Only Sub2 moves; Main/Sub1 stay fixed and the effect starts enabled.'))
+
+
 def capture(args):
     calibration(args.calibration)
+    if args.stage=='cutoff-holdout':
+        if args.prediction is None:
+            raise ValueError('Fresh cutoff capture requires frozen prospective predictions')
+        prediction=json.loads(args.prediction.read_text())
+        if (prediction.get('kind')!='rmx220-reverb-down-cutoff-motion-predictions'
+                or any(prediction.get(k)!=v for k,v in prediction_payload(args.stage).items())
+                or prediction['calibration_sha256']!=sha256(args.calibration)
+                or any(sha256(Path(prediction[k+'_path']))!=prediction[k+'_sha256'] for k in ('model','renderer'))):
+            raise ValueError('Prediction recipe/model/source/renderer/calibration differs')
+    elif args.prediction is not None:
+        raise ValueError('Predictions apply only to fresh cutoff stage')
     root=new_directory(args.session)
     inventory=json.loads(run([args.host,'inventory',args.plugin]))
     if any(inventory[k]!=v for k,v in IDENTITY.items()):
@@ -130,7 +185,8 @@ def capture(args):
         c['receipt_sha256']=sha256(root/c['name']/'receipt.json')
         print(c['name'],flush=True)
     save_json(root/'matrix.json',dict(kind='rmx220-reverb-down-motion-captures',stage=args.stage,cases=cases,
-        calibration_sha256=sha256(args.calibration),capture_script_sha256=sha256(Path(__file__))))
+        calibration_sha256=sha256(args.calibration),capture_script_sha256=sha256(Path(__file__)),
+        prediction_sha256=sha256(args.prediction) if args.prediction else None))
 
 
 def checked(session,case,source):
@@ -240,6 +296,8 @@ def compare(args):
     for stage,directory in args.session:
         waves,cases=recipe(stage)
         for c in cases:
+            if args.case and c['name'] not in args.case:
+                continue
             audio,source,provenance=checked(Path(directory),c,waves[c['source']])
             receipt=json.loads((Path(directory)/c['name']/'receipt.json').read_text())
             prefix=stage+'-'+c['name']
@@ -254,8 +312,10 @@ def compare(args):
             dry_rate,dry=float_wav(dry_trace)
             if rate!=48000 or dry_rate!=rate or len(candidate)!=len(audio) or len(dry)!=len(audio):
                 raise ValueError('Motion renderer extent/rate differs')
-            a,b=audio[32:],candidate[:-32].astype(float)
-            dry=dry[:-32].astype(float)
+            extent=len(audio)-32
+            a=audio[32:]
+            b=candidate[args.candidate_latency:args.candidate_latency+extent].astype(float)
+            dry=dry[args.candidate_latency:args.candidate_latency+extent].astype(float)
             wet_a,wet_b=a-dry,b-dry
             row=provenance|dict(stage=stage,whole=screen(a,b),wet=screen(wet_a,wet_b),
                 post_input_tail=screen(a[len(source):],b[len(source):]),
@@ -277,10 +337,10 @@ def compare(args):
     save_json(root/'comparison.json',dict(kind='diagnostic-reverb-down-motion-prototype-comparison',passed=passed,
         full_reverb_match=False,physical_hardware=False,sample_rate=48000,reference_identity=IDENTITY,
         model_sha256=sha256(args.model),calibration_sha256=sha256(args.calibration),renderer_sha256=sha256(args.renderer),
-        candidate_config=dict(gate=args.gate,cutoff_position=args.cutoff_position,gain_position=args.gain_position,control_quantum=args.quantum),
+        candidate_config=dict(gate=args.gate,cutoff_position=args.cutoff_position,gain_position=args.gain_position,control_quantum=args.quantum,candidate_latency=args.candidate_latency),
         source_sha256={str(p.resolve().relative_to(repo)):sha256(p) for p in paths},cases=rows,
         acceptance=dict(relative_rms_error_limit=.01,silent_channel_absolute_rms_limit=1e-8,
-            reference_channel_energy_floor=1e-20,reference_offset_frames=32,gain_fit=False,wet_alignment_search=False),
+            reference_channel_energy_floor=1e-20,reference_offset_frames=32,candidate_offset_frames=args.candidate_latency,gain_fit=False,wet_alignment_search=False),
         limitations=['Discovery recipes characterize state handling; fresh independent dynamic validation is still required.',
             'Wet subtraction uses the candidate-predicted dry trace on both sides, without a reference gain fit.',
             'Whole/wet event windows and the separate post-input tail prevent long quiet intervals or dry output from masking errors.']))
@@ -292,13 +352,17 @@ def main():
     commands=parser.add_subparsers(dest='command',required=True)
     for command in ('capture','verify'):
         p=commands.add_parser(command)
-        p.add_argument('--stage',choices=STAGES,required=True)
+        p.add_argument('--stage',choices=CAPTURE_STAGES,required=True)
         p.add_argument('--session',type=Path,required=True)
         if command=='capture':
+            p.add_argument('--prediction',type=Path)
             for name in ('host','plugin','calibration'):
                 p.add_argument('--'+name,type=Path,required=True)
         else:
             p.add_argument('--report',type=Path,required=True)
+    p=commands.add_parser('predict-cutoff')
+    for name in ('model','calibration','renderer','report'):
+        p.add_argument('--'+name,type=Path,required=True)
     p=commands.add_parser('analyze')
     for name in (*STAGES,'calibration','report'):
         p.add_argument('--'+name,type=Path,required=True)
@@ -307,11 +371,13 @@ def main():
         p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--session',nargs=2,action='append',required=True,metavar=('STAGE','DIRECTORY'))
     p.add_argument('--gate',choices=('inlet','output','inlet-output','reset'),default='inlet')
-    p.add_argument('--cutoff-position',choices=('pre','post'),default='post')
+    p.add_argument('--cutoff-position',choices=('pre','comb','post'),default='post')
     p.add_argument('--gain-position',choices=('read','write'),default='read')
+    p.add_argument('--case',action='append',help='Exact recipe name; repeat to select diagnostic cases')
+    p.add_argument('--candidate-latency',type=int,choices=(0,32),default=32)
     p.add_argument('--quantum',type=int,choices=(1,32,128),default=1)
     args=parser.parse_args()
-    result={'capture':capture,'verify':verify,'analyze':analyze,'compare':compare}[args.command](args)
+    result={'capture':capture,'verify':verify,'analyze':analyze,'compare':compare,'predict-cutoff':predict}[args.command](args)
     if result is not None:
         raise SystemExit(result)
 
