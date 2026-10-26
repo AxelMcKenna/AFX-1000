@@ -1,0 +1,171 @@
+// Stateful research candidate. Choices are explicit hypotheses, not production defaults.
+#include "rmx/Wav.h"
+#include "rmx/Dsp.h"
+#include "ReverbDownControlCalibration.h"
+#include <fstream>
+#include <iostream>
+#include <sstream>
+
+namespace {
+struct Delay {
+    std::vector<double> data;
+    size_t head{};
+    void prepare(size_t maximum){data.assign(maximum+1,0);head=0;}
+    void clear() noexcept {std::fill(data.begin(),data.end(),0);head=0;}
+    double tap(size_t delay) const noexcept {return data[(head+data.size()-delay)%data.size()];}
+    void push(double value) noexcept {data[head]=value;if(++head==data.size())head=0;}
+};
+struct Filter {
+    double b0{},b1{},b2{},a1{},a2{},s1{},s2{};
+    void biquad(double hz,bool high) noexcept {
+        const double w=2*std::numbers::pi*hz/48000,alpha=std::sin(w)/std::sqrt(2.);
+        b0=(1+(high?1:-1)*std::cos(w))/2/(1+alpha);b1=(high?-2:2)*b0;b2=b0;
+        a1=-2*std::cos(w)/(1+alpha);a2=(1-alpha)/(1+alpha);
+    }
+    void onePole(double hz,bool high) noexcept {
+        const double t=std::tan(std::numbers::pi*hz/48000),pole=(1-t)/(1+t);
+        b0=high?(1+pole)/2:(1-pole)/2;b1=high?-b0:b0;b2=0;a1=-pole;a2=0;
+    }
+    void clear() noexcept {s1=s2=0;}
+    double tick(double x) noexcept {const double y=b0*x+s1;s1=b1*x-a1*y+s2;s2=b2*x-a2*y;return y;}
+};
+struct AllPass {
+    Delay delay;size_t length{};
+    void prepare(size_t n){length=n;delay.prepare(n);}
+    double tick(double x) noexcept {const double y=delay.tap(length)-.7*x;delay.push(x+.7*y);return y;}
+};
+struct Controls {int main{128},amount{128},cutoff{},enabled{1};};
+struct Event {size_t frame{};std::string control;int value{};};
+struct Plan {Controls initial;double tail{};std::vector<Event> events;};
+void valid(const Controls& c) {
+    if(c.main<0||c.main>255||c.amount<0||c.amount>255||c.cutoff<0||c.cutoff>255||c.enabled<0||c.enabled>1)
+        throw std::runtime_error("Controls outside static raw map");
+}
+void apply(Controls& c,const Event& e) {
+    if(e.control=="main")c.main=e.value;
+    else if(e.control=="amount")c.amount=e.value;
+    else if(e.control=="cutoff")c.cutoff=e.value;
+    else if(e.control=="enabled")c.enabled=e.value;
+    else throw std::runtime_error("Unknown event control");
+    valid(c);
+}
+Plan readPlan(const std::filesystem::path& path) {
+    std::ifstream f(path);std::string text;Plan plan;size_t line=0;Controls test;
+    if(!f)throw std::runtime_error("Cannot open motion schedule");
+    while(std::getline(f,text)) {
+        std::istringstream row(text);std::string kind,extra;row>>kind;
+        if(line==0) {int version{};if(kind!="RMX_REVERB_MOTION"||!(row>>version)||version!=1)throw std::runtime_error("Invalid motion schema");}
+        else if(line==1) {
+            if(kind!="initial"||!(row>>plan.initial.main>>plan.initial.amount>>plan.initial.cutoff>>plan.initial.enabled))
+                throw std::runtime_error("Invalid initial controls");
+            valid(plan.initial);test=plan.initial;
+        } else if(line==2) {
+            if(kind!="tail"||!(row>>plan.tail)||!std::isfinite(plan.tail)||plan.tail<0||plan.tail>120)
+                throw std::runtime_error("Invalid tail");
+        } else {
+            int64_t frame{};Event e;
+            if(kind!="event"||!(row>>frame>>e.control>>e.value)||frame<0)
+                throw std::runtime_error("Invalid event");
+            e.frame=static_cast<size_t>(frame);
+            if(!plan.events.empty()&&e.frame<plan.events.back().frame)throw std::runtime_error("Events must be ordered");
+            apply(test,e);plan.events.push_back(std::move(e));
+        }
+        if(row>>extra)throw std::runtime_error("Unexpected schedule field");
+        ++line;
+    }
+    if(line<3)throw std::runtime_error("Incomplete motion schedule");
+    return plan;
+}
+class Model {
+public:
+    Model(std::string gateMode,bool cutoffAtInput,bool gainAtInput):gate(std::move(gateMode)),pre(cutoffAtInput),writeGain(gainAtInput) {
+        for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch) {
+            size_t maximum=1;
+            for(const auto& row:reverbDownControls)maximum=std::max(maximum,static_cast<size_t>(row.delays[j][ch]));
+            combs[j][ch].prepare(maximum);
+        }
+        for(auto& chain:inputFilters){chain[0].onePole(80,true);chain[1].onePole(10000,false);chain[2].biquad(54,true);}
+        allpasses[0][0].prepare(335);allpasses[0][1].prepare(1091);
+        allpasses[1][0].prepare(395);allpasses[1][1].prepare(1031);
+    }
+    void configure(const Controls& c) noexcept {
+        const auto& row=reverbDownControls[static_cast<size_t>(c.main)];
+        delays=row.delays;
+        const auto decay=[](double raw){return 1+49*std::pow(std::max(0.,raw-3)/252,3);};
+        const double exponent=decay(128)/decay(c.amount);
+        for(size_t j=0;j<5;++j){gl[j]=std::pow(row.gainL[j],exponent);gr[j]=std::pow(row.gainR[j],exponent);}
+        wetGain=row.wetGain*reverbDownAmountGain[static_cast<size_t>(c.amount)]/reverbDownAmountGain[128];
+        wetGain*=1+reverbDownMainCorrection[static_cast<size_t>(c.main)]*reverbDownAmountCorrection[static_cast<size_t>(c.amount)];
+        wetGain*=1+.5*c.cutoff/255;
+        dryGain=c.enabled?row.dryGain:1;
+        const double hz=17330*std::pow(261./17330,std::max(0.,static_cast<double>(c.cutoff)-4)/251);
+        for(auto& filter:outputFilter)filter.biquad(hz,false);
+        if(gate=="reset"&&c.enabled!=state.enabled)clear();
+        state=c;
+    }
+    std::array<rmx::Stereo,2> tick(rmx::Stereo input) noexcept {
+        const bool feed=state.enabled||gate=="output";
+        const bool emit=state.enabled||gate=="inlet";
+        std::array<double,2> source{feed?input.l:0.,feed?input.r:0.},wet{};
+        for(size_t ch=0;ch<2;++ch) {
+            for(auto& f:inputFilters[ch])source[ch]=f.tick(source[ch]);
+            if(pre)source[ch]=outputFilter[ch].tick(source[ch]);
+        }
+        for(size_t j=0;j<5;++j) {
+            const double left=combs[j][0].tap(static_cast<size_t>(delays[j][0]))*(writeGain?1:gl[j]);
+            const double right=combs[j][1].tap(static_cast<size_t>(delays[j][1]))*(writeGain?1:gr[j]);
+            combs[j][0].push((source[0]+right)*(writeGain?gl[j]:1));
+            combs[j][1].push((source[1]+left)*(writeGain?gr[j]:1));
+            wet[0]+=left;wet[1]+=right;
+        }
+        for(size_t ch=0;ch<2;++ch) {
+            for(auto& ap:allpasses[ch])wet[ch]=ap.tick(wet[ch]);
+            if(!pre)wet[ch]=outputFilter[ch].tick(wet[ch]);
+        }
+        const rmx::Stereo dry{static_cast<float>(input.l*dryGain),static_cast<float>(input.r*dryGain)};
+        const rmx::Stereo output{static_cast<float>(input.l*dryGain+(emit?wetGain*wet[0]:0)),
+                                 static_cast<float>(input.r*dryGain+(emit?wetGain*wet[1]:0))};
+        return {output,dry};
+    }
+private:
+    void clear() noexcept {
+        for(auto& pair:combs)for(auto& delay:pair)delay.clear();
+        for(auto& chain:allpasses)for(auto& ap:chain)ap.delay.clear();
+        for(auto& chain:inputFilters)for(auto& filter:chain)filter.clear();
+        for(auto& filter:outputFilter)filter.clear();
+    }
+    std::array<std::array<Delay,2>,5> combs;
+    std::array<std::array<AllPass,2>,2> allpasses;
+    std::array<std::array<Filter,3>,2> inputFilters;
+    std::array<Filter,2> outputFilter;
+    std::array<std::array<int,2>,5> delays{};
+    std::array<double,5> gl{},gr{};
+    Controls state;
+    double wetGain{},dryGain{1};
+    std::string gate;bool pre{},writeGain{};
+};
+}
+int main(int argc,char** argv){try {
+    if(argc!=9)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|post read|write CONTROL_QUANTUM NEW_DRY_TRACE");
+    if(std::filesystem::exists(argv[2])||std::filesystem::exists(argv[8]))throw std::runtime_error("Output/trace must be new");
+    const std::string gate=argv[4],position=argv[5],gain=argv[6];
+    if(gate!="inlet"&&gate!="output"&&gate!="inlet-output"&&gate!="reset")throw std::runtime_error("Invalid gate mode");
+    if(position!="pre"&&position!="post")throw std::runtime_error("Invalid cutoff position");
+    if(gain!="read"&&gain!="write")throw std::runtime_error("Invalid gain position");
+    const std::string quantumText=argv[7];size_t used{};const auto quantum=std::stoul(quantumText,&used);
+    if(used!=quantumText.size()||(quantum!=1&&quantum!=32&&quantum!=128))throw std::runtime_error("Invalid control quantum");
+    const auto plan=readPlan(argv[3]);const auto input=rmx::readWav(argv[1],180);
+    if(input.rate!=48000)throw std::runtime_error("Research candidate requires 48 kHz");
+    rmx::Sample output,dry;output.rate=dry.rate=48000;
+    output.frames.resize(input.frames.size()+static_cast<size_t>(std::llround(plan.tail*48000)));dry.frames.resize(output.frames.size());
+    for(const auto& e:plan.events)if(e.frame>=output.frames.size())throw std::runtime_error("Event outside render extent");
+    Model model(gate,position=="pre",gain=="write");Controls target=plan.initial;model.configure(target);size_t event=0;bool dirty=false;
+    for(size_t n=0;n<output.frames.size();++n) {
+        while(event<plan.events.size()&&plan.events[event].frame==n){apply(target,plan.events[event]);++event;dirty=true;}
+        if(dirty&&n%quantum==0){model.configure(target);dirty=false;}
+        const auto result=model.tick(n<input.frames.size()?input.frames[n]:rmx::Stereo{});
+        output.frames[n]=result[0];dry.frames[n]=result[1];
+    }
+    rmx::writeWav(argv[2],output);rmx::writeWav(argv[8],dry);
+    std::cout<<"Rendered stateful Down research hypothesis\n";
+}catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}

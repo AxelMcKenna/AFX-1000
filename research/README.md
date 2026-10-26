@@ -22,6 +22,7 @@ Investigations that inform the product: reference behavior, component candidates
 | [Reverb Down network prototype](audio/measurements/2026-10-27-reverb-down-network-prototype-48k.json) | Autonomous five-pair comb candidate passes 28 complete neutral-setting renders, including eight prospective captures; full control maps remain unfinished |
 | [Reverb Down static control maps](audio/measurements/2026-10-27-reverb-down-control-interaction-prototype-48k.json) | 1,204 complete renders pass, including 64 fresh mixed cases; measured timing and a wet-level interaction extend the research candidate beyond neutral controls |
 | [Rejected separable level map](audio/measurements/2026-10-27-reverb-down-control-separable-prototype-48k.json) | Retains all 14 mixed-control failures that required the additional interaction sweeps |
+| [Reverb Down motion investigation](audio/measurements/2026-10-27-reverb-down-motion-characterization.json) | 61 verified original recordings, preserved tails, separate control timing and a 26/61 first candidate with all failures retained |
 | [Hardware component shortlist](hardware/components.md) | Control, sensor, mechanical and component candidates, source links and unresolved selections |
 | [Audio-design history](hardware/audio-design-history.md) | Preserved circuit/converter/gain/noise investigations and historical stage discussion |
 | [Reference and fidelity targets](../docs/specifications.md) | Current comparison targets and effect-characterization work still to perform |
