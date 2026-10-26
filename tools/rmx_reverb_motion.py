@@ -15,7 +15,7 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-CAPTURE_STAGES = (*STAGES,'cutoff-holdout','sub1-holdout','state-probes')
+CAPTURE_STAGES = (*STAGES,'cutoff-holdout','sub1-holdout','state-probes','button-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
 
@@ -83,6 +83,17 @@ def recipe(stage):
             add(f'off-on-block-{block}','continuous',main=255,block=block,
                 events=[dict(frame=event_frame,control='enabled',value=0),dict(frame=288073,control='enabled',value=1)],
                 baseline='button/down-off-on-continuous-255')
+    elif stage == 'button-probes':
+        waves={}
+        for offset in (0,32,64,128,192,256):
+            source=f'gate-pulse-{offset}'
+            pulse=np.zeros_like(continuous);pulse[event_frame+offset,0]=.02
+            waves[source]=pulse
+            baseline=f'down-gate-baseline-{offset}'
+            add(f'gate-baseline-{offset}',source)
+            add(f'gate-off-{offset}',source,events=[dict(frame=event_frame,control='enabled',value=0)],baseline=baseline)
+            add(f'gate-on-{offset}',source,events=[dict(frame=event_frame-48000,control='enabled',value=0),
+                dict(frame=event_frame,control='enabled',value=1)],baseline=baseline)
     elif stage == 'state-probes':
         dry=np.zeros_like(continuous)
         dry[event_frame-128:event_frame+256]=np.random.default_rng(0xD029).normal(0,.02,(384,2))
@@ -442,7 +453,7 @@ def main():
     for name in ('model','calibration','renderer','output'):
         p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--session',nargs=2,action='append',required=True,metavar=('STAGE','DIRECTORY'))
-    p.add_argument('--gate',choices=('inlet','output','inlet-output','reset'),default='inlet')
+    p.add_argument('--gate',choices=('inlet','output','inlet-output','reset','faded'),default='inlet')
     p.add_argument('--cutoff-position',choices=('pre','comb','post'),default='post')
     p.add_argument('--gain-position',choices=('read','write'),default='read')
     p.add_argument('--level-position',choices=('send','output','main-send','amount-send'))

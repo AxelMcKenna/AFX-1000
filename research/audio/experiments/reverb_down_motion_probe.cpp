@@ -85,6 +85,7 @@ public:
             combs[j][ch].prepare(maximum);
         }
         for(auto& chain:inputFilters){chain[0].onePole(80,true);chain[1].onePole(10000,false);chain[2].biquad(54,true);}
+        for(auto& filter:outputHigh)filter.biquad(54,true);
         allpasses[0][0].prepare(335);allpasses[0][1].prepare(1091);
         allpasses[1][0].prepare(395);allpasses[1][1].prepare(1031);
     }
@@ -129,6 +130,15 @@ public:
         }
         compensation=1+.5*c.cutoff/255;
         dryGain=row.dryGain;
+        if(gate=="faded"){
+            if(!activationPrepared){
+                inputFade=c.enabled?1.f:0.f;
+                dryCurrent=static_cast<float>(c.enabled?dryGain:1);
+                dryTarget=dryCurrent;activationPrepared=true;
+            } else if(c.main!=state.main&&lastDelayedEnabled){
+                setDry(static_cast<float>(dryGain),32);
+            }
+        }
         const double hz=17330*std::pow(261./17330,std::max(0.,static_cast<double>(c.cutoff)-4)/251);
         for(auto& filter:outputFilter)filter.biquad(hz,false);
         if(gate=="reset"&&c.enabled!=state.enabled)clear();
@@ -156,52 +166,75 @@ public:
             if(!--remaining)coefficients=targetCoefficients;
         }
         const bool feed=state.enabled||gate=="output";
-        const bool emit=state.enabled||gate=="inlet";
+        const bool emit=state.enabled||gate=="inlet"||gate=="faded";
         std::array<double,2> source{input.l,input.r},wet{};
+        if(gate=="faded"){
+            inputFade=std::clamp(inputFade+(state.enabled?.00625f:-.00625f),0.f,1.f);
+            for(auto& value:source)value*=inputFade;
+        }
         for(size_t ch=0;ch<2;++ch) {
-            for(auto& f:inputFilters[ch])source[ch]=f.tick(source[ch]);
+            for(size_t j=0;j<(gate=="faded"?2:3);++j)source[ch]=inputFilters[ch][j].tick(source[ch]);
         }
         // The original has one 32-frame audio block of latency. Button gating
         // acts on new input; knobs act on the already buffered audio.
         const auto delayed=audioBlock[blockHead];
-        const auto gated=feed?source:std::array<double,2>{};
+        const auto gated=(feed||gate=="faded")?source:std::array<double,2>{};
         audioBlock[blockHead]={input,gated,state.enabled};
         if(++blockHead==audioBlock.size())blockHead=0;
         source=delayed.source;
+        if(gate=="faded"){
+            if(delayed.enabled!=lastDelayedEnabled){
+                lastDelayedEnabled=delayed.enabled;
+                setDry(static_cast<float>(delayed.enabled?dryGain:1),160);
+                if(delayed.enabled&&!everActivated){
+                    everActivated=true;warmRemaining=12416;dryRestart=frame+32;
+                }
+            }
+            if(dryRestart&&frame==dryRestart){setDry(dryTarget,160);dryRestart=0;}
+            if(dryRemaining){dryCurrent+=dryStep;if(!--dryRemaining)dryCurrent=dryTarget;}
+        }
+        const bool warming=gate=="faded"&&warmRemaining;
         for(size_t ch=0;ch<2;++ch) {
             source[ch]*=coefficients[10];
             if(position=="pre")source[ch]=outputFilter[ch].tick(source[ch]);
         }
         for(size_t j=0;j<5;++j) {
-            const double left=combs[j][0].tap(static_cast<size_t>(delays[j][0]))*(writeGain?1:coefficients[j]);
-            const double right=combs[j][1].tap(static_cast<size_t>(delays[j][1]))*(writeGain?1:coefficients[j+5]);
-            combs[j][0].push((source[0]+right)*(writeGain?coefficients[j]:1));
-            combs[j][1].push((source[1]+left)*(writeGain?coefficients[j+5]:1));
+            const double left=warming?0:combs[j][0].tap(static_cast<size_t>(delays[j][0]))*(writeGain?1:coefficients[j]);
+            const double right=warming?0:combs[j][1].tap(static_cast<size_t>(delays[j][1]))*(writeGain?1:coefficients[j+5]);
+            combs[j][0].push((source[0]+right)*(!warming&&writeGain?coefficients[j]:1));
+            combs[j][1].push(warming&&j==0?0:(source[1]+left)*(!warming&&writeGain?coefficients[j+5]:1));
             wet[0]+=left;wet[1]+=right;
         }
         for(size_t ch=0;ch<2;++ch) {
             if(position=="comb")wet[ch]=outputFilter[ch].tick(wet[ch])*compensation;
             for(auto& ap:allpasses[ch])wet[ch]=ap.tick(wet[ch]);
+            if(gate=="faded")wet[ch]=outputHigh[ch].tick(wet[ch]);
             if(position=="post")wet[ch]=outputFilter[ch].tick(wet[ch]);
             wet[ch]*=coefficients[11];
         }
-        const double direct=delayed.enabled?dryGain:1;
+        if(warming)--warmRemaining;
+        const double direct=gate=="faded"?dryCurrent:(delayed.enabled?dryGain:1);
         const rmx::Stereo dry{static_cast<float>(delayed.input.l*direct),static_cast<float>(delayed.input.r*direct)};
         const rmx::Stereo output{static_cast<float>(delayed.input.l*direct+(emit?(position=="comb"?1:compensation)*wet[0]:0)),
                                  static_cast<float>(delayed.input.r*direct+(emit?(position=="comb"?1:compensation)*wet[1]:0))};
         return {output,dry};
     }
 private:
+    void setDry(float target,size_t length) noexcept {
+        dryTarget=target;dryRemaining=length;dryStep=(target-dryCurrent)/static_cast<float>(length);
+    }
     void clear() noexcept {
         for(auto& pair:combs)for(auto& delay:pair)delay.clear();
         for(auto& chain:allpasses)for(auto& ap:chain)ap.delay.clear();
         for(auto& chain:inputFilters)for(auto& filter:chain)filter.clear();
         for(auto& filter:outputFilter)filter.clear();
+        for(auto& filter:outputHigh)filter.clear();
     }
     std::array<std::array<Delay,2>,5> combs;
     std::array<std::array<AllPass,2>,2> allpasses;
     std::array<std::array<Filter,3>,2> inputFilters;
     std::array<Filter,2> outputFilter;
+    std::array<Filter,2> outputHigh;
     std::array<std::array<int,2>,5> delays{};
     std::array<double,5> gl{},gr{};
     std::array<double,12> coefficients{},targetCoefficients{},steps{};
@@ -216,13 +249,16 @@ private:
     size_t rampLength{},remaining{};
     size_t frame{};
     double decaySlew{},decayCurrent{},decayTarget{};
+    float inputFade{},dryCurrent{1},dryTarget{1},dryStep{};
+    size_t warmRemaining{},dryRemaining{},dryRestart{};
+    bool activationPrepared{},lastDelayedEnabled{},everActivated{};
 };
 }
 int main(int argc,char** argv){try {
     if(argc<9||argc>13)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send [COEFFICIENT_RAMP_FRAMES [all|levels|feedback|staged [DECAY_STEP_PER_32_FRAMES]]]]");
     if(std::filesystem::exists(argv[2])||std::filesystem::exists(argv[8]))throw std::runtime_error("Output/trace must be new");
     const std::string gate=argv[4],position=argv[5],gain=argv[6];
-    if(gate!="inlet"&&gate!="output"&&gate!="inlet-output"&&gate!="reset")throw std::runtime_error("Invalid gate mode");
+    if(gate!="inlet"&&gate!="output"&&gate!="inlet-output"&&gate!="reset"&&gate!="faded")throw std::runtime_error("Invalid gate mode");
     if(position!="pre"&&position!="comb"&&position!="post")throw std::runtime_error("Invalid cutoff position");
     if(gain!="read"&&gain!="write")throw std::runtime_error("Invalid gain position");
     const std::string level=argc>=10?argv[9]:"send";
