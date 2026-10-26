@@ -1,7 +1,9 @@
-// Research-only autonomous candidate; other Main/Sub1 settings remain unmodeled.
+// Research-only autonomous candidate. Static integer raw controls at 48 kHz;
+// gestures, fractional raw controls, profiles/rates and Up remain unproven.
 #include "rmx/Wav.h"
 #include "rmx/Dsp.h"
 #include "ReverbDownNeutralCalibration.h"
+#include "ReverbDownControlCalibration.h"
 #include <iostream>
 
 namespace {
@@ -38,23 +40,42 @@ double number(const char* arg) {
 }
 }
 int main(int argc,char** argv) {try {
-    if(argc!=5)throw std::runtime_error(
+    if(argc!=5&&argc!=7)throw std::runtime_error(
         "Usage: reverb_down_neutral_probe INPUT.wav NEW_OUTPUT.wav SUB2_RAW TAIL_SECONDS\n"
-        "Research Down Main128/Sub1-128/48-kHz candidate; full Reverb fidelity remains unproven.");
+        "   or: reverb_down_neutral_probe INPUT.wav NEW_OUTPUT.wav MAIN_RAW SUB1_RAW SUB2_RAW TAIL_SECONDS\n"
+        "Research Default Down/48-kHz candidate; full Reverb fidelity remains unproven.");
     if(std::filesystem::exists(argv[2]))throw std::runtime_error("Output already exists");
-    const double cutoffRaw=number(argv[3]),tail=number(argv[4]);
-    if(cutoffRaw<0||cutoffRaw>255||std::floor(cutoffRaw)!=cutoffRaw||tail<0||tail>120)
-        throw std::runtime_error("Sub2 must be an integer 0..255; tail must be 0..120 seconds");
+    const double mainRaw=argc==7?number(argv[3]):128,amountRaw=argc==7?number(argv[4]):128;
+    const double cutoffRaw=number(argv[argc==7?5:3]),tail=number(argv[argc==7?6:4]);
+    for(const double value:{mainRaw,amountRaw,cutoffRaw})
+        if(value<0||value>255||std::floor(value)!=value)
+            throw std::runtime_error("Controls must be integers 0..255");
+    if(tail<0||tail>120)throw std::runtime_error("Tail must be 0..120 seconds");
     const auto input=rmx::readWav(argv[1],180);
     if(input.rate!=48000)throw std::runtime_error("Research candidate requires 48 kHz");
     rmx::Sample output;output.rate=48000;
     output.frames.resize(input.frames.size()+static_cast<size_t>(std::llround(tail*48000)));
+    auto selectedDelays=reverbDownDelays;
+    auto selectedGainL=reverbDownGainL,selectedGainR=reverbDownGainR;
+    double baseGain=reverbDownWetGain,dryGain=1;
+    if(argc==7) {
+        const auto& row=reverbDownControls[static_cast<size_t>(mainRaw)];
+        selectedDelays=row.delays;
+        const auto decay=[](double raw){return 1+49*std::pow(std::max(0.,raw-3)/252,3);};
+        const double exponent=decay(128)/decay(amountRaw);
+        for(size_t j=0;j<5;++j) {
+            selectedGainL[j]=std::pow(row.gainL[j],exponent);
+            selectedGainR[j]=std::pow(row.gainR[j],exponent);
+        }
+        baseGain=row.wetGain*reverbDownAmountGain[static_cast<size_t>(amountRaw)]/reverbDownAmountGain[128];
+        dryGain=row.dryGain;
+    }
     std::array<std::array<Delay,2>,5> combs;
-    for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch)combs[j][ch].prepare(reverbDownDelays[j][ch]);
+    for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch)combs[j][ch].prepare(selectedDelays[j][ch]);
     std::array<std::array<Filter,4>,2> filters;
     const double position=std::max(0.,cutoffRaw-4)/251;
     const double cutoff=17330*std::pow(261./17330,position);
-    const double gain=reverbDownWetGain*(1+.5*cutoffRaw/255);
+    const double gain=baseGain*(1+.5*cutoffRaw/255);
     for(auto& chain:filters) {
         chain[0].onePole(80,true);chain[1].onePole(10000,false);
         chain[2].biquad(54,true);chain[3].biquad(cutoff,false);
@@ -67,14 +88,14 @@ int main(int argc,char** argv) {try {
         std::array<double,2> source{dry.l,dry.r},wet{};
         for(size_t ch=0;ch<2;++ch)for(auto& filter:filters[ch])source[ch]=filter.tick(source[ch]);
         for(size_t j=0;j<5;++j) {
-            const double left=combs[j][0].tap()*reverbDownGainL[j];
-            const double right=combs[j][1].tap()*reverbDownGainR[j];
+            const double left=combs[j][0].tap()*selectedGainL[j];
+            const double right=combs[j][1].tap()*selectedGainR[j];
             combs[j][0].push(source[0]+right);combs[j][1].push(source[1]+left);
             wet[0]+=left;wet[1]+=right;
         }
         for(size_t ch=0;ch<2;++ch)for(auto& diffuser:diffusers[ch])wet[ch]=diffuser.tick(wet[ch]);
-        output.frames[n]={static_cast<float>(dry.l+gain*wet[0]),static_cast<float>(dry.r+gain*wet[1])};
+        output.frames[n]={static_cast<float>(dry.l*dryGain+gain*wet[0]),static_cast<float>(dry.r*dryGain+gain*wet[1])};
     }
     rmx::writeWav(argv[2],output);
-    std::cout<<"Rendered autonomous Down Main128/Sub1-128 research candidate\n";
+    std::cout<<"Rendered autonomous Default Down research candidate\n";
 }catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}}
