@@ -10,7 +10,7 @@ import numpy as np
 from tools.noise_statistics import float_wav
 from tools.reference_audio import save_json, sha256, write_wav
 from tools.rmx_factory_match import new_directory, run
-from tools.rmx_reverb_motion import checked, prediction_payload, prediction_kind, predicted_config, recipe
+from tools.rmx_reverb_motion import HOLDOUT_STAGES, checked, prediction_payload, prediction_kind, predicted_config, recipe
 from tools.rmx_spiral_core import calibration
 
 
@@ -19,7 +19,7 @@ def audit(args):
     root = new_directory(args.output)
     prediction = json.loads(args.prediction.read_text())
     stage=prediction.get('stage')
-    if (stage not in ('cutoff-holdout','sub1-holdout')
+    if (stage not in HOLDOUT_STAGES
             or prediction.get('kind') != prediction_kind(stage)
             or prediction.get('candidate_config')!=predicted_config(stage)
             or any(prediction.get(k) != v for k, v in prediction_payload(stage).items())
@@ -162,7 +162,7 @@ def audit(args):
         rejected_capture_changes=guards, sanitized_renders=sanitized,
         limitations=['The linked WAV library was not rebuilt with sanitizers.',
             'Provenance, bypass and sanitizer checks do not turn failing motion cases into passes.']))
-    print('Audited', len(verified), 'captures, four bypass prefixes, seven guards and two sanitizer renders')
+    print('Audited', len(verified), 'captures,',len(bypass),'bypass prefixes, seven guards and two sanitizer renders')
 
 
 def main():

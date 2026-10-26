@@ -15,7 +15,8 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-CAPTURE_STAGES = (*STAGES,'cutoff-holdout','sub1-holdout','state-probes','button-probes')
+HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout')
+CAPTURE_STAGES = (*STAGES,*HOLDOUT_STAGES,'state-probes','button-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
 
@@ -83,6 +84,29 @@ def recipe(stage):
             add(f'off-on-block-{block}','continuous',main=255,block=block,
                 events=[dict(frame=event_frame,control='enabled',value=0),dict(frame=288073,control='enabled',value=1)],
                 baseline='button/down-off-on-continuous-255')
+    elif stage == 'activation-holdout':
+        fresh=np.zeros((432000,2))
+        fresh[12000:408000]=np.random.default_rng(0xAC714).normal(0,.017,(396000,2))
+        t=np.arange(396000)/48000
+        fresh[12000:408000]+=.011*np.column_stack((np.sin(2*np.pi*(271*t+41*t*t)),
+                                                  np.cos(2*np.pi*1481*t)+np.sin(2*np.pi*97*t)))
+        gap=fresh.copy();gap[144000:240000]=0
+        long=np.zeros((1440000,2))
+        long[12000:1416000]=np.random.default_rng(0xAC715).normal(0,.014,(1404000,2))
+        pulses=np.zeros_like(fresh)
+        pulses[[24000,48051,96007,144071,192019,240017,360013]]=[[.021,0],[0,-.019],[.017,.011],[-.015,.023],[.012,0],[.019,-.013],[0,.016]]
+        waves=dict(activation_program=fresh,activation_gap=gap,activation_pulses=pulses,activation_long=long)
+        specs=[(47,83,19,0,'activation_program',32,[(96013,1),(120059,0),(144071,1)]),
+            (203,221,77,1,'activation_program',256,[(96013,0),(96109,1),(192019,0),(192303,1)]),
+            (128,3,241,0,'activation_program',128,[(72001,1),(72097,0),(72241,1),(192013,0)]),
+            (255,254,138,0,'activation_program',32,[(96013,1),(96077,0),(96269,1),(98031,0),(100111,1)]),
+            (64,96,255,1,'activation_pulses',256,[(48049,0),(48095,1),(144019,0),(144303,1)]),
+            (176,223,95,0,'activation_gap',128,[(144019,1),(145111,0),(192071,1),(288013,0)]),
+            (143,241,0,1,'activation_long',32,[(96013,0),(1248007,1)]),
+            (129,128,77,0,'activation_program',256,[(17,1),(23,0),(49,1),(64,0),(96,1),(160,0),(327,1),(96013,0),(96191,1)])]
+        for i,(main,amount,cutoff,enabled,source,block,events) in enumerate(specs):
+            add(f'activation-holdout-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if amount>=192 else 18,
+                events=[dict(frame=frame,control='enabled',value=value) for frame,value in events])
     elif stage == 'button-probes':
         waves={}
         for offset in (0,32,64,128,192,256):
@@ -199,14 +223,14 @@ def prediction_payload(stage):
 
 
 def prediction_kind(stage):
-    return 'rmx220-reverb-down-'+('sub1' if stage=='sub1-holdout' else 'cutoff')+'-motion-predictions'
+    return 'rmx220-reverb-down-'+stage.removesuffix('-holdout')+'-motion-predictions'
 
 
 def predicted_config(stage):
-    sub1=stage=='sub1-holdout'
-    return dict(gate='inlet',cutoff_position='post',gain_position='read',control_quantum=32,
-        candidate_latency=32,level_position='output' if sub1 else 'send',coefficient_ramp_frames=0,
-        ramp_components='staged' if sub1 else 'all',decay_step_per_32_frames=0)
+    staged=stage in ('sub1-holdout','activation-holdout')
+    return dict(gate='faded' if stage=='activation-holdout' else 'inlet',cutoff_position='post',gain_position='read',control_quantum=32,
+        candidate_latency=32,level_position='output' if staged else 'send',coefficient_ramp_frames=0,
+        ramp_components='staged' if staged else 'all',decay_step_per_32_frames=0)
 
 
 def predict(args):
@@ -217,12 +241,13 @@ def predict(args):
         renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),
         calibration_sha256=sha256(args.calibration),candidate_config=predicted_config(args.stage),
         expected='All eight complete renders pass whole/wet/tail and every event window at relative RMS <=0.01.',
-        scope='Only '+('Sub1' if args.stage=='sub1-holdout' else 'Sub2')+' moves; other controls stay fixed and the effect starts enabled.'))
+        scope=('Only the enabled button moves; Main/Sub1/Sub2 stay fixed. Initial active/inactive states vary.' if args.stage=='activation-holdout'
+               else 'Only '+('Sub1' if args.stage=='sub1-holdout' else 'Sub2')+' moves; other controls stay fixed and the effect starts enabled.')))
 
 
 def capture(args):
     calibration(args.calibration)
-    if args.stage in ('cutoff-holdout','sub1-holdout'):
+    if args.stage in HOLDOUT_STAGES:
         if args.prediction is None:
             raise ValueError('Fresh holdout capture requires frozen prospective predictions')
         prediction=json.loads(args.prediction.read_text())
@@ -443,7 +468,7 @@ def main():
         else:
             p.add_argument('--report',type=Path,required=True)
     p=commands.add_parser('predict-cutoff',aliases=['predict-motion'])
-    p.add_argument('--stage',choices=('cutoff-holdout','sub1-holdout'),default='cutoff-holdout')
+    p.add_argument('--stage',choices=HOLDOUT_STAGES,default='cutoff-holdout')
     for name in ('model','calibration','renderer','report'):
         p.add_argument('--'+name,type=Path,required=True)
     p=commands.add_parser('analyze')
