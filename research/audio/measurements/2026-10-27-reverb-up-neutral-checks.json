@@ -1,0 +1,55 @@
+{
+  "kind": "rmx220-reverb-up-neutral-verification-summary",
+  "passed": true,
+  "sources_sha256": {
+    "tools/rmx_reverb_up.py": "23e78a6086fdb55975100abfcc6473f02115a5835353ad1dc7717c33cf947704",
+    "tools/rmx_reverb_up_audit.py": "face9e943330449114780aa9166a4ddcde21f707b684db6efe1e885b8e6a52d3",
+    "research/audio/experiments/reverb_up_neutral_probe.cpp": "de7bc2e4edcee25deb76c60f9089a6d1e66ee215375f0cc5b407c20e38b59a23",
+    "research/audio/experiments/ReverbUpNeutralCalibration.h": "de1837fa4bf94ba7f3cc45155ea4b82d7c903f46119357dead0a24ef936062fe",
+    "CMakeLists.txt": "3b9cd41fb9261406366f5dadbb0761c406886156eea4f2406d82109e8b48958e"
+  },
+  "reference_capture_cases": 28,
+  "immediate_final_readbacks_verified": true,
+  "first_128_direct_only_prefixes_bit_exact": 27,
+  "silence_case_all_samples_zero": true,
+  "rejected_recipe_changes": [
+    "main",
+    "amount",
+    "cutoff",
+    "tail",
+    "source-samples"
+  ],
+  "rejected_prediction_changes": [
+    "kind",
+    "cases",
+    "source_sha256",
+    "samples_sha256",
+    "model_sha256",
+    "renderer_sha256",
+    "calibration_sha256"
+  ],
+  "rejected_native_inputs": [
+    "raw-negative",
+    "raw-overflow",
+    "raw-fraction",
+    "raw-nan",
+    "tail-negative",
+    "tail-overflow",
+    "number-suffix",
+    "rate",
+    "existing-output"
+  ],
+  "nonfinite_wav_policy": {
+    "policy": "Shared readWav replaces non-finite input samples with zero.",
+    "all_output_samples_zero": true,
+    "output_sha256": "c8e57dd119c703cc7d8f27b47e05d93bb3475a771b7cfcd9e54f0b75cc9ea4fb"
+  },
+  "wrong_one_frame_alignment_rejected": true,
+  "fully_instrumented_wav_and_dsp_sanitizer_renders_byte_exact": 2,
+  "core_ctest_groups_passed": 8,
+  "core_ctest_junit_sha256": "169e9d66e8c1c82965ed3bec60bb3d5493b702b9402f121ce3baad1463a823b2",
+  "rejected_unfiltered_feedback_stereo_ratio_error": 0.10389135932950129,
+  "accepted_filtered_feedback_stereo_ratio_error": 6.707525824829606e-06,
+  "accepted_combined_frequency_error": 2.4430932736288113e-05,
+  "scope": "I/O identification, provenance, native input/binding guards and static neutral-setting waveform validation only. Whole-file buffers allocate outside any production callback; production/motion/hardware equivalence remains unfinished."
+}

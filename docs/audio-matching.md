@@ -6,6 +6,8 @@ The [sound-matching research](../research/audio/rmx1000-fidelity.md) defines the
 
 Factory Default Reverb Down at 48 kHz now runs the measured processor in the live Engine. The [192-case Engine matrix](../research/audio/measurements/2026-10-27-reverb-down-engine-validation-48k.json) passes, including eight new programs after freezing the integrated candidate. This profile reports a nominal 32-frame delay, including button-off; other profiles/rates use the earlier approximation. [Integration, routing and wrapper checks](../research/audio/reverb-down-motion.md#live-engine-integration-and-prospective-checks) describe its scope. Other effects, combined processing and physical hardware remain part of the unfinished fidelity goal.
 
+An [independent Reverb Up research model](../research/audio/reverb-up.md) passes 28 static Main128/Sub1-128 cases, including eight fresh recordings. It identifies Up-specific input band-pass and feedback high-pass stages. Up's complete Main/Sub1 maps, motion/startup and live Engine integration remain unfinished; the live Up path is still approximate.
+
 ## Current reference status
 
 On 26 October 2026, the official RMX-1000 Mac plug-in 2.2.0 was obtained from [AlphaTheta support](https://support.alphatheta.com/en-US/articles/4405128214809?product=4416587889433). Its installer signature, notarization and AU bundle signature verified through macOS trust services. The archive and hashes are retained locally under `build/artifacts/research/reference-acquisition/`; vendor binaries remain outside Git.
