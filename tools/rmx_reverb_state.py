@@ -37,6 +37,25 @@ def wait_recipe():
     return waves, cases
 
 
+def density_recipe():
+    waves, cases = {}, []
+    event = 192037
+    for wait in (0, 6000, 24000, 36000, 60000, 72000, 84000, 144000):
+        name = f'pulse-{wait}'
+        source = np.zeros((384000, 2))
+        source[event+wait, 0] = .02
+        waves[name] = source
+        for control, start, end in (('main',0,128), ('main',128,192), ('main',192,128),
+                                    ('main',143,144), ('amount',128,255), ('amount',255,0)):
+            values = dict(main=128,amount=128,cutoff=0)
+            values[control] = start
+            cases.append(dict(name=f'down-density-{control}-{start}-{end}-{wait}', source=name,
+                direction='down', **values, enabled=1, block=128,
+                tail=90 if control=='amount' else 18,
+                events=[dict(frame=event,control=control,value=end)], baseline=None))
+    return waves, cases
+
+
 def capture(args):
     calibration(args.calibration)
     root = new_directory(args.session)
@@ -49,7 +68,7 @@ def capture(args):
         if len(matches) != 1:
             raise ValueError('Missing or ambiguous parameter')
         return {k: matches[0][k] for k in ('index', 'id', 'name')} | dict(value=value)
-    waves, cases = wait_recipe()
+    waves, cases = density_recipe() if args.stage=='density' else wait_recipe()
     for name, source in waves.items():
         write_wav(root/(name+'.wav'), 48000, source.ravel())
     for case in cases:
@@ -61,15 +80,17 @@ def capture(args):
         run([args.host, 'render', args.plugin, root/(case['source']+'.wav'), root/(case['name']+'.json'), root/case['name'], case['block']])
         case['receipt_sha256'] = sha256(root/case['name']/'receipt.json')
         print(case['name'], flush=True)
-    save_json(root/'matrix.json', dict(kind='rmx220-reverb-down-state-wait-captures', cases=cases,
+    save_json(root/'matrix.json', dict(kind='rmx220-reverb-down-state-wait-captures', stage=args.stage, cases=cases,
         calibration_sha256=sha256(args.calibration), capture_script_sha256=sha256(Path(__file__))))
 
 
 def analyze(args):
     calibration(args.calibration)
     rows = []
-    for stage, session, (waves, cases) in (('state-probes', args.probes, recipe('state-probes')),
-                                         ('state-wait', args.wait, wait_recipe())):
+    sessions=[('state-probes', args.probes, recipe('state-probes')), ('state-wait', args.wait, wait_recipe())]
+    if args.density:
+        sessions.append(('state-density',args.density,density_recipe()))
+    for stage, session, (waves, cases) in sessions:
         records = {}
         for case in cases:
             audio, source, provenance = checked(session, case, waves[case['source']])
@@ -138,9 +159,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest='command',required=True)
     p=commands.add_parser('capture-wait')
+    p.add_argument('--stage',choices=('wait','density'),default='wait')
     for name in ('host','plugin','session','calibration'):
         p.add_argument('--'+name,type=Path,required=True)
     p=commands.add_parser('analyze')
+    p.add_argument('--density',type=Path)
     for name in ('probes','wait','calibration','report'):
         p.add_argument('--'+name,type=Path,required=True)
     args=parser.parse_args()

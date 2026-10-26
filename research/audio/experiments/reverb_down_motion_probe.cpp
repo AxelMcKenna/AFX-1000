@@ -78,7 +78,7 @@ Plan readPlan(const std::filesystem::path& path) {
 }
 class Model {
 public:
-    Model(std::string gateMode,std::string cutoffPosition,bool gainAtInput,std::string levelPosition):gate(std::move(gateMode)),position(std::move(cutoffPosition)),level(std::move(levelPosition)),writeGain(gainAtInput) {
+    Model(std::string gateMode,std::string cutoffPosition,bool gainAtInput,std::string levelPosition,size_t rampFrames):gate(std::move(gateMode)),position(std::move(cutoffPosition)),level(std::move(levelPosition)),writeGain(gainAtInput),rampLength(rampFrames) {
         for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch) {
             size_t maximum=1;
             for(const auto& row:reverbDownControls)maximum=std::max(maximum,static_cast<size_t>(row.delays[j][ch]));
@@ -106,6 +106,14 @@ public:
             sendGain=reverbDownAmountGain[static_cast<size_t>(c.amount)]/reverbDownAmountGain[128];
             returnGain=row.wetGain*(1+reverbDownMainCorrection[static_cast<size_t>(c.main)]*reverbDownAmountCorrection[static_cast<size_t>(c.amount)]);
         }
+        std::array<double,12> requested{};
+        for(size_t j=0;j<5;++j){requested[j]=gl[j];requested[j+5]=gr[j];}
+        requested[10]=sendGain;requested[11]=returnGain;
+        if(!prepared||!rampLength){coefficients=targetCoefficients=requested;remaining=0;prepared=true;}
+        else if(requested!=targetCoefficients){
+            targetCoefficients=requested;remaining=rampLength;
+            for(size_t j=0;j<12;++j)steps[j]=(requested[j]-coefficients[j])/static_cast<double>(rampLength);
+        }
         compensation=1+.5*c.cutoff/255;
         dryGain=row.dryGain;
         const double hz=17330*std::pow(261./17330,std::max(0.,static_cast<double>(c.cutoff)-4)/251);
@@ -114,6 +122,10 @@ public:
         state=c;
     }
     std::array<rmx::Stereo,2> tick(rmx::Stereo input) noexcept {
+        if(remaining){
+            for(size_t j=0;j<12;++j)coefficients[j]+=steps[j];
+            if(!--remaining)coefficients=targetCoefficients;
+        }
         const bool feed=state.enabled||gate=="output";
         const bool emit=state.enabled||gate=="inlet";
         std::array<double,2> source{input.l,input.r},wet{};
@@ -128,21 +140,21 @@ public:
         if(++blockHead==audioBlock.size())blockHead=0;
         source=delayed.source;
         for(size_t ch=0;ch<2;++ch) {
-            source[ch]*=sendGain;
+            source[ch]*=coefficients[10];
             if(position=="pre")source[ch]=outputFilter[ch].tick(source[ch]);
         }
         for(size_t j=0;j<5;++j) {
-            const double left=combs[j][0].tap(static_cast<size_t>(delays[j][0]))*(writeGain?1:gl[j]);
-            const double right=combs[j][1].tap(static_cast<size_t>(delays[j][1]))*(writeGain?1:gr[j]);
-            combs[j][0].push((source[0]+right)*(writeGain?gl[j]:1));
-            combs[j][1].push((source[1]+left)*(writeGain?gr[j]:1));
+            const double left=combs[j][0].tap(static_cast<size_t>(delays[j][0]))*(writeGain?1:coefficients[j]);
+            const double right=combs[j][1].tap(static_cast<size_t>(delays[j][1]))*(writeGain?1:coefficients[j+5]);
+            combs[j][0].push((source[0]+right)*(writeGain?coefficients[j]:1));
+            combs[j][1].push((source[1]+left)*(writeGain?coefficients[j+5]:1));
             wet[0]+=left;wet[1]+=right;
         }
         for(size_t ch=0;ch<2;++ch) {
             if(position=="comb")wet[ch]=outputFilter[ch].tick(wet[ch])*compensation;
             for(auto& ap:allpasses[ch])wet[ch]=ap.tick(wet[ch]);
             if(position=="post")wet[ch]=outputFilter[ch].tick(wet[ch]);
-            wet[ch]*=returnGain;
+            wet[ch]*=coefficients[11];
         }
         const double direct=delayed.enabled?dryGain:1;
         const rmx::Stereo dry{static_cast<float>(delayed.input.l*direct),static_cast<float>(delayed.input.r*direct)};
@@ -163,23 +175,28 @@ private:
     std::array<Filter,2> outputFilter;
     std::array<std::array<int,2>,5> delays{};
     std::array<double,5> gl{},gr{};
+    std::array<double,12> coefficients{},targetCoefficients{},steps{};
+    bool prepared{};
     Controls state;
     struct BufferedInput {rmx::Stereo input{};std::array<double,2> source{};int enabled{};};
     std::array<BufferedInput,32> audioBlock{};
     size_t blockHead{};
     double wetGain{},sendGain{},returnGain{1},dryGain{1},compensation{1};
     std::string gate,position,level;bool writeGain{};
+    size_t rampLength{},remaining{};
 };
 }
 int main(int argc,char** argv){try {
-    if(argc!=9&&argc!=10)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send]");
+    if(argc<9||argc>11)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send [COEFFICIENT_RAMP_FRAMES]]");
     if(std::filesystem::exists(argv[2])||std::filesystem::exists(argv[8]))throw std::runtime_error("Output/trace must be new");
     const std::string gate=argv[4],position=argv[5],gain=argv[6];
     if(gate!="inlet"&&gate!="output"&&gate!="inlet-output"&&gate!="reset")throw std::runtime_error("Invalid gate mode");
     if(position!="pre"&&position!="comb"&&position!="post")throw std::runtime_error("Invalid cutoff position");
     if(gain!="read"&&gain!="write")throw std::runtime_error("Invalid gain position");
-    const std::string level=argc==10?argv[9]:"send";
+    const std::string level=argc>=10?argv[9]:"send";
     if(level!="send"&&level!="output"&&level!="main-send"&&level!="amount-send")throw std::runtime_error("Invalid level position");
+    size_t ramp{};
+    if(argc==11){const std::string value=argv[10];size_t count{};ramp=std::stoul(value,&count);if(count!=value.size()||ramp>200000)throw std::runtime_error("Invalid coefficient ramp");}
     const std::string quantumText=argv[7];size_t used{};const auto quantum=std::stoul(quantumText,&used);
     if(used!=quantumText.size()||(quantum!=1&&quantum!=32&&quantum!=128))throw std::runtime_error("Invalid control quantum");
     const auto plan=readPlan(argv[3]);const auto input=rmx::readWav(argv[1],180);
@@ -187,7 +204,7 @@ int main(int argc,char** argv){try {
     rmx::Sample output,dry;output.rate=dry.rate=48000;
     output.frames.resize(input.frames.size()+static_cast<size_t>(std::llround(plan.tail*48000)));dry.frames.resize(output.frames.size());
     for(const auto& e:plan.events)if(e.frame>=output.frames.size())throw std::runtime_error("Event outside render extent");
-    Model model(gate,position,gain=="write",level);Controls target=plan.initial,current=plan.initial;model.configure(current);size_t event=0;bool dirty=false;
+    Model model(gate,position,gain=="write",level,ramp);Controls target=plan.initial,current=plan.initial;model.configure(current);size_t event=0;bool dirty=false;
     for(size_t n=0;n<output.frames.size();++n) {
         while(event<plan.events.size()&&plan.events[event].frame==n){apply(target,plan.events[event]);++event;dirty=true;}
         if(dirty&&n%quantum==0){

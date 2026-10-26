@@ -62,3 +62,23 @@ Early button-on pulses at 64 or 4,096 samples produce no meaningful wet response
 The [gain-placement experiment](measurements/2026-10-27-reverb-down-gain-placement-rejections.json) tests global send gain, global return gain and two Main/Sub1 splits. Each passes the selected static baseline and fails all seven selected moving-control fixtures. Moving gain alone is not an accepted fix. The default send path remains byte-identical to the earlier candidate on all eight selected cases. These exploratory failures supplement, rather than replace, the full 42/69 report.
 
 Use `capture --stage state-probes` in the motion tool for the first 27 recordings. `uv run --locked python -m tools.rmx_reverb_state capture-wait --help` describes the 18 horizon captures; its `analyze` command accepts both sessions and the reviewed calibration. Analysis verifies receipt/state/log hashes, exact recipes and immediate/final readbacks before recording onsets and baseline differences. No production DSP or acceptance threshold changes accompany this evidence.
+
+Forty-eight additional isolated-pulse captures resolve the transition more closely. The [93-case state record](measurements/2026-10-27-reverb-down-state-density-characterization.json) includes the earlier 45 cases and these new recordings, with all recipes, hashes and readbacks verified again. Selected Main onsets are:
+
+| Time from control event to input pulse | Main0→128 | Main128→192 | Main192→128 |
+| --- | ---: | ---: | ---: |
+| 0.125 s | 396 | 1,060 | 1,500 |
+| 0.25 s | 407 | 1,085 | — |
+| 0.5 s | 435 | 1,142 | 1,405 |
+| 0.75 s | 470 | 1,213 | 1,327 |
+| 1 s | 523 | 1,318 | 1,223 |
+| 1.25 s | 665 | 1,536 | 1,033 |
+| 1.5 s | 884 | 1,536 | 1,033 |
+| 1.75 s | 1,033 | 1,536 | 1,033 |
+| 2 s | 1,033 | 1,536 | — |
+
+Values are first wet output frames minus the exact input-pulse frame and fixed 32-frame bypass delay. A dash means that specific combination was not captured. Main143→144 reaches its target first delay of 1,148 frames by the 0.125-second probe. These observations constrain a future state model; interpolating this sparse table would not establish sample-accurate moving-delay behavior.
+
+Four [linear coefficient hypotheses](measurements/2026-10-27-reverb-down-linear-coefficient-rejections.json) ramp feedback and level coefficients for one or two seconds, using either send or return gain. All 16 checked Sub1 comparisons fail. The best individual reduction still leaves about 6.4% wet RMS error and does not justify selecting a replacement model. A [selected regression/sanitizer check](measurements/2026-10-27-reverb-down-state-experiment-verification.json) confirms that the default zero-ramp path preserves four earlier output/dry traces byte for byte, including the near-limit cutoff holdout, and two experimental sanitizer renders match optimized outputs. The linked WAV library was not rebuilt with sanitizers.
+
+Capture the density stage with `tools.rmx_reverb_state capture-wait --stage density`; add `--density SESSION` to `analyze`. The original accepted cutoff checkpoint, frozen prediction and full 42/69 comparison belong to source commit `b3ca6ff`; use that source version to reproduce its exact source-hash bindings. Later experiments add rejected state hypotheses without expanding the accepted sound-matching scope.

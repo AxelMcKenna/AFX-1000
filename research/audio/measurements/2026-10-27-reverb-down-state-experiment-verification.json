@@ -1,0 +1,53 @@
+{
+  "kind": "rmx220-reverb-down-state-experiment-verification",
+  "passed": true,
+  "renderer_sha256": "45c3a685cd230c271060898d9704d89209815874041ede5da01929a9e8cc42e8",
+  "sanitized_renderer_sha256": "27a5d21b3ccab46554809d2327425aacac20c906dd9ceaf4948b7ec6ca8ac954",
+  "default_path_bit_exact_cases": [
+    {
+      "stage": "cutoff-holdout",
+      "case": "down-cutoff-holdout-3",
+      "bit_exact": true,
+      "output_sha256": "8aef0c8b02990bcc84e32bc5da7b235e07617f3900965c770fcb2cb5a7ea1dfa"
+    },
+    {
+      "stage": "ramps",
+      "case": "down-ramp-cutoff-0-255",
+      "bit_exact": true,
+      "output_sha256": "a124d91838240fca6e2ca508153d0d0d41c9bad386928672cccfd32e4c6899d1"
+    },
+    {
+      "stage": "steps",
+      "case": "down-step-main-0-128",
+      "bit_exact": true,
+      "output_sha256": "caf281ca3dd522c65eff4cd9f3fafabf47b2a899ab6e9ebe7e14ba904a8990d8"
+    },
+    {
+      "stage": "steps",
+      "case": "down-step-amount-255-0",
+      "bit_exact": true,
+      "output_sha256": "77b543ae268115157326205d361b34a1674d7903327db9e8a9d12f5637774aa1"
+    }
+  ],
+  "sanitized_renders": [
+    {
+      "case": "down-step-amount-224-64",
+      "level_position": "send",
+      "coefficient_ramp_frames": 48000,
+      "bit_exact": true,
+      "output_sha256": "a3d2a1c53e988c4646a940c0b5519dc7661f20e4ea389bb0b517a62f6ee70de5"
+    },
+    {
+      "case": "down-step-amount-128-255",
+      "level_position": "output",
+      "coefficient_ramp_frames": 96000,
+      "bit_exact": true,
+      "output_sha256": "af2046465f2a1e29fe99c29d5b5008d8e769fbdfb0401634509599f78045ed21"
+    }
+  ],
+  "limitations": [
+    "Selected path-regression checks, not a new complete motion acceptance run.",
+    "The linked WAV library was not rebuilt with sanitizers.",
+    "Rejected experimental coefficient ramps remain rejected by waveform screens."
+  ]
+}

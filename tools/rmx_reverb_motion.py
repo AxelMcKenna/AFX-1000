@@ -335,8 +335,10 @@ def compare(args):
                 +''.join(f'event {e["frame"]} {e["control"]} {e["value"]}\n' for e in c['events']))
             command=[args.renderer,receipt['input_path'],output,schedule,args.gate,args.cutoff_position,
                      args.gain_position,args.quantum,dry_trace]
-            if args.level_position is not None:
-                command.append(args.level_position)
+            if args.level_position is not None or args.coefficient_ramp is not None:
+                command.append(args.level_position or 'send')
+            if args.coefficient_ramp is not None:
+                command.append(args.coefficient_ramp)
             run(command)
             rate,candidate=float_wav(output)
             dry_rate,dry=float_wav(dry_trace)
@@ -367,7 +369,7 @@ def compare(args):
     save_json(root/'comparison.json',dict(kind='diagnostic-reverb-down-motion-prototype-comparison',passed=passed,
         full_reverb_match=False,physical_hardware=False,sample_rate=48000,reference_identity=IDENTITY,
         model_sha256=sha256(args.model),calibration_sha256=sha256(args.calibration),renderer_sha256=sha256(args.renderer),
-        candidate_config=dict(gate=args.gate,cutoff_position=args.cutoff_position,gain_position=args.gain_position,control_quantum=args.quantum,candidate_latency=args.candidate_latency,level_position=args.level_position or 'send'),
+        candidate_config=dict(gate=args.gate,cutoff_position=args.cutoff_position,gain_position=args.gain_position,control_quantum=args.quantum,candidate_latency=args.candidate_latency,level_position=args.level_position or 'send',coefficient_ramp_frames=args.coefficient_ramp or 0),
         source_sha256={str(p.resolve().relative_to(repo)):sha256(p) for p in paths},cases=rows,
         acceptance=dict(relative_rms_error_limit=.01,silent_channel_absolute_rms_limit=1e-8,
             reference_channel_energy_floor=1e-20,reference_offset_frames=32,candidate_offset_frames=args.candidate_latency,gain_fit=False,wet_alignment_search=False),
@@ -404,6 +406,7 @@ def main():
     p.add_argument('--cutoff-position',choices=('pre','comb','post'),default='post')
     p.add_argument('--gain-position',choices=('read','write'),default='read')
     p.add_argument('--level-position',choices=('send','output','main-send','amount-send'))
+    p.add_argument('--coefficient-ramp',type=int,help='Exploratory linear feedback/level coefficient ramp, 0..200000 frames')
     p.add_argument('--case',action='append',help='Exact recipe name; repeat to select diagnostic cases')
     p.add_argument('--candidate-latency',type=int,choices=(0,32),default=32)
     p.add_argument('--quantum',type=int,choices=(1,32,128),default=1)
