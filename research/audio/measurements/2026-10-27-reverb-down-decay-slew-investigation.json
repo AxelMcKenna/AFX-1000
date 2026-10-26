@@ -1,0 +1,2287 @@
+{
+  "kind": "rmx220-reverb-down-decay-slew-investigation",
+  "full_reverb_match": false,
+  "physical_hardware": false,
+  "profiles": [
+    {
+      "kind": "diagnostic-reverb-down-motion-prototype-comparison",
+      "passed": false,
+      "full_reverb_match": false,
+      "physical_hardware": false,
+      "sample_rate": 48000,
+      "reference_identity": {
+        "name": "RMX-1000 Plug-in",
+        "manufacturer": "Pioneer Corporation",
+        "version": "2.2.0"
+      },
+      "model_sha256": "8f3191226c9c89d5270b62a68f552f2c40a45b15ff3fc7de19df09aea3606c77",
+      "calibration_sha256": "ffcb8d8cad72922eec8924430a59cf2c90c7e523e105eeab29a82989b0d92a19",
+      "renderer_sha256": "44f4b7226d05cf0b0416cabe58bb252dafd6605e00b92c6ea550039838264bb1",
+      "candidate_config": {
+        "gate": "inlet",
+        "cutoff_position": "post",
+        "gain_position": "read",
+        "control_quantum": 32,
+        "candidate_latency": 32,
+        "level_position": "output",
+        "coefficient_ramp_frames": 96000,
+        "ramp_components": "levels",
+        "decay_step_per_32_frames": 0.025
+      },
+      "source_sha256": {
+        "tools/rmx_reverb_motion.py": "f1c72588e3496585ad3bf57f20a6240a05559c8de2ba8ed8896a995d0e465aa3",
+        "research/audio/experiments/reverb_down_motion_probe.cpp": "b2532bd8a8994562c4046266e74771bf4c543394c40e3c57a83eac9179f43ff2",
+        "research/audio/experiments/ReverbDownControlCalibration.h": "f06e4bc00f638f0173a685192d43510214dd255cd3ab16568f5d1be387b04d39"
+      },
+      "cases": [
+        {
+          "case": "down-step-amount-64-224",
+          "receipt_sha256": "b0a49e0d99be8d8b91ca07fa048cb62ef1602bc57eefc028412973b40d9f96ce",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "08902b5ff0f49ba4d2bc70c8c0f7de4b1deaafcea086e8aefd9d16f6f5b444e3",
+          "plan_sha256": "a8d92b6fcd74d6664464066269f0e69cc468f11f6e32dbae591932c32be66795",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.023694519112939107,
+                "absolute_error_rms": 0.00016980955707105632,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.02851206303462453,
+                "absolute_error_rms": 0.00020101232311647716,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.038669591932390814,
+                "absolute_error_rms": 0.00016980955707105632,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0422969714522098,
+                "absolute_error_rms": 0.00020101232311647716,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.00026524884199125845,
+                "absolute_error_rms": 7.247375819207114e-07,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0002635280168218283,
+                "absolute_error_rms": 7.238287138842874e-07,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "412a23cc58ee09c83a18901b7744c32d520f0d079e2fbbd55c4a4154a9846afc",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "7867595425d603faa4e74137910aec1bb58a1d6b9b2c6b66ce3f7c157de84154",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.024505889065661535,
+                    "absolute_error_rms": 7.971176281006008e-06,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.026710849044136138,
+                    "absolute_error_rms": 7.749426938415766e-06,
+                    "passed": false
+                  }
+                ]
+              },
+              "wet": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.024505889065661535,
+                    "absolute_error_rms": 7.971176281006008e-06,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.026710849044136138,
+                    "absolute_error_rms": 7.749426938415766e-06,
+                    "passed": false
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-224-64",
+          "receipt_sha256": "91bd05af423036519975e2d644ab0a8343f364dbfb6065b04e7a90d69112da5d",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "8980f49c9543f4a83ed63c455aaa404b978c8ef3738ae7fe28e347bbfbfc01bc",
+          "plan_sha256": "25b0b4f8d89f7aa6c49962dba7c3a706df79124fcc83f392a9128d27ac114463",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.13184378947487246,
+                "absolute_error_rms": 0.0008777581989152996,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.13610172226398176,
+                "absolute_error_rms": 0.0008903503260270961,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.25168932133831673,
+                "absolute_error_rms": 0.0008777581989152996,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.23137796710572558,
+                "absolute_error_rms": 0.0008903503260270961,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.00016004236385902198,
+                "absolute_error_rms": 2.159252544085918e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0001955584980175488,
+                "absolute_error_rms": 2.3773891372968934e-09,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "ac8287d20da9e526ae40e18f23a9c204f4770af2d138f722890add5f8bad5096",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "5ecdf9c42ca58391f7f01f92a3f1b820a64513ea321b13048403caf82cf5e8fb",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.011225907418873825,
+                    "absolute_error_rms": 0.00017648077466276857,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.010751355271548328,
+                    "absolute_error_rms": 0.00017707364566791562,
+                    "passed": false
+                  }
+                ]
+              },
+              "wet": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.011225907418873825,
+                    "absolute_error_rms": 0.00017648077466276857,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.010751355271548328,
+                    "absolute_error_rms": 0.00017707364566791562,
+                    "passed": false
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-128-255",
+          "receipt_sha256": "834c83e802d7a15716909371c3d50baff4128171ef018353dadfa16a0abd58dd",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "c4c43c3156ad19507bbeb6be81b86c45aff4c721bf04c7a6db9404d1711aa770",
+          "plan_sha256": "1895788e8a7ac864ab6ecfc0156294f1b8306a3ed55db626f00e0974fc4641ed",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.01287655977418518,
+                "absolute_error_rms": 0.00010433285068239394,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.013692270792926583,
+                "absolute_error_rms": 0.0001086395019255413,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.018125455200555515,
+                "absolute_error_rms": 0.00010433285068239394,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.017611714512299405,
+                "absolute_error_rms": 0.0001086395019255413,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.01138868634702411,
+                "absolute_error_rms": 4.214218780639203e-05,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.011373240652673804,
+                "absolute_error_rms": 4.225852684306987e-05,
+                "passed": false
+              }
+            ]
+          },
+          "candidate_sha256": "a06687d72e7bb7df35c07b776fe1df36214b7f6d73298ceb2dba56a7e9612e74",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "c9ca85cef6c53d2ec2e5ca85665d55abb02ea120efe771223cd9a1e3505f9983",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.00634699505704086,
+                    "absolute_error_rms": 6.160846484382165e-05,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.006177677618196805,
+                    "absolute_error_rms": 6.067997324650928e-05,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.00634699505704086,
+                    "absolute_error_rms": 6.160846484382165e-05,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.006177677618196805,
+                    "absolute_error_rms": 6.067997324650928e-05,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-255-0",
+          "receipt_sha256": "7375bdc85f8c86a968f973679292b1dacbe29452ea55bf70392f12c141e6f129",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "691f414587a21ff58b8d70581d8904e55222432353096b10a46ff977d11058a2",
+          "plan_sha256": "0e00087dda44982155ca9f9a0b164ba933da01ca3cffb4fa573226ff318a1c39",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.28636316351709523,
+                "absolute_error_rms": 0.0018890260821308668,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.2935705437197363,
+                "absolute_error_rms": 0.0019106610279930392,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.559546144488078,
+                "absolute_error_rms": 0.0018890260821308668,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.5360969600637115,
+                "absolute_error_rms": 0.0019106610279930392,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 1.3279226656547537e-05,
+                "absolute_error_rms": 7.231397788303226e-12,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 1.6084545298849813e-05,
+                "absolute_error_rms": 7.66739665407016e-12,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "523c7e4baaec323f972382544587de37472bb78d7070da4d615701da2c5cdb03",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "43d23eb521f699d468c644b23fb1fb13f4302f7179e328313b737c960d8a3584",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.006586201567976664,
+                    "absolute_error_rms": 0.00011108658899949059,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.006261758438945542,
+                    "absolute_error_rms": 0.00011062508706947459,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.006586201567976664,
+                    "absolute_error_rms": 0.00011108658899949059,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.006261758438945542,
+                    "absolute_error_rms": 0.00011062508706947459,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "acceptance": {
+        "relative_rms_error_limit": 0.01,
+        "silent_channel_absolute_rms_limit": 1e-08,
+        "reference_channel_energy_floor": 1e-20,
+        "reference_offset_frames": 32,
+        "candidate_offset_frames": 32,
+        "gain_fit": false,
+        "wet_alignment_search": false
+      },
+      "limitations": [
+        "Discovery recipes characterize state handling; fresh independent dynamic validation is still required.",
+        "Wet subtraction uses the candidate-predicted dry trace on both sides, without a reference gain fit.",
+        "Whole/wet event windows and the separate post-input tail prevent long quiet intervals or dry output from masking errors."
+      ]
+    },
+    {
+      "kind": "diagnostic-reverb-down-motion-prototype-comparison",
+      "passed": false,
+      "full_reverb_match": false,
+      "physical_hardware": false,
+      "sample_rate": 48000,
+      "reference_identity": {
+        "name": "RMX-1000 Plug-in",
+        "manufacturer": "Pioneer Corporation",
+        "version": "2.2.0"
+      },
+      "model_sha256": "8f3191226c9c89d5270b62a68f552f2c40a45b15ff3fc7de19df09aea3606c77",
+      "calibration_sha256": "ffcb8d8cad72922eec8924430a59cf2c90c7e523e105eeab29a82989b0d92a19",
+      "renderer_sha256": "44f4b7226d05cf0b0416cabe58bb252dafd6605e00b92c6ea550039838264bb1",
+      "candidate_config": {
+        "gate": "inlet",
+        "cutoff_position": "post",
+        "gain_position": "read",
+        "control_quantum": 32,
+        "candidate_latency": 32,
+        "level_position": "output",
+        "coefficient_ramp_frames": 96000,
+        "ramp_components": "levels",
+        "decay_step_per_32_frames": 0.03125
+      },
+      "source_sha256": {
+        "tools/rmx_reverb_motion.py": "f1c72588e3496585ad3bf57f20a6240a05559c8de2ba8ed8896a995d0e465aa3",
+        "research/audio/experiments/reverb_down_motion_probe.cpp": "b2532bd8a8994562c4046266e74771bf4c543394c40e3c57a83eac9179f43ff2",
+        "research/audio/experiments/ReverbDownControlCalibration.h": "f06e4bc00f638f0173a685192d43510214dd255cd3ab16568f5d1be387b04d39"
+      },
+      "cases": [
+        {
+          "case": "down-step-amount-64-224",
+          "receipt_sha256": "b0a49e0d99be8d8b91ca07fa048cb62ef1602bc57eefc028412973b40d9f96ce",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "08902b5ff0f49ba4d2bc70c8c0f7de4b1deaafcea086e8aefd9d16f6f5b444e3",
+          "plan_sha256": "a8d92b6fcd74d6664464066269f0e69cc468f11f6e32dbae591932c32be66795",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.023706483786256272,
+                "absolute_error_rms": 0.0001698953033091126,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.028517186448176413,
+                "absolute_error_rms": 0.0002010484435914881,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.038689118348292056,
+                "absolute_error_rms": 0.0001698953033091126,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04230457191509033,
+                "absolute_error_rms": 0.0002010484435914881,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.00043537475862670907,
+                "absolute_error_rms": 1.1895714508221257e-06,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0004325262990874676,
+                "absolute_error_rms": 1.1880139294687532e-06,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "386a4f01a1b92026178071c267782929a90f5972dec418908132cb5bd1a0c198",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "7867595425d603faa4e74137910aec1bb58a1d6b9b2c6b66ce3f7c157de84154",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.03120217066352991,
+                    "absolute_error_rms": 1.0149315621343567e-05,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.03395268835277856,
+                    "absolute_error_rms": 9.850449804792675e-06,
+                    "passed": false
+                  }
+                ]
+              },
+              "wet": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.03120217066352991,
+                    "absolute_error_rms": 1.0149315621343567e-05,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.03395268835277856,
+                    "absolute_error_rms": 9.850449804792675e-06,
+                    "passed": false
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-224-64",
+          "receipt_sha256": "91bd05af423036519975e2d644ab0a8343f364dbfb6065b04e7a90d69112da5d",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "8980f49c9543f4a83ed63c455aaa404b978c8ef3738ae7fe28e347bbfbfc01bc",
+          "plan_sha256": "25b0b4f8d89f7aa6c49962dba7c3a706df79124fcc83f392a9128d27ac114463",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.08470228890347535,
+                "absolute_error_rms": 0.0005639107374571294,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.08804198353766071,
+                "absolute_error_rms": 0.0005759530992178578,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.16169636578885482,
+                "absolute_error_rms": 0.0005639107374571294,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.14967463182712942,
+                "absolute_error_rms": 0.0005759530992178578,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 6.490287030762745e-05,
+                "absolute_error_rms": 8.756536985024222e-10,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 7.924422688331334e-05,
+                "absolute_error_rms": 9.633657759478889e-10,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "7c6e144985a36dfabb7687f9992cd3feb30063cba4ac36fb49e1e7ec8f315666",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "5ecdf9c42ca58391f7f01f92a3f1b820a64513ea321b13048403caf82cf5e8fb",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.011117380446659102,
+                    "absolute_error_rms": 0.00017477463872082608,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.010690211987780992,
+                    "absolute_error_rms": 0.00017606662247025037,
+                    "passed": false
+                  }
+                ]
+              },
+              "wet": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.011117380446659102,
+                    "absolute_error_rms": 0.00017477463872082608,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.010690211987780992,
+                    "absolute_error_rms": 0.00017606662247025037,
+                    "passed": false
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-128-255",
+          "receipt_sha256": "834c83e802d7a15716909371c3d50baff4128171ef018353dadfa16a0abd58dd",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "c4c43c3156ad19507bbeb6be81b86c45aff4c721bf04c7a6db9404d1711aa770",
+          "plan_sha256": "1895788e8a7ac864ab6ecfc0156294f1b8306a3ed55db626f00e0974fc4641ed",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.009543353841972805,
+                "absolute_error_rms": 7.73254136869641e-05,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.01046063982830498,
+                "absolute_error_rms": 8.299855575136735e-05,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.013433528485808107,
+                "absolute_error_rms": 7.73254136869641e-05,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.013455021819117756,
+                "absolute_error_rms": 8.299855575136735e-05,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.006630185827265269,
+                "absolute_error_rms": 2.4534044384926357e-05,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.006621457394544952,
+                "absolute_error_rms": 2.4602753392177697e-05,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "99b6a16d14e805db55e2e8f9657148da84205d3c8ad59dd7515629af76ea5808",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "c9ca85cef6c53d2ec2e5ca85665d55abb02ea120efe771223cd9a1e3505f9983",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.005234891237965945,
+                    "absolute_error_rms": 5.081359129745714e-05,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.005325260791256556,
+                    "absolute_error_rms": 5.230714555131684e-05,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.005234891237965945,
+                    "absolute_error_rms": 5.081359129745714e-05,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.005325260791256556,
+                    "absolute_error_rms": 5.230714555131684e-05,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-255-0",
+          "receipt_sha256": "7375bdc85f8c86a968f973679292b1dacbe29452ea55bf70392f12c141e6f129",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "691f414587a21ff58b8d70581d8904e55222432353096b10a46ff977d11058a2",
+          "plan_sha256": "0e00087dda44982155ca9f9a0b164ba933da01ca3cffb4fa573226ff318a1c39",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.20270690734890498,
+                "absolute_error_rms": 0.0013371783937123163,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.2076629135755824,
+                "absolute_error_rms": 0.0013515437581065385,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.39608400422427475,
+                "absolute_error_rms": 0.0013371783937123163,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.3792187570157728,
+                "absolute_error_rms": 0.0013515437581065385,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 4.264983411654966e-06,
+                "absolute_error_rms": 2.3225593182404656e-12,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 5.181594842957587e-06,
+                "absolute_error_rms": 2.470032085052551e-12,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "cf657a41a612df40a3dda1e4fa98b6a6ef5aa40843608ef381fbb2e0ce0de04f",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "43d23eb521f699d468c644b23fb1fb13f4302f7179e328313b737c960d8a3584",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.0065383220308568675,
+                    "absolute_error_rms": 0.00011027902573155578,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.006234907473101186,
+                    "absolute_error_rms": 0.00011015071705609994,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.0065383220308568675,
+                    "absolute_error_rms": 0.00011027902573155578,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.006234907473101186,
+                    "absolute_error_rms": 0.00011015071705609994,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "acceptance": {
+        "relative_rms_error_limit": 0.01,
+        "silent_channel_absolute_rms_limit": 1e-08,
+        "reference_channel_energy_floor": 1e-20,
+        "reference_offset_frames": 32,
+        "candidate_offset_frames": 32,
+        "gain_fit": false,
+        "wet_alignment_search": false
+      },
+      "limitations": [
+        "Discovery recipes characterize state handling; fresh independent dynamic validation is still required.",
+        "Wet subtraction uses the candidate-predicted dry trace on both sides, without a reference gain fit.",
+        "Whole/wet event windows and the separate post-input tail prevent long quiet intervals or dry output from masking errors."
+      ]
+    },
+    {
+      "kind": "diagnostic-reverb-down-motion-prototype-comparison",
+      "passed": false,
+      "full_reverb_match": false,
+      "physical_hardware": false,
+      "sample_rate": 48000,
+      "reference_identity": {
+        "name": "RMX-1000 Plug-in",
+        "manufacturer": "Pioneer Corporation",
+        "version": "2.2.0"
+      },
+      "model_sha256": "8f3191226c9c89d5270b62a68f552f2c40a45b15ff3fc7de19df09aea3606c77",
+      "calibration_sha256": "ffcb8d8cad72922eec8924430a59cf2c90c7e523e105eeab29a82989b0d92a19",
+      "renderer_sha256": "44f4b7226d05cf0b0416cabe58bb252dafd6605e00b92c6ea550039838264bb1",
+      "candidate_config": {
+        "gate": "inlet",
+        "cutoff_position": "post",
+        "gain_position": "read",
+        "control_quantum": 32,
+        "candidate_latency": 32,
+        "level_position": "output",
+        "coefficient_ramp_frames": 96000,
+        "ramp_components": "levels",
+        "decay_step_per_32_frames": 0.04
+      },
+      "source_sha256": {
+        "tools/rmx_reverb_motion.py": "f1c72588e3496585ad3bf57f20a6240a05559c8de2ba8ed8896a995d0e465aa3",
+        "research/audio/experiments/reverb_down_motion_probe.cpp": "b2532bd8a8994562c4046266e74771bf4c543394c40e3c57a83eac9179f43ff2",
+        "research/audio/experiments/ReverbDownControlCalibration.h": "f06e4bc00f638f0173a685192d43510214dd255cd3ab16568f5d1be387b04d39"
+      },
+      "cases": [
+        {
+          "case": "down-step-amount-64-224",
+          "receipt_sha256": "b0a49e0d99be8d8b91ca07fa048cb62ef1602bc57eefc028412973b40d9f96ce",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "08902b5ff0f49ba4d2bc70c8c0f7de4b1deaafcea086e8aefd9d16f6f5b444e3",
+          "plan_sha256": "a8d92b6fcd74d6664464066269f0e69cc468f11f6e32dbae591932c32be66795",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.023719180114093453,
+                "absolute_error_rms": 0.00016998629303530987,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.028523348345930257,
+                "absolute_error_rms": 0.00020109188546311982,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.03870983882859231,
+                "absolute_error_rms": 0.00016998629303530987,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04231371294473344,
+                "absolute_error_rms": 0.00020109188546311982,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0005928866975346364,
+                "absolute_error_rms": 1.6199402353596975e-06,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0005889993102176379,
+                "absolute_error_rms": 1.6177961582043427e-06,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "4cb47ef7f7a82a663c27c9f41c64c75daadd7cb13bc7f99bea4d1cede4d6a347",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "7867595425d603faa4e74137910aec1bb58a1d6b9b2c6b66ce3f7c157de84154",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.03850251199006326,
+                    "absolute_error_rms": 1.252394106216675e-05,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.04183881026621745,
+                    "absolute_error_rms": 1.2138393759500112e-05,
+                    "passed": false
+                  }
+                ]
+              },
+              "wet": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.03850251199006326,
+                    "absolute_error_rms": 1.252394106216675e-05,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.04183881026621745,
+                    "absolute_error_rms": 1.2138393759500112e-05,
+                    "passed": false
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-224-64",
+          "receipt_sha256": "91bd05af423036519975e2d644ab0a8343f364dbfb6065b04e7a90d69112da5d",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "8980f49c9543f4a83ed63c455aaa404b978c8ef3738ae7fe28e347bbfbfc01bc",
+          "plan_sha256": "25b0b4f8d89f7aa6c49962dba7c3a706df79124fcc83f392a9128d27ac114463",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04283281761256397,
+                "absolute_error_rms": 0.0002851621376465143,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04437467601089688,
+                "absolute_error_rms": 0.0002902902813898081,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.08176769523124747,
+                "absolute_error_rms": 0.0002851621376465143,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.07543859222047254,
+                "absolute_error_rms": 0.0002902902813898081,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 1.751776639343456e-05,
+                "absolute_error_rms": 2.36345432169734e-10,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.1219091164736758e-05,
+                "absolute_error_rms": 2.579588069541769e-10,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "4fb3556add2f696ec5bf1b5f6249b11a313610c8f8d534ac06c66b157c87674f",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "5ecdf9c42ca58391f7f01f92a3f1b820a64513ea321b13048403caf82cf5e8fb",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.010959819887830768,
+                    "absolute_error_rms": 0.00017229765325846847,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.010602243785099618,
+                    "absolute_error_rms": 0.00017461779579136026,
+                    "passed": false
+                  }
+                ]
+              },
+              "wet": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.010959819887830768,
+                    "absolute_error_rms": 0.00017229765325846847,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.010602243785099618,
+                    "absolute_error_rms": 0.00017461779579136026,
+                    "passed": false
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-128-255",
+          "receipt_sha256": "834c83e802d7a15716909371c3d50baff4128171ef018353dadfa16a0abd58dd",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "c4c43c3156ad19507bbeb6be81b86c45aff4c721bf04c7a6db9404d1711aa770",
+          "plan_sha256": "1895788e8a7ac864ab6ecfc0156294f1b8306a3ed55db626f00e0974fc4641ed",
+          "stage": "steps",
+          "whole": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.006993854642988115,
+                "absolute_error_rms": 5.6667992457435676e-05,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.008071009878567022,
+                "absolute_error_rms": 6.403835466770123e-05,
+                "passed": true
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.009844772302056895,
+                "absolute_error_rms": 5.6667992457435676e-05,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.010381354850263575,
+                "absolute_error_rms": 6.403835466770123e-05,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0023014517144118495,
+                "absolute_error_rms": 8.516189437549136e-06,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.002298356434354812,
+                "absolute_error_rms": 8.539796179665907e-06,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "63d955aea9d0107b34e87f61c43e7b3684301e094b902a3302c29f09e7a03e6d",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "c9ca85cef6c53d2ec2e5ca85665d55abb02ea120efe771223cd9a1e3505f9983",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.003948402171186595,
+                    "absolute_error_rms": 3.83260100514763e-05,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.004382831480968416,
+                    "absolute_error_rms": 4.3050174101954834e-05,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.003948402171186595,
+                    "absolute_error_rms": 3.83260100514763e-05,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.004382831480968416,
+                    "absolute_error_rms": 4.3050174101954834e-05,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-255-0",
+          "receipt_sha256": "7375bdc85f8c86a968f973679292b1dacbe29452ea55bf70392f12c141e6f129",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "691f414587a21ff58b8d70581d8904e55222432353096b10a46ff977d11058a2",
+          "plan_sha256": "0e00087dda44982155ca9f9a0b164ba933da01ca3cffb4fa573226ff318a1c39",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.11935952255695276,
+                "absolute_error_rms": 0.0007873682092749723,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.1234654584743934,
+                "absolute_error_rms": 0.0008035569128336129,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.2332253905649204,
+                "absolute_error_rms": 0.0007873682092749723,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.22546354999493398,
+                "absolute_error_rms": 0.0008035569128336129,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 3.8611432680413174e-06,
+                "absolute_error_rms": 2.1026422404702873e-12,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 4.78234069878128e-06,
+                "absolute_error_rms": 2.2797102679104793e-12,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "9a83d20ff8f64226c3508048b5aa43cba47900a5344e420ed848bcaa8f9836a8",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "43d23eb521f699d468c644b23fb1fb13f4302f7179e328313b737c960d8a3584",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.006469681221347512,
+                    "absolute_error_rms": 0.00010912129113812447,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.0061966457447861015,
+                    "absolute_error_rms": 0.00010947475565203825,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.006469681221347512,
+                    "absolute_error_rms": 0.00010912129113812447,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.0061966457447861015,
+                    "absolute_error_rms": 0.00010947475565203825,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "acceptance": {
+        "relative_rms_error_limit": 0.01,
+        "silent_channel_absolute_rms_limit": 1e-08,
+        "reference_channel_energy_floor": 1e-20,
+        "reference_offset_frames": 32,
+        "candidate_offset_frames": 32,
+        "gain_fit": false,
+        "wet_alignment_search": false
+      },
+      "limitations": [
+        "Discovery recipes characterize state handling; fresh independent dynamic validation is still required.",
+        "Wet subtraction uses the candidate-predicted dry trace on both sides, without a reference gain fit.",
+        "Whole/wet event windows and the separate post-input tail prevent long quiet intervals or dry output from masking errors."
+      ]
+    },
+    {
+      "kind": "diagnostic-reverb-down-motion-prototype-comparison",
+      "passed": false,
+      "full_reverb_match": false,
+      "physical_hardware": false,
+      "sample_rate": 48000,
+      "reference_identity": {
+        "name": "RMX-1000 Plug-in",
+        "manufacturer": "Pioneer Corporation",
+        "version": "2.2.0"
+      },
+      "model_sha256": "8f3191226c9c89d5270b62a68f552f2c40a45b15ff3fc7de19df09aea3606c77",
+      "calibration_sha256": "ffcb8d8cad72922eec8924430a59cf2c90c7e523e105eeab29a82989b0d92a19",
+      "renderer_sha256": "44f4b7226d05cf0b0416cabe58bb252dafd6605e00b92c6ea550039838264bb1",
+      "candidate_config": {
+        "gate": "inlet",
+        "cutoff_position": "post",
+        "gain_position": "read",
+        "control_quantum": 32,
+        "candidate_latency": 32,
+        "level_position": "output",
+        "coefficient_ramp_frames": 96000,
+        "ramp_components": "levels",
+        "decay_step_per_32_frames": 0.05
+      },
+      "source_sha256": {
+        "tools/rmx_reverb_motion.py": "f1c72588e3496585ad3bf57f20a6240a05559c8de2ba8ed8896a995d0e465aa3",
+        "research/audio/experiments/reverb_down_motion_probe.cpp": "b2532bd8a8994562c4046266e74771bf4c543394c40e3c57a83eac9179f43ff2",
+        "research/audio/experiments/ReverbDownControlCalibration.h": "f06e4bc00f638f0173a685192d43510214dd255cd3ab16568f5d1be387b04d39"
+      },
+      "cases": [
+        {
+          "case": "down-step-amount-64-224",
+          "receipt_sha256": "b0a49e0d99be8d8b91ca07fa048cb62ef1602bc57eefc028412973b40d9f96ce",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "08902b5ff0f49ba4d2bc70c8c0f7de4b1deaafcea086e8aefd9d16f6f5b444e3",
+          "plan_sha256": "a8d92b6fcd74d6664464066269f0e69cc468f11f6e32dbae591932c32be66795",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.023729059539434706,
+                "absolute_error_rms": 0.0001700570950985768,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.02852853555733528,
+                "absolute_error_rms": 0.00020112845571809414,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.03872596210776298,
+                "absolute_error_rms": 0.0001700570950985768,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04232140805022084,
+                "absolute_error_rms": 0.00020112845571809414,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0007031374092989447,
+                "absolute_error_rms": 1.9211774948676326e-06,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0006985230019700717,
+                "absolute_error_rms": 1.9186233487896225e-06,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "2f10b042bedba357feebf5a8e26aef46cde7d14f71f0bfb4b50f5b8e589bbcd8",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "7867595425d603faa4e74137910aec1bb58a1d6b9b2c6b66ce3f7c157de84154",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.04371454485281554,
+                    "absolute_error_rms": 1.4219289989115519e-05,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.04749924253571606,
+                    "absolute_error_rms": 1.378061435083546e-05,
+                    "passed": false
+                  }
+                ]
+              },
+              "wet": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.04371454485281554,
+                    "absolute_error_rms": 1.4219289989115519e-05,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.04749924253571606,
+                    "absolute_error_rms": 1.378061435083546e-05,
+                    "passed": false
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-224-64",
+          "receipt_sha256": "91bd05af423036519975e2d644ab0a8343f364dbfb6065b04e7a90d69112da5d",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "8980f49c9543f4a83ed63c455aaa404b978c8ef3738ae7fe28e347bbfbfc01bc",
+          "plan_sha256": "25b0b4f8d89f7aa6c49962dba7c3a706df79124fcc83f392a9128d27ac114463",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.021257029908491886,
+                "absolute_error_rms": 0.00014151999393435612,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.023350414014120975,
+                "absolute_error_rms": 0.00015275375200628298,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04057959387124783,
+                "absolute_error_rms": 0.00014151999393435612,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0396965683886438,
+                "absolute_error_rms": 0.00015275375200628298,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 5.4900729697018895e-06,
+                "absolute_error_rms": 7.407072565791694e-11,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 6.619031427707838e-06,
+                "absolute_error_rms": 8.046703965913698e-11,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "399f75ff8aad5b6a3ab471378970011c36dbb21774efec8993cf3ac8a832917e",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "5ecdf9c42ca58391f7f01f92a3f1b820a64513ea321b13048403caf82cf5e8fb",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.010771127588257642,
+                    "absolute_error_rms": 0.00016933125045831912,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.010498186278168918,
+                    "absolute_error_rms": 0.00017290398003083987,
+                    "passed": false
+                  }
+                ]
+              },
+              "wet": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.010771127588257642,
+                    "absolute_error_rms": 0.00016933125045831912,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.010498186278168918,
+                    "absolute_error_rms": 0.00017290398003083987,
+                    "passed": false
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-128-255",
+          "receipt_sha256": "834c83e802d7a15716909371c3d50baff4128171ef018353dadfa16a0abd58dd",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "c4c43c3156ad19507bbeb6be81b86c45aff4c721bf04c7a6db9404d1711aa770",
+          "plan_sha256": "1895788e8a7ac864ab6ecfc0156294f1b8306a3ed55db626f00e0974fc4641ed",
+          "stage": "steps",
+          "whole": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.005962970274935148,
+                "absolute_error_rms": 4.831520982534603e-05,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0071317498305451315,
+                "absolute_error_rms": 5.658592071143121e-05,
+                "passed": true
+              }
+            ]
+          },
+          "wet": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.008393666668426626,
+                "absolute_error_rms": 4.831520982534603e-05,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.009173229472907194,
+                "absolute_error_rms": 5.658592071143121e-05,
+                "passed": true
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0008877141801360773,
+                "absolute_error_rms": 3.2848580211770936e-06,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0008866695676380338,
+                "absolute_error_rms": 3.2945183232499684e-06,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "fcb2709f1c75ece274c6e11708bc927c5e98dc570ccae2bc100a09003f8112da",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "c9ca85cef6c53d2ec2e5ca85665d55abb02ea120efe771223cd9a1e3505f9983",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.0029426687038160626,
+                    "absolute_error_rms": 2.8563643071527765e-05,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.0036866422946374203,
+                    "absolute_error_rms": 3.6211885701045264e-05,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.0029426687038160626,
+                    "absolute_error_rms": 2.8563643071527765e-05,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.0036866422946374203,
+                    "absolute_error_rms": 3.6211885701045264e-05,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": true
+        },
+        {
+          "case": "down-step-amount-255-0",
+          "receipt_sha256": "7375bdc85f8c86a968f973679292b1dacbe29452ea55bf70392f12c141e6f129",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "691f414587a21ff58b8d70581d8904e55222432353096b10a46ff977d11058a2",
+          "plan_sha256": "0e00087dda44982155ca9f9a0b164ba933da01ca3cffb4fa573226ff318a1c39",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.05726037529796349,
+                "absolute_error_rms": 0.0003777243591038823,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.05906188070643097,
+                "absolute_error_rms": 0.0003843956286482333,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.11188527824739981,
+                "absolute_error_rms": 0.0003777243591038823,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.10785446762189778,
+                "absolute_error_rms": 0.0003843956286482333,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 3.87461189679782e-06,
+                "absolute_error_rms": 2.1099767799521643e-12,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 4.834216865771718e-06,
+                "absolute_error_rms": 2.30443929455178e-12,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "be6516a5499b54d38cb2e11ada7a0a7226ad5c1444033562702a4ed93d08e1a7",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "43d23eb521f699d468c644b23fb1fb13f4302f7179e328313b737c960d8a3584",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.006388831267555847,
+                    "absolute_error_rms": 0.0001077576302336129,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.006151946650506619,
+                    "absolute_error_rms": 0.0001086850667419967,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.006388831267555847,
+                    "absolute_error_rms": 0.0001077576302336129,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.006151946650506619,
+                    "absolute_error_rms": 0.0001086850667419967,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "acceptance": {
+        "relative_rms_error_limit": 0.01,
+        "silent_channel_absolute_rms_limit": 1e-08,
+        "reference_channel_energy_floor": 1e-20,
+        "reference_offset_frames": 32,
+        "candidate_offset_frames": 32,
+        "gain_fit": false,
+        "wet_alignment_search": false
+      },
+      "limitations": [
+        "Discovery recipes characterize state handling; fresh independent dynamic validation is still required.",
+        "Wet subtraction uses the candidate-predicted dry trace on both sides, without a reference gain fit.",
+        "Whole/wet event windows and the separate post-input tail prevent long quiet intervals or dry output from masking errors."
+      ]
+    },
+    {
+      "kind": "diagnostic-reverb-down-motion-prototype-comparison",
+      "passed": false,
+      "full_reverb_match": false,
+      "physical_hardware": false,
+      "sample_rate": 48000,
+      "reference_identity": {
+        "name": "RMX-1000 Plug-in",
+        "manufacturer": "Pioneer Corporation",
+        "version": "2.2.0"
+      },
+      "model_sha256": "8f3191226c9c89d5270b62a68f552f2c40a45b15ff3fc7de19df09aea3606c77",
+      "calibration_sha256": "ffcb8d8cad72922eec8924430a59cf2c90c7e523e105eeab29a82989b0d92a19",
+      "renderer_sha256": "44f4b7226d05cf0b0416cabe58bb252dafd6605e00b92c6ea550039838264bb1",
+      "candidate_config": {
+        "gate": "inlet",
+        "cutoff_position": "post",
+        "gain_position": "read",
+        "control_quantum": 32,
+        "candidate_latency": 32,
+        "level_position": "output",
+        "coefficient_ramp_frames": 96000,
+        "ramp_components": "levels",
+        "decay_step_per_32_frames": 0.1
+      },
+      "source_sha256": {
+        "tools/rmx_reverb_motion.py": "f1c72588e3496585ad3bf57f20a6240a05559c8de2ba8ed8896a995d0e465aa3",
+        "research/audio/experiments/reverb_down_motion_probe.cpp": "b2532bd8a8994562c4046266e74771bf4c543394c40e3c57a83eac9179f43ff2",
+        "research/audio/experiments/ReverbDownControlCalibration.h": "f06e4bc00f638f0173a685192d43510214dd255cd3ab16568f5d1be387b04d39"
+      },
+      "cases": [
+        {
+          "case": "down-step-amount-64-224",
+          "receipt_sha256": "b0a49e0d99be8d8b91ca07fa048cb62ef1602bc57eefc028412973b40d9f96ce",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "08902b5ff0f49ba4d2bc70c8c0f7de4b1deaafcea086e8aefd9d16f6f5b444e3",
+          "plan_sha256": "a8d92b6fcd74d6664464066269f0e69cc468f11f6e32dbae591932c32be66795",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.02374811020565875,
+                "absolute_error_rms": 0.00017019362393792543,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.02853930936910908,
+                "absolute_error_rms": 0.0002012044119521569,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.038757052904981215,
+                "absolute_error_rms": 0.00017019362393792543,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04233739074528133,
+                "absolute_error_rms": 0.0002012044119521569,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0008929697353712284,
+                "absolute_error_rms": 2.439855050385631e-06,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0008870851574612192,
+                "absolute_error_rms": 2.436544381029167e-06,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "31c38c413b0a5861ee12a4a40e232efd4df9ac5530ee56598727b2809c16ce89",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "7867595425d603faa4e74137910aec1bb58a1d6b9b2c6b66ce3f7c157de84154",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.052097913081986774,
+                    "absolute_error_rms": 1.6946198031678516e-05,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.05678918304136099,
+                    "absolute_error_rms": 1.647583811896682e-05,
+                    "passed": false
+                  }
+                ]
+              },
+              "wet": {
+                "passed": false,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.052097913081986774,
+                    "absolute_error_rms": 1.6946198031678516e-05,
+                    "passed": false
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.05678918304136099,
+                    "absolute_error_rms": 1.647583811896682e-05,
+                    "passed": false
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-224-64",
+          "receipt_sha256": "91bd05af423036519975e2d644ab0a8343f364dbfb6065b04e7a90d69112da5d",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "8980f49c9543f4a83ed63c455aaa404b978c8ef3738ae7fe28e347bbfbfc01bc",
+          "plan_sha256": "25b0b4f8d89f7aa6c49962dba7c3a706df79124fcc83f392a9128d27ac114463",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.06001210951254617,
+                "absolute_error_rms": 0.0003995343380878745,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.06303364203174205,
+                "absolute_error_rms": 0.00041235351617948665,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.11456290186631939,
+                "absolute_error_rms": 0.0003995343380878745,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.10715952531655942,
+                "absolute_error_rms": 0.00041235351617948665,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.9920173049786277e-05,
+                "absolute_error_rms": 4.036756782357411e-10,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 3.6698459002174986e-05,
+                "absolute_error_rms": 4.461402530279047e-10,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "c8c5abaa1e76f162a760a11c9bcb5dfdacb429862ac6d2074a3a3cf700f9d993",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "5ecdf9c42ca58391f7f01f92a3f1b820a64513ea321b13048403caf82cf5e8fb",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.009656898483302874,
+                    "absolute_error_rms": 0.0001518146250081916,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.00991571559565717,
+                    "absolute_error_rms": 0.00016331075158270388,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.009656898483302874,
+                    "absolute_error_rms": 0.0001518146250081916,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.00991571559565717,
+                    "absolute_error_rms": 0.00016331075158270388,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-128-255",
+          "receipt_sha256": "834c83e802d7a15716909371c3d50baff4128171ef018353dadfa16a0abd58dd",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "c4c43c3156ad19507bbeb6be81b86c45aff4c721bf04c7a6db9404d1711aa770",
+          "plan_sha256": "1895788e8a7ac864ab6ecfc0156294f1b8306a3ed55db626f00e0974fc4641ed",
+          "stage": "steps",
+          "whole": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.007934306464866541,
+                "absolute_error_rms": 6.4288041696265e-05,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.008850486207099119,
+                "absolute_error_rms": 7.022300594835076e-05,
+                "passed": true
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.011168582206617907,
+                "absolute_error_rms": 6.4288041696265e-05,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.011383958054276631,
+                "absolute_error_rms": 7.022300594835076e-05,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.007512808668548484,
+                "absolute_error_rms": 2.7800062642535783e-05,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.007503325638074258,
+                "absolute_error_rms": 2.7879431867496183e-05,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "0c5767601052cc3ffa289ed62826c521f9dea72b243733535be160434c3c5dd8",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "c9ca85cef6c53d2ec2e5ca85665d55abb02ea120efe771223cd9a1e3505f9983",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.005165416073253771,
+                    "absolute_error_rms": 5.013921575372003e-05,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.004929711936483011,
+                    "absolute_error_rms": 4.842188390304845e-05,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.005165416073253771,
+                    "absolute_error_rms": 5.013921575372003e-05,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.004929711936483011,
+                    "absolute_error_rms": 4.842188390304845e-05,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        },
+        {
+          "case": "down-step-amount-255-0",
+          "receipt_sha256": "7375bdc85f8c86a968f973679292b1dacbe29452ea55bf70392f12c141e6f129",
+          "input_sha256": "6b11b2d8655d8ea18ee061c20336570042c7e2c1a6be59b1a3a13dd63d9718c3",
+          "output_sha256": "691f414587a21ff58b8d70581d8904e55222432353096b10a46ff977d11058a2",
+          "plan_sha256": "0e00087dda44982155ca9f9a0b164ba933da01ca3cffb4fa573226ff318a1c39",
+          "stage": "steps",
+          "whole": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.09027102526078408,
+                "absolute_error_rms": 0.0005954827397628447,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.09432988529375963,
+                "absolute_error_rms": 0.0006139322880360337,
+                "passed": false
+              }
+            ]
+          },
+          "wet": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.17638722635721354,
+                "absolute_error_rms": 0.0005954827397628447,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.17225830666928527,
+                "absolute_error_rms": 0.0006139322880360337,
+                "passed": false
+              }
+            ]
+          },
+          "post_input_tail": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 3.891946851544695e-06,
+                "absolute_error_rms": 2.1194167840020305e-12,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 4.874888180547032e-06,
+                "absolute_error_rms": 2.3238270420467114e-12,
+                "passed": true
+              }
+            ]
+          },
+          "candidate_sha256": "b2a73856f6a2eb1991e2b1ff5ddc05947e639828bd818729d82ef13483bfce52",
+          "dry_trace_sha256": "931c45adb35b57efa7a868da80096195a0814a0a72a7880a579173d5cab2b565",
+          "schedule_sha256": "43d23eb521f699d468c644b23fb1fb13f4302f7179e328313b737c960d8a3584",
+          "event_windows": [
+            {
+              "frame": 192037,
+              "whole": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.005940644615414445,
+                    "absolute_error_rms": 0.00010019826146731737,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.005911905900876868,
+                    "absolute_error_rms": 0.00010444432045851585,
+                    "passed": true
+                  }
+                ]
+              },
+              "wet": {
+                "passed": true,
+                "channels": [
+                  {
+                    "channel": "left",
+                    "relative_rms_error": 0.005940644615414445,
+                    "absolute_error_rms": 0.00010019826146731737,
+                    "passed": true
+                  },
+                  {
+                    "channel": "right",
+                    "relative_rms_error": 0.005911905900876868,
+                    "absolute_error_rms": 0.00010444432045851585,
+                    "passed": true
+                  }
+                ]
+              }
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "acceptance": {
+        "relative_rms_error_limit": 0.01,
+        "silent_channel_absolute_rms_limit": 1e-08,
+        "reference_channel_energy_floor": 1e-20,
+        "reference_offset_frames": 32,
+        "candidate_offset_frames": 32,
+        "gain_fit": false,
+        "wet_alignment_search": false
+      },
+      "limitations": [
+        "Discovery recipes characterize state handling; fresh independent dynamic validation is still required.",
+        "Wet subtraction uses the candidate-predicted dry trace on both sides, without a reference gain fit.",
+        "Whole/wet event windows and the separate post-input tail prevent long quiet intervals or dry output from masking errors."
+      ]
+    }
+  ],
+  "limitations": [
+    "Exploratory nominal-T60 slew hypotheses on previously captured discovery fixtures.",
+    "The step-0.05 profile passes only one of four cases; no common decay-slew profile is accepted.",
+    "Legacy renderer options retain these hypotheses; source commit for the staged controller identifies the replacement rule."
+  ]
+}

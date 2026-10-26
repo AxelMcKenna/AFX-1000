@@ -78,7 +78,7 @@ Plan readPlan(const std::filesystem::path& path) {
 }
 class Model {
 public:
-    Model(std::string gateMode,std::string cutoffPosition,bool gainAtInput,std::string levelPosition,size_t rampFrames):gate(std::move(gateMode)),position(std::move(cutoffPosition)),level(std::move(levelPosition)),writeGain(gainAtInput),rampLength(rampFrames) {
+    Model(std::string gateMode,std::string cutoffPosition,bool gainAtInput,std::string levelPosition,size_t rampFrames,std::string rampComponents,double decaySlewStep):gate(std::move(gateMode)),position(std::move(cutoffPosition)),level(std::move(levelPosition)),rampParts(std::move(rampComponents)),writeGain(gainAtInput),rampLength(rampFrames),decaySlew(decaySlewStep) {
         for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch) {
             size_t maximum=1;
             for(const auto& row:reverbDownControls)maximum=std::max(maximum,static_cast<size_t>(row.delays[j][ch]));
@@ -92,7 +92,9 @@ public:
         const auto& row=reverbDownControls[static_cast<size_t>(c.main)];
         delays=row.delays;
         const auto decay=[](double raw){return 1+49*std::pow(std::max(0.,raw-3)/252,3);};
-        const double exponent=decay(128)/decay(c.amount);
+        decayTarget=decay(c.amount);
+        if(!prepared||!decaySlew)decayCurrent=decayTarget;
+        const double exponent=decay(128)/decayCurrent;
         for(size_t j=0;j<5;++j){gl[j]=std::pow(row.gainL[j],exponent);gr[j]=std::pow(row.gainR[j],exponent);}
         wetGain=row.wetGain*reverbDownAmountGain[static_cast<size_t>(c.amount)]/reverbDownAmountGain[128];
         wetGain*=1+reverbDownMainCorrection[static_cast<size_t>(c.main)]*reverbDownAmountCorrection[static_cast<size_t>(c.amount)];
@@ -109,10 +111,21 @@ public:
         std::array<double,12> requested{};
         for(size_t j=0;j<5;++j){requested[j]=gl[j];requested[j+5]=gr[j];}
         requested[10]=sendGain;requested[11]=returnGain;
-        if(!prepared||!rampLength){coefficients=targetCoefficients=requested;remaining=0;prepared=true;}
+        if(!prepared||(rampParts!="staged"&&!rampLength)){coefficients=targetCoefficients=requested;remaining=0;prepared=true;}
+        else if(rampParts=="staged"){
+            for(size_t j=0;j<12;++j)if(requested[j]!=targetCoefficients[j]){
+                const size_t length=j<10?160:static_cast<size_t>(c.amount<state.amount?2000:2600)*32;
+                targetCoefficients[j]=requested[j];stagedRemaining[j]=length;
+                steps[j]=(requested[j]-coefficients[j])/static_cast<double>(length);
+            }
+        }
         else if(requested!=targetCoefficients){
             targetCoefficients=requested;remaining=rampLength;
-            for(size_t j=0;j<12;++j)steps[j]=(requested[j]-coefficients[j])/static_cast<double>(rampLength);
+            for(size_t j=0;j<12;++j){
+                const bool smooth=rampParts=="all"||(rampParts=="levels"?j>=10:j<10);
+                if(smooth)steps[j]=(requested[j]-coefficients[j])/static_cast<double>(rampLength);
+                else {coefficients[j]=requested[j];steps[j]=0;}
+            }
         }
         compensation=1+.5*c.cutoff/255;
         dryGain=row.dryGain;
@@ -122,6 +135,22 @@ public:
         state=c;
     }
     std::array<rmx::Stereo,2> tick(rmx::Stereo input) noexcept {
+        if(rampParts=="staged")for(size_t j=0;j<12;++j)if(stagedRemaining[j]){
+            coefficients[j]+=steps[j];
+            if(!--stagedRemaining[j])coefficients[j]=targetCoefficients[j];
+        }
+        if(decaySlew&&frame%32==0&&decayCurrent!=decayTarget){
+            const double difference=decayTarget-decayCurrent;
+            decayCurrent+=std::clamp(difference,-decaySlew,decaySlew);
+            const auto& row=reverbDownControls[static_cast<size_t>(state.main)];
+            const double neutral=1+49*std::pow(125./252,3),exponent=neutral/decayCurrent;
+            for(size_t j=0;j<5;++j){
+                coefficients[j]=targetCoefficients[j]=std::pow(row.gainL[j],exponent);
+                coefficients[j+5]=targetCoefficients[j+5]=std::pow(row.gainR[j],exponent);
+                steps[j]=steps[j+5]=0;
+            }
+        }
+        ++frame;
         if(remaining){
             for(size_t j=0;j<12;++j)coefficients[j]+=steps[j];
             if(!--remaining)coefficients=targetCoefficients;
@@ -176,18 +205,21 @@ private:
     std::array<std::array<int,2>,5> delays{};
     std::array<double,5> gl{},gr{};
     std::array<double,12> coefficients{},targetCoefficients{},steps{};
+    std::array<size_t,12> stagedRemaining{};
     bool prepared{};
     Controls state;
     struct BufferedInput {rmx::Stereo input{};std::array<double,2> source{};int enabled{};};
     std::array<BufferedInput,32> audioBlock{};
     size_t blockHead{};
     double wetGain{},sendGain{},returnGain{1},dryGain{1},compensation{1};
-    std::string gate,position,level;bool writeGain{};
+    std::string gate,position,level,rampParts;bool writeGain{};
     size_t rampLength{},remaining{};
+    size_t frame{};
+    double decaySlew{},decayCurrent{},decayTarget{};
 };
 }
 int main(int argc,char** argv){try {
-    if(argc<9||argc>11)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send [COEFFICIENT_RAMP_FRAMES]]");
+    if(argc<9||argc>13)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send [COEFFICIENT_RAMP_FRAMES [all|levels|feedback [DECAY_STEP_PER_32_FRAMES]]]]");
     if(std::filesystem::exists(argv[2])||std::filesystem::exists(argv[8]))throw std::runtime_error("Output/trace must be new");
     const std::string gate=argv[4],position=argv[5],gain=argv[6];
     if(gate!="inlet"&&gate!="output"&&gate!="inlet-output"&&gate!="reset")throw std::runtime_error("Invalid gate mode");
@@ -196,7 +228,11 @@ int main(int argc,char** argv){try {
     const std::string level=argc>=10?argv[9]:"send";
     if(level!="send"&&level!="output"&&level!="main-send"&&level!="amount-send")throw std::runtime_error("Invalid level position");
     size_t ramp{};
-    if(argc==11){const std::string value=argv[10];size_t count{};ramp=std::stoul(value,&count);if(count!=value.size()||ramp>200000)throw std::runtime_error("Invalid coefficient ramp");}
+    if(argc>=11){const std::string value=argv[10];size_t count{};ramp=std::stoul(value,&count);if(count!=value.size()||ramp>200000)throw std::runtime_error("Invalid coefficient ramp");}
+    const std::string parts=argc>=12?argv[11]:"all";
+    if(parts!="all"&&parts!="levels"&&parts!="feedback"&&parts!="staged")throw std::runtime_error("Invalid ramp components");
+    double decaySlew{};
+    if(argc==13){const std::string value=argv[12];size_t count{};decaySlew=std::stod(value,&count);if(count!=value.size()||!std::isfinite(decaySlew)||decaySlew<0||decaySlew>50||(decaySlew&&parts!="levels"))throw std::runtime_error("Invalid decay slew");}
     const std::string quantumText=argv[7];size_t used{};const auto quantum=std::stoul(quantumText,&used);
     if(used!=quantumText.size()||(quantum!=1&&quantum!=32&&quantum!=128))throw std::runtime_error("Invalid control quantum");
     const auto plan=readPlan(argv[3]);const auto input=rmx::readWav(argv[1],180);
@@ -204,13 +240,18 @@ int main(int argc,char** argv){try {
     rmx::Sample output,dry;output.rate=dry.rate=48000;
     output.frames.resize(input.frames.size()+static_cast<size_t>(std::llround(plan.tail*48000)));dry.frames.resize(output.frames.size());
     for(const auto& e:plan.events)if(e.frame>=output.frames.size())throw std::runtime_error("Event outside render extent");
-    Model model(gate,position,gain=="write",level,ramp);Controls target=plan.initial,current=plan.initial;model.configure(current);size_t event=0;bool dirty=false;
+    Model model(gate,position,gain=="write",level,ramp,parts,decaySlew);Controls target=plan.initial,current=plan.initial;model.configure(current);size_t event=0,amountWait=0;bool dirty=false;
     for(size_t n=0;n<output.frames.size();++n) {
         while(event<plan.events.size()&&plan.events[event].frame==n){apply(target,plan.events[event]);++event;dirty=true;}
+        const bool amountReady=amountWait==0;
+        if(n%quantum==0&&amountWait)--amountWait;
         if(dirty&&n%quantum==0){
             const auto approach=[](int a,int b){return a+(a<b?1:(a>b?-1:0));};
             current.main=approach(current.main,target.main);
-            current.amount=approach(current.amount,target.amount);
+            if(parts!="staged"||amountReady){
+                if(parts=="staged"&&current.amount!=target.amount)amountWait=4;
+                current.amount=approach(current.amount,target.amount);
+            }
             current.cutoff=approach(current.cutoff,target.cutoff);
             current.enabled=target.enabled;
             model.configure(current);
