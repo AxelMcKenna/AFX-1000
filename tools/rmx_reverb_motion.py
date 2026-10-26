@@ -15,8 +15,8 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout','main-v2-holdout')
-CAPTURE_STAGES = (*STAGES,*HOLDOUT_STAGES,'state-probes','button-probes','initialization-probes')
+HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout','main-v2-holdout','startup-holdout')
+CAPTURE_STAGES = (*STAGES,*HOLDOUT_STAGES,'state-probes','button-probes','initialization-probes','callback-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
 
@@ -84,6 +84,41 @@ def recipe(stage):
             add(f'off-on-block-{block}','continuous',main=255,block=block,
                 events=[dict(frame=event_frame,control='enabled',value=0),dict(frame=288073,control='enabled',value=1)],
                 baseline='button/down-off-on-continuous-255')
+    elif stage == 'startup-holdout':
+        program=np.zeros((480000,2))
+        program[:456000]=np.random.default_rng(0x5A1027).normal(0,.017,(456000,2))
+        t=np.arange(456000)/48000
+        program[:456000]+=.008*np.column_stack((np.sin(2*np.pi*(157*t+31*t*t)),np.cos(2*np.pi*1193*t)))
+        gap=program.copy();gap[144000:264000]=0
+        pulses=np.zeros_like(program)
+        locations=[0,17,31,32,127,128,159,160,719,12001,24017,48031,96019,192067,288071,384079]
+        pulses[locations]=np.random.default_rng(0x5A1028).uniform(-.024,.024,(len(locations),2))
+        waves=dict(startup_program=program,startup_gap=gap,startup_pulses=pulses)
+        specs=[(128,97,19,1,'startup_program',128,[(96013,'main',129),(192019,'enabled',0),(192211,'enabled',1)]),
+            (255,239,160,1,'startup_gap',16,[(96017,'main',0),(240019,'main',255)]),
+            (211,207,96,1,'startup_program',63,[(17,'main',47),(48031,'main',183),(96111,'cutoff',224)]),
+            (143,1,5,1,'startup_pulses',17,[(31,'main',144),(12011,'main',143)]),
+            (0,83,241,1,'startup_program',33,[(32,'main',4),(24043,'main',129),(96037,'main',0),(192047,'main',128)]),
+            (177,221,77,0,'startup_program',256,[(17,'main',61),(63,'amount',17),(95,'cutoff',224),
+                (12013,'enabled',1),(96031,'main',211),(96031,'amount',247),(96031,'cutoff',32),
+                (120037,'enabled',0),(144043,'enabled',1)]),
+            (64,128,255,0,'startup_program',8,[(5,'main',255),(61,'enabled',1),(96013,'main',47)]),
+            (129,137,32,1,'startup_program',31,[(17,'enabled',0),(63,'enabled',1),(95,'enabled',0),
+                (327,'enabled',1),(24011,'main',197),(96013,'amount',239),(144019,'main',0)])]
+        for i,(main,amount,cutoff,enabled,source,block,events) in enumerate(specs):
+            high=max([amount]+[v for _,k,v in events if k=='amount'])
+            add(f'startup-holdout-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if high>=192 else 18,
+                events=[dict(frame=n,control=k,value=v) for n,k,v in events])
+    elif stage == 'callback-probes':
+        program=np.random.default_rng(0xCB1027).normal(0,.019,(96000,2))
+        waves=dict(callback_program=program)
+        for block in (8,16,17,31,32,33,63,64,128,256):
+            add(f'callback-off-block-{block}','callback_program',enabled=0,block=block,tail=.1)
+        for block in (8,16,31,32,33,128):
+            add(f'callback-active-block-{block}','callback_program',block=block,tail=6)
+        for frame in (5,17,31,32,33,63,65):
+            add(f'callback-noop-{frame}','callback_program',enabled=0,tail=6,
+                events=[dict(frame=frame,control='main',value=128),dict(frame=48013,control='enabled',value=1)])
     elif stage == 'initialization-probes':
         source=np.zeros((192000,2))
         source[:96000]=np.random.default_rng(0x1A177).normal(0,.019,(96000,2))
@@ -286,6 +321,10 @@ def prediction_kind(stage):
 
 
 def predicted_config(stage):
+    if stage=='startup-holdout':
+        return dict(gate='faded',cutoff_position='post',gain_position='read',control_quantum=32,
+            candidate_latency=32,level_position='output',coefficient_ramp_frames=0,
+            ramp_components='startup',decay_step_per_32_frames=0)
     if stage.startswith('main-'):
         return dict(gate='faded',cutoff_position='post',gain_position='read',control_quantum=32,
             candidate_latency=32,level_position='output',coefficient_ramp_frames=0,
@@ -304,7 +343,8 @@ def predict(args):
         renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),
         calibration_sha256=sha256(args.calibration),candidate_config=predicted_config(args.stage),
         expected='All eight complete renders pass whole/wet/tail, every event window and applicable activation-start windows at relative RMS <=0.01.',
-        scope=('Main moves after active initialization, including simultaneous Sub1/Sub2 and later button changes; immediate-input and pre-activation Main failures remain separate regressions.' if args.stage=='main-v2-holdout'
+        scope=('Audio begins at frame zero; callback sizes, early events, initial active/inactive states and simultaneous control changes vary. Fixed comparison offsets remain 32 frames.' if args.stage=='startup-holdout'
+               else 'Main moves after active initialization, including simultaneous Sub1/Sub2 and later button changes; immediate-input and pre-activation Main failures remain separate regressions.' if args.stage=='main-v2-holdout'
                else 'Main moves, including simultaneous Sub1/Sub2 and button changes; initial active/inactive states vary.' if args.stage=='main-holdout'
                else 'Only the enabled button moves; Main/Sub1/Sub2 stay fixed. Initial active/inactive states vary.' if args.stage.startswith('activation-')
                else 'Only '+('Sub1' if args.stage=='sub1-holdout' else 'Sub2')+' moves; other controls stay fixed and the effect starts enabled.')))
@@ -468,6 +508,7 @@ def compare(args):
             schedule.write_text('RMX_REVERB_MOTION 1\n'
                 +f'initial {c["main"]} {c["amount"]} {c["cutoff"]} {c["enabled"]}\n'
                 +f'tail {c["tail"]}\n'
+                +(f'block {c["block"]}\n' if args.ramp_components=='startup' else '')
                 +''.join(f'event {e["frame"]} {e["control"]} {e["value"]}\n' for e in c['events']))
             command=[args.renderer,receipt['input_path'],output,schedule,args.gate,args.cutoff_position,
                      args.gain_position,args.quantum,dry_trace]
@@ -558,7 +599,7 @@ def main():
     p.add_argument('--gain-position',choices=('read','write'),default='read')
     p.add_argument('--level-position',choices=('send','output','main-send','amount-send'))
     p.add_argument('--coefficient-ramp',type=int,help='Exploratory linear feedback/level coefficient ramp, 0..200000 frames')
-    p.add_argument('--ramp-components',choices=('all','levels','feedback','staged','adaptive'))
+    p.add_argument('--ramp-components',choices=('all','levels','feedback','staged','adaptive','startup'))
     p.add_argument('--decay-slew',type=float,help='Exploratory nominal T60 step per 32 frames; requires levels-only ramp')
     p.add_argument('--case',action='append',help='Exact recipe name; repeat to select diagnostic cases')
     p.add_argument('--candidate-latency',type=int,choices=(0,32),default=32)

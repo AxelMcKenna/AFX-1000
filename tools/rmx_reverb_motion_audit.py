@@ -93,12 +93,15 @@ def audit(args):
                 a, b = audio[32:32+stop], candidate[32:32+stop]
                 reference_exact=np.array_equal(a,source[:stop])
                 candidate_exact=np.array_equal(b,source[:stop])
-                if not candidate_exact or (not reference_exact and result['passed']):
+                pair_exact=np.array_equal(a,b)
+                if config['ramp_components']=='startup' and not pair_exact:
+                    raise ValueError('Callback-aware candidate fails original initially-off prefix')
+                if config['ramp_components']!='startup' and (not candidate_exact or (not reference_exact and result['passed'])):
                     raise ValueError('A passing case lacks exact initially-off bypass timing')
                 bypass.append(dict(stage=stage, case=case['name'], frames=stop,
                     reference_offset=32, candidate_offset=32, both_bit_exact=reference_exact and candidate_exact,
                     reference_bit_exact=reference_exact,candidate_bit_exact=candidate_exact,
-                    waveform_case_passed=result['passed']))
+                    original_candidate_bit_exact=pair_exact,waveform_case_passed=result['passed']))
             verified.append(provenance | dict(stage=stage, parameter_log_sha256=receipt['parameter_log_sha256'],
                 final_inventory_sha256=receipt['final_inventory_sha256'], applied_controls_verified=True))
             host_hashes.add(receipt['host_sha256'])
@@ -109,6 +112,8 @@ def audit(args):
 
     # A short full-bypass render proves the candidate offset without a wet search.
     x = np.random.default_rng(0x8A11).normal(0, .02, (2048, 2)).astype(np.float32)
+    pre_roll=512 if config['ramp_components']=='startup' else 0
+    if pre_roll:x=np.pad(x,((pre_roll,0),(0,0)))
     input_file, schedule = root / 'bypass-input.wav', root / 'bypass.tsv'
     write_wav(input_file, 48000, x.ravel())
     schedule.write_text('RMX_REVERB_MOTION 1\ninitial 128 128 0 0\ntail 0.03\n')
@@ -162,6 +167,7 @@ def audit(args):
         script_sha256=sha256(Path(__file__)), comparisons_sha256=[sha256(p) for p in args.comparison],
         capture_cases=verified, host_sha256=next(iter(host_hashes)), initially_off_bypass_prefixes=bypass,
         full_candidate_bypass=dict(frames=len(y), bit_exact=True, offset=32,
+            input_silent_pre_roll_frames=pre_roll,
             rejected_offsets=rejected_offsets, input_sha256=sha256(input_file), output_sha256=sha256(output)),
         rejected_capture_changes=guards, sanitized_renders=sanitized,
         limitations=['The linked WAV library was not rebuilt with sanitizers.',

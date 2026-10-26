@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
-from tools.reference_audio import save_json, sha256
+from tools.reference_audio import save_json, sha256, write_wav
 from tools.noise_statistics import float_wav
 from tools.rmx_factory_match import new_directory, run
 from tools.rmx_reverb_motion import capture
@@ -57,7 +57,7 @@ def check(args):
         output,dry=root/f'invalid-{i}.wav',root/f'invalid-{i}-dry.wav'
         try:
             run([args.renderer,args.bypass/'bypass-input.wav',output,args.bypass/'bypass.tsv',v['gate'],
-                 v['position'],v['gain'],v['quantum'],dry,v['level'],v['ramp'],'adaptive',v['decay']])
+                 v['position'],v['gain'],v['quantum'],dry,v['level'],v['ramp'],prediction['candidate_config']['ramp_components'],v['decay']])
         except RuntimeError:
             if output.exists() or dry.exists():raise ValueError('Rejected mode wrote audio')
             native.append(variant)
@@ -65,8 +65,10 @@ def check(args):
 
     old=json.loads(args.previous.read_text())
     current=[json.loads(p.read_text()) for p in args.comparison]
-    cases={row['case']:row for report in current for row in report['cases']}
-    if any(row['passed'] and not cases[row['case']]['passed'] for row in old['cases']):
+    cases={(row['stage'],row['case']):row for report in current for row in report['cases']}
+    if len(cases)!=sum(len(report['cases']) for report in current):
+        raise ValueError('Duplicate comparison stage/case')
+    if any(row['passed'] and not cases[(row['stage'],row['case'])]['passed'] for row in old['cases']):
         raise ValueError('A previously passing case regressed')
     timing=None
     if args.pre_activation_session is not None:
@@ -81,13 +83,33 @@ def check(args):
         direct=source[start:stop]
         fixed=np.array_equal(original[start+32:stop+32],direct)
         diagnostic=np.array_equal(original[start+31:stop+31],direct)
-        if fixed or not diagnostic or cases[name]['passed']:
+        if fixed or not diagnostic:
             raise ValueError('Pre-activation timing diagnostic differs from frozen failure')
         timing=dict(case=name,input_frames=[start,stop],receipt_sha256=sha256(folder/'receipt.json'),
             original_audio_sha256=sha256(folder/'audio.wav'),declared_32_frame_bypass_bit_exact=False,
             diagnostic_31_frame_direct_input_bit_exact=True,acceptance_offset_unchanged=32,
-            waveform_case_passed=False,
+            waveform_case_passed=cases[('main-holdout',name)]['passed'],
             scope='Direct-input timing diagnostic before first activation, not wet alignment or waveform acceptance.')
+    causality=None
+    if prediction['candidate_config']['ramp_components']=='startup':
+        # Reordering an offline DSP stream must not introduce input/control
+        # lookahead. Change the future after wet processing has already begun.
+        at=15013
+        x=np.random.default_rng(0xCA051).normal(0,.019,(18000,2)).astype(np.float32)
+        future=x.copy();future[at:]*=-.7
+        outputs={}
+        for name,signal,event in [('base',x,''),('future-input',future,''),('future-control',x,f'event {at} main 255\n')]:
+            source=root/(name+'.wav');write_wav(source,48000,signal.ravel())
+            schedule=root/(name+'.tsv');schedule.write_text('RMX_REVERB_MOTION 1\ninitial 128 128 96 1\ntail 0.2\nblock 31\n'+event)
+            output,dry=root/(name+'-output.wav'),root/(name+'-dry.wav')
+            run([args.renderer,source,output,schedule,'faded','post','read',32,dry,'output',0,'startup',0])
+            outputs[name]=float_wav(output)[1]
+        for name in ('future-input','future-control'):
+            if not np.array_equal(outputs['base'][:at],outputs[name][:at]):raise ValueError('Callback adapter uses future '+name)
+            if np.array_equal(outputs['base'][at:],outputs[name][at:]):raise ValueError('Causality stimulus is inconclusive')
+        causality=dict(prefix_frames=at,callback_size=31,wet_processing_already_active=True,
+            changed_future_input_prefix_bit_exact=True,changed_future_control_prefix_bit_exact=True,
+            both_positive_controls_differ_after_boundary=True)
     save_json(root/'verification.json',dict(kind='rmx220-reverb-down-main-checks',passed=True,
         script_sha256=sha256(Path(__file__)),model_sha256=sha256(args.model),prediction_sha256=sha256(args.prediction),
         comparison_sha256=[sha256(p) for p in args.comparison],previous_comparison_sha256=sha256(args.previous),
@@ -95,6 +117,8 @@ def check(args):
             arithmetic='float32 unfused',one_frame_negative_control_rejected=True,
             inactive_raw_0_to_3_observable=False),rejected_prediction_changes=rejected,
         rejected_native_options=native,no_prior_pass_lost=True,pre_activation_timing_diagnostic=timing,
+        causal_callback_prefixes=causality,
+        case_identity=['stage','case'],
         counts=dict(total=len(cases),passed=sum(row['passed'] for row in cases.values()),
                     failed=sum(not row['passed'] for row in cases.values())),
         scope='Geometry and binding/option guards. Passing these does not override waveform failures.'))

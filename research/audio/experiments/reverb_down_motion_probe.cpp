@@ -54,7 +54,7 @@ double returnShape(int main,int amount) noexcept {
     return .7*(a+std::pow(std::min(1.,main/183.),2)*std::pow(1-a,7));
 }
 struct Event {size_t frame{};std::string control;int value{};};
-struct Plan {Controls initial;double tail{};std::vector<Event> events;};
+struct Plan {Controls initial;double tail{};size_t block{128};std::vector<Event> events;};
 void valid(const Controls& c) {
     if(c.main<0||c.main>255||c.amount<0||c.amount>255||c.cutoff<0||c.cutoff>255||c.enabled<0||c.enabled>1)
         throw std::runtime_error("Controls outside static raw map");
@@ -68,7 +68,7 @@ void apply(Controls& c,const Event& e) {
     valid(c);
 }
 Plan readPlan(const std::filesystem::path& path) {
-    std::ifstream f(path);std::string text;Plan plan;size_t line=0;Controls test;
+    std::ifstream f(path);std::string text;Plan plan;size_t line=0;Controls test;bool blockSeen=false;
     if(!f)throw std::runtime_error("Cannot open motion schedule");
     while(std::getline(f,text)) {
         std::istringstream row(text);std::string kind,extra;row>>kind;
@@ -81,6 +81,13 @@ Plan readPlan(const std::filesystem::path& path) {
             if(kind!="tail"||!(row>>plan.tail)||!std::isfinite(plan.tail)||plan.tail<0||plan.tail>120)
                 throw std::runtime_error("Invalid tail");
         } else {
+            if(kind=="block"){
+                if(blockSeen||!(row>>plan.block)||plan.block<8||plan.block>4096||!plan.events.empty())
+                    throw std::runtime_error("Invalid callback block size");
+                blockSeen=true;
+                if(row>>extra)throw std::runtime_error("Unexpected callback field");
+                ++line;continue;
+            }
             int64_t frame{};Event e;
             if(kind!="event"||!(row>>frame>>e.control>>e.value)||frame<0)
                 throw std::runtime_error("Invalid event");
@@ -96,7 +103,7 @@ Plan readPlan(const std::filesystem::path& path) {
 }
 class Model {
 public:
-    Model(std::string gateMode,std::string cutoffPosition,bool gainAtInput,std::string levelPosition,size_t rampFrames,std::string rampComponents,double decaySlewStep):gate(std::move(gateMode)),position(std::move(cutoffPosition)),level(std::move(levelPosition)),rampParts(rampComponents=="adaptive"?"staged":rampComponents),writeGain(gainAtInput),rampLength(rampFrames),decaySlew(decaySlewStep),adaptive(rampComponents=="adaptive") {
+    Model(std::string gateMode,std::string cutoffPosition,bool gainAtInput,std::string levelPosition,size_t rampFrames,std::string rampComponents,double decaySlewStep):gate(std::move(gateMode)),position(std::move(cutoffPosition)),level(std::move(levelPosition)),rampParts(rampComponents=="adaptive"||rampComponents=="startup"?"staged":rampComponents),writeGain(gainAtInput),rampLength(rampFrames),decaySlew(decaySlewStep),adaptive(rampComponents=="adaptive"||rampComponents=="startup"),startup(rampComponents=="startup") {
         for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch) {
             size_t maximum=1;
             for(const auto& row:reverbDownControls)maximum=std::max(maximum,static_cast<size_t>(row.delays[j][ch]));
@@ -111,6 +118,10 @@ public:
         const auto approach=[](int a,int b){return a+(a<b?1:(a>b?-1:0));};
         Controls c=state;
         c.main=approach(c.main,target.main);c.cutoff=approach(c.cutoff,target.cutoff);c.enabled=target.enabled;
+        if(startup&&!everActivated&&c.enabled&&(!state.enabled||frame==32)){
+            c=target;slowMain=pendingMain=c.main;mainPeriod=60;
+            sharedBlocks=geometryRemaining=mixRemaining=0;stagedRemaining.fill(0);steps.fill(0);prepared=false;
+        }
         geometryStart=amountStart=false;
         if(!sharedBlocks){
             if(slowMain!=target.main){
@@ -205,7 +216,7 @@ public:
             if(!activationPrepared){
                 initialActive=c.enabled;
                 inputFade=c.enabled?1.f:0.f;
-                dryCurrent=static_cast<float>(c.enabled?dryGain:1);
+                dryCurrent=static_cast<float>(c.enabled&&!startup?dryGain:1);
                 dryTarget=dryCurrent;activationPrepared=true;
             } else if(c.main!=state.main&&lastDelayedEnabled){
                 setDry(static_cast<float>(dryGain),32);
@@ -242,13 +253,18 @@ public:
             }
         }
         ++frame;
+        float routing=1;
+        if(startup&&frame<=160){startupFade+=.00625f;routing=startupFade;}
         if(remaining){
             for(size_t j=0;j<12;++j)coefficients[j]+=steps[j];
             if(!--remaining)coefficients=targetCoefficients;
         }
         const bool feed=state.enabled||gate=="output";
         const bool emit=state.enabled||gate=="inlet"||gate=="faded";
-        std::array<double,2> source{input.l,input.r},wet{};
+        const rmx::Stereo routed=startup?rmx::Stereo{
+            static_cast<float>(static_cast<float>(input.l*routing)*routing),
+            static_cast<float>(static_cast<float>(input.r*routing)*routing)}:input;
+        std::array<double,2> source{routed.l,routed.r},wet{};
         if(gate=="faded"){
             inputFade=std::clamp(inputFade+(state.enabled?.00625f:-.00625f),0.f,1.f);
             for(auto& value:source)value*=inputFade;
@@ -260,17 +276,19 @@ public:
         // acts on new input; knobs act on the already buffered audio.
         const auto delayed=audioBlock[blockHead];
         const auto gated=(feed||gate=="faded")?source:std::array<double,2>{};
-        audioBlock[blockHead]={input,gated,state.enabled};
+        audioBlock[blockHead]={routed,gated,state.enabled};
         if(++blockHead==audioBlock.size())blockHead=0;
         source=delayed.source;
         if(gate=="faded"){
             if(delayed.enabled!=lastDelayedEnabled){
                 lastDelayedEnabled=delayed.enabled;
-                setDry(static_cast<float>(delayed.enabled?dryGain:1),160);
+                if(startup&&delayed.enabled&&!everActivated&&initialActive)dryStart=frame+32;
+                else setDry(static_cast<float>(delayed.enabled?dryGain:1),160);
                 if(delayed.enabled&&!everActivated){
-                    everActivated=true;warmRemaining=12416+(initialActive?32:0);dryRestart=frame+32;
+                    everActivated=true;warmRemaining=12416+(initialActive?32:0);dryRestart=frame+(startup&&initialActive?64:32);
                 }
             }
+            if(dryStart&&frame==dryStart){setDry(static_cast<float>(dryGain),160);dryStart=0;}
             if(dryRestart&&frame==dryRestart){setDry(dryTarget,160);dryRestart=0;}
             if(dryRemaining){dryCurrent+=dryStep;--dryRemaining;}
         }
@@ -343,15 +361,51 @@ private:
     float inputFade{},dryCurrent{1},dryTarget{1},dryStep{};
     size_t warmRemaining{},dryRemaining{},dryRestart{};
     bool activationPrepared{},lastDelayedEnabled{},everActivated{},initialActive{};
-    bool adaptive{},geometryStart{},amountStart{};
+    bool adaptive{},geometryStart{},amountStart{},startup{};
+    float startupFade{};size_t dryStart{};
     int slowMain{},pendingMain{},mainPeriod{60};
     size_t sharedBlocks{},geometryRemaining{},mixRemaining{};
     std::array<std::array<float,2>,5> delayCurrent{},delayTarget{},delayStep{};
     double fastMix{},fastMixTarget{},fastMixStep{};
 };
+
+// Input collection and output draining have independent cursors. A partial
+// callback may drain a whole output block after collecting fewer input frames.
+// Pending output starts empty; untouched callback positions retain raw input.
+// The processed stream supplied here already includes its normal 32-frame FIFO,
+// so index +32 addresses a DSP block without adding a second buffering delay.
+void callbacks(rmx::Sample& output,rmx::Sample& dry,const rmx::Sample& input,const Plan& plan,size_t extent){
+    const auto processed=output.frames,processedDry=dry.frames;
+    std::array<rmx::Stereo,32> pending{},pendingDry{};
+    size_t collected=0,available=0,processedFrame=0,event=0;
+    for(size_t start=0;start<extent;){
+        while(event<plan.events.size()&&plan.events[event].frame<=start)++event;
+        size_t count=std::min(plan.block,extent-start);
+        if(event<plan.events.size())count=std::min(count,plan.events[event].frame-start);
+        for(size_t i=0;i<count;++i)output.frames[start+i]=dry.frames[start+i]=start+i<input.frames.size()?input.frames[start+i]:rmx::Stereo{};
+        size_t received=0,written=0;
+        while(received<count){
+            const auto take=std::min(32-collected,count-received);collected+=take;received+=take;
+            const auto emit=std::min(available,count-written);
+            for(size_t i=0;i<emit;++i){output.frames[start+written+i]=pending[i];dry.frames[start+written+i]=pendingDry[i];}
+            written+=emit;available-=emit;
+            for(size_t i=0;i<available;++i){pending[i]=pending[i+emit];pendingDry[i]=pendingDry[i+emit];}
+            if(collected==32){
+                for(size_t i=0;i<32;++i){
+                    const auto at=processedFrame+32+i;
+                    pending[i]=at<processed.size()?processed[at]:rmx::Stereo{};
+                    pendingDry[i]=at<processedDry.size()?processedDry[at]:rmx::Stereo{};
+                }
+                processedFrame+=32;collected=0;available=32;
+            }
+        }
+        start+=count;
+    }
+    output.frames.resize(extent);dry.frames.resize(extent);
+}
 }
 int main(int argc,char** argv){try {
-    if(argc<9||argc>13)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset|faded pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send [COEFFICIENT_RAMP_FRAMES [all|levels|feedback|staged|adaptive [DECAY_STEP_PER_32_FRAMES]]]]");
+    if(argc<9||argc>13)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset|faded pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send [COEFFICIENT_RAMP_FRAMES [all|levels|feedback|staged|adaptive|startup [DECAY_STEP_PER_32_FRAMES]]]]");
     if(std::filesystem::exists(argv[2])||std::filesystem::exists(argv[8]))throw std::runtime_error("Output/trace must be new");
     const std::string gate=argv[4],position=argv[5],gain=argv[6];
     if(gate!="inlet"&&gate!="output"&&gate!="inlet-output"&&gate!="reset"&&gate!="faded")throw std::runtime_error("Invalid gate mode");
@@ -362,26 +416,27 @@ int main(int argc,char** argv){try {
     size_t ramp{};
     if(argc>=11){const std::string value=argv[10];size_t count{};ramp=std::stoul(value,&count);if(count!=value.size()||ramp>200000)throw std::runtime_error("Invalid coefficient ramp");}
     const std::string parts=argc>=12?argv[11]:"all";
-    if(parts!="all"&&parts!="levels"&&parts!="feedback"&&parts!="staged"&&parts!="adaptive")throw std::runtime_error("Invalid ramp components");
+    if(parts!="all"&&parts!="levels"&&parts!="feedback"&&parts!="staged"&&parts!="adaptive"&&parts!="startup")throw std::runtime_error("Invalid ramp components");
     double decaySlew{};
     if(argc==13){const std::string value=argv[12];size_t count{};decaySlew=std::stod(value,&count);if(count!=value.size()||!std::isfinite(decaySlew)||decaySlew<0||decaySlew>50||(decaySlew&&parts!="levels"))throw std::runtime_error("Invalid decay slew");}
     const std::string quantumText=argv[7];size_t used{};const auto quantum=std::stoul(quantumText,&used);
     if(used!=quantumText.size()||(quantum!=1&&quantum!=32&&quantum!=128))throw std::runtime_error("Invalid control quantum");
-    if((parts=="staged"||parts=="adaptive")&&(quantum!=32||ramp))throw std::runtime_error("Staged controller requires quantum 32 and no generic coefficient ramp");
-    if(parts=="adaptive"&&(gate!="faded"||position!="post"||gain!="read"||level!="output"))
+    if((parts=="staged"||parts=="adaptive"||parts=="startup")&&(quantum!=32||ramp))throw std::runtime_error("Staged controller requires quantum 32 and no generic coefficient ramp");
+    if((parts=="adaptive"||parts=="startup")&&(gate!="faded"||position!="post"||gain!="read"||level!="output"))
         throw std::runtime_error("Adaptive research controller requires faded/post/read/output");
     const auto plan=readPlan(argv[3]);const auto input=rmx::readWav(argv[1],180);
     if(input.rate!=48000)throw std::runtime_error("Research candidate requires 48 kHz");
     rmx::Sample output,dry;output.rate=dry.rate=48000;
-    output.frames.resize(input.frames.size()+static_cast<size_t>(std::llround(plan.tail*48000)));dry.frames.resize(output.frames.size());
-    for(const auto& e:plan.events)if(e.frame>=output.frames.size())throw std::runtime_error("Event outside render extent");
+    const size_t extent=input.frames.size()+static_cast<size_t>(std::llround(plan.tail*48000));
+    output.frames.resize(extent+(parts=="startup"?32:0));dry.frames.resize(output.frames.size());
+    for(const auto& e:plan.events)if(e.frame>=extent)throw std::runtime_error("Event outside render extent");
     Model model(gate,position,gain=="write",level,ramp,parts,decaySlew);Controls target=plan.initial,current=plan.initial;model.configure(current);size_t event=0,amountWait=0;bool dirty=false;
     for(size_t n=0;n<output.frames.size();++n) {
-        if(parts=="adaptive"&&n%32==0&&n)model.control(target);
+        if((parts=="adaptive"||parts=="startup")&&n%32==0&&n)model.control(target);
         if(gate!="faded")while(event<plan.events.size()&&plan.events[event].frame==n){apply(target,plan.events[event]);++event;dirty=true;}
         const bool amountReady=amountWait==0;
         if(n%quantum==0&&amountWait)--amountWait;
-        if(parts!="adaptive"&&dirty&&n%quantum==0){
+        if(parts!="adaptive"&&parts!="startup"&&dirty&&n%quantum==0){
             const auto approach=[](int a,int b){return a+(a<b?1:(a>b?-1:0));};
             current.main=approach(current.main,target.main);
             if(parts!="staged"||amountReady){
@@ -397,6 +452,7 @@ int main(int argc,char** argv){try {
         const auto result=model.tick(n<input.frames.size()?input.frames[n]:rmx::Stereo{});
         output.frames[n]=result[0];dry.frames[n]=result[1];
     }
+    if(parts=="startup")callbacks(output,dry,input,plan,extent);
     rmx::writeWav(argv[2],output);rmx::writeWav(argv[8],dry);
     std::cout<<"Rendered stateful Down research hypothesis\n";
 }catch(const std::exception& e){std::cerr<<e.what()<<'\n';return 1;}}
