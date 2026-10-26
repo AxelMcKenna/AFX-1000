@@ -1,6 +1,6 @@
 # DSP behavior and remaining matching work
 
-The engine has separate portable Scene and Isolate processors with bounded PMR audio storage and smoothed performance controls. Static factory Isolator, Echo, BPF/HPF/LPF Echo and default Noise have now been fitted against the original RMX-1000 Plug-in 2.2.0 at 48 kHz. Noise uses statistical acceptance with original project excitation. Other effects, gestures, User profiles and hardware equivalence remain unverified. The [capture workflow and current results](audio-matching.md) state the measurement scope.
+The engine has separate portable Scene and Isolate processors with bounded PMR audio storage and smoothed performance controls. Static factory Isolator, Echo, BPF/HPF/LPF/Crush Echo and default Noise have now been fitted against the original RMX-1000 Plug-in 2.2.0 at 48 kHz. Noise uses statistical acceptance with original project excitation. Other effects, gestures, User profiles and hardware equivalence remain unverified. The [capture workflow and current results](audio-matching.md) state the measurement scope.
 
 The [25 October sound-matching investigation](../research/audio/rmx1000-fidelity.md) reviews primary sources, the current DSP and measurement gaps, and proposes a capture and fitting campaign with explicit accuracy criteria.
 
@@ -94,7 +94,7 @@ The parameter IDs `scene_depth`, `scene_time`, and `scene_resonance` remain stab
 | Reverb Up | Reverb amount, additive dry path | Reverb level | High-pass output cutoff |
 | HPF Echo | High-pass cutoff | Echo division | Output modulation or resonance |
 | LPF Echo | Low-pass cutoff | Echo division | Output modulation or resonance |
-| Crush Echo | Bit reduction | Echo division | Output modulation |
+| Crush Echo | Sample-hold period and resonant high-pass cutoff | Crossfaded echo times | Output modulation |
 | Spiral Down | Spiral delay-window length | Feedback echo division | Downward pitch amount |
 | Reverb Down | Transition from dry to reverb | Reverb level | Low-pass output cutoff |
 
@@ -106,7 +106,11 @@ Factory Echo now uses measured static transitions at raw 66, 132 and 194, with d
 
 These three effects crossfade four independent comb returns, with times 1/4, 1/2, 3/4 and 1 beat. `x=clamp((rawSub1-3)/62.25,0,4)` gives adjacent linear weights, beginning at zero echo. Their beat period uses the measured whole-millisecond rule. Comb feedback is 0.75; the combined return passes through HP4 at approximately 284 Hz and is added at gain 0.7. Main gates the echo send using `clamp((rawMain-4)/5,0,1)`. Button-off restores direct dry and allows existing returns to decay. Four preallocated 1.5-second buffers cover the factory one-beat maximum at 40 BPM. The checked path uses double-precision filter state; other profiles/rates retain the earlier model.
 
-Spiral and Crush still use provisional equal-quarter regions and 1/8, 1/4, 1/2, 1-beat defaults. Their feedback/control maps remain unmatched. Echo's assignable User maximum is still exercised at 40 BPM, producing a 12-second delay. Gesture hysteresis, tempo changes and User settings require further captures. Selecting Echo for Release does not establish a measured Release model.
+Crush now shares the calibrated return structure, using HP4 at 60 Hz instead of 284 Hz. Its direct output blends dry and sample-held/high-pass-filtered input, with dry gain `clamp((129-rawMain)/126,0,1)^2`. The filter reuses HPF Echo's resonance map with the rounded exponential cutoff recorded in the [Crush measurements](audio-matching.md#crush-echo). Hold period is `max(1,float32(float32(rawMain*float32(1/255))*24))`; a double descending counter starts at input frame 32 and samples when strictly negative. Both float rounding steps are necessary to reproduce recurring boundary events. There is no amplitude quantizer in the checked static path. Other widths/rates and modulation retain the earlier model.
+
+Controls supplied before the first audio callback initialize the engine smoothers from their current values. This makes pre/post-prepare restoration agree without clearing or allocating audio buffers in the callback. Later control changes retain smoothing. Original immediate-start output and control gestures require separate characterization.
+
+Spiral still uses provisional equal-quarter regions and 1/8, 1/4, 1/2, 1-beat defaults. Its feedback/control maps remain unmatched. Echo's assignable User maximum is still exercised at 40 BPM, producing a 12-second delay. Gesture hysteresis, tempo changes and User settings require further captures. Selecting Echo for Release does not establish a measured Release model.
 
 BPF/HPF/LPF/Noise have separately saved modulation-versus-resonance modes, waveforms and resonance character. Supported waveforms are triangle, saw, square, deterministic sample-and-hold random, and side-chain. The current modulation acts on output amplitude; the exact original modulation circuit, rate/depth maps and side-chain behavior must be measured before sonic matching can be claimed. Filter width and Noise min/max level choices are stored independently. The old global Noise Color is retained as a project-specific tilt option; 0.5 leaves the generated noise untilted.
 

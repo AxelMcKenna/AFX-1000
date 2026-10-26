@@ -1,6 +1,6 @@
 # Measuring the RMX sound match
 
-The [sound-matching research](../research/audio/rmx1000-fidelity.md) defines the overall target. Static factory Isolator, Echo, BPF Echo, HPF Echo and LPF Echo pass the declared waveform criterion at 48 kHz. Default Noise also passes its statistical screen at four positions excluded from coefficient fitting. This does not certify a complete device sound match.
+The [sound-matching research](../research/audio/rmx1000-fidelity.md) defines the overall target. Static factory Isolator, Echo, BPF Echo, HPF Echo, LPF Echo and Crush Echo pass the declared waveform criterion at 48 kHz. Default Noise also passes its statistical screen at four positions excluded from coefficient fitting. This does not certify a complete device sound match.
 
 ## Current reference status
 
@@ -65,6 +65,29 @@ uv run --locked python -m tools.rmx_filter_match \
 ```
 
 The capture takes several minutes and writes substantial local audio. Destinations must be new. The identifier verifies reference/input/plan hashes and exact impulse recipes. The matcher verifies capture hashes, applies only the reviewed bypass offset, and assesses each channel without gain fitting. Add `--include-grid` to screen the complete BPF identification grid too. Event plans are reported as skipped by the static CLI matcher and require the native timestamped host; they are not counted as static passes. Raw reference recordings and vendor binaries remain outside Git.
+
+## Crush Echo
+
+The [Crush identification](../research/audio/measurements/2026-10-26-crush-identification.json) separates sample holding from resonant high-pass filtering. The measured held values require no amplitude-resolution reduction. Main uses dry gain `clamp((129-raw)/126,0,1)^2` and the complementary filtered-hold gain. The filter reuses the HPF Echo resonance topology/map, with cutoff rounded to integer Hz from `60*exp(max(raw-4,0)*0.0168583737)`.
+
+The hold period needs the original arithmetic: multiply the raw byte by the rounded float reciprocal of 255, then multiply that float by 24 and round to float again. Keep a double counter, subtract one each frame, and sample both channels when it becomes negative before adding the period. The settled clock begins at input frame 32. Division by 255, an integer interval or a double period product picks different input frames at recurring boundaries. Five seconds of direct-only noise at raw 113, 177, 213 and 253 verifies the clock against observed hold events. Late impulses provide separate regression fixtures.
+
+Crush uses the four crossfaded combs and 0.75 feedback/0.7 return gain described above, with HP4 at 60 Hz on its return. Its [validation record](../research/audio/measurements/2026-10-26-crush-validation-48k.json) contains 54 passing static comparisons, including fresh stereo probes, crossfaded Sub1 positions, 90/128/137 BPM and clock-boundary impulses. Worst checked per-channel RMS error is about 0.021%; separate tails also pass. Eight native VST3 cases pass, including button-off. Initial host controls now seed engine smoothers before the first callback, so restoration before or after preparation gives the same settled hold phase.
+
+```sh
+uv run --locked python -m tools.rmx_crush_identify capture \
+  --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
+  --session build/artifacts/research/crush-reference
+uv run --locked python -m tools.rmx_crush_identify identify \
+  --session build/artifacts/research/crush-reference \
+  --clock-session build/artifacts/research/crush-reference \
+  --calibration calibration-reviewed.json --report build/artifacts/research/crush-identification.json
+uv run --locked python -m tools.rmx_filter_match \
+  --session build/artifacts/research/crush-reference --renderer build/rmx_render \
+  --calibration calibration-reviewed.json --output build/artifacts/research/crush-candidate
+```
+
+The recipe labels immediate-start noise as diagnostic rather than a static pass. Original output differs during its first host block across block sizes; the checked 128-frame and 256-frame startup regions are excluded from its settled block-repeatability claim. Immediate nonzero startup, moving controls, effect switching, overload, other widths/rates and Sub2 modulation remain unmatched. Event plans still require native-host validation. Vendor recordings remain outside Git.
 
 ## Noise identification and statistics
 

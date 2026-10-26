@@ -11,6 +11,8 @@ Investigations that inform the product: reference behavior, component candidates
 | [Clock and tempo measurements](audio/measurements/2026-10-26-clock-48k.json) | Whole-millisecond beat periods, Auto/manual behavior and additional-tempo impulse checks |
 | [Filter Echo identification](audio/measurements/2026-10-26-filter-identification.json) | Public I/O fits for BPF/HPF/LPF direct filters, coefficient maps and response errors |
 | [Filter Echo validation](audio/measurements/2026-10-26-filter-validation-48k.json) | Independent stereo signals, crossfaded delay taps, 137 BPM and native button-off tails |
+| [Crush identification](audio/measurements/2026-10-26-crush-identification.json) | Sample-hold arithmetic, resonant filtering, DC steps and first-host-block diagnostics |
+| [Crush validation](audio/measurements/2026-10-26-crush-validation-48k.json) | Independent stereo signals, 90/128/137 BPM, late clock boundaries and native button-off tails |
 | [Hardware component shortlist](hardware/components.md) | Control, sensor, mechanical and component candidates, source links and unresolved selections |
 | [Audio-design history](hardware/audio-design-history.md) | Preserved circuit/converter/gain/noise investigations and historical stage discussion |
 | [Reference and fidelity targets](../docs/specifications.md) | Current comparison targets and effect-characterization work still to perform |

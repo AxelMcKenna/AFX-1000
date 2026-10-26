@@ -1,12 +1,12 @@
 # RMX-1000 sound matching research
 
 - Updated: 2026-10-26
-- Status: active; original plug-in captured, static Isolator/Echo/BPF/HPF/LPF/Noise fitted at 48 kHz; full-device validation incomplete
+- Status: active; original plug-in captured, static Isolator/Echo/BPF/HPF/LPF/Crush/Noise fitted at 48 kHz; full-device validation incomplete
 - Question: what evidence, DSP work and validation would support a defensible claim of very close RMX-1000 sound matching?
 - Related implementation: [Scene](../../src/core/Scene.cpp), [Isolate](../../src/core/Isolator.cpp), [engine and Release](../../src/core/Engine.cpp), [drums](../../include/rmx/FactoryDrums.h), [capture tools](../../tools/reference_audio.py).
 - Initial source audit revision: `5f1887fa9fbaa8b655b4a633b282121c802aba58`; linked manufacturer documents and papers were accessed on 2026-10-25. Implementation and numerical measurement updates below are dated 2026-10-26.
 
-Controlled input/output measurement has now replaced several provisional DSP choices. Static factory Isolator, Echo and BPF/HPF/LPF Echo satisfy the declared waveform criterion against the original plug-in, and default Noise satisfies its statistical screen, within the scopes recorded below. The remaining effects and behaviors still use substantial project voicing. No full-device accuracy percentage or hardware equivalence has been established.
+Controlled input/output measurement has now replaced several provisional DSP choices. Static factory Isolator, Echo and BPF/HPF/LPF/Crush Echo satisfy the declared waveform criterion against the original plug-in, and default Noise satisfies its statistical screen, within the scopes recorded below. The remaining effects and behaviors still use substantial project voicing. No full-device accuracy percentage or hardware equivalence has been established.
 
 ## What the primary evidence establishes
 
@@ -51,7 +51,7 @@ Use blind listening as a second axis. [ITU-R BS.1116-3](https://www.itu.int/dms_
 
 ## Findings in the current implementation
 
-These are historical observations from the initial source audit and measurement priorities. The dated measurement updates below supersede their Isolator, Echo, Noise and BPF/HPF/LPF entries.
+These are historical observations from the initial source audit and measurement priorities. The dated measurement updates below supersede their Isolator, Echo, Noise, BPF/HPF/LPF and Crush entries.
 
 | Area | Current code | What must be identified |
 | --- | --- | --- |
@@ -178,6 +178,10 @@ Further filter captures identify BPF's direct additive band-pass and its 0.85 ba
 
 The engine now implements those measured static factory paths. One hundred sixty-four comparisons pass the declared one-percent unscaled per-channel RMS criterion, including held-out stereo signals, separate tails and 137 BPM cases. Worst checked segment errors are about 0.0018% BPF, 0.0063% HPF and 0.16% LPF. Nine native VST3 cases also pass, including button-off. The [identification](measurements/2026-10-26-filter-identification.json), [validation](measurements/2026-10-26-filter-validation-48k.json) and [reproduction recipe](../../docs/audio-matching.md#bpf-hpf-and-lpf-echo) retain the scope and provenance. These checks cover Normal width, Sub2 zero and factory delay/feedback settings at 48 kHz; modulation/resonance profiles and gestures remain outstanding.
 
-Factory one-shot drum outputs have also been captured locally for analysis; the distributed synthesized substitutes have not yet been matched or replaced. Crush impulse captures alone could not identify its nonlinear/decimation behavior, so fresh continuous-signal captures have been retained for the next stage. Manufacturer audio remains outside Git.
+Crush then required continuous input and DC steps: isolated impulses can fall between held samples and falsely suggest a muted effect. Its measured path uses sample holding, a resonant high-pass filter and complementary dry/wet gains; no amplitude quantization is needed in these captures. The hold period depends on two float multiplications, beginning with a rounded reciprocal of 255. Several seemingly equivalent division/double formulas pick different input frames at repeated boundaries. Long direct-only noise, late impulses and fresh stereo probes resolved that difference. Its echo return uses HP4 at 60 Hz with the shared crossfaded comb structure.
+
+The [Crush identification](measurements/2026-10-26-crush-identification.json) and [54-case validation](measurements/2026-10-26-crush-validation-48k.json) retain those findings. All checked static cases pass, including 90/128/137 BPM, separate tails and late boundaries, with worst per-channel RMS error about 0.021%. Eight native VST3 cases also pass, including button-off. Pre/post-prepare controls now give the same settled engine hold phase. Original immediate-start output differs within the first host block by block size and remains unmatched, along with moving controls, other widths/rates and modulation.
+
+Factory one-shot drum outputs have also been captured locally for analysis; the distributed synthesized substitutes have not yet been matched or replaced. Manufacturer audio remains outside Git.
 
 This is a measured static software milestone. It does not establish full-device 99% similarity, hardware equivalence, overload behavior, host-rate conversion, modulation/resonance/reverb matching, sampler/Release matching, control-transition accuracy or listening equivalence. Those remain the next stages of the same measurement campaign.

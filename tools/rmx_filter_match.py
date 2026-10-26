@@ -40,8 +40,8 @@ def match(args):
         for folder in sorted(session.iterdir()):
             if not folder.is_dir() or not (folder/'receipt.json').exists():
                 continue
-            effect = folder.name[:3]
-            if effect not in ('bpf', 'hpf', 'lpf') or ('-grid-' in folder.name and not args.include_grid):
+            effect = folder.name.split('-')[0]
+            if effect not in ('bpf', 'hpf', 'lpf', 'crush') or ('-grid-' in folder.name and not args.include_grid):
                 continue
             receipt = json.loads((folder/'receipt.json').read_text())
             plan = json.loads((folder/'plan.json').read_text())
@@ -65,7 +65,7 @@ def match(args):
                 raise ValueError('Duplicate case name: ' + folder.name)
             names.add(folder.name)
             settings = {'input_gain': 0, 'output_gain': 0, 'bypass': 0, 'auto_tempo': 0, 'quantize': 0,
-                        'tempo': plan['bpm'], 'scene_on': 1, 'scene_type': {'bpf': 0, 'hpf': 5, 'lpf': 6}[effect],
+                        'tempo': plan['bpm'], 'scene_on': 1, 'scene_type': {'bpf': 0, 'hpf': 5, 'lpf': 6, 'crush': 7}[effect],
                         'scene_source': 0, 'scene_depth': controls['SceneVolume'],
                         'scene_time': controls['Sub1Volume']*7, 'scene_resonance': 0,
                         'sampler_mute': 1, 'isolate_on': 0}
@@ -89,7 +89,7 @@ def match(args):
                 item['tail'] = screen(a[len(input_audio):], b[len(input_audio):])
             if len(input_audio) in (96000, 240000):
                 item['direct_left_impulse'] = screen(a[48000:54000], b[48000:54000])
-            if '-probe-' in folder.name or '-137-' in folder.name:
+            if len(input_audio) == 48000*6:
                 item['spectral_diagnostics'] = spectral_metrics(a, b, rate)
             results.append(item)
             print('PASS' if all(item[k]['passed'] for k in ('whole', 'tail', 'direct_left_impulse') if k in item)

@@ -226,6 +226,10 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     wasExternalSync=transport.synced;
     if(transport.synced) meters.confidence.store(1,std::memory_order_relaxed);
     if(get(Param::UserSettings)<.5f) for(size_t i=0;i<parameterCount;++i) if(parameters[i].advanced) p[i]=parameters[i].initial;
+    // Hosts can restore controls after prepare and before the first callback.
+    // Start from those controls instead of ramping through stale defaults;
+    // that ramp otherwise leaves sample-hold effects at a different phase.
+    if(frame==0)smooth=p;
     if(transport.synced&&std::isfinite(transport.bpm)&&transport.bpm>=40&&transport.bpm<=240) { bpm=transport.bpm; if(std::isfinite(transport.beat)) beat=transport.beat; }
     else if(get(Param::AutoTempo)<.5f) bpm=get(Param::Tempo);
     IsolatorSettings iso;

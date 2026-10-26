@@ -18,7 +18,7 @@ struct SceneSettings {
         std::array<std::array<int,4>,10> choices{};
         for(auto& regions:choices)regions={1,2,3,5};
         choices[1]={2,3,4,5};
-        choices[0]=choices[5]=choices[6]={2,3,4,5};
+        choices[0]=choices[5]=choices[6]=choices[7]={2,3,4,5};
         return choices;
     }();
     float feedback{.7f},decay{.72f},noiseColor{.5f};

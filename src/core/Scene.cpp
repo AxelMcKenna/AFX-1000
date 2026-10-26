@@ -113,7 +113,7 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
     const float activation=std::min(1.f,macro*10);
     const auto region=type==1?echoDelayRegion(sub1):sceneDelayRegion(sub1);
     const bool measuredNoise=type==2&&rate==48000&&settings.width[2]==1&&!resonance;
-    if((type==0||type==5||type==6)&&rate==48000&&settings.width[type]==1&&!resonance&&sub2==0
+    if((type==0||type==5||type==6||type==7)&&rate==48000&&settings.width[type]==1&&!resonance&&sub2==0
             &&settings.feedback==.7f&&settings.feedbackCharacter[type]==1
             &&settings.delayBeats[type]==std::array<int,4>{2,3,4,5}) {
         const auto raw=std::clamp(static_cast<int>(std::floor(macro*255+1.e-4f)),0,255);

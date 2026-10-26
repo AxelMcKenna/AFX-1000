@@ -13,6 +13,53 @@ float sine(double frequency,size_t i) {return .2f*static_cast<float>(std::sin(2*
 double energy(Stereo x) {return x.l*x.l+x.r*x.r;}
 int main() {try {
     {
+        for(int raw:{113,177,213,253}) {
+            Engine before,after;
+            const auto controls=[&](Engine& engine) {
+                engine.params.set(Param::AutoTempo,0);engine.params.set(Param::Tempo,120);
+                engine.params.set(Param::SceneType,7);engine.params.set(Param::SceneOn,1);
+                engine.params.set(Param::SceneDepth,raw/255.f);engine.params.set(Param::SceneTime,128*7.f/255);
+                engine.params.set(Param::SceneResonance,0);engine.params.set(Param::IsolateOn,0);
+            };
+            controls(before);before.prepare(48000,128);after.prepare(48000,128);controls(after);
+            std::array<float,128> input{},al{},ar{},bl{},br{};
+            for(unsigned block=0;block<1200;++block) {
+                for(size_t i=0;i<input.size();++i)input[i]=block<375?0:sine(1037,block*128+i);
+                before.process(input.data(),input.data(),al.data(),ar.data(),128);
+                after.process(input.data(),input.data(),bl.data(),br.data(),128);
+                for(size_t i=0;i<input.size();++i)require(al[i]==bl[i]&&ar[i]==br[i],"Initial host controls changed the settled Crush clock phase");
+            }
+        }
+    }
+    {
+        // Late original-reference impulses distinguish reciprocal float
+        // normalization and float-product rounding from several plausible
+        // period formulas that disagree only at recurring sample boundaries.
+        struct Capture {int raw;size_t frame;float first,second;};
+        constexpr std::array<Capture,4> captures{{
+            {113,157445,.0483129732f,.0456286222f},
+            {177,140949,.0451216027f,.0394738093f},
+            {213,199821,.0414140038f,.0312262550f},
+            {253,291869,.0344913155f,.0162173100f}}};
+        CalibratedFilterEcho processor;processor.prepare(48000);
+        for(const auto& capture:captures) {
+            processor.invalidate();
+            for(size_t i=0;i<=capture.frame+1;++i) {
+                const auto output=processor.process(i==capture.frame?Stereo{.05f,-.04f}:Stereo{},7,capture.raw,0,1,120);
+                if(i==capture.frame)require(std::abs(output.l-capture.first)<2e-6f,"Crush hold clock sampled the wrong boundary frame");
+                if(i==capture.frame+1)require(std::abs(output.l-capture.second)<2e-6f,"Crush held-input filter differs from reference");
+                require(std::abs(output.r+output.l*.8f)<1e-6f,"Crush changed stereo routing");
+            }
+        }
+        for(int raw=0;raw<256;++raw) {
+            processor.invalidate();
+            for(unsigned i=0;i<1024;++i) {
+                const auto output=processor.process(i==64?Stereo{.05f,0}:Stereo{},7,raw,128,1,120);
+                require(std::isfinite(output.l)&&std::abs(output.l)<1&&output.r==0,"Crush became unstable across raw control range");
+            }
+        }
+    }
+    {
         // Independent original impulse captures, with only the measured
         // 32-frame bypass latency removed. Button-off precedes the first tap.
         constexpr std::array<int,3> types{0,5,6};

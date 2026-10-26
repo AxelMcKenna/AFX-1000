@@ -14,7 +14,7 @@ The main surface follows the RMX-1000 layout. The amber and teal skin and RMX ba
 | Isolator / Cut-Add / Trans-Roll / Gate-Drive | Select and enable the band processing mode; press the selected mode again to bypass the section. Low / Mid / Hi control their respective bands. |
 | Scene FX ring | Select an effect; press the selected effect again to bypass Scene FX. |
 | Large Scene knob | Control the selected effect: filter cutoff, echo/reverb balance, crush amount or spiral delay window. Moving it enables Scene FX. |
-| Sub parameter 1 | Echo selects one of four time regions. Factory BPF/HPF/LPF Echo crossfade between adjacent times. Effects retain independent User beat assignments. In Noise it changes generated-noise level, and in reverbs it changes reverb level. |
+| Sub parameter 1 | Echo selects one of four time regions. Factory BPF/HPF/LPF/Crush Echo crossfade between adjacent times. Effects retain independent User beat assignments. In Noise it changes generated-noise level, and in reverbs it changes reverb level. |
 | Sub parameter 2 | Adjust the effect-specific filter, modulation or pitch control. See the [DSP control table](dsp-model.md). |
 | Bank | Select bank samples, then cycle through four banks. Shift-click returns to internal drums. Bank indicators are dark while internal drums are selected. |
 | Roll | Select live-input roll instead of the sample bank. |

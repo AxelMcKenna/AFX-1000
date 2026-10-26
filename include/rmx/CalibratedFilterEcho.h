@@ -21,9 +21,22 @@ public:
     void invalidate() noexcept {lastType=-1;}
     Stereo process(Stereo input,int type,int raw,int timeRaw,float enabled,double bpm) noexcept {
         raw=std::clamp(raw,0,255);timeRaw=std::clamp(timeRaw,0,255);
-        if(type!=lastType) {clearFilters();age=0;lastType=type;lastRaw=-1;}
+        if(type!=lastType) {
+            clearFilters();age=0;lastType=type;lastRaw=-1;
+            for(auto& channel:returns)for(auto& filter:channel)filter.configure(type==7?60:283.99944,48000,true);
+        }
         if(raw!=lastRaw) {configure(type,raw);lastRaw=raw;}
         const double original[]{input.l,input.r};double direct[2]{},feed[2]{};
+        if(type==7) {
+            // The reference's settled hold clock starts 32 input frames into
+            // a new instance. Preserve its fractional period and strict test;
+            // rounding to integer intervals audibly changes the aliased signal.
+            if(age<32)held=input;
+            else {
+                holdCounter-=1;
+                if(holdCounter<0) {held=input;holdCounter+=holdPeriod;}
+            }
+        }
         for(unsigned channel=0;channel<2;++channel) {
             const double x=original[channel];
             if(type==0) {
@@ -32,10 +45,10 @@ public:
                 s[1]=s[0];s[0]=x;s[4]=s[3];s[3]=s[2];s[2]=y;
                 direct[channel]=x+y;feed[channel]=x+.85*y;
             } else {
-                const double u=x+resonance*feedbackState[channel];
+                const double u=(type==7?(channel==0?held.l:held.r):x)+resonance*feedbackState[channel];
                 const double y=main[channel].tick(u),b=feedbackBand[channel].tick(u);
                 const double f=feedbackGain*b+feedbackPoleState[channel];
-                feedbackPoleState[channel]=(type==5?-feedbackGain:feedbackGain)*b+feedbackPole*f;
+                feedbackPoleState[channel]=(type==5||type==7?-feedbackGain:feedbackGain)*b+feedbackPole*f;
                 feedbackState[channel]=f;
                 direct[channel]=feed[channel]=x+(y-x)*gain;
             }
@@ -94,12 +107,17 @@ private:
     }
     void configure(int type,int raw) noexcept {
         if(type==0) {band=bandEchoCalibration[static_cast<size_t>(raw)];return;}
-        const bool high=type==5;
+        const bool high=type==5||type==7;
         double ratio=1;
         const auto profile=[&](const auto& points) {ratio=interpolate(points,raw,0);resonance=interpolate(points,raw,1);};
         if(high)profile(hpfEchoCalibration);else profile(lpfEchoCalibration);
-        const double fc=(high?60*std::pow(10000./60,std::max(raw-4,0)/251.):96*std::pow(23500./96,(255-std::max(raw,4))/251.))*ratio;
-        gain=1-std::pow(std::clamp((66-raw)/63.,0.,1.),2);
+        const double fc=type==7?std::round(60*std::exp(std::max(raw-4,0)*.0168583737)):
+            (high?60*std::pow(10000./60,std::max(raw-4,0)/251.):96*std::pow(23500./96,(255-std::max(raw,4))/251.))*ratio;
+        gain=1-std::pow(std::clamp(type==7?(129-raw)/126.:(66-raw)/63.,0.,1.),2);
+        // The two float multiplies matter: division by 255 or a double
+        // product selects different source frames at recurring boundaries.
+        const float normalized=raw*(1.f/255.f);
+        holdPeriod=std::max(1.f,normalized*24.f);
         const double t=std::tan(std::numbers::pi*fc/48000);
         feedbackPole=(1-t)/(1+t);feedbackGain=(1+(high?feedbackPole:-feedbackPole))/2;
         for(unsigned channel=0;channel<2;++channel) {
@@ -109,7 +127,7 @@ private:
         }
     }
     void clearFilters() noexcept {
-        bandState={};feedbackState={};feedbackPoleState={};
+        bandState={};feedbackState={};feedbackPoleState={};held={};holdCounter=0;
         for(auto& f:main)f.reset();for(auto& f:feedbackBand)f.reset();
         for(auto& channel:returns)for(auto& f:channel)f.reset();
     }
@@ -119,6 +137,7 @@ private:
     std::array<std::array<double,5>,2> bandState{};
     std::array<double,2> feedbackState{},feedbackPoleState{};
     BandEchoPoint band{};double feedbackPole{},feedbackGain{},resonance{},gain{};
+    Stereo held{};double holdCounter{},holdPeriod{1};
     uint64_t age{};int lastType{-1},lastRaw{-1};
 };
 }
