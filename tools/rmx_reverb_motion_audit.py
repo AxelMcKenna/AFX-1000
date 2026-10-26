@@ -15,18 +15,21 @@ from tools.rmx_reverb_motion import HOLDOUT_STAGES, checked, prediction_payload,
 from tools.rmx_spiral_core import calibration
 
 
-def sanitizer_build_record(build, binary):
+def sanitizer_build_record(build, binary, backend='core'):
     """Check the actual build recipe, including the previously omitted WAV IO."""
     build=build.resolve()
-    if binary.resolve()!=build/'rmx_reverb_down_probe':
+    target='rmx_reverb_down_engine_probe' if backend=='engine' else 'rmx_reverb_down_probe'
+    if binary.resolve()!=build/target:
         raise ValueError('Sanitized renderer must be the specified build target')
     manifest=build/'compile_commands.json'
     entries=json.loads(manifest.read_text())
     repo=Path(__file__).resolve().parents[1]
     checked_sources={}
     newest_object=0
-    for relative in ('src/core/ReverbDown.cpp','src/core/Wav.cpp','tools/reverb_down_probe.cpp'):
+    for relative in ('src/core/ReverbDown.cpp','src/core/Wav.cpp','tools/reverb_down_probe.cpp',*(('src/core/Engine.cpp',) if backend=='engine' else ())):
         rows=[e for e in entries if Path(e['file']).resolve()==repo/relative]
+        if relative=='tools/reverb_down_probe.cpp':
+            rows=[e for e in rows if (('RMX_REVERB_ENGINE_FIXTURE=1' in e.get('command',' '.join(e.get('arguments',[]))))==(backend=='engine'))]
         if len(rows)!=1:
             raise ValueError('Missing/ambiguous sanitizer compile entry: '+relative)
         row=rows[0]
@@ -72,6 +75,7 @@ def audit(args):
     records = {}
     for path, report in zip(args.comparison, comparisons):
         if (report['candidate_config'] != prediction['candidate_config']
+                or report.get('backend','core')!=prediction.get('backend','core')
                 or report['renderer_sha256'] != sha256(args.renderer)
                 or report['model_sha256'] != sha256(args.model)
                 or report['calibration_sha256'] != sha256(args.calibration)):
@@ -133,8 +137,16 @@ def audit(args):
                 dry_prefix=float_wav(dry_path)[1][:cold_frames]
                 if not np.array_equal(audio[:cold_frames],candidate_prefix) or not np.array_equal(candidate_prefix,dry_prefix):
                     raise ValueError('Non-silent pre-wet dry prefix is not bit-exact')
+                original_bits=audio[:cold_frames].astype(np.float32).view(np.uint32)
+                candidate_bits=candidate_prefix.view(np.uint32)
+                dry_bits=dry_prefix.view(np.uint32)
+                pair_bits=np.array_equal(original_bits,candidate_bits)
+                all_bits=pair_bits and np.array_equal(candidate_bits,dry_bits)
                 cold_dry.append(dict(stage=stage,case=case['name'],frames=cold_frames,
-                    original_candidate_and_dry_bit_exact=True))
+                    original_candidate_and_dry_sample_values_exact=True,
+                    original_candidate_bit_exact=pair_bits,
+                    original_candidate_and_dry_bit_exact=all_bits,
+                    signed_zero_only_differences=not all_bits))
             if not case['enabled']:
                 stop = next((e['frame'] for e in case['events'] if e['control']=='enabled' and e['value']),len(source))
                 candidate = float_wav(output)[1]
@@ -197,7 +209,7 @@ def audit(args):
             raise ValueError('Capture guard accepted changed ' + field)
 
     build=getattr(args,'sanitized_build',None)
-    instrumentation=sanitizer_build_record(build,args.sanitized) if build else None
+    instrumentation=sanitizer_build_record(build,args.sanitized,prediction.get('backend','core')) if build else None
     sanitized = []
     fresh_key=(prediction['stage'],'down-'+prediction['stage']+'-0')
     for key in (('steps', 'down-step-main-0-128'), fresh_key):
@@ -217,6 +229,11 @@ def audit(args):
         script_sha256=sha256(Path(__file__)), comparisons_sha256=[sha256(p) for p in args.comparison],
         capture_cases=verified, host_sha256=next(iter(host_hashes)), initially_off_bypass_prefixes=bypass,
         non_silent_cold_dry_prefixes=cold_dry,
+        non_silent_cold_dry_prefix_summary=dict(total=len(cold_dry),
+            original_candidate_bit_exact=sum(c['original_candidate_bit_exact'] for c in cold_dry),
+            original_candidate_and_dry_sample_values_exact=len(cold_dry),
+            original_candidate_and_dry_bit_exact=sum(c['original_candidate_and_dry_bit_exact'] for c in cold_dry),
+            signed_zero_only_differences=sum(c['signed_zero_only_differences'] for c in cold_dry)),
         full_candidate_bypass=dict(frames=len(y), bit_exact=True, offset=32,
             input_silent_pre_roll_frames=pre_roll,
             rejected_offsets=rejected_offsets, input_sha256=sha256(input_file), output_sha256=sha256(output)),

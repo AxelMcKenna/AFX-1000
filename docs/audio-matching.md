@@ -4,6 +4,8 @@ The [sound-matching research](../research/audio/rmx1000-fidelity.md) defines the
 
 [How the reference audio checks work](../research/audio/reference-method.md) explains the original plug-in setup, diagnostic signals, frozen predictions, error limits, audits and reproduction, including the limits of the match claims.
 
+Factory Default Reverb Down at 48 kHz now runs the measured processor in the live Engine. The [192-case Engine matrix](../research/audio/measurements/2026-10-27-reverb-down-engine-validation-48k.json) passes, including eight new programs after freezing the integrated candidate. This profile reports a nominal 32-frame delay, including button-off; other profiles/rates use the earlier approximation. [Integration, routing and wrapper checks](../research/audio/reverb-down-motion.md#live-engine-integration-and-prospective-checks) describe its scope. Other effects, combined processing and physical hardware remain part of the unfinished fidelity goal.
+
 ## Current reference status
 
 On 26 October 2026, the official RMX-1000 Mac plug-in 2.2.0 was obtained from [AlphaTheta support](https://support.alphatheta.com/en-US/articles/4405128214809?product=4416587889433). Its installer signature, notarization and AU bundle signature verified through macOS trust services. The archive and hashes are retained locally under `build/artifacts/research/reference-acquisition/`; vendor binaries remain outside Git.
@@ -284,6 +286,8 @@ The interval must be stationary, and both channels must contain noise. A `pass` 
 ## Build the offline host
 
 `RMXReferenceHost` opens one explicit AU, VST2 or VST3 bundle, never a live audio device. It inspects parameter IDs and names and renders WAV probes with sample-timestamped parameter/MIDI events and a constant BPM transport. Modern Audio Unit bundles are registered only within the host process; they are not installed in a user or system plug-in folder.
+
+On macOS, an optional capture-plan field `"post_render_message_pump_ms": 100` dispatches pending message-thread notifications after all audio is written and before final state/latency metadata is read. It accepts integer values 0..250 and defaults to zero. This lets a synchronous AU experiment observe asynchronous latency changes without changing callback/event timing; receipts record the chosen interval. The Down wrapper regression verifies unchanged WAV hashes before/after dispatch.
 
 Use the existing JUCE 8.0.6 checkout or allow the normal CMake JUCE fetch:
 

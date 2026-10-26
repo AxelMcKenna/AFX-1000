@@ -150,7 +150,8 @@ bool AudioHost::start(AudioDeviceID input,AudioDeviceID output,uint32_t inPair,u
     // IOProc output mHostTime already expresses scheduled buffer output time.
     // Device and stream latency still lie between that timestamp and the DAC.
     outputLatencySeconds=(latency(output,kAudioObjectPropertyScopeOutput)+outputStreamLatency(output,outPair))/outputRate;
-    latencyMs.store(static_cast<float>((bufferFrames*2+latency(output,kAudioObjectPropertyScopeOutput)+(input?latency(input,kAudioObjectPropertyScopeInput):0)+(input&&input!=output?targetFill:0))*1000/outputRate));
+    ioLatencyMs=static_cast<float>((bufferFrames*2+latency(output,kAudioObjectPropertyScopeOutput)+(input?latency(input,kAudioObjectPropertyScopeInput):0)+(input&&input!=output?targetFill:0))*1000/outputRate);
+    latencyMs.store(ioLatencyMs+static_cast<float>(engine.latencySamples()*1000/outputRate));
     startupStage.store("Opening the audio output");
     OSStatus status=AudioDeviceCreateIOProcID(output,callback,this,&outputProc);
     if(status) { error=osError("Cannot create output callback",status); stop(); return false; }
@@ -224,9 +225,11 @@ void AudioHost::render(const AudioBufferList* input,AudioBufferList* output,cons
     std::array<rmx::Event,256> events{}; size_t eventCount=0; processMidi(events,eventCount);
     rmx::Transport t;
     const uint64_t outputHost=outputTime&&(outputTime->mFlags&kAudioTimeStampHostTimeValid)?outputTime->mHostTime:start;
-    const auto audibleMicros=static_cast<int64_t>((hostSeconds(outputHost)+outputLatencySeconds)*1.e6);
+    const double processingSeconds=engine.latencySamples()/outputRate;
+    latencyMs.store(ioLatencyMs+static_cast<float>(processingSeconds*1000),std::memory_order_relaxed);
+    const auto audibleMicros=static_cast<int64_t>((hostSeconds(outputHost)+outputLatencySeconds+processingSeconds)*1.e6);
     const bool linked=link.capture(audibleMicros,t);
-    if(!linked) { const auto clock=midiClock.position(hostSeconds(outputHost)+outputLatencySeconds);if(clock.synced) { t.synced=true;t.bpm=clock.bpm;t.beat=clock.beat;t.playing=clock.playing; } }
+    if(!linked) { const auto clock=midiClock.position(hostSeconds(outputHost)+outputLatencySeconds+processingSeconds);if(clock.synced) { t.synced=true;t.bpm=clock.bpm;t.beat=clock.beat;t.playing=clock.playing; } }
     engine.process(left.data(),right.data(),outLeft.data(),outRight.data(),count,t,std::span<const rmx::Event>(events.data(),eventCount));
     for(uint32_t i=0;i<count;++i) { writeChannel(output,outputPair,i,outLeft[i]); writeChannel(output,outputPair+1,i,outRight[i]); }
     const float load=static_cast<float>(hostSeconds(mach_absolute_time()-start)/(count/outputRate)); callbackLoad.store(load,std::memory_order_relaxed); engine.meters.load.store(load,std::memory_order_relaxed);

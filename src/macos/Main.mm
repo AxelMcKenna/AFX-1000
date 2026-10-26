@@ -322,7 +322,7 @@ AudioDeviceID audioDeviceForUID(NSString* uid,const std::vector<AudioDevice>& de
     if(audioStarting) { deviceStatus.stringValue=[NSString stringWithUTF8String:host->startupStage.load()]; [self setNeedsDisplay:YES]; return; }
     if(host->deviceChanged.exchange(false)) { host->stop();resumeAudio=NO; startButton.title=@"START AUDIO"; [self refreshDevices];[self saveAudioRoute]; message=@"Audio device disconnected or its sample rate changed. Check routing and restart audio."; }
     const float cpu=host->callbackLoad.load()*100;
-    deviceStatus.stringValue=host->running()?[NSString stringWithFormat:@"%.0f Hz · CPU %.1f%% · est. I/O %.1f ms\nUnder/overruns %llu/%llu · MIDI drops %llu",host->rate(),cpu,host->latencyMs.load(),host->underruns.load(),host->overruns.load(),host->midiDrops.load()]:@"Audio stopped · presets and samples remain editable";
+    deviceStatus.stringValue=host->running()?[NSString stringWithFormat:@"%.0f Hz · CPU %.1f%% · est. latency %.1f ms\nUnder/overruns %llu/%llu · MIDI drops %llu",host->rate(),cpu,host->latencyMs.load(),host->underruns.load(),host->overruns.load(),host->midiDrops.load()]:@"Audio stopped · presets and samples remain editable";
     if(host->linkEnabled()) deviceStatus.stringValue=[deviceStatus.stringValue stringByAppendingFormat:@" · Link peers %u",host->linkPeers()];
     const int learned=host->learnedCC.exchange(-1); if(learned>=0) message=[NSString stringWithFormat:@"Learned CC %d. Move the controller through the current knob value to take over.",learned];
     [self setNeedsDisplay:YES];

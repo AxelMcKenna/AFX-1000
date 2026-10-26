@@ -111,6 +111,24 @@ class ReferenceHostTests(unittest.TestCase):
         self.assertIn('already exists', result.stderr)
         self.assertEqual(before, {p.name: p.read_bytes() for p in destination.iterdir()})
 
+    def test_post_render_dispatch_observes_down_latency_without_changing_audio(self):
+        plan=self.plan()
+        plan['parameters'] += [self.setting('Scene FX',1),self.setting('Scene source',0),
+            self.setting('Scene depth',130/255),self.setting('Scene sub parameter 1',137/255)]
+        before,_=self.render(plan,'latency-before')
+        plan['post_render_message_pump_ms']=100
+        after,_=self.render(plan,'latency-after')
+        self.assertEqual((before/'audio.wav').read_bytes(),(after/'audio.wav').read_bytes())
+        receipt=json.loads((after/'receipt.json').read_text())
+        self.assertEqual(receipt['reported_latency_frames'],32)
+        self.assertEqual(receipt['post_render_message_pump_ms'],100)
+
+    def test_invalid_post_render_dispatch_is_rejected_before_capture(self):
+        for i,value in enumerate((-1,251,.5,'invalid',True)):
+            plan=self.plan();plan['post_render_message_pump_ms']=value
+            destination,_=self.render(plan,f'invalid-dispatch-{i}',success=False)
+            self.assertFalse(destination.exists())
+
     def test_nonfinite_input_cannot_produce_a_completed_receipt(self):
         write_wav(self.input, 48000, [float('nan'), 0] * 12000)
         _, result = self.render(self.plan(), 'invalid-audio', success=False)

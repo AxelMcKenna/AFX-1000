@@ -183,6 +183,15 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
     require(bpm >= 40 && bpm <= 240, "BPM must be 40..240");
     const auto tail = number(field(plan, "tail_seconds"), "tail seconds");
     require(tail >= 0 && tail <= 1200, "Additional render duration must be 0..1200 seconds");
+    int messagePumpMs=0;
+    if(plan.hasProperty("post_render_message_pump_ms")) {
+        const auto requested=number(plan["post_render_message_pump_ms"],"post-render message dispatch");
+        require(requested>=0&&requested<=250&&requested==std::floor(requested),"Message dispatch must be an integer 0..250 ms");
+        messagePumpMs=static_cast<int>(requested);
+    }
+   #if !JUCE_MAC
+    require(messagePumpMs==0,"Post-render message dispatch currently requires macOS");
+   #endif
     auto settings = field(plan, "parameters");
     auto events = field(plan, "events");
     require(settings.isArray() && events.isArray(), "Parameters/events must be arrays");
@@ -309,6 +318,12 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
         position += count;
     }
     writer.reset();
+    // Some wrappers publish latency/property notifications asynchronously.
+    // An explicit post-render message dispatch lets an offline experiment
+    // observe them without changing any audio callback or event boundary.
+   #if JUCE_MAC
+    if(messagePumpMs)CFRunLoopRunInMode(kCFRunLoopDefaultMode,messagePumpMs/1000.,false);
+   #endif
     require(juce::SHA256(planFile).toHexString() == planHash
         && juce::SHA256(destination.getChildFile("plan.json")).toHexString() == planHash,
         "Capture plan changed during rendering");
@@ -337,6 +352,7 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
         {"sample_rate", rate}, {"frames", static_cast<juce::int64>(total)}, {"maximum_block_size", block},
         {"bpm", bpm}, {"transport_playing", true}, {"offline", true}, {"tail_seconds", tail},
         {"reported_latency_frames", plugin.getLatencySamples()}, {"reported_tail_seconds", plugin.getTailLengthSeconds()},
+        {"post_render_message_pump_ms",messagePumpMs},
         {"peak", maximum}}));
     std::cout << destination.getChildFile("receipt.json").getFullPathName() << '\n';
 }

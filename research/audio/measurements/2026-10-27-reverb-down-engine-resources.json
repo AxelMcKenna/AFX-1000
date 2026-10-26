@@ -1,0 +1,74 @@
+{
+  "kind": "rmx220-reverb-down-engine-resource-verification",
+  "passed": true,
+  "engine_integrated": true,
+  "source_sha256": {
+    "include/rmx/Engine.h": "a0e6835b898f1891d0e7cbc61f6c01235577f9fcd1cfa4ed355f00448b355903",
+    "src/core/Engine.cpp": "dea75d0c180fd12bc01e6fb1cecaf26ef1715796d75ed57a2a1d7643943cd9b8",
+    "tests/engine_reverb_tests.cpp": "9517fbc2113d0d4d15126a1cb039142ef29a51ea1636cdcdf0a612a0540a71eb",
+    "tools/rmx_reverb_motion_audit.py": "12f36530fa22778843dc871b20d8ef744c8b77248f58ebf062a493ac19a638aa"
+  },
+  "cpp_new_and_pmr_allocations_in_tested_callbacks_control_reset": 0,
+  "processor_routing_test_frames": 775488,
+  "sampler_parallel_route_test_frames": 65536,
+  "sampler_parallel_route_max_absolute_error": 3.725290298461914e-09,
+  "engine_prepared_pmr_bytes_4096": 29812624,
+  "engine_prepared_pmr_bytes_64": 29296528,
+  "engine_factory_pmr_bytes_64": 35920528,
+  "engine_plus_64_seconds_stereo_samples_pmr_bytes": 55197328,
+  "peak_during_replacement_bytes": 55370128,
+  "arena_capacity_bytes": 62914536,
+  "native_ctest": {
+    "passed": 18,
+    "failed": 0,
+    "junit_sha256": "0a2b1aae88e00c7431a24b53b196f564296b8ffc19732c7e7866f0e8bef3be3d",
+    "rebuilt_isolator_reverb_hardware_groups_passed": 3,
+    "rebuilt_junit_sha256": "d325f2458b8dd3a0e345b5c8e26346de4746737e147ed891e5a3d03c97d6886f"
+  },
+  "sanitizer_ctest": {
+    "passed": 3,
+    "failed": 0,
+    "groups": [
+      "engine",
+      "parity",
+      "engine_reverb"
+    ]
+  },
+  "native_routing_test_sha256": "01a36ecc0cb62aa20583022f591cede924d064d73477d495060896616d6570e0",
+  "sanitized_routing_test_sha256": "01a36ecc0cb62aa20583022f591cede924d064d73477d495060896616d6570e0",
+  "sanitizer_waveform_audit_sha256": "7872a5d82205fda9a54805694cc01a0beb348447ae348dc7838f14b8850cd745",
+  "native_benchmark": {
+    "callback_frames": 128,
+    "measured_blocks_per_mode": 1000,
+    "combinations": 40,
+    "worst_p99_deadline_percent": 1.16404,
+    "log_sha256": "775941874ec1d17f17296450a8ba20c0c55764535908f097972f539d4487f1f9"
+  },
+  "cold_prefix_bit_precision_correction": {
+    "startup176": {
+      "prefixes": 49,
+      "sample_values_exact": 49,
+      "original_candidate_and_dry_bit_exact": 46,
+      "signed_zero_only": 3
+    },
+    "processor184": {
+      "prefixes": 57,
+      "sample_values_exact": 57,
+      "original_candidate_and_dry_bit_exact": 53,
+      "signed_zero_only": 4
+    },
+    "engine192": {
+      "prefixes": 65,
+      "sample_values_exact": 65,
+      "original_candidate_and_dry_bit_exact": 61,
+      "signed_zero_only": 4
+    }
+  },
+  "limitations": [
+    "Earlier audits used numerical array equality when labeling every cold original/candidate/dry triple bit-exact. IEEE signed zeros compare numerically equal; current reports separately check uint32 bit patterns. Waveform gates and errors are unchanged.",
+    "C++ new and PMR allocation counters are not a libc malloc interposer or JUCE wrapper allocation proof.",
+    "Native ARM64 macOS memory/timing is not a microcontroller memory/deadline measurement.",
+    "No fresh firmware cross-build was performed because the pinned SDK/toolchain is absent locally.",
+    "Reference fidelity at all sampler/Isolator/Release combinations and profile/rate transitions remains incomplete."
+  ]
+}

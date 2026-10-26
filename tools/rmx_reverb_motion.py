@@ -15,7 +15,7 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout','main-v2-holdout','startup-holdout','startup-v2-holdout','startup-v3-holdout','production-holdout')
+HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout','main-v2-holdout','startup-holdout','startup-v2-holdout','startup-v3-holdout','production-holdout','engine-holdout')
 CAPTURE_STAGES = (*STAGES,*HOLDOUT_STAGES,'state-probes','button-probes','initialization-probes','callback-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
@@ -163,6 +163,30 @@ def recipe(stage):
             (0,83,250,1,'block_program',2048,[(32,'main',5),(24179,'main',131),(96731,'main',0),(192313,'main',138)]),
             (248,223,32,0,'block_pulses',4096,[(7,'enabled',1),(37,'enabled',0),(103,'enabled',1),
                 (12359,'amount',3),(12871,'cutoff',255),(48097,'main',242)])]
+        for i,(main,amount,cutoff,enabled,source,block,events) in enumerate(specs):
+            high=max([amount]+[v for _,k,v in events if k=='amount'])
+            add(f'{stage}-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if high>=192 else 18,
+                events=[dict(frame=n,control=k,value=v) for n,k,v in events])
+    elif stage == 'engine-holdout':
+        program=np.random.default_rng(0xE0611027).normal(0,.015,(456000,2))
+        t=np.arange(len(program))/48000
+        program+=.007*np.column_stack((np.sin(2*np.pi*(223*t+29*t*t)),np.cos(2*np.pi*1877*t)))
+        program[192000:264000]=0
+        pulses=np.zeros_like(program)
+        locations=[0,13,31,33,173,509,1031,2053,4093,12023,12403,12569,48113,96217,192323,288367]
+        pulses[locations]=np.random.default_rng(0xE0611028).uniform(-.021,.021,(len(locations),2))
+        waves=dict(engine_program=program,engine_pulses=pulses)
+        specs=[(137,97,19,1,'engine_program',8,[(96029,'main',141),(192337,'enabled',0),(192647,'enabled',1)]),
+            (194,149,95,1,'engine_program',17,[(11,'main',67),(12043,'cutoff',229),(48061,'amount',177)]),
+            (242,207,160,0,'engine_program',31,[(17,'main',83),(71,'amount',19),(109,'enabled',1),
+                (12697,'main',203),(96079,'enabled',0),(120163,'enabled',1)]),
+            (252,239,77,1,'engine_program',128,[(96097,'main',53),(192353,'main',248),(288373,'cutoff',239)]),
+            (143,7,47,1,'engine_pulses',511,[(37,'main',144),(11909,'main',143),(12959,'main',150)]),
+            (133,137,192,1,'engine_program',1024,[(31,'enabled',0),(83,'enabled',1),(149,'enabled',0),
+                (487,'enabled',1),(24223,'main',198),(96169,'amount',229)]),
+            (1,83,250,1,'engine_program',2048,[(32,'main',4),(24203,'main',138),(96769,'main',2),(192379,'main',136)]),
+            (229,223,32,0,'engine_pulses',4096,[(11,'enabled',1),(43,'enabled',0),(107,'enabled',1),
+                (12377,'amount',1),(12893,'cutoff',254),(48119,'main',230)])]
         for i,(main,amount,cutoff,enabled,source,block,events) in enumerate(specs):
             high=max([amount]+[v for _,k,v in events if k=='amount'])
             add(f'{stage}-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if high>=192 else 18,
@@ -367,17 +391,16 @@ def event_values(case):
 
 def candidate_sources():
     repo=Path(__file__).resolve().parents[1]
-    return [Path(__file__),repo/'tools/reverb_down_probe.cpp',
-            repo/'include/rmx/ReverbDownCalibration.h',repo/'include/rmx/CalibratedReverbDown.h',
-            repo/'include/rmx/Dsp.h',repo/'include/rmx/Wav.h',
-            repo/'src/core/ReverbDown.cpp',repo/'src/core/Wav.cpp',repo/'CMakeLists.txt']
+    return [Path(__file__),repo/'tools/reverb_down_probe.cpp',repo/'CMakeLists.txt',
+            *sorted((repo/'include/rmx').glob('*.h')),*sorted((repo/'src/core').glob('*.cpp')),
+            repo/'src/plugin/Plugin.cpp',repo/'src/macos/AudioHost.h',repo/'src/macos/AudioHost.mm']
 
 
 def prediction_payload(stage):
     waves,cases=recipe(stage)
     repo=Path(__file__).resolve().parents[1]
     paths=candidate_sources()
-    return dict(stage=stage,cases=cases,source_files_sha256={str(p.relative_to(repo)):sha256(p) for p in paths},
+    return dict(stage=stage,cases=cases,backend='engine' if stage=='engine-holdout' else 'core',source_files_sha256={str(p.relative_to(repo)):sha256(p) for p in paths},
         source_samples_sha256={name:hashlib.sha256(x.astype('<f4').tobytes()).hexdigest() for name,x in waves.items()})
 
 
@@ -401,7 +424,8 @@ def predict(args):
         renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),
         calibration_sha256=sha256(args.calibration),candidate_config=predicted_config(args.stage),
         expected='All eight complete renders pass whole/wet/tail, every event window and applicable activation-start windows at relative RMS <=0.01.',
-        scope=('Bounded core processor, audio from frame zero, 511/1024/2048/4096-frame callbacks, new programs and early/late controls. Not live Engine routing or MCU deadline validation.' if args.stage=='production-holdout'
+        scope=('Complete Engine path at factory Down settings, audio from frame zero, callbacks 8..4096, new programs and early/late controls; no sampler/Isolator/Release, MCU deadline or cross-profile claim.' if args.stage=='engine-holdout'
+               else 'Bounded core processor, audio from frame zero, 511/1024/2048/4096-frame callbacks, new programs and early/late controls. Not live Engine routing or MCU deadline validation.' if args.stage=='production-holdout'
                else 'Audio begins at frame zero; callback sizes, early events, initial active/inactive states and simultaneous control changes vary. Fixed comparison offsets remain 32 frames.' if args.stage.startswith('startup-')
                else 'Main moves after active initialization, including simultaneous Sub1/Sub2 and later button changes; immediate-input and pre-activation Main failures remain separate regressions.' if args.stage=='main-v2-holdout'
                else 'Main moves, including simultaneous Sub1/Sub2 and button changes; initial active/inactive states vary.' if args.stage=='main-holdout'
@@ -616,6 +640,7 @@ def compare(args):
     passed=all(c['passed'] for c in rows)
     paths=candidate_sources()
     save_json(root/'comparison.json',dict(kind='diagnostic-reverb-down-motion-prototype-comparison',passed=passed,
+        backend=getattr(args,'backend','core'),
         full_reverb_match=False,physical_hardware=False,sample_rate=48000,reference_identity=IDENTITY,
         model_sha256=sha256(args.model),calibration_sha256=sha256(args.calibration),renderer_sha256=sha256(args.renderer),
         candidate_config=dict(gate=args.gate,cutoff_position=args.cutoff_position,gain_position=args.gain_position,control_quantum=args.quantum,candidate_latency=args.candidate_latency,level_position=args.level_position or 'send',coefficient_ramp_frames=args.coefficient_ramp or 0,ramp_components=args.ramp_components or 'all',decay_step_per_32_frames=args.decay_slew or 0),
@@ -650,6 +675,7 @@ def main():
     for name in (*STAGES,'calibration','report'):
         p.add_argument('--'+name,type=Path,required=True)
     p=commands.add_parser('compare')
+    p.add_argument('--backend',choices=('core','engine'),default='core',help='Identify the frozen renderer path; its binary hash remains authoritative')
     for name in ('model','calibration','renderer','output'):
         p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--session',nargs=2,action='append',required=True,metavar=('STAGE','DIRECTORY'))

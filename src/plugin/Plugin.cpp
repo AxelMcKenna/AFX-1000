@@ -75,6 +75,8 @@ public:
     void prepareToPlay(double rate,int block) override {
         for(size_t i=0;i<rmx::parameterCount;++i) engine.params.set(static_cast<rmx::Param>(i),raw[i]->load());
         engine.setBank(&published.load()->bank); engine.prepare(rate,static_cast<uint32_t>(block));
+        pendingLatency.store(static_cast<int>(engine.latencySamples()),std::memory_order_relaxed);
+        setLatencySamples(pendingLatency.load(std::memory_order_relaxed));
         midiClock.reset();sampleClock=0;hostBeatEstimate=0;midiRollStopPending=false;
     }
     void releaseResources() override {}
@@ -108,6 +110,11 @@ public:
                 else engine.meters.droppedEvents.fetch_add(1,std::memory_order_relaxed);
             }
         }
+        const auto latency=static_cast<int>(engine.latencySamples());
+        pendingLatency.store(latency,std::memory_order_relaxed);
+        // Host notification takes JUCE listener locks. Keep it off the live
+        // callback; offline renders can publish it synchronously.
+        if(isNonRealtime())setLatencySamples(latency);
         midi.clear();rmx::Transport hostTransport;
         const bool automaticTempo=engine.params.get(rmx::Param::AutoTempo)>.5f;
         if(auto* head=getPlayHead()) if(auto position=head->getPosition()) {
@@ -191,6 +198,7 @@ private:
     juce::CriticalSection assetLock;
     std::array<std::atomic<float>*,rmx::parameterCount> raw{};
     std::array<std::atomic<float>,rmx::parameterCount> pendingValues;
+    std::atomic<int> pendingLatency{};
     std::array<std::atomic<int>,128> ccMap{};
     std::array<float,128> lastCC{};
     std::array<bool,128> pickedUp{};
@@ -211,6 +219,7 @@ private:
         assetMessage=missing.isEmpty()?"Preset restored":"Missing samples; factory sounds in slots"+missing;
     }
     void timerCallback() override {
+        setLatencySamples(pendingLatency.load(std::memory_order_relaxed));
         for(size_t i=0;i<rmx::parameterCount;++i) { const float v=pendingValues[i].exchange(std::numeric_limits<float>::quiet_NaN()); if(std::isfinite(v)) change(static_cast<rmx::Param>(i),v); }
     }
 };

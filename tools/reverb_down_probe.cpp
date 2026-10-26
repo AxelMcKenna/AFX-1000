@@ -1,5 +1,8 @@
 #include "rmx/Wav.h"
 #include "rmx/CalibratedReverbDown.h"
+#ifdef RMX_REVERB_ENGINE_FIXTURE
+#include "rmx/Engine.h"
+#endif
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -64,6 +67,12 @@ int main(int argc,char** argv){try {
     for(const auto& e:plan.events)if(e.frame>=output.frames.size())throw std::runtime_error("Event outside render extent");
     rmx::CalibratedReverbDown processor;processor.prepare(plan.block);Controls target=plan.initial;size_t event=0;
     std::array<rmx::Stereo,4096> in{},out{},trace{};
+#ifdef RMX_REVERB_ENGINE_FIXTURE
+    rmx::Engine engine;engine.params.set(rmx::Param::AutoTempo,0);engine.params.set(rmx::Param::Tempo,120);
+    engine.params.set(rmx::Param::SceneType,9);engine.params.set(rmx::Param::IsolateOn,0);
+    engine.params.set(rmx::Param::SceneSource,0);engine.prepare(48000,static_cast<uint32_t>(plan.block));
+    std::array<float,4096> left{},right{},outputLeft{},outputRight{};
+#endif
     for(size_t start=0;start<output.frames.size();){
         while(event<plan.events.size()&&plan.events[event].frame==start){apply(target,plan.events[event]);++event;}
         size_t count=std::min(plan.block,output.frames.size()-start);
@@ -71,6 +80,16 @@ int main(int argc,char** argv){try {
         for(size_t i=0;i<count;++i)in[i]=start+i<input.frames.size()?input.frames[start+i]:rmx::Stereo{};
         processor.setControls({target.main,target.amount,target.cutoff,target.enabled!=0});
         if(!processor.process(std::span<const rmx::Stereo>(in.data(),count),std::span<rmx::Stereo>(out.data(),count),std::span<rmx::Stereo>(trace.data(),count)))throw std::runtime_error("Production callback rejected extent");
+#ifdef RMX_REVERB_ENGINE_FIXTURE
+        engine.params.set(rmx::Param::SceneDepth,target.main/255.f);
+        engine.params.set(rmx::Param::SceneTime,target.amount*7.f/255);
+        engine.params.set(rmx::Param::SceneResonance,target.cutoff/255.f);
+        engine.params.set(rmx::Param::SceneOn,static_cast<float>(target.enabled));
+        for(size_t i=0;i<count;++i){left[i]=in[i].l;right[i]=in[i].r;}
+        engine.process(left.data(),right.data(),outputLeft.data(),outputRight.data(),static_cast<uint32_t>(count));
+        if(engine.latencySamples()!=32)throw std::runtime_error("Engine Down nominal latency differs");
+        for(size_t i=0;i<count;++i)out[i]={outputLeft[i],outputRight[i]};
+#endif
         std::copy_n(out.begin(),count,output.frames.begin()+static_cast<std::ptrdiff_t>(start));std::copy_n(trace.begin(),count,dry.frames.begin()+static_cast<std::ptrdiff_t>(start));start+=count;
     }
     rmx::writeWav(argv[2],output);rmx::writeWav(argv[8],dry);std::cout<<"Rendered bounded production Down block processor\n";

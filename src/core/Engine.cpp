@@ -19,8 +19,11 @@ void approach(float& value,float target,float alpha) noexcept {
 float level(Stereo x) noexcept { return std::max(std::abs(x.l),std::abs(x.r)); }
 }
 void Engine::prepare(double sampleRate,uint32_t maxBlock) {
-    (void)maxBlock;
     sr=std::clamp(sampleRate,8000.,192000.);
+    const auto block=std::clamp<size_t>(maxBlock,1,CalibratedReverbDown::maximumCallbackFrames);
+    sceneInput.assign(block,{});sceneOutput.assign(block,{});downOutput.assign(block,{});
+    outputFrames.assign(block,{});parallelInput.assign(block,{});parallelOutput.assign(block,{});
+    if(sr==48000)reverbDown.prepare(block);
     const auto capacity=static_cast<size_t>(sr*16)+4;
     history.prepare(capacity); sceneProcessor.prepare(sr);
     for(auto& isolator:isolators) isolator.prepare(sr);
@@ -33,6 +36,8 @@ void Engine::prepare(double sampleRate,uint32_t maxBlock) {
 }
 void Engine::reset() noexcept {
     sceneProcessor.reset(); history.reset(); rollInput={}; rollInputMix=0;
+    reverbDown.reset();routingCollected={};routingPending={};
+    routingReceived=routingAvailable=routingHead=0;routingAge=0;routingFade=0;
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
@@ -185,9 +190,9 @@ Stereo Engine::isolate(Stereo x,size_t bus) noexcept {
 Stereo Engine::scene(Stereo x) noexcept {
     return sceneProcessor.process(x,sm(Param::SceneDepth),sm(Param::SceneTime),sm(Param::SceneResonance),sceneMix,bpm,beat,peak(rollInput));
 }
-Stereo Engine::release(Stereo x) noexcept {
+Engine::ReleaseFrame Engine::releaseControls() noexcept {
     const bool active=get(Param::ReleaseAmount)>.005f;
-    if(active&&!previousRelease) { releaseAge=0; releaseRead=0; }
+    const bool start=active&&!previousRelease;
     if(!active&&previousRelease) {
         if(get(Param::ReleaseKeepScene)<.5f) set(Param::SceneOn,0);
         if(get(Param::ReleaseKeepIsolate)<.5f) { set(Param::Low,0); set(Param::Mid,0); set(Param::High,0); }
@@ -197,18 +202,56 @@ Stereo Engine::release(Stereo x) noexcept {
     }
     previousRelease=active;
     approach(releaseMix,static_cast<float>(active),smoothing);
+    return {bpm,sm(Param::ReleaseAmount),get(Param::ReleaseTime),releaseMix,
+            static_cast<int>(get(Param::ReleaseType)),active,start};
+}
+Stereo Engine::release(Stereo x,const ReleaseFrame& controls) noexcept {
+    if(controls.start){releaseAge=0;releaseRead=0;}
     Stereo wet{};
-    if(active||releaseMix>.0001f) {
-        const float lever=sm(Param::ReleaseAmount);
-        const double duration=std::max(.05,static_cast<double>(get(Param::ReleaseTime))*60/bpm)*(2.5-1.5*lever)*sr;
-        const int type=static_cast<int>(get(Param::ReleaseType));
+    if(controls.active||controls.mix>.0001f) {
+        const float lever=controls.amount;
+        const double duration=std::max(.05,static_cast<double>(controls.time)*60/controls.bpm)*(2.5-1.5*lever)*sr;
+        const int type=controls.type;
         if(type==0) { releaseRead+=1+lever*3*std::exp(-releaseAge/duration); wet=history.read(releaseAge+releaseRead+1)*static_cast<float>(std::exp(-releaseAge/(duration*2))); }
-        else if(type==1) { const double length=std::min(sr*8.,sr*60/bpm*(lever<.5?1.:lever<.85?.5:.25)); wet=history.read(releaseAge+length-std::fmod(releaseAge,length))*static_cast<float>(std::pow(.35+.3*lever,releaseAge/length)); }
+        else if(type==1) { const double length=std::min(sr*8.,sr*60/controls.bpm*(lever<.5?1.:lever<.85?.5:.25)); wet=history.read(releaseAge+length-std::fmod(releaseAge,length))*static_cast<float>(std::pow(.35+.3*lever,releaseAge/length)); }
         else { const double speed=std::max(0.,1-releaseAge/duration); releaseRead+=speed; wet=history.read(releaseAge-releaseRead+2)*static_cast<float>(speed); }
         ++releaseAge;
     }
     history.push(x);
-    return mix(x,wet,releaseMix);
+    return mix(x,wet,controls.mix);
+}
+
+unsigned Engine::latencySamples() const noexcept {
+    if(sr!=48000||params.get(Param::SceneType)!=9)return 0;
+    if(params.get(Param::UserSettings)<.5f)return 32;
+    return params.get(Param::ReverbDownRoomSize)==0&&params.get(Param::ReverbDownTime)==1
+        &&params.get(Param::ReverbDownFilter)==0&&params.get(Param::ReverbDecay)==.72f?32:0;
+}
+
+void Engine::alignDownAudio(size_t start,size_t count) noexcept {
+    // Carry all parallel dry routes through the same causal callback ordering
+    // and global startup fades as the measured Scene processor. Otherwise the
+    // sampler/unselected source and master bypass would comb against its delay.
+    std::copy_n(parallelInput.begin()+static_cast<std::ptrdiff_t>(start),count,
+                parallelOutput.begin()+static_cast<std::ptrdiff_t>(start));
+    size_t read=0,written=0;
+    while(read<count){
+        const auto take=std::min(32-routingReceived,count-read);
+        for(size_t i=0;i<take;++i){
+            auto audio=parallelInput[start+read+i];float gain=1;
+            if(routingAge<160){routingFade+=.00625f;gain=routingFade;}++routingAge;
+            auto fade=[gain](Stereo x){return Stereo{static_cast<float>(static_cast<float>(x.l*gain)*gain),
+                static_cast<float>(static_cast<float>(x.r*gain)*gain)};};
+            audio.raw=fade(audio.raw);audio.unselected=fade(audio.unselected);audio.wetDry=fade(audio.wetDry);
+            routingCollected[routingReceived+i]=audio;
+        }
+        read+=take;routingReceived+=take;
+        const auto emit=std::min(routingAvailable,count-written);
+        std::copy_n(routingPending.begin()+static_cast<std::ptrdiff_t>(routingHead),emit,
+            parallelOutput.begin()+static_cast<std::ptrdiff_t>(start+written));
+        written+=emit;routingAvailable-=emit;routingHead+=emit;
+        if(routingReceived==32){routingPending=routingCollected;routingReceived=0;routingAvailable=32;routingHead=0;}
+    }
 }
 void Engine::detectTempo(Stereo x) noexcept {
     tempoTracker.process(x.l,x.r);
@@ -220,6 +263,7 @@ void Engine::detectTempo(Stereo x) noexcept {
 }
 void Engine::process(const float* left,const float* right,float* outL,float* outR,uint32_t frames,Transport transport,std::span<const Event> events) noexcept {
     if(!frames) return;
+    if(outputFrames.empty()){std::fill_n(outL,frames,0);std::fill_n(outR,frames,0);return;}
     p=params.snapshot();
     transport.synced=transport.synced&&std::isfinite(transport.bpm)&&transport.bpm>=40&&transport.bpm<=240;
     if(wasExternalSync&&!transport.synced) { tempoTracker.reset();autoPhaseSlew=0;meters.confidence.store(0,std::memory_order_relaxed); }
@@ -265,6 +309,11 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     for(const auto group:sceneDelayGroups)for(unsigned region=0;region<4;++region)
         sceneSettings.delayBeats[group.scene][region]=integer(static_cast<Param>(static_cast<unsigned>(group.first)+region));
     sceneSettings.feedback=get(Param::Feedback);sceneSettings.decay=get(Param::ReverbDecay);sceneSettings.noiseColor=get(Param::NoiseColor);sceneProcessor.configure(sceneSettings);
+    const bool measuredDown=sr==48000&&sceneSettings.type==9&&sceneSettings.roomSize[1]==0
+        &&sceneSettings.reverbTime[1]==1&&sceneSettings.reverbFilter[1]==0&&sceneSettings.decay==.72f;
+    const auto rawControl=[](float value,float scale){return std::clamp(static_cast<int>(std::floor(value*scale+1.e-4f)),0,255);};
+    CalibratedReverbDown::Controls downControls{rawControl(get(Param::SceneDepth),255),
+        rawControl(get(Param::SceneTime),255.f/7),rawControl(get(Param::SceneResonance),255),false};
 
     const bool overdub=get(Param::Overdub)>.5f;
     if(!overdub&&previousOverdub) { sequence.clear(); voices={}; }
@@ -272,7 +321,13 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     Event e; while(queue.pop(e)) event(e);
     size_t eventIndex=0;
     float inputPeak=0,outputPeak=0,minimumProtection=1;
-    for(uint32_t i=0;i<frames;++i,++frame) {
+    // Source/transport/control work precedes the block Scene stage. Release's
+    // side effects are still consumed at their original sample positions;
+    // only its audio/history work waits for Scene output.
+    for(uint32_t offset=0;offset<frames;){
+    const auto count=static_cast<uint32_t>(std::min<size_t>(outputFrames.size(),frames-offset));
+    for(uint32_t k=0;k<count;++k,++frame) {
+        const auto i=offset+k;
         while(eventIndex<events.size()&&events[eventIndex].offset<=i) event(events[eventIndex++]);
         for(auto parameter:smoothedParameters) {
             const auto k=static_cast<size_t>(parameter);approach(smooth[k],p[k],smoothing);
@@ -302,7 +357,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         const float rollTarget=sourceRoll&&rollPad>=0&&get(Param::XSource)>.5f?std::min(1.f,sm(Param::XLevel))*(1-sm(Param::SamplerMute)):0.f;
         approach(rollInputMix,rollTarget,smoothing);
         if(rollTarget==0&&rollInputMix<1e-6f) sourceRoll=false;
-        Stereo drums=sample(), processed{};
+        Stereo drums=sample();
         input=input*(1-rollInputMix);
         const int isoSource=static_cast<int>(get(Param::IsolateSource));
         approach(isolateInputMix,(isoSource==0||isoSource==2)?1.f:0.f,smoothing);
@@ -317,11 +372,40 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         // FX SOURCE selects the whole processing chain, including RELEASE.
         // Unselected sources bypass it. Noise is generated inside scene() even
         // when neither input is selected.
-        processed=input+drums-send+release(scene(send));
-        if(get(Param::WetOnly)>.5f) processed=processed-raw*db(sm(Param::InputGain));
-        processed=processed*db(sm(Param::OutputGain));
+        sceneInput[k]=send;
+        if(!measuredDown)sceneOutput[k]=scene(send);
+        parallelInput[k]={raw,input+drums-send,raw*db(sm(Param::InputGain))};
+        auto& output=outputFrames[k];
+        output.downEnabled=measuredDown&&get(Param::SceneOn)>.5f;
+        output.release=releaseControls();output.wetOnly=get(Param::WetOnly)>.5f;
+        output.gain=db(sm(Param::OutputGain));
         approach(bypassMix,get(Param::Bypass),smoothing);
-        processed=finite(mix(processed,raw,bypassMix));
+        output.bypass=bypassMix;
+        if(transport.playing) {
+            beat+=bpm/(60*sr);
+            // Follow confident detected pulse phase gradually; never jump the
+            // sequencer timeline or override an external host/MIDI/Link clock.
+            if(!transport.synced&&get(Param::AutoTempo)>.5f&&get(Param::Quantize)>.5f) beat+=autoPhaseSlew/sr;
+            nudgeOffset+=nudgeDirection*.02*bpm/(60*sr);
+        }
+    }
+    if(sr==48000){
+        size_t start=0;
+        while(start<count){
+            size_t end=start+1;
+            while(end<count&&outputFrames[end].downEnabled==outputFrames[start].downEnabled)++end;
+            downControls.enabled=outputFrames[start].downEnabled;reverbDown.setControls(downControls);
+            const auto n=end-start;
+            reverbDown.process(std::span<const Stereo>(sceneInput.data()+start,n),std::span<Stereo>(downOutput.data()+start,n));
+            alignDownAudio(start,n);start=end;
+        }
+    }
+    for(uint32_t k=0;k<count;++k){
+        const auto i=offset+k;const auto& output=outputFrames[k];
+        const auto audio=measuredDown?parallelOutput[k]:parallelInput[k];
+        Stereo processed=audio.unselected+release(measuredDown?downOutput[k]:sceneOutput[k],output.release);
+        if(output.wetOnly)processed=processed-audio.wetDry;
+        processed=finite(mix(processed*output.gain,audio.raw,output.bypass));
         // Sample-peak ceiling with linked stereo gain. No lookahead, allocation
         // or per-channel saturation; full-scale excess cannot reach the device.
         const float magnitude=level(processed),target=magnitude>.9995f?.9995f/magnitude:1.f;
@@ -330,13 +414,8 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         minimumProtection=std::min(minimumProtection,protectionGain);
         outL[i]=processed.l*protectionGain;outR[i]=processed.r*protectionGain;
         outputPeak=std::max(outputPeak,level({outL[i],outR[i]}));
-        if(transport.playing) {
-            beat+=bpm/(60*sr);
-            // Follow confident detected pulse phase gradually; never jump the
-            // sequencer timeline or override an external host/MIDI/Link clock.
-            if(!transport.synced&&get(Param::AutoTempo)>.5f&&get(Param::Quantize)>.5f) beat+=autoPhaseSlew/sr;
-            nudgeOffset+=nudgeDirection*.02*bpm/(60*sr);
-        }
+    }
+    offset+=count;
     }
     meters.sequenceSteps.store(static_cast<unsigned>(sequence.size()),std::memory_order_relaxed); meters.padMuteMask.store(sequence.muteMask(),std::memory_order_relaxed);
     meters.protectionGain.store(minimumProtection,std::memory_order_relaxed);

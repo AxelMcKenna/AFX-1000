@@ -51,7 +51,7 @@ private:
     AudioDeviceID tapAggregate{};
     AudioDeviceIOProcID inputProc{},outputProc{};
     uint32_t inputPair{},outputPair{};
-    double inputRate{48000},outputRate{48000},outputLatencySeconds{};
+    double inputRate{48000},outputRate{48000},outputLatencySeconds{};float ioLatencyMs{};
     static constexpr uint32_t ringSize=65536,maxFrames=8192;
     std::array<rmx::Stereo,ringSize> ring{};
     std::atomic<uint64_t> writeIndex{},readIndex{};
