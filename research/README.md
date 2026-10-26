@@ -27,7 +27,7 @@ Investigations that inform the product: reference behavior, component candidates
 | [Reverb Down slow-state measurements](audio/measurements/2026-10-27-reverb-down-state-density-characterization.json) | 93 additional original captures isolate dry ramps, button startup and slow wet-control changes; gain-only and simple coefficient-ramp fixes remain rejected |
 | [Reverb Down Sub1 motion](audio/measurements/2026-10-27-reverb-down-sub1-motion-validation-48k.json) | Staged Sub1 clock passes 14 motion cases including eight fresh captures; complete candidate is 56/77 with 21 Main/button/combined failures retained |
 | [Reverb Down activation state](audio/measurements/2026-10-27-reverb-down-activation-validation-48k.json) | 98/113 complete renders pass, including eight fresh activation cases; Main/combined and immediate-input initialization failures remain explicit |
-| [Reverb Down adaptive Main](audio/reverb-down-motion.md) | 111/113 discovery/regression renders plus 5/8 frozen fresh cases pass; zero-region, pre-activation and immediate-input failures remain explicit |
+| [Reverb Down adaptive Main](audio/reverb-down-motion.md) | 126/129 complete renders pass, including eight fresh Main programs after active initialization; pre-activation timing and immediate-input failures remain explicit |
 | [Hardware component shortlist](hardware/components.md) | Control, sensor, mechanical and component candidates, source links and unresolved selections |
 | [Audio-design history](hardware/audio-design-history.md) | Preserved circuit/converter/gain/noise investigations and historical stage discussion |
 | [Reference and fidelity targets](../docs/specifications.md) | Current comparison targets and effect-characterization work still to perform |

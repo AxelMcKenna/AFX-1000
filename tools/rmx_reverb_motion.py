@@ -15,7 +15,7 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout')
+HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout','main-v2-holdout')
 CAPTURE_STAGES = (*STAGES,*HOLDOUT_STAGES,'state-probes','button-probes','initialization-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
@@ -164,9 +164,10 @@ def recipe(stage):
             add(f'settled-amount-{start}-{end}','late',amount=start,
                 events=[dict(frame=event_frame,control='amount',value=end)],
                 baseline=f'down-settled-amount-baseline-{end}')
-    elif stage == 'main-holdout':
+    elif stage in ('main-holdout','main-v2-holdout'):
+        v2=stage=='main-v2-holdout'
         fresh=np.zeros((480000,2))
-        fresh[12000:456000]=np.random.default_rng(0x4A1C27).normal(0,.016,(444000,2))
+        fresh[12000:456000]=np.random.default_rng(0x4A1C28 if v2 else 0x4A1C27).normal(0,.016,(444000,2))
         t=np.arange(444000)/48000
         fresh[12000:456000]+=.009*np.column_stack((np.sin(2*np.pi*(193*t+67*t*t)),
                                                    np.cos(2*np.pi*1427*t)+np.sin(2*np.pi*83*t)))
@@ -174,6 +175,7 @@ def recipe(stage):
         pulses=np.zeros_like(fresh)
         pulses[[24017,96029,120101,144107,192023,264019,384031]]=[
             [.019,0],[0,-.023],[.011,.017],[-.021,.013],[.016,0],[.015,-.019],[0,.021]]
+        if v2:pulses=np.roll(pulses,173,axis=0)
         waves=dict(main_program=fresh,main_gap=gap,main_pulses=pulses)
         specs=[(31,87,19,1,'main_program',32,[(96013,'main',247),(96143,'main',19),(144031,'main',211)]),
             (223,239,77,1,'main_gap',256,[(144019,'main',12),(288037,'main',199)]),
@@ -186,9 +188,21 @@ def recipe(stage):
                 (240043,'main',183),(240043,'amount',128)]),
             (129,177,32,0,'main_program',256,[(31,'main',61),(48013,'enabled',1),(96017,'main',203),
                 (120019,'enabled',0),(144023,'main',1),(192031,'enabled',1),(240037,'main',157)])]
+        if v2:
+            specs=[(47,99,32,1,'main_program',128,[(72019,'main',231),(72241,'main',23),(144071,'main',197)]),
+                (211,223,96,1,'main_gap',32,[(144031,'main',7),(288059,'main',183)]),
+                (1,137,224,1,'main_program',256,[(72032,'main',3),(96064,'main',4),(120096,'main',0),(144128,'main',117)]),
+                (144,61,15,1,'main_pulses',128,[(96029,'main',143),(120037,'main',144),(144043,'main',143)]),
+                (251,47,111,1,'main_program',32,[(96191,'main',0),(240223,'main',255)]),
+                (79,207,192,1,'main_gap',256,[(96029,'main',203),(96029,'amount',31),(96029,'cutoff',19),
+                    (144037,'main',97),(144037,'amount',239),(144037,'cutoff',128)]),
+                (183,1,160,1,'main_program',128,[(96031,'main',130),(97111,'amount',247),(192063,'amount',4),
+                    (240079,'main',176),(240079,'amount',137)]),
+                (130,161,47,1,'main_program',32,[(96031,'main',197),(120037,'enabled',0),(144043,'main',3),
+                    (192071,'enabled',1),(240101,'main',143)])]
         for i,(main,amount,cutoff,enabled,source,block,events) in enumerate(specs):
             high=max([amount]+[v for _,k,v in events if k=='amount'])
-            add(f'main-holdout-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if high>=192 else 18,
+            add(f'{stage}-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if high>=192 else 18,
                 events=[dict(frame=n,control=k,value=v) for n,k,v in events])
     elif stage == 'sub1-holdout':
         fresh=np.zeros((288000,2))
@@ -272,7 +286,7 @@ def prediction_kind(stage):
 
 
 def predicted_config(stage):
-    if stage=='main-holdout':
+    if stage.startswith('main-'):
         return dict(gate='faded',cutoff_position='post',gain_position='read',control_quantum=32,
             candidate_latency=32,level_position='output',coefficient_ramp_frames=0,
             ramp_components='adaptive',decay_step_per_32_frames=0)
@@ -290,7 +304,8 @@ def predict(args):
         renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),
         calibration_sha256=sha256(args.calibration),candidate_config=predicted_config(args.stage),
         expected='All eight complete renders pass whole/wet/tail, every event window and applicable activation-start windows at relative RMS <=0.01.',
-        scope=('Main moves, including simultaneous Sub1/Sub2 and button changes; initial active/inactive states vary.' if args.stage=='main-holdout'
+        scope=('Main moves after active initialization, including simultaneous Sub1/Sub2 and later button changes; immediate-input and pre-activation Main failures remain separate regressions.' if args.stage=='main-v2-holdout'
+               else 'Main moves, including simultaneous Sub1/Sub2 and button changes; initial active/inactive states vary.' if args.stage=='main-holdout'
                else 'Only the enabled button moves; Main/Sub1/Sub2 stay fixed. Initial active/inactive states vary.' if args.stage.startswith('activation-')
                else 'Only '+('Sub1' if args.stage=='sub1-holdout' else 'Sub2')+' moves; other controls stay fixed and the effect starts enabled.')))
 

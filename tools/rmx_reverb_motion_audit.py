@@ -88,13 +88,17 @@ def audit(args):
             if sha256(output) != result['candidate_sha256']:
                 raise ValueError('Candidate render changed')
             if not case['enabled']:
-                stop = case['events'][0]['frame']
+                stop = next((e['frame'] for e in case['events'] if e['control']=='enabled' and e['value']),len(source))
                 candidate = float_wav(output)[1]
                 a, b = audio[32:32+stop], candidate[32:32+stop]
-                if not np.array_equal(a, source[:stop]) or not np.array_equal(b, source[:stop]):
-                    raise ValueError('Fixed bypass latency fails independent initially-off prefix')
+                reference_exact=np.array_equal(a,source[:stop])
+                candidate_exact=np.array_equal(b,source[:stop])
+                if not candidate_exact or (not reference_exact and result['passed']):
+                    raise ValueError('A passing case lacks exact initially-off bypass timing')
                 bypass.append(dict(stage=stage, case=case['name'], frames=stop,
-                    reference_offset=32, candidate_offset=32, both_bit_exact=True))
+                    reference_offset=32, candidate_offset=32, both_bit_exact=reference_exact and candidate_exact,
+                    reference_bit_exact=reference_exact,candidate_bit_exact=candidate_exact,
+                    waveform_case_passed=result['passed']))
             verified.append(provenance | dict(stage=stage, parameter_log_sha256=receipt['parameter_log_sha256'],
                 final_inventory_sha256=receipt['final_inventory_sha256'], applied_controls_verified=True))
             host_hashes.add(receipt['host_sha256'])

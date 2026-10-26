@@ -44,6 +44,11 @@ float roomScale(int raw) noexcept {
 }
 constexpr std::array<std::array<int,2>,5> roomBases{{{1032,1146},{1060,1856},{1145,1961},{1916,1115},{1992,1190}}};
 double mainMix(int raw) noexcept {return std::min(1.,4.*std::max(0,raw-3)/252);}
+double inputShape(int raw) noexcept {
+    const double p=std::min(55.,1+99.*std::max(0,raw-3)/252);
+    return .2*(1-.000330578506691*std::pow(p-55,2))+
+        .018*std::pow(.1*std::min(0.,p-17),2);
+}
 double returnShape(int main,int amount) noexcept {
     const double a=amount<100?1:.3+.7*std::pow(1-(amount-100)/155.,2);
     return .7*(a+std::pow(std::min(1.,main/183.),2)*std::pow(1-a,7));
@@ -138,7 +143,8 @@ public:
         const auto decay=[](double raw){return 1+49*std::pow(std::max(0.,raw-3)/252,3);};
         decayTarget=decay(c.amount);
         if(!prepared||!decaySlew)decayCurrent=decayTarget;
-        const double exponent=decay(128)/decayCurrent;
+        const double effectiveDecay=adaptive&&geometryStart&&c.main<=3?std::min(8.,decayCurrent):decayCurrent;
+        const double exponent=decay(128)/effectiveDecay;
         for(size_t j=0;j<5;++j){
             const auto& feedbackRow=adaptive&&roomMain<4?reverbDownControls[4]:row;
             const double hiddenScale=adaptive&&roomMain<4?roomScale(roomMain)/roomScale(4):1;
@@ -163,6 +169,7 @@ public:
             const int audibleMain=std::max(4,slowMain);
             const double staticMain=reverbDownControls[static_cast<size_t>(audibleMain)].wetGain;
             sendGain=staticMain/(mainMix(audibleMain)*returnShape(audibleMain,128));
+            if(slowMain<4)sendGain*=inputShape(slowMain)/inputShape(4);
             const int targetAudible=std::max(4,roomMain);
             const double targetSend=reverbDownControls[static_cast<size_t>(targetAudible)].wetGain/
                 (mainMix(targetAudible)*returnShape(targetAudible,128));
@@ -246,7 +253,7 @@ public:
             inputFade=std::clamp(inputFade+(state.enabled?.00625f:-.00625f),0.f,1.f);
             for(auto& value:source)value*=inputFade;
         }
-        for(size_t ch=0;ch<2;++ch) {
+        for(size_t ch=0;!adaptive&&ch<2;++ch) {
             for(size_t j=0;j<(gate=="faded"?2:3);++j)source[ch]=inputFilters[ch][j].tick(source[ch]);
         }
         // The original has one 32-frame audio block of latency. Button gating
@@ -270,6 +277,7 @@ public:
         const bool warming=gate=="faded"&&warmRemaining;
         for(size_t ch=0;ch<2;++ch) {
             source[ch]*=coefficients[10]*(adaptive?fastMix:1);
+            if(adaptive)for(size_t j=0;j<2;++j)source[ch]=inputFilters[ch][j].tick(source[ch]);
             if(position=="pre")source[ch]=outputFilter[ch].tick(source[ch]);
         }
         for(size_t j=0;j<5;++j) {
