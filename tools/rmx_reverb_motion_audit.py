@@ -18,7 +18,8 @@ def audit(args):
     calibration(args.calibration)
     root = new_directory(args.output)
     prediction = json.loads(args.prediction.read_text())
-    if (any(prediction.get(k) != v for k, v in prediction_payload('cutoff-holdout').items())
+    if (prediction.get('kind') != 'rmx220-reverb-down-cutoff-motion-predictions'
+            or any(prediction.get(k) != v for k, v in prediction_payload('cutoff-holdout').items())
             or prediction['model_sha256'] != sha256(args.model)
             or prediction['renderer_sha256'] != sha256(args.renderer)
             or prediction['calibration_sha256'] != sha256(args.calibration)):

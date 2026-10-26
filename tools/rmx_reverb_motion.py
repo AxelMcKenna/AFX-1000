@@ -172,7 +172,8 @@ def predict(args):
         model_path=str(args.model.resolve()),model_sha256=sha256(args.model),
         renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),
         calibration_sha256=sha256(args.calibration),candidate_config=dict(gate='inlet',cutoff_position='post',
-            gain_position='read',control_quantum=32,candidate_latency=32),
+            gain_position='read',control_quantum=32,candidate_latency=32,level_position='send',
+            coefficient_ramp_frames=0),
         expected='All eight complete renders pass whole/wet/tail and every event window at relative RMS <=0.01.',
         scope='Only Sub2 moves; Main/Sub1 stay fixed and the effect starts enabled.'))
 
@@ -409,7 +410,7 @@ def main():
     p.add_argument('--coefficient-ramp',type=int,help='Exploratory linear feedback/level coefficient ramp, 0..200000 frames')
     p.add_argument('--case',action='append',help='Exact recipe name; repeat to select diagnostic cases')
     p.add_argument('--candidate-latency',type=int,choices=(0,32),default=32)
-    p.add_argument('--quantum',type=int,choices=(1,32,128),default=1)
+    p.add_argument('--quantum',type=int,choices=(1,32,128),default=32)
     args=parser.parse_args()
     result={'capture':capture,'verify':verify,'analyze':analyze,'compare':compare,'predict-cutoff':predict}[args.command](args)
     if result is not None:

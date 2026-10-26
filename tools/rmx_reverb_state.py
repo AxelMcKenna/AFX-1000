@@ -91,6 +91,9 @@ def analyze(args):
     if args.density:
         sessions.append(('state-density',args.density,density_recipe()))
     for stage, session, (waves, cases) in sessions:
+        manifest=json.loads((session/'matrix.json').read_text())
+        if manifest['calibration_sha256']!=sha256(args.calibration):
+            raise ValueError('State session uses a different reviewed calibration')
         records = {}
         for case in cases:
             audio, source, provenance = checked(session, case, waves[case['source']])
