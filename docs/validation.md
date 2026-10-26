@@ -317,4 +317,12 @@ A fixed second-order output-filter model passes 12 withheld-position component c
 
 The [complete production baseline](../research/audio/measurements/2026-10-27-reverb-production-baseline-48k.json) fails all 52 active, non-silent cases. The four passes are Main-zero and silent fixtures only. The CLI correctly exits 1. No production audio code changed; the reverb network, control movement, other profiles/rates, listening and hardware validation remain unfinished.
 
+## Autonomous Reverb Down research candidate: 27 October 2026
+
+The [network identification](../research/audio/measurements/2026-10-27-reverb-down-network-identification.json) locates five stereo comb pairs and fits their feedback gains at factory Down Main128/Sub1-128. Two allpasses per output and a fixed filter cascade complete the standalone research renderer. The identifier and calibration-header generator run in the locked NumPy-only environment; no original-derived wet fixture enters the renderer.
+
+All [28 complete renders](../research/audio/measurements/2026-10-27-reverb-down-network-prototype-48k.json) pass the one-percent whole/wet/post-input-tail per-channel screen. The count includes calibration/repeat and silent-control cases; eight captures are fresh prospective holdouts bound to the frozen model. Worst wet/tail errors are about 0.0047%/0.0056%. The comparator applies only the reviewed 32-frame bypass offset and fits no gain or wet alignment. The candidate is separate from the production engine and does not cover other Main/Sub1 positions or Up.
+
+Warnings-enabled compilation and two fresh renders under AddressSanitizer/UndefinedBehaviorSanitizer pass, with bit-identical sanitized/optimized outputs. The linked WAV library was not rebuilt with sanitizers. Twelve guard checks reject invalid training/holdout samples, controls, models, calibration, numeric arguments, sample rates and existing outputs. No production DSP or device-wide similarity claim accompanies this scoped autonomous checkpoint.
+
 The tooling runs in a fresh locked uv environment with only the declared project dependencies and no SciPy installation. C++ warning and selected sanitizer checks cover the experimental translation unit and inline DSP; the linked WAV library is not rebuilt with sanitizers. Diagnostic tracing is optional and its buffers are absent in normal renders. No production DSP or firmware changes are included.

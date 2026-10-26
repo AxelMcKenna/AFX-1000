@@ -131,7 +131,7 @@ Further [Spiral core experiments](../research/audio/spiral-core.md) separate lin
 
 ## Reverb: identification and failed production baseline
 
-The [88-capture identification record](../research/audio/measurements/2026-10-27-reverb-identification.json) separates initial repeatability/linearity, prospective Main timing, long Sub1 decay and output-filter validation. Both directions repeat bit-exactly at the initial fixed controls. Main moves the first reflection, and Sub1 zero still produces a roughly one-second decay. Long-tail measurements reach approximately 45.53/49.98-second broadband T60 extrapolations for Up/Down at Sub1 maximum. The reverb network remains unidentified.
+The [88-capture identification record](../research/audio/measurements/2026-10-27-reverb-identification.json) separates initial repeatability/linearity, prospective Main timing, long Sub1 decay and output-filter validation. Both directions repeat bit-exactly at the initial fixed controls. Main moves the first reflection, and Sub1 zero still produces a roughly one-second decay. Long-tail measurements reach approximately 45.53/49.98-second broadband T60 extrapolations for Up/Down at Sub1 maximum. The complete model remains unfinished; the neutral-setting Down candidate below is a later checkpoint.
 
 The fixed Sub2 model is a second-order high-pass for Up and low-pass for Down, with cutoff and output-level maps recorded in the measurement. Twelve fresh component comparisons pass, including stereo broadband input; worst wet-channel RMS error is about 0.0017%. **The original neutral-filter reverb supplies the component input. This does not validate a clone reverberator.** The [56-case production baseline](../research/audio/measurements/2026-10-27-reverb-production-baseline-48k.json) fails all 52 active, non-silent cases. Only Main-zero and silent fixtures pass. No production DSP change accompanies this checkpoint.
 
@@ -172,6 +172,34 @@ uv run --locked python -m tools.rmx_reverb_characterize compare --stage initial 
 ```
 
 Reports and output/session directories must be new. Timing and filter validators return 1 when their declared component screen fails. The current complete production comparison intentionally returns 1 and preserves every failure. It applies only the independently reviewed 32-frame bypass offset and checks whole output and post-input tail separately per channel, without gain fitting or a wet alignment search. Analysis uses the locked NumPy dependency. Component results, complete-render results and listening/hardware equivalence remain separate.
+
+### Autonomous Down network at Main128/Sub1-128
+
+The later [network identifier](../tools/rmx_reverb_network.py) detects five comb pairs from independently excited left/right impulses. It fits ten feedback gains and a shared wet gain, with empirical filter and allpass hypotheses. The [standalone C++ candidate](../research/audio/experiments/reverb_down_neutral_probe.cpp) produces its own reverb from the input WAV. It uses no original-derived wet fixture. The [28-render report](../research/audio/measurements/2026-10-27-reverb-down-network-prototype-48k.json) passes separate whole/wet/tail screens, including eight fresh captures after freezing the model. Worst wet/tail errors are approximately 0.0047%/0.0056%.
+
+```sh
+uv run --locked python -m tools.rmx_reverb_network identify \
+  --initial captures/reverb/initial --calibration calibration-reviewed.json \
+  --report build/artifacts/research/reverb-down-network.json \
+  --header build/artifacts/research/ReverbDownNeutralCalibration.h
+cmake --build build --target rmx_core
+c++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -I include \
+  research/audio/experiments/reverb_down_neutral_probe.cpp build/librmx_core.a \
+  -o build/reverb-down-neutral-probe
+uv run --locked python -m tools.rmx_reverb_network capture \
+  --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
+  --session captures/reverb/network-holdout --calibration calibration-reviewed.json \
+  --model build/artifacts/research/reverb-down-network.json
+uv run --locked python -m tools.rmx_reverb_network verify \
+  --session captures/reverb/network-holdout --report build/artifacts/research/reverb-down-holdout-recipes.json
+uv run --locked python -m tools.rmx_reverb_network compare \
+  --initial captures/reverb/initial --filters captures/reverb/filters \
+  --holdout captures/reverb/network-holdout --renderer build/reverb-down-neutral-probe \
+  --model build/artifacts/research/reverb-down-network.json \
+  --calibration calibration-reviewed.json --output build/artifacts/research/reverb-down-autonomous
+```
+
+The generated header is a new artifact, not an automatic overwrite of the [committed calibration](../research/audio/experiments/ReverbDownNeutralCalibration.h) used by the compiled fixture. Compare them before evaluating a recalibration. The direct renderer accepts `INPUT NEW_OUTPUT SUB2_RAW TAIL_SECONDS` and fixes Down Main128/Sub1-128 at 48 kHz. Other Main/Sub1 positions and Up are outside this candidate. The comparison includes calibration/repeat and silent-control fixtures; each case's relationship to fitting is annotated in the published report. The prospective capture manifest binds the frozen model's hash. The one-percent gate, bypass-only alignment and separate whole/wet/tail checks remain unchanged. Production DSP, gestures, other rates/profiles, startup, listening and hardware validation remain unfinished.
 
 ## Noise identification and statistics
 

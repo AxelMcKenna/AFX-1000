@@ -19,6 +19,7 @@ Investigations that inform the product: reference behavior, component candidates
 | [Spiral robustness audit](audio/measurements/2026-10-27-spiral-robustness-audit.json) | Original one-ULP sensitivity, quiet scaling, conditioned recurrence and rejected prospective feedback-timing predictions; waveform gate unchanged |
 | [Reverb identification](audio/measurements/2026-10-27-reverb-identification.json) | 88 verified captures, Main-dependent timing, long Sub1 decay and independently checked output-filter component |
 | [Reverb production baseline](audio/measurements/2026-10-27-reverb-production-baseline-48k.json) | All 52 active non-silent complete renders fail; Main-zero/silence passes are distinguished explicitly |
+| [Reverb Down network prototype](audio/measurements/2026-10-27-reverb-down-network-prototype-48k.json) | Autonomous five-pair comb candidate passes 28 complete neutral-setting renders, including eight prospective captures; full control maps remain unfinished |
 | [Hardware component shortlist](hardware/components.md) | Control, sensor, mechanical and component candidates, source links and unresolved selections |
 | [Audio-design history](hardware/audio-design-history.md) | Preserved circuit/converter/gain/noise investigations and historical stage discussion |
 | [Reference and fidelity targets](../docs/specifications.md) | Current comparison targets and effect-characterization work still to perform |
