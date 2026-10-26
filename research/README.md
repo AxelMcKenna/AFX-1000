@@ -29,6 +29,8 @@ Investigations that inform the product: reference behavior, component candidates
 | [Reverb Down activation state](audio/measurements/2026-10-27-reverb-down-activation-validation-48k.json) | 98/113 complete renders pass, including eight fresh activation cases; Main/combined and immediate-input initialization failures remain explicit |
 | [Reverb Down adaptive Main](audio/reverb-down-motion.md) | 126/129 complete renders pass, including eight fresh Main programs after active initialization; pre-activation timing and immediate-input failures remain explicit |
 | [Reverb Down callback/startup](audio/reverb-down-motion.md) | 176/176 complete renders pass, including eight fresh startup programs; 49 non-silent pre-wet dry prefixes are bit-exact, while production/general device equivalence remains unfinished |
+| [Reverb Down bounded processor](audio/measurements/2026-10-27-reverb-down-production-validation-48k.json) | 184/184 renders pass, with 176 byte-identical regressions and eight fresh large-callback programs; bounded buffers and allocation/sanitizer checks pass, live Engine integration remains unfinished |
+| [How reference audio checks work](audio/reference-method.md) | Original plug-in A/B setup, signal design, frozen predictions, waveform gates, failure retention and reproduction |
 | [Hardware component shortlist](hardware/components.md) | Control, sensor, mechanical and component candidates, source links and unresolved selections |
 | [Audio-design history](hardware/audio-design-history.md) | Preserved circuit/converter/gain/noise investigations and historical stage discussion |
 | [Reference and fidelity targets](../docs/specifications.md) | Current comparison targets and effect-characterization work still to perform |

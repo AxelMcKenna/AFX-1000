@@ -223,7 +223,7 @@ def compare(args):
     calibration(args.calibration)
     model = model_checked(args.model, args.calibration)
     repo = Path(__file__).resolve().parents[1]
-    header = repo/'research/audio/experiments/ReverbDownControlCalibration.h'
+    header = repo/'include/rmx/ReverbDownCalibration.h'
     if model['header_sha256'] != sha256(header):
         raise ValueError('Current control header differs from the declared model')
     for stage, directory in args.session:
@@ -268,7 +268,7 @@ def compare(args):
         raise ValueError('No eligible Down cases')
     passed = all(x[k]['passed'] for x in results for k in ('whole','wet','post_input_tail'))
     paths = [Path(__file__),repo/'tools/rmx_reverb_controls.py',repo/'research/audio/experiments/reverb_down_neutral_probe.cpp',
-             repo/'research/audio/experiments/ReverbDownNeutralCalibration.h',repo/'research/audio/experiments/ReverbDownControlCalibration.h']
+             repo/'research/audio/experiments/ReverbDownNeutralCalibration.h',repo/'include/rmx/ReverbDownCalibration.h']
     save_json(root/'comparison.json',dict(kind='rmx220-reverb-down-static-control-autonomous-comparison',passed=passed,
         full_reverb_match=False,physical_hardware=False,sample_rate=48000,reference_identity=IDENTITY,
         cases=results,out_of_scope=skipped,model_sha256=sha256(args.model),calibration_sha256=sha256(args.calibration),

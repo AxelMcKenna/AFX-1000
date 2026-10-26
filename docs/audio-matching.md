@@ -2,6 +2,8 @@
 
 The [sound-matching research](../research/audio/rmx1000-fidelity.md) defines the overall target. Static factory Isolator, Echo, BPF Echo, HPF Echo, LPF Echo and Crush Echo pass the declared waveform criterion at 48 kHz. Default Noise also passes its statistical screen at four positions excluded from coefficient fitting. This does not certify a complete device sound match.
 
+[How the reference audio checks work](../research/audio/reference-method.md) explains the original plug-in setup, diagnostic signals, frozen predictions, error limits, audits and reproduction, including the limits of the match claims.
+
 ## Current reference status
 
 On 26 October 2026, the official RMX-1000 Mac plug-in 2.2.0 was obtained from [AlphaTheta support](https://support.alphatheta.com/en-US/articles/4405128214809?product=4416587889433). Its installer signature, notarization and AU bundle signature verified through macOS trust services. The archive and hashes are retained locally under `build/artifacts/research/reference-acquisition/`; vendor binaries remain outside Git.
@@ -230,7 +232,7 @@ uv run --locked python -m tools.rmx_reverb_control_model build \
   --header build/artifacts/research/ReverbDownControlCalibration.h
 ```
 
-The comparator checks the model against the [committed control header](../research/audio/experiments/ReverbDownControlCalibration.h). For a recalibration, review and deliberately replace that header before rebuilding the C++ fixture with the preceding compiler command. Its extended CLI is `INPUT NEW_OUTPUT MAIN_RAW SUB1_RAW SUB2_RAW TAIL_SECONDS`. Controls must be integers 0–255; the legacy neutral form remains available.
+The comparator checks the model against the [committed control header](../include/rmx/ReverbDownCalibration.h). For a recalibration, review and deliberately replace that header before rebuilding the C++ fixture with the preceding compiler command. Its extended CLI is `INPUT NEW_OUTPUT MAIN_RAW SUB1_RAW SUB2_RAW TAIL_SECONDS`. Controls must be integers 0–255; the legacy neutral form remains available.
 
 ```sh
 uv run --locked python -m tools.rmx_reverb_control_model capture --recipe mixed-v2 \

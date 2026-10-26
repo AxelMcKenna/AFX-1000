@@ -16,7 +16,7 @@ from tools.rmx_spiral_core import calibration
 def analyze(args):
     calibration(args.calibration)
     model=json.loads(args.model.read_text())
-    header=Path(__file__).resolve().parents[1]/'research/audio/experiments/ReverbDownControlCalibration.h'
+    header=Path(__file__).resolve().parents[1]/'include/rmx/ReverbDownCalibration.h'
     if (model['kind']!='rmx220-reverb-down-static-control-model'
             or model['header_sha256']!=sha256(header)
             or model['calibration_sha256']!=sha256(args.calibration)):

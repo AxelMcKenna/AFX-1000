@@ -3,6 +3,7 @@
 import argparse
 import copy
 import json
+import shlex
 from pathlib import Path
 
 import numpy as np
@@ -12,6 +13,41 @@ from tools.reference_audio import save_json, sha256, write_wav
 from tools.rmx_factory_match import new_directory, run
 from tools.rmx_reverb_motion import HOLDOUT_STAGES, checked, prediction_payload, prediction_kind, predicted_config, recipe
 from tools.rmx_spiral_core import calibration
+
+
+def sanitizer_build_record(build, binary):
+    """Check the actual build recipe, including the previously omitted WAV IO."""
+    build=build.resolve()
+    if binary.resolve()!=build/'rmx_reverb_down_probe':
+        raise ValueError('Sanitized renderer must be the specified build target')
+    manifest=build/'compile_commands.json'
+    entries=json.loads(manifest.read_text())
+    repo=Path(__file__).resolve().parents[1]
+    checked_sources={}
+    newest_object=0
+    for relative in ('src/core/ReverbDown.cpp','src/core/Wav.cpp','tools/reverb_down_probe.cpp'):
+        rows=[e for e in entries if Path(e['file']).resolve()==repo/relative]
+        if len(rows)!=1:
+            raise ValueError('Missing/ambiguous sanitizer compile entry: '+relative)
+        row=rows[0]
+        command=row.get('arguments') or shlex.split(row['command'])
+        enabled={name for flag in command if flag.startswith('-fsanitize=') for name in flag.split('=',1)[1].split(',')}
+        if not {'address','undefined'}<=enabled or '-fno-omit-frame-pointer' not in command:
+            raise ValueError('Required sanitizer flags absent: '+relative)
+        objects=[command[i+1] for i,arg in enumerate(command[:-1]) if arg=='-o']
+        if len(objects)!=1:
+            raise ValueError('Missing sanitizer object: '+relative)
+        object_path=Path(row['directory'])/objects[0]
+        if object_path.stat().st_mtime_ns<(repo/relative).stat().st_mtime_ns:
+            raise ValueError('Stale sanitizer object: '+relative)
+        newest_object=max(newest_object,object_path.stat().st_mtime_ns)
+        checked_sources[relative]=dict(source_sha256=sha256(repo/relative),object_sha256=sha256(object_path),
+            compiler_command=command)
+    if binary.stat().st_mtime_ns<newest_object:
+        raise ValueError('Sanitizer binary predates checked objects')
+    return dict(compile_commands_sha256=sha256(manifest),sources=checked_sources,
+        address_and_undefined_enabled=True,wav_library_rebuilt=True,
+        limitation='Compile recipes and fresh object/binary hashes are checked; this is not proof that every possible path executed.')
 
 
 def audit(args):
@@ -160,6 +196,8 @@ def audit(args):
         else:
             raise ValueError('Capture guard accepted changed ' + field)
 
+    build=getattr(args,'sanitized_build',None)
+    instrumentation=sanitizer_build_record(build,args.sanitized) if build else None
     sanitized = []
     fresh_key=(prediction['stage'],'down-'+prediction['stage']+'-0')
     for key in (('steps', 'down-step-main-0-128'), fresh_key):
@@ -182,9 +220,9 @@ def audit(args):
         full_candidate_bypass=dict(frames=len(y), bit_exact=True, offset=32,
             input_silent_pre_roll_frames=pre_roll,
             rejected_offsets=rejected_offsets, input_sha256=sha256(input_file), output_sha256=sha256(output)),
-        rejected_capture_changes=guards, sanitized_renders=sanitized,
-        limitations=['The linked WAV library was not rebuilt with sanitizers.',
-            'Provenance, bypass and sanitizer checks do not turn failing motion cases into passes.']))
+        rejected_capture_changes=guards, sanitized_renders=sanitized,sanitizer_build=instrumentation,
+        limitations=([instrumentation['limitation']] if instrumentation else ['The linked WAV library was not rebuilt with sanitizers.'])+
+            ['Provenance, bypass and sanitizer checks do not turn failing motion cases into passes.']))
     print('Audited', len(verified), 'captures,',len(bypass),'bypass prefixes, seven guards and two sanitizer renders')
 
 
@@ -194,6 +232,7 @@ def main():
     parser.add_argument('--comparison', type=Path, action='append', required=True)
     for name in ('prediction', 'model', 'calibration', 'renderer', 'sanitized', 'output'):
         parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--sanitized-build',type=Path,help='Verify compile recipes and fresh objects for DSP, WAV IO and fixture harness')
     args = parser.parse_args()
     args.session = [(str(stage), directory) for stage, directory in args.session]
     audit(args)

@@ -3,7 +3,7 @@
 #include "rmx/Wav.h"
 #include "rmx/Dsp.h"
 #include "ReverbDownNeutralCalibration.h"
-#include "ReverbDownControlCalibration.h"
+#include "rmx/ReverbDownCalibration.h"
 #include <iostream>
 
 namespace {

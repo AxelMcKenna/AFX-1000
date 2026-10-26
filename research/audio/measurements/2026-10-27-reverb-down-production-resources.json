@@ -1,0 +1,84 @@
+{
+  "kind": "rmx220-reverb-down-bounded-processor-checks",
+  "passed": true,
+  "source_sha256": {
+    "include/rmx/CalibratedReverbDown.h": "e460a406ad1ba7f1cfc682a51d198da53774f02b5ac72e4cf26f68a58fb7156c",
+    "include/rmx/ReverbDownCalibration.h": "f06e4bc00f638f0173a685192d43510214dd255cd3ab16568f5d1be387b04d39",
+    "src/core/ReverbDown.cpp": "66380124f2f8e26e7efb99429fa8fd91175009d36de96ddc185f97cada450f5a",
+    "tools/reverb_down_probe.cpp": "39b066935de990bec05c59f282b4d814e390bf0ed2364d96c96aebcde50165e8",
+    "tests/reverb_down_tests.cpp": "c9aca6409da96abb59ef2a988ac465b2482a3c1b6300d3aa53a21ce127df8d17",
+    "CMakeLists.txt": "402c7d4d8b2aba3c4b5f8b0967cc5ec0a6b4e9afa0081ab64525b2c6376df328",
+    "firmware/daisy/Makefile": "5f8942ad591a463625e306cfd68795de465e3449c27a01e17bce49f575f4500e",
+    "tools/rmx_reverb_motion_audit.py": "e494f22f8f7b6b688bd150ed2b2378495565e58acf6241fa64a278b78d0307ff"
+  },
+  "renderer_sha256": "6f824725f940258fe338b3d33115076ff1d880aca417f55cf29992a9ff2ff2fb",
+  "object_bytes_native_arm64": 3360,
+  "prepared_buffer_bytes_max_callback": 295520,
+  "maximum_callback_frames": 4096,
+  "prepared_storage_plus_object_bytes": 298880,
+  "two_processors_fixed_arena_bytes": 591040,
+  "callbacks_per_processor": 512,
+  "frames_per_processor": 258902,
+  "tested_callback_sizes": [
+    1,
+    9,
+    15,
+    31,
+    32,
+    47,
+    128,
+    255,
+    4096
+  ],
+  "cpp_new_and_pmr_allocations_during_callback_control_reset": 0,
+  "tested_behaviors": [
+    "First processing after prepare",
+    "In-place versus separate output bit parity",
+    "Optional dry trace parity",
+    "Invalid/unprepared/oversized/mismatched/non-finite/exact-dry-alias calls rejected without state consumption",
+    "Empty callbacks",
+    "Control clamping and toggles",
+    "Two resets per processor",
+    "Finite output",
+    "Fixed arena returns to zero after destruction"
+  ],
+  "native_ctest": {
+    "passed": 16,
+    "failed": 0,
+    "log_sha256": "a116b6f1d9e2009c3f79c9cc583bf186c2d9297a446e580cc0dedc22bead8041",
+    "names": [
+      "engine",
+      "tempo",
+      "parity",
+      "isolator",
+      "scene",
+      "reverb_down",
+      "sampler",
+      "xpad",
+      "card_storage",
+      "card_settings",
+      "hardware_calibration",
+      "embedded_memory",
+      "reference_audio",
+      "reference_fidelity",
+      "noise_statistics",
+      "package_sources"
+    ]
+  },
+  "sanitizer_resource_test_passed": true,
+  "sanitizer_waveform_audit_sha256": "fa339f2dbd1de84fcae0961f8a7089a0c6fe92bab79d049af4253bd3a6c4f644",
+  "previous_research_record_sha256": "1831fd222a7bf0f203effd34d2f0ebf08a1406a50123b6b5642139b68d107cb8",
+  "previous_audio_and_dry_byte_exact_cases": 176,
+  "engine_integrated": false,
+  "limitations": [
+    "Allocation counters cover instrumented C++ new and PMR requests; they are not a libc malloc interposer.",
+    "Native ARM64 macOS storage sizes are not an ARM microcontroller memory/deadline measurement.",
+    "Firmware source list and unfused-arithmetic option are updated, but no fresh firmware build was made because its SDK/toolchain is absent locally.",
+    "Engine routing and end-to-end callback latency integration remain unfinished."
+  ],
+  "firmware_build_dependencies_ctest": {
+    "passed": true,
+    "log_sha256": "383812dd2b3f286fb82ca1fc7b6e222ca76a920d20d49215609fe26f25a966c5",
+    "scope": "Dependency tests only; no fresh firmware cross-build."
+  }
+}

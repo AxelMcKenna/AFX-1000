@@ -2,9 +2,11 @@
 
 27 October 2026. Original RMX-1000 Plug-in 2.2.0, factory Default, Down, stereo 48 kHz, 120 BPM. This investigation extends the [static control model](measurements/2026-10-27-reverb-down-control-interaction-model.json); it does not establish complete Reverb or hardware equivalence.
 
+For the experiment's overall method and how to interpret its results, read [How the reference audio checks work](reference-method.md). Sections below preserve each historical checkpoint, including failed candidates; use its recorded Git source for exact historical reproduction.
+
 ## Result and scope
 
-The startup-state research candidate passes [**all 176 complete renders**](measurements/2026-10-27-reverb-down-startup-validation-48k.json), preserving every earlier pass. Selection timing, muted ramp state and the float32 dry formula resolve the earlier failures. After a third frozen startup prediction, [all eight new recordings pass](measurements/2026-10-27-reverb-down-startup-v3-fresh-48k.json). Static baselines, pure bypass/gate probes and intentionally silent wet transitions are included in the count. This is standalone factory Default Down at 48 kHz/120 BPM; production DSP is unchanged and full-device equivalence remains unproven.
+The shared bounded processor passes [**all 184 complete renders**](measurements/2026-10-27-reverb-down-production-validation-48k.json): 176 byte-identical regressions from the accepted startup research model and eight new original recordings at 511/1024/2048/4096-frame callbacks. It allocates its buffers in `prepare`, with no instrumented C++/PMR allocation during tested callbacks, controls or reset. Static baselines, pure bypass/gate probes and intentionally silent wet transitions are included in the count. This is factory Default Down at 48 kHz/120 BPM. Live Engine routing and full-device equivalence remain unfinished; see the final section for this extraction checkpoint.
 
 All 16 cases with only Sub2 moving pass separate whole/wet/post-input-tail screens and whole/wet windows around every event. Eight are prospective captures made after saving the [frozen prediction](measurements/2026-10-27-reverb-down-cutoff-motion-predictions.json). They use new stereo noise/chirp and impulse signals, new Main/Sub1 combinations, control endpoints and knees, rapid reversals while a change is still underway, input gaps, long tails and host blocks of 32/128/256 frames. Main/Sub1 stay fixed and the effect starts enabled in this scoped subset.
 
@@ -34,22 +36,22 @@ Warnings-enabled compilation and two AddressSanitizer/UndefinedBehaviorSanitizer
 
 Large original recordings and binaries stay under ignored `build/artifacts/research/`. Numeric records bind their hashes. Use the separately acquired original plug-in and reviewed bypass calibration; a project plug-in is not a substitute reference.
 
-Build the standalone candidate:
+Build the current candidate from the shared processor:
 
 ```sh
-clang++ -std=c++20 -O2 -ffp-contract=off -Wall -Wextra -Wpedantic -I include \
-  research/audio/experiments/reverb_down_motion_probe.cpp \
-  build/uv-migration/librmx_core.a \
-  -o build/artifacts/research/reverb-down-motion-probe
+cmake -S . -B build/reverb-reference -DCMAKE_BUILD_TYPE=Release \
+  -DRMX_BUILD_PLUGINS=OFF -DRMX_BUILD_REFERENCE_HOST=OFF
+cmake --build build/reverb-reference --target rmx_reverb_down_probe rmx_reverb_down_tests
+ctest --test-dir build/reverb-reference -R '^reverb_down$' --output-on-failure
 ```
 
 `uv run --locked python -m tools.rmx_reverb_motion --help` lists capture, recipe verification, original characterization, prospective prediction and comparison commands. Capture the `button`, `steps`, `ramps` and `blocks` stages first. Each destination must be new. `analyze` takes all four sessions and the reviewed calibration.
 
 Before acquiring `cutoff-holdout`, save a new prediction with `predict-cutoff --model MODEL --calibration CALIBRATION --renderer RENDERER --report NEW_JSON`. Its source, recipes, sample hashes, renderer and static model must remain unchanged during capture. Pass this file using `capture --stage cutoff-holdout --prediction NEW_JSON`, along with host, original plug-in, session and calibration paths.
 
-Use `compare --model MODEL --calibration CALIBRATION --renderer RENDERER --quantum 32 --candidate-latency 32 --gate inlet --cutoff-position post --gain-position read --session STAGE DIRECTORY --output NEW_DIRECTORY`, repeating `--session` as needed. A nonzero exit on the complete motion matrix is expected while failures remain. `--case` selects exact diagnostic recipe names, not a replacement for reporting the complete matrix.
+Use `compare --model MODEL --calibration CALIBRATION --renderer build/reverb-reference/rmx_reverb_down_probe --quantum 32 --candidate-latency 32 --gate faded --cutoff-position post --gain-position read --level-position output --coefficient-ramp 0 --ramp-components startup --decay-slew 0 --session STAGE DIRECTORY --output NEW_DIRECTORY`, repeating `--session` as needed. `--case` selects exact diagnostic recipe names, not a replacement for reporting the complete matrix. Earlier experimental configurations require their historical source/binary.
 
-`uv run --locked python -m tools.rmx_reverb_motion_audit --help` lists the final audit inputs. Supply all five sessions, the discovery and fresh comparison JSONs, frozen prediction/model/calibration, optimized and sanitizer binaries and a new output directory. Full production integration still requires correct remaining state behavior, fresh broad dynamic validation, fractional controls and production resource/callback checks. Up, other profiles/rates/tempos, overload, listening and hardware remain outside this result.
+`uv run --locked python -m tools.rmx_reverb_motion_audit --help` lists the audit inputs. The current complete audit supplies all 17 sessions, regression and fresh comparison JSONs, frozen prediction/model/calibration, optimized and sanitizer binaries and a new output directory. Add `--sanitized-build BUILD_DIRECTORY` to verify instrumented DSP, WAV IO and fixture compile recipes/objects. Earlier checkpoints below retain their historical session sets and caveats. Full Engine integration, fractional controls, Up, other profiles/rates/tempos, overload, listening and hardware remain unfinished.
 
 ## Slow state transitions
 
@@ -200,3 +202,21 @@ The [176-capture audit](measurements/2026-10-27-reverb-down-startup-final-audit.
 The [final additional checks](measurements/2026-10-27-reverb-down-startup-final-checks.json) verify all 2,520 static delays, a one-frame negative control, seven prediction guards, eight incompatible native modes, causal input/control prefixes and preservation of every prior pass. Tools use the locked NumPy-only uv environment. Reproduce with `predict-motion --stage startup-v3-holdout`, its frozen capture prediction and the `startup` comparison profile, including all earlier stages in the audit.
 
 This closes the currently measured moving-control/startup matrix for the standalone factory Default Down model. The offline implementation still allocates full render buffers. Production integration, bounded memory/callback work, fractional controls, effect/profile transitions, Up, other profiles/rates/tempos, overload, listening and hardware remain unfinished; 176 passing renders do not establish full-device 99% fidelity.
+
+## Bounded shared processor and fresh callback checks
+
+The accepted startup state machine now lives in [`CalibratedReverbDown`](../../include/rmx/CalibratedReverbDown.h), implemented in [`src/core/ReverbDown.cpp`](../../src/core/ReverbDown.cpp). The control calibration moved unchanged to `include/rmx/ReverbDownCalibration.h`. The former monolithic research motion renderer is replaced by [`tools/reverb_down_probe.cpp`](../../tools/reverb_down_probe.cpp), which parses the schedule, reads/writes WAV files and calls that same class. Experimental historical modes remain reproducible from their recorded Git checkpoints.
+
+This extraction removes whole-file lookahead/remapping from the processor. Independent 32-frame input and output cursors preserve the original partial-callback timing causally. `prepare` allocates maximum delay lines and callback scratch space; `process`, `setControls` and `reset` use that storage. Raw integer controls are clamped, input/output may be in-place, and invalid extents/non-finite input are rejected before processing. The module is scoped to stereo Default Down/48 kHz/120 BPM.
+
+All **176 previous output and dry WAV files are byte-identical** to the accepted research model. A new [frozen prediction](measurements/2026-10-27-reverb-down-production-predictions.json) then preceded [eight fresh original recordings](measurements/2026-10-27-reverb-down-production-fresh-48k.json), using new stereo programs/pulses, audio at frame zero, cold toggles, pre-activation controls, Main/Sub1/Sub2 changes and callback sizes 511/1024/2048/4096. All eight pass every unchanged screen. Fresh worst whole/wet/tail/wet-event/startup-wet-window RMS errors are approximately **0.1907%/0.3577%/0.0049%/0.7398%/0.7218%**. The complete result is **184/184**; the earlier cutoff event remains near the 1% limit at 0.9928%.
+
+The [184-capture audit](measurements/2026-10-27-reverb-down-production-audit.json) verifies provenance/readbacks, frozen bindings, all schedules/dry traces, 40 bit-exact paired initially-off prefixes, 57 bit-exact non-silent pre-wet prefixes, exact warm bypass and seven changed-capture guards. Both sanitizer renders and dry traces match optimized files byte for byte. This time the complete core library, including WAV IO, and the harness were rebuilt with AddressSanitizer/UndefinedBehaviorSanitizer. The auditor records compile recipes plus fresh object/binary hashes for the DSP, WAV IO and harness; this addresses the prior linked-WAV caveat for this checkpoint only. [Additional checks](measurements/2026-10-27-reverb-down-production-checks.json) retain all 2,520 static delays, prediction/native-option guards, causal prefixes and every earlier pass.
+
+The [resource checks](measurements/2026-10-27-reverb-down-production-resources.json) measure a 3,360-byte object and 295,520 bytes of prepared buffers at the 4,096-frame capacity on native ARM64 macOS. Two processors fit their buffers in a fixed 1 MiB arena. Each processes 258,902 frames across 512 mixed callbacks, including in-place/separate parity, first processing, control changes and resets, with zero instrumented C++ `new` or PMR allocation requests after preparation. Destruction returns the arena to zero. Sixteen relevant native CTest groups and the sanitized resource test pass.
+
+The CMake and firmware source lists include the module and disable floating-point contraction for its checked arithmetic. No fresh firmware build was made: the pinned firmware SDK/toolchain is absent locally. Native memory and sanitizer checks do not establish MCU memory use or callback deadlines. The WAV harness still allocates complete files outside the processor.
+
+**The live Engine still uses the earlier Reverb approximation.** It needs a deliberate block/routing/latency integration because its existing Scene path is sample-wise and uses different control smoothing. Passing the shared processor's fixtures does not validate that complete path. Effect/profile transitions, fractional controls, Up, other profiles/rates/tempos, overload, listening and physical hardware remain unfinished under the same full sound-matching goal.
+
+To reproduce this prospective stage, use `predict-motion --stage production-holdout`, capture that stage with its frozen prediction, then compare with the `startup` profile. Include all earlier sessions for the full regression/audit. Build a complete sanitizer core/harness with CMake's `-fsanitize=address,undefined` compiler/linker flags and `-fno-omit-frame-pointer`; pass that build to the auditor with `--sanitized-build`.

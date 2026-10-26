@@ -5,7 +5,7 @@ TARGET = rmx_seed
 LIBDAISY_DIR ?= ../../.tools/libDaisy-8.1.0
 SYSTEM_FILES_DIR = $(LIBDAISY_DIR)/core
 APP_TYPE = BOOT_QSPI
-CPP_SOURCES = main.cpp CardStorage.cpp ../../src/core/CardSamples.cpp ../../src/core/CardSettings.cpp ../../src/core/Engine.cpp ../../src/core/Isolator.cpp ../../src/core/Scene.cpp
+CPP_SOURCES = main.cpp CardStorage.cpp ../../src/core/CardSamples.cpp ../../src/core/CardSettings.cpp ../../src/core/Engine.cpp ../../src/core/Isolator.cpp ../../src/core/Scene.cpp ../../src/core/ReverbDown.cpp
 USE_FATFS = 1
 C_INCLUDES = -I../../include -I../../hardware/generated
 CPP_STANDARD = -std=gnu++20
@@ -16,3 +16,4 @@ include $(SYSTEM_FILES_DIR)/Makefile
 # Eager expansion loses header dependencies and can mix incompatible class sizes.
 # GCC's final option wins over the SDK's earlier -fno-* defaults.
 CPPFLAGS += -fexceptions -frtti -funwind-tables
+$(BUILD_DIR)/ReverbDown.o: CPPFLAGS += -ffp-contract=off
