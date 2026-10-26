@@ -15,7 +15,7 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout','main-v2-holdout','startup-holdout')
+HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout','main-v2-holdout','startup-holdout','startup-v2-holdout')
 CAPTURE_STAGES = (*STAGES,*HOLDOUT_STAGES,'state-probes','button-probes','initialization-probes','callback-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
@@ -84,15 +84,17 @@ def recipe(stage):
             add(f'off-on-block-{block}','continuous',main=255,block=block,
                 events=[dict(frame=event_frame,control='enabled',value=0),dict(frame=288073,control='enabled',value=1)],
                 baseline='button/down-off-on-continuous-255')
-    elif stage == 'startup-holdout':
+    elif stage in ('startup-holdout','startup-v2-holdout'):
+        v2=stage=='startup-v2-holdout'
         program=np.zeros((480000,2))
-        program[:456000]=np.random.default_rng(0x5A1027).normal(0,.017,(456000,2))
+        program[:456000]=np.random.default_rng(0x5A1029 if v2 else 0x5A1027).normal(0,.017,(456000,2))
         t=np.arange(456000)/48000
         program[:456000]+=.008*np.column_stack((np.sin(2*np.pi*(157*t+31*t*t)),np.cos(2*np.pi*1193*t)))
         gap=program.copy();gap[144000:264000]=0
         pulses=np.zeros_like(program)
         locations=[0,17,31,32,127,128,159,160,719,12001,24017,48031,96019,192067,288071,384079]
-        pulses[locations]=np.random.default_rng(0x5A1028).uniform(-.024,.024,(len(locations),2))
+        if v2:locations=[0,7,31,32,67,95,127,128,159,160,1023,11937,12381,12417,12503,24037,48059,96101,192113,288119]
+        pulses[locations]=np.random.default_rng(0x5A1030 if v2 else 0x5A1028).uniform(-.024,.024,(len(locations),2))
         waves=dict(startup_program=program,startup_gap=gap,startup_pulses=pulses)
         specs=[(128,97,19,1,'startup_program',128,[(96013,'main',129),(192019,'enabled',0),(192211,'enabled',1)]),
             (255,239,160,1,'startup_gap',16,[(96017,'main',0),(240019,'main',255)]),
@@ -105,9 +107,22 @@ def recipe(stage):
             (64,128,255,0,'startup_program',8,[(5,'main',255),(61,'enabled',1),(96013,'main',47)]),
             (129,137,32,1,'startup_program',31,[(17,'enabled',0),(63,'enabled',1),(95,'enabled',0),
                 (327,'enabled',1),(24011,'main',197),(96013,'amount',239),(144019,'main',0)])]
+        if v2:
+            specs=[(144,2,19,1,'startup_pulses',15,[(63,'main',143),(11871,'main',144),(12813,'main',143)]),
+                (1,97,250,1,'startup_program',47,[(32,'main',5),(23991,'main',117),(96111,'main',0),(191223,'main',131)]),
+                (130,149,47,1,'startup_program',9,[(23,'enabled',0),(95,'enabled',1),(127,'enabled',0),
+                    (379,'enabled',1),(24139,'main',211),(96713,'amount',231),(144197,'main',2)]),
+                (219,239,111,0,'startup_program',255,[(17,'main',79),(61,'amount',13),(93,'cutoff',241),(129,'enabled',1),
+                    (12719,'main',197),(14513,'main',83),(119117,'enabled',0),(144173,'enabled',1)]),
+                (0,7,192,1,'startup_pulses',129,[(31,'main',4),(10013,'main',1),(12247,'main',5),(14519,'main',143)]),
+                (128,3,5,1,'startup_program',32,[(31,'amount',255),(12013,'amount',0),(12617,'amount',239)]),
+                (255,223,77,1,'startup_gap',16,[(17,'main',61),(127,'main',203),(503,'main',47),(11807,'main',211),
+                    (12101,'amount',0),(12203,'cutoff',255)]),
+                (79,128,32,0,'startup_program',64,[(5,'enabled',1),(17,'enabled',0),(23,'enabled',1),(31,'enabled',0),
+                    (63,'enabled',1),(95,'enabled',0),(111,'main',157),(191,'enabled',1)])]
         for i,(main,amount,cutoff,enabled,source,block,events) in enumerate(specs):
             high=max([amount]+[v for _,k,v in events if k=='amount'])
-            add(f'startup-holdout-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if high>=192 else 18,
+            add(f'{stage}-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if high>=192 else 18,
                 events=[dict(frame=n,control=k,value=v) for n,k,v in events])
     elif stage == 'callback-probes':
         program=np.random.default_rng(0xCB1027).normal(0,.019,(96000,2))
@@ -321,7 +336,7 @@ def prediction_kind(stage):
 
 
 def predicted_config(stage):
-    if stage=='startup-holdout':
+    if stage.startswith('startup-'):
         return dict(gate='faded',cutoff_position='post',gain_position='read',control_quantum=32,
             candidate_latency=32,level_position='output',coefficient_ramp_frames=0,
             ramp_components='startup',decay_step_per_32_frames=0)
@@ -343,7 +358,7 @@ def predict(args):
         renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),
         calibration_sha256=sha256(args.calibration),candidate_config=predicted_config(args.stage),
         expected='All eight complete renders pass whole/wet/tail, every event window and applicable activation-start windows at relative RMS <=0.01.',
-        scope=('Audio begins at frame zero; callback sizes, early events, initial active/inactive states and simultaneous control changes vary. Fixed comparison offsets remain 32 frames.' if args.stage=='startup-holdout'
+        scope=('Audio begins at frame zero; callback sizes, early events, initial active/inactive states and simultaneous control changes vary. Fixed comparison offsets remain 32 frames.' if args.stage.startswith('startup-')
                else 'Main moves after active initialization, including simultaneous Sub1/Sub2 and later button changes; immediate-input and pre-activation Main failures remain separate regressions.' if args.stage=='main-v2-holdout'
                else 'Main moves, including simultaneous Sub1/Sub2 and button changes; initial active/inactive states vary.' if args.stage=='main-holdout'
                else 'Only the enabled button moves; Main/Sub1/Sub2 stay fixed. Initial active/inactive states vary.' if args.stage.startswith('activation-')

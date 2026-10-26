@@ -118,7 +118,9 @@ public:
         const auto approach=[](int a,int b){return a+(a<b?1:(a>b?-1:0));};
         Controls c=state;
         c.main=approach(c.main,target.main);c.cutoff=approach(c.cutoff,target.cutoff);c.enabled=target.enabled;
-        if(startup&&!everActivated&&c.enabled&&(!state.enabled||frame==32)){
+        // Selection reaches the room one block after the input command. The
+        // current controls at that point initialize its formerly inactive state.
+        if(startup&&!everActivated&&audioBlock[blockHead].enabled){
             c=target;slowMain=pendingMain=c.main;mainPeriod=60;
             sharedBlocks=geometryRemaining=mixRemaining=0;stagedRemaining.fill(0);steps.fill(0);prepared=false;
         }
@@ -238,7 +240,9 @@ public:
             if(frame%32==31&&sharedBlocks&&!--sharedBlocks)slowMain=pendingMain;
         }
         if(rampParts=="staged")for(size_t j=0;j<12;++j)if(stagedRemaining[j]){
-            coefficients[j]+=steps[j];
+            // Startup advances the ramp clock but leaves feedback state still;
+            // reaching the endpoint commits its target even while muted.
+            if(j>=10||!warmRemaining)coefficients[j]+=steps[j];
             if(!--stagedRemaining[j])coefficients[j]=targetCoefficients[j];
         }
         if(decaySlew&&frame%32==0&&decayCurrent!=decayTarget){
@@ -276,19 +280,17 @@ public:
         // acts on new input; knobs act on the already buffered audio.
         const auto delayed=audioBlock[blockHead];
         const auto gated=(feed||gate=="faded")?source:std::array<double,2>{};
-        audioBlock[blockHead]={routed,gated,state.enabled};
+        audioBlock[blockHead]={routed,gated,startup&&frame<=32?0:state.enabled};
         if(++blockHead==audioBlock.size())blockHead=0;
         source=delayed.source;
         if(gate=="faded"){
             if(delayed.enabled!=lastDelayedEnabled){
                 lastDelayedEnabled=delayed.enabled;
-                if(startup&&delayed.enabled&&!everActivated&&initialActive)dryStart=frame+32;
-                else setDry(static_cast<float>(delayed.enabled?dryGain:1),160);
+                setDry(static_cast<float>(delayed.enabled?dryGain:1),160);
                 if(delayed.enabled&&!everActivated){
-                    everActivated=true;warmRemaining=12416+(initialActive?32:0);dryRestart=frame+(startup&&initialActive?64:32);
+                    everActivated=true;warmRemaining=12416+(initialActive&&!startup?32:0);dryRestart=frame+32;
                 }
             }
-            if(dryStart&&frame==dryStart){setDry(static_cast<float>(dryGain),160);dryStart=0;}
             if(dryRestart&&frame==dryRestart){setDry(dryTarget,160);dryRestart=0;}
             if(dryRemaining){dryCurrent+=dryStep;--dryRemaining;}
         }
@@ -307,7 +309,8 @@ public:
         }
         if(adaptive&&geometryRemaining){
             for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch){
-                delayCurrent[j][ch]+=delayStep[j][ch];
+                // As with feedback, moving reads begin after startup unmuting.
+                if(!warming)delayCurrent[j][ch]+=delayStep[j][ch];
                 if(geometryRemaining==1)delayCurrent[j][ch]=delayTarget[j][ch];
                 delays[j][ch]=static_cast<int>(delayCurrent[j][ch]);
             }
@@ -362,7 +365,7 @@ private:
     size_t warmRemaining{},dryRemaining{},dryRestart{};
     bool activationPrepared{},lastDelayedEnabled{},everActivated{},initialActive{};
     bool adaptive{},geometryStart{},amountStart{},startup{};
-    float startupFade{};size_t dryStart{};
+    float startupFade{};
     int slowMain{},pendingMain{},mainPeriod{60};
     size_t sharedBlocks{},geometryRemaining{},mixRemaining{};
     std::array<std::array<float,2>,5> delayCurrent{},delayTarget{},delayStep{};
