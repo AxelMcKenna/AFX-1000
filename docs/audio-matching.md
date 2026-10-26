@@ -129,6 +129,50 @@ Further [Spiral core experiments](../research/audio/spiral-core.md) separate lin
 
 `tools.rmx_spiral_robustness` reproduces original input-sensitivity, quiet-scaling, gate-refinement, feedback-collision and conditioned-recurrence diagnostics. The [audit](../research/audio/measurements/2026-10-27-spiral-robustness-audit.json) preserves failed prospective predictions and the failed autonomous comparison. Original late Up tails diverge after a one-ULP input change even though identical-input repeats are bit-exact. Supplying reconstructed original state to a recurrence is a component diagnostic, not a complete clone. Neither observation changes the one-percent whole/wet per-channel gate or establishes perceptual similarity. See the core research page for recipes and command examples.
 
+## Reverb: identification and failed production baseline
+
+The [88-capture identification record](../research/audio/measurements/2026-10-27-reverb-identification.json) separates initial repeatability/linearity, prospective Main timing, long Sub1 decay and output-filter validation. Both directions repeat bit-exactly at the initial fixed controls. Main moves the first reflection, and Sub1 zero still produces a roughly one-second decay. Long-tail measurements reach approximately 45.53/49.98-second broadband T60 extrapolations for Up/Down at Sub1 maximum. The reverb network remains unidentified.
+
+The fixed Sub2 model is a second-order high-pass for Up and low-pass for Down, with cutoff and output-level maps recorded in the measurement. Twelve fresh component comparisons pass, including stereo broadband input; worst wet-channel RMS error is about 0.0017%. **The original neutral-filter reverb supplies the component input. This does not validate a clone reverberator.** The [56-case production baseline](../research/audio/measurements/2026-10-27-reverb-production-baseline-48k.json) fails all 52 active, non-silent cases. Only Main-zero and silent fixtures pass. No production DSP change accompanies this checkpoint.
+
+Start a new local campaign with a separately obtained original:
+
+```sh
+uv run --locked python -m tools.rmx_reverb_characterize capture --stage initial \
+  --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
+  --session captures/reverb/initial
+uv run --locked python -m tools.rmx_reverb_characterize analyze \
+  --session captures/reverb/initial --calibration calibration-reviewed.json \
+  --report build/artifacts/research/reverb-initial.json
+uv run --locked python -m tools.rmx_reverb_characterize predict \
+  --initial build/artifacts/research/reverb-initial.json \
+  --report build/artifacts/research/reverb-onset-predictions.json
+uv run --locked python -m tools.rmx_reverb_characterize filter-model \
+  --session captures/reverb/initial --calibration calibration-reviewed.json \
+  --report build/artifacts/research/reverb-filter-model.json
+```
+
+Capture `--stage timing` into `captures/reverb/timing` with `--prediction build/artifacts/research/reverb-onset-predictions.json`. Capture `--stage filters` into `captures/reverb/filters` with `--prediction build/artifacts/research/reverb-filter-model.json`. Each capture also needs the same host/plugin arguments. The capture manifest binds the prospective file's hash before validation. Capture `--stage long-tail` into `captures/reverb/long-tail` without a prediction argument. This adds 16, 12 and four captures respectively; long-tail cases render 90 post-input seconds. Every stage supports `verify --stage STAGE --session DIRECTORY --report NEW.json` for exact samples, controls, extent and provenance.
+
+```sh
+uv run --locked python -m tools.rmx_reverb_characterize timing \
+  --session captures/reverb/timing --prediction build/artifacts/research/reverb-onset-predictions.json \
+  --calibration calibration-reviewed.json --report build/artifacts/research/reverb-onset-validation.json
+uv run --locked python -m tools.rmx_reverb_characterize filter-validate \
+  --session captures/reverb/filters --initial captures/reverb/initial \
+  --model build/artifacts/research/reverb-filter-model.json \
+  --calibration calibration-reviewed.json --report build/artifacts/research/reverb-filter-validation.json
+uv run --locked python -m tools.rmx_reverb_characterize long-tail \
+  --session captures/reverb/long-tail --calibration calibration-reviewed.json \
+  --report build/artifacts/research/reverb-long-tail.json
+cmake --build build --target rmx_render
+uv run --locked python -m tools.rmx_reverb_characterize compare --stage initial \
+  --session captures/reverb/initial --renderer build/rmx_render \
+  --calibration calibration-reviewed.json --output build/artifacts/research/reverb-production-baseline
+```
+
+Reports and output/session directories must be new. Timing and filter validators return 1 when their declared component screen fails. The current complete production comparison intentionally returns 1 and preserves every failure. It applies only the independently reviewed 32-frame bypass offset and checks whole output and post-input tail separately per channel, without gain fitting or a wet alignment search. Analysis uses the locked NumPy dependency. Component results, complete-render results and listening/hardware equivalence remain separate.
+
 ## Noise identification and statistics
 
 Noise is independently excited in stereo. Repeated original renders after the documented activation event were bit-exact, but this project uses its own random generator. A sample null is therefore not its acceptance test. Common-seed original outputs identify a third-order filter with a fixed `(1-z^-2)` numerator. Twenty-one Main positions calibrate its coefficients/gain; a shape-preserving cubic interpolates them. Four additional positions differ by at most about 0.082 dB in the identified transfer response. These measurements are retained in the [filter identification report](../research/audio/measurements/2026-10-26-noise-filter.json).

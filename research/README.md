@@ -17,6 +17,8 @@ Investigations that inform the product: reference behavior, component candidates
 | [Spiral return component](audio/measurements/2026-10-26-spiral-return-validation-48k.json) | Four-comb return validation using measured original pitch fixtures; explicitly excludes full-effect matching |
 | [Spiral core investigation](audio/spiral-core.md) | Linked peak/activity measurements, stepped release, neutral-clock reversals and a 361-render sweep retaining 76 full-model failures |
 | [Spiral robustness audit](audio/measurements/2026-10-27-spiral-robustness-audit.json) | Original one-ULP sensitivity, quiet scaling, conditioned recurrence and rejected prospective feedback-timing predictions; waveform gate unchanged |
+| [Reverb identification](audio/measurements/2026-10-27-reverb-identification.json) | 88 verified captures, Main-dependent timing, long Sub1 decay and independently checked output-filter component |
+| [Reverb production baseline](audio/measurements/2026-10-27-reverb-production-baseline-48k.json) | All 52 active non-silent complete renders fail; Main-zero/silence passes are distinguished explicitly |
 | [Hardware component shortlist](hardware/components.md) | Control, sensor, mechanical and component candidates, source links and unresolved selections |
 | [Audio-design history](hardware/audio-design-history.md) | Preserved circuit/converter/gain/noise investigations and historical stage discussion |
 | [Reference and fidelity targets](../docs/specifications.md) | Current comparison targets and effect-characterization work still to perform |
