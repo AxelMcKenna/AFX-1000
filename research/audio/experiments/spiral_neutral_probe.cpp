@@ -78,9 +78,9 @@ int main(int argc,char** argv) {try {
     // Empirical counter phase at activation, common to Up and Down. This does
     // not establish a manufacturer buffer layout or physical latency split.
     size_t quietBlocks=10;
-    // Midpoint of the measured envelope-normalized activity bracket. The
-    // prospective exact 1/1024 hypothesis was rejected; see the envelope record.
-    constexpr double activityRatio=0.0009801218664654094;
+    // Midpoint of the refined isolated-control activity bracket. The exact
+    // 1/1024 hypothesis was rejected; feedback collision timing is unresolved.
+    constexpr double activityRatio=0.0009823265160867965;
     for(size_t block=0;block<output.frames.size();block+=32) {
         double peak=0;
         for(size_t n=block;n<std::min(block+32,input.frames.size());++n)

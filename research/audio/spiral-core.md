@@ -1,8 +1,8 @@
-# Spiral core identification, 26 October 2026
+# Spiral core identification, updated 27 October 2026
 
 The original 2.2.0 plug-in now has reproducible experiments for separating its linked level measurement, clipping, linear filters and internal repeat clock. The [component identification](measurements/2026-10-26-spiral-core-identification.json) records 42 selected reference captures and verification of 94 input/control recipes. These are software observations at Default, Main raw 128, Sub2 zero, 48 kHz and 120 BPM unless explicitly labeled otherwise. No manufacturer implementation or recorded audio is included in the source tree.
 
-The experimental complete model **fails** the [expanded 343-render comparison](measurements/2026-10-26-spiral-envelope-prototype-48k.json): 273 pass and 70 fail. It is a research fixture, separate from the production engine. Its partial successes do not establish full Spiral or device similarity. The [initial ten-render comparison](measurements/2026-10-26-spiral-core-prototype-48k.json) and [208-render clock checkpoint](measurements/2026-10-26-spiral-neutral-clock-prototype-48k.json) remain as historical records.
+The experimental complete model **fails** the [361-render comparison](measurements/2026-10-27-spiral-robustness-prototype-48k.json): 285 pass and 76 fail. It is a research fixture, separate from the production engine. Its partial successes do not establish full Spiral or device similarity. The [initial ten-render comparison](measurements/2026-10-26-spiral-core-prototype-48k.json), [208-render clock checkpoint](measurements/2026-10-26-spiral-neutral-clock-prototype-48k.json) and [343-render envelope checkpoint](measurements/2026-10-26-spiral-envelope-prototype-48k.json) remain as historical records.
 
 ## What the new experiments establish
 
@@ -24,7 +24,7 @@ The measured first-block threshold is about `0.002673797 * peak(abs(L+R))`. Inte
 
 The initial model passed four complete mono/square tone cases and failed six complete sparse-impulse, DC-conditioned and stereo broadband cases. Its largest passing wet error was about 0.017%. Those historical failures remain in the initial report.
 
-The clock and peak-order checkpoint passed 110 of 208 eligible complete renders. The release correction now passes 150 of that same 208, adding 40 passes without losing a previously passing case. All 104 original Down cases pass. The larger 343-case campaign adds 135 envelope fixtures; 273 pass and 70 fail. One added Down DC/query fixture still fails, alongside many Up sparse and channel-transient cases. Largest passing wet-channel error is about 0.695%. The aggregate comparison returns exit code 1. A one-percent waveform RMS screen is not a perceptual similarity percentage, and a pass count is not device accuracy.
+The clock and peak-order checkpoint passed 110 of 208 eligible complete renders. The release correction passes 150 of that same 208, adding 40 passes without losing a previously passing case. All 104 original Down cases pass. The 343-case campaign adds 135 envelope fixtures; 273 pass and 70 fail. The latest robustness audit adds 18 captures, reaching 285 passes and 76 failures in 361 cases: Down 235/239 and Up 50/122. Results on the preceding 343 cases are unchanged. Largest passing wet-channel error is about 0.695%. The aggregate comparison returns exit code 1. A one-percent waveform RMS screen is not a perceptual similarity percentage, and a pass count is not device accuracy.
 
 The failed cubic-feedback, extra-clipping and filter-state rearrangement experiments remain local diagnostics. The next identification step must explain the remaining Up tails and the added Down failure while preserving the measured input, timing and quiet linear responses. Other Main positions, nonzero pitch, gestures, User settings, overload and hardware require separate validation.
 
@@ -56,9 +56,21 @@ The [early-tail record](measurements/2026-10-26-spiral-envelope-tail-identificat
 
 Both directions show the first threshold change at frame 96,320, after the source ends at 96,000. Its ratio is about 0.942726, consistent with the eleventh smoothed-input update providing a floor rather than a full one-decibel drop. Down's next changes are at 101,152 and 105,984: exactly 4,832 frames, or 151 internal blocks, apart. This distinguishes release-before-floor ordering and a `>150` counter from the earlier 150-block approximation. A common initial counter value of ten matches the checked activation phase. It does not establish a manufacturer pipeline or latency split.
 
-The current empirical activity signal is the absolute stereo sum of the generated wet stream. Near-threshold controls bound its gate to approximately 0.000977602–0.000982641 times the candidate held envelope. The fixture uses the bracket midpoint. An exact `1/1024` hypothesis predicted that a control at ratio `3.88e-5` would reset the hold. Fresh captures at host blocks 32, 128 and 256 all contradicted that prediction. These three failed predictions remain in the report and make the identification CLI exit 1, even though all first-pass fits pass. The reference outputs are bit-identical across those host block sizes. The gate is a fitted model parameter, not an attributed manufacturer constant.
+The current empirical activity signal is the absolute stereo sum of the generated wet stream. Near-threshold controls initially bounded its gate to approximately 0.000977602–0.000982641 times the candidate held envelope. Four further isolated controls narrow this to 0.0009820115–0.0009826415; the current fixture uses midpoint 0.0009823265160867965. An exact `1/1024` hypothesis predicted that a control at ratio `3.88e-5` would reset the hold. Fresh captures at host blocks 32, 128 and 256 all contradicted that prediction. These three failed predictions remain in the report and make the identification CLI exit 1, even though all first-pass fits pass. The reference outputs are bit-identical across those host block sizes. The gate is a fitted model parameter, not an attributed manufacturer constant.
 
-The rejected clipping-only, 150-block model lost six cases that had passed the previous checkpoint. The corrected research fixture keeps every previous passing case and fixes the original sparse Down tails and the Up stereo square fixture. Nevertheless, `down-blocks-64` in the attack stage still fails its complete render, and 69 other complete renders fail. Neither the improved case count nor the component fits justify moving this candidate into production yet. Exact activity/numerical behavior, the remaining Up feedback, Main/pitch mapping and the wider fidelity plan remain open.
+The rejected clipping-only, 150-block model lost six cases that had passed the previous checkpoint. The corrected research fixture keeps every previous passing case and fixes the original sparse Down tails and the Up stereo square fixture. Nevertheless, `down-blocks-64` in the attack stage still fails its complete render. The latest audit finds three further Down failures and 72 Up failures in total. Neither the improved case count nor the component fits justify moving this candidate into production yet. Exact activity/numerical behavior, the remaining Up feedback, Main/pitch mapping and the wider fidelity plan remain open.
+
+## Input sensitivity and recurrence audit: 27 October
+
+The [robustness audit](measurements/2026-10-27-spiral-robustness-audit.json) verifies 18 new original captures in four stages. An identical-input Up capture is bit-exact against its earlier recording. Changing only the left impulse by one float32 ULP, a relative input change of approximately 7.45e-8, produces late left wet waveform errors near 100% against the unchanged original. The unchanged right input also develops a different tail through the linked processing. This is evidence of strong numerical sensitivity in this fixture. It neither proves perceptual equivalence nor relaxes the clone's waveform acceptance criteria.
+
+Three quiet Up captures provide a separate control: right-channel DC holds the envelope while the left input is zero, 1e-16 or 1e-24. The zero-input left output remains bit-zero. Dividing the other two responses by their known stimulus amplitudes gives relative RMS differences below 4.48e-7 in the one-second windows starting at 1, 2, 3 and 4 seconds. Those windows precede clipping of the larger response. The later saturated output and the right DC channel are excluded. This exposes a quiet linear recurrence across eight orders of input magnitude without fitting a compensating gain.
+
+A further diagnostic reconstructs the original's latent clipped stream through regularized inversion of the identified output filter. Supplying that recovered original state at every recurrence step gives errors below 0.00070% in the checked windows at the smallest regularization. The same inversion is checked against the known candidate state. Altering the delay by one frame produces about 28–29% error; reducing loop gain by 10% produces about 3–3.5% error. These negative controls show that the diagnostic can reject altered recurrences. It still supplies original state throughout: the autonomous clone fails the complete-render screen, with about 97% wet error for this sparse fixture. This diagnostic does not establish a matching autonomous implementation or identify unique coefficients.
+
+Eight new Down attack/query fixtures challenge release timing around a returning feedback pulse. Forecasts saved before the original captures include both the preceding model and a proposed 32-frame feedback guard. Both wrongly predict a two-decibel first-return drop in the 62- and 63-block fixtures; the original drops by one decibel. Those failed forecasts remain in the audit. Longer look-ahead, split activity and fitted quiet-loop variants also failed local complete-tail diagnostics and were not adopted. Only the narrower isolated-control gate midpoint changes the committed research renderer; results on all preceding 343 cases remain unchanged.
+
+The new tools run in a clean locked uv environment with NumPy and no SciPy. Existing-report, changed-sample, wrong-control and unreviewed-calibration checks reject invalid analyses. The C++ experiment compiles with warnings enabled; a traced Down collision render passes AddressSanitizer/UndefinedBehaviorSanitizer on the experiment translation unit. The linked WAV library was not rebuilt with sanitizers. Production DSP is unchanged.
 
 ## Reproduce
 
@@ -129,3 +141,29 @@ uv run --locked python -m tools.rmx_spiral_envelope tail \
 ```
 
 The identifier intentionally returns 1 for the preserved rejected binary-gate prediction. The tail component command passes its declared fitting screen. Add all twelve envelope session directories to `tools.rmx_spiral_core compare` to reproduce the 343 complete renders; its aggregate result also remains a failure. Both analyzers run in the locked uv environment with NumPy and no SciPy installation. The optional seventh renderer argument writes new `pre.wav` and `limited.wav` diagnostics into a new trace directory; normal rendering does not allocate these trace buffers.
+
+For the robustness audit, capture `sensitivity`, `reset-refinement` and `quiet-up` into separate new directories with `tools.rmx_spiral_robustness capture --stage STAGE --host HOST --plugin PLUGIN --session DIRECTORY`. Capture `collisions` with one or more `--predictor /path/to/renderer` arguments to save first-return forecasts before each original recording. Use a renderer compiled from the preceding checkpoint to challenge its predictions. Historical rejected-guard binaries remain local; their forecast values and hashes are retained in the audit. All four stages support `verify --stage STAGE --session DIRECTORY --report NEW.json`.
+
+```sh
+uv run --locked python -m tools.rmx_spiral_robustness sensitivity \
+  --session captures/sensitivity --baseline captures/initial/up-time-0 \
+  --calibration calibration-reviewed.json --report build/artifacts/research/sensitivity.json
+uv run --locked python -m tools.rmx_spiral_robustness quiet \
+  --session captures/quiet-up --calibration calibration-reviewed.json \
+  --report build/artifacts/research/quiet-up.json
+uv run --locked python -m tools.rmx_spiral_robustness refinement \
+  --session captures/reset-refinement \
+  --previous research/audio/measurements/2026-10-26-spiral-envelope-identification.json \
+  --components research/audio/measurements/2026-10-26-spiral-core-identification.json \
+  --calibration calibration-reviewed.json --report build/artifacts/research/refinement.json
+uv run --locked python -m tools.rmx_spiral_robustness collisions \
+  --session captures/collisions --renderer build/spiral-neutral-probe \
+  --components research/audio/measurements/2026-10-26-spiral-core-identification.json \
+  --calibration calibration-reviewed.json --output build/artifacts/research/collision-audit
+uv run --locked python -m tools.rmx_spiral_robustness recurrence \
+  --case captures/initial/up-time-0 --renderer build/spiral-neutral-probe \
+  --components research/audio/measurements/2026-10-26-spiral-core-identification.json \
+  --calibration calibration-reviewed.json --output build/artifacts/research/recurrence-audit
+```
+
+These audit commands record diagnostics and failed predictions; command completion does not certify full-effect agreement. Add the four new sessions to the earlier 343-case `compare` sweep to obtain 361 complete renders. Its aggregate result remains exit code 1. Keep all original recordings, plug-in binaries, traces and compiled experiments in ignored local artifacts.
