@@ -45,7 +45,7 @@ def audit(args):
             if key in records:
                 raise ValueError('Duplicate comparison case')
             records[key] = (path.parent, row)
-    verified, bypass, seen = [], [], set()
+    verified, bypass, cold_dry, seen = [], [], [], set()
     host_hashes = set()
     guard_fixture = None
     for stage, directory in args.session:
@@ -87,6 +87,18 @@ def audit(args):
             output = parent / (stage + '-' + case['name'] + '.wav')
             if sha256(output) != result['candidate_sha256']:
                 raise ValueError('Candidate render changed')
+            dry_path=parent/(stage+'-'+case['name']+'-dry.wav')
+            schedule=parent/(stage+'-'+case['name']+'.tsv')
+            if sha256(dry_path)!=result['dry_trace_sha256'] or sha256(schedule)!=result['schedule_sha256']:
+                raise ValueError('Candidate dry trace or schedule changed')
+            cold_frames=min(12000,len(source))
+            if config['ramp_components']=='startup' and np.any(source[:cold_frames]):
+                candidate_prefix=float_wav(output)[1][:cold_frames]
+                dry_prefix=float_wav(dry_path)[1][:cold_frames]
+                if not np.array_equal(audio[:cold_frames],candidate_prefix) or not np.array_equal(candidate_prefix,dry_prefix):
+                    raise ValueError('Non-silent pre-wet dry prefix is not bit-exact')
+                cold_dry.append(dict(stage=stage,case=case['name'],frames=cold_frames,
+                    original_candidate_and_dry_bit_exact=True))
             if not case['enabled']:
                 stop = next((e['frame'] for e in case['events'] if e['control']=='enabled' and e['value']),len(source))
                 candidate = float_wav(output)[1]
@@ -166,6 +178,7 @@ def audit(args):
         renderer_sha256=sha256(args.renderer), sanitized_renderer_sha256=sha256(args.sanitized),
         script_sha256=sha256(Path(__file__)), comparisons_sha256=[sha256(p) for p in args.comparison],
         capture_cases=verified, host_sha256=next(iter(host_hashes)), initially_off_bypass_prefixes=bypass,
+        non_silent_cold_dry_prefixes=cold_dry,
         full_candidate_bypass=dict(frames=len(y), bit_exact=True, offset=32,
             input_silent_pre_roll_frames=pre_roll,
             rejected_offsets=rejected_offsets, input_sha256=sha256(input_file), output_sha256=sha256(output)),

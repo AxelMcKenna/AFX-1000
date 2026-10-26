@@ -44,6 +44,10 @@ float roomScale(int raw) noexcept {
 }
 constexpr std::array<std::array<int,2>,5> roomBases{{{1032,1146},{1060,1856},{1145,1961},{1916,1115},{1992,1190}}};
 double mainMix(int raw) noexcept {return std::min(1.,4.*std::max(0,raw-3)/252);}
+float dryLevel(int raw) noexcept {
+    const float unit=static_cast<float>(std::max(0,raw-3))*(1.f/252.f);
+    return unit>.5f?2.f-(unit+unit):1.f;
+}
 double inputShape(int raw) noexcept {
     const double p=std::min(55.,1+99.*std::max(0,raw-3)/252);
     return .2*(1-.000330578506691*std::pow(p-55,2))+
@@ -213,7 +217,7 @@ public:
             }
         }
         compensation=1+.5*c.cutoff/255;
-        dryGain=reverbDownControls[static_cast<size_t>(c.main)].dryGain;
+        dryGain=startup?dryLevel(c.main):reverbDownControls[static_cast<size_t>(c.main)].dryGain;
         if(gate=="faded"){
             if(!activationPrepared){
                 initialActive=c.enabled;
@@ -333,7 +337,8 @@ public:
     }
 private:
     void setDry(float target,size_t length) noexcept {
-        dryTarget=target;dryRemaining=length;dryStep=(target-dryCurrent)/static_cast<float>(length);
+        dryTarget=target;dryRemaining=length;
+        dryStep=startup?(target-dryCurrent)*(1.f/static_cast<float>(length)):(target-dryCurrent)/static_cast<float>(length);
     }
     void clear() noexcept {
         for(auto& pair:combs)for(auto& delay:pair)delay.clear();

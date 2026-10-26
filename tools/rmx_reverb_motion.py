@@ -15,7 +15,7 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout','main-v2-holdout','startup-holdout','startup-v2-holdout')
+HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout','main-v2-holdout','startup-holdout','startup-v2-holdout','startup-v3-holdout')
 CAPTURE_STAGES = (*STAGES,*HOLDOUT_STAGES,'state-probes','button-probes','initialization-probes','callback-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
@@ -84,17 +84,19 @@ def recipe(stage):
             add(f'off-on-block-{block}','continuous',main=255,block=block,
                 events=[dict(frame=event_frame,control='enabled',value=0),dict(frame=288073,control='enabled',value=1)],
                 baseline='button/down-off-on-continuous-255')
-    elif stage in ('startup-holdout','startup-v2-holdout'):
+    elif stage in ('startup-holdout','startup-v2-holdout','startup-v3-holdout'):
         v2=stage=='startup-v2-holdout'
+        v3=stage=='startup-v3-holdout'
         program=np.zeros((480000,2))
-        program[:456000]=np.random.default_rng(0x5A1029 if v2 else 0x5A1027).normal(0,.017,(456000,2))
+        program[:456000]=np.random.default_rng(0x5A1031 if v3 else 0x5A1029 if v2 else 0x5A1027).normal(0,.017,(456000,2))
         t=np.arange(456000)/48000
         program[:456000]+=.008*np.column_stack((np.sin(2*np.pi*(157*t+31*t*t)),np.cos(2*np.pi*1193*t)))
         gap=program.copy();gap[144000:264000]=0
         pulses=np.zeros_like(program)
         locations=[0,17,31,32,127,128,159,160,719,12001,24017,48031,96019,192067,288071,384079]
         if v2:locations=[0,7,31,32,67,95,127,128,159,160,1023,11937,12381,12417,12503,24037,48059,96101,192113,288119]
-        pulses[locations]=np.random.default_rng(0x5A1030 if v2 else 0x5A1028).uniform(-.024,.024,(len(locations),2))
+        if v3:locations=[0,3,17,31,33,97,127,129,157,161,701,11819,12373,12437,12539,24113,48139,96143,192157,288163]
+        pulses[locations]=np.random.default_rng(0x5A1032 if v3 else 0x5A1030 if v2 else 0x5A1028).uniform(-.024,.024,(len(locations),2))
         waves=dict(startup_program=program,startup_gap=gap,startup_pulses=pulses)
         specs=[(128,97,19,1,'startup_program',128,[(96013,'main',129),(192019,'enabled',0),(192211,'enabled',1)]),
             (255,239,160,1,'startup_gap',16,[(96017,'main',0),(240019,'main',255)]),
@@ -120,6 +122,21 @@ def recipe(stage):
                     (12101,'amount',0),(12203,'cutoff',255)]),
                 (79,128,32,0,'startup_program',64,[(5,'enabled',1),(17,'enabled',0),(23,'enabled',1),(31,'enabled',0),
                     (63,'enabled',1),(95,'enabled',0),(111,'main',157),(191,'enabled',1)])]
+        if v3:
+            specs=[(130,137,19,1,'startup_program',128,[(96013,'main',133),(192019,'enabled',0),(192237,'enabled',1)]),
+                (133,149,95,1,'startup_program',31,[(29,'enabled',0),(97,'enabled',1),(159,'enabled',0),(443,'enabled',1),
+                    (24091,'main',199),(96713,'amount',239),(144197,'cutoff',224)]),
+                (136,3,241,0,'startup_program',15,[(7,'main',133),(73,'enabled',1),(111,'enabled',0),(207,'enabled',1),
+                    (503,'main',138),(24037,'main',147)]),
+                (138,239,111,1,'startup_gap',47,[(17,'main',141),(11803,'main',224),(12137,'amount',7),
+                    (12277,'cutoff',5),(96043,'main',248)]),
+                (147,1,47,1,'startup_pulses',9,[(32,'main',150),(11837,'main',147),(12899,'main',156)]),
+                (192,207,160,1,'startup_program',32,[(31,'amount',255),(11973,'amount',0),(12739,'amount',247),
+                    (14519,'main',194),(96067,'main',198)]),
+                (224,223,77,0,'startup_program',255,[(17,'main',229),(63,'amount',17),(95,'cutoff',224),(159,'enabled',1),
+                    (12689,'main',230),(96037,'main',0),(192017,'main',242)]),
+                (248,128,32,1,'startup_program',16,[(17,'enabled',0),(65,'enabled',1),(113,'enabled',0),(431,'enabled',1),
+                    (24139,'main',242),(96121,'main',130),(144173,'amount',3)])]
         for i,(main,amount,cutoff,enabled,source,block,events) in enumerate(specs):
             high=max([amount]+[v for _,k,v in events if k=='amount'])
             add(f'{stage}-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if high>=192 else 18,
