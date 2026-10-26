@@ -8,20 +8,20 @@ import numpy as np
 
 from tools.noise_statistics import float_wav
 from tools.reference_audio import save_json, sha256, write_wav
-from tools.rmx_factory_match import IDENTITY, new_directory, run
+from tools.rmx_factory_match import IDENTITY, new_directory, probe, run
 from tools.rmx_filter_match import screen
 from tools.rmx_spiral_return import BUTTONS, checked
 
 
-STAGES = ('detector', 'peak-phase', 'linear', 'stereo-linear')
+STAGES = ('detector', 'peak-phase', 'linear', 'stereo-linear', 'long-clock', 'probe-zero')
 
 
 def recipe(stage):
     waves, cases = {}, []
 
-    def add(name, samples, mains=(128,), blocks=(128,)):
+    def add(name, samples, mains=(128,), blocks=(128,), directions=BUTTONS, tail=3):
         waves[name] = samples
-        for direction in BUTTONS:
+        for direction in directions:
             for main in mains:
                 for block in blocks:
                     if stage == 'detector':
@@ -30,7 +30,8 @@ def recipe(stage):
                         tag = f'{direction}-offset-{name.removeprefix("spike-")}-block-{block}'
                     else:
                         tag = f'{direction}-{name}'
-                    cases.append(dict(name=tag, direction=direction, main=main, block=block, source=name))
+                    cases.append(dict(name=tag, direction=direction, main=main, block=block,
+                                      source=name, tail=tail))
 
     if stage == 'detector':
         t = np.arange(120000)/48000
@@ -90,6 +91,17 @@ def recipe(stage):
             y = x.copy()
             y[96000] = pulse
             add(name, y)
+    elif stage == 'long-clock':
+        # Tiny left input keeps more than 100 Down repeats below clipping.
+        # The DC channel maintains detector level; this is an offline fixture.
+        x = np.zeros((33*48000, 2))
+        x[24000:32*48000, 1] = .2
+        x[48000, 0] = 1e-12
+        add('long-clock', x, directions=('down',), tail=1)
+    elif stage == 'probe-zero':
+        add('probe-time-0', probe(), tail=12)
+    else:
+        raise ValueError('Unknown stage: '+stage)
     return waves, cases
 
 
@@ -112,7 +124,7 @@ def capture(args):
                 raise ValueError('Missing or ambiguous control: '+name)
             parameters.append({k: matches[0][k] for k in ('index', 'id', 'name')} | {'value': value})
         plan = dict(schema_version=1, kind='audio-plugin-capture-plan', role='reference',
-                    expected_plugin=IDENTITY, sample_rate=48000, bpm=120, tail_seconds=3,
+                    expected_plugin=IDENTITY, sample_rate=48000, bpm=120, tail_seconds=case['tail'],
                     parameters=parameters, events=[])
         save_json(root/(case['name']+'.json'), plan)
         run([args.host, 'render', args.plugin, root/(case['source']+'.wav'),
@@ -150,7 +162,8 @@ def verify(args):
         if (not np.array_equal(source, waves[case['source']].astype(np.float32))
                 or round(controls['SceneVolume']*255) != case['main']
                 or controls.get(BUTTONS[case['direction']]) != 1
-                or plan['bpm'] != 120 or plan['tail_seconds'] != 3
+                or plan['bpm'] != 120 or plan['tail_seconds'] != case['tail']
+                or controls['Sub1Volume'] != 0
                 or receipt['maximum_block_size'] != case['block']):
             raise ValueError('Capture differs from recipe: '+str(folder))
         results.append(dict(case=case['name'], receipt_sha256=sha256(folder/'receipt.json'),
@@ -352,7 +365,7 @@ def identify(args):
             normalized_component_errors=[float(np.linalg.norm(part)) for part in np.split(source_residual, 3)],
             note='Only first-pass windows. Separating envelope coefficient from threshold scale needs further evidence.'),
         limitations=['No full-effect, hardware, other Main/pitch, overload or gesture match.',
-                     'A canonical feedback/clipping model fails broadband and sparse-tail comparisons.',
+                     'Component fits alone do not validate nonlinear feedback or complete renders.',
                      'Quiet stereo differential evidence does not establish nonlinear channel behavior.']))
     if args.header is not None:
         def array(name, values):
@@ -376,9 +389,25 @@ def identify(args):
 
 def compare(args):
     calibration(args.calibration)
+    folders = list(args.case)
+    excluded = []
+    for session in getattr(args, 'session', []):
+        for receipt_path in sorted(session.glob('*/receipt.json')):
+            folder = receipt_path.parent
+            plan = json.loads((folder/'plan.json').read_text())
+            controls = {p['name']: p['value'] for p in plan['parameters']}
+            if (round(controls['SceneVolume']*255) != 128 or controls['Sub2Volume'] != 0
+                    or plan['bpm'] != 120):
+                excluded.append(dict(session=session.name, case=folder.name,
+                    reason='Outside the candidate Main128/Sub2-zero/120-BPM scope; not a sonic result.'))
+            else:
+                folders.append(folder)
+    folders = list(dict.fromkeys(p.resolve() for p in folders))
+    if not folders:
+        raise ValueError('Supply at least one --case or eligible --session capture')
     root = new_directory(args.output)
     cases = []
-    for folder in args.case:
+    for folder in folders:
         receipt, plan, controls, audio = checked(folder)
         if round(controls['SceneVolume']*255) != 128 or plan['bpm'] != 120:
             raise ValueError('Diagnostic prototype supports only Main128, 120 BPM')
@@ -396,15 +425,115 @@ def compare(args):
         count = min(len(dry), len(source))
         dry[:count] = source[:count]
         whole, wet = screen(reference, candidate), screen(reference-dry, candidate-dry)
-        cases.append(dict(case=folder.name, reference_receipt_sha256=sha256(folder/'receipt.json'),
+        cases.append(dict(session=folder.parent.name, case=folder.name,
+            reference_receipt_sha256=sha256(folder/'receipt.json'),
+            input_sha256=receipt['input_sha256'], reference_output_sha256=receipt['output_sha256'],
+            reference_plan_sha256=receipt['plan_sha256'], direction=direction,
+            main_raw=128, sub1_raw=round(controls['Sub1Volume']*255), sub2_raw=0,
+            bpm=120, tail_seconds=plan['tail_seconds'],
             candidate_sha256=sha256(destination), whole=whole, wet=wet))
         print('PASS' if whole['passed'] and wet['passed'] else 'FAIL', folder.name, flush=True)
     save_json(root/'comparison.json', dict(kind='diagnostic-spiral-neutral-prototype-comparison',
         full_spiral_match=False, physical_hardware=False, sample_rate=48000,
+        reference_identity=IDENTITY,
         renderer_sha256=sha256(args.renderer), calibration_sha256=sha256(args.calibration),
+        comparison_script_sha256=sha256(Path(__file__)),
+        acceptance=dict(relative_rms_error_limit=.01, silent_channel_absolute_rms_limit=1e-8,
+                        reference_channel_energy_floor=1e-20,
+                        gain_fit=False, wet_alignment_search=False, reference_offset_frames=32),
         passed=all(c['whole']['passed'] and c['wet']['passed'] for c in cases), cases=cases,
+        out_of_scope_captures=excluded,
         scope='Experimental Main128, Sub2 zero, Default, 48 kHz, 120 BPM. Includes failed full renders.'))
     return 0 if all(c['whole']['passed'] and c['wet']['passed'] for c in cases) else 1
+
+
+def clock(args):
+    """Identify a quiet left-channel clock, not the nonlinear complete effect."""
+    calibration(args.calibration)
+    root = new_directory(args.output)
+    folder = args.session/'down-long-clock'
+    receipt, plan, controls, audio = checked(folder)
+    waves, cases = recipe('long-clock')
+    _, source = float_wav(Path(receipt['input_path']))
+    if (not np.array_equal(source, waves['long-clock'].astype(np.float32))
+            or round(controls['SceneVolume']*255) != 128 or controls['Sub1Volume'] != 0
+            or controls.get(BUTTONS['down']) != 1 or plan['bpm'] != 120
+            or plan['tail_seconds'] != cases[0]['tail'] or receipt['maximum_block_size'] != 128):
+        raise ValueError('Requires the exact long-clock capture recipe')
+    # Remove only the reviewed bypass offset and the already measured Down
+    # component latency. There is no per-repeat wet alignment or gain fit in
+    # the independent complete-window comparison below.
+    first = 48000+640
+    measured = audio[32+first:, 0]/1e-12
+    delay = 12144
+    b, a = lowpass(12100, .7)
+    observations = []
+    for repeat in range(119):
+        x = measured[repeat*delay:repeat*delay+2048]
+        y = measured[(repeat+1)*delay:(repeat+1)*delay+2048]
+        if len(y) != 2048:
+            raise ValueError('Incomplete long-clock recording')
+        f = filtered(b, a, x)
+        for pole in (.9934764, .94277851):
+            f = highpass(pole, f)
+        best = None
+        for lag in range(-3, 7):
+            indices = np.arange(2048)-lag
+            design = np.column_stack([np.interp(indices, np.arange(2048), f, left=0, right=0),
+                np.interp(indices-1, np.arange(2048), f, left=0, right=0)])
+            coefficients = np.linalg.lstsq(design[:1024], y[:1024], rcond=None)[0]
+            if min(coefficients) < -.0001 or sum(coefficients) <= 0:
+                continue
+            error = relative(y[:1024], design[:1024]@coefficients)
+            frame = 48000+(repeat+1)*delay
+            phase = 2.086162567138672e-6*((frame//32)*32-64)
+            triangle = 1-abs((phase+1) % 4-2)
+            fraction = triangle % 1
+            fitted = float(coefficients[1]/sum(coefficients))
+            row = dict(repeat=repeat, transition_frame=frame, delay_floor=delay+lag,
+                measured_fraction=fitted, model_fraction=fraction,
+                circular_fraction_error=float((fitted-fraction+.5) % 1-.5),
+                gain=float(sum(coefficients)), component_fit_relative_rms_error=error)
+            if best is None or error < best['component_fit_relative_rms_error']:
+                best = row
+        if best is None:
+            raise ValueError('No positive fractional-delay fit at repeat '+str(repeat))
+        observations.append(best)
+    output = root/'candidate.wav'
+    run([args.renderer, receipt['input_path'], output, 'down', 0, 1])
+    _, candidate = float_wav(output)
+    reference = audio[32:]
+    if len(candidate) < len(reference):
+        raise ValueError('Candidate is too short')
+    windows = []
+    for second in range(1, 32):
+        # Both sides use the known input amplitude for numerical conditioning;
+        # this is not a candidate amplitude fit. Tiny signals must not silently
+        # pass the ordinary silent-channel absolute leakage check.
+        window = slice(second*48000, (second+1)*48000)
+        error = relative(reference[window, 0]/1e-12, candidate[window, 0].astype(float)/1e-12)
+        windows.append(dict(start_seconds=second, frames=48000,
+                            relative_rms_error=error, passed=error <= .01))
+    component_passed = (all(x['passed'] for x in windows)
+        and all(x['delay_floor'] == delay and abs(x['circular_fraction_error']) < .001
+                and abs(x['gain']-1.2) < .0001
+                and x['component_fit_relative_rms_error'] < .0001 for x in observations))
+    report = dict(kind='rmx220-spiral-long-neutral-clock-identification', sample_rate=48000,
+        reference_identity=IDENTITY, full_spiral_match=False, physical_hardware=False,
+        component_screen_passed=component_passed, identifier_sha256=sha256(Path(__file__)),
+        renderer_sha256=sha256(args.renderer), calibration_sha256=sha256(args.calibration),
+        reference_receipt_sha256=sha256(folder/'receipt.json'), input_sha256=receipt['input_sha256'],
+        reference_output_sha256=receipt['output_sha256'], plan_sha256=receipt['plan_sha256'],
+        candidate_sha256=sha256(output), observations=observations, left_complete_windows=windows,
+        empirical_model=dict(delay_floor=delay, increment_per_frame=2.086162567138672e-6,
+            block_frames=32, origin_frames=64,
+            formula='u=increment*(32*floor(frame/32)-64); t=1-abs(((u+1) mod 4)-2); fraction=t-floor(t)'),
+        limitations=['Only the quiet left-channel clock is assessed. Right-channel DC/tails are excluded.',
+            'Per-repeat gain/fraction fits identify components; only complete windows use the fixed candidate.',
+            'No attribution to manufacturer implementation, other pitch/Main/tempo, hardware or complete Spiral match.'])
+    save_json(root/'clock.json', report)
+    print('PASS' if component_passed else 'FAIL', 'quiet left clock; complete Spiral remains unmatched')
+    return 0 if component_passed else 1
 
 
 def main():
@@ -423,11 +552,16 @@ def main():
         p.add_argument('--'+name, type=Path, required=True)
     p.add_argument('--header', type=Path)
     p = commands.add_parser('compare')
-    p.add_argument('--case', type=Path, action='append', required=True)
+    p.add_argument('--case', type=Path, action='append', default=[])
+    p.add_argument('--session', type=Path, action='append', default=[])
     for name in ('renderer', 'calibration', 'output'):
         p.add_argument('--'+name, type=Path, required=True)
+    p = commands.add_parser('clock')
+    for name in ('session', 'renderer', 'calibration', 'output'):
+        p.add_argument('--'+name, type=Path, required=True)
     args = parser.parse_args()
-    result = {'capture': capture, 'verify': verify, 'identify': identify, 'compare': compare}[args.command](args)
+    result = {'capture': capture, 'verify': verify, 'identify': identify,
+              'compare': compare, 'clock': clock}[args.command](args)
     raise SystemExit(result or 0)
 
 

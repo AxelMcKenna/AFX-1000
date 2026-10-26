@@ -15,7 +15,7 @@ Investigations that inform the product: reference behavior, component candidates
 | [Crush validation](audio/measurements/2026-10-26-crush-validation-48k.json) | Independent stereo signals, 90/128/137 BPM, late clock boundaries and native button-off tails |
 | [Spiral characterization](audio/measurements/2026-10-26-spiral-identification.json) | Determinism, non-additivity, channel coupling, onset and pitch diagnostics; generator remains unmatched |
 | [Spiral return component](audio/measurements/2026-10-26-spiral-return-validation-48k.json) | Four-comb return validation using measured original pitch fixtures; explicitly excludes full-effect matching |
-| [Spiral core investigation](audio/spiral-core.md) | Linked 32-frame peak measurement, first-pass clipping/filter fits, neutral clock drift and retained full-model failures |
+| [Spiral core investigation](audio/spiral-core.md) | Linked peak measurement, first-pass fits, long neutral-clock reversals and a 208-render sweep retaining full-model failures |
 | [Hardware component shortlist](hardware/components.md) | Control, sensor, mechanical and component candidates, source links and unresolved selections |
 | [Audio-design history](hardware/audio-design-history.md) | Preserved circuit/converter/gain/noise investigations and historical stage discussion |
 | [Reference and fidelity targets](../docs/specifications.md) | Current comparison targets and effect-characterization work still to perform |

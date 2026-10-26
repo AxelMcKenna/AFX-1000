@@ -2,7 +2,7 @@
 
 The original 2.2.0 plug-in now has reproducible experiments for separating its linked level measurement, clipping, linear filters and internal repeat clock. The [component identification](measurements/2026-10-26-spiral-core-identification.json) records 42 selected reference captures and verification of 94 input/control recipes. These are software observations at Default, Main raw 128, Sub2 zero, 48 kHz and 120 BPM unless explicitly labeled otherwise. No manufacturer implementation or recorded audio is included in the source tree.
 
-The experimental complete model **fails** the [full-render comparison](measurements/2026-10-26-spiral-core-prototype-48k.json). It is a research fixture, separate from the production engine. Its partial successes do not establish full Spiral or device similarity.
+The experimental complete model **fails** the [expanded 208-render comparison](measurements/2026-10-26-spiral-neutral-clock-prototype-48k.json). It is a research fixture, separate from the production engine. Its partial successes do not establish full Spiral or device similarity. The [initial ten-render comparison](measurements/2026-10-26-spiral-core-prototype-48k.json) remains as a historical record.
 
 ## What the new experiments establish
 
@@ -22,9 +22,29 @@ The measured first-block threshold is about `0.002673797 * peak(abs(L+R))`. Inte
 
 [spiral_neutral_probe.cpp](experiments/spiral_neutral_probe.cpp) combines these components with a candidate peak-hold envelope and feedback arrangement. Its [calibration header](experiments/SpiralNeutralCalibration.h) is generated from the numerical identification. It accepts only Main raw 128, neutral Sub2, 48 kHz and 120 BPM; Sub1 selects the separately validated outer return.
 
-Four complete mono/square tone cases pass the declared one-percent unscaled per-channel RMS screen, including their tails. The largest checked wet error among them is about 0.017%. Six complete sparse-impulse, DC-conditioned and stereo broadband cases fail. Some fail by more than 100% wet relative RMS error. Those failures remain in the committed report and the comparison CLI returns exit code 1. A good first pass or periodic tone cannot substitute for those complete recordings.
+The initial model passed four complete mono/square tone cases and failed six complete sparse-impulse, DC-conditioned and stereo broadband cases. Its largest passing wet error was about 0.017%. Those historical failures remain in the initial report.
 
-The failed cubic-feedback and extra-clipping experiments remain local diagnostics, not alternate production algorithms. The next identification step must explain the sparse-tail and broadband failures while preserving the already measured input, timing and quiet linear responses. Other Main positions, nonzero pitch, gestures, User settings, overload and hardware require separate validation.
+After the clock and peak-order corrections below, 110 of 208 eligible complete renders pass and 98 fail. The expanded report includes every Main-128, neutral-pitch, 120-BPM capture in the eleven listed sessions, rather than selecting passing waveforms. Complete stereo broadband cases now pass with worst wet-channel error about 0.081%; both binary and white-noise pairs pass, with worst wet error about 0.486%. Sparse impulses, DC conditioning, several stereo square/step cases and isolated channel transients still fail. The aggregate comparison returns exit code 1. A one-percent waveform RMS screen is not a perceptual similarity percentage.
+
+The failed cubic-feedback, extra-clipping and filter-state rearrangement experiments remain local diagnostics. The next identification step must explain the sparse-tail and channel-transient failures while preserving the measured input, timing and quiet linear responses. Other Main positions, nonzero pitch, gestures, User settings, overload and hardware require separate validation.
+
+## Clock and peak-order refinement
+
+A fresh 34-second original Down recording keeps the right input at DC 0.2 and injects a single left impulse of amplitude `1e-12`. This is an offline numerical fixture. The small left response remains below clipping through more than 100 internal repeats. The [long-clock record](measurements/2026-10-26-spiral-neutral-clock.json) retains 119 separate repeat fits and 31 complete one-second comparisons of the quiet left channel. The right DC channel is explicitly excluded from this component screen.
+
+The measured fractional delay rises toward one sample around ten seconds, reverses, crosses zero around twenty seconds, and reverses again near thirty seconds. Both an unbounded ramp and a simple sawtooth reset miss this behavior. A fixed empirical model uses the fractional part of a triangular phase:
+
+```text
+u = 2.086162567138672e-6 * (32 * floor(frame / 32) - 64)
+t = 1 - abs(((u + 1) mod 4) - 2)
+delay = integer_delay + t - floor(t)
+```
+
+This is an observed model, not a claim about the manufacturer's implementation. The per-repeat component-fit RMS errors stay below 0.0015%; measured fractions differ from this model by less than 0.00027 sample. The complete left-channel comparisons use the fixed renderer, the reviewed bypass offset and the known stimulus amplitude on both sides, with no wet alignment or fitted candidate gain. Worst one-second error through 32 seconds is about 0.31%. The previous unbounded-clock renderer fails the same complete-window check, reaching about 181% error.
+
+Variable-peak white noise also distinguishes smoothing order. Smoothing every 32-frame peak first, then taking a held maximum, reproduces these cases much better than updating the envelope only when the raw peak exceeds the held envelope. Constant-peak random binary input provides a control. The candidate now uses `smoothed += alpha * (peak - smoothed); held = max(held, smoothed)`. These successes support that ordering in this candidate; they do not resolve release behavior or the nonlinear feedback model.
+
+An isolated right-channel cue can still fail while the simultaneous continuous left tone matches closely. This prevents treating the sparse failures as merely a shared output-gain correction. The candidate remains outside the production DSP.
 
 ## Reproduce
 
@@ -63,4 +83,15 @@ uv run --locked python -m tools.rmx_spiral_core compare \
   --output build/artifacts/research/core-candidate
 ```
 
-Those complete cases are expected to fail. Comparison applies only the independently reviewed 32-frame bypass offset, with no gain fit or wet alignment search. It checks whole output and separately subtracted wet output per channel. Silent channels use an absolute leakage check and carry no percentage similarity claim. Reports, output directories and optional headers must be new. Original recordings and plug-in binaries remain local under ignored research artifacts.
+The stereo probe now passes; the DC-conditioned case still fails. Comparison applies only the independently reviewed 32-frame bypass offset, with no gain fit or wet alignment search. It checks whole output and separately subtracted wet output per channel. Silent channels use an absolute leakage check and carry no percentage similarity claim. Reports, output directories and optional headers must be new. Original recordings and plug-in binaries remain local under ignored research artifacts.
+
+Capture `--stage long-clock` and `--stage probe-zero` into separate new session directories, then verify each with the same stage. These add one and two captures. Analyze the long clock with:
+
+```sh
+uv run --locked python -m tools.rmx_spiral_core clock \
+  --session build/artifacts/research/core-long-clock \
+  --renderer build/spiral-neutral-probe --calibration calibration-reviewed.json \
+  --output build/artifacts/research/core-long-clock-analysis
+```
+
+`compare --session DIRECTORY` selects every captured Main-128, Sub2-zero, 120-BPM case in that directory. Repeat `--session` for the six characterization stages, four original core stages and new `probe-zero` stage to reproduce the 208-case sweep. Out-of-scope controls are listed separately in the report; they are not passes. `--case` remains available for explicit recordings. The long-clock command is a component analysis and cannot certify the complete effect.

@@ -1,5 +1,5 @@
 // Research-only candidate. It deliberately remains outside the production DSP.
-// Full stereo/impulse-tail comparisons fail; see ../spiral-core.md.
+// Sparse-impulse/DC-tail comparisons fail; see ../spiral-core.md.
 #include "rmx/Wav.h"
 #include "rmx/Dsp.h"
 #include "rmx/FactoryEchoReturn.h"
@@ -58,24 +58,28 @@ int main(int argc,char** argv) {try {
     rmx::FactoryEchoReturn echoes;echoes.prepare(48000);
     echoes.restart(rmx::FactoryEchoReturn::Profile::spiral);
     const double delay=down?spiralLoopDelay[1]:spiralLoopDelay[0];
-    const double anchor=down?108128:98496,feedbackGain=down?1.2:1.5;
+    const double feedbackGain=down?1.2:1.5;
     const double gain=down?1:spiralUpOutputScale;
     const size_t latency=down?640:1792;
     std::vector<std::array<double,2>> latencyLine(latency);
     std::array<std::array<double,32>,2> shapeState{};
     size_t shapeHead=0,latencyHead=0;
-    double envelope=0;
+    double smoothedPeak=0,envelope=0;
     for(size_t block=0;block<output.frames.size();block+=32) {
         double peak=0;
         for(size_t n=block;n<std::min(block+32,input.frames.size());++n)
             peak=std::max(peak,std::abs(static_cast<double>(input.frames[n].l)+input.frames[n].r));
-        // This peak-hold and feedback arrangement is a hypothesis. Complete
-        // comparison failures prevent adopting it as the production model.
-        if(peak>envelope)envelope+=spiralEnvelopeAlpha*(peak-envelope);
+        // Smoothing precedes the maximum hold. Variable-peak noise distinguishes
+        // this from smoothing only increases. Release behavior is unresolved.
+        smoothedPeak+=spiralEnvelopeAlpha*(peak-smoothedPeak);
+        envelope=std::max(envelope,smoothedPeak);
         for(size_t n=block;n<std::min(block+32,output.frames.size());++n) {
             const auto x=n<input.frames.size()?input.frames[n]:rmx::Stereo{};
-            // Empirical neutral-clock hypothesis, including the capture-time anchor.
-            const auto tap=feedback.read(delay+2.086162567138672e-6*(static_cast<double>(block)-anchor));
+            // Empirical neutral-clock model. The quiet 34-second capture rules
+            // out both an unbounded ramp and a simple sawtooth phase wrap.
+            const double phase=2.086162567138672e-6*(static_cast<double>(block)-64);
+            const double triangle=1-std::abs(std::fmod(phase+1,4)-2);
+            const auto tap=feedback.read(std::floor(delay)+triangle-std::floor(triangle));
             std::array<double,2> z{},wet{};
             for(size_t ch=0;ch<2;++ch) {
                 const double inputValue=sourceFilter[ch].tick(ch?x.r:x.l)+(ch?tap.r:tap.l)*feedbackGain;
