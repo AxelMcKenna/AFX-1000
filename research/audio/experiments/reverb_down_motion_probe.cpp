@@ -35,6 +35,19 @@ struct AllPass {
     double tick(double x) noexcept {const double y=delay.tap(length)-.7*x;delay.push(x+.7*y);return y;}
 };
 struct Controls {int main{128},amount{128},cutoff{},enabled{1};};
+// Independently expressed room-size hypothesis, checked against all 2,520
+// observable integer delays in the frozen static calibration (raw Main 4..255).
+float roomScale(int raw) noexcept {
+    const float p=static_cast<float>(std::max(0,raw-3))*(1.f/252.f)*99.f+1.f;
+    const float q=p*.02306f+1.01f;
+    return (q*q)*.171f+.2f;
+}
+constexpr std::array<std::array<int,2>,5> roomBases{{{1032,1146},{1060,1856},{1145,1961},{1916,1115},{1992,1190}}};
+double mainMix(int raw) noexcept {return std::min(1.,4.*std::max(0,raw-3)/252);}
+double returnShape(int main,int amount) noexcept {
+    const double a=amount<100?1:.3+.7*std::pow(1-(amount-100)/155.,2);
+    return .7*(a+std::pow(std::min(1.,main/183.),2)*std::pow(1-a,7));
+}
 struct Event {size_t frame{};std::string control;int value{};};
 struct Plan {Controls initial;double tail{};std::vector<Event> events;};
 void valid(const Controls& c) {
@@ -78,7 +91,7 @@ Plan readPlan(const std::filesystem::path& path) {
 }
 class Model {
 public:
-    Model(std::string gateMode,std::string cutoffPosition,bool gainAtInput,std::string levelPosition,size_t rampFrames,std::string rampComponents,double decaySlewStep):gate(std::move(gateMode)),position(std::move(cutoffPosition)),level(std::move(levelPosition)),rampParts(std::move(rampComponents)),writeGain(gainAtInput),rampLength(rampFrames),decaySlew(decaySlewStep) {
+    Model(std::string gateMode,std::string cutoffPosition,bool gainAtInput,std::string levelPosition,size_t rampFrames,std::string rampComponents,double decaySlewStep):gate(std::move(gateMode)),position(std::move(cutoffPosition)),level(std::move(levelPosition)),rampParts(rampComponents=="adaptive"?"staged":rampComponents),writeGain(gainAtInput),rampLength(rampFrames),decaySlew(decaySlewStep),adaptive(rampComponents=="adaptive") {
         for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch) {
             size_t maximum=1;
             for(const auto& row:reverbDownControls)maximum=std::max(maximum,static_cast<size_t>(row.delays[j][ch]));
@@ -89,16 +102,51 @@ public:
         allpasses[0][0].prepare(335);allpasses[0][1].prepare(1091);
         allpasses[1][0].prepare(395);allpasses[1][1].prepare(1031);
     }
+    void control(const Controls& target) noexcept {
+        const auto approach=[](int a,int b){return a+(a<b?1:(a>b?-1:0));};
+        Controls c=state;
+        c.main=approach(c.main,target.main);c.cutoff=approach(c.cutoff,target.cutoff);c.enabled=target.enabled;
+        geometryStart=amountStart=false;
+        if(!sharedBlocks){
+            if(slowMain!=target.main){
+                const int desired=15-std::min(5,std::abs(target.main-slowMain));
+                mainPeriod=approach(mainPeriod,desired);
+                pendingMain=approach(slowMain,target.main);
+                sharedBlocks=static_cast<size_t>(mainPeriod);geometryStart=true;
+            }else if(c.amount!=target.amount){
+                c.amount=approach(c.amount,target.amount);sharedBlocks=5;amountStart=true;
+            }
+        }
+        configure(c);
+    }
     void configure(const Controls& c) noexcept {
-        const auto& row=reverbDownControls[static_cast<size_t>(c.main)];
-        delays=row.delays;
+        if(adaptive&&!prepared){slowMain=pendingMain=c.main;fastMix=mainMix(c.main);}
+        const int roomMain=adaptive?(geometryStart?pendingMain:slowMain):c.main;
+        const auto& row=reverbDownControls[static_cast<size_t>(roomMain)];
+        if(!adaptive)delays=row.delays;
+        else if(!prepared||geometryStart){
+            const float scale=roomScale(roomMain);
+            for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch){
+                const float requested=scale*static_cast<float>(roomBases[j][ch]);
+                delayTarget[j][ch]=requested;
+                if(!prepared)delayCurrent[j][ch]=requested;
+                delayStep[j][ch]=sharedBlocks?(requested-delayCurrent[j][ch])*(1.f/static_cast<float>(sharedBlocks*32)):0;
+                delays[j][ch]=static_cast<int>(delayCurrent[j][ch]);
+            }
+            geometryRemaining=sharedBlocks*32;
+        }
         const auto decay=[](double raw){return 1+49*std::pow(std::max(0.,raw-3)/252,3);};
         decayTarget=decay(c.amount);
         if(!prepared||!decaySlew)decayCurrent=decayTarget;
         const double exponent=decay(128)/decayCurrent;
-        for(size_t j=0;j<5;++j){gl[j]=std::pow(row.gainL[j],exponent);gr[j]=std::pow(row.gainR[j],exponent);}
+        for(size_t j=0;j<5;++j){
+            const auto& feedbackRow=adaptive&&roomMain<4?reverbDownControls[4]:row;
+            const double hiddenScale=adaptive&&roomMain<4?roomScale(roomMain)/roomScale(4):1;
+            gl[j]=std::pow(feedbackRow.gainL[j],exponent*hiddenScale);
+            gr[j]=std::pow(feedbackRow.gainR[j],exponent*hiddenScale);
+        }
         wetGain=row.wetGain*reverbDownAmountGain[static_cast<size_t>(c.amount)]/reverbDownAmountGain[128];
-        wetGain*=1+reverbDownMainCorrection[static_cast<size_t>(c.main)]*reverbDownAmountCorrection[static_cast<size_t>(c.amount)];
+        wetGain*=1+reverbDownMainCorrection[static_cast<size_t>(roomMain)]*reverbDownAmountCorrection[static_cast<size_t>(c.amount)];
         sendGain=wetGain;returnGain=1;
         if(level=="output"){sendGain=1;returnGain=wetGain;}
         else if(level=="main-send"){
@@ -109,13 +157,29 @@ public:
             sendGain=reverbDownAmountGain[static_cast<size_t>(c.amount)]/reverbDownAmountGain[128];
             returnGain=row.wetGain*(1+reverbDownMainCorrection[static_cast<size_t>(c.main)]*reverbDownAmountCorrection[static_cast<size_t>(c.amount)]);
         }
+        if(adaptive){
+            // Factor the independently measured static gain into input size
+            // compensation and return normalization; no motion fitting here.
+            const int audibleMain=std::max(4,slowMain);
+            const double staticMain=reverbDownControls[static_cast<size_t>(audibleMain)].wetGain;
+            sendGain=staticMain/(mainMix(audibleMain)*returnShape(audibleMain,128));
+            const int targetAudible=std::max(4,roomMain);
+            const double targetSend=reverbDownControls[static_cast<size_t>(targetAudible)].wetGain/
+                (mainMix(targetAudible)*returnShape(targetAudible,128));
+            returnGain=roomMain<4?returnShape(roomMain,c.amount):wetGain/(targetSend*mainMix(roomMain));
+            if(!prepared)fastMix=mainMix(c.main);
+            if(c.main!=state.main){fastMixTarget=mainMix(c.main);fastMixStep=(fastMixTarget-fastMix)/32;mixRemaining=32;}
+        }
         std::array<double,12> requested{};
         for(size_t j=0;j<5;++j){requested[j]=gl[j];requested[j+5]=gr[j];}
         requested[10]=sendGain;requested[11]=returnGain;
         if(!prepared||(rampParts!="staged"&&!rampLength)){coefficients=targetCoefficients=requested;remaining=0;prepared=true;}
         else if(rampParts=="staged"){
             for(size_t j=0;j<12;++j)if(requested[j]!=targetCoefficients[j]){
-                const size_t length=j<10?160:static_cast<size_t>(c.amount<state.amount?2000:2600)*32;
+                const size_t length=adaptive?(j==10?1:(geometryStart?(j<10?sharedBlocks*32:160):
+                    (j<10?160:static_cast<size_t>(c.amount<state.amount?2000:2600)*32))):
+                    (j<10?160:static_cast<size_t>(c.amount<state.amount?2000:2600)*32);
+                if(adaptive&&j!=10&&!geometryStart&&!amountStart)continue;
                 targetCoefficients[j]=requested[j];stagedRemaining[j]=length;
                 steps[j]=(requested[j]-coefficients[j])/static_cast<double>(length);
             }
@@ -129,7 +193,7 @@ public:
             }
         }
         compensation=1+.5*c.cutoff/255;
-        dryGain=row.dryGain;
+        dryGain=reverbDownControls[static_cast<size_t>(c.main)].dryGain;
         if(gate=="faded"){
             if(!activationPrepared){
                 initialActive=c.enabled;
@@ -146,6 +210,15 @@ public:
         state=c;
     }
     std::array<rmx::Stereo,2> tick(rmx::Stereo input) noexcept {
+        if(adaptive){
+            if(geometryRemaining){
+                for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch){
+                    delays[j][ch]=static_cast<int>(delayCurrent[j][ch]);
+                }
+            }
+            if(mixRemaining){fastMix+=fastMixStep;if(!--mixRemaining)fastMix=fastMixTarget;}
+            if(frame%32==31&&sharedBlocks&&!--sharedBlocks)slowMain=pendingMain;
+        }
         if(rampParts=="staged")for(size_t j=0;j<12;++j)if(stagedRemaining[j]){
             coefficients[j]+=steps[j];
             if(!--stagedRemaining[j])coefficients[j]=targetCoefficients[j];
@@ -196,7 +269,7 @@ public:
         }
         const bool warming=gate=="faded"&&warmRemaining;
         for(size_t ch=0;ch<2;++ch) {
-            source[ch]*=coefficients[10];
+            source[ch]*=coefficients[10]*(adaptive?fastMix:1);
             if(position=="pre")source[ch]=outputFilter[ch].tick(source[ch]);
         }
         for(size_t j=0;j<5;++j) {
@@ -205,6 +278,14 @@ public:
             combs[j][0].push((source[0]+right)*(!warming&&writeGain?coefficients[j]:1));
             combs[j][1].push(warming&&j==0?0:(source[1]+left)*(!warming&&writeGain?coefficients[j+5]:1));
             wet[0]+=left;wet[1]+=right;
+        }
+        if(adaptive&&geometryRemaining){
+            for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch){
+                delayCurrent[j][ch]+=delayStep[j][ch];
+                if(geometryRemaining==1)delayCurrent[j][ch]=delayTarget[j][ch];
+                delays[j][ch]=static_cast<int>(delayCurrent[j][ch]);
+            }
+            --geometryRemaining;
         }
         for(size_t ch=0;ch<2;++ch) {
             if(position=="comb")wet[ch]=outputFilter[ch].tick(wet[ch])*compensation;
@@ -254,10 +335,15 @@ private:
     float inputFade{},dryCurrent{1},dryTarget{1},dryStep{};
     size_t warmRemaining{},dryRemaining{},dryRestart{};
     bool activationPrepared{},lastDelayedEnabled{},everActivated{},initialActive{};
+    bool adaptive{},geometryStart{},amountStart{};
+    int slowMain{},pendingMain{},mainPeriod{60};
+    size_t sharedBlocks{},geometryRemaining{},mixRemaining{};
+    std::array<std::array<float,2>,5> delayCurrent{},delayTarget{},delayStep{};
+    double fastMix{},fastMixTarget{},fastMixStep{};
 };
 }
 int main(int argc,char** argv){try {
-    if(argc<9||argc>13)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send [COEFFICIENT_RAMP_FRAMES [all|levels|feedback|staged [DECAY_STEP_PER_32_FRAMES]]]]");
+    if(argc<9||argc>13)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset|faded pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send [COEFFICIENT_RAMP_FRAMES [all|levels|feedback|staged|adaptive [DECAY_STEP_PER_32_FRAMES]]]]");
     if(std::filesystem::exists(argv[2])||std::filesystem::exists(argv[8]))throw std::runtime_error("Output/trace must be new");
     const std::string gate=argv[4],position=argv[5],gain=argv[6];
     if(gate!="inlet"&&gate!="output"&&gate!="inlet-output"&&gate!="reset"&&gate!="faded")throw std::runtime_error("Invalid gate mode");
@@ -268,12 +354,14 @@ int main(int argc,char** argv){try {
     size_t ramp{};
     if(argc>=11){const std::string value=argv[10];size_t count{};ramp=std::stoul(value,&count);if(count!=value.size()||ramp>200000)throw std::runtime_error("Invalid coefficient ramp");}
     const std::string parts=argc>=12?argv[11]:"all";
-    if(parts!="all"&&parts!="levels"&&parts!="feedback"&&parts!="staged")throw std::runtime_error("Invalid ramp components");
+    if(parts!="all"&&parts!="levels"&&parts!="feedback"&&parts!="staged"&&parts!="adaptive")throw std::runtime_error("Invalid ramp components");
     double decaySlew{};
     if(argc==13){const std::string value=argv[12];size_t count{};decaySlew=std::stod(value,&count);if(count!=value.size()||!std::isfinite(decaySlew)||decaySlew<0||decaySlew>50||(decaySlew&&parts!="levels"))throw std::runtime_error("Invalid decay slew");}
     const std::string quantumText=argv[7];size_t used{};const auto quantum=std::stoul(quantumText,&used);
     if(used!=quantumText.size()||(quantum!=1&&quantum!=32&&quantum!=128))throw std::runtime_error("Invalid control quantum");
-    if(parts=="staged"&&(quantum!=32||ramp))throw std::runtime_error("Staged controller requires quantum 32 and no generic coefficient ramp");
+    if((parts=="staged"||parts=="adaptive")&&(quantum!=32||ramp))throw std::runtime_error("Staged controller requires quantum 32 and no generic coefficient ramp");
+    if(parts=="adaptive"&&(gate!="faded"||position!="post"||gain!="read"||level!="output"))
+        throw std::runtime_error("Adaptive research controller requires faded/post/read/output");
     const auto plan=readPlan(argv[3]);const auto input=rmx::readWav(argv[1],180);
     if(input.rate!=48000)throw std::runtime_error("Research candidate requires 48 kHz");
     rmx::Sample output,dry;output.rate=dry.rate=48000;
@@ -281,10 +369,11 @@ int main(int argc,char** argv){try {
     for(const auto& e:plan.events)if(e.frame>=output.frames.size())throw std::runtime_error("Event outside render extent");
     Model model(gate,position,gain=="write",level,ramp,parts,decaySlew);Controls target=plan.initial,current=plan.initial;model.configure(current);size_t event=0,amountWait=0;bool dirty=false;
     for(size_t n=0;n<output.frames.size();++n) {
+        if(parts=="adaptive"&&n%32==0&&n)model.control(target);
         if(gate!="faded")while(event<plan.events.size()&&plan.events[event].frame==n){apply(target,plan.events[event]);++event;dirty=true;}
         const bool amountReady=amountWait==0;
         if(n%quantum==0&&amountWait)--amountWait;
-        if(dirty&&n%quantum==0){
+        if(parts!="adaptive"&&dirty&&n%quantum==0){
             const auto approach=[](int a,int b){return a+(a<b?1:(a>b?-1:0));};
             current.main=approach(current.main,target.main);
             if(parts!="staged"||amountReady){

@@ -15,7 +15,7 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout')
+HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout','main-holdout')
 CAPTURE_STAGES = (*STAGES,*HOLDOUT_STAGES,'state-probes','button-probes','initialization-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
@@ -164,6 +164,32 @@ def recipe(stage):
             add(f'settled-amount-{start}-{end}','late',amount=start,
                 events=[dict(frame=event_frame,control='amount',value=end)],
                 baseline=f'down-settled-amount-baseline-{end}')
+    elif stage == 'main-holdout':
+        fresh=np.zeros((480000,2))
+        fresh[12000:456000]=np.random.default_rng(0x4A1C27).normal(0,.016,(444000,2))
+        t=np.arange(444000)/48000
+        fresh[12000:456000]+=.009*np.column_stack((np.sin(2*np.pi*(193*t+67*t*t)),
+                                                   np.cos(2*np.pi*1427*t)+np.sin(2*np.pi*83*t)))
+        gap=fresh.copy();gap[144000:264000]=0
+        pulses=np.zeros_like(fresh)
+        pulses[[24017,96029,120101,144107,192023,264019,384031]]=[
+            [.019,0],[0,-.023],[.011,.017],[-.021,.013],[.016,0],[.015,-.019],[0,.021]]
+        waves=dict(main_program=fresh,main_gap=gap,main_pulses=pulses)
+        specs=[(31,87,19,1,'main_program',32,[(96013,'main',247),(96143,'main',19),(144031,'main',211)]),
+            (223,239,77,1,'main_gap',256,[(144019,'main',12),(288037,'main',199)]),
+            (0,128,241,1,'main_program',128,[(72000,'main',3),(96032,'main',4),(120064,'main',0),(144096,'main',128)]),
+            (143,47,0,1,'main_pulses',32,[(96013,'main',144),(120019,'main',143),(144023,'main',144)]),
+            (255,32,95,1,'main_program',256,[(96017,'main',0),(240031,'main',255)]),
+            (64,201,223,1,'main_gap',128,[(96013,'main',219),(96013,'amount',17),(96013,'cutoff',32),
+                (144019,'main',83),(144019,'amount',247),(144019,'cutoff',111)]),
+            (176,7,138,1,'main_program',32,[(96013,'main',129),(97019,'amount',255),(192031,'amount',3),
+                (240043,'main',183),(240043,'amount',128)]),
+            (129,177,32,0,'main_program',256,[(31,'main',61),(48013,'enabled',1),(96017,'main',203),
+                (120019,'enabled',0),(144023,'main',1),(192031,'enabled',1),(240037,'main',157)])]
+        for i,(main,amount,cutoff,enabled,source,block,events) in enumerate(specs):
+            high=max([amount]+[v for _,k,v in events if k=='amount'])
+            add(f'main-holdout-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if high>=192 else 18,
+                events=[dict(frame=n,control=k,value=v) for n,k,v in events])
     elif stage == 'sub1-holdout':
         fresh=np.zeros((288000,2))
         fresh[24000:264000]=np.random.default_rng(0xA18C7).normal(0,.019,(240000,2))
@@ -246,6 +272,10 @@ def prediction_kind(stage):
 
 
 def predicted_config(stage):
+    if stage=='main-holdout':
+        return dict(gate='faded',cutoff_position='post',gain_position='read',control_quantum=32,
+            candidate_latency=32,level_position='output',coefficient_ramp_frames=0,
+            ramp_components='adaptive',decay_step_per_32_frames=0)
     staged=stage=='sub1-holdout' or stage.startswith('activation-')
     return dict(gate='faded' if stage.startswith('activation-') else 'inlet',cutoff_position='post',gain_position='read',control_quantum=32,
         candidate_latency=32,level_position='output' if staged else 'send',coefficient_ramp_frames=0,
@@ -260,7 +290,8 @@ def predict(args):
         renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),
         calibration_sha256=sha256(args.calibration),candidate_config=predicted_config(args.stage),
         expected='All eight complete renders pass whole/wet/tail, every event window and applicable activation-start windows at relative RMS <=0.01.',
-        scope=('Only the enabled button moves; Main/Sub1/Sub2 stay fixed. Initial active/inactive states vary.' if args.stage.startswith('activation-')
+        scope=('Main moves, including simultaneous Sub1/Sub2 and button changes; initial active/inactive states vary.' if args.stage=='main-holdout'
+               else 'Only the enabled button moves; Main/Sub1/Sub2 stay fixed. Initial active/inactive states vary.' if args.stage.startswith('activation-')
                else 'Only '+('Sub1' if args.stage=='sub1-holdout' else 'Sub2')+' moves; other controls stay fixed and the effect starts enabled.')))
 
 
@@ -512,7 +543,7 @@ def main():
     p.add_argument('--gain-position',choices=('read','write'),default='read')
     p.add_argument('--level-position',choices=('send','output','main-send','amount-send'))
     p.add_argument('--coefficient-ramp',type=int,help='Exploratory linear feedback/level coefficient ramp, 0..200000 frames')
-    p.add_argument('--ramp-components',choices=('all','levels','feedback','staged'))
+    p.add_argument('--ramp-components',choices=('all','levels','feedback','staged','adaptive'))
     p.add_argument('--decay-slew',type=float,help='Exploratory nominal T60 step per 32 frames; requires levels-only ramp')
     p.add_argument('--case',action='append',help='Exact recipe name; repeat to select diagnostic cases')
     p.add_argument('--candidate-latency',type=int,choices=(0,32),default=32)
