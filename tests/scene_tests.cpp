@@ -13,6 +13,23 @@ float sine(double frequency,size_t i) {return .2f*static_cast<float>(std::sin(2*
 double energy(Stereo x) {return x.l*x.l+x.r*x.r;}
 int main() {try {
     {
+        // Return component only; the input here stands in for a separately
+        // generated pitch stream. This does not exercise a Spiral generator.
+        FactoryEchoReturn processor;processor.prepare(48000);
+        for(const auto [bpm,delay]:std::array<std::pair<double,size_t>,3>{{{120,12000},{128,11232},{137,10488}}}) {
+            processor.reset();processor.restart(FactoryEchoReturn::Profile::spiral);
+            const double first=.25*0.7079457843841379*.7*(1-.5/62.25);
+            for(size_t i=0;i<=delay*2;++i) {
+                const auto output=processor.process(i==0?std::array<double,2>{.25,-.125}:std::array<double,2>{},128,i<100?1:0,bpm);
+                if(i<delay)require(output[0]==0&&output[1]==0,"Spiral return arrived before its measured division");
+                if(i==delay)require(std::abs(output[0]-first)<1e-7,"Spiral return changed its measured -3 dB send/0.7 return gain");
+                if(i==delay*3/2)require(std::abs(output[0]-.25*0.7079457843841379*.7*(.5/62.25))<1e-7,"Spiral return lost its adjacent crossfaded tap");
+                if(i==delay*2)require(std::abs(output[0]-first*.75)<1e-7,"Spiral return changed its measured 0.75 feedback");
+                require(std::abs(output[0]+output[1]*2)<1e-7,"Spiral return introduced channel coupling");
+            }
+        }
+    }
+    {
         for(int raw:{113,177,213,253}) {
             Engine before,after;
             const auto controls=[&](Engine& engine) {

@@ -1,6 +1,7 @@
 #pragma once
 #include "Dsp.h"
 #include "FilterEchoCalibration.h"
+#include "FactoryEchoReturn.h"
 #include <array>
 
 namespace rmx {
@@ -10,12 +11,11 @@ namespace rmx {
 class CalibratedFilterEcho {
 public:
     void prepare(double rate) {
-        for(auto& line:lines)line.prepare(static_cast<size_t>(rate*1.5)+4);
-        for(auto& channel:returns)for(auto& filter:channel)filter.configure(283.99944,rate,true);
+        echoReturn.prepare(rate);
         reset();
     }
     void reset() noexcept {
-        for(auto& line:lines)line.reset();
+        echoReturn.reset();
         clearFilters();age=0;lastType=lastRaw=-1;
     }
     void invalidate() noexcept {lastType=-1;}
@@ -23,7 +23,7 @@ public:
         raw=std::clamp(raw,0,255);timeRaw=std::clamp(timeRaw,0,255);
         if(type!=lastType) {
             clearFilters();age=0;lastType=type;lastRaw=-1;
-            for(auto& channel:returns)for(auto& filter:channel)filter.configure(type==7?60:283.99944,48000,true);
+            echoReturn.restart(type==7?FactoryEchoReturn::Profile::crush:FactoryEchoReturn::Profile::filter);
         }
         if(raw!=lastRaw) {configure(type,raw);lastRaw=raw;}
         const double original[]{input.l,input.r};double direct[2]{},feed[2]{};
@@ -53,27 +53,11 @@ public:
                 direct[channel]=feed[channel]=x+(y-x)*gain;
             }
         }
-        std::array<float,4> weights{};
-        const float position=std::clamp((timeRaw-3)/62.25f,0.f,4.f);
-        const unsigned upper=std::min(3u,static_cast<unsigned>(position));
-        if(upper>0)weights[upper-1]=upper+1-position;
-        weights[upper]=position-upper;
-        if(position==4)weights[3]=1;
-        const double beat=48*std::floor(60000/std::clamp(bpm,40.,240.));
-        Stereo returned{};
         const float activation=std::clamp((raw-4)/5.f,0.f,1.f)*enabled;
-        for(size_t i=0;i<lines.size();++i) {
-            const double delay=beat*(i+1)*.25;
-            const auto tap=age>=static_cast<uint64_t>(delay)?lines[i].read(delay):Stereo{};
-            returned=returned+tap*weights[i];
-            lines[i].push({static_cast<float>(std::clamp(feed[0]*activation+tap.l*.75,-8.,8.)),
-                           static_cast<float>(std::clamp(feed[1]*activation+tap.r*.75,-8.,8.))});
-        }
+        const auto tail=echoReturn.process({feed[0],feed[1]},timeRaw,activation,bpm);
         ++age;
-        const double tail[]{returns[0][1].tick(returns[0][0].tick(returned.l)),
-                            returns[1][1].tick(returns[1][0].tick(returned.r))};
-        return {static_cast<float>(original[0]+(direct[0]-original[0])*enabled+tail[0]*.7),
-                static_cast<float>(original[1]+(direct[1]-original[1])*enabled+tail[1]*.7)};
+        return {static_cast<float>(original[0]+(direct[0]-original[0])*enabled+tail[0]),
+                static_cast<float>(original[1]+(direct[1]-original[1])*enabled+tail[1])};
     }
 private:
     struct Biquad {
@@ -129,11 +113,9 @@ private:
     void clearFilters() noexcept {
         bandState={};feedbackState={};feedbackPoleState={};held={};holdCounter=0;
         for(auto& f:main)f.reset();for(auto& f:feedbackBand)f.reset();
-        for(auto& channel:returns)for(auto& f:channel)f.reset();
     }
-    std::array<FractionalDelay,4> lines;
+    FactoryEchoReturn echoReturn;
     std::array<Biquad,2> main,feedbackBand;
-    std::array<std::array<Biquad,2>,2> returns;
     std::array<std::array<double,5>,2> bandState{};
     std::array<double,2> feedbackState{},feedbackPoleState{};
     BandEchoPoint band{};double feedbackPole{},feedbackGain{},resonance{},gain{};

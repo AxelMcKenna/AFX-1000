@@ -89,6 +89,42 @@ uv run --locked python -m tools.rmx_filter_match \
 
 The recipe labels immediate-start noise as diagnostic rather than a static pass. Original output differs during its first host block across block sizes; the checked 128-frame and 256-frame startup regions are excluded from its settled block-repeatability claim. Immediate nonzero startup, moving controls, effect switching, overload, other widths/rates and Sub2 modulation remain unmatched. Event plans still require native-host validation. Vendor recordings remain outside Git.
 
+## Spiral: characterization and outer return component
+
+The [identification record](../research/audio/measurements/2026-10-26-spiral-identification.json) records diagnostics from 106 selected captures in a 192-capture campaign. Factory Up/Down were tested at 48 kHz using impulses, separated and simultaneous channels, tone levels, input phase, DC-biased tones, binary noise and independent stereo probes. Repeated checked pulse captures are bit-exact. Wet superposition fails, and changing only the right input changes the left wet level substantially. A positive DC-biased tone has almost no late wet output. These observations constrain the generator; they do not identify its architecture.
+
+At Main raw 128 and Sub2 zero, initial wet onsets are 1,792 frames for Up and 640 for Down, in addition to the independently established 32-frame bypass latency. Up retains unity dry gain at measured Main positions; Down's measured dry law is `clamp((255-rawMain)/126,0,1)`. Dominant tone frequencies and attack-envelope fits are diagnostics, not a validated pitch or envelope model. The production pitch generator remains the earlier approximation.
+
+The outer return is separately identified: four independent unfiltered combs at quarter/half/three-quarter/one beat, feedback 0.75, send gain −3 dB, return gain 0.7, and the same adjacent Sub1 crossfade and whole-millisecond beat clock as Filter/Crush Echo. `FactoryEchoReturn.h` shares that implementation while retaining their respective 284/60 Hz return filters. Its Spiral profile is available to the component probe; it is not connected to the unmatched production pitch generator.
+
+Thirty-two [component comparisons](../research/audio/measurements/2026-10-26-spiral-return-validation-48k.json) pass: sixteen impulse cases and sixteen independent stereo-probe cases at 120/137 BPM, including Main 113 and Sub1 positions excluded from fitting. Worst checked per-channel relative RMS error is 0.000047%. **The component input is the original plug-in's measured pitch stream. This does not validate a clone Spiral generator or the full effect.** No gain or wet-delay fitting is used. Four complete BPF/HPF/LPF/Crush renders remain bit-identical after extracting the shared component.
+
+Reproduce with an independently obtained original bundle and reviewed bypass calibration:
+
+```sh
+uv run --locked python -m tools.rmx_spiral_characterize capture \
+  --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
+  --session build/artifacts/research/spiral-identification
+uv run --locked python -m tools.rmx_spiral_characterize analyze \
+  --session build/artifacts/research/spiral-identification \
+  --calibration calibration-reviewed.json --report build/artifacts/research/spiral-identification.json
+uv run --locked python -m tools.rmx_spiral_return capture \
+  --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
+  --session build/artifacts/research/spiral-return-impulses --main 128 --bpm 120 \
+  --times 32 64 96 128 160 192 224 255 --stimulus impulses
+uv run --locked python -m tools.rmx_spiral_return capture \
+  --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
+  --session build/artifacts/research/spiral-return-probe
+cmake --build build --target rmx_spiral_return_probe
+uv run --locked python -m tools.rmx_spiral_return compare \
+  --session build/artifacts/research/spiral-return-impulses \
+  --session build/artifacts/research/spiral-return-probe \
+  --renderer build/rmx_spiral_return_probe --calibration calibration-reviewed.json \
+  --output build/artifacts/research/spiral-return-candidate
+```
+
+Capture destinations and reports must be new. The characterization matrix writes substantial local audio and takes several minutes. Its stages can also be captured independently with `--stage`; combine their directories using the analyzer's six stage arguments. `--legacy-initial` permits the recorded initial campaign's naming convention for component comparison. Both analyzers verify reference identity and input/output/plan hashes. All raw vendor audio and binaries stay outside Git. Shared amplitude detection, pitch/phase reconstruction, Main mapping, inner feedback, other Sub2 positions, profiles, gestures and full-effect validation remain outstanding.
+
 ## Noise identification and statistics
 
 Noise is independently excited in stereo. Repeated original renders after the documented activation event were bit-exact, but this project uses its own random generator. A sample null is therefore not its acceptance test. Common-seed original outputs identify a third-order filter with a fixed `(1-z^-2)` numerator. Twenty-one Main positions calibrate its coefficients/gain; a shape-preserving cubic interpolates them. Four additional positions differ by at most about 0.082 dB in the identified transfer response. These measurements are retained in the [filter identification report](../research/audio/measurements/2026-10-26-noise-filter.json).
@@ -256,4 +292,4 @@ uv run --locked python -m tests.reference_host_tests \
 
 Those tests validate the host, including event timing across block sizes and rejection of invalid capture plans. They never substitute the project plug-in for an original-unit reference. AU loading additionally depends on macOS component registration being available to the process.
 
-Reference loading and actual effect fitting remain open. Sweep deconvolution, distortion-order separation, two-tone intermodulation, repeated stochastic acceptance, full control-map capture, listening tests and measured hardware validation still need implementation or reference data. The [capture manifest](reference-manifest.schema.json) remains the device/session provenance contract; native host receipts supplement it and do not automatically promote a session to reviewed.
+Reference loading and the static fits described above are established for the scoped software settings. Sweep deconvolution, distortion-order separation, two-tone intermodulation, repeated stochastic acceptance, full control-map capture, listening tests and measured hardware validation still need implementation or reference data. The [capture manifest](reference-manifest.schema.json) remains the device/session provenance contract; native host receipts supplement it and do not automatically promote a session to reviewed.
