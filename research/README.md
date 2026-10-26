@@ -25,6 +25,7 @@ Investigations that inform the product: reference behavior, component candidates
 | [Reverb Down motion investigation](audio/measurements/2026-10-27-reverb-down-motion-characterization.json) | 61 verified original recordings, preserved tails, separate control timing and a 26/61 first candidate with all failures retained |
 | [Reverb Down cutoff motion](audio/reverb-down-motion.md) | Sub2 slew passes 16 cutoff-motion cases, including eight fresh captures; complete stateful candidate is 42/69 with 27 failures retained |
 | [Reverb Down slow-state measurements](audio/measurements/2026-10-27-reverb-down-state-density-characterization.json) | 93 additional original captures isolate dry ramps, button startup and slow wet-control changes; gain-only and simple coefficient-ramp fixes remain rejected |
+| [Reverb Down Sub1 motion](audio/measurements/2026-10-27-reverb-down-sub1-motion-validation-48k.json) | Staged Sub1 clock passes 14 motion cases including eight fresh captures; complete candidate is 56/77 with 21 Main/button/combined failures retained |
 | [Hardware component shortlist](hardware/components.md) | Control, sensor, mechanical and component candidates, source links and unresolved selections |
 | [Audio-design history](hardware/audio-design-history.md) | Preserved circuit/converter/gain/noise investigations and historical stage discussion |
 | [Reference and fidelity targets](../docs/specifications.md) | Current comparison targets and effect-characterization work still to perform |

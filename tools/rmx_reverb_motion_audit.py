@@ -10,7 +10,7 @@ import numpy as np
 from tools.noise_statistics import float_wav
 from tools.reference_audio import save_json, sha256, write_wav
 from tools.rmx_factory_match import new_directory, run
-from tools.rmx_reverb_motion import checked, prediction_payload, recipe
+from tools.rmx_reverb_motion import checked, prediction_payload, prediction_kind, predicted_config, recipe
 from tools.rmx_spiral_core import calibration
 
 
@@ -18,13 +18,21 @@ def audit(args):
     calibration(args.calibration)
     root = new_directory(args.output)
     prediction = json.loads(args.prediction.read_text())
-    if (prediction.get('kind') != 'rmx220-reverb-down-cutoff-motion-predictions'
-            or any(prediction.get(k) != v for k, v in prediction_payload('cutoff-holdout').items())
+    stage=prediction.get('stage')
+    if (stage not in ('cutoff-holdout','sub1-holdout')
+            or prediction.get('kind') != prediction_kind(stage)
+            or prediction.get('candidate_config')!=predicted_config(stage)
+            or any(prediction.get(k) != v for k, v in prediction_payload(stage).items())
             or prediction['model_sha256'] != sha256(args.model)
             or prediction['renderer_sha256'] != sha256(args.renderer)
             or prediction['calibration_sha256'] != sha256(args.calibration)):
         raise ValueError('Frozen prospective model/recipe/source/renderer/calibration differs')
     comparisons = [json.loads(p.read_text()) for p in args.comparison]
+    config=prediction['candidate_config']
+    def render(binary, source, output, schedule, dry):
+        return run([binary,source,output,schedule,config['gate'],config['cutoff_position'],config['gain_position'],
+            config['control_quantum'],dry,config['level_position'],config['coefficient_ramp_frames'],
+            config['ramp_components'],config['decay_step_per_32_frames']])
     records = {}
     for path, report in zip(args.comparison, comparisons):
         if (report['candidate_config'] != prediction['candidate_config']
@@ -41,6 +49,11 @@ def audit(args):
     host_hashes = set()
     guard_fixture = None
     for stage, directory in args.session:
+        if stage==prediction['stage']:
+            manifest=json.loads((directory/'matrix.json').read_text())
+            if (manifest['prediction_sha256']!=sha256(args.prediction)
+                    or sha256(directory/'predictions.json')!=sha256(args.prediction)):
+                raise ValueError('Fresh session is not bound to frozen predictions')
         waves, cases = recipe(stage)
         for case in cases:
             audio, source, provenance = checked(directory, case, waves[case['source']])
@@ -96,7 +109,7 @@ def audit(args):
     write_wav(input_file, 48000, x.ravel())
     schedule.write_text('RMX_REVERB_MOTION 1\ninitial 128 128 0 0\ntail 0.03\n')
     output, dry = root / 'bypass.wav', root / 'bypass-dry.wav'
-    run([args.renderer, input_file, output, schedule, 'inlet', 'post', 'read', 32, dry])
+    render(args.renderer,input_file,output,schedule,dry)
     y = float_wav(output)[1]
     expected = np.zeros_like(y)
     expected[32:32+len(x)] = x
@@ -127,14 +140,15 @@ def audit(args):
             raise ValueError('Capture guard accepted changed ' + field)
 
     sanitized = []
-    for key in (('steps', 'down-step-main-0-128'), ('cutoff-holdout', 'down-cutoff-holdout-0')):
+    fresh_key=(prediction['stage'],'down-'+prediction['stage']+'-0')
+    for key in (('steps', 'down-step-main-0-128'), fresh_key):
         parent, result = records[key]
         prefix = key[0] + '-' + key[1]
         plan = parent / (prefix + '.tsv')
         directory = dict(args.session)[key[0]]
         receipt = json.loads((directory / key[1] / 'receipt.json').read_text())
         out, trace = root / (prefix + '-asan.wav'), root / (prefix + '-asan-dry.wav')
-        run([args.sanitized, receipt['input_path'], out, plan, 'inlet', 'post', 'read', 32, trace])
+        render(args.sanitized,receipt['input_path'],out,plan,trace)
         if sha256(out) != result['candidate_sha256'] or sha256(trace) != result['dry_trace_sha256']:
             raise ValueError('Sanitized and optimized renders differ')
         sanitized.append(dict(stage=key[0], case=key[1], bit_exact=True, output_sha256=sha256(out)))

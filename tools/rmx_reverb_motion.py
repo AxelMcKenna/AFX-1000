@@ -15,7 +15,7 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-CAPTURE_STAGES = (*STAGES,'cutoff-holdout','state-probes')
+CAPTURE_STAGES = (*STAGES,'cutoff-holdout','sub1-holdout','state-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
 
@@ -110,6 +110,28 @@ def recipe(stage):
             add(f'settled-amount-{start}-{end}','late',amount=start,
                 events=[dict(frame=event_frame,control='amount',value=end)],
                 baseline=f'down-settled-amount-baseline-{end}')
+    elif stage == 'sub1-holdout':
+        fresh=np.zeros((288000,2))
+        fresh[24000:264000]=np.random.default_rng(0xA18C7).normal(0,.019,(240000,2))
+        t=np.arange(240000)/48000
+        fresh[24000:264000]+=.013*np.column_stack((np.sin(2*np.pi*(317*t+73*t*t)),
+                                                  np.cos(2*np.pi*1129*t)+np.sin(2*np.pi*79*t)))
+        gap=fresh.copy();gap[96000:192000]=0
+        pulses=np.zeros_like(fresh)
+        pulses[[24000,96007,120111,192019,240017]]=[[.021,0],[0,-.019],[.017,.011],[-.015,.023],[.012,0]]
+        waves=dict(sub1_program=fresh,sub1_gap=gap,sub1_pulses=pulses)
+        specs=[(37,91,0,'sub1_program',32,[(96013,239),(96109,13),(144019,177)]),
+            (221,230,19,'sub1_program',256,[(96013,19),(144013,247)]),
+            (128,3,77,'sub1_program',128,[(72001,4),(72045,0),(120013,3)]),
+            (255,254,138,'sub1_program',32,[(96013,255),(96077,250),(144031,0)]),
+            (64,96,241,'sub1_pulses',256,[(48049,97),(48095,95),(192019,201)]),
+            (176,223,255,'sub1_gap',128,[(144019,9),(145111,201),(192071,0)]),
+            (143,241,95,'sub1_pulses',32,[(96013,128),(100019,241),(192013,255)]),
+            (129,128,0,'sub1_program',256,[(96013+i*750,int(raw)) for i,raw in enumerate(np.rint(np.linspace(128,224,40)))])]
+        for i,(main,amount,cutoff,source,block,events) in enumerate(specs):
+            high=max([amount]+[value for _,value in events])
+            add(f'sub1-holdout-{i}',source,main,amount,cutoff,block=block,tail=90 if high>=192 else 18,
+                events=[dict(frame=frame,control='amount',value=value) for frame,value in events])
     elif stage == 'cutoff-holdout':
         fresh=np.zeros((288000,2))
         fresh[24000:264000]=np.random.default_rng(0xC039A7).normal(0,.019,(240000,2))
@@ -165,33 +187,45 @@ def prediction_payload(stage):
         source_samples_sha256={name:hashlib.sha256(x.astype('<f4').tobytes()).hexdigest() for name,x in waves.items()})
 
 
+def prediction_kind(stage):
+    return 'rmx220-reverb-down-'+('sub1' if stage=='sub1-holdout' else 'cutoff')+'-motion-predictions'
+
+
+def predicted_config(stage):
+    sub1=stage=='sub1-holdout'
+    return dict(gate='inlet',cutoff_position='post',gain_position='read',control_quantum=32,
+        candidate_latency=32,level_position='output' if sub1 else 'send',coefficient_ramp_frames=0,
+        ramp_components='staged' if sub1 else 'all',decay_step_per_32_frames=0)
+
+
 def predict(args):
     calibration(args.calibration)
-    payload=prediction_payload('cutoff-holdout')
-    save_json(args.report,dict(kind='rmx220-reverb-down-cutoff-motion-predictions',**payload,
+    payload=prediction_payload(args.stage)
+    save_json(args.report,dict(kind=prediction_kind(args.stage),**payload,
         model_path=str(args.model.resolve()),model_sha256=sha256(args.model),
         renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),
-        calibration_sha256=sha256(args.calibration),candidate_config=dict(gate='inlet',cutoff_position='post',
-            gain_position='read',control_quantum=32,candidate_latency=32,level_position='send',
-            coefficient_ramp_frames=0,ramp_components='all',decay_step_per_32_frames=0),
+        calibration_sha256=sha256(args.calibration),candidate_config=predicted_config(args.stage),
         expected='All eight complete renders pass whole/wet/tail and every event window at relative RMS <=0.01.',
-        scope='Only Sub2 moves; Main/Sub1 stay fixed and the effect starts enabled.'))
+        scope='Only '+('Sub1' if args.stage=='sub1-holdout' else 'Sub2')+' moves; other controls stay fixed and the effect starts enabled.'))
 
 
 def capture(args):
     calibration(args.calibration)
-    if args.stage=='cutoff-holdout':
+    if args.stage in ('cutoff-holdout','sub1-holdout'):
         if args.prediction is None:
-            raise ValueError('Fresh cutoff capture requires frozen prospective predictions')
+            raise ValueError('Fresh holdout capture requires frozen prospective predictions')
         prediction=json.loads(args.prediction.read_text())
-        if (prediction.get('kind')!='rmx220-reverb-down-cutoff-motion-predictions'
+        if (prediction.get('kind')!=prediction_kind(args.stage)
                 or any(prediction.get(k)!=v for k,v in prediction_payload(args.stage).items())
+                or prediction.get('candidate_config')!=predicted_config(args.stage)
                 or prediction['calibration_sha256']!=sha256(args.calibration)
                 or any(sha256(Path(prediction[k+'_path']))!=prediction[k+'_sha256'] for k in ('model','renderer'))):
             raise ValueError('Prediction recipe/model/source/renderer/calibration differs')
     elif args.prediction is not None:
-        raise ValueError('Predictions apply only to fresh cutoff stage')
+        raise ValueError('Predictions apply only to fresh holdout stages')
     root=new_directory(args.session)
+    if args.prediction is not None:
+        (root/'predictions.json').write_bytes(args.prediction.read_bytes())
     inventory=json.loads(run([args.host,'inventory',args.plugin]))
     if any(inventory[k]!=v for k,v in IDENTITY.items()):
         raise ValueError('Requires original RMX-1000 Plug-in 2.2.0')
@@ -397,7 +431,8 @@ def main():
                 p.add_argument('--'+name,type=Path,required=True)
         else:
             p.add_argument('--report',type=Path,required=True)
-    p=commands.add_parser('predict-cutoff')
+    p=commands.add_parser('predict-cutoff',aliases=['predict-motion'])
+    p.add_argument('--stage',choices=('cutoff-holdout','sub1-holdout'),default='cutoff-holdout')
     for name in ('model','calibration','renderer','report'):
         p.add_argument('--'+name,type=Path,required=True)
     p=commands.add_parser('analyze')
@@ -418,7 +453,7 @@ def main():
     p.add_argument('--candidate-latency',type=int,choices=(0,32),default=32)
     p.add_argument('--quantum',type=int,choices=(1,32,128),default=32)
     args=parser.parse_args()
-    result={'capture':capture,'verify':verify,'analyze':analyze,'compare':compare,'predict-cutoff':predict}[args.command](args)
+    result={'capture':capture,'verify':verify,'analyze':analyze,'compare':compare,'predict-cutoff':predict,'predict-motion':predict}[args.command](args)
     if result is not None:
         raise SystemExit(result)
 

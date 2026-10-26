@@ -219,7 +219,7 @@ private:
 };
 }
 int main(int argc,char** argv){try {
-    if(argc<9||argc>13)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send [COEFFICIENT_RAMP_FRAMES [all|levels|feedback [DECAY_STEP_PER_32_FRAMES]]]]");
+    if(argc<9||argc>13)throw std::runtime_error("Usage: reverb_down_motion_probe INPUT NEW_OUTPUT SCHEDULE inlet|output|inlet-output|reset pre|comb|post read|write CONTROL_QUANTUM NEW_DRY_TRACE [send|output|main-send|amount-send [COEFFICIENT_RAMP_FRAMES [all|levels|feedback|staged [DECAY_STEP_PER_32_FRAMES]]]]");
     if(std::filesystem::exists(argv[2])||std::filesystem::exists(argv[8]))throw std::runtime_error("Output/trace must be new");
     const std::string gate=argv[4],position=argv[5],gain=argv[6];
     if(gate!="inlet"&&gate!="output"&&gate!="inlet-output"&&gate!="reset")throw std::runtime_error("Invalid gate mode");
@@ -235,6 +235,7 @@ int main(int argc,char** argv){try {
     if(argc==13){const std::string value=argv[12];size_t count{};decaySlew=std::stod(value,&count);if(count!=value.size()||!std::isfinite(decaySlew)||decaySlew<0||decaySlew>50||(decaySlew&&parts!="levels"))throw std::runtime_error("Invalid decay slew");}
     const std::string quantumText=argv[7];size_t used{};const auto quantum=std::stoul(quantumText,&used);
     if(used!=quantumText.size()||(quantum!=1&&quantum!=32&&quantum!=128))throw std::runtime_error("Invalid control quantum");
+    if(parts=="staged"&&(quantum!=32||ramp))throw std::runtime_error("Staged controller requires quantum 32 and no generic coefficient ramp");
     const auto plan=readPlan(argv[3]);const auto input=rmx::readWav(argv[1],180);
     if(input.rate!=48000)throw std::runtime_error("Research candidate requires 48 kHz");
     rmx::Sample output,dry;output.rate=dry.rate=48000;
