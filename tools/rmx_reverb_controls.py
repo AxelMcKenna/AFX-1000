@@ -27,6 +27,12 @@ def recipe(stage):
     if stage == 'amount':
         return source, [dict(name=f'down-amount-{raw}', source='source', direction='down',
             main=128, amount=raw, cutoff=0, tail=3) for raw in range(256)]
+    if stage == 'main-long':
+        return source, [dict(name=f'down-main-long-{raw}', source='source', direction='down',
+            main=raw, amount=255, cutoff=0, tail=3) for raw in range(256)]
+    if stage == 'amount-large':
+        return source, [dict(name=f'down-amount-large-{raw}', source='source', direction='down',
+            main=255, amount=raw, cutoff=0, tail=3) for raw in range(256)]
     raise ValueError('Unknown control stage')
 
 
@@ -37,20 +43,36 @@ def capture(args):
             or neutral['calibration_sha256'] != sha256(args.calibration)):
         raise ValueError('Wrong frozen neutral model')
     neutral_hash = sha256(args.neutral)
+    static_model = None
+    if args.stage in ('main-long', 'amount-large'):
+        if args.static_model is None:
+            raise ValueError('Interaction sweeps require the frozen static-control model')
+        static_model = json.loads(args.static_model.read_text())
+        if (static_model.get('kind') != 'rmx220-reverb-down-static-control-model'
+                or static_model['calibration_sha256'] != sha256(args.calibration)):
+            raise ValueError('Wrong frozen static-control model')
     root = new_directory(args.session)
     source, cases = recipe(args.stage)
     inventory = json.loads(run([args.host, 'inventory', args.plugin]))
     if any(inventory[k] != v for k, v in IDENTITY.items()):
         raise ValueError('Requires original RMX-1000 Plug-in 2.2.0')
     write_wav(root/'source.wav', 48000, source.ravel())
-    if args.stage == 'amount':
+    if args.stage != 'main':
+        forecasts = []
+        for c in cases:
+            base = static_model['main_rows'][c['main']] if static_model else neutral
+            gl = base['gain_left'] if static_model else neutral['gain_left']
+            gr = base['gain_right'] if static_model else neutral['gain_right']
+            exponent = nominal_decay(128)/nominal_decay(c['amount'])
+            forecasts.append(dict(case=c['name'], raw=c['amount'], main=c['main'], amount=c['amount'],
+                assessable=not (static_model and base['wet_gain'] == 0),
+                left=[g**exponent for g in gl], right=[g**exponent for g in gr]))
         save_json(root/'predictions.json', dict(kind='reverb-down-sub1-feedback-predictions',
             created_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
             neutral_model_sha256=neutral_hash, maximum_absolute_gain_error=2e-6,
+            static_model_sha256=sha256(args.static_model) if static_model else None,
             formula='gain(raw) = gain(128) ** (nominal_decay(128) / nominal_decay(raw)); nominal_decay = 1 + 49*(max(0,raw-3)/252)^3',
-            predictions=[dict(raw=c['amount'],
-                left=[g**(nominal_decay(128)/nominal_decay(c['amount'])) for g in neutral['gain_left']],
-                right=[g**(nominal_decay(128)/nominal_decay(c['amount'])) for g in neutral['gain_right']]) for c in cases]))
+            predictions=forecasts))
     for case in cases:
         parameters = []
         for name, value in controls(case).items():
@@ -69,7 +91,8 @@ def capture(args):
         raise ValueError('Frozen model changed during capture')
     save_json(root/'matrix.json', dict(kind='rmx220-reverb-down-control-captures', stage=args.stage,
         cases=cases, capture_script_sha256=sha256(Path(__file__)), neutral_model_sha256=neutral_hash,
-        predictions_sha256=sha256(root/'predictions.json') if args.stage == 'amount' else None))
+        predictions_sha256=sha256(root/'predictions.json') if args.stage != 'main' else None,
+        static_model_sha256=sha256(args.static_model) if static_model else None))
 
 
 def verify(args):
@@ -103,14 +126,16 @@ def refine(function, initial):
     return p
 
 
-def fit_case(audio, source, case, neutral, detector, frequency):
+def fit_case(audio, source, case, neutral, detector, frequency, known_delays=None):
     h = audio[48000:].astype(float)/float(source[48000, 0])
     dry = float(h[0, 0])
     h[0, 0] = 0
     if not np.count_nonzero(h):
         return dict(dry_gain=dry, silent_wet=True)
     detector_size, transfer = detector
-    if case['main'] == 128:
+    if known_delays is not None:
+        delays = np.array(known_delays)
+    elif case['main'] == 128:
         delays = np.array(neutral['comb_delays'])
     else:
         white = np.fft.irfft(np.fft.rfft(h, n=detector_size, axis=0)*transfer.conj()
@@ -172,23 +197,37 @@ def identify(args):
         np.column_stack([allpass(z, ch) for ch in (0, 1)]), global_filter(z))
     rows = []
     prediction = None
-    if args.stage == 'amount':
+    static_model = None
+    if args.stage in ('main-long', 'amount-large'):
+        if args.static_model is None:
+            raise ValueError('Interaction fitting requires the frozen static-control model')
+        static_model = json.loads(args.static_model.read_text())
+        if (static_model.get('kind') != 'rmx220-reverb-down-static-control-model'
+                or static_model['calibration_sha256'] != sha256(args.calibration)):
+            raise ValueError('Wrong static-control model/calibration')
+    if args.stage != 'main':
         prediction = json.loads((args.session/'predictions.json').read_text())
         manifest = json.loads((args.session/'matrix.json').read_text())
         if (manifest['predictions_sha256'] != sha256(args.session/'predictions.json')
                 or prediction['neutral_model_sha256'] != sha256(args.neutral)):
             raise ValueError('Prospective Sub1 prediction differs')
+        if static_model and prediction['static_model_sha256'] != sha256(args.static_model):
+            raise ValueError('Prospective static-control model differs')
     source, cases = recipe(args.stage)
     for case in cases:
         _, audio, samples, provenance = checked(args.session, case, source)
-        result = fit_case(audio, samples, case, neutral, detector, frequency)
+        known = static_model['main_rows'][case['main']]['delays'] if static_model else None
+        result = fit_case(audio, samples, case, neutral, detector, frequency, known)
         row = dict(**provenance, main_raw=case['main'], amount_raw=case['amount'], **result)
         if prediction is not None:
-            forecast = next(x for x in prediction['predictions'] if x['raw'] == case['amount'])
-            error = max(abs(np.array(result['gain_left'])-forecast['left']).max(),
-                        abs(np.array(result['gain_right'])-forecast['right']).max())
-            row['prospective_maximum_absolute_gain_error'] = float(error)
-            row['prospective_prediction_passed'] = bool(error <= prediction['maximum_absolute_gain_error'])
+            forecast = next(x for x in prediction['predictions']
+                            if x.get('case', case['name']) == case['name'] and x['raw'] == case['amount'])
+            row['prospective_prediction_assessable'] = not result['silent_wet']
+            if not result['silent_wet']:
+                error = max(abs(np.array(result['gain_left'])-forecast['left']).max(),
+                            abs(np.array(result['gain_right'])-forecast['right']).max())
+                row['prospective_maximum_absolute_gain_error'] = float(error)
+                row['prospective_prediction_passed'] = bool(error <= prediction['maximum_absolute_gain_error'])
         rows.append(row)
         print(case['name'], 'silent' if result['silent_wet'] else f'fit {result["damped_frequency_relative_error"]:.3g}', flush=True)
     passed = all(x.get('damped_frequency_relative_error', 0) <= 1e-4 for x in rows)
@@ -197,6 +236,7 @@ def identify(args):
         fitting_screen_passed=passed, prospective_predictions_passed=predictions_passed, cases=rows,
         full_reverb_match=False, physical_hardware=False, calibration_sha256=sha256(args.calibration),
         neutral_model_sha256=sha256(args.neutral), identifier_sha256=sha256(Path(__file__)),
+        static_model_sha256=sha256(args.static_model) if static_model else None,
         prospective_predictions=prediction, identification_weighting_t60_seconds=.75,
         limitations=['Damped-frequency fitting is identification, not an autonomous waveform pass.',
             'Only static integer raw controls, Default, 48 kHz and 120 BPM.',
@@ -209,9 +249,10 @@ def main():
     commands = parser.add_subparsers(dest='command', required=True)
     for name in ('capture', 'verify', 'identify'):
         p = commands.add_parser(name)
-        p.add_argument('--stage', choices=('main', 'amount'), required=True)
+        p.add_argument('--stage', choices=('main', 'amount', 'main-long', 'amount-large'), required=True)
         p.add_argument('--session', type=Path, required=True)
         if name in ('capture', 'identify'):
+            p.add_argument('--static-model', type=Path)
             for key in ('neutral', 'calibration'):
                 p.add_argument('--'+key, type=Path, required=True)
         if name == 'capture':

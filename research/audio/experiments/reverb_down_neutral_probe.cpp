@@ -68,6 +68,8 @@ int main(int argc,char** argv) {try {
             selectedGainR[j]=std::pow(row.gainR[j],exponent);
         }
         baseGain=row.wetGain*reverbDownAmountGain[static_cast<size_t>(amountRaw)]/reverbDownAmountGain[128];
+        baseGain*=1+reverbDownMainCorrection[static_cast<size_t>(mainRaw)]
+            *reverbDownAmountCorrection[static_cast<size_t>(amountRaw)];
         dryGain=row.dryGain;
     }
     std::array<std::array<Delay,2>,5> combs;

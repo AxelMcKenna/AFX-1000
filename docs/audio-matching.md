@@ -199,7 +199,54 @@ uv run --locked python -m tools.rmx_reverb_network compare \
   --calibration calibration-reviewed.json --output build/artifacts/research/reverb-down-autonomous
 ```
 
-The generated header is a new artifact, not an automatic overwrite of the [committed calibration](../research/audio/experiments/ReverbDownNeutralCalibration.h) used by the compiled fixture. Compare them before evaluating a recalibration. The direct renderer accepts `INPUT NEW_OUTPUT SUB2_RAW TAIL_SECONDS` and fixes Down Main128/Sub1-128 at 48 kHz. Other Main/Sub1 positions and Up are outside this candidate. The comparison includes calibration/repeat and silent-control fixtures; each case's relationship to fitting is annotated in the published report. The prospective capture manifest binds the frozen model's hash. The one-percent gate, bypass-only alignment and separate whole/wet/tail checks remain unchanged. Production DSP, gestures, other rates/profiles, startup, listening and hardware validation remain unfinished.
+The generated header is a new artifact, not an automatic overwrite of the [committed neutral calibration](../research/audio/experiments/ReverbDownNeutralCalibration.h) used by the compiled fixture. Compare them before evaluating a recalibration. The renderer's legacy form `INPUT NEW_OUTPUT SUB2_RAW TAIL_SECONDS` fixes Down Main128/Sub1-128 at 48 kHz. The extended form below uses measured static control maps. The comparison includes calibration/repeat and silent-control fixtures; each case's relationship to fitting is annotated in the published report. The prospective capture manifest binds the frozen model's hash. The one-percent gate, bypass-only alignment and separate whole/wet/tail checks remain unchanged.
+
+### Static integer control maps and their interaction
+
+The [current research candidate](../research/audio/measurements/2026-10-27-reverb-down-control-interaction-prototype-48k.json) passes 1,204 complete Down renders at factory settings, 48 kHz and 120 BPM. The count includes 1,024 control-calibration cases, 64 earlier mixed-development cases, 64 fresh prospective mixed cases and 52 prior fixtures. Worst wet/tail errors are about 0.0058%/0.0060%. A previous separable level model failed 14 mixed cases; its [report](../research/audio/measurements/2026-10-27-reverb-down-control-separable-prototype-48k.json) and source checkpoint `9364cfd` are retained. The correction is a fixed rank-two Main/Sub1 level map derived from two additional sweeps. Main delays use their measured integer values; a smooth quadratic misses the Main143 boundary.
+
+`tools.rmx_reverb_controls` supports `capture`, `verify` and `identify` for four stages, each with 256 recipes: `main` (Sub1-128), `amount` (Main128), `main-long` (Sub1-255) and `amount-large` (Main255). Reports, session directories and generated headers must be new. Use the locally generated neutral network report from the preceding section, bound to the same reviewed calibration:
+
+```sh
+uv run --locked python -m tools.rmx_reverb_controls capture --stage main \
+  --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
+  --neutral build/artifacts/research/reverb-down-network.json --calibration calibration-reviewed.json \
+  --session captures/reverb/control-main
+uv run --locked python -m tools.rmx_reverb_controls verify --stage main \
+  --session captures/reverb/control-main --report build/artifacts/research/reverb-main-recipes.json
+uv run --locked python -m tools.rmx_reverb_controls identify --stage main \
+  --session captures/reverb/control-main --neutral build/artifacts/research/reverb-down-network.json \
+  --calibration calibration-reviewed.json --report build/artifacts/research/reverb-main.json
+```
+
+Repeat for `amount` using separate paths and a `reverb-amount.json` identification report. Build the initial separable hypothesis with `tools.rmx_reverb_control_model build --main MAIN.json --amount AMOUNT.json --calibration CALIBRATION.json --report SEPARABLE.json --header NEW_HEADER.h`. Then capture and identify `main-long` and `amount-large` with the same neutral/calibration arguments plus `--static-model SEPARABLE.json`. `verify` still requires only stage, session and a new report. The saved feedback predictions are checked separately from fitting; a failed prediction prevents model construction. Exponential weighting is used only for identification of finite recordings, never for complete-render acceptance.
+
+```sh
+uv run --locked python -m tools.rmx_reverb_control_model build \
+  --main build/artifacts/research/reverb-main.json --amount build/artifacts/research/reverb-amount.json \
+  --main-long build/artifacts/research/reverb-main-long.json \
+  --amount-large build/artifacts/research/reverb-amount-large.json \
+  --calibration calibration-reviewed.json --report build/artifacts/research/reverb-control-model.json \
+  --header build/artifacts/research/ReverbDownControlCalibration.h
+```
+
+The comparator checks the model against the [committed control header](../research/audio/experiments/ReverbDownControlCalibration.h). For a recalibration, review and deliberately replace that header before rebuilding the C++ fixture with the preceding compiler command. Its extended CLI is `INPUT NEW_OUTPUT MAIN_RAW SUB1_RAW SUB2_RAW TAIL_SECONDS`. Controls must be integers 0–255; the legacy neutral form remains available.
+
+```sh
+uv run --locked python -m tools.rmx_reverb_control_model capture --recipe mixed-v2 \
+  --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
+  --model build/artifacts/research/reverb-control-model.json --calibration calibration-reviewed.json \
+  --session captures/reverb/control-mixed-v2
+uv run --locked python -m tools.rmx_reverb_control_model verify --recipe mixed-v2 \
+  --session captures/reverb/control-mixed-v2 --report build/artifacts/research/reverb-mixed-v2-recipes.json
+uv run --locked python -m tools.rmx_reverb_control_model compare \
+  --model build/artifacts/research/reverb-control-model.json --calibration calibration-reviewed.json \
+  --renderer build/reverb-down-neutral-probe --session main captures/reverb/control-main \
+  --session amount captures/reverb/control-amount --session mixed-v2 captures/reverb/control-mixed-v2 \
+  --output build/artifacts/research/reverb-control-comparison
+```
+
+Add `main-long`, `amount-large`, `initial`, `timing`, `long-tail`, `filters`, `neutral-holdout` and `mixed-development` session pairs to reproduce the full matrix. `mixed-development` labels the earlier mixed data used to diagnose the failed model; it does not claim prospective independence for the correction. `mixed-v2` requires the new frozen model's hash. All comparisons check unscaled whole/wet/tail output per channel with the reviewed bypass offset. Up is listed as out of scope. Production integration, fractional/moving controls, activation/bypass, other profiles/rates/tempos, overload, listening and hardware remain unfinished.
 
 ## Noise identification and statistics
 

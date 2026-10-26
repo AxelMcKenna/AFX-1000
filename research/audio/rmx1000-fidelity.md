@@ -237,4 +237,23 @@ The same fitting/validation commands run in a clean locked uv environment withou
 
 The record also freezes an unvalidated next-step hypothesis: nominal Sub1 decay `1 + 49 * (max(0, raw - 3) / 252)^3` seconds, with feedback gains scaled by the ratio of nominal decay times. Current broadband estimates are consistent with this candidate, but coefficient scaling and wet-level compensation still need identification. Exact Main delay/gain arithmetic, its integer boundaries, Main/Sub1 interaction, Reverb Up, User profiles, gestures, startup, other rates, listening and hardware remain requirements of the full sound-matching goal.
 
+## Reverb Down static control maps: 27 October 2026
+
+Four 256-position sweeps now cover Main at Sub1-128/255 and Sub1 at Main128/255. The [first 512 captures](measurements/2026-10-27-reverb-down-control-identification.json) and [512 interaction captures](measurements/2026-10-27-reverb-down-control-interaction-identification.json) verify exact samples, controls, extents and reference hashes. Main raw0–3 produces no wet output in the checked static fixtures. The saved nominal-decay hypothesis passes all 764 assessable feedback-coefficient predictions across the three applicable sweeps, with maximum absolute gain error about 4.02e-7 against a predeclared 2e-6 limit. These are identification checks, separate from waveform acceptance.
+
+A quadratic describes the smooth nominal Main delay curve closely, but its integer rounding misses one of 2,440 taps excluded from the fit. At Main143, one left delay is 1,171 frames rather than the predicted 1,172. The candidate retains measured integer delays for every active raw Main position. A negative-control renderer with only that tap changed by one frame fails the fresh Main143 fixtures, reaching about 48%/62% wet-channel RMS error for broadband/impulse input. This supports retaining exact timing rather than treating the smooth fit as sufficient.
+
+The first extension multiplied independent Main and Sub1 wet-level maps. All 564 sweep/prior renders passed, but 14 of 64 fresh mixed-control cases failed. Those failures remain in the [rejected separable report](measurements/2026-10-27-reverb-down-control-separable-prototype-48k.json), with the source checkpoint preserved at `9364cfd`. A diagnostic gain fit reduced their residuals below about 0.005%; it was not used for acceptance. This isolated a wet-level interaction while preserving the feedback model.
+
+The two added sweeps identify a rank-two level model. Let `Gm` and `Ga` be the first two level maps, and `Cm`/`Ca` the corrections identified from the additional sweeps. The fixed candidate uses:
+
+```text
+wet_gain(Main, Sub1) = Gm[Main] * Ga[Sub1] / Ga[128]
+                      * (1 + Cm[Main] * Ca[Sub1])
+```
+
+The [frozen interaction model](measurements/2026-10-27-reverb-down-control-interaction-model.json) was then tested on 64 new captures with different signals, control combinations and Sub2 positions, including inactive controls, the dry crossover, Main143 and long tails. All [1,204 complete renders](measurements/2026-10-27-reverb-down-control-interaction-prototype-48k.json) pass separate whole/wet/post-input-tail per-channel one-percent RMS screens: 1,024 calibration captures, 64 earlier mixed-development cases, 64 fresh prospective mixed cases and 52 prior fixtures. Worst wet/tail errors are about 0.0058%/0.0060%. All earlier 628 cases now pass, fixing the 14 failures without losing a previous pass. No comparison gain or wet alignment is fitted.
+
+The NumPy-only tools and generated [control calibration](experiments/ReverbDownControlCalibration.h) reproduce this static raw-control candidate. The renderer's legacy neutral invocation remains bit-identical on all 28 earlier cases. Warnings-enabled builds, two sanitizer renders, 14 invalid-input/provenance guards and the one-frame negative control pass their stated checks; the linked WAV library was not rebuilt with sanitizers. Production DSP is unchanged. Fractional controls, moving/activating/bypassing effects, other profiles/rates/tempos, overload, Up, listening and hardware remain outside this checkpoint and are still part of the full sound-matching goal.
+
 This is a measured static software milestone. It does not establish full-device 99% similarity, hardware equivalence, overload behavior, host-rate conversion, modulation/resonance/reverb matching, sampler/Release matching, control-transition accuracy or listening equivalence. Those remain the next stages of the same measurement campaign.
