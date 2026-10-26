@@ -15,7 +15,7 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-CAPTURE_STAGES = (*STAGES,'cutoff-holdout')
+CAPTURE_STAGES = (*STAGES,'cutoff-holdout','state-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
 
@@ -83,6 +83,33 @@ def recipe(stage):
             add(f'off-on-block-{block}','continuous',main=255,block=block,
                 events=[dict(frame=event_frame,control='enabled',value=0),dict(frame=288073,control='enabled',value=1)],
                 baseline='button/down-off-on-continuous-255')
+    elif stage == 'state-probes':
+        dry=np.zeros_like(continuous)
+        dry[event_frame-128:event_frame+256]=np.random.default_rng(0xD029).normal(0,.02,(384,2))
+        late=np.zeros_like(continuous);late[event_frame+48000]=[.02,0]
+        waves=dict(dry=dry,late=late)
+        for start,end in ((128,192),(192,128),(255,0),(0,255),(143,144),(144,143)):
+            add(f'dry-main-{start}-{end}','dry',main=start,
+                events=[dict(frame=event_frame,control='main',value=end)])
+        for main in (128,255):
+            for offset in (64,4096,12000):
+                name=f'on-pulse-{offset}'
+                pulse=np.zeros_like(continuous);pulse[event_frame+offset]=[.02,0]
+                waves[name]=pulse
+                add(f'initial-off-{main}-pulse-{offset}',name,main=main,enabled=0,
+                    events=[dict(frame=event_frame,control='enabled',value=1)])
+        for main in (0,128,192):
+            add(f'settled-main-baseline-{main}','late',main=main)
+        for start,end in ((0,128),(128,0),(128,192),(192,128)):
+            add(f'settled-main-{start}-{end}','late',main=start,
+                events=[dict(frame=event_frame,control='main',value=end)],
+                baseline=f'down-settled-main-baseline-{end}')
+        for amount in (0,64,224,255):
+            add(f'settled-amount-baseline-{amount}','late',amount=amount)
+        for start,end in ((64,224),(224,64),(128,255),(255,0)):
+            add(f'settled-amount-{start}-{end}','late',amount=start,
+                events=[dict(frame=event_frame,control='amount',value=end)],
+                baseline=f'down-settled-amount-baseline-{end}')
     elif stage == 'cutoff-holdout':
         fresh=np.zeros((288000,2))
         fresh[24000:264000]=np.random.default_rng(0xC039A7).normal(0,.019,(240000,2))
@@ -306,8 +333,11 @@ def compare(args):
                 +f'initial {c["main"]} {c["amount"]} {c["cutoff"]} {c["enabled"]}\n'
                 +f'tail {c["tail"]}\n'
                 +''.join(f'event {e["frame"]} {e["control"]} {e["value"]}\n' for e in c['events']))
-            run([args.renderer,receipt['input_path'],output,schedule,args.gate,args.cutoff_position,
-                 args.gain_position,args.quantum,dry_trace])
+            command=[args.renderer,receipt['input_path'],output,schedule,args.gate,args.cutoff_position,
+                     args.gain_position,args.quantum,dry_trace]
+            if args.level_position is not None:
+                command.append(args.level_position)
+            run(command)
             rate,candidate=float_wav(output)
             dry_rate,dry=float_wav(dry_trace)
             if rate!=48000 or dry_rate!=rate or len(candidate)!=len(audio) or len(dry)!=len(audio):
@@ -337,7 +367,7 @@ def compare(args):
     save_json(root/'comparison.json',dict(kind='diagnostic-reverb-down-motion-prototype-comparison',passed=passed,
         full_reverb_match=False,physical_hardware=False,sample_rate=48000,reference_identity=IDENTITY,
         model_sha256=sha256(args.model),calibration_sha256=sha256(args.calibration),renderer_sha256=sha256(args.renderer),
-        candidate_config=dict(gate=args.gate,cutoff_position=args.cutoff_position,gain_position=args.gain_position,control_quantum=args.quantum,candidate_latency=args.candidate_latency),
+        candidate_config=dict(gate=args.gate,cutoff_position=args.cutoff_position,gain_position=args.gain_position,control_quantum=args.quantum,candidate_latency=args.candidate_latency,level_position=args.level_position or 'send'),
         source_sha256={str(p.resolve().relative_to(repo)):sha256(p) for p in paths},cases=rows,
         acceptance=dict(relative_rms_error_limit=.01,silent_channel_absolute_rms_limit=1e-8,
             reference_channel_energy_floor=1e-20,reference_offset_frames=32,candidate_offset_frames=args.candidate_latency,gain_fit=False,wet_alignment_search=False),
@@ -373,6 +403,7 @@ def main():
     p.add_argument('--gate',choices=('inlet','output','inlet-output','reset'),default='inlet')
     p.add_argument('--cutoff-position',choices=('pre','comb','post'),default='post')
     p.add_argument('--gain-position',choices=('read','write'),default='read')
+    p.add_argument('--level-position',choices=('send','output','main-send','amount-send'))
     p.add_argument('--case',action='append',help='Exact recipe name; repeat to select diagnostic cases')
     p.add_argument('--candidate-latency',type=int,choices=(0,32),default=32)
     p.add_argument('--quantum',type=int,choices=(1,32,128),default=1)
