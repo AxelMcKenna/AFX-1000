@@ -1,5 +1,5 @@
 // Research-only candidate. It deliberately remains outside the production DSP.
-// Sparse-impulse/DC-tail comparisons fail; see ../spiral-core.md.
+// Up and diagnostic comparisons still fail; see ../spiral-core.md.
 #include "rmx/Wav.h"
 #include "rmx/Dsp.h"
 #include "rmx/FactoryEchoReturn.h"
@@ -33,8 +33,8 @@ double number(const char* value) {
 }
 
 int main(int argc,char** argv) {try {
-    if(argc!=6)throw std::runtime_error(
-        "Usage: spiral_neutral_probe INPUT.wav NEW_OUTPUT.wav up|down SUB1_RAW TAIL_SECONDS\n"
+    if(argc!=6&&argc!=7)throw std::runtime_error(
+        "Usage: spiral_neutral_probe INPUT.wav NEW_OUTPUT.wav up|down SUB1_RAW TAIL_SECONDS [NEW_TRACE_DIR]\n"
         "Experimental Main128/Sub2-zero/48-kHz/120-BPM candidate. Full-effect matching fails.");
     if(std::filesystem::exists(argv[2]))throw std::runtime_error("Output already exists");
     const std::string direction=argv[3];
@@ -45,8 +45,18 @@ int main(int argc,char** argv) {try {
         throw std::runtime_error("Sub1 must be an integer 0..255; tail must be 0..30 seconds");
     const auto input=rmx::readWav(argv[1],180);
     if(input.rate!=48000)throw std::runtime_error("Research candidate requires 48 kHz");
+    const bool tracing=argc==7;
+    const std::filesystem::path tracePath=tracing?argv[6]:"";
+    if(tracing&&(tracePath.empty()||std::filesystem::exists(tracePath)))
+        throw std::runtime_error("Trace directory must be new and non-empty");
     rmx::Sample output;output.rate=48000;
     output.frames.resize(input.frames.size()+static_cast<size_t>(tail*48000));
+    rmx::Sample preTrace,limitedTrace;preTrace.rate=limitedTrace.rate=48000;
+    if(tracing) {
+        if(!std::filesystem::create_directories(tracePath))
+            throw std::runtime_error("Trace directory already exists");
+        preTrace.frames.resize(output.frames.size());limitedTrace.frames.resize(output.frames.size());
+    }
     std::array<LowPass,2> sourceFilter,loopFilter;
     std::array<HighPass,2> hp20,hp50,hp450;
     for(size_t ch=0;ch<2;++ch) {
@@ -65,14 +75,22 @@ int main(int argc,char** argv) {try {
     std::array<std::array<double,32>,2> shapeState{};
     size_t shapeHead=0,latencyHead=0;
     double smoothedPeak=0,envelope=0;
+    // Empirical counter phase at activation, common to Up and Down. This does
+    // not establish a manufacturer buffer layout or physical latency split.
+    size_t quietBlocks=10;
+    // Midpoint of the measured envelope-normalized activity bracket. The
+    // prospective exact 1/1024 hypothesis was rejected; see the envelope record.
+    constexpr double activityRatio=0.0009801218664654094;
     for(size_t block=0;block<output.frames.size();block+=32) {
         double peak=0;
         for(size_t n=block;n<std::min(block+32,input.frames.size());++n)
             peak=std::max(peak,std::abs(static_cast<double>(input.frames[n].l)+input.frames[n].r));
-        // Smoothing precedes the maximum hold. Variable-peak noise distinguishes
-        // this from smoothing only increases. Release behavior is unresolved.
+        // Release precedes the smoothed-input floor. Square-tail threshold
+        // fits distinguish 151 blocks from the earlier 150-block hypothesis.
         smoothedPeak+=spiralEnvelopeAlpha*(peak-smoothedPeak);
+        if(++quietBlocks>150){envelope*=0.8912509381337456;quietBlocks=0;}
         envelope=std::max(envelope,smoothedPeak);
+        bool active=false;
         for(size_t n=block;n<std::min(block+32,output.frames.size());++n) {
             const auto x=n<input.frames.size()?input.frames[n]:rmx::Stereo{};
             // Empirical neutral-clock model. The quiet 34-second capture rules
@@ -84,12 +102,19 @@ int main(int argc,char** argv) {try {
             for(size_t ch=0;ch<2;++ch) {
                 const double inputValue=sourceFilter[ch].tick(ch?x.r:x.l)+(ch?tap.r:tap.l)*feedbackGain;
                 const double limited=std::clamp(inputValue,-envelope*.5,envelope*.5);
+                if(tracing) {
+                    if(ch){preTrace.frames[n].r=inputValue;limitedTrace.frames[n].r=limited;}
+                    else {preTrace.frames[n].l=inputValue;limitedTrace.frames[n].l=limited;}
+                }
                 z[ch]=loopFilter[ch].tick(hp450[ch].tick(hp50[ch].tick(limited)));
                 shapeState[ch][shapeHead]=hp20[ch].tick(z[ch]);
                 for(size_t i=0;i<spiralShape.size();++i)
                     wet[ch]+=shapeState[ch][(shapeHead+32-i)%32]*spiralShape[i];
                 wet[ch]*=gain;
             }
+            // A linked wet sum explains cancellation and sub-clipping resets.
+            // Complete diagnostic failures still prevent production adoption.
+            active=active||std::abs(wet[0]+wet[1])>envelope*activityRatio;
             feedback.push({static_cast<float>(z[0]),static_cast<float>(z[1])});
             shapeHead=(shapeHead+1)%32;
             const auto delayed=latencyLine[latencyHead];latencyLine[latencyHead]=wet;
@@ -98,6 +123,11 @@ int main(int argc,char** argv) {try {
             output.frames[n]={static_cast<float>(x.l+delayed[0]+returned[0]),
                               static_cast<float>(x.r+delayed[1]+returned[1])};
         }
+        if(active)quietBlocks=0;
+    }
+    if(tracing) {
+        rmx::writeWav(tracePath/"pre.wav",preTrace);
+        rmx::writeWav(tracePath/"limited.wav",limitedTrace);
     }
     rmx::writeWav(argv[2],output);
     std::cout<<"Rendered experimental Spiral hypothesis; full-effect fidelity remains unverified\n";
