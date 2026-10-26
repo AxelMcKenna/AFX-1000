@@ -132,6 +132,7 @@ public:
         dryGain=row.dryGain;
         if(gate=="faded"){
             if(!activationPrepared){
+                initialActive=c.enabled;
                 inputFade=c.enabled?1.f:0.f;
                 dryCurrent=static_cast<float>(c.enabled?dryGain:1);
                 dryTarget=dryCurrent;activationPrepared=true;
@@ -187,11 +188,11 @@ public:
                 lastDelayedEnabled=delayed.enabled;
                 setDry(static_cast<float>(delayed.enabled?dryGain:1),160);
                 if(delayed.enabled&&!everActivated){
-                    everActivated=true;warmRemaining=12416;dryRestart=frame+32;
+                    everActivated=true;warmRemaining=12416+(initialActive?32:0);dryRestart=frame+32;
                 }
             }
             if(dryRestart&&frame==dryRestart){setDry(dryTarget,160);dryRestart=0;}
-            if(dryRemaining){dryCurrent+=dryStep;if(!--dryRemaining)dryCurrent=dryTarget;}
+            if(dryRemaining){dryCurrent+=dryStep;--dryRemaining;}
         }
         const bool warming=gate=="faded"&&warmRemaining;
         for(size_t ch=0;ch<2;++ch) {
@@ -217,6 +218,7 @@ public:
         const rmx::Stereo dry{static_cast<float>(delayed.input.l*direct),static_cast<float>(delayed.input.r*direct)};
         const rmx::Stereo output{static_cast<float>(delayed.input.l*direct+(emit?(position=="comb"?1:compensation)*wet[0]:0)),
                                  static_cast<float>(delayed.input.r*direct+(emit?(position=="comb"?1:compensation)*wet[1]:0))};
+        if(gate=="faded"&&!dryRemaining){dryCurrent=dryTarget;dryStep=0;}
         return {output,dry};
     }
 private:
@@ -251,7 +253,7 @@ private:
     double decaySlew{},decayCurrent{},decayTarget{};
     float inputFade{},dryCurrent{1},dryTarget{1},dryStep{};
     size_t warmRemaining{},dryRemaining{},dryRestart{};
-    bool activationPrepared{},lastDelayedEnabled{},everActivated{};
+    bool activationPrepared{},lastDelayedEnabled{},everActivated{},initialActive{};
 };
 }
 int main(int argc,char** argv){try {
@@ -279,7 +281,7 @@ int main(int argc,char** argv){try {
     for(const auto& e:plan.events)if(e.frame>=output.frames.size())throw std::runtime_error("Event outside render extent");
     Model model(gate,position,gain=="write",level,ramp,parts,decaySlew);Controls target=plan.initial,current=plan.initial;model.configure(current);size_t event=0,amountWait=0;bool dirty=false;
     for(size_t n=0;n<output.frames.size();++n) {
-        while(event<plan.events.size()&&plan.events[event].frame==n){apply(target,plan.events[event]);++event;dirty=true;}
+        if(gate!="faded")while(event<plan.events.size()&&plan.events[event].frame==n){apply(target,plan.events[event]);++event;dirty=true;}
         const bool amountReady=amountWait==0;
         if(n%quantum==0&&amountWait)--amountWait;
         if(dirty&&n%quantum==0){
@@ -294,6 +296,7 @@ int main(int argc,char** argv){try {
             model.configure(current);
             dirty=current.main!=target.main||current.amount!=target.amount||current.cutoff!=target.cutoff;
         }
+        if(gate=="faded")while(event<plan.events.size()&&plan.events[event].frame==n){apply(target,plan.events[event]);++event;dirty=true;}
         const auto result=model.tick(n<input.frames.size()?input.frames[n]:rmx::Stereo{});
         output.frames[n]=result[0];dry.frames[n]=result[1];
     }

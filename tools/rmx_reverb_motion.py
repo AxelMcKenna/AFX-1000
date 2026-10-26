@@ -15,8 +15,8 @@ from tools.rmx_reverb_characterize import controls
 from tools.rmx_spiral_core import calibration
 
 STAGES = ('button', 'steps', 'ramps', 'blocks')
-HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout')
-CAPTURE_STAGES = (*STAGES,*HOLDOUT_STAGES,'state-probes','button-probes')
+HOLDOUT_STAGES = ('cutoff-holdout','sub1-holdout','activation-holdout','activation-v2-holdout')
+CAPTURE_STAGES = (*STAGES,*HOLDOUT_STAGES,'state-probes','button-probes','initialization-probes')
 NAMES = {'main':'SceneVolume','amount':'Sub1Volume','cutoff':'Sub2Volume','enabled':'ReverbDownButto'}
 
 
@@ -84,15 +84,22 @@ def recipe(stage):
             add(f'off-on-block-{block}','continuous',main=255,block=block,
                 events=[dict(frame=event_frame,control='enabled',value=0),dict(frame=288073,control='enabled',value=1)],
                 baseline='button/down-off-on-continuous-255')
-    elif stage == 'activation-holdout':
+    elif stage == 'initialization-probes':
+        source=np.zeros((192000,2))
+        source[:96000]=np.random.default_rng(0x1A177).normal(0,.019,(96000,2))
+        waves=dict(initial_program=source)
+        for main in (128,255):
+            add(f'initialization-main-{main}','initial_program',main=main)
+    elif stage in ('activation-holdout','activation-v2-holdout'):
+        v2=stage=='activation-v2-holdout'
         fresh=np.zeros((432000,2))
-        fresh[12000:408000]=np.random.default_rng(0xAC714).normal(0,.017,(396000,2))
+        fresh[12000:408000]=np.random.default_rng(0xAC716 if v2 else 0xAC714).normal(0,.017,(396000,2))
         t=np.arange(396000)/48000
         fresh[12000:408000]+=.011*np.column_stack((np.sin(2*np.pi*(271*t+41*t*t)),
                                                   np.cos(2*np.pi*1481*t)+np.sin(2*np.pi*97*t)))
         gap=fresh.copy();gap[144000:240000]=0
         long=np.zeros((1440000,2))
-        long[12000:1416000]=np.random.default_rng(0xAC715).normal(0,.014,(1404000,2))
+        long[12000:1416000]=np.random.default_rng(0xAC717 if v2 else 0xAC715).normal(0,.014,(1404000,2))
         pulses=np.zeros_like(fresh)
         pulses[[24000,48051,96007,144071,192019,240017,360013]]=[[.021,0],[0,-.019],[.017,.011],[-.015,.023],[.012,0],[.019,-.013],[0,.016]]
         waves=dict(activation_program=fresh,activation_gap=gap,activation_pulses=pulses,activation_long=long)
@@ -104,8 +111,20 @@ def recipe(stage):
             (176,223,95,0,'activation_gap',128,[(144019,1),(145111,0),(192071,1),(288013,0)]),
             (143,241,0,1,'activation_long',32,[(96013,0),(1248007,1)]),
             (129,128,77,0,'activation_program',256,[(17,1),(23,0),(49,1),(64,0),(96,1),(160,0),(327,1),(96013,0),(96191,1)])]
+        if v2:
+            pulses=np.zeros_like(fresh)
+            pulses[[24317,48368,96324,144388,192336,240334,360330]]=[[.019,0],[0,-.021],[.013,.017],[-.023,.015],[.016,0],[.011,-.019],[0,.018]]
+            waves['activation_pulses']=pulses
+            specs=[(61,97,32,0,'activation_program',128,[(72017,1),(96191,0),(120223,1)]),
+                (211,207,96,1,'activation_program',32,[(120019,0),(120127,1),(192023,0),(192319,1)]),
+                (128,1,224,0,'activation_program',256,[(48011,1),(48139,0),(48333,1),(192017,0)]),
+                (255,239,160,0,'activation_program',128,[(120019,1),(120083,0),(120275,1),(122037,0),(124117,1)]),
+                (79,128,250,1,'activation_pulses',32,[(48061,0),(48107,1),(144023,0),(144319,1)]),
+                (183,192,111,0,'activation_gap',256,[(144013,1),(145127,0),(192083,1),(288019,0)]),
+                (157,223,15,1,'activation_long',128,[(120019,0),(1296005,1)]),
+                (130,137,95,0,'activation_program',32,[(31,1),(32,0),(63,1),(96,0),(128,1),(224,0),(411,1),(120019,0),(120223,1)])]
         for i,(main,amount,cutoff,enabled,source,block,events) in enumerate(specs):
-            add(f'activation-holdout-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if amount>=192 else 18,
+            add(f'{stage}-{i}',source,main,amount,cutoff,enabled,block=block,tail=90 if amount>=192 else 18,
                 events=[dict(frame=frame,control='enabled',value=value) for frame,value in events])
     elif stage == 'button-probes':
         waves={}
@@ -227,8 +246,8 @@ def prediction_kind(stage):
 
 
 def predicted_config(stage):
-    staged=stage in ('sub1-holdout','activation-holdout')
-    return dict(gate='faded' if stage=='activation-holdout' else 'inlet',cutoff_position='post',gain_position='read',control_quantum=32,
+    staged=stage=='sub1-holdout' or stage.startswith('activation-')
+    return dict(gate='faded' if stage.startswith('activation-') else 'inlet',cutoff_position='post',gain_position='read',control_quantum=32,
         candidate_latency=32,level_position='output' if staged else 'send',coefficient_ramp_frames=0,
         ramp_components='staged' if staged else 'all',decay_step_per_32_frames=0)
 
@@ -240,8 +259,8 @@ def predict(args):
         model_path=str(args.model.resolve()),model_sha256=sha256(args.model),
         renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),
         calibration_sha256=sha256(args.calibration),candidate_config=predicted_config(args.stage),
-        expected='All eight complete renders pass whole/wet/tail and every event window at relative RMS <=0.01.',
-        scope=('Only the enabled button moves; Main/Sub1/Sub2 stay fixed. Initial active/inactive states vary.' if args.stage=='activation-holdout'
+        expected='All eight complete renders pass whole/wet/tail, every event window and applicable activation-start windows at relative RMS <=0.01.',
+        scope=('Only the enabled button moves; Main/Sub1/Sub2 stay fixed. Initial active/inactive states vary.' if args.stage.startswith('activation-')
                else 'Only '+('Sub1' if args.stage=='sub1-holdout' else 'Sub2')+' moves; other controls stay fixed and the effect starts enabled.')))
 
 
@@ -427,14 +446,23 @@ def compare(args):
             row=provenance|dict(stage=stage,whole=screen(a,b),wet=screen(wet_a,wet_b),
                 post_input_tail=screen(a[len(source):],b[len(source):]),
                 candidate_sha256=sha256(output),dry_trace_sha256=sha256(dry_trace),schedule_sha256=sha256(schedule),
-                event_windows=[])
+                event_windows=[],activation_start_windows=[])
             for frame in sorted({e['frame'] for e in c['events']}):
                 start,end=max(0,frame-64),min(len(a),frame+4096)
                 row['event_windows'].append(dict(frame=frame,whole=screen(a[start:end],b[start:end]),
                     wet=screen(wet_a[start:end],wet_b[start:end])))
+            if args.gate=='faded':
+                anchors={0,12416} if c['enabled'] else set()
+                anchors.update((e['frame']//32+1)*32+12416 for e in c['events'] if e['control']=='enabled' and e['value'])
+                for frame in sorted(anchors):
+                    start,end=max(0,frame-64),min(len(a),frame+4096)
+                    if end>start:
+                        row['activation_start_windows'].append(dict(frame=frame,whole=screen(a[start:end],b[start:end]),
+                            wet=screen(wet_a[start:end],wet_b[start:end])))
             rows.append(row)
             passed=all(row[k]['passed'] for k in ('whole','wet','post_input_tail'))
             passed=passed and all(w[k]['passed'] for w in row['event_windows'] for k in ('whole','wet'))
+            passed=passed and all(w[k]['passed'] for w in row['activation_start_windows'] for k in ('whole','wet'))
             row['passed']=passed
             print('PASS' if passed else 'FAIL',stage,c['name'],flush=True)
     if not rows:
@@ -447,7 +475,8 @@ def compare(args):
         candidate_config=dict(gate=args.gate,cutoff_position=args.cutoff_position,gain_position=args.gain_position,control_quantum=args.quantum,candidate_latency=args.candidate_latency,level_position=args.level_position or 'send',coefficient_ramp_frames=args.coefficient_ramp or 0,ramp_components=args.ramp_components or 'all',decay_step_per_32_frames=args.decay_slew or 0),
         source_sha256={str(p.resolve().relative_to(repo)):sha256(p) for p in paths},cases=rows,
         acceptance=dict(relative_rms_error_limit=.01,silent_channel_absolute_rms_limit=1e-8,
-            reference_channel_energy_floor=1e-20,reference_offset_frames=32,candidate_offset_frames=args.candidate_latency,gain_fit=False,wet_alignment_search=False),
+            reference_channel_energy_floor=1e-20,reference_offset_frames=32,candidate_offset_frames=args.candidate_latency,gain_fit=False,wet_alignment_search=False,
+            activation_start_windows=args.gate=='faded'),
         limitations=['Discovery recipes characterize state handling; fresh independent dynamic validation is still required.',
             'Wet subtraction uses the candidate-predicted dry trace on both sides, without a reference gain fit.',
             'Whole/wet event windows and the separate post-input tail prevent long quiet intervals or dry output from masking errors.']))
