@@ -179,11 +179,16 @@ def predict(args):
 
 def compare(args):
     model_checked(args); root = new_directory(args.output); rows = []
+    historical=dict(getattr(args,'historical_prediction',None) or [])
     for stage, directory in args.session:
         if stage=='holdout':
             prediction=json.loads((directory/'predictions.json').read_text());manifest=json.loads((directory/'matrix.json').read_text())
-            if (any(prediction.get(k)!=v for k,v in prediction_payload().items()) or manifest['prediction_sha256']!=sha256(directory/'predictions.json')
-                    or prediction['model_sha256']!=sha256(args.model) or prediction['renderer_sha256']!=sha256(args.renderer)
+            expected=prediction_payload()
+            if stage in historical:
+                if sha256(Path(historical[stage]))!=sha256(directory/'predictions.json'):raise ValueError('Historical prediction copy differs')
+                expected={k:v for k,v in expected.items() if k!='source_sha256'}
+            if (any(prediction.get(k)!=v for k,v in expected.items()) or manifest['prediction_sha256']!=sha256(directory/'predictions.json')
+                    or prediction['model_sha256']!=sha256(args.model) or (stage not in historical and prediction['renderer_sha256']!=sha256(args.renderer))
                     or prediction['calibration_sha256']!=sha256(args.calibration)):raise ValueError('Fresh comparison prediction differs')
         waves, cases = recipe(stage)
         for c in cases:
@@ -198,7 +203,7 @@ def compare(args):
             if rate != 48000 or dry_rate != rate or len(b) != len(audio) or len(dry) != len(audio):
                 raise ValueError('Candidate extent/rate differs')
             a = audio[32:]; b = b[32:].astype(float); dry = dry[32:].astype(float); wa, wb = a-dry, b-dry
-            row = provenance | dict(stage=stage,role='fresh_prediction_bound' if stage=='holdout' else 'development_regression', whole=screen(a, b), wet=screen(wa, wb), post_input_tail=screen(a[len(x):], b[len(x):]),
+            row = provenance | dict(stage=stage,role='prior_frozen_regression' if stage in historical else 'fresh_prediction_bound' if stage=='holdout' else 'development_regression', whole=screen(a, b), wet=screen(wa, wb), post_input_tail=screen(a[len(x):], b[len(x):]),
                 candidate_sha256=sha256(output), dry_trace_sha256=sha256(dry_path), schedule_sha256=sha256(schedule), event_windows=[], startup_windows=[])
             for at in sorted({e['frame'] for e in c['events']}):
                 start, end = max(0, at-64), min(len(a), at+4096)
@@ -263,6 +268,7 @@ def main():
             q.add_argument('--session', nargs=2, action='append', required=True)
             if command == 'compare':
                 q.add_argument('--renderer', type=Path, required=True); q.add_argument('--output', type=Path, required=True); q.add_argument('--case', action='append')
+                q.add_argument('--historical-prediction',nargs=2,action='append')
             else:
                 q.add_argument('--report', type=Path, required=True)
     args = p.parse_args()

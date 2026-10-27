@@ -61,6 +61,7 @@ private:
     std::array<Stereo,32> pending{},pendingDry{};
     size_t received{},available{},outputHead{};
     std::array<std::array<int,2>,5> delays{};
+    std::array<std::array<int,2>,5> readWindowDelays{};
     std::array<std::array<float,2>,5> delayCurrent{},delayTarget{},delayStep{};
     std::array<double,15> coefficients{},targetCoefficients{},steps{};
     std::array<size_t,15> stagedRemaining{};

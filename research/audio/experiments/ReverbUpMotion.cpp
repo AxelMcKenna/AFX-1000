@@ -56,7 +56,7 @@ void ReverbUpMotion::reset() noexcept {
     for(auto& filter:outputFilter)filter.clear();for(auto& filter:outputHigh)filter.clear();
     for(auto& pair:feedbackFilters)for(auto& filter:pair)filter.clear();
     collected={};pending={};pendingDry={};received=available=outputHead=0;
-    delays={};delayCurrent={};delayTarget={};delayStep={};coefficients={};targetCoefficients={};steps={};stagedRemaining={};
+    delays={};readWindowDelays={};delayCurrent={};delayTarget={};delayStep={};coefficients={};targetCoefficients={};steps={};stagedRemaining={};
     started=prepared=activationPrepared=lastSelected=everActivated=geometryStart=amountStart=false;
     slowMain=pendingMain=0;mainPeriod=60;sharedBlocks=geometryRemaining=mixRemaining=0;frame=32;inputAge=0;
     fastMix=fastMixTarget=fastMixStep=0;dryGain=compensation=1;startupFade=inputFade=dryStep=0;dryCurrent=dryTarget=1;
@@ -144,6 +144,8 @@ void ReverbUpMotion::setDry(float next,size_t length) noexcept {
 }
 std::array<Stereo,2> ReverbUpMotion::tick(Input input) noexcept {
     if(geometryRemaining)for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch)delays[j][ch]=static_cast<int>(delayCurrent[j][ch]);
+    const int blockSample=static_cast<int>(frame%32);
+    if(!blockSample)readWindowDelays=delays;
     if(mixRemaining){fastMix+=fastMixStep;if(!--mixRemaining)fastMix=fastMixTarget;}
     if(frame%32==31&&sharedBlocks&&!--sharedBlocks)slowMain=pendingMain;
     for(size_t j=0;j<15;++j)if(stagedRemaining[j]){
@@ -168,8 +170,10 @@ std::array<Stereo,2> ReverbUpMotion::tick(Input input) noexcept {
         source[ch]*=postBandpassGain(state.main);
     }
     for(size_t j=0;j<5;++j){
-        const double left=warming?0:combs[j][0].tap(static_cast<size_t>(delays[j][0]))*coefficients[j];
-        const double right=warming?0:combs[j][1].tap(static_cast<size_t>(delays[j][1]))*coefficients[j+5];
+        const int leftIndex=1+blockSample+readWindowDelays[j][0]-delays[j][0];
+        const int rightIndex=1+blockSample+readWindowDelays[j][1]-delays[j][1];
+        const double left=warming||leftIndex<0||leftIndex>=40?0:combs[j][0].tap(static_cast<size_t>(delays[j][0]))*coefficients[j];
+        const double right=warming||rightIndex<0||rightIndex>=40?0:combs[j][1].tap(static_cast<size_t>(delays[j][1]))*coefficients[j+5];
         const double fl=feedbackFilters[j][0].tick(left),fr=feedbackFilters[j][1].tick(right);
         combs[j][0].push(source[0]+fr);combs[j][1].push(warming&&j==0?0:source[1]+fl);
         wet[0]+=left;wet[1]+=right;
