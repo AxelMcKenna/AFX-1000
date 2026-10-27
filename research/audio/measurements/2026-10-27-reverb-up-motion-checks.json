@@ -1,0 +1,78 @@
+{
+  "kind": "rmx220-reverb-up-motion-checks",
+  "passed": true,
+  "full_reverb_match": false,
+  "physical_hardware": false,
+  "reports": {
+    "2026-10-27-reverb-up-motion-second-predictions.json": "9072cf97aa97eaaa081c0af6727c6e4a48ba0b5ffea0f247830dc440dba843e4",
+    "2026-10-27-reverb-up-motion-validation-48k.json": "aeea6f14f852641d95344071c803a2d74141bd100133fd3f84489d18a4b5efd0",
+    "2026-10-27-reverb-up-motion-static-regressions-48k.json": "19325579cb03c701473326226107ec189a040e7c808bc478edae4db5167179e0",
+    "2026-10-27-reverb-up-motion-audit.json": "42fdefbf3457a8920ad1376ee62a90192f89e00d6dab12e83f5c8a65f9f7100c"
+  },
+  "audit_script_sha256": "3bb3c4b9ffa71952652ad959228402f16c93e68efc53371b6f29435970e8fbf3",
+  "static_script_sha256": "4dee66af2b544f72fd3bbfdb9acc85c496e246c48e57da79504efaa66ce9de69",
+  "core_ctest": {
+    "passed": 8,
+    "failed": 0,
+    "groups": [
+      "engine",
+      "tempo",
+      "parity",
+      "isolator",
+      "scene",
+      "reverb_down",
+      "engine_reverb",
+      "sampler"
+    ],
+    "log_sha256": "34d172d3779686d92ae0813f79d5f49fc91e3a5fd2fb3742f6046bb38062f287"
+  },
+  "motion": {
+    "passed": 101,
+    "total": 101,
+    "development_regressions": 69,
+    "prior_frozen_regressions": 16,
+    "fresh_prediction_bound": 16,
+    "worst_relative_rms": {
+      "whole": 0.0001252517122125492,
+      "wet": 0.00030792744858115876,
+      "post_input_tail": 7.863701922572609e-05,
+      "wet_event_windows": 0.008176870697061531,
+      "wet_startup_windows": 0.0008960507490236029
+    },
+    "fresh_worst_relative_rms": {
+      "whole": 0.0001252517122125492,
+      "wet": 0.00030792744858115876,
+      "post_input_tail": 4.423435218059903e-05,
+      "wet_event_windows": 0.0015536274339280713,
+      "wet_startup_windows": 0.0008960507490236029
+    }
+  },
+  "static_regressions": {
+    "passed": 1204,
+    "total": 1204,
+    "new_original_recordings": 0,
+    "before_read_window_comparison_sha256": "d1592862f5507ed97265d5c7116d73dde0048aa875d60cd6bbe76cf9f3fe4a1e",
+    "all_1204_audio_and_dry_hashes_identical_before_after_read_window": true
+  },
+  "audit": {
+    "captures": 1305,
+    "cold_numeric_equal_prefixes": 40,
+    "static_bit_exact_prefixes": 1203,
+    "rejected_recipes": 7,
+    "rejected_predictions": 8,
+    "rejected_native_requests": 20,
+    "sanitizer_byte_identical_programs": 2,
+    "causal_prefix": {
+      "changed_at_frame": 15013,
+      "whole_output_and_dry_bit_exact_before": true,
+      "later_output_differs": true,
+      "callback_split_points_identical": true
+    }
+  },
+  "limitations": [
+    "Standalone factory Up, integer controls, stereo48k/120BPM only; no live Engine, other profiles/rates/tempos, overload, listening or hardware claim.",
+    "Sanitizers cover the two stated complete programs. Offline WAV buffers allocate; callback allocation/resource and MCU deadline qualification remain separate.",
+    "Prior frozen tests become regressions after correction. Fixed comparison crops do not search away partial-callback timing.",
+    "No fresh firmware cross-build or production Up integration; full-device 99% fidelity remains unproven."
+  ]
+}

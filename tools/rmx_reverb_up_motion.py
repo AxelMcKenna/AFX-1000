@@ -16,19 +16,21 @@ from tools.rmx_reverb_motion import recipe as down_recipe
 from tools.rmx_reverb_up_model import model_checked
 from tools.rmx_spiral_core import calibration
 
-STAGES = ('button', 'steps', 'ramps', 'blocks', 'cold', 'holdout')
+STAGES = ('button', 'steps', 'ramps', 'blocks', 'cold', 'holdout','holdout-v2')
+HOLDOUT_STAGES=('holdout','holdout-v2')
 NAMES = dict(main='SceneVolume', amount='Sub1Volume', cutoff='Sub2Volume', enabled='ReverbUpButton')
 
 
 def recipe(stage):
     if stage not in STAGES:
         raise ValueError('Unknown Up motion stage')
-    if stage == 'holdout':
-        rng=np.random.default_rng(0x75701027);program=rng.normal(0,.016,(456000,2));t=np.arange(len(program))/48000
-        program+=.008*np.column_stack((np.sin(2*np.pi*(293*t+37*t*t)),np.cos(2*np.pi*1789*t)))
-        gap=program.copy();gap[168000:240000]=0
-        pulses=np.zeros_like(program);locations=[0,7,31,33,127,161,1021,4093,11897,12391,12527,24107,48109,96113,192137,288179]
-        pulses[locations]=np.random.default_rng(0x75701028).uniform(-.024,.024,(len(locations),2))
+    if stage in HOLDOUT_STAGES:
+        second=stage=='holdout-v2'
+        rng=np.random.default_rng(0x75701029 if second else 0x75701027);program=rng.normal(0,.016,(480000 if second else 456000,2));t=np.arange(len(program))/48000
+        program+=.008*np.column_stack((np.sin(2*np.pi*((269 if second else 293)*t+(43 if second else 37)*t*t)),np.cos(2*np.pi*(2011 if second else 1789)*t)))
+        gap=program.copy();gap[192000 if second else 168000:264000 if second else 240000]=0
+        pulses=np.zeros_like(program);locations=([0,11,29,37,131,167,1033,4091,11881,12409,12557,24121,48131,96149,192191,288211,384233] if second else [0,7,31,33,127,161,1021,4093,11897,12391,12527,24107,48109,96113,192137,288179])
+        pulses[locations]=np.random.default_rng(0x7570102A if second else 0x75701028).uniform(-.024,.024,(len(locations),2))
         waves=dict(program=program,gap=gap,pulses=pulses)
         specs=[(64,128,37,1,'program',128,[(96019,'main',224),(120001,'main',64),(181043,'main',255),(181043,'amount',239),(181043,'cutoff',179)]),
             (224,207,211,1,'gap',63,[(17,'main',61),(11819,'amount',3),(12091,'main',231),(12091,'cutoff',5),(12739,'main',47),(96113,'main',242)]),
@@ -50,6 +52,31 @@ def recipe(stage):
         for i,(main,amount,cutoff,enabled,source,block,changes) in enumerate(specs):
             high=max([amount]+[v for _,k,v in changes if k=='amount'])
             cases.append(dict(name=f'up-motion-holdout-{i}',source=source,direction='up',main=main,amount=amount,cutoff=cutoff,enabled=enabled,block=block,tail=90 if high>=192 else 18,baseline=None,events=[dict(frame=f,control=k,value=v) for f,k,v in changes]))
+        if second:
+            initials=[(67,130,39),(219,209,213),(196,19,17),(2,251,241),(104,91,113),(254,237,79),(136,151,3),(43,29,251),
+                (181,2,39),(233,249,213),(5,3,4),(129,130,181),(253,19,2),(198,254,3),(81,139,121),(246,225,34)]
+            blocks=[256,31,17,63,9,2048,33,1024,8,4096,47,128,15,511,255,32]
+            shifts=[7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67]
+            maps=[dict(main={224:231,64:63,255:253},amount={239:241},cutoff={179:183}),
+                dict(main={61:59,231:233,47:53,242:239},amount={3:2},cutoff={5:4}),
+                dict(main={198:199,196:194,199:201,197:198}),
+                dict(main={4:5,1:0,8:9,3:2,5:4,131:137,0:1,224:247}),
+                dict(main={105:107,103:101,106:108,4:5},amount={247:245},cutoff={229:233}),
+                dict(main={79:83,248:251,0:3,255:253},amount={3:2},cutoff={249:247}),
+                dict(main={242:239,130:137}),
+                dict(amount={223:227},cutoff={0:1,5:4,255:253,241:237}),
+                dict(main={190:194},amount={255:254,0:1,239:243,253:251,1:0}),
+                dict(main={5:4,248:250,64:61,224:229},amount={17:19},cutoff={0:2}),
+                dict(main={3:2,5:4,2:1,4:6,64:67},amount={128:131}),
+                dict(main={224:227,0:2}),
+                dict(main={197:198,196:195,198:201,231:237}),
+                dict(main={194:193,201:203},cutoff={249:245,0:1,255:254}),
+                dict(main={61:59,197:199,231:235,104:103},amount={239:241},cutoff={224:227}),
+                dict(main={104:105,105:107,3:0},amount={0:2},cutoff={255:253})]
+            for i,c in enumerate(cases):
+                c['name']=f'up-motion-holdout-v2-{i}';c['main'],c['amount'],c['cutoff']=initials[i];c['block']=blocks[i]
+                for e in c['events']:e['frame']+=shifts[i];e['value']=maps[i].get(e['control'],{}).get(e['value'],e['value'])
+                c['tail']=90 if max([c['amount']]+[e['value'] for e in c['events'] if e['control']=='amount'])>=192 else 18
         return waves,cases
     waves, originals = down_recipe('startup-v3-holdout' if stage == 'cold' else stage)
     cases = []
@@ -76,10 +103,10 @@ def events(case):
 def capture(args):
     model_checked(args); model_hash = sha256(args.model)
     prediction_path=getattr(args,'prediction',None);prediction=None
-    if args.stage=='holdout':
+    if args.stage in HOLDOUT_STAGES:
         if prediction_path is None:raise ValueError('Fresh Up motion capture requires a frozen prediction')
         prediction=json.loads(prediction_path.read_text())
-        if (any(prediction.get(k)!=v for k,v in prediction_payload().items()) or prediction['model_sha256']!=model_hash
+        if (any(prediction.get(k)!=v for k,v in prediction_payload(args.stage).items()) or prediction['model_sha256']!=model_hash
                 or prediction['calibration_sha256']!=sha256(args.calibration)
                 or prediction['renderer_sha256']!=sha256(Path(prediction['renderer_path']))):raise ValueError('Frozen Up motion prediction differs')
     elif prediction_path is not None:raise ValueError('Predictions apply only to fresh Up holdout')
@@ -108,7 +135,7 @@ def capture(args):
         c['receipt_sha256'] = sha256(root/c['name']/'receipt.json'); print(c['name'], flush=True)
     if sha256(args.model) != model_hash or any(sha256(p) != recipe_hashes[str(p)] for p in recipe_files):
         raise ValueError('Discovery recipe/model changed during capture')
-    if prediction and (any(prediction.get(k)!=v for k,v in prediction_payload().items())
+    if prediction and (any(prediction.get(k)!=v for k,v in prediction_payload(args.stage).items())
             or prediction['renderer_sha256']!=sha256(Path(prediction['renderer_path']))):raise ValueError('Frozen motion candidate changed during capture')
     save_json(root/'matrix.json', dict(kind='rmx220-reverb-up-motion-discovery-captures', stage=args.stage, cases=cases,
         calibration_sha256=sha256(args.calibration), static_model_sha256=model_hash, capture_source_sha256=recipe_hashes,
@@ -163,15 +190,16 @@ def source_hashes():
     return {str(p): sha256(p) for p in paths}
 
 
-def prediction_payload():
-    waves,cases=recipe('holdout')
-    return dict(kind='rmx220-reverb-up-motion-predictions',stage='holdout',cases=cases,source_sha256=source_hashes(),
+def prediction_payload(stage='holdout'):
+    if stage not in HOLDOUT_STAGES:raise ValueError('Unknown prospective Up motion stage')
+    waves,cases=recipe(stage)
+    return dict(kind='rmx220-reverb-up-motion-predictions',stage=stage,cases=cases,source_sha256=source_hashes(),
         source_samples_sha256={name:hashlib.sha256(x.astype('<f4').tobytes()).hexdigest() for name,x in waves.items()})
 
 
 def predict(args):
     model_checked(args)
-    save_json(args.report,prediction_payload()|dict(model_path=str(args.model.resolve()),model_sha256=sha256(args.model),
+    save_json(args.report,prediction_payload(args.stage)|dict(model_path=str(args.model.resolve()),model_sha256=sha256(args.model),
         renderer_path=str(args.renderer.resolve()),renderer_sha256=sha256(args.renderer),calibration_sha256=sha256(args.calibration),
         expected='All 16 complete renders pass fixed 1% whole/wet/tail/event/startup windows, 1e-20 reference energy floor and silent absolute RMS1e-8, offsets32/32, no gain fit or wet alignment search.',
         scope='New source programs, pulses, cold toggles, wide/reversing/simultaneous controls, silent positions and callbacks8..4096; standalone factory Up/48k/120BPM only.'))
@@ -181,9 +209,9 @@ def compare(args):
     model_checked(args); root = new_directory(args.output); rows = []
     historical=dict(getattr(args,'historical_prediction',None) or [])
     for stage, directory in args.session:
-        if stage=='holdout':
+        if stage in HOLDOUT_STAGES:
             prediction=json.loads((directory/'predictions.json').read_text());manifest=json.loads((directory/'matrix.json').read_text())
-            expected=prediction_payload()
+            expected=prediction_payload(stage)
             if stage in historical:
                 if sha256(Path(historical[stage]))!=sha256(directory/'predictions.json'):raise ValueError('Historical prediction copy differs')
                 expected={k:v for k,v in expected.items() if k!='source_sha256'}
@@ -203,7 +231,7 @@ def compare(args):
             if rate != 48000 or dry_rate != rate or len(b) != len(audio) or len(dry) != len(audio):
                 raise ValueError('Candidate extent/rate differs')
             a = audio[32:]; b = b[32:].astype(float); dry = dry[32:].astype(float); wa, wb = a-dry, b-dry
-            row = provenance | dict(stage=stage,role='prior_frozen_regression' if stage in historical else 'fresh_prediction_bound' if stage=='holdout' else 'development_regression', whole=screen(a, b), wet=screen(wa, wb), post_input_tail=screen(a[len(x):], b[len(x):]),
+            row = provenance | dict(stage=stage,role='prior_frozen_regression' if stage in historical else 'fresh_prediction_bound' if stage in HOLDOUT_STAGES else 'development_regression', whole=screen(a, b), wet=screen(wa, wb), post_input_tail=screen(a[len(x):], b[len(x):]),
                 candidate_sha256=sha256(output), dry_trace_sha256=sha256(dry_path), schedule_sha256=sha256(schedule), event_windows=[], startup_windows=[])
             for at in sorted({e['frame'] for e in c['events']}):
                 start, end = max(0, at-64), min(len(a), at+4096)
@@ -259,6 +287,7 @@ def main():
             q.add_argument('--model', type=Path, required=True)
         if command=='predict':
             q.add_argument('--renderer',type=Path,required=True);q.add_argument('--report',type=Path,required=True)
+            q.add_argument('--stage',choices=HOLDOUT_STAGES,default='holdout-v2')
         elif command == 'capture':
             q.add_argument('--stage', choices=STAGES, required=True)
             q.add_argument('--prediction',type=Path)

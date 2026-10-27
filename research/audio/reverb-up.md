@@ -1,6 +1,6 @@
 # Reverb Up network identification
 
-27 October 2026. Original RMX-1000 Plug-in 2.2.0, factory Default Up, stereo 48 kHz, 120 BPM. The current research renderer models static integer Main/Sub1 controls and the measured Sub2 filter. Moving controls, production Up and hardware equivalence remain unfinished. The [reference-method guide](reference-method.md) explains the experiment's general rules.
+27 October 2026. Original RMX-1000 Plug-in 2.2.0, factory Default Up, stereo 48 kHz, 120 BPM. This record covers static integer Main/Sub1 controls and the measured Sub2 filter. The later [motion/startup investigation](reverb-up-motion.md) passes 101 motion cases and reruns all 1,204 static cases through a stateful research processor. Production Up and hardware equivalence remain unfinished. The [reference-method guide](reference-method.md) explains the experiment's general rules.
 
 ## Current static-control result
 
@@ -72,7 +72,7 @@ Run `identify --initial INITIAL_SESSION --calibration CALIBRATION --report NEW_M
 
 Use `compare --model MODEL --calibration CALIBRATION --renderer RENDERER --session initial INITIAL_SESSION --session filters FILTER_SESSION --session holdout HOLDOUT_SESSION --output NEW_DIRECTORY`. The comparator fixes reference/candidate offsets at 32/0. The audit accepts all three sessions, comparison JSONs, frozen prediction/model/calibration, optimized and sanitizer renderers, its sanitizer build directory and a new output directory. Build the complete sanitizer core/fixture with `-fsanitize=address,undefined` compiler/linker flags, `-fno-omit-frame-pointer`, and exported compile commands. Historical frozen hashes require their recorded source version.
 
-The neutral checkpoint led to the Main/Sub1 measurements below. The current next steps are motion/startup validation and live Engine integration; passing a static model does not complete full-device 99% fidelity.
+The neutral checkpoint led to the Main/Sub1 measurements below. The later [motion/startup checkpoint](reverb-up-motion.md) supplies separate measured evidence. Runtime qualification and live Engine integration remain required; passing a static model does not complete full-device 99% fidelity.
 
 ## Dense controls: first identification checkpoint
 
@@ -153,3 +153,5 @@ Review the generated header against `ReverbUpControlCalibration.h`, deliberately
 Run `uv run --locked python -m tools.rmx_reverb_up_model_audit --help` for the audit arguments. Supply the eleven named sessions, three component comparison reports, current/first mixed predictions, corrected reference/coefficient validation, original read-only observation artifacts, optimized/one-frame/sanitizer renderers and sanitizer build directory. The audit checks the installed original bundle and requires unchanged historical source bindings. Published numeric records omit large captures and raw debugger artifacts; reproducing those checks requires the separately acquired original and locally generated sessions.
 
 Current scope is **static integer controls with settled silent pre-roll, factory Up, stereo 48 kHz/120 BPM**. Moving controls, activation/cold startup, fractional controls, other profiles/rates/tempos, live Engine integration, overload, listening and physical hardware remain required by the full sound-matching goal.
+
+The subsequent [motion/startup investigation](reverb-up-motion.md) passes 101 motion cases, including sixteen fresh recordings after correcting a failed first holdout, and all 1,204 static regressions. Its independent audit, failed forecasts, gain/clock derivation and 40-sample read-window discovery are documented separately. The live Up Engine remains approximate.
