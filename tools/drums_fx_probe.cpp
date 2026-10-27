@@ -2,6 +2,9 @@
 #include "rmx/Wav.h"
 #include <fstream>
 #include <iostream>
+#ifdef RMX_DRUMS_SHARED_FIXTURE
+#include "../research/audio/experiments/SharedDrumFX.h"
+#endif
 
 int main(int argc,char** argv){try{
     if(argc!=4)throw std::runtime_error("Usage: drums_fx_probe INPUT.wav NEW_OUTPUT.wav SCHEDULE.tsv");
@@ -21,6 +24,9 @@ int main(int argc,char** argv){try{
     }
     if(!file.eof()||events.empty())throw std::runtime_error("Invalid or empty hits");
     std::stable_sort(events.begin(),events.end(),[](const auto& a,const auto& b){return a.frame<b.frame;});
+#ifdef RMX_DRUMS_SHARED_FIXTURE
+    SharedDrumFX engine(type,source,main,amount,cutoff,enabled!=0,level,pitch);
+#else
     rmx::Engine engine;engine.setOutputProtection(false);
     engine.params.set(rmx::Param::AutoTempo,0);engine.params.set(rmx::Param::Quantize,0);
     engine.params.set(rmx::Param::SceneType,static_cast<float>(type));engine.params.set(rmx::Param::SceneSource,static_cast<float>(source));
@@ -28,12 +34,27 @@ int main(int argc,char** argv){try{
     engine.params.set(rmx::Param::SceneTime,amount*7.f/255);engine.params.set(rmx::Param::SceneResonance,cutoff/255.f);
     engine.params.set(rmx::Param::XLevel,level*1.5f/255);engine.params.set(rmx::Param::XPitch,(pitch-128)*(pitch>=128?24.f/127:24.f/128));
     engine.prepare(48000,static_cast<uint32_t>(block));
+#endif
     rmx::Sample output;output.rate=48000;output.frames.resize(input.frames.size());std::array<float,4096> left{},right{},ol{},orr{};size_t event=0;
     for(size_t start=0;start<output.frames.size();){
-        while(event<events.size()&&events[event].frame==start){if(events[event].press&&!engine.enqueue({rmx::EventType::Trigger,static_cast<uint8_t>(events[event].pad),1,0,0,0}))throw std::runtime_error("Event queue full");++event;}
+        while(event<events.size()&&events[event].frame==start){
+            if(events[event].press){
+#ifdef RMX_DRUMS_SHARED_FIXTURE
+                engine.trigger(events[event].pad);
+#else
+                if(!engine.enqueue({rmx::EventType::Trigger,static_cast<uint8_t>(events[event].pad),1,0,0,0}))throw std::runtime_error("Event queue full");
+#endif
+            }++event;
+        }
         size_t count=std::min(block,output.frames.size()-start);if(event<events.size())count=std::min(count,events[event].frame-start);
         for(size_t i=0;i<count;++i){left[i]=input.frames[start+i].l;right[i]=input.frames[start+i].r;}
+#ifdef RMX_DRUMS_SHARED_FIXTURE
+        std::array<rmx::Stereo,4096> in{},out{};for(size_t i=0;i<count;++i)in[i]={left[i],right[i]};
+        engine.process(std::span<const rmx::Stereo>(in.data(),count),std::span<rmx::Stereo>(out.data(),count));
+        for(size_t i=0;i<count;++i){ol[i]=out[i].l;orr[i]=out[i].r;}
+#else
         engine.process(left.data(),right.data(),ol.data(),orr.data(),static_cast<uint32_t>(count));
+#endif
         for(size_t i=0;i<count;++i)output.frames[start+i]={ol[i],orr[i]};start+=count;
     }
     rmx::writeWav(argv[2],output);

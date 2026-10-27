@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Original-reference discovery for factory drums through deterministic Scene FX."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -19,14 +20,33 @@ ACCEPTANCE=dict(relative_rms_error_limit=.01,reference_channel_energy_floor=1e-2
 FRAMES=28*48000
 
 
-def source():
+def source(stage='discovery'):
+    if stage=='fresh':
+        t=np.arange(FRAMES)/48000;x=np.zeros((FRAMES,2))
+        x[:288000]=np.random.default_rng(0x44524659).normal(0,.006,(288000,2))
+        x[:288000]+=.004*np.column_stack((np.sin(2*np.pi*(317*t[:288000]+41*t[:288000]**2)),np.cos(2*np.pi*2179*t[:288000])))
+        x[144000:192000]=0;x[[0,7,19,53,103,241,491,977]] += [.011,-.009]
+        return x.astype('<f4')
     x=np.zeros((FRAMES,2));t=np.arange(264000)/48000
     x[24000:288000]=np.random.default_rng(0x44524658).normal(0,.004,(len(t),2))
     x[24000:288000]+=.006*np.column_stack((np.sin(2*np.pi*(173*t+23*t*t)),np.cos(2*np.pi*1327*t)))
     return x.astype('<f4')
 
 
-def recipe():
+def recipe(stage='discovery'):
+    if stage=='fresh':
+        rows=[]
+        for i,effect in enumerate(EFFECTS):
+            for route in range(4):
+                name=f'drum-fx-fresh-effect{effect}-route{route}';baseline=name+'-dry'
+                events=[(1,pad) for pad in range(4)]+[(69,0),(87,1),(141,2),(179,3),(48073,0),(48073,2),(96139,1),(96139,3)]+[(240173,pad) for pad in range(4)]
+                c=dict(name=name,drum='kick',pads=[pad for at,pad in events],hits=[at for at,pad in events],
+                       level=[0,71,183,255][(i+route)%4],pitch=[29,104,151,227][(i+route*3)%4],
+                       block=[11,23,43,127,263,521,1549,3089][(i+route*2)%8],effect=effect,enabled=1,route=route,
+                       main=[57,119,201,247][(i+route)%4],amount=[23,89,157,181][(i*3+route)%4],
+                       cutoff=[3,81,149,237][(i+route)%4] if effect in (1,4,9) else 0,baseline=baseline)
+                rows.extend([c|dict(name=baseline,effect=1,enabled=0),c])
+        return rows
     rows=[]
     for pad,drum in enumerate(DRUMS):
         for route in range(4):
@@ -40,7 +60,7 @@ def recipe():
 
 
 def source_hashes():
-    paths=[Path('tools/rmx_drums_fx.py'),Path('tools/drums_fx_probe.cpp'),Path('CMakeLists.txt')]
+    paths=[Path('tools/rmx_drums_fx.py'),Path('tools/drums_fx_probe.cpp'),Path('CMakeLists.txt'),Path('research/audio/experiments/SharedDrumFX.h')]
     paths += [Path('tools')/name for name in ('rmx_drums.py','rmx_drums_engine.py','rmx_factory_match.py','rmx_filter_match.py','reference_audio.py','noise_statistics.py')]
     paths += sorted(Path('include/rmx').rglob('*.h'))+sorted(Path('src/core').rglob('*.cpp'))
     return {str(p):sha256(p) for p in paths}
@@ -64,16 +84,20 @@ def schedule(c):
 
 
 def capture(args):
+    if args.stage=='fresh':frozen(args)
     root=new_directory(args.session);binding=source_hashes();inventory=json.loads(run([args.host,'inventory',args.plugin]))
     require(all(inventory[k]==v for k,v in IDENTITY.items()),'Requires original RMX-1000 Plug-in 2.2.0')
-    save_json(root/'inventory.json',inventory);write_wav(root/'program.wav',48000,source().ravel());rows=[]
-    for c in recipe():
+    save_json(root/'inventory.json',inventory);write_wav(root/'program.wav',48000,source(args.stage).ravel());rows=[]
+    if args.stage=='fresh':(root/'predictions.json').write_bytes(args.prediction.read_bytes())
+    for c in recipe(args.stage):
         path=root/(c['name']+'.json');save_json(path,plan_for(c,inventory))
         run([args.host,'render',args.plugin,root/'program.wav',path,root/c['name'],c['block']])
         rows.append(c|dict(receipt_sha256=sha256(root/c['name']/'receipt.json')));print('Captured',c['name'],flush=True)
     require(binding==source_hashes(),'Capture sources changed')
-    save_json(root/'matrix.json',dict(kind='rmx220-drums-fx-discovery',cases=rows,source_sha256=binding,
-              scope='Discovery:128 original programs, seven deterministic Scene effects, four source routes, factory drums at48k/120BPM. No candidate prediction or accuracy claim.'))
+    if args.stage=='fresh':frozen(args)
+    save_json(root/'matrix.json',dict(kind='rmx220-drums-fx-captures',stage=args.stage,cases=rows,source_sha256=binding,
+              prediction_sha256=sha256(args.prediction) if args.stage=='fresh' else None,
+              scope='Factory drums and seven deterministic Scene effects, four source routes,48k/120BPM. Discovery128; fresh56 (28 FX-on plus28 independent FX-off baselines).'))
     return 0
 
 
@@ -99,13 +123,16 @@ def checked(args,c):
     manifest=json.loads((args.session/'matrix.json').read_text());stored=next(r for r in manifest['cases'] if r['name']==c['name'])
     require(stored==c|dict(receipt_sha256=sha256(folder/'receipt.json')),'Original matrix differs')
     rate,a=float_wav(folder/'audio.wav');source_rate,x=float_wav(args.session/'program.wav')
-    require(rate==source_rate==48000 and a.shape==x.shape==(FRAMES,2) and np.array_equal(x,source()),'Original waveform extent/input differs')
+    require(rate==source_rate==48000 and a.shape==x.shape==(FRAMES,2) and np.array_equal(x,source(args.stage)),'Original waveform extent/input differs')
     return a,dict(case=c['name'],receipt_sha256=sha256(folder/'receipt.json'),output_sha256=receipt['output_sha256'],input_sha256=receipt['input_sha256'],plan_sha256=receipt['plan_sha256'])
 
 
 def compare(args):
+    if args.stage=='fresh':
+        frozen(args);manifest=json.loads((args.session/'matrix.json').read_text())
+        require(manifest['prediction_sha256']==sha256(args.prediction)==sha256(args.session/'predictions.json'),'Fresh prediction copy differs')
     root=new_directory(args.output);binding=source_hashes();binary=sha256(args.renderer);rows=[];baselines={}
-    for c in recipe():
+    for c in recipe(args.stage):
         original,provenance=checked(args,c);path=root/(c['name']+'.tsv');save=root/(c['name']+'.wav');path.write_text(schedule(c))
         run([args.renderer,args.session/'program.wav',save,path]);rate,candidate=float_wav(save)
         require(rate==48000 and candidate.shape==original.shape,'Candidate extent/rate differs');a=original[32:].astype(float);b=candidate[32:].astype(float)
@@ -113,23 +140,44 @@ def compare(args):
         da,db=baselines[c['baseline']];wa,wb=a-da,b-db
         row=provenance|dict(effect=c['effect'],route=c['route'],enabled=c['enabled'],candidate_sha256=sha256(save),schedule_sha256=sha256(path),
                            whole=screen(a,b),wet=screen(wa,wb),tail=screen(a[288000:],b[288000:]),windows=[])
-        for at in [24000,*c['hits']]:
+        for at in [0 if args.stage=='fresh' else 24000,*c['hits']]:
             for kind,left,right in [('attack',at,at+256),('body',at,at+48000),('decay',at+4800,at+120000)]:
                 row['windows'].append(dict(frame=at,kind=kind,start=left,stop=right,whole=screen(a[left:right],b[left:right]),wet=screen(wa[left:right],wb[left:right])))
         row['passed']=all(row[k]['passed'] for k in ('whole','wet','tail')) and all(w[k]['passed'] for w in row['windows'] for k in ('whole','wet'))
         rows.append(row);print('PASS' if row['passed'] else 'FAIL',c['name'],flush=True)
     require(binding==source_hashes() and binary==sha256(args.renderer),'Candidate changed')
+    if args.stage=='fresh':frozen(args)
     save_json(root/'comparison.json',dict(kind='rmx220-drums-fx-discovery-comparison',passed=all(r['passed'] for r in rows),cases=rows,
-        acceptance=ACCEPTANCE,source_sha256=binding,renderer_sha256=binary,full_drum_match=False,physical_hardware=False,
-        scope='128 discovery regressions: mixed stereo input and four factory drums, seven deterministic Scene effects, all four source routes, static controls at48k/120BPM. Whole/wet/tail and attack/body/decay screens; wet subtracts the matching independently captured FX-off baseline. No gain/alignment fit, no fresh prediction or broad FX accuracy claim.'))
+        stage=args.stage,prediction_sha256=sha256(args.prediction) if args.stage=='fresh' else None,
+        acceptance=ACCEPTANCE,source_sha256=binding,renderer_sha256=binary,backend=args.backend,live_engine=args.backend=='engine',full_drum_match=False,physical_hardware=False,
+        scope='Mixed stereo input and four factory drums, seven deterministic Scene effects, all four source routes, static controls at48k/120BPM. Whole/wet/tail and attack/body/decay screens; wet subtracts the matching independently captured FX-off baseline. Discovery128; fresh56 (28 FX-on plus28 independent FX-off baselines). Fixed32/32; no gain/alignment fit or broad FX accuracy claim.'))
     return 0 if all(r['passed'] for r in rows) else 1
+
+
+def payload(args):
+    return dict(kind='rmx220-drums-fx-shared-prediction',cases=recipe('fresh'),source_sha256=source_hashes(),renderer_sha256=sha256(args.renderer),
+                source_samples_sha256=hashlib.sha256(source('fresh').tobytes()).hexdigest(),acceptance=ACCEPTANCE,
+                expected='All56 fresh programs pass every per-channel1% whole/wet/tail and attack/body/decay screen. Fixed32/32; no gain or alignment fit.',
+                scope='Shared-clock research adapter, not live Engine. Seven deterministic Scene effects, four source routes, factory48k/default profiles, static controls. New raw level/pitch, irregular callbacks, cold input and simultaneous/staggered drums. No automation, custom profiles/rates, Isolator/Release, DAW or physical hardware qualification.')
+
+
+def predict(args):
+    require(args.stage=='fresh','Only the fresh campaign accepts predictions');save_json(args.report,payload(args));return 0
+
+
+def frozen(args):
+    require(args.prediction is not None and json.loads(args.prediction.read_text())==payload(args),'Frozen shared-clock drum/FX prediction differs')
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);commands=parser.add_subparsers(dest='command',required=True)
-    for name in ('capture','compare'):
-        p=commands.add_parser(name)
-        for key in ('host','session',*(['plugin'] if name=='capture' else ['renderer','output'])):p.add_argument('--'+key,type=Path,required=True)
+    for name in ('capture','compare','predict'):
+        p=commands.add_parser(name);p.add_argument('--stage',choices=['discovery','fresh'],default='discovery')
+        keys=['renderer','report'] if name=='predict' else ['host','session',*(['plugin'] if name=='capture' else ['renderer','output'])]
+        for key in keys:p.add_argument('--'+key,type=Path,required=True)
+        if name!='predict':p.add_argument('--prediction',type=Path)
+        if name=='capture':p.add_argument('--renderer',type=Path)
+        if name=='compare':p.add_argument('--backend',choices=['engine','shared'],default='engine')
     args=parser.parse_args();raise SystemExit(globals()[args.command](args))
 
 

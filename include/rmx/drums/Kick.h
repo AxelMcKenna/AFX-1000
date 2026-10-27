@@ -14,6 +14,9 @@ public:
     void stop() noexcept {state=0;requested=false;pending.fill(0);}
     void reset() noexcept {*this={};}
     void process(std::span<float> output) noexcept;
+    // Shared-clock adapter: use after reset, without mixing with process().
+    void beginProcessing() noexcept {processingStarted=true;}
+    void generateBlock(std::span<float,32> output) noexcept {block();std::copy(pending.begin(),pending.end(),output.begin());}
 private:
     struct Envelope {
         float attack{.001f},decay{},value{},position{};bool rising{},falling{};

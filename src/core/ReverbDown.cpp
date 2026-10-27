@@ -217,6 +217,20 @@ bool CalibratedReverbDown::process(std::span<const Stereo> input,std::span<Stere
     }
     return true;
 }
+bool CalibratedReverbDown::processGeneratedBlock(std::span<const Stereo,32> input,std::span<const Stereo,32> generated,std::span<Stereo,32> output) noexcept {
+    if(callbackInput.empty()||received||available)return false;
+    for(size_t i=0;i<32;++i)if(!std::isfinite(input[i].l)||!std::isfinite(input[i].r)||!std::isfinite(generated[i].l)||!std::isfinite(generated[i].r))return false;
+    if(!started)initialize();
+    for(size_t i=0;i<32;++i){
+        auto value=ingest(input[i]);const auto added=generated[i];
+        value.routed=value.routed+added;
+        value.source[0]+=static_cast<double>(added.l)*inputFade;value.source[1]+=static_cast<double>(added.r)*inputFade;
+        collected[i]=value;
+    }
+    control(collected[0].selected);
+    for(size_t i=0;i<32;++i)output[i]=tick(collected[i])[0];
+    return true;
+}
 size_t CalibratedReverbDown::storageBytes() const noexcept {
     size_t bytes=callbackInput.capacity()*sizeof(Stereo);
     for(const auto& pair:combs)for(const auto& delay:pair)bytes+=delay.data.capacity()*sizeof(double);

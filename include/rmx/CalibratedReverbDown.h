@@ -22,6 +22,11 @@ public:
     // input is rejected under the same rule.
     bool process(std::span<const Stereo> input,std::span<Stereo> output,
                  std::span<Stereo> dry={}) noexcept;
+    // Caller supplies the common 32-frame input/output clock. Generated sources
+    // already carry their own master startup fade. Do not mix with process()
+    // between resets; this entry point adds no second output FIFO.
+    bool processGeneratedBlock(std::span<const Stereo,32> input,std::span<const Stereo,32> generated,
+                               std::span<Stereo,32> output) noexcept;
     size_t storageBytes() const noexcept;
 private:
     struct Delay {

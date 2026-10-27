@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""Independently audit shared-clock drum/FX scores, failures and sanitizer parity."""
+import argparse
+import copy
+import json
+import math
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+
+import numpy as np
+
+from tools.noise_statistics import float_wav
+from tools.reference_audio import save_json,sha256
+from tools.rmx_drums import require
+from tools.rmx_drums_fx import ACCEPTANCE,FRAMES,checked,frozen,recipe,schedule,source_hashes
+from tools.rmx_factory_match import new_directory
+from tools.rmx_filter_match import screen
+
+
+def verify(a,b,stored):
+    require(len(a)>0 and len(stored['channels'])==2,'Missing score data');passed=True
+    for ch,c in enumerate(stored['channels']):
+        x=a[:,ch].astype(np.float64);delta=x-b[:,ch].astype(np.float64)
+        energy=float(np.sum(x*x));error=float(np.sum(delta*delta));absolute=math.sqrt(error/len(x));relative=math.sqrt(error/energy) if energy>1e-20 else None
+        require(math.isclose(absolute,c['absolute_error_rms'],rel_tol=1e-12,abs_tol=1e-15),'Absolute score differs')
+        require((relative is None and c['relative_rms_error'] is None) or (relative is not None and math.isclose(relative,c['relative_rms_error'],rel_tol=1e-12,abs_tol=1e-15)),'Relative score differs')
+        ok=relative<=.01 if relative is not None else absolute<=1e-8
+        require(c['passed']==ok,'Channel pass differs');passed=passed and ok
+    require(stored['passed']==passed,'Screen pass differs');return passed
+
+
+def guards(args,root,source,plan):
+    with tempfile.TemporaryDirectory(prefix='rmx-drums-fx-prediction-') as folder:
+        for field in ['case','gate']:
+            d=json.loads(args.prediction.read_text())
+            if field=='case':d['cases'][1]['block']+=1
+            else:d['acceptance']['relative_rms_error_limit']=.02
+            p=Path(folder)/(field+'.json');save_json(p,d);changed=copy.copy(args);changed.prediction=p
+            try:frozen(changed)
+            except ValueError as error:require(str(error)=='Frozen shared-clock drum/FX prediction differs','Unexpected prediction rejection')
+            else:raise ValueError('Modified prediction accepted')
+    path=root/'existing-output.wav';path.write_bytes(b'do not replace')
+    result=subprocess.run([str(args.renderer),str(source),str(path),str(plan)],capture_output=True,text=True,timeout=120)
+    require(result.returncode!=0 and path.read_bytes()==b'do not replace' and 'Output must be new' in result.stderr,'Existing output overwritten')
+    _,a=float_wav(source);a=a[32:288000].astype(float);shifted=np.zeros_like(a);shifted[1:]=a[:-1]
+    require(not screen(a,shifted)['passed'] and not screen(a,a*1.1)['passed'],'Waveform guard failed')
+    return dict(modified_case_rejected=True,relaxed_gate_rejected=True,existing_output_preserved=True,one_frame_shift_rejected=True,ten_percent_gain_error_rejected=True)
+
+
+def audit(args):
+    frozen(args);binding=source_hashes();root=new_directory(args.output);rows=[];screens=0
+    require(sorted(d[0] for d in args.dataset)==['discovery','fresh'],'Requires discovery and fresh datasets')
+    command_path=args.sanitized.parent/'compile_commands.json';commands=json.loads(command_path.read_text())
+    suffixes=('/Scene.cpp','/ReverbUp.cpp','/ReverbDown.cpp','/drums/Kick.cpp','/drums/Snare.cpp','/drums/Clap.cpp','/drums/Hat.cpp','/Wav.cpp')
+    selected=[c for c in commands if c['file'].endswith(suffixes) or (c['file'].endswith('/drums_fx_probe.cpp') and 'RMX_DRUMS_SHARED_FIXTURE=1' in c['command'])]
+    require(len(selected)==9 and all('-fsanitize=address,undefined' in c['command'] for c in selected),'Missing sanitizer units/flags')
+    require(all('-ffp-contract=off' in c['command'] for c in selected if '/drums/' in c['file'] or '/Reverb' in c['file']),'Missing generator/reverb float flags')
+    first_source=first_plan=None
+    for stage,session_text,report_text in args.dataset:
+        session=Path(session_text);path=Path(report_text);d=json.loads(path.read_text());cases=recipe(stage);call=copy.copy(args);call.session=session;call.stage=stage;baselines={};case_results=[]
+        require(d['backend']=='shared' and not d['live_engine'] and d['stage']==stage and d['source_sha256']==binding and d['acceptance']==ACCEPTANCE
+                and d['renderer_sha256']==sha256(args.renderer) and [r['case'] for r in d['cases']]==[c['name'] for c in cases],'Comparison source/recipe/gates differ')
+        if stage=='fresh':require(d['prediction_sha256']==sha256(args.prediction)==sha256(session/'predictions.json')==json.loads((session/'matrix.json').read_text())['prediction_sha256'],'Prediction copy differs')
+        for c,row in zip(cases,d['cases']):
+            original,provenance=checked(call,c);require(all(row[k]==v for k,v in provenance.items()) and all(row[k]==c[k] for k in ('effect','route','enabled')),'Original provenance differs')
+            output=path.parent/(c['name']+'.wav');plan=path.parent/(c['name']+'.tsv')
+            require(sha256(output)==row['candidate_sha256'] and sha256(plan)==row['schedule_sha256'] and plan.read_text()==schedule(c),'Candidate artifact differs')
+            rate,b=float_wav(output);require(rate==48000 and original.shape==b.shape==(FRAMES,2),'Candidate extent differs');a=original[32:].astype(float);b=b[32:].astype(float)
+            if not c['enabled']:baselines={c['baseline']:(a,b)}
+            require(c['baseline'] in baselines,'Missing independent FX-off baseline');da,db=baselines[c['baseline']];wa,wb=a-da,b-db
+            states=[verify(a,b,row['whole']),verify(wa,wb,row['wet']),verify(a[288000:],b[288000:],row['tail'])];screens+=3
+            windows=[(at,kind,left,right) for at in [0 if stage=='fresh' else 24000,*c['hits']]
+                     for kind,left,right in [('attack',at,at+256),('body',at,at+48000),('decay',at+4800,at+120000)]]
+            require(len(windows)==len(row['windows']),'Window count differs')
+            for (at,kind,left,right),w in zip(windows,row['windows']):
+                require((w['frame'],w['kind'],w['start'],w['stop'])==(at,kind,left,right),'Window boundaries differ')
+                states.extend([verify(a[left:right],b[left:right],w['whole']),verify(wa[left:right],wb[left:right],w['wet'])]);screens+=2
+            passed=all(states);require(row['passed']==passed,'Case pass differs');case_results.append(passed)
+            sanitized=root/(c['name']+'.wav');process=subprocess.run([str(args.sanitized),str(session/'program.wav'),str(sanitized),str(plan)],capture_output=True,text=True,timeout=120,
+                env=os.environ|dict(ASAN_OPTIONS='halt_on_error=1',UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1'))
+            require(process.returncode==0 and not process.stderr,'Sanitizer error: '+process.stderr);require(sha256(sanitized)==sha256(output),'Sanitized WAV differs')
+            rows.append(dict(case=c['name'],stage=stage,passed=passed,comparison_sha256=sha256(path),receipt_sha256=provenance['receipt_sha256'],candidate_sha256=sha256(output),sanitizer_byte_identical=True))
+            if first_source is None:first_source=session/'program.wav';first_plan=plan
+            print('AUDITED',c['name'],'PASS' if passed else 'FAIL',flush=True)
+        require(d['passed']==all(case_results),'Campaign pass differs')
+    checks=guards(args,root,first_source,first_plan);frozen(args);require(binding==source_hashes(),'Candidate changed during audit')
+    save_json(root/'verification.json',dict(kind='rmx220-shared-drums-fx-independent-audit',evidence_verified=True,audio_passed=all(r['passed'] for r in rows),cases=rows,
+        recomputed_stereo_screens=screens,source_sha256=binding,auditor_sha256=sha256(Path(__file__)),prediction_sha256=sha256(args.prediction),renderer_sha256=sha256(args.renderer),
+        sanitized_sha256=sha256(args.sanitized),sanitizer_compile_commands_sha256=sha256(command_path),sanitizer_compile_commands=[c['command'] for c in selected],sanitizer_stderr_empty=True,
+        acceptance=ACCEPTANCE,guards=checks,scope='128 discovery programs plus56 frozen fresh programs (28 FX-on and28 independent FX-off baselines), shared-clock research adapter only. Evidence/score integrity and sanitizer parity do not turn a waveform failure into a pass. Live Engine integration, moving controls, other profiles/rates and physical hardware remain unfinished.'))
+    return 0
+
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    for key in ('host','renderer','sanitized','prediction','output'):p.add_argument('--'+key,type=Path,required=True)
+    p.add_argument('--dataset',nargs=3,action='append',required=True,metavar=('STAGE','SESSION','COMPARISON'))
+    raise SystemExit(audit(p.parse_args()))
+
+
+if __name__=='__main__':main()
