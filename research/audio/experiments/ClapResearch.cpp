@@ -27,8 +27,8 @@ void ClapResearch::block() noexcept {
     if(!state)pending.fill(0);
     else for(size_t begin=0;begin<32;begin+=16){
         float n=noise.advance();n*=n;n*=n;
-        if(elapsed<0x7ffeffff)elapsed+=16;
         const bool burst=elapsed<static_cast<unsigned>(.031f*48000.f);
+        if(elapsed<0x7ffeffff)elapsed+=16;
         float t=tail.advance();t*=t;t*=t;
         for(size_t i=begin;i<begin+16;++i){
             const float saw=phase;phase-=91.f*(1.f/48000.f);if(phase<0)phase=1;

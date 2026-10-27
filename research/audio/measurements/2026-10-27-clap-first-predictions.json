@@ -1,0 +1,175 @@
+{
+  "kind": "rmx220-clap-prospective-prediction",
+  "cases": [
+    {
+      "name": "clap-holdout-0",
+      "drum": "clap",
+      "variant": "holdout",
+      "block": 9,
+      "hits": [
+        1,
+        113,
+        311,
+        1491,
+        1529,
+        1607,
+        48037,
+        144311
+      ],
+      "level": 128,
+      "pitch": 128
+    },
+    {
+      "name": "clap-holdout-1",
+      "drum": "clap",
+      "variant": "holdout",
+      "block": 23,
+      "hits": [
+        5,
+        67,
+        257,
+        797,
+        1487,
+        1801,
+        96071
+      ],
+      "level": 128,
+      "pitch": 128
+    },
+    {
+      "name": "clap-holdout-2",
+      "drum": "clap",
+      "variant": "holdout",
+      "block": 39,
+      "hits": [
+        47,
+        199,
+        509,
+        1021,
+        1489,
+        1543,
+        48043,
+        240211
+      ],
+      "level": 128,
+      "pitch": 128
+    },
+    {
+      "name": "clap-holdout-3",
+      "drum": "clap",
+      "variant": "holdout",
+      "block": 123,
+      "hits": [
+        127,
+        353,
+        877,
+        1553,
+        1879,
+        32057,
+        128173,
+        256159
+      ],
+      "level": 128,
+      "pitch": 128
+    },
+    {
+      "name": "clap-holdout-4",
+      "drum": "clap",
+      "variant": "holdout",
+      "block": 259,
+      "hits": [
+        149,
+        337,
+        727,
+        1481,
+        1523,
+        1597,
+        96137
+      ],
+      "level": 128,
+      "pitch": 128
+    },
+    {
+      "name": "clap-holdout-5",
+      "drum": "clap",
+      "variant": "holdout",
+      "block": 517,
+      "hits": [
+        48059,
+        48137,
+        48307,
+        49537,
+        144331,
+        144509,
+        288419
+      ],
+      "level": 128,
+      "pitch": 128
+    },
+    {
+      "name": "clap-holdout-6",
+      "drum": "clap",
+      "variant": "holdout",
+      "block": 1541,
+      "hits": [
+        65581,
+        65797,
+        67069,
+        67213,
+        96079,
+        144101,
+        288373
+      ],
+      "level": 128,
+      "pitch": 128
+    },
+    {
+      "name": "clap-holdout-7",
+      "drum": "clap",
+      "variant": "holdout",
+      "block": 3079,
+      "hits": [
+        131,
+        367,
+        967,
+        1613,
+        12829,
+        12929,
+        13013,
+        192371
+      ],
+      "level": 128,
+      "pitch": 128
+    }
+  ],
+  "source_sha256": {
+    "tools/rmx_clap.py": "278928f3faf6f2cb3a87abe64624c6b4b6e7e1896391219e28f71cacc903f4ac",
+    "tools/rmx_drums.py": "eb322c423caee5aaa74185ba9ba60d98f83aaceabff5a33131b005c967521d98",
+    "CMakeLists.txt": "a63a0f31df808cf80f46eb6eeded3c91124bb597f5e217b29cd2a215000f1757",
+    "src/core/Wav.cpp": "bd8beeb2e3dd5efb39df4ea4d48ea9eaa38201b2173e1b94ca6cb90c8ede0e46",
+    "include/rmx/Wav.h": "dc56a9df676cc549821adbec600ca0df60690e96b7d6fd92a1058dd98f9a2e14",
+    "include/rmx/Dsp.h": "ff22e0fcab3b7176fb53aac8926c2483bc5cf4ee009c9ee7d8bac0094d7f4b93",
+    "research/audio/experiments/ClapResearch.h": "a6b8163ec96c298da4ff5b1ea33e92db1191348b5361595e66b4fcd024e6216e",
+    "research/audio/experiments/ClapResearch.cpp": "c4d6bec3ea81ffe9b0c8b4e56251921f38419a751fb9c645dad6aac731a34883",
+    "research/audio/experiments/clap_research_probe.cpp": "47fa17f465bd26ff3daf62725d8759747000aa5e616149fc54210afd17d84aee",
+    "tools/rmx_clap_validate.py": "81b36a5b191d78e60e9a2da67e9a574fdcf765e20e2dda8880678350f41bbcf6",
+    "tools/rmx_filter_match.py": "5ae841eb84c59fc5d10a95391cead92a94ae17acbdf1a44ce25025995085d914",
+    "tools/noise_statistics.py": "4fabb7dec91fedd7f35b2721a080c50c54945d50c204362d053dd02a0cee66a7",
+    "tools/reference_audio.py": "549186423047125c6b217090626bbd8c805b8863bf2681367b48106122ea3392"
+  },
+  "renderer_path": "/Users/axelmckrnna/dev/rmx-publish/build/uv-migration/rmx_clap_research_probe",
+  "renderer_sha256": "d3d8cdca65b4c4109be3c07c0d003cbcdfce33445d19714d3e69f20abbaa7a15",
+  "frames": 480000,
+  "input": "Exact stereo float32 zeros",
+  "acceptance": {
+    "relative_rms_error_limit": 0.01,
+    "reference_channel_energy_floor": 1e-20,
+    "silent_channel_absolute_rms_limit": 1e-08,
+    "reference_offset_frames": 32,
+    "candidate_offset_frames": 32,
+    "gain_fit": false,
+    "alignment_search": false
+  },
+  "expected": "All eight whole/attack/body/decay per-channel screens pass 1% with fixed32/32 and no gain/alignment fit.",
+  "scope": "Neutral factory clap at stereo48k/120BPM; new cold/retrigger/timing/callback programs. No other drum, settings, Engine or hardware claim."
+}
