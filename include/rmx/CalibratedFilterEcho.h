@@ -70,7 +70,11 @@ public:
                 const double base=original[channel]*dry;
                 direct[channel]=base+(direct[channel]-base)*startup;
                 feed[channel]=base+(feed[channel]-base)*startup;
-                if(type==7&&sharedStartup)direct[channel]=base+(direct[channel]-base)*startup;
+                if(type==7&&sharedStartup){
+                    direct[channel]=base+(direct[channel]-base)*startup;
+                    // Crush's unfiltered return blend uses the input fade too.
+                    feed[channel]=base*startup+(feed[channel]-base);
+                }
             }
         }
         const float activation=std::clamp((raw-4)/5.f,0.f,1.f)*enabled;

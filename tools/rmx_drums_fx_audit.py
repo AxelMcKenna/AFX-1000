@@ -52,11 +52,12 @@ def guards(args,root,source,plan):
 def audit(args):
     args.stage=args.prediction_stage
     frozen(args);binding=source_hashes();root=new_directory(args.output);rows=[];screens=0
-    required=['discovery','fresh'] if args.stage=='fresh' else ['discovery','former','fresh-v2']
-    require(sorted(d[0] for d in args.dataset)==required,'Requires exactly the complete declared datasets')
-    if args.stage=='fresh-v2':
-        require(args.former_prediction is not None,'Requires the former frozen prediction')
-        old=json.loads(args.former_prediction.read_text());call=copy.copy(args);call.stage='fresh';expected=payload(call)
+    required=['discovery','fresh'] if args.stage=='fresh' else ['discovery','former','fresh-v2'] if args.stage=='fresh-v2' else ['discovery','former','second','fresh-v3']
+    require(sorted(d[0] for d in args.dataset)==sorted(required),'Requires exactly the complete declared datasets')
+    legacy={'former':('fresh',args.former_prediction),'second':('fresh-v2',args.second_prediction)}
+    for name in set(required)&set(legacy):
+        recipe_stage,prediction=legacy[name];require(prediction is not None,'Requires the '+name+' frozen prediction')
+        old=json.loads(prediction.read_text());call=copy.copy(args);call.stage=recipe_stage;expected=payload(call)
         require(all(old[k]==expected[k] for k in ('kind','cases','source_samples_sha256','acceptance')),'Former recipe/gates differ')
     command_path=args.sanitized.parent/'compile_commands.json';commands=json.loads(command_path.read_text())
     suffixes=('/Scene.cpp','/ReverbUp.cpp','/ReverbDown.cpp','/drums/Kick.cpp','/drums/Snare.cpp','/drums/Clap.cpp','/drums/Hat.cpp','/Wav.cpp')
@@ -65,13 +66,13 @@ def audit(args):
     require(all('-ffp-contract=off' in c['command'] for c in selected if '/drums/' in c['file'] or '/Reverb' in c['file']),'Missing generator/reverb float flags')
     first_source=first_plan=None
     for stage,session_text,report_text in args.dataset:
-        recipe_stage='fresh' if stage=='former' else stage
+        recipe_stage=legacy[stage][0] if stage in legacy else stage
         session=Path(session_text);path=Path(report_text);d=json.loads(path.read_text());cases=recipe(recipe_stage);call=copy.copy(args);call.session=session;call.stage=recipe_stage;baselines={};case_results=[]
-        role='development_regression' if stage=='discovery' else 'former_prediction_regression' if stage=='former' else 'fresh_prediction_bound'
-        require(d['backend']=='shared' and not d['live_engine'] and d['stage']==recipe_stage and d['role']==role and d['source_sha256']==binding and d['acceptance']==ACCEPTANCE
+        role='development_regression' if stage=='discovery' else 'former_prediction_regression' if stage in legacy else 'fresh_prediction_bound'
+        require(d['kind']=='rmx220-drums-fx-discovery-comparison' and d['backend']=='shared' and not d['live_engine'] and d['stage']==recipe_stage and d['role']==role and d['source_sha256']==binding and d['acceptance']==ACCEPTANCE
                 and d['renderer_sha256']==sha256(args.renderer) and [r['case'] for r in d['cases']]==[c['name'] for c in cases],'Comparison source/recipe/gates differ')
         if stage!='discovery':
-            prediction=args.former_prediction if stage=='former' else args.prediction
+            prediction=legacy[stage][1] if stage in legacy else args.prediction
             require(d['prediction_sha256']==sha256(prediction)==sha256(session/'predictions.json')==json.loads((session/'matrix.json').read_text())['prediction_sha256'],'Prediction copy differs')
         for c,row in zip(cases,d['cases']):
             original,provenance=checked(call,c);require(all(row[k]==v for k,v in provenance.items()) and all(row[k]==c[k] for k in ('effect','route','enabled')),'Original provenance differs')
@@ -106,8 +107,9 @@ def audit(args):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('host','renderer','sanitized','prediction','output'):p.add_argument('--'+key,type=Path,required=True)
-    p.add_argument('--prediction-stage',choices=['fresh','fresh-v2'],default='fresh')
+    p.add_argument('--prediction-stage',choices=['fresh','fresh-v2','fresh-v3'],default='fresh')
     p.add_argument('--former-prediction',type=Path)
+    p.add_argument('--second-prediction',type=Path)
     p.add_argument('--dataset',nargs=3,action='append',required=True,metavar=('STAGE','SESSION','COMPARISON'))
     raise SystemExit(audit(p.parse_args()))
 
