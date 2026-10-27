@@ -1,4 +1,5 @@
 #pragma once
+#include "DrumResearchControls.h"
 #include <array>
 #include <span>
 #include <cstddef>
@@ -34,7 +35,8 @@ private:
     std::array<float,32> pending{};
     size_t received{},available{},head{};
     float phase1{.25f},phase2{.25f},gain{},startupGain{};
-    float pitchRatio{1},outputLevel{1};
+    float pitchRatio{1};
+    DrumLevelRamp outputLevel;
     uint32_t random1{0xd0f61b8f},random2{0x34373a95};
     unsigned state{};bool requested{},processingStarted{};
 };

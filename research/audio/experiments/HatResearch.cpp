@@ -17,7 +17,7 @@ float pulse(float& phase,float frequency) noexcept {
 }
 }
 void HatResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
-    outputLevel=drumLevel(level);pitchRatio=drumPitchRate(pitchRaw);
+    outputLevel.set(level);pitchRatio=drumPitchRate(pitchRaw);
     highpass1.coefficients=drumHighpass(3360*pitchRatio,1.2f);highpass2.coefficients=drumHighpass(6400*pitchRatio,.851f);
 }
 float HatResearch::Envelope::advance() noexcept {
@@ -56,7 +56,7 @@ void HatResearch::block() noexcept {
         }
     }
     if(!main.rising&&main.value==0&&std::abs(pending.back())<1e-9f)state=0;
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel;}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel.advance();}
 }
 void HatResearch::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;

@@ -47,7 +47,7 @@ def guards(args,neutral,hot,plan,source,root):
 
 def audit(args):
     frozen(args);binding=source_hashes();root=new_directory(args.output);rows=[];screens=0;neutral=hot=first_plan=first_source=None
-    require(sorted(d[0] for d in args.dataset)==sorted([*SETS,'fresh']),'Requires exactly eight complete datasets')
+    require(sorted(d[0] for d in args.dataset)==sorted([*SETS,'fresh']),'Requires exactly nine complete datasets')
     commands_path=args.sanitized.parent/'compile_commands.json';commands=json.loads(commands_path.read_text())
     files=('drums_control_probe.cpp','KickResearch.cpp','SnareResearch.cpp','ClapResearch.cpp','HatResearch.cpp')
     commands=[c['command'] for c in commands if c['file'].endswith(files) and 'rmx_drums_control_probe.dir' in c['command']]
@@ -97,7 +97,7 @@ def audit(args):
         source_sha256=binding,auditor_sha256=sha256(Path(__file__)),score_helper_sha256=sha256(Path('tools/rmx_snare_audit.py')),
         renderer_sha256=sha256(args.renderer),sanitized_sha256=sha256(args.sanitized),sanitizer_compile_commands_sha256=sha256(commands_path),
         sanitizer_compile_commands=commands,sanitizer_stderr_empty=True,prediction_sha256=sha256(args.prediction),acceptance=ACCEPTANCE,guards=checks,
-        scope='76 static control discovery regressions,64 previous neutral regressions,32 frozen fresh static-control predictions. Complete score recomputation and all172 optimized/ASan/UBSan audio byte parity. No automation, alternate profiles, Engine or hardware claim.'))
+        scope='76 static control discovery regressions,64 previous neutral regressions,32 former failed-prediction regressions,32 frozen fresh static-control predictions. Complete score recomputation and all204 optimized/ASan/UBSan audio byte parity. No automation, alternate profiles, Engine or hardware claim.'))
     return 0
 
 

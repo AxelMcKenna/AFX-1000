@@ -21,7 +21,7 @@ float triangle(float& phase,float frequency) noexcept {
 }
 }
 void KickResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
-    pitchRaw=std::min(pitchRaw,255u);outputLevel=drumLevel(level);const float ratio=drumPitchRate(pitchRaw);
+    pitchRaw=std::min(pitchRaw,255u);outputLevel.set(level);const float ratio=drumPitchRate(pitchRaw);
     noiseMix=.04f;toneLimit=.3f;
     if(pitchRaw<=120){
         frequencyBase=(ratio*.8108f+.1892f)*49.91f;
@@ -70,7 +70,7 @@ void KickResearch::block() noexcept {
     if(!tone.rising&&tone.value==0&&std::abs(pending.back())<1e-9f)state=0;
     // Global output fade advances on the generated clock, including silence.
     // Applying it after FIFO emission would make callback fragments incorrect.
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel;}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel.advance();}
 }
 void KickResearch::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;

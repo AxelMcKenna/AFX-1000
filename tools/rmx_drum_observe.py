@@ -49,9 +49,14 @@ def observe(args):
     hat_offsets=dict(highpass1_frequency=1908,highpass2_frequency=1912,pulse1_frequency=1852,
                      pulse2_frequency=1916,pulse3_frequency=1920,pulse4_frequency=1924,attack_decay_ratio=1928,
                      noise_scale=1936,pulse_scale=1940,output_scale=1944)
+    kick_offsets=dict(noise_scale=1956,base_frequency=1960,pitch_sweep=1964,low_base_slope=1968,
+                      low_base_offset=1972,low_sweep_slope=1976,low_sweep_offset=1980,
+                      low_control_scale=1984,low_noise_slope=1988,low_clip_scale=1992,amplitude_scale=1996)
     save_json(args.report,dict(kind='rmx220-drum-local-scalar-observation',binary_sha256=sha256(args.binary),script_sha256=sha256(Path(__file__)),
               symbol_inventory_sha256=hashlib.sha256(result.stdout.encode()).hexdigest(),named_float_arrays=values,
               generator_symbols={name:hex(symbols[name]) for name in methods},
+              kick_pitch_numeric_hypothesis={name:dict(byte_offset=offset,value=floats(table+offset,1)[0]) for name,offset in kick_offsets.items()},
+              first_order_filter_scalars=dict(rate=floats(table+2096,1)[0],angular_scale=floats(table+2100,1)[0],denominator_offset=floats(table+2104,1)[0]),
               shared_pitch_level_tables=dict(level_symbol='gf_rbnfx_level_table',level_values=floats(symbols['gf_rbnfx_level_table'],256),
                   pitch_left_rows=[floats(symbols['_g_coef_pitchcurve_left']+16*i,4) for i in range(12)],
                   pitch_center=floats(symbols['_g_coef_pitchcurve_cent'],4),

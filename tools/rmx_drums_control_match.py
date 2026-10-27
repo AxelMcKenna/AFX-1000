@@ -15,13 +15,14 @@ from tools.rmx_filter_match import screen
 from tools.rmx_kick_validate import ACCEPTANCE
 
 SETS={'controls':'rmx_drum_controls','discovery':'rmx_drums','kick-first':'rmx_kick_validate',
-      'kick-cold':'rmx_kick_cold','snare':'rmx_snare_validate','clap':'rmx_clap_validate','hat':'rmx_hat_validate'}
+      'kick-cold':'rmx_kick_cold','snare':'rmx_snare_validate','clap':'rmx_clap_validate','hat':'rmx_hat_validate','control-first':'rmx_drums_control_match'}
 
 
-def regression_cases(name):return importlib.import_module('tools.'+SETS[name]).recipe()
+def regression_cases(name):
+    return first_recipe() if name=='control-first' else importlib.import_module('tools.'+SETS[name]).recipe()
 
 
-def recipe():
+def first_recipe():
     specs=[(13,2,2,[1,101,271,547,12067,48277,96203,192373]),
            (27,3,33,[3,173,349,571,877,16073,96097,240229]),
            (45,123,118,[23,127,257,461,709,12853,12977,13147,192383]),
@@ -31,6 +32,19 @@ def recipe():
            (1549,211,203,[65609,65813,66053,96103,144131,288421]),
            (3089,255,253,[139,331,503,683,32083,128143,256219])]
     return [dict(name=f'control-holdout-{drum}-{i}',drum=drum,variant='control-holdout',block=block,level=level,pitch=pitch,hits=hits)
+            for drum in DRUMS for i,(block,level,pitch,hits) in enumerate(specs)]
+
+
+def recipe():
+    specs=[(14,0,1,[1,107,281,569,12083,48301,96229,192401]),
+           (29,4,35,[5,179,359,593,907,16091,96113,240257]),
+           (47,121,117,[29,139,269,487,739,12871,13001,13181,192419]),
+           (117,133,123,[47,227,397,587,751,48271,144347,288251]),
+           (265,254,133,[173,389,599,787,16097,16289,16493,96173]),
+           (527,19,139,[48073,48161,48259,48487,144269,144503,288431]),
+           (1553,213,207,[65633,65837,66083,96127,144157,288449]),
+           (3097,252,251,[149,347,521,709,32107,128167,256243])]
+    return [dict(name=f'control-cold-holdout-{drum}-{i}',drum=drum,variant='control-cold-holdout',block=block,level=level,pitch=pitch,hits=hits)
             for drum in DRUMS for i,(block,level,pitch,hits) in enumerate(specs)]
 
 

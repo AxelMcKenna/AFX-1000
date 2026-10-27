@@ -11,6 +11,17 @@ inline float drumPitchRate(unsigned raw,unsigned left=11,unsigned right=11) noex
     return x2*(c[0]*x+c[1])+(c[2]*x+c[3]);
 }
 inline float drumLevel(unsigned raw) noexcept {return drumLevelTable[std::min(raw,255u)];}
+struct DrumLevelRamp {
+    float value{1},target{1},step{};unsigned remaining{};
+    void set(unsigned raw) noexcept {
+        const float next=drumLevel(raw);if(next==target)return;
+        target=next;step=(target-value)*.00625f;remaining=160;
+    }
+    float advance() noexcept {
+        if(remaining){value+=step;if(!--remaining)value=target;}
+        return value;
+    }
+};
 // Measured frequency-polynomial calibration, evaluated in its float32 grouping.
 // Coefficient order matters at the moving low-frequency drum resonances.
 inline float drumFrequencyPolynomial(const std::array<float,7>& c,float x) noexcept {

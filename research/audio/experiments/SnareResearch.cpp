@@ -18,7 +18,7 @@ float triangle(float& phase,float frequency) noexcept {
 }
 }
 void SnareResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
-    outputLevel=drumLevel(level);pitchRatio=drumPitchRate(pitchRaw);
+    outputLevel.set(level);pitchRatio=drumPitchRate(pitchRaw);
     lowpass.coefficients=drumLowpass(9000*pitchRatio,1);
     const auto lp=drumFirstOrder(9000*pitchRatio,false),hp=drumFirstOrder(10000*pitchRatio,true);
     lowpass1.b0=lp[0];lowpass1.b1=lp[1];lowpass1.feedback=lp[2];
@@ -64,7 +64,7 @@ void SnareResearch::block() noexcept {
         }
     }
     if(!noise.rising&&noise.value==0&&std::abs(pending.back())<1e-9f)state=0;
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel;}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel.advance();}
 }
 void SnareResearch::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;
