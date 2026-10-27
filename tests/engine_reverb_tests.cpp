@@ -33,15 +33,16 @@ int main(){try{
     auto* previous=std::pmr::set_default_resource(&arena);
     struct Restore{std::pmr::memory_resource* previous;~Restore(){std::pmr::set_default_resource(previous);}}restore{previous};
     uint64_t total=0;size_t engineBytes=0;
+    const auto routing=[&]<class Processor>(int scene,rmx::Param room){
     for(unsigned mode=0;mode<6;++mode){
-        rmx::Engine engine;rmx::CalibratedReverbDown expected,bypass;
+        rmx::Engine engine;Processor expected,bypass;
         const size_t prepared=mode==5?64:4096;
-        engine.params.set(rmx::Param::AutoTempo,0);engine.params.set(rmx::Param::SceneType,9);
+        engine.params.set(rmx::Param::AutoTempo,0);engine.params.set(rmx::Param::SceneType,static_cast<float>(scene));
         engine.params.set(rmx::Param::SceneSource,mode==1?3:mode==4?2:0);
         engine.params.set(rmx::Param::Bypass,mode==2?1:0);engine.params.set(rmx::Param::WetOnly,mode==3?1:0);
         engine.prepare(48000,static_cast<uint32_t>(prepared));engineBytes=std::max(engineBytes,arena.used());
         expected.prepare(prepared);bypass.prepare(prepared);
-        require(engine.latencySamples()==32,"Down button-off latency differs");
+        require(engine.latencySamples()==32,"Reverb button-off latency differs");
         std::array<float,4096> left{},right{},ol{},orr{};
         std::array<rmx::Stereo,4096> input{},wanted{},direct{};
         constexpr size_t sizes[]{1,9,15,31,32,47,128,255,4096};
@@ -77,12 +78,30 @@ int main(){try{
             total+=n;
         }
         require(allocations==0&&arena.allocations()==before,"Engine callback/control/reset allocated");tracking=false;
-        engine.params.set(rmx::Param::UserSettings,1);engine.params.set(rmx::Param::ReverbDownRoomSize,1);
+        engine.params.set(rmx::Param::UserSettings,1);engine.params.set(room,1);
         require(engine.latencySamples()==0,"Unsupported room profile latency differs");
+        engine.params.set(room,0);
+        const auto time=scene==4?rmx::Param::ReverbUpTime:rmx::Param::ReverbDownTime;
+        const auto filter=scene==4?rmx::Param::ReverbUpFilter:rmx::Param::ReverbDownFilter;
+        for(const auto value:{0.f,2.f}){
+            engine.params.set(time,value);require(engine.latencySamples()==0,"Unsupported time profile latency differs");
+        }
+        engine.params.set(time,1);
+        for(const auto value:{0.f,1.f,2.f}){
+            engine.params.set(filter,value);
+            require(engine.latencySamples()==((scene==4?value==2:value==0)?32u:0u),"Filter profile latency differs");
+        }
+        engine.params.set(filter,scene==4?2:0);
+        engine.params.set(rmx::Param::ReverbDecay,.5f);
+        require(engine.latencySamples()==0,"Unsupported decay profile latency differs");
+        engine.params.set(rmx::Param::ReverbDecay,.72f);engine.params.set(room,1);
         engine.params.set(rmx::Param::UserSettings,0);require(engine.latencySamples()==32,"Default profile did not mask advanced settings");
         engine.params.set(rmx::Param::SceneType,1);require(engine.latencySamples()==0,"Legacy Scene latency changed");
     }
-    {
+    };
+    routing.template operator()<rmx::CalibratedReverbDown>(9,rmx::Param::ReverbDownRoomSize);
+    routing.template operator()<rmx::CalibratedReverbUp>(4,rmx::Param::ReverbUpRoomSize);
+    for(const auto scene:{4,9}){
         // A real sampler voice runs on either side of FX SOURCE. Its dry bus
         // must follow the same callback timing as input, including transitions.
         rmx::SampleBank bank;auto& asset=bank.slots[0];asset.rate=48000;asset.frames.resize(16384);
@@ -93,7 +112,7 @@ int main(){try{
             engine->params.set(rmx::Param::SampleSource,1);engine->params.set(rmx::Param::XLevel,1);
             engine->prepare(48000,128);
         }
-        down.params.set(rmx::Param::SceneType,9);timing.prepare(128);timing.setControls({128,128,0,false});
+        down.params.set(rmx::Param::SceneType,static_cast<float>(scene));timing.prepare(128);timing.setControls({128,128,0,false});
         std::array<float,128> left{},right{},dl{},dr{},bl{},br{};
         std::array<rmx::Stereo,128> totalInput{},expected{};
         const auto before=arena.allocations();tracking=true;double maxError=0;

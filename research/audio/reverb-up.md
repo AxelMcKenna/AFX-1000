@@ -1,6 +1,6 @@
 # Reverb Up network identification
 
-27 October 2026. Original RMX-1000 Plug-in 2.2.0, factory Default Up, stereo 48 kHz, 120 BPM. This record covers static integer Main/Sub1 controls and the measured Sub2 filter. The later [motion/startup investigation](reverb-up-motion.md) passes 101 motion cases and reruns all 1,204 static cases through a stateful research processor. Production Up and hardware equivalence remain unfinished. The [reference-method guide](reference-method.md) explains the experiment's general rules.
+27 October 2026. Original RMX-1000 Plug-in 2.2.0, factory Default Up, stereo 48 kHz, 120 BPM. This record covers static integer Main/Sub1 controls and the measured Sub2 filter. The later [motion/startup investigation](reverb-up-motion.md) passes 101 motion cases and reruns all 1,204 static cases through a stateful research processor. The subsequent [live Engine checkpoint](reverb-up-motion.md#live-engine-integration-27-october-2026) passes 1,321 scoped cases. Hardware equivalence remains unfinished. The [reference-method guide](reference-method.md) explains the experiment's general rules.
 
 ## Current static-control result
 
@@ -157,3 +157,5 @@ Current scope is **static integer controls with settled silent pre-roll, factory
 The subsequent [motion/startup investigation](reverb-up-motion.md) passes 101 motion cases, including sixteen fresh recordings after correcting a failed first holdout, and all 1,204 static regressions. Its independent audit, failed forecasts, gain/clock derivation and 40-sample read-window discovery are documented separately. The live Up Engine remains approximate.
 
 The [bounded core class](reverb-up-motion.md#bounded-core-processor-27-october-2026) subsequently preserves all 1,305 research output/dry WAVs byte-for-byte and passes eight further fresh motion/startup programs. Native resource checks measure bounded storage and zero tracked callback allocations. Live Up Engine integration is still pending.
+
+The [live Up Engine](reverb-up-motion.md#live-engine-integration-27-october-2026) now passes 1,321 scoped waveform cases, including eight new prediction-bound programs, with AU/VST3 and preserved Down checks. Earlier statements about an approximate live Up path describe their historical checkpoint. Other profiles/rates, combinations and full-device fidelity remain incomplete.

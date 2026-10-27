@@ -8,6 +8,7 @@
 #include "Sample.h"
 #include "LoopStretch.h"
 #include "CalibratedReverbDown.h"
+#include "CalibratedReverbUp.h"
 #include <array>
 #include <atomic>
 #include <span>
@@ -60,24 +61,25 @@ public:
                  Transport transport={},std::span<const Event> events={}) noexcept;
     double sampleRate() const noexcept { return sr; }
     // Nominal processing delay for the selected profile, including button-off.
-    // The measured Down callback adapter also reproduces partial-block startup.
+    // The measured reverb adapters also reproduce partial-block startup.
     unsigned latencySamples() const noexcept;
 private:
     FractionalDelay history;
     SceneProcessor sceneProcessor;
     CalibratedReverbDown reverbDown;
+    CalibratedReverbUp reverbUp;
     struct ReleaseFrame {
         double bpm{};float amount{},time{},mix{};int type{};bool active{},start{};
     };
-    struct OutputFrame {ReleaseFrame release;float gain{},bypass{};bool wetOnly{},downEnabled{};};
+    struct OutputFrame {ReleaseFrame release;float gain{},bypass{};bool wetOnly{},reverbEnabled{};};
     struct ParallelAudio {Stereo raw{},unselected{},wetDry{};};
-    std::pmr::vector<Stereo> sceneInput,sceneOutput,downOutput;
+    std::pmr::vector<Stereo> sceneInput,sceneOutput,downOutput,upOutput;
     std::pmr::vector<OutputFrame> outputFrames;
     std::pmr::vector<ParallelAudio> parallelInput,parallelOutput;
     std::array<ParallelAudio,32> routingCollected{},routingPending{};
     size_t routingReceived{},routingAvailable{},routingHead{};
     uint64_t routingAge{};float routingFade{};
-    void alignDownAudio(size_t start,size_t count) noexcept;
+    void alignReverbAudio(size_t start,size_t count) noexcept;
     Stereo rollInput{};
     std::array<Isolator,2> isolators;
     std::pmr::vector<Stereo> capturedRoll; size_t capturedLength{},captureCopied{}; double capturePosition{};

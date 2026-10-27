@@ -21,9 +21,9 @@ float level(Stereo x) noexcept { return std::max(std::abs(x.l),std::abs(x.r)); }
 void Engine::prepare(double sampleRate,uint32_t maxBlock) {
     sr=std::clamp(sampleRate,8000.,192000.);
     const auto block=std::clamp<size_t>(maxBlock,1,CalibratedReverbDown::maximumCallbackFrames);
-    sceneInput.assign(block,{});sceneOutput.assign(block,{});downOutput.assign(block,{});
+    sceneInput.assign(block,{});sceneOutput.assign(block,{});downOutput.assign(block,{});upOutput.assign(block,{});
     outputFrames.assign(block,{});parallelInput.assign(block,{});parallelOutput.assign(block,{});
-    if(sr==48000)reverbDown.prepare(block);
+    if(sr==48000){reverbDown.prepare(block);reverbUp.prepare(block);}
     const auto capacity=static_cast<size_t>(sr*16)+4;
     history.prepare(capacity); sceneProcessor.prepare(sr);
     for(auto& isolator:isolators) isolator.prepare(sr);
@@ -36,7 +36,7 @@ void Engine::prepare(double sampleRate,uint32_t maxBlock) {
 }
 void Engine::reset() noexcept {
     sceneProcessor.reset(); history.reset(); rollInput={}; rollInputMix=0;
-    reverbDown.reset();routingCollected={};routingPending={};
+    reverbDown.reset();reverbUp.reset();routingCollected={};routingPending={};
     routingReceived=routingAvailable=routingHead=0;routingAge=0;routingFade=0;
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
@@ -222,13 +222,17 @@ Stereo Engine::release(Stereo x,const ReleaseFrame& controls) noexcept {
 }
 
 unsigned Engine::latencySamples() const noexcept {
-    if(sr!=48000||params.get(Param::SceneType)!=9)return 0;
+    const auto type=params.get(Param::SceneType);
+    if(sr!=48000||(type!=4&&type!=9))return 0;
     if(params.get(Param::UserSettings)<.5f)return 32;
-    return params.get(Param::ReverbDownRoomSize)==0&&params.get(Param::ReverbDownTime)==1
-        &&params.get(Param::ReverbDownFilter)==0&&params.get(Param::ReverbDecay)==.72f?32:0;
+    const bool up=type==4;
+    return params.get(up?Param::ReverbUpRoomSize:Param::ReverbDownRoomSize)==0
+        &&params.get(up?Param::ReverbUpTime:Param::ReverbDownTime)==1
+        &&params.get(up?Param::ReverbUpFilter:Param::ReverbDownFilter)==(up?2:0)
+        &&params.get(Param::ReverbDecay)==.72f?32:0;
 }
 
-void Engine::alignDownAudio(size_t start,size_t count) noexcept {
+void Engine::alignReverbAudio(size_t start,size_t count) noexcept {
     // Carry all parallel dry routes through the same causal callback ordering
     // and global startup fades as the measured Scene processor. Otherwise the
     // sampler/unselected source and master bypass would comb against its delay.
@@ -311,9 +315,13 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     sceneSettings.feedback=get(Param::Feedback);sceneSettings.decay=get(Param::ReverbDecay);sceneSettings.noiseColor=get(Param::NoiseColor);sceneProcessor.configure(sceneSettings);
     const bool measuredDown=sr==48000&&sceneSettings.type==9&&sceneSettings.roomSize[1]==0
         &&sceneSettings.reverbTime[1]==1&&sceneSettings.reverbFilter[1]==0&&sceneSettings.decay==.72f;
+    const bool measuredUp=sr==48000&&sceneSettings.type==4&&sceneSettings.roomSize[0]==0
+        &&sceneSettings.reverbTime[0]==1&&sceneSettings.reverbFilter[0]==2&&sceneSettings.decay==.72f;
+    const bool measuredReverb=measuredDown||measuredUp;
     const auto rawControl=[](float value,float scale){return std::clamp(static_cast<int>(std::floor(value*scale+1.e-4f)),0,255);};
     CalibratedReverbDown::Controls downControls{rawControl(get(Param::SceneDepth),255),
         rawControl(get(Param::SceneTime),255.f/7),rawControl(get(Param::SceneResonance),255),false};
+    CalibratedReverbUp::Controls upControls{downControls.main,downControls.amount,downControls.cutoff,false};
 
     const bool overdub=get(Param::Overdub)>.5f;
     if(!overdub&&previousOverdub) { sequence.clear(); voices={}; }
@@ -373,10 +381,10 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         // Unselected sources bypass it. Noise is generated inside scene() even
         // when neither input is selected.
         sceneInput[k]=send;
-        if(!measuredDown)sceneOutput[k]=scene(send);
+        if(!measuredReverb)sceneOutput[k]=scene(send);
         parallelInput[k]={raw,input+drums-send,raw*db(sm(Param::InputGain))};
         auto& output=outputFrames[k];
-        output.downEnabled=measuredDown&&get(Param::SceneOn)>.5f;
+        output.reverbEnabled=measuredReverb&&get(Param::SceneOn)>.5f;
         output.release=releaseControls();output.wetOnly=get(Param::WetOnly)>.5f;
         output.gain=db(sm(Param::OutputGain));
         approach(bypassMix,get(Param::Bypass),smoothing);
@@ -393,17 +401,19 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         size_t start=0;
         while(start<count){
             size_t end=start+1;
-            while(end<count&&outputFrames[end].downEnabled==outputFrames[start].downEnabled)++end;
-            downControls.enabled=outputFrames[start].downEnabled;reverbDown.setControls(downControls);
+            while(end<count&&outputFrames[end].reverbEnabled==outputFrames[start].reverbEnabled)++end;
+            downControls.enabled=measuredDown&&outputFrames[start].reverbEnabled;reverbDown.setControls(downControls);
+            upControls.enabled=measuredUp&&outputFrames[start].reverbEnabled;reverbUp.setControls(upControls);
             const auto n=end-start;
             reverbDown.process(std::span<const Stereo>(sceneInput.data()+start,n),std::span<Stereo>(downOutput.data()+start,n));
-            alignDownAudio(start,n);start=end;
+            reverbUp.process(std::span<const Stereo>(sceneInput.data()+start,n),std::span<Stereo>(upOutput.data()+start,n));
+            alignReverbAudio(start,n);start=end;
         }
     }
     for(uint32_t k=0;k<count;++k){
         const auto i=offset+k;const auto& output=outputFrames[k];
-        const auto audio=measuredDown?parallelOutput[k]:parallelInput[k];
-        Stereo processed=audio.unselected+release(measuredDown?downOutput[k]:sceneOutput[k],output.release);
+        const auto audio=measuredReverb?parallelOutput[k]:parallelInput[k];
+        Stereo processed=audio.unselected+release(measuredDown?downOutput[k]:measuredUp?upOutput[k]:sceneOutput[k],output.release);
         if(output.wetOnly)processed=processed-audio.wetDry;
         processed=finite(mix(processed*output.gain,audio.raw,output.bypass));
         // Sample-peak ceiling with linked stereo gain. No lookahead, allocation
