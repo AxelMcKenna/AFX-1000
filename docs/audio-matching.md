@@ -8,7 +8,7 @@ Factory Default Reverb Down at 48 kHz now runs the measured processor in the liv
 
 Factory Default Reverb Up at 48 kHz now also runs the measured processor in the live Engine. Its [1,321-case matrix](../research/audio/measurements/2026-10-27-reverb-up-engine-validation-48k.json) passes: 1,204 prior static cases, 109 prior motion/startup cases and eight fresh prediction-bound recordings. Fresh worst wet and wet-event RMS errors are 0.03166% and 0.1671%, under unchanged 1% gates. [Method, retained failures and integration checks](../research/audio/reverb-up-motion.md#live-engine-integration-27-october-2026) document the result. Both wrappers pass the eight programs and latency32; all earlier Down recordings remain byte-identical. Other Up profiles/rates use the prior approximation.
 
-Of the ten Scene FX, Spiral Up and Spiral Down remain unmatched; the other eight have passing reference checks within their stated settings. The factory kick, snare, clap and hi-hat still use project synthesis and are now the sound-matching priority. Release, remaining Isolator modes, sampler behaviour and broader profiles/combinations remain unfinished.
+Of the ten Scene FX, Spiral Up and Spiral Down remain unmatched; the other eight have passing reference checks within their stated settings. The [factory kick, snare, clap and hi-hat](../research/audio/drums.md) still use project synthesis and are now the sound-matching priority; 24 original discovery captures establish repeatability and trigger-timing diagnostics. Release, remaining Isolator modes, sampler behaviour and broader profiles/combinations remain unfinished.
 
 ## Current reference status
 
