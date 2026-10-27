@@ -45,6 +45,8 @@ target_compile_definitions(rmx_reverb_up_engine_probe PRIVATE RMX_REVERB_ENGINE_
 target_link_libraries(rmx_reverb_up_engine_probe PRIVATE rmx_core)
 add_executable(rmx_drum_probe EXCLUDE_FROM_ALL tools/drum_probe.cpp)
 target_link_libraries(rmx_drum_probe PRIVATE rmx_core)
+add_executable(rmx_drum_motion_probe EXCLUDE_FROM_ALL tools/drum_motion_probe.cpp)
+target_link_libraries(rmx_drum_motion_probe PRIVATE rmx_core)
 add_executable(rmx_drums_fx_probe EXCLUDE_FROM_ALL tools/drums_fx_probe.cpp)
 target_link_libraries(rmx_drums_fx_probe PRIVATE rmx_core)
 add_executable(rmx_drums_shared_probe EXCLUDE_FROM_ALL tools/drums_fx_probe.cpp)
