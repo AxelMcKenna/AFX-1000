@@ -2,6 +2,17 @@
 
 27 October 2026. The user has prioritized the factory **kick, snare, clap and hi-hat** ahead of the remaining effects. The current [`FactoryDrums.h`](../../include/rmx/FactoryDrums.h) generates project voicings; none of the four is yet reference-matched. The existing sampler tests verify behaviour, not resemblance to the original sounds.
 
+Current independent research results at neutral factory controls, stereo48k/120BPM:
+
+| Instrument | Passing complete programs | Fresh prospective programs | Worst fresh checked waveform-window error |
+| --- | ---: | ---: | ---: |
+| Kick | 22 | 8 | 0.010496% |
+| Snare | 14 | 8 | 0.003588% |
+| Clap | 14 | 8 | 0.00003577% |
+| Hi-hat | 14 | 8 | 0.00001675% |
+
+These are generated research models, not the current live Engine. Wider controls/settings, interactions, other rates and integration are still unfinished. Relative waveform RMS error is not a perceived-similarity percentage. The sections below preserve discovery, rejected hypotheses, frozen predictions and independent audits.
+
 ## First reference campaign
 
 The [24-case original characterization](measurements/2026-10-27-drum-original-characterization.json) uses RMX-1000 Plug-in 2.2.0, factory Default, stereo48k/120BPM, silent input, neutral pitch raw128 and level raw128. Each instrument has a baseline, fresh-instance repeat, callback32/callback256 repeats, a declared 37-frame trigger shift, and rapid retriggers. Baselines use callback128 and three separated hits. Original binaries and audio stay under ignored build artifacts; the report contains hashes and numeric observations.
@@ -110,3 +121,15 @@ The [independent audit](measurements/2026-10-27-clap-first-audit.json) rechecks 
 Build `rmx_clap_research_probe`, compare discovery captures with [`rmx_clap.py`](../../tools/rmx_clap.py), then use [`rmx_clap_validate.py`](../../tools/rmx_clap_validate.py) for `predict`, `capture` and `compare` with new destinations. [`rmx_drum_model_audit.py`](../../tools/rmx_drum_model_audit.py) takes `--drum clap`, `--dataset discovery SESSION COMPARISON`, `--dataset fresh SESSION COMPARISON`, and the renderer/sanitized/host/prediction/output/debugger/trace/observer paths. Rebuild the EXCLUDE_FROM_ALL research target before freezing a prediction. Original audio, binaries and local inspection remain ignored.
 
 Current neutral research coverage is **kick22, snare14 and clap14 passing programs**. Hi-hat remains unmatched. The live Engine, wider controls/profiles/rates and interactions remain unfinished. Clap frame0 behaviour is not independently qualified by this set; its earliest press is frame1.
+
+## Hi-hat: four pulse oscillators and filtered noise
+
+The [independent hi-hat model](experiments/HatResearch.cpp) passes [6/6 discovery regressions](measurements/2026-10-27-hat-first-prototype-48k.json). A [frozen candidate prediction](measurements/2026-10-27-hat-first-predictions.json) then precedes [8/8 fresh passes](measurements/2026-10-27-hat-first-holdout.json), using callbacks11/21/41/121/261/521/1543/3083, cold starts, shifted triggers and rapid retriggers. Worst fresh whole-output relative RMS error is **0.000004550%**, and worst fresh attack/body/decay window is **0.00001675%**. All1% per-channel gates remain unchanged, with fixed32/32 crops and no gain/alignment fitting.
+
+The [numeric observations](measurements/2026-10-27-hat-numeric-observation.json) support four phase-reset pulse oscillators at800/525/370/205Hz, with quarter-cycle duty and levels0.75/-0.25. Their sum passes through a3360Hz highpass. Two shaped envelopes separately control pulse and seeded-noise contributions; their neutral attacks are0.002 seconds, with decays0.3 and float32(0.3×0.7875) seconds. While the main envelope is rising, both use their linear states; after that, a measured polynomial shapes them. The mixed pulse/noise signal passes through a6400Hz highpass before fixed gain, controller fade and global startup fade. These fixed coefficients are explicitly neutral48k calibration. The model synthesizes the waveform without original recordings or original DSP calls.
+
+[`hat_observer.py`](experiments/hat_observer.py) reproduces scalar observation with `RMX_HAT_TRACE` set to a new ignored JSONL destination before importing it into LLDB and running the original hat baseline plan. Its four stages cover128 consecutive16-sample subblocks. The [independent audit](measurements/2026-10-27-hat-first-audit.json) verifies byte identity of the normal/debugger reference audio and all checked auxiliary files. Both envelope states and all four pulse phases replay128/128 exactly. The audit also rechecks original/candidate provenance, independently recomputes260 stereo waveform screens, and requires all14 optimized/ASan/UBSan WAVs to be byte-identical with zero dry traces and empty sanitizer stderr under halt-on-error.
+
+Build `rmx_hat_research_probe`, compare discovery captures with [`rmx_hat.py`](../../tools/rmx_hat.py), then run `predict`, `capture` and `compare` with [`rmx_hat_validate.py`](../../tools/rmx_hat_validate.py). Audit with [`rmx_drum_model_audit.py`](../../tools/rmx_drum_model_audit.py) using `--drum hat` and the same two-dataset/path arguments as the clap audit. Frozen campaigns bind their source hashes, including CMakeLists.txt; reproduce historical campaigns at their recorded source revision before changing targets or helpers. Local original assets, binaries, scalar traces and instruction listings remain ignored.
+
+All four **neutral factory48k research models** now pass independent fresh checks. This does not complete drum matching: pitch/level laws, alternate settings, interactions/rolls, other sample rates and live Engine integration are next. Hi-hat frame0 behaviour is not independently qualified by this set; its earliest press is frame1.

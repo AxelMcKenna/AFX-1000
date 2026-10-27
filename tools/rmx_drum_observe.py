@@ -46,9 +46,16 @@ def observe(args):
     clap_offsets=dict(output_scale=1840,bandpass_frequency=1848,highpass_frequency=1852,
                       saw_frequency=1856,burst_seconds=1860,clip_high=1864,clip_low=1868,
                       tail_scale_alternate=1880,tail_scale_default=1884)
+    hat_offsets=dict(highpass1_frequency=1908,highpass2_frequency=1912,pulse1_frequency=1852,
+                     pulse2_frequency=1916,pulse3_frequency=1920,pulse4_frequency=1924,attack_decay_ratio=1928,
+                     noise_scale=1936,pulse_scale=1940,output_scale=1944)
     save_json(args.report,dict(kind='rmx220-drum-local-scalar-observation',binary_sha256=sha256(args.binary),script_sha256=sha256(Path(__file__)),
               symbol_inventory_sha256=hashlib.sha256(result.stdout.encode()).hexdigest(),named_float_arrays=values,
               generator_symbols={name:hex(symbols[name]) for name in methods},
+              hat_numeric_hypothesis=dict(reference_symbol='gf_rbnfx_thru_lvl_table',
+                  scalars={name:dict(byte_offset=offset,value=floats(table+offset,1)[0]) for name,offset in hat_offsets.items()},
+                  decay_choices=floats(symbols['_g_hh_cstm_dec_tbl'],3),pulse_levels=floats(table+2320,2),
+                  curve60=dict(quadratic_linear=floats(table+2152,2),upper_vector=floats(table+2288,4),lower_vector=floats(table+2304,4))),
               clap_numeric_hypothesis=dict(reference_symbol='gf_rbnfx_thru_lvl_table',
                   scalars={name:dict(byte_offset=offset,value=floats(table+offset,1)[0]) for name,offset in clap_offsets.items()},
                   decay_choices=floats(symbols['_g_cl_cstm_dec_tbl'],6)),

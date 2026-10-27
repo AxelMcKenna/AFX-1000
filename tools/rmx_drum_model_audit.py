@@ -63,6 +63,30 @@ def clap_components(args,normal):
                             scope='Read-only scalar replay; autonomous complete waveform checks are separate. No original audio/buffers or instructions are distributed.')
 
 
+def hat_components(args,normal):
+    provenance=observed_capture(args,normal);rows=[json.loads(s) for s in args.trace.read_text().splitlines()]
+    stages={name:[r for r in rows if r['stage']==name] for name in ('source','envelope','filtered','output')}
+    require(len(rows)==512 and all([r['subblock'] for r in v]==list(range(128)) for v in stages.values()),'Incomplete hat trace')
+    filters=rows[0]['filters']
+    require(all(r['custom']==[3,1,0] and r['pitch_controls']==[11,11,0] and r['pitch_raw']==128 and r['filters']==filters for r in rows),'Observed controls/filters differ')
+    f=np.float32
+    envelopes={name:envelope_replay(stages['envelope'],name,.002,decay)
+               for name,decay in [('main',.3),('attack',float(f(f(.3)*f(.7875))))]}
+    phase=[f(0)]*4;frequencies=[800,525,370,205];exact=0
+    for count,r in enumerate(stages['source']):
+        for i,frequency in enumerate(frequencies):
+            step=f(f(frequency)*f(f(1)/f(48000)))
+            for _ in range(16):
+                phase[i]=f(phase[i]+step)
+                if phase[i]>1:phase[i]=f(phase[i]-f(1))
+        exact+=[float(v) for v in phase]==r['phase']
+        require(all(stages[name][count]['phase']==r['phase'] for name in stages),'Observed pulse phases differ between stages')
+    require(exact==128,'Observed pulse phase replay differs')
+    return provenance|dict(stages=4,subblocks_per_stage=128,envelopes=envelopes,filters=filters,
+                            pulse_phase_replay=dict(blocks=128,exact_blocks=exact,frequencies=frequencies),
+                            scope='Read-only scalar replay; autonomous complete waveform checks are separate. No original audio/buffers or instructions are distributed.')
+
+
 def audit(args):
     campaign=importlib.import_module('tools.rmx_'+args.drum+'_validate');candidate=importlib.import_module('tools.rmx_'+args.drum)
     campaign.frozen(args);binding=campaign.source_hashes();root=new_directory(args.output);rows=[];scores=0
@@ -111,7 +135,8 @@ def audit(args):
             rows.append(dict(case=c['name'],role=row.get('role','development_regression'),receipt_sha256=provenance['receipt_sha256'],
                              comparison_sha256=sha256(comparison),candidate_sha256=sha256(output),sanitizer_byte_identical=True))
             print('AUDITED',c['name'],flush=True)
-    components=clap_components(args,normal);campaign.frozen(args);require(binding==campaign.source_hashes(),'Candidate source changed during audit')
+    components={'clap':clap_components,'hat':hat_components}[args.drum](args,normal)
+    campaign.frozen(args);require(binding==campaign.source_hashes(),'Candidate source changed during audit')
     save_json(root/'verification.json',dict(kind='rmx220-'+args.drum+'-independent-audit',passed=True,cases=rows,recomputed_stereo_screens=scores,
               component_replay=components,source_sha256=binding,auditor_sha256=sha256(Path(__file__)),score_helper_sha256=sha256(Path('tools/rmx_snare_audit.py')),
               renderer_sha256=sha256(args.renderer),sanitized_sha256=sha256(args.sanitized),sanitizer_compile_commands_sha256=sha256(compile_path),
@@ -121,7 +146,7 @@ def audit(args):
 
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--drum',choices=['clap'],required=True)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--drum',choices=['clap','hat'],required=True)
     for name in ('renderer','sanitized','host','prediction','output','debugger','trace','observer'):parser.add_argument('--'+name,type=Path,required=True)
     parser.add_argument('--dataset',nargs=3,action='append',required=True,metavar=('KIND','SESSION','COMPARISON'))
     raise SystemExit(audit(parser.parse_args()))
