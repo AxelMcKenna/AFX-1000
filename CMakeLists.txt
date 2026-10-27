@@ -33,6 +33,11 @@ add_executable(rmx_reverb_up_one_frame_probe EXCLUDE_FROM_ALL research/audio/exp
 target_compile_definitions(rmx_reverb_up_one_frame_probe PRIVATE RMX_REVERB_UP_ONE_FRAME_NEGATIVE_CONTROL=1)
 target_compile_options(rmx_reverb_up_one_frame_probe PRIVATE -Wall -Wextra -Wpedantic -ffp-contract=off)
 target_link_libraries(rmx_reverb_up_one_frame_probe PRIVATE rmx_core)
+add_executable(rmx_reverb_up_motion_probe EXCLUDE_FROM_ALL
+    research/audio/experiments/reverb_up_motion_probe.cpp
+    research/audio/experiments/ReverbUpMotion.cpp)
+target_link_libraries(rmx_reverb_up_motion_probe PRIVATE rmx_core)
+target_compile_options(rmx_reverb_up_motion_probe PRIVATE -Wall -Wextra -Wpedantic -ffp-contract=off)
 add_executable(rmx_card_export tools/card_export.cpp)
 target_link_libraries(rmx_card_export PRIVATE rmx_core)
 add_executable(rmx_memory_budget tools/memory_budget.cpp)
