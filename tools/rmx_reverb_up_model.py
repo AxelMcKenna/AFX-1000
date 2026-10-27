@@ -38,8 +38,14 @@ def build(args):
         if (data.get('kind')!='rmx220-reverb-up-control-identification' or data['stage']!=stage or not data['fitting_screen_passed']
                 or data['calibration_sha256']!=sha256(args.calibration) or data['neutral_model_sha256']!=sha256(args.neutral)
                 or [c[key] for c in data['cases']]!=list(range(256))):raise ValueError('Incomplete or failed Up identification')
-    if not amount['prospective_predictions_passed']:raise ValueError('Saved Sub1 feedback predictions failed')
-    if neutral['kind']!='rmx220-reverb-up-neutral-network-identification' or neutral['calibration_sha256']!=sha256(args.calibration):raise ValueError('Wrong neutral model')
+    validation=None
+    if not amount['prospective_predictions_passed']:
+        if args.feedback_validation is None or not amount.get('retrospective_reference_scaling_passed'):raise ValueError('Saved Sub1 forecasts failed; require retained failures plus a separately validated corrected reference')
+        validation=json.loads(args.feedback_validation.read_text())
+        if (validation.get('kind')!='rmx220-reverb-up-feedback-arithmetic-validation' or not validation['passed'] or len(validation['cases'])!=8
+                or validation['reference_sha256']!=sha256(args.neutral) or validation['calibration_sha256']!=sha256(args.calibration)
+                or validation['fixed_gain_error_limit']!=2e-6 or not all(c['passed'] for c in validation['cases'])):raise ValueError('Corrected-reference prospective validation differs')
+    if neutral['kind'] not in ('rmx220-reverb-up-neutral-network-identification','rmx220-reverb-up-control-reference') or neutral['calibration_sha256']!=sha256(args.calibration):raise ValueError('Wrong neutral model')
     neutral_row=dict(delays=neutral['delays'],gain_left=neutral['gain_left'],gain_right=neutral['gain_right'],
         input_a=neutral['input_filter']['denominator'],wet_gain=neutral['wet_gain'])
     rows=[]
@@ -78,11 +84,17 @@ def build(args):
         ds='{{'+','.join('{{'+','.join(map(str,p))+'}}' for p in r['delays'])+'}}'
         header+='{'+ds+',{{'+numbers(r['gain_left'])+'}},{{'+numbers(r['gain_right'])+'}},{{'+numbers(r['input_a'][1:])+'}},'+numbers([r['wet_gain']])+'},\n'
     header+='}};\n'
+    feedback=neutral.get('feedback_filter')
+    if feedback is None:
+        pole=(1-np.tan(np.pi*25/48000))/(1+np.tan(np.pi*25/48000));feedback=dict(b=[(1+pole)/2,-(1+pole)/2],a=[1,-pole])
+    header+='constexpr std::array<double,3> reverbUpFeedback{{'+numbers([*feedback['b'],feedback['a'][1]])+'}};\n'
     for label,values in [('AmountGain',gains),('MainCorrection',main_correction),('AmountCorrection',amount_correction)]:header+='constexpr std::array<double,256> reverbUp'+label+'{{'+numbers(values)+'}};\n'
     args.header.parent.mkdir(parents=True,exist_ok=True)
     with args.header.open('x') as f:f.write(header)
     save_json(args.report,dict(kind='rmx220-reverb-up-static-control-model',sample_rate=48000,full_reverb_match=False,physical_hardware=False,
         main_rows=rows,amount_gains=gains,main_correction=main_correction,amount_correction=amount_correction,interaction_rank=2 if interaction_sources else 1,
+        feedback_filter=feedback,corrected_feedback_validation_sha256=sha256(args.feedback_validation) if validation else None,
+        original_sub1_forecasts_passed=amount['prospective_predictions_passed'],
         interaction_sources=interaction_sources,calibration_sha256=sha256(args.calibration),neutral_model_sha256=sha256(args.neutral),
         main_identification_sha256=sha256(args.main),amount_identification_sha256=sha256(args.amount),builder_sha256=sha256(Path(__file__)),header_sha256=sha256(args.header),
         room_formula_audit=room_audit(main['cases']),sub1_input_coefficient_maximum_deviation=input_coefficient_deviation,
@@ -103,7 +115,7 @@ def mixed_recipe(variant):
     pulse=np.zeros_like(program);pulse[61517 if second else 58313,0]=.029;pulse[249389 if second else 271337,1]=-.025
     pairs=[(m,a) for m in ((41,105,171,231) if second else (25,73,149,219)) for a in ((29,91,163,227) if second else (41,103,181,239))]
     pairs+=([(1,0),(2,255),(5,3),(5,253),(7,4),(7,252),(127,229),(128,98),(129,1),(129,254),(131,2),(131,5),(254,1),(254,2),(254,5),(254,254)] if second else
-        [(0,0),(3,255),(4,0),(4,255),(8,3),(8,4),(127,97),(128,98),(129,0),(129,255),(130,3),(130,4),(255,0),(255,3),(255,4),(255,255)])
+        [(0,0),(3,255),(4,0),(4,255),(8,3),(8,4),(104,97),(128,98),(129,0),(129,255),(130,3),(130,4),(255,0),(255,3),(255,4),(255,255)])
     cases=[]
     for si,source in enumerate(('program','pulses')):
         for i,(main,amount) in enumerate(pairs):
@@ -198,7 +210,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);commands=p.add_subparsers(dest='command',required=True)
     q=commands.add_parser('build')
     for name in ('main','amount','neutral','calibration','report','header'):q.add_argument('--'+name,type=Path,required=True)
-    q.add_argument('--main-long',type=Path);q.add_argument('--amount-large',type=Path)
+    q.add_argument('--main-long',type=Path);q.add_argument('--amount-large',type=Path);q.add_argument('--feedback-validation',type=Path)
     for command in ('predict','capture','compare'):
         q=commands.add_parser(command)
         for name in ('model','calibration'):q.add_argument('--'+name,type=Path,required=True)

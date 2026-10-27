@@ -28,7 +28,7 @@ def recipe(stage):
 
 def neutral_checked(path,calibration_path):
     calibration(calibration_path);n=json.loads(path.read_text())
-    if n.get('kind')!='rmx220-reverb-up-neutral-network-identification' or n['calibration_sha256']!=sha256(calibration_path):raise ValueError('Wrong neutral Up model/calibration')
+    if n.get('kind') not in ('rmx220-reverb-up-neutral-network-identification','rmx220-reverb-up-control-reference') or n['calibration_sha256']!=sha256(calibration_path):raise ValueError('Wrong neutral Up model/calibration')
     return n
 
 
@@ -79,7 +79,7 @@ def verify(args):
         script_sha256=sha256(Path(__file__)),scope='Exact input, controls, extent/rate and capture hashes only.'))
 
 
-def setup():
+def setup(feedback=None):
     size=524288;zd=np.exp(-2j*np.pi*np.arange(size//2+1)/size)
     fixed=biquad(zd,54,True)*biquad(zd,17330,False)
     leading=np.fft.irfft(fixed*(1-zd*zd),n=size)[:8]
@@ -87,11 +87,13 @@ def setup():
     size=262144;bins=np.arange(16,size//2,16);hz=bins*48000/size;bins=bins[(hz>=60)&(hz<18000)]
     radius=np.exp(-3*np.log(10)/(48000*.75));z=radius*np.exp(-2j*np.pi*bins/size)
     p=(1-np.tan(np.pi*25/48000))/(1+np.tan(np.pi*25/48000));hp=(1+p)/2*(1-z)/(1-p*z)
+    if feedback is not None:hp=(feedback['b'][0]+feedback['b'][1]*z)/(1+feedback['a'][1]*z)
     return detector,(size,bins,z,radius,hp,np.column_stack([allpass(z,ch) for ch in (0,1)]),biquad(z,54,True)*biquad(z,17330,False))
 
 
 def fit_case(audio,source,c,neutral,detector,frequency,known=None):
-    h=audio[48000:].astype(float)/float(source[48000,0]);dry=float(h[0,0]);h[0,0]=0
+    onset=c.get('impulse_frame',48000)
+    h=audio[onset:].astype(float)/float(source[onset,0]);dry=float(h[0,0]);h[0,0]=0
     if not np.any(h):return dict(dry_gain=dry,silent_wet=True)
     if known is not None:delays=np.array(known)
     elif c['main']==128:delays=np.array(neutral['delays'])
@@ -132,7 +134,10 @@ def fit_case(audio,source,c,neutral,detector,frequency,known=None):
 
 def identify(args):
     if args.report.exists():raise ValueError('Report must be new')
-    neutral=neutral_checked(args.neutral,args.calibration);detector,frequency=setup();x,cases=recipe(args.stage)
+    neutral=neutral_checked(args.neutral,args.calibration)
+    revised=getattr(args,'revised_reference',None)
+    if revised is not None:neutral=neutral_checked(revised,args.calibration)
+    detector,frequency=setup(neutral.get('feedback_filter'));x,cases=recipe(args.stage)
     static=None
     if args.stage in ('main-long','amount-large'):
         if args.static_model is None:raise ValueError('Interaction fitting requires frozen static model')
@@ -155,11 +160,19 @@ def identify(args):
             if not result['silent_wet']:
                 error=float(max(abs(np.array(result['gain_left'])-forecast['left']).max(),abs(np.array(result['gain_right'])-forecast['right']).max()))
                 row['prospective_maximum_absolute_gain_error']=error;row['prospective_prediction_passed']=error<=predictions['maximum_absolute_gain_error']
+                if revised is not None:
+                    exponent=nominal_decay(128)/nominal_decay(c['amount'])
+                    base=static['main_rows'][c['main']] if static else neutral
+                    revised_error=float(max(abs(np.array(result['gain_left'])-np.array(base['gain_left'])**exponent).max(),abs(np.array(result['gain_right'])-np.array(base['gain_right'])**exponent).max()))
+                    row['retrospective_reference_scaling_maximum_error']=revised_error
+                    row['retrospective_reference_scaling_passed']=revised_error<=2e-6
         rows.append(row);print(c['name'],'silent' if result['silent_wet'] else f'fit {result["damped_frequency_relative_error"]:.3g}',flush=True)
     passed=all(c.get('stable',True) and c.get('damped_frequency_relative_error',0)<=1e-4 for c in rows)
     forecasts_passed=all(c.get('prospective_prediction_passed',True) for c in rows)
     save_json(args.report,dict(kind='rmx220-reverb-up-control-identification',stage=args.stage,fitting_screen_passed=passed,
-        prospective_predictions_passed=forecasts_passed,cases=rows,neutral_model_sha256=sha256(args.neutral),
+        prospective_predictions_passed=forecasts_passed,cases=rows,neutral_model_sha256=sha256(revised or args.neutral),
+        capture_neutral_model_sha256=sha256(args.neutral),revised_reference_sha256=sha256(revised) if revised else None,
+        retrospective_reference_scaling_passed=all(c.get('retrospective_reference_scaling_passed',True) for c in rows) if revised else None,
         calibration_sha256=sha256(args.calibration),static_model_sha256=sha256(args.static_model) if static else None,
         script_sha256=sha256(Path(__file__)),identification_weighting_t60_seconds=.75,prospective_predictions=predictions,
         full_reverb_match=False,physical_hardware=False,
@@ -175,6 +188,7 @@ def main():
         q.add_argument('--session',type=Path,required=True)
         if command in ('capture','identify'):
             q.add_argument('--neutral',type=Path,required=True);q.add_argument('--calibration',type=Path,required=True);q.add_argument('--static-model',type=Path)
+        if command=='identify':q.add_argument('--revised-reference',type=Path,help='Refit old captures with a revised reference; original failed forecasts remain separately recorded')
         if command=='capture':q.add_argument('--host',type=Path,required=True);q.add_argument('--plugin',type=Path,required=True)
         else:q.add_argument('--report',type=Path,required=True)
     args=p.parse_args();result=globals()[args.command](args)

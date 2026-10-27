@@ -39,6 +39,7 @@ def paths():
     repo=Path(__file__).resolve().parents[1]
     return [Path(__file__),repo/'tools/rmx_reverb_network.py',repo/'tools/rmx_reverb_characterize.py',
         repo/'research/audio/experiments/reverb_up_neutral_probe.cpp',repo/'research/audio/experiments/ReverbUpNeutralCalibration.h',
+        repo/'research/audio/experiments/ReverbUpControlCalibration.h',
         repo/'src/core/Wav.cpp',repo/'include/rmx/Wav.h',repo/'include/rmx/Dsp.h',repo/'CMakeLists.txt']
 
 

@@ -1,6 +1,6 @@
 # How the reference audio checks work
 
-The check is an automated A/B experiment: give Pioneer's original RMX-1000 software and our independently implemented processor the same stereo samples and timed controls, record both outputs, then measure their difference. This guide explains the method behind the Reverb Down investigation. The [chronological research notes](reverb-down-motion.md) retain the discoveries, failed hypotheses and numeric reports.
+The check is an automated A/B experiment: give Pioneer's original RMX-1000 software and our independently implemented processor the same stereo samples and timed controls, record both outputs, then measure their difference. This guide explains the method behind the Reverb Down investigation; the [Reverb Up investigation](reverb-up.md) applies the same rules to a different network and records its control-map failures. The [chronological research notes](reverb-down-motion.md) retain the discoveries, failed hypotheses and numeric reports.
 
 At source checkpoint `9350b7b`, the standalone factory Default Down model passes 176 complete renders at 48 kHz and 120 BPM. That count includes development cases, repeated baselines, bypass probes and deliberately silent wet transitions. Only the last eight were newly captured after freezing that final candidate. It is not 176 blind tests, a listening score, or evidence that the whole device is 99% accurate.
 

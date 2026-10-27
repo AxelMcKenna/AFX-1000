@@ -118,6 +118,8 @@ def audit(args):
     instrumented={};newest=0
     for name in ('research/audio/experiments/reverb_up_neutral_probe.cpp','src/core/Wav.cpp'):
         matching=[e for e in entries if Path(e['file']).resolve()==repo/name]
+        if name.endswith('reverb_up_neutral_probe.cpp'):
+            matching=[e for e in matching if 'RMX_REVERB_UP_ONE_FRAME_NEGATIVE_CONTROL' not in e.get('command',' '.join(e.get('arguments',[])))]
         if len(matching)!=1:raise ValueError('Missing/ambiguous sanitizer compile entry')
         entry=matching[0];command=entry.get('arguments') or shlex.split(entry['command'])
         enabled={s for item in command if item.startswith('-fsanitize=') for s in item.split('=',1)[1].split(',')}
