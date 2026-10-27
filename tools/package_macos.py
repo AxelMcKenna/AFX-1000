@@ -14,7 +14,7 @@ import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE_DIRS = ('include', 'src', 'tools', 'tests', 'docs', 'assets', 'prototypes', 'hardware', 'firmware', '.github')
+SOURCE_DIRS = ('include', 'src', 'tools', 'tests', 'docs', 'research', 'assets', 'prototypes', 'hardware', 'firmware', '.github')
 EXCLUDED_PARTS = {'build', '__pycache__', '.git', '.DS_Store'}
 SOURCE_SUFFIXES = {'.md', '.h', '.hpp', '.c', '.cpp', '.mm', '.py', '.sh', '.json', '.svg', '.png', '.rmx', '.csv', '.scad', '.dxf', '.js', '.html', '.css', '.yml', '.yaml', '.plist', '.txt', '.lock'}
 

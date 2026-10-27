@@ -1,15 +1,17 @@
 #pragma once
-#include "DrumResearchControls.h"
+#include "rmx/drums/Controls.h"
 #include <array>
 #include <span>
 #include <cstddef>
 #include <cstdint>
-namespace rmx::research {
+namespace rmx::drums {
 // Factory48k snare hypothesis. Complete original renders decide fidelity.
-class SnareResearch {
+class Snare {
 public:
     void setControls(unsigned level,unsigned pitch) noexcept;
-    void trigger() noexcept {if(processingStarted)requested=true;}
+    void trigger(float velocity=1) noexcept {if(processingStarted){requested=true;requestedVelocity=std::clamp(velocity,0.f,1.f);}}
+    void stop() noexcept {state=0;requested=false;pending.fill(0);}
+    void reset() noexcept {*this={};}
     void process(std::span<float> output) noexcept;
 private:
     struct Envelope {
@@ -37,6 +39,7 @@ private:
     float phase1{.25f},phase2{.25f},gain{},startupGain{};
     float pitchRatio{1};
     DrumLevelRamp outputLevel;
+    float voiceVelocity{1},nextVelocity{1},requestedVelocity{1};
     uint32_t random1{0xd0f61b8f},random2{0x34373a95};
     unsigned state{};bool requested{},processingStarted{};
 };

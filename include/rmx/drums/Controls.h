@@ -1,8 +1,8 @@
 #pragma once
-#include "DrumControlTables.h"
-#include "KickResearchCalibration.h"
+#include "rmx/drums/ControlTables.h"
+#include "rmx/drums/FrequencyCalibration.h"
 #include <algorithm>
-namespace rmx::research {
+namespace rmx::drums {
 inline float drumPitchRate(unsigned raw,unsigned left=11,unsigned right=11) noexcept {
     raw=std::min(raw,255u);left=std::min(left,11u);right=std::min(right,11u);
     if(raw>120&&raw<136)return 1;

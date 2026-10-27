@@ -52,10 +52,10 @@ def source_hashes():
     names=['CMakeLists.txt','tools/rmx_drums_control_match.py','tools/rmx_drums.py','tools/rmx_drum_controls.py',
            'tools/rmx_factory_match.py','tools/rmx_filter_match.py','tools/reference_audio.py','tools/noise_statistics.py',
            'tools/rmx_kick_validate.py','research/audio/experiments/drums_control_probe.cpp',
-           'research/audio/experiments/DrumResearchControls.h','research/audio/experiments/DrumControlTables.h',
-           'research/audio/experiments/KickResearchCalibration.h','src/core/Wav.cpp','include/rmx/Wav.h','include/rmx/Dsp.h']
+           'include/rmx/drums/Controls.h','include/rmx/drums/ControlTables.h',
+           'include/rmx/drums/FrequencyCalibration.h','include/rmx/FactoryDrumSynth.h','include/rmx/Engine.h','src/core/Engine.cpp','tools/drum_probe.cpp','src/plugin/Plugin.cpp','src/core/Wav.cpp','include/rmx/Wav.h','include/rmx/Dsp.h']
     for drum in ('Kick','Snare','Clap','Hat'):
-        names += [f'research/audio/experiments/{drum}Research.{suffix}' for suffix in ('h','cpp')]
+        names += [(f'include/rmx/drums/{drum}.h' if suffix=='h' else f'src/core/drums/{drum}.cpp') for suffix in ('h','cpp')]
     return {name:sha256(Path(name)) for name in names}
 
 
@@ -85,12 +85,12 @@ def capture(args):
     return 0
 
 
-def score(args,cases,role):
-    binding=source_hashes();binary=sha256(args.renderer);root=new_directory(args.output);rows=[]
+def score(args,cases,role,*,hashes=source_hashes,validate=frozen,plan_builder=plan_for,schedule=None,metadata=None):
+    binding=hashes();binary=sha256(args.renderer);root=new_directory(args.output);rows=[]
     for c in cases:
-        raw_a,provenance=checked(args.session,c,cold_kick=c['drum']=='kick')
+        raw_a,provenance=checked(args.session,c,cold_kick=c['drum']=='kick',plan_builder=plan_builder)
         plan=root/(c['name']+'.tsv');output=root/(c['name']+'.wav');dry_path=root/(c['name']+'-dry.wav')
-        plan.write_text('RMX_DRUM 1\n'+f'{list(DRUMS).index(c["drum"])} {c["level"]} {c["pitch"]} {c["block"]}\n'+''.join(f'{at}\n' for at in c['hits']))
+        plan.write_text(schedule(c) if schedule else 'RMX_DRUM 1\n'+f'{list(DRUMS).index(c["drum"])} {c["level"]} {c["pitch"]} {c["block"]}\n'+''.join(f'{at}\n' for at in c['hits']))
         run([args.renderer,args.session/'silence.wav',output,plan,dry_path]);rate,raw_b=float_wav(output);dry_rate,dry=float_wav(dry_path)
         require(rate==dry_rate==48000 and raw_a.shape==raw_b.shape==dry.shape and not np.any(dry),'Candidate extent/rate/dry differs')
         a,b=raw_a[32:].astype(float),raw_b[32:].astype(float)
@@ -102,10 +102,11 @@ def score(args,cases,role):
                 if right>left:row['windows'].append(dict(kind=kind,frame=at,start=left,stop=right,score=screen(a[left:right],b[left:right])))
         row['passed']=row['whole']['passed'] and all(w['score']['passed'] for w in row['windows']);rows.append(row)
         print('PASS' if row['passed'] else 'FAIL',c['name'],flush=True)
-    require(binding==source_hashes() and binary==sha256(args.renderer),'Candidate changed during comparison')
+    require(binding==hashes() and binary==sha256(args.renderer),'Candidate changed during comparison')
     report=dict(kind='rmx220-drums-controls-comparison',passed=all(r['passed'] for r in rows),source_sha256=binding,renderer_sha256=binary,
                 role=role,acceptance=ACCEPTANCE,cases=rows,full_drum_match=False,live_engine=False,physical_hardware=False)
-    if role=='fresh_prediction_bound':frozen(args);report['prediction_sha256']=sha256(args.prediction)
+    if metadata:report.update(metadata)
+    if role=='fresh_prediction_bound':validate(args);report['prediction_sha256']=sha256(args.prediction)
     save_json(root/'comparison.json',report);return 0 if report['passed'] else 1
 
 

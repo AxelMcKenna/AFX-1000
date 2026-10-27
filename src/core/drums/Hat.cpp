@@ -1,9 +1,9 @@
-#include "HatResearch.h"
-#include "DrumResearchControls.h"
+#include "rmx/drums/Hat.h"
+#include "rmx/drums/Controls.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
-namespace rmx::research {
+namespace rmx::drums {
 namespace {
 float curve60(float x) noexcept {
     const float x2=x*x;
@@ -16,11 +16,11 @@ float pulse(float& phase,float frequency) noexcept {
     phase+=frequency*(1.f/48000.f);if(phase>1)phase-=1;return y;
 }
 }
-void HatResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
+void Hat::setControls(unsigned level,unsigned pitchRaw) noexcept {
     outputLevel.set(level);pitchRatio=drumPitchRate(pitchRaw);
     highpass1.coefficients=drumHighpass(3360*pitchRatio,1.2f);highpass2.coefficients=drumHighpass(6400*pitchRatio,.851f);
 }
-float HatResearch::Envelope::advance() noexcept {
+float Hat::Envelope::advance() noexcept {
     if(rising){
         value=position;position+=16*(1.f/(.002f*48000.f));
         if(position>1){position=0;value=1;rising=false;falling=true;}
@@ -28,17 +28,18 @@ float HatResearch::Envelope::advance() noexcept {
     if(falling){value+=16*(-1.f/(decay*48000.f));if(value<0){value=0;rising=falling=false;}}
     return value;
 }
-float HatResearch::Biquad::tick(float x) noexcept {
+float Hat::Biquad::tick(float x) noexcept {
     const auto& c=coefficients;const double y=c[0]*static_cast<double>(x)+s1;
     s1=c[1]*static_cast<double>(x)-c[3]*y+s2;s2=c[2]*static_cast<double>(x)-c[4]*y;
     return static_cast<float>(y);
 }
-void HatResearch::start() noexcept {
+void Hat::start() noexcept {
+    voiceVelocity=nextVelocity;
     phase.fill(0);random1=0x77332244;random2=0xefcdab89;
     main.start();attack.start();highpass1.clear();highpass2.clear();gain=1;state=1;
 }
-void HatResearch::block() noexcept {
-    if(requested){if(!state)start();else if(state==1)state=2;requested=false;}
+void Hat::block() noexcept {
+    if(requested){if(!state||state==1){nextVelocity=requestedVelocity;if(!state)start();else state=2;}requested=false;}
     if(state>=7)start();
     const float gainStep=state>=2?-.00625f:0;if(state>=2)++state;
     if(!state)pending.fill(0);
@@ -56,9 +57,9 @@ void HatResearch::block() noexcept {
         }
     }
     if(!main.rising&&main.value==0&&std::abs(pending.back())<1e-9f)state=0;
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel.advance();}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=((sample*voiceVelocity)*startupGain)*outputLevel.advance();}
 }
-void HatResearch::process(std::span<float> output) noexcept {
+void Hat::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;
     std::fill(output.begin(),output.end(),0);size_t read=0,written=0;
     while(read<output.size()){

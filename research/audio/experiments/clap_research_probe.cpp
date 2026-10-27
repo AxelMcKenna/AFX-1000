@@ -1,4 +1,4 @@
-#include "ClapResearch.h"
+#include "rmx/drums/Clap.h"
 #include "rmx/Wav.h"
 #include <algorithm>
 #include <fstream>
@@ -14,7 +14,7 @@ int main(int argc,char** argv){try{
     if(!file.eof()||hits.empty())throw std::runtime_error("Invalid/empty hits");
     std::vector<std::pair<size_t,bool>> events;for(auto at:hits){events.push_back({at,true});events.push_back({at+32,false});}
     rmx::Sample output,dry;output.rate=dry.rate=48000;output.frames.resize(input.frames.size());dry.frames.resize(input.frames.size());
-    rmx::research::ClapResearch processor;std::array<float,4096> audio{};size_t event=0;
+    rmx::drums::Clap processor;std::array<float,4096> audio{};size_t event=0;
     for(size_t start=0;start<input.frames.size();){
         while(event<events.size()&&events[event].first==start){if(events[event].second)processor.trigger();++event;}
         size_t n=std::min(block,input.frames.size()-start);if(event<events.size())n=std::min(n,events[event].first-start);

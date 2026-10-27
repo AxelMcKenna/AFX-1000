@@ -74,7 +74,7 @@ public:
     bool isBusesLayoutSupported(const BusesLayout& b) const override { return b.getMainInputChannelSet()==juce::AudioChannelSet::stereo()&&b.getMainOutputChannelSet()==juce::AudioChannelSet::stereo(); }
     void prepareToPlay(double rate,int block) override {
         for(size_t i=0;i<rmx::parameterCount;++i) engine.params.set(static_cast<rmx::Param>(i),raw[i]->load());
-        engine.setBank(&published.load()->bank); engine.prepare(rate,static_cast<uint32_t>(block));
+        engine.setBank(&published.load()->bank);engine.setOutputProtection(false); engine.prepare(rate,static_cast<uint32_t>(block));
         pendingLatency.store(static_cast<int>(engine.latencySamples()),std::memory_order_relaxed);
         setLatencySamples(pendingLatency.load(std::memory_order_relaxed));
         midiClock.reset();sampleClock=0;hostBeatEstimate=0;midiRollStopPending=false;

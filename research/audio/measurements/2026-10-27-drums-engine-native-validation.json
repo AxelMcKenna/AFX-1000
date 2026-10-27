@@ -1,0 +1,66 @@
+{
+  "kind": "rmx-engine-drums-native-validation",
+  "native_test_groups": [
+    "engine",
+    "tempo",
+    "parity",
+    "isolator",
+    "scene",
+    "reverb_down",
+    "reverb_up",
+    "engine_reverb",
+    "engine_drums",
+    "sampler",
+    "xpad",
+    "card_storage",
+    "card_settings",
+    "hardware_calibration",
+    "embedded_memory"
+  ],
+  "passed": true,
+  "ctest_log_sha256": "58745f8b51e930ad7ea4f09916b9dd769b70eb2389b1abca9c6cc0c816fc7734",
+  "artifacts": {
+    "native_app": {
+      "path": "build/reference-host/RMX.app/Contents/MacOS/RMX",
+      "sha256": "b5281c5e714ebca2c9c7829a840abf16556c907f4d91e876292e382cf13ff19d"
+    },
+    "juce_standalone": {
+      "path": "build/reference-host/RMXPlugin_artefacts/Release/Standalone/RMX.app/Contents/MacOS/RMX",
+      "sha256": "c58a878315fcc10a8087c6c46bd07ce5a2c08674a2637a840179b69781304096"
+    },
+    "au": {
+      "path": "build/reference-host/RMXPlugin_artefacts/Release/AU/RMX.component/Contents/MacOS/RMX",
+      "sha256": "5ffde93ecec51b95b6f085fb624f68295f9b179c284040a7e0957caf77fb2e80"
+    },
+    "vst3": {
+      "path": "build/reference-host/RMXPlugin_artefacts/Release/VST3/RMX.vst3/Contents/MacOS/RMX",
+      "sha256": "299eab1215f0ad731e90970c49806810df12d5d80383cfbe9c1d13cf636ec9d4"
+    }
+  },
+  "test_source_sha256": {
+    "tests/engine_drums_tests.cpp": "1005f949b29659984a99e90719313f88075a0d0d95443ffd17e5057daa666359",
+    "tests/core_tests.cpp": "e990a6e0b537b922fb99e9842295a9549cfb27a53ef66f9105eb04cec1f231d3",
+    "tools/plugin_probe.cpp": "686b5db3dbbf11c3eca557897deda2fe8089410c4fc667c0757f7dcb8aafc832",
+    "tests/package_tests.py": "a1be7a6ac6d184e6b135f9d5ad48b9e9bdf52ad66d0fe13b0d6db46c99d01577"
+  },
+  "memory_bytes": {
+    "engine_48k": 29709872,
+    "engine_plus_factory": 36333872,
+    "engine_plus_64_seconds_stereo": 55610672,
+    "peak_during_replacement": 55783472,
+    "arena_capacity": 62914536
+  },
+  "scope": "15 native C++ test groups and four rebuilt macOS artifacts. No fresh firmware cross-build, MCU timing, physical device, DAW or GUI qualification. Python checks were run separately (reference_audio9, fidelity12, noise5, package5); this record does not embed their terminal output.",
+  "smoke_report_publication": {
+    "au": {
+      "original_sha256": "9fb86f96b1d12afd861aa9ebfb27538ba6c6fab0e9db8849a7a590cef89c7c90",
+      "published_sha256": "e8de9bd329f8d3b9008d9ea28caa3551080cb7613638dfd16f50fc5899a957c5",
+      "normalization": "CRLF to LF only; identical parsed JSON"
+    },
+    "vst3": {
+      "original_sha256": "d1c0295ae98f1390be16407d94fe80a05ee7bbaf3872cf0d4eea1888ec8987ac",
+      "published_sha256": "9de385f37a22b61037a24b6af4e337be13a200efbb5889096df43d2633d7de15",
+      "normalization": "CRLF to LF only; identical parsed JSON"
+    }
+  }
+}

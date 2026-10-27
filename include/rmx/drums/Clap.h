@@ -1,15 +1,17 @@
 #pragma once
-#include "DrumResearchControls.h"
+#include "rmx/drums/Controls.h"
 #include <array>
 #include <span>
 #include <cstddef>
 #include <cstdint>
-namespace rmx::research {
+namespace rmx::drums {
 // Independently implemented neutral factory48k clap research hypothesis.
-class ClapResearch {
+class Clap {
 public:
     void setControls(unsigned level,unsigned pitch) noexcept;
-    void trigger() noexcept {if(processingStarted)requested=true;}
+    void trigger(float velocity=1) noexcept {if(processingStarted){requested=true;requestedVelocity=std::clamp(velocity,0.f,1.f);}}
+    void stop() noexcept {state=0;requested=false;pending.fill(0);}
+    void reset() noexcept {*this={};}
     void process(std::span<float> output) noexcept;
 private:
     struct Envelope {
@@ -36,6 +38,7 @@ private:
     size_t received{},available{},head{};
     float phase{1},gain{},startupGain{};
     DrumLevelRamp outputLevel;
+    float voiceVelocity{1},nextVelocity{1},requestedVelocity{1};
     uint32_t random1{0xb741fe44},random2{0x2c342f89};
     unsigned state{},elapsed{};bool requested{},processingStarted{};
 };

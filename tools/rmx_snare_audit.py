@@ -77,7 +77,7 @@ def observations(args):
 def audit(args):
     frozen(args);binding=source_hashes();root=new_directory(args.output);rows=[];scores=0
     compile_path=args.sanitized.parent/'compile_commands.json';commands=json.loads(compile_path.read_text())
-    generator_commands=[c['command'] for c in commands if c['file'].endswith(('SnareResearch.cpp','snare_research_probe.cpp'))]
+    generator_commands=[c['command'] for c in commands if c['file'].endswith(('Snare.cpp','snare_research_probe.cpp'))]
     require(len(generator_commands)==2 and all('-fsanitize=address,undefined' in c and '-ffp-contract=off' in c for c in generator_commands),'Missing sanitizer/float compile flags')
     recipes=dict(discovery=[c for c in discovery_recipe() if c['drum']=='snare'],fresh=recipe())
     require(sorted(d[0] for d in args.dataset)==['discovery','fresh'],'Requires exactly two complete datasets')

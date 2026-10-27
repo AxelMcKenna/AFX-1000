@@ -49,8 +49,8 @@ def audit(args):
     frozen(args);binding=source_hashes();root=new_directory(args.output);rows=[];screens=0;neutral=hot=first_plan=first_source=None
     require(sorted(d[0] for d in args.dataset)==sorted([*SETS,'fresh']),'Requires exactly nine complete datasets')
     commands_path=args.sanitized.parent/'compile_commands.json';commands=json.loads(commands_path.read_text())
-    files=('drums_control_probe.cpp','KickResearch.cpp','SnareResearch.cpp','ClapResearch.cpp','HatResearch.cpp')
-    commands=[c['command'] for c in commands if c['file'].endswith(files) and 'rmx_drums_control_probe.dir' in c['command']]
+    files=('drums_control_probe.cpp','/drums/Kick.cpp','/drums/Snare.cpp','/drums/Clap.cpp','/drums/Hat.cpp')
+    commands=[c['command'] for c in commands if c['file'].endswith(files)]
     require(len(commands)==5 and all('-fsanitize=address,undefined' in c and '-ffp-contract=off' in c for c in commands),'Missing sanitizer/float compile flags')
     for name,session_text,comparison_text in args.dataset:
         session=Path(session_text);comparison=Path(comparison_text);report=json.loads(comparison.read_text())

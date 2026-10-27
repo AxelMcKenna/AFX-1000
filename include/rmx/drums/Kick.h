@@ -1,16 +1,18 @@
 #pragma once
-#include "DrumResearchControls.h"
+#include "rmx/drums/Controls.h"
 #include <array>
 #include <span>
 #include <cstddef>
 #include <cstdint>
-namespace rmx::research {
+namespace rmx::drums {
 // Independent research hypothesis, factory kick at stereo48k.
 // Original scalar observations inform constants; complete waveform tests decide acceptance.
-class KickResearch {
+class Kick {
 public:
     void setControls(unsigned level,unsigned pitch) noexcept;
-    void trigger() noexcept {if(processingStarted)requested=true;}
+    void trigger(float velocity=1) noexcept {if(processingStarted){requested=true;requestedVelocity=std::clamp(velocity,0.f,1.f);}}
+    void stop() noexcept {state=0;requested=false;pending.fill(0);}
+    void reset() noexcept {*this={};}
     void process(std::span<float> output) noexcept;
 private:
     struct Envelope {
@@ -32,6 +34,7 @@ private:
     float phase1{.25f},phase2{.25f},gain{},startupGain{};
     float frequencyBase{49.91f},frequencyPeak{49.91f*6},noiseMix{.04f},toneLimit{.3f};
     DrumLevelRamp outputLevel;
+    float voiceVelocity{1},nextVelocity{1},requestedVelocity{1};
     uint32_t random1{0x1f9f4541},random2{0x93a6ff6c};
     unsigned state{};bool requested{},processingStarted{};
 };

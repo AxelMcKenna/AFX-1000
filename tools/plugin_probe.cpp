@@ -309,8 +309,10 @@ private:
             for (int n = 0; n < count; ++n) {
                 audio.clear();
                 midi.clear();
-                if (n == 0) midi.addEvent(juce::MidiMessage::noteOn(1, note, static_cast<juce::uint8>(100)), 0);
-                if (n == 1) midi.addEvent(juce::MidiMessage::noteOff(1, note), 0);
+                // The original factory controller ignores a press before its
+                // first processing callback; exercise a warmed-up pad here.
+                if (n == 1) midi.addEvent(juce::MidiMessage::noteOn(1, note, static_cast<juce::uint8>(100)), 0);
+                if (n == 2) midi.addEvent(juce::MidiMessage::noteOff(1, note), 0);
                 finite = process(audio, midi) && finite;
                 for (int channel = 0; channel < 2; ++channel)
                     for (int i = 0; i < block; ++i) energy += audio.getSample(channel, i) * audio.getSample(channel, i);

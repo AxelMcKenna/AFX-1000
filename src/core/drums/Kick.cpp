@@ -1,9 +1,9 @@
-#include "KickResearch.h"
-#include "DrumResearchControls.h"
+#include "rmx/drums/Kick.h"
+#include "rmx/drums/Controls.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
-namespace rmx::research {
+namespace rmx::drums {
 namespace {
 float amplitude(float x) noexcept {
     const float x2=x*x;
@@ -20,7 +20,7 @@ float triangle(float& phase,float frequency) noexcept {
     phase+=frequency*(1.f/48000.f);if(phase>1)phase-=1;return y;
 }
 }
-void KickResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
+void Kick::setControls(unsigned level,unsigned pitchRaw) noexcept {
     pitchRaw=std::min(pitchRaw,255u);outputLevel.set(level);const float ratio=drumPitchRate(pitchRaw);
     noiseMix=.04f;toneLimit=.3f;
     if(pitchRaw<=120){
@@ -31,7 +31,7 @@ void KickResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
         toneLimit=offset*.00039999998989515007f+.3f;
     }else{frequencyBase=ratio*49.91f;frequencyPeak=frequencyBase*6;}
 }
-float KickResearch::Envelope::advance() noexcept {
+float Kick::Envelope::advance() noexcept {
     if(rising){
         value=position;position+=16*(1.f/(attack*48000.f));
         if(position>1){position=0;value=1;rising=false;falling=true;}
@@ -39,17 +39,18 @@ float KickResearch::Envelope::advance() noexcept {
     if(falling){value+=16*(-1.f/(decay*48000.f));if(value<0){value=0;rising=falling=false;}}
     return value;
 }
-float KickResearch::Biquad::tick(float x) noexcept {
+float Kick::Biquad::tick(float x) noexcept {
     const auto& c=coefficients;const double y=c[0]*static_cast<double>(x)+s1;
     s1=c[1]*static_cast<double>(x)-c[3]*y+s2;s2=c[2]*static_cast<double>(x)-c[4]*y;
     return static_cast<float>(y);
 }
-void KickResearch::start() noexcept {
+void Kick::start() noexcept {
+    voiceVelocity=nextVelocity;
     phase1=phase2=.25f;random1=0x1f9f4541;random2=0x93a6ff6c;
     tone.start();pitch.start();noise.start();bandpass.clear();highpass.clear();gain=1;state=1;
 }
-void KickResearch::block() noexcept {
-    if(requested){if(!state)start();else if(state==1)state=2;requested=false;}
+void Kick::block() noexcept {
+    if(requested){if(!state||state==1){nextVelocity=requestedVelocity;if(!state)start();else state=2;}requested=false;}
     if(state>=7)start();
     const float gainStep=state>=2?-.00625f:0;if(state>=2)++state;
     if(!state)pending.fill(0);
@@ -70,9 +71,9 @@ void KickResearch::block() noexcept {
     if(!tone.rising&&tone.value==0&&std::abs(pending.back())<1e-9f)state=0;
     // Global output fade advances on the generated clock, including silence.
     // Applying it after FIFO emission would make callback fragments incorrect.
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel.advance();}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=((sample*voiceVelocity)*startupGain)*outputLevel.advance();}
 }
-void KickResearch::process(std::span<float> output) noexcept {
+void Kick::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;
     std::fill(output.begin(),output.end(),0);size_t read=0,written=0;
     while(read<output.size()){

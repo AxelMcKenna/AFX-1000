@@ -1,9 +1,9 @@
-#include "SnareResearch.h"
-#include "DrumResearchControls.h"
+#include "rmx/drums/Snare.h"
+#include "rmx/drums/Controls.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
-namespace rmx::research {
+namespace rmx::drums {
 namespace {
 float curve60(float x) noexcept {
     if(x<=.05f)return 0;
@@ -17,14 +17,14 @@ float triangle(float& phase,float frequency) noexcept {
     phase+=frequency*(1.f/48000.f);if(phase>1)phase-=1;return y;
 }
 }
-void SnareResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
+void Snare::setControls(unsigned level,unsigned pitchRaw) noexcept {
     outputLevel.set(level);pitchRatio=drumPitchRate(pitchRaw);
     lowpass.coefficients=drumLowpass(9000*pitchRatio,1);
     const auto lp=drumFirstOrder(9000*pitchRatio,false),hp=drumFirstOrder(10000*pitchRatio,true);
     lowpass1.b0=lp[0];lowpass1.b1=lp[1];lowpass1.feedback=lp[2];
     highpass1.b0=hp[0];highpass1.b1=hp[1];highpass1.feedback=hp[2];
 }
-float SnareResearch::Envelope::advance() noexcept {
+float Snare::Envelope::advance() noexcept {
     if(rising){
         value=position;position+=16*(1.f/(.001f*48000.f));
         if(position>1){position=0;value=1;rising=false;falling=true;}
@@ -32,17 +32,18 @@ float SnareResearch::Envelope::advance() noexcept {
     if(falling){value+=16*(-1.f/(decay*48000.f));if(value<0){value=0;rising=falling=false;}}
     return value;
 }
-float SnareResearch::Biquad::tick(float x) noexcept {
+float Snare::Biquad::tick(float x) noexcept {
     const auto& c=coefficients;const double y=c[0]*static_cast<double>(x)+s1;
     s1=c[1]*static_cast<double>(x)-c[3]*y+s2;s2=c[2]*static_cast<double>(x)-c[4]*y;
     return static_cast<float>(y);
 }
-void SnareResearch::start() noexcept {
+void Snare::start() noexcept {
+    voiceVelocity=nextVelocity;
     phase1=phase2=.25f;random1=0xd0f61b8f;random2=0x34373a95;
     tone.start();pitch.start();noise.start();bandpass.clear();lowpass.clear();lowpass1.state=highpass1.state=0;gain=1;state=1;
 }
-void SnareResearch::block() noexcept {
-    if(requested){if(!state)start();else if(state==1)state=2;requested=false;}
+void Snare::block() noexcept {
+    if(requested){if(!state||state==1){nextVelocity=requestedVelocity;if(!state)start();else state=2;}requested=false;}
     if(state>=7)start();
     const float gainStep=state>=2?-.00625f:0;if(state>=2)++state;
     if(!state)pending.fill(0);
@@ -64,9 +65,9 @@ void SnareResearch::block() noexcept {
         }
     }
     if(!noise.rising&&noise.value==0&&std::abs(pending.back())<1e-9f)state=0;
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel.advance();}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=((sample*voiceVelocity)*startupGain)*outputLevel.advance();}
 }
-void SnareResearch::process(std::span<float> output) noexcept {
+void Snare::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;
     std::fill(output.begin(),output.end(),0);size_t read=0,written=0;
     while(read<output.size()){

@@ -38,6 +38,8 @@ class PackageTests(unittest.TestCase):
                          "pyproject.toml", "uv.lock", ".python-version", ".venv/lib/private.py",
                          "firmware/daisy/Makefile", "firmware/daisy/build/secret.cpp",
                          "tools/__pycache__/private.py", "docs/build/private.md",
+                         "research/audio/experiments/drums_control_probe.cpp", "research/audio/drums.md",
+                         "include/rmx/drums/Kick.h", "src/core/drums/Kick.cpp",
                          "assets/panel.png", "prototypes/web/app.js", "src/macos/Info.plist",
                          "build/src/private.cpp", "docs/.DS_Store"):
                 target = root / path
@@ -48,6 +50,8 @@ class PackageTests(unittest.TestCase):
                 names = [p.relative_to(root).as_posix() for p in package.source_files()]
             self.assertEqual(names, sorted(["CMakeLists.txt", "README.md", "THIRD_PARTY_NOTICES.md",
                                           "assets/panel.png", "firmware/daisy/Makefile", "src/main.cpp",
+                                          "research/audio/experiments/drums_control_probe.cpp", "research/audio/drums.md",
+                                          "include/rmx/drums/Kick.h", "src/core/drums/Kick.cpp",
                                           "pyproject.toml", "uv.lock", ".python-version",
                                           "prototypes/web/app.js", "src/macos/Info.plist"]))
 

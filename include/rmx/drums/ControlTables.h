@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-namespace rmx::research {
+namespace rmx::drums {
 // Numeric control calibration; no original code or audio.
 // Measurement SHA-256: 633b2394223baa77608851426f97a24c9ebd3e0c4e21a64a419eab4855621126
 inline constexpr std::array<float,256> drumLevelTable{

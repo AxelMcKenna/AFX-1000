@@ -1,7 +1,7 @@
-#include "KickResearch.h"
-#include "SnareResearch.h"
-#include "ClapResearch.h"
-#include "HatResearch.h"
+#include "rmx/drums/Kick.h"
+#include "rmx/drums/Snare.h"
+#include "rmx/drums/Clap.h"
+#include "rmx/drums/Hat.h"
 #include "rmx/Wav.h"
 #include <algorithm>
 #include <fstream>
@@ -19,7 +19,7 @@ int main(int argc,char** argv){try{
     if(!file.eof()||hits.empty())throw std::runtime_error("Invalid/empty hits");
     std::vector<std::pair<size_t,bool>> events;for(auto at:hits){events.push_back({at,true});events.push_back({at+32,false});}
     rmx::Sample output,dry;output.rate=dry.rate=48000;output.frames.resize(input.frames.size());dry.frames.resize(input.frames.size());
-    std::variant<rmx::research::KickResearch,rmx::research::SnareResearch,rmx::research::ClapResearch,rmx::research::HatResearch> processor;
+    std::variant<rmx::drums::Kick,rmx::drums::Snare,rmx::drums::Clap,rmx::drums::Hat> processor;
     switch(drum){case 0:processor.emplace<0>();break;case 1:processor.emplace<1>();break;case 2:processor.emplace<2>();break;case 3:processor.emplace<3>();break;}
     std::visit([&](auto& p){p.setControls(static_cast<unsigned>(level),static_cast<unsigned>(pitch));},processor);
     std::array<float,4096> audio{};size_t event=0;

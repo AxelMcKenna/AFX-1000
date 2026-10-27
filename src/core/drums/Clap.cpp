@@ -1,15 +1,15 @@
-#include "ClapResearch.h"
-#include "DrumResearchControls.h"
+#include "rmx/drums/Clap.h"
+#include "rmx/drums/Controls.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
-namespace rmx::research {
-void ClapResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
+namespace rmx::drums {
+void Clap::setControls(unsigned level,unsigned pitchRaw) noexcept {
     outputLevel.set(level);const float ratio=drumPitchRate(pitchRaw);
     bandpass.coefficients=drumBandpass(870*ratio,.7f);highpass.coefficients=drumHighpass(800*ratio,.7f);
     const auto lp=drumFirstOrder(800*ratio,false);lowpass1.b0=lp[0];lowpass1.b1=lp[1];lowpass1.feedback=lp[2];
 }
-float ClapResearch::Envelope::advance() noexcept {
+float Clap::Envelope::advance() noexcept {
     if(rising){
         value=position;position+=16*(1.f/(.016f*48000.f));
         if(position>1){position=0;value=1;rising=false;falling=true;}
@@ -17,17 +17,18 @@ float ClapResearch::Envelope::advance() noexcept {
     if(falling){value+=16*(-1.f/(decay*48000.f));if(value<0){value=0;rising=falling=false;}}
     return value;
 }
-float ClapResearch::Biquad::tick(float x) noexcept {
+float Clap::Biquad::tick(float x) noexcept {
     const auto& c=coefficients;const double y=c[0]*static_cast<double>(x)+s1;
     s1=c[1]*static_cast<double>(x)-c[3]*y+s2;s2=c[2]*static_cast<double>(x)-c[4]*y;
     return static_cast<float>(y);
 }
-void ClapResearch::start() noexcept {
+void Clap::start() noexcept {
+    voiceVelocity=nextVelocity;
     phase=1;elapsed=0;random1=0xb741fe44;random2=0x2c342f89;
     noise.start();tail.start();bandpass.clear();highpass.clear();lowpass1.state=0;gain=1;state=1;
 }
-void ClapResearch::block() noexcept {
-    if(requested){if(!state)start();else if(state==1)state=2;requested=false;}
+void Clap::block() noexcept {
+    if(requested){if(!state||state==1){nextVelocity=requestedVelocity;if(!state)start();else state=2;}requested=false;}
     if(state>=7)start();
     const float gainStep=state>=2?-.00625f:0;if(state>=2)++state;
     if(!state)pending.fill(0);
@@ -47,9 +48,9 @@ void ClapResearch::block() noexcept {
         }
     }
     if(!tail.rising&&tail.value==0&&std::abs(pending.back())<1e-9f)state=0;
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel.advance();}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=((sample*voiceVelocity)*startupGain)*outputLevel.advance();}
 }
-void ClapResearch::process(std::span<float> output) noexcept {
+void Clap::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;
     std::fill(output.begin(),output.end(),0);size_t read=0,written=0;
     while(read<output.size()){

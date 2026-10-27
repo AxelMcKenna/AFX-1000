@@ -91,7 +91,7 @@ def audit(args):
     campaign=importlib.import_module('tools.rmx_'+args.drum+'_validate');candidate=importlib.import_module('tools.rmx_'+args.drum)
     campaign.frozen(args);binding=campaign.source_hashes();root=new_directory(args.output);rows=[];scores=0
     compile_path=args.sanitized.parent/'compile_commands.json';commands=json.loads(compile_path.read_text())
-    files=(args.drum.capitalize()+'Research.cpp',args.drum+'_research_probe.cpp')
+    files=(args.drum.capitalize()+'.cpp',args.drum+'_research_probe.cpp')
     generator_commands=[c['command'] for c in commands if c['file'].endswith(files)]
     require(len(generator_commands)==2 and all('-fsanitize=address,undefined' in c and '-ffp-contract=off' in c for c in generator_commands),'Missing sanitizer/float compile flags')
     recipes=dict(discovery=[c for c in discovery_recipe() if c['drum']==args.drum],fresh=campaign.recipe())

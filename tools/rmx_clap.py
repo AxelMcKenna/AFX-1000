@@ -14,8 +14,9 @@ from tools.rmx_drums import checked, recipe, require
 
 def source_hashes():
     names = ['tools/rmx_clap.py','tools/rmx_drums.py','CMakeLists.txt','src/core/Wav.cpp','include/rmx/Wav.h','include/rmx/Dsp.h',
-             'research/audio/experiments/ClapResearch.h','research/audio/experiments/ClapResearch.cpp',
+             'include/rmx/drums/Clap.h','src/core/drums/Clap.cpp',
              'research/audio/experiments/clap_research_probe.cpp']
+    names += ['include/rmx/drums/Controls.h','include/rmx/drums/ControlTables.h','include/rmx/drums/FrequencyCalibration.h']
     return {name:sha256(Path(name)) for name in names}
 
 

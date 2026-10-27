@@ -34,7 +34,9 @@ int main() {
             rig.engine.params.set(rmx::Param::WetOnly,1); rig.run(10); for(float v:rig.ol) require(std::abs(v)<1e-5,"Wet-only neutral must null");
         }
         {
-            Rig rig; rig.engine.params.set(rmx::Param::Quantize,0); rig.engine.enqueue({rmx::EventType::Trigger,0}); require(rig.run(100)>1,"Factory sampler is silent");
+            Rig rig; rig.engine.params.set(rmx::Param::Quantize,0);
+            rig.engine.enqueue({rmx::EventType::Trigger,0});require(rig.run(1)==0,"Factory kick accepted a pre-processing frame-zero press");
+            rig.engine.enqueue({rmx::EventType::Trigger,0}); require(rig.run(100)>1,"Factory sampler is silent after startup");
             rig.engine.enqueue({rmx::EventType::Panic}); require(rig.run(100)<1e-8,"Panic did not stop sampler");
         }
         {

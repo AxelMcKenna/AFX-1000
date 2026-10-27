@@ -23,6 +23,7 @@ void Engine::prepare(double sampleRate,uint32_t maxBlock) {
     const auto block=std::clamp<size_t>(maxBlock,1,CalibratedReverbDown::maximumCallbackFrames);
     sceneInput.assign(block,{});sceneOutput.assign(block,{});downOutput.assign(block,{});upOutput.assign(block,{});
     outputFrames.assign(block,{});parallelInput.assign(block,{});parallelOutput.assign(block,{});
+    sourceFrames.assign(block,{});drumCues.assign(block,{});factoryOutput.assign(block,{});factoryScratch.assign(block,0);
     if(sr==48000){reverbDown.prepare(block);reverbUp.prepare(block);}
     const auto capacity=static_cast<size_t>(sr*16)+4;
     history.prepare(capacity); sceneProcessor.prepare(sr);
@@ -40,6 +41,7 @@ void Engine::reset() noexcept {
     routingReceived=routingAvailable=routingHead=0;routingAge=0;routingFade=0;
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
+    factoryDrums.reset();pendingDrumCue={};factoryMask=0;
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
     rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0;
     rollNext=0; rollStart=0; releaseRead=0; releaseAge=0; nudgeDirection=0; nudgeOffset=0; tapIntervals={}; tapCount=0; tapIndex=0; tapped=false;
@@ -72,6 +74,9 @@ void Engine::set(Param parameter,float value) noexcept {
 bool Engine::trigger(int pad,float velocity,int bank,int source,bool toggleLoop) noexcept {
     selectedPad=pad%4;
     const bool internal=(source<0?static_cast<int>(get(Param::SampleSource)):source)==0;
+    if(internal&&(factoryMask&(1u<<(pad%4)))){
+        pendingDrumCue.trigger|=static_cast<uint8_t>(1u<<(pad%4));pendingDrumCue.velocity[pad%4]=std::clamp(velocity,0.f,1.f);return false;
+    }
     const int slot=internal?16+pad%4:(bank<0?static_cast<int>(get(Param::Bank)):bank%4)*4+pad%4;
     Voice* voice=&voices[0];
     for(auto& v:voices) { if(v.slot<0) { voice=&v; break; } if(v.age>voice->age) voice=&v; }
@@ -94,6 +99,7 @@ bool Engine::trigger(int pad,float velocity,int bank,int source,bool toggleLoop)
     return false;
 }
 void Engine::stopSample(int pad,int bank,int source) noexcept {
+    if(source==0)stopFactoryDrums(static_cast<uint8_t>(1u<<(pad%4)));
     const int slot=source==0?16+pad%4:(bank%4)*4+pad%4;
     for(auto& voice:voices)if(voice.slot==slot)voice.slot=-1;
 }
@@ -120,6 +126,7 @@ void Engine::event(Event e) noexcept {
         case EventType::MutePad: sequence.toggleMute(e.pad); break;
         case EventType::DeletePad:
             sequence.erase(e.pad%4);
+            stopFactoryDrums(static_cast<uint8_t>(1u<<(e.pad%4)));
             for(auto& voice:voices) if(voice.slot>=0&&voice.slot%4==e.pad%4) voice.slot=-1;
             break;
         case EventType::Nudge: nudgeOffset+=(e.velocity<0?-1:1)/96.; break;
@@ -127,6 +134,7 @@ void Engine::event(Event e) noexcept {
         case EventType::NudgeStop: nudgeDirection=0; break;
         case EventType::Panic:
             voices={}; rollPad=-1; sourceRoll=false; sequence.clear(); nudgeDirection=0; nudgeOffset=0;
+            stopFactoryDrums();
             set(Param::SceneOn,0); set(Param::IsolateOn,0); set(Param::ReleaseAmount,0); set(Param::Low,0); set(Param::Mid,0); set(Param::High,0); set(Param::XHold,0); set(Param::Overdub,0);
             break;
         case EventType::Tap:
@@ -198,6 +206,7 @@ Engine::ReleaseFrame Engine::releaseControls() noexcept {
         if(get(Param::ReleaseKeepIsolate)<.5f) { set(Param::Low,0); set(Param::Mid,0); set(Param::High,0); }
         if(get(Param::ReleaseKeepSampler)<.5f) {
             set(Param::XHold,0); set(Param::Overdub,0); rollPad=-1; sourceRoll=false; voices={}; sequence.clear();
+            stopFactoryDrums();
         }
     }
     previousRelease=active;
@@ -265,6 +274,18 @@ void Engine::detectTempo(Stereo x) noexcept {
         autoPhaseSlew=get(Param::AutoTempo)>.5f&&get(Param::Quantize)>.5f&&tempoTracker.phaseLocked()?tempoTracker.phaseSlew(beat):0;
     }
 }
+void Engine::renderFactoryDrums(size_t count) noexcept {
+    for(size_t start=0;start<count;){
+        const auto& cue=drumCues[start];
+        for(unsigned pad=0;pad<4;++pad){
+            if(cue.stop&(1u<<pad))factoryDrums.stop(pad);
+            if(cue.trigger&(1u<<pad))factoryDrums.trigger(pad,cue.velocity[pad]);
+        }
+        size_t end=start+1;while(end<count&&!drumCues[end].trigger&&!drumCues[end].stop)++end;
+        factoryDrums.process(std::span<Stereo>(factoryOutput.data()+start,end-start),std::span<float>(factoryScratch.data(),end-start));
+        start=end;
+    }
+}
 void Engine::process(const float* left,const float* right,float* outL,float* outR,uint32_t frames,Transport transport,std::span<const Event> events) noexcept {
     if(!frames) return;
     if(outputFrames.empty()){std::fill_n(outL,frames,0);std::fill_n(outR,frames,0);return;}
@@ -319,12 +340,29 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         &&sceneSettings.reverbTime[0]==1&&sceneSettings.reverbFilter[0]==2&&sceneSettings.decay==.72f;
     const bool measuredReverb=measuredDown||measuredUp;
     const auto rawControl=[](float value,float scale){return std::clamp(static_cast<int>(std::floor(value*scale+1.e-4f)),0,255);};
+    uint8_t nextFactoryMask=0;
+    if(sr==48000&&get(Param::PitchDownRange)==parameters[static_cast<size_t>(Param::PitchDownRange)].initial
+        &&get(Param::PitchUpRange)==parameters[static_cast<size_t>(Param::PitchUpRange)].initial){
+        for(unsigned pad=0;pad<4;++pad){
+            auto same=[&](Param first){const auto i=static_cast<size_t>(first)+pad;return p[i]==parameters[i].initial;};
+            if(same(Param::KickGain)&&same(Param::KickDecay)&&same(Param::KickEnvelope))nextFactoryMask|=static_cast<uint8_t>(1u<<pad);
+        }
+    }
+    if(nextFactoryMask!=factoryMask){
+        stopFactoryDrums(static_cast<uint8_t>(nextFactoryMask^factoryMask));
+        for(auto& voice:voices)if(voice.slot>=16&&((nextFactoryMask^factoryMask)&(1u<<(voice.slot-16))))voice.slot=-1;
+        factoryMask=nextFactoryMask;
+    }
+    const int drumLevel=rawControl(get(Param::XLevel),255.f/1.5f);
+    const float travel=get(Param::XPitch);
+    const int drumPitch=std::clamp(static_cast<int>(std::lround(128+travel*(travel<0?128.f/24:127.f/24))),0,255);
+    factoryDrums.setControls(static_cast<unsigned>(drumLevel),static_cast<unsigned>(drumPitch));
     CalibratedReverbDown::Controls downControls{rawControl(get(Param::SceneDepth),255),
         rawControl(get(Param::SceneTime),255.f/7),rawControl(get(Param::SceneResonance),255),false};
     CalibratedReverbUp::Controls upControls{downControls.main,downControls.amount,downControls.cutoff,false};
 
     const bool overdub=get(Param::Overdub)>.5f;
-    if(!overdub&&previousOverdub) { sequence.clear(); voices={}; }
+    if(!overdub&&previousOverdub) { sequence.clear(); voices={};stopFactoryDrums(); }
     previousOverdub=overdub;
     Event e; while(queue.pop(e)) event(e);
     size_t eventIndex=0;
@@ -366,23 +404,21 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         approach(rollInputMix,rollTarget,smoothing);
         if(rollTarget==0&&rollInputMix<1e-6f) sourceRoll=false;
         Stereo drums=sample();
+        drumCues[k]=pendingDrumCue;pendingDrumCue.trigger=pendingDrumCue.stop=0;
         input=input*(1-rollInputMix);
         const int isoSource=static_cast<int>(get(Param::IsolateSource));
         approach(isolateInputMix,(isoSource==0||isoSource==2)?1.f:0.f,smoothing);
         approach(isolatePadMix,(isoSource==1||isoSource==2)?1.f:0.f,smoothing);
         const float isolateEnabled=get(Param::IsolateOn)>.5f?1.f:0.f;
-        input=mix(input,isolate(input,0),isolateInputMix*isolateEnabled); drums=mix(drums,isolate(drums,1),isolatePadMix*isolateEnabled);
         const int sceneSource=static_cast<int>(get(Param::SceneSource));
         approach(sceneInputMix,(sceneSource==0||sceneSource==2)?1.f:0.f,smoothing);
         approach(scenePadMix,(sceneSource==1||sceneSource==2)?1.f:0.f,smoothing);
         approach(sceneMix,get(Param::SceneOn),smoothing);
-        const Stereo send=input*sceneInputMix+drums*scenePadMix;
         // FX SOURCE selects the whole processing chain, including RELEASE.
         // Unselected sources bypass it. Noise is generated inside scene() even
         // when neither input is selected.
-        sceneInput[k]=send;
-        if(!measuredReverb)sceneOutput[k]=scene(send);
-        parallelInput[k]={raw,input+drums-send,raw*db(sm(Param::InputGain))};
+        sourceFrames[k]={raw,input,drums,raw*db(sm(Param::InputGain)),{sm(Param::Low),sm(Param::Mid),sm(Param::High)},
+            isolateInputMix,isolatePadMix,isolateEnabled,sceneInputMix,scenePadMix,sceneMix,sm(Param::SceneDepth),sm(Param::SceneTime),sm(Param::SceneResonance),peak(rollInput),1-sm(Param::SamplerMute),bpm,beat+nudgeOffset};
         auto& output=outputFrames[k];
         output.reverbEnabled=measuredReverb&&get(Param::SceneOn)>.5f;
         output.release=releaseControls();output.wetOnly=get(Param::WetOnly)>.5f;
@@ -396,6 +432,16 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
             if(!transport.synced&&get(Param::AutoTempo)>.5f&&get(Param::Quantize)>.5f) beat+=autoPhaseSlew/sr;
             nudgeOffset+=nudgeDirection*.02*bpm/(60*sr);
         }
+    }
+    renderFactoryDrums(count);
+    for(uint32_t k=0;k<count;++k){
+        const auto& source=sourceFrames[k];Stereo input=source.input,drums=source.legacy+factoryOutput[k]*source.mute;
+        isolators[0].tempo(source.bpm);isolators[1].tempo(source.bpm);
+        input=mix(input,isolators[0].process(input,source.bands,source.beat),source.isoInput*source.isoEnabled);
+        drums=mix(drums,isolators[1].process(drums,source.bands,source.beat),source.isoPad*source.isoEnabled);
+        const Stereo send=input*source.sceneInput+drums*source.scenePad;sceneInput[k]=send;
+        if(!measuredReverb)sceneOutput[k]=sceneProcessor.process(send,source.depth,source.time,source.resonance,source.sceneMix,source.bpm,source.beat,source.sidechain);
+        parallelInput[k]={source.raw,input+drums-send,source.wetDry};
     }
     if(sr==48000){
         size_t start=0;
@@ -418,7 +464,8 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         processed=finite(mix(processed*output.gain,audio.raw,output.bypass));
         // Sample-peak ceiling with linked stereo gain. No lookahead, allocation
         // or per-channel saturation; full-scale excess cannot reach the device.
-        const float magnitude=level(processed),target=magnitude>.9995f?.9995f/magnitude:1.f;
+        const float magnitude=level(processed),target=outputProtection&&magnitude>.9995f?.9995f/magnitude:1.f;
+        if(!outputProtection)protectionGain=1;
         if(target<protectionGain)protectionGain=target;
         else protectionGain+=(target-protectionGain)*protectionRelease;
         minimumProtection=std::min(minimumProtection,protectionGain);

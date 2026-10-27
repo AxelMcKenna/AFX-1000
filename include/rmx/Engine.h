@@ -9,6 +9,7 @@
 #include "LoopStretch.h"
 #include "CalibratedReverbDown.h"
 #include "CalibratedReverbUp.h"
+#include "FactoryDrumSynth.h"
 #include <array>
 #include <atomic>
 #include <span>
@@ -51,6 +52,9 @@ public:
     MeterState meters;
     void prepare(double sampleRate, uint32_t maxBlock);
     void reset() noexcept;
+    // Floating-point plug-in rendering can preserve original above-unity peaks;
+    // device adapters retain the default linked output ceiling.
+    void setOutputProtection(bool enabled) noexcept {outputProtection=enabled;}
     // Call with processing stopped; assets remain adapter-owned for the engine lifetime.
     void setBank(const SampleBank* bank) noexcept { samples=bank; }
     bool enqueue(Event event) noexcept;
@@ -68,6 +72,20 @@ private:
     SceneProcessor sceneProcessor;
     CalibratedReverbDown reverbDown;
     CalibratedReverbUp reverbUp;
+    FactoryDrumSynth factoryDrums;
+    struct DrumCue {uint8_t trigger{},stop{};std::array<float,4> velocity{1,1,1,1};};
+    struct SourceFrame {
+        Stereo raw{},input{},legacy{},wetDry{};
+        std::array<float,3> bands{};
+        float isoInput{},isoPad{},isoEnabled{},sceneInput{},scenePad{},sceneMix{},depth{},time{},resonance{},sidechain{},mute{};
+        double bpm{},beat{};
+    };
+    std::pmr::vector<SourceFrame> sourceFrames;
+    std::pmr::vector<DrumCue> drumCues;
+    std::pmr::vector<Stereo> factoryOutput;
+    std::pmr::vector<float> factoryScratch;
+    DrumCue pendingDrumCue;uint8_t factoryMask{};
+    bool outputProtection{true};
     struct ReleaseFrame {
         double bpm{};float amount{},time{},mix{};int type{};bool active{},start{};
     };
@@ -80,6 +98,8 @@ private:
     size_t routingReceived{},routingAvailable{},routingHead{};
     uint64_t routingAge{};float routingFade{};
     void alignReverbAudio(size_t start,size_t count) noexcept;
+    void renderFactoryDrums(size_t count) noexcept;
+    void stopFactoryDrums(uint8_t mask=15) noexcept {pendingDrumCue.stop|=mask;pendingDrumCue.trigger&=static_cast<uint8_t>(~mask);}
     Stereo rollInput{};
     std::array<Isolator,2> isolators;
     std::pmr::vector<Stereo> capturedRoll; size_t capturedLength{},captureCopied{}; double capturePosition{};

@@ -65,13 +65,13 @@ def capture(args):
     return 0
 
 
-def checked(directory,c,*,cold_kick=False):
+def checked(directory,c,*,cold_kick=False,plan_builder=plan_for):
     # The original ignores a kick press before its first processing callback.
     # This measured control hypothesis must be explicitly selected by the caller;
     # the original discovery/first-prediction contract remains strict by default.
     require(not cold_kick or c['drum']=='kick','Cold-control hypothesis is kick-only')
     inventory = json.loads((directory/'inventory.json').read_text()); folder = directory/c['name']; receipt_path = folder/'receipt.json'
-    receipt = json.loads(receipt_path.read_text()); plan = plan_for(c,inventory)
+    receipt = json.loads(receipt_path.read_text()); plan = plan_builder(c,inventory)
     require(receipt['complete'] and receipt['role'] == 'reference' and all(receipt['plugin'][k] == v for k,v in IDENTITY.items()),'Wrong original capture')
     require(json.loads((folder/'plan.json').read_text()) == plan and receipt['maximum_block_size'] == c['block'],'Drum recipe differs')
     for path,field in [(folder/'audio.wav','output_sha256'),(folder/'plan.json','plan_sha256'),(Path(receipt['input_path']),'input_sha256'),

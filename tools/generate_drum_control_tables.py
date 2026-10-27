@@ -16,7 +16,7 @@ def generate(args):
     def scalar(x):
         s=format(x,'.17g')
         return s+('f' if '.' in s or 'e' in s else '.0f')
-    text='#pragma once\n#include <array>\nnamespace rmx::research {\n'
+    text='#pragma once\n#include <array>\nnamespace rmx::drums {\n'
     text+='// Numeric control calibration; no original code or audio.\n'
     text+='// Measurement SHA-256: '+sha256(args.measurement)+'\n'
     text+='inline constexpr std::array<float,256> drumLevelTable{\n'
