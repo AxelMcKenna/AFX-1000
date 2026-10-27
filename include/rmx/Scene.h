@@ -29,7 +29,10 @@ public:
     void prepare(double sampleRate);
     void reset() noexcept;
     void configure(const SceneSettings&) noexcept;
-    Stereo process(Stereo input,float macro,float sub1,float sub2,float enabled,double bpm,double beat,float sidechain) noexcept;
+    // Optional startup/priming inputs are owned by the common-block adapter;
+    // existing streaming callers retain their default behaviour.
+    Stereo process(Stereo input,float macro,float sub1,float sub2,float enabled,double bpm,double beat,float sidechain,
+                   float startupGain=1,bool priming=false) noexcept;
 private:
     FractionalDelay echo,spiral;
     std::array<FractionalDelay,8> room;
@@ -45,6 +48,7 @@ private:
     std::array<std::array<float,8>,2> roomGains{};
     unsigned roomSide{};float sideAttack{},sideRelease{};
     float noiseCutoff{90},noiseCutoffSlew{},noiseModGain{1},noiseModSlew{},noiseReturnAlpha{};
+    float echoReadGain{};bool sharedStartup{};
     Stereo noiseReturn{};uint64_t noiseAge{};
     void updateRoom() noexcept;
     float noise() noexcept;

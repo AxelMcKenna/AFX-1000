@@ -17,17 +17,25 @@ public:
     void reset() noexcept {
         for(auto& line:lines)line.reset();
         for(auto& channel:filters)for(auto& filter:channel)filter.reset();
-        age=0;
+        age=0;readGain={};
     }
     // Constant-time transition: old delay contents are ignored until replaced.
     void restart(Profile next) noexcept {
-        profile=next;age=0;
+        profile=next;age=0;readGain={};
         for(auto& channel:filters)for(auto& filter:channel) {
             filter.configure(next==Profile::crush?60:283.99944,rate);filter.reset();
         }
     }
-    std::array<double,2> process(const std::array<double,2>& feed,int timeRaw,float enabled,double bpm) noexcept {
+    // The shared-clock path filters before the write gain and starts each
+    // tap's read fade on its first complete block. Select filterInput once
+    // after reset/restart; the default retains the established static API.
+    std::array<double,2> process(const std::array<double,2>& feed,int timeRaw,float enabled,double bpm,float inputGain=1,bool filterInput=false) noexcept {
         timeRaw=std::clamp(timeRaw,0,255);
+        auto source=feed;
+        if(filterInput&&profile!=Profile::spiral){
+            source={filters[0][1].tick(filters[0][0].tick(source[0])),filters[1][1].tick(filters[1][0].tick(source[1]))};
+        }
+        if(inputGain!=1)for(auto& value:source)value*=inputGain;
         std::array<float,4> weights{};
         const float position=std::clamp((timeRaw-3)/62.25f,0.f,4.f);
         const unsigned upper=std::min(3u,static_cast<unsigned>(position));
@@ -39,13 +47,18 @@ public:
         Stereo returned{};
         for(size_t i=0;i<lines.size();++i) {
             const double delay=beat*(i+1)*.25;
-            const auto tap=age>=static_cast<uint64_t>(delay)?lines[i].read(delay):Stereo{};
+            auto tap=age>=static_cast<uint64_t>(delay)?lines[i].read(delay):Stereo{};
+            if(filterInput){
+                const auto firstRead=static_cast<uint64_t>(std::ceil(delay/32)*32);
+                if(age>=firstRead)readGain[i]=std::min(1.f,readGain[i]+.00625f);
+                tap=tap*readGain[i];
+            }
             returned=returned+tap*weights[i];
-            lines[i].push({static_cast<float>(std::clamp(feed[0]*send*enabled+tap.l*.75,-8.,8.)),
-                           static_cast<float>(std::clamp(feed[1]*send*enabled+tap.r*.75,-8.,8.))});
+            lines[i].push({static_cast<float>(std::clamp(source[0]*send*enabled+tap.l*.75,-8.,8.)),
+                           static_cast<float>(std::clamp(source[1]*send*enabled+tap.r*.75,-8.,8.))});
         }
         ++age;
-        if(profile==Profile::spiral)return {returned.l*.7,returned.r*.7};
+        if(profile==Profile::spiral||filterInput)return {returned.l*.7,returned.r*.7};
         return {filters[0][1].tick(filters[0][0].tick(returned.l))*.7,
                 filters[1][1].tick(filters[1][0].tick(returned.r))*.7};
     }
@@ -64,6 +77,7 @@ private:
     };
     std::array<FractionalDelay,4> lines;
     std::array<std::array<HighPass,2>,2> filters;
+    std::array<float,4> readGain{};
     Profile profile{Profile::filter};double rate{48000};uint64_t age{};
 };
 }

@@ -229,3 +229,30 @@ The [extended scalar/return replay](measurements/2026-10-28-drums-fx-filter-star
 The observer records aggregate RMS values, including original return-input blocks multiplied by four candidate ramp powers; it does not record sample buffers. Using only original input/return measurements, the cubed ramp predicts64 two-channel blocks of the separately recorded12000-frame first return. Linear, squared and fourth-power hypotheses fail. Near-zero return differences are limited by float32 recording/subtraction; the report propagates the sum of half-ULP bounds from the two recorded outputs, alongside the declared component arithmetic tolerance. This is an uncertainty bound for the component measurement, not a change to any1% waveform gate.
 
 [`rmx_scene_filter_observe.py`](../../tools/rmx_scene_filter_observe.py) verifies that result with `--normal NORMAL_CASE --observed DEBUGGER_CASE --trace TRACE --observer OBSERVER --host ORIGINAL_HOST --report NEW_REPORT`. [`drum_clock_diagnostics.py`](../../tools/drum_clock_diagnostics.py) maps the declared32-frame clock and callback/event schedule to generated sample indices. Its mapping is used for component diagnostics only, never to realign candidate/reference audio in acceptance comparisons. This aligned tap alone cannot distinguish write-side from read-side gain; the unaligned18000-frame tap additionally exposes a block-boundary phase that a single cubed write gain misses.
+
+
+## Corrected shared-clock startup and a second retained prediction failure
+
+The corrected research adapter passes [all128 discovery programs](measurements/2026-10-28-drums-fx-shared-corrected-discovery.json) and [all56 former holdout programs](measurements/2026-10-28-drums-fx-shared-former-holdout.json). The first failed prediction remains above. Controls are static in this adapter; this is not yet the live Engine's combined routing.
+
+For the five deterministic non-reverb effects, source routing, effect activation, Scene mixing and echo return use different gain trajectories:
+
+| Stage | Generated-clock behaviour in the checked activation |
+| --- | --- |
+| Source routing | Starts at zero; advances1/160 per generated sample and reaches its target after five32-frame blocks. The earlier dry model calls its pad factor a global startup fade. |
+| Effect startup | Begins at the first active effect block, one block after the common clock starts; reaches unity over160 samples. |
+| Scene wet mix | Ramps in the first block, then restarts from its current value toward unity over160 samples. |
+| Scene direct mix | Starts in the first active block, then restarts one block later toward its target over160 samples. |
+| Return write gain | Two factors of the effect-startup ramp, applied after the return input filter. |
+| Return read gain | One160-sample fade per tap; starts at that tap's first complete32-frame read block. The gated tap also feeds its recirculation. |
+
+For an aligned tap, write/read gains coincide and look like a cubed fade. For an unaligned tap, one factor starts later. With12000-/18000-frame taps, the latter read fade is16 samples later. Treating all three factors as one write-side cube misses this boundary. The bounded return now places its input filter before those time-varying gains; moving a linear filter across a changing gain is not equivalent. Its existing default streaming API retains the earlier static path.
+
+Crush additionally fades its input before sample-and-hold and applies that input gain again to its direct processed output. A [separate original scalar replay](measurements/2026-10-28-drums-fx-crush-startup-replay.json) verifies64/64 states of both its input and effect-startup ramps, plus all64 prepared fractional hold-clock states. The unprepared clock interpretation fails four boundary states and is retained in the report. The normal/debugger audio and all checked auxiliary files remain byte-identical. [`rmx_crush_startup_observe.py`](../../tools/rmx_crush_startup_observe.py) reproduces those checks with the same path arguments as the filter replay. Complete independent audio comparisons provide the separate acceptance evidence.
+
+A [second frozen prediction](measurements/2026-10-28-drums-fx-shared-second-predictions.json) precedes56 different originals:28 FX-on cases and28 independent FX-off baselines. They use new source samples, trigger times, pitch/level combinations and callbacks13/27/49/113/269/523/1561/3109. Main0 and7 also test the inactive/partial-activation region. The [result passes55/56](measurements/2026-10-28-drums-fx-shared-second-holdout-failed.json). Crush with Main63, raw level0/pitch11, X-Pad-only routing and callback27 fails: its attack matches, but the return tail does not. This exposes another startup contribution in the unfiltered part of its echo feed. The failed prediction remains a failure; the next correction requires a further new prospective set.
+
+The [240-program independent audit](measurements/2026-10-28-drums-fx-shared-second-audit.json) verifies all **15,888 stereo screens**, including that failure, and all240 optimized/ASan/UBSan WAVs are byte-identical with empty sanitizer stderr. Its `evidence_verified` is true and `audio_passed` is false. These distinguish evidence integrity from sound acceptance. All16 native C++ groups and the sanitized shared-clock test pass; the active seven-effect callback checks allocate no heap memory. Default live Engine combined FX, moving controls, Isolator/Release interactions, other profiles/rates and physical hardware remain unfinished.
+
+
+The [default Engine compatibility check](measurements/2026-10-28-drums-fx-default-engine-parity.json) rerenders all224 previously qualified dry-drum programs through the rebuilt live Engine and checks their committed reports, old schedules, inputs and local WAV hashes. Every current output remains numerically and WAV-byte identical. These are compatibility regressions, not224 new originals. [`rmx_drums_default_parity.py`](../../tools/rmx_drums_default_parity.py) takes `--renderer --prior-root --output`; it preserves the live dry-drum qualification while the common-clock FX adapter remains separate research.

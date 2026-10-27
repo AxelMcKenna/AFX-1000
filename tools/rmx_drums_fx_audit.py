@@ -14,7 +14,7 @@ import numpy as np
 from tools.noise_statistics import float_wav
 from tools.reference_audio import save_json,sha256
 from tools.rmx_drums import require
-from tools.rmx_drums_fx import ACCEPTANCE,FRAMES,checked,frozen,recipe,schedule,source_hashes
+from tools.rmx_drums_fx import ACCEPTANCE,FRAMES,checked,frozen,payload,recipe,schedule,source_hashes
 from tools.rmx_factory_match import new_directory
 from tools.rmx_filter_match import screen
 
@@ -50,8 +50,14 @@ def guards(args,root,source,plan):
 
 
 def audit(args):
+    args.stage=args.prediction_stage
     frozen(args);binding=source_hashes();root=new_directory(args.output);rows=[];screens=0
-    require(sorted(d[0] for d in args.dataset)==['discovery','fresh'],'Requires discovery and fresh datasets')
+    required=['discovery','fresh'] if args.stage=='fresh' else ['discovery','former','fresh-v2']
+    require(sorted(d[0] for d in args.dataset)==required,'Requires exactly the complete declared datasets')
+    if args.stage=='fresh-v2':
+        require(args.former_prediction is not None,'Requires the former frozen prediction')
+        old=json.loads(args.former_prediction.read_text());call=copy.copy(args);call.stage='fresh';expected=payload(call)
+        require(all(old[k]==expected[k] for k in ('kind','cases','source_samples_sha256','acceptance')),'Former recipe/gates differ')
     command_path=args.sanitized.parent/'compile_commands.json';commands=json.loads(command_path.read_text())
     suffixes=('/Scene.cpp','/ReverbUp.cpp','/ReverbDown.cpp','/drums/Kick.cpp','/drums/Snare.cpp','/drums/Clap.cpp','/drums/Hat.cpp','/Wav.cpp')
     selected=[c for c in commands if c['file'].endswith(suffixes) or (c['file'].endswith('/drums_fx_probe.cpp') and 'RMX_DRUMS_SHARED_FIXTURE=1' in c['command'])]
@@ -59,10 +65,14 @@ def audit(args):
     require(all('-ffp-contract=off' in c['command'] for c in selected if '/drums/' in c['file'] or '/Reverb' in c['file']),'Missing generator/reverb float flags')
     first_source=first_plan=None
     for stage,session_text,report_text in args.dataset:
-        session=Path(session_text);path=Path(report_text);d=json.loads(path.read_text());cases=recipe(stage);call=copy.copy(args);call.session=session;call.stage=stage;baselines={};case_results=[]
-        require(d['backend']=='shared' and not d['live_engine'] and d['stage']==stage and d['source_sha256']==binding and d['acceptance']==ACCEPTANCE
+        recipe_stage='fresh' if stage=='former' else stage
+        session=Path(session_text);path=Path(report_text);d=json.loads(path.read_text());cases=recipe(recipe_stage);call=copy.copy(args);call.session=session;call.stage=recipe_stage;baselines={};case_results=[]
+        role='development_regression' if stage=='discovery' else 'former_prediction_regression' if stage=='former' else 'fresh_prediction_bound'
+        require(d['backend']=='shared' and not d['live_engine'] and d['stage']==recipe_stage and d['role']==role and d['source_sha256']==binding and d['acceptance']==ACCEPTANCE
                 and d['renderer_sha256']==sha256(args.renderer) and [r['case'] for r in d['cases']]==[c['name'] for c in cases],'Comparison source/recipe/gates differ')
-        if stage=='fresh':require(d['prediction_sha256']==sha256(args.prediction)==sha256(session/'predictions.json')==json.loads((session/'matrix.json').read_text())['prediction_sha256'],'Prediction copy differs')
+        if stage!='discovery':
+            prediction=args.former_prediction if stage=='former' else args.prediction
+            require(d['prediction_sha256']==sha256(prediction)==sha256(session/'predictions.json')==json.loads((session/'matrix.json').read_text())['prediction_sha256'],'Prediction copy differs')
         for c,row in zip(cases,d['cases']):
             original,provenance=checked(call,c);require(all(row[k]==v for k,v in provenance.items()) and all(row[k]==c[k] for k in ('effect','route','enabled')),'Original provenance differs')
             output=path.parent/(c['name']+'.wav');plan=path.parent/(c['name']+'.tsv')
@@ -71,7 +81,7 @@ def audit(args):
             if not c['enabled']:baselines={c['baseline']:(a,b)}
             require(c['baseline'] in baselines,'Missing independent FX-off baseline');da,db=baselines[c['baseline']];wa,wb=a-da,b-db
             states=[verify(a,b,row['whole']),verify(wa,wb,row['wet']),verify(a[288000:],b[288000:],row['tail'])];screens+=3
-            windows=[(at,kind,left,right) for at in [0 if stage=='fresh' else 24000,*c['hits']]
+            windows=[(at,kind,left,right) for at in [24000 if stage=='discovery' else 0,*c['hits']]
                      for kind,left,right in [('attack',at,at+256),('body',at,at+48000),('decay',at+4800,at+120000)]]
             require(len(windows)==len(row['windows']),'Window count differs')
             for (at,kind,left,right),w in zip(windows,row['windows']):
@@ -89,13 +99,15 @@ def audit(args):
     save_json(root/'verification.json',dict(kind='rmx220-shared-drums-fx-independent-audit',evidence_verified=True,audio_passed=all(r['passed'] for r in rows),cases=rows,
         recomputed_stereo_screens=screens,source_sha256=binding,auditor_sha256=sha256(Path(__file__)),prediction_sha256=sha256(args.prediction),renderer_sha256=sha256(args.renderer),
         sanitized_sha256=sha256(args.sanitized),sanitizer_compile_commands_sha256=sha256(command_path),sanitizer_compile_commands=[c['command'] for c in selected],sanitizer_stderr_empty=True,
-        acceptance=ACCEPTANCE,guards=checks,scope='128 discovery programs plus56 frozen fresh programs (28 FX-on and28 independent FX-off baselines), shared-clock research adapter only. Evidence/score integrity and sanitizer parity do not turn a waveform failure into a pass. Live Engine integration, moving controls, other profiles/rates and physical hardware remain unfinished.'))
+        acceptance=ACCEPTANCE,guards=checks,scope='Complete declared discovery/regression/fresh programs, shared-clock research adapter only. Fresh campaigns each contain28 FX-on programs and28 independently captured FX-off baselines. Evidence/score integrity and sanitizer parity do not turn a waveform failure into a pass. Live Engine integration, moving controls, other profiles/rates and physical hardware remain unfinished.'))
     return 0
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('host','renderer','sanitized','prediction','output'):p.add_argument('--'+key,type=Path,required=True)
+    p.add_argument('--prediction-stage',choices=['fresh','fresh-v2'],default='fresh')
+    p.add_argument('--former-prediction',type=Path)
     p.add_argument('--dataset',nargs=3,action='append',required=True,metavar=('STAGE','SESSION','COMPARISON'))
     raise SystemExit(audit(p.parse_args()))
 

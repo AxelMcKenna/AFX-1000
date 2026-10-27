@@ -38,6 +38,7 @@ def observe(frame,location,internal):
              scene_direct=floats(0x9240,3),direct_remaining=words(0x924c,1),direct_first=floats(0x9260,1)[0],direct_last=floats(0x92dc,1)[0],
              ramp_constants=floats(0x2bd4,3),effect_startup=floats(0xc270,2),filter_coefficients=floats(0x990c,10),feedback_coefficients=floats(0x9934,6),resonance=floats(0x994c,2),effect_levels=floats(0xa4a4,6),
              return_gain=floats(0xa4c0,1)[0],return_counters=list(struct.unpack('<4I',read(process,BASE+0xa4c4,16))))
+    row['crush_hold']=floats(0xbbe0,3);row['processed_main']=words(0x9344,1)[0];row['effect_input_gain']=floats(0xe854,1)[0]
     if stage=='return_input':
         channels=[struct.unpack('<32f',read(process,frame.FindRegister(name).GetValueAsUnsigned(),128)) for name in ('rsi','rdx')]
         row['return_input_rms']=[math.sqrt(sum(float(x)*x for x in values)/32) for values in channels]

@@ -16,25 +16,36 @@ public:
     }
     void reset() noexcept {
         echoReturn.reset();
-        clearFilters();age=0;lastType=lastRaw=-1;
+        clearFilters();age=0;lastType=lastRaw=-1;sharedStartup=false;
     }
     void invalidate() noexcept {lastType=-1;}
-    Stereo process(Stereo input,int type,int raw,int timeRaw,float enabled,double bpm) noexcept {
+    Stereo process(Stereo input,int type,int raw,int timeRaw,float enabled,double bpm,float startup=1,bool priming=false) noexcept {
         raw=std::clamp(raw,0,255);timeRaw=std::clamp(timeRaw,0,255);
         if(type!=lastType) {
             clearFilters();age=0;lastType=type;lastRaw=-1;
             echoReturn.restart(type==7?FactoryEchoReturn::Profile::crush:FactoryEchoReturn::Profile::filter);
         }
         if(raw!=lastRaw) {configure(type,raw);lastRaw=raw;}
+        if(priming){
+            // The common source clock precedes this effect's first active
+            // block. Its private filter/return history is still silent.
+            sharedStartup=true;++age;return input;
+        }
         const double original[]{input.l,input.r};double direct[2]{},feed[2]{};
         if(type==7) {
+            const auto heldInput=sharedStartup?input*startup:input;
             // The reference's settled hold clock starts 32 input frames into
             // a new instance. Preserve its fractional period and strict test;
             // rounding to integer intervals audibly changes the aliased signal.
-            if(age<32)held=input;
+            if(age<32)held=heldInput;
             else {
                 holdCounter-=1;
-                if(holdCounter<0) {held=input;holdCounter+=holdPeriod;}
+                if(holdCounter<0) {
+                    // Activation's first hold interval retains the reset
+                    // sample. Subsequent fractional-clock captures refresh it.
+                    if(!(sharedStartup&&age==32&&holdPeriod>1))held=heldInput;
+                    holdCounter+=holdPeriod;
+                }
             }
         }
         for(unsigned channel=0;channel<2;++channel) {
@@ -53,8 +64,18 @@ public:
                 direct[channel]=feed[channel]=x+(y-x)*gain;
             }
         }
+        if(startup!=1){
+            const double dry=type==0?1:1-gain;
+            for(unsigned channel=0;channel<2;++channel){
+                const double base=original[channel]*dry;
+                direct[channel]=base+(direct[channel]-base)*startup;
+                feed[channel]=base+(feed[channel]-base)*startup;
+                if(type==7&&sharedStartup)direct[channel]=base+(direct[channel]-base)*startup;
+            }
+        }
         const float activation=std::clamp((raw-4)/5.f,0.f,1.f)*enabled;
-        const auto tail=echoReturn.process({feed[0],feed[1]},timeRaw,activation,bpm);
+        const float returnGain=startup*startup;
+        const auto tail=echoReturn.process({feed[0],feed[1]},timeRaw,activation,bpm,sharedStartup?returnGain:1,sharedStartup);
         ++age;
         return {static_cast<float>(original[0]+(direct[0]-original[0])*enabled+tail[0]),
                 static_cast<float>(original[1]+(direct[1]-original[1])*enabled+tail[1])};
@@ -120,6 +141,6 @@ private:
     std::array<double,2> feedbackState{},feedbackPoleState{};
     BandEchoPoint band{};double feedbackPole{},feedbackGain{},resonance{},gain{};
     Stereo held{};double holdCounter{},holdPeriod{1};
-    uint64_t age{};int lastType{-1},lastRaw{-1};
+    uint64_t age{};int lastType{-1},lastRaw{-1};bool sharedStartup{};
 };
 }

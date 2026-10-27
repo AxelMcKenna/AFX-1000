@@ -41,5 +41,16 @@ int main(){try{
         require(allocations==0,"Shared reverb callback allocated");tracking=false;
     };
     reverb.template operator()<rmx::CalibratedReverbUp>(4);reverb.template operator()<rmx::CalibratedReverbDown>(9);
-    std::cout<<"PASS: all four dry drums, cold Up/Down input, irregular callbacks and zero callback allocations\n";
+    for(const int type:{0,1,4,5,6,7,9}){
+        SharedDrumFX active(type,2,137,93,type==1||type==4||type==9?109:0,true,199,177);
+        std::array<rmx::Stereo,4096> input{},output{};uint32_t random=0x3258e3;double energy=0;tracking=true;
+        for(unsigned block=0;block<160;++block){
+            const auto n=sizes[block%std::size(sizes)];if(block%8==1)for(unsigned pad=0;pad<4;++pad)active.trigger(pad);
+            for(size_t i=0;i<n;++i){random^=random<<13;random^=random>>17;random^=random<<5;const float x=static_cast<float>(static_cast<int32_t>(random))/2147483648.f*.015f;input[i]={x,-x*.7f};}
+            active.process(std::span<const rmx::Stereo>(input.data(),n),std::span<rmx::Stereo>(output.data(),n));
+            for(size_t i=0;i<n;++i){require(std::isfinite(output[i].l)&&std::isfinite(output[i].r),"Active shared FX produced non-finite audio");energy+=std::abs(output[i].l)+std::abs(output[i].r);}
+        }
+        require(allocations==0&&energy>1,"Active shared FX allocated or produced no signal");tracking=false;
+    }
+    std::cout<<"PASS: four dry drums, cold Up/Down input, seven active shared FX, irregular callbacks and zero callback allocations\n";
 }catch(const std::exception& e){tracking=false;std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}}

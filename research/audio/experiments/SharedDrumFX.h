@@ -47,7 +47,28 @@ private:
             unselected[i]=(inputSelected?rmx::Stereo{}:routed)+(padSelected?rmx::Stereo{}:drums[i]);
             if(type!=4&&type!=9){
                 const auto send=(inputSelected?routed:rmx::Stereo{})+generated[i];
-                pending[i]=unselected[i]+scene.process(send,main/255.f,amount*7.f/255,cutoff/255.f,enabled?1.f:0.f,120,static_cast<double>(age)/24000,0);
+                const auto frame=age-1;const bool first=enabled&&frame<32;
+                if(enabled&&frame>=32&&frame<192)effectStartup=std::min(1.f,effectStartup+.00625f);
+                if(frame>=192)effectStartup=1;
+                const auto steady=scene.process(send,main/255.f,amount*7.f/255,cutoff/255.f,enabled?1.f:0.f,120,static_cast<double>(age)/24000,0,
+                                               enabled?effectStartup:1,first);
+                rmx::Stereo result=steady;
+                if(enabled){
+                    if(first){effectMix+=.00625f;result=send;}
+                    else if(frame<224){
+                        if(frame==32){
+                            const float position=std::clamp(1.f-(main-3)*(type==7?1.f/126:1.f/63),0.f,1.f);
+                            directTarget=(type==0||type==1)?1.f:position*position;
+                            directStep=(directTarget-direct)*.00625f;effectStep=(1-effectMix)*.00625f;
+                        }
+                        if(frame==64)directStep=(directTarget-direct)*.00625f;
+                        direct+=directStep;if(frame<192)effectMix+=effectStep;
+                        result=send*direct+(steady-send*directTarget)*effectMix;
+                        if(frame==191)effectMix=1;
+                        if(frame==223)direct=directTarget;
+                    }
+                }
+                pending[i]=unselected[i]+result;
             }
         }
         if(type==4||type==9){
@@ -60,4 +81,6 @@ private:
     rmx::SceneProcessor scene;rmx::CalibratedReverbUp up;rmx::CalibratedReverbDown down;
     int type{},route{},main{},amount{},cutoff{};bool enabled{};
     std::array<rmx::Stereo,32> collected{},pending{};size_t received{},available{},head{},age{};float startup{};
+    float effectMix{},effectStep{},direct{1},directTarget{1},directStep{};
+    float effectStartup{};
 };
