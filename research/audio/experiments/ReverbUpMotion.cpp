@@ -1,14 +1,10 @@
 #include "ReverbUpMotion.h"
 #include "ReverbUpControlCalibration.h"
+#include "ReverbUpMotionCalibration.h"
 #include <stdexcept>
 
 namespace rmx {
 namespace {
-float roomScale(int raw) noexcept {
-    const float v=1.f-static_cast<float>(std::max(0,raw-3))*(1.f/252.f);
-    return .3f+3.f*((v*v)*(v*v));
-}
-constexpr std::array<std::array<int,2>,5> roomBases{{{1032,1146},{1060,1856},{1145,1961},{1916,1115},{1992,1190}}};
 double mainMix(int raw) noexcept {return std::min(1.,4.*std::max(0,raw-3)/252);}
 float dryLevel(int) noexcept {return 1.f;}
 double returnShape(int main,int amount) noexcept {
@@ -44,8 +40,7 @@ void ReverbUpMotion::prepare(size_t maxFrames){
     if(!maxFrames||maxFrames>maximumCallbackFrames)throw std::invalid_argument("Reverb callback capacity must be 1..4096");
     for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch){
         size_t maximum=1;
-        for(const auto& row:reverbUpControls)maximum=std::max(maximum,static_cast<size_t>(row.delays[j][ch]));
-        maximum=std::max(maximum,static_cast<size_t>(std::ceil(3.3*roomBases[j][ch]))+2);
+        for(const auto& row:reverbUpMotionControls)maximum=std::max(maximum,static_cast<size_t>(std::ceil(row.delays[j][ch]))+2);
         combs[j][ch].prepare(maximum);
     }
     for(auto& chain:inputFilters){chain[1].b0=1;}
@@ -103,10 +98,8 @@ void ReverbUpMotion::configure(Controls c) noexcept {
     const int roomMain=geometryStart?pendingMain:slowMain;
     const auto& row=reverbUpControls[static_cast<size_t>(roomMain)];
     if(!prepared||geometryStart){
-        const float scale=roomScale(roomMain);
         for(size_t j=0;j<5;++j)for(size_t ch=0;ch<2;++ch){
-            float requested=scale*static_cast<float>(roomBases[j][ch]);
-            if(roomMain>=4){const auto measured=row.delays[j][ch];if(static_cast<int>(requested)!=measured)requested=static_cast<float>(measured);}
+            const float requested=reverbUpMotionControls[static_cast<size_t>(roomMain)].delays[j][ch];
             delayTarget[j][ch]=requested;
             if(!prepared)delayCurrent[j][ch]=requested;
             delayStep[j][ch]=sharedBlocks?(requested-delayCurrent[j][ch])*(1.f/static_cast<float>(sharedBlocks*32)):0;
@@ -118,21 +111,20 @@ void ReverbUpMotion::configure(Controls c) noexcept {
     const double exponent=decay(128)/effectiveDecay;
     std::array<double,15> requested{};
     for(size_t j=0;j<5;++j){
-        const auto& feedbackRow=roomMain<4?reverbUpControls[4]:row;
-        const double hiddenScale=roomMain<4?roomScale(roomMain)/roomScale(4):1;
-        requested[j]=std::pow(feedbackRow.gainL[j],exponent*hiddenScale);
-        requested[j+5]=std::pow(feedbackRow.gainR[j],exponent*hiddenScale);
+        const auto& observed=reverbUpMotionControls[static_cast<size_t>(roomMain)];
+        requested[j]=std::pow(roomMain<4?observed.gainL[j]:row.gainL[j],exponent);
+        requested[j+5]=std::pow(roomMain<4?observed.gainR[j]:row.gainR[j],exponent);
     }
     double wet=row.wetGain*reverbUpAmountGain[static_cast<size_t>(c.amount)]/reverbUpAmountGain[128];
     wet*=1+reverbUpMainCorrection[static_cast<size_t>(roomMain)]*reverbUpAmountCorrection[static_cast<size_t>(c.amount)];
-    const int audibleMain=std::max(4,slowMain),targetAudible=std::max(4,roomMain);
-    const auto& filterRow=reverbUpControls[static_cast<size_t>(std::max(4,c.main))];
-    const double numerator=(1-filterRow.inputA[1])/2;
+    const int targetAudible=std::max(4,roomMain);
+    const auto& filterRow=reverbUpMotionControls[static_cast<size_t>(c.main)];
+    const double numerator=filterRow.bandpassB;
     requested[10]=inputShape(std::max(4,c.main));
     const double targetSend=inputShape(targetAudible);
     const double roomNumerator=(1-reverbUpControls[static_cast<size_t>(targetAudible)].inputA[1])/2;
     requested[11]=roomMain<4?returnShape(roomMain,c.amount):wet/(targetSend*mainMix(roomMain)*roomNumerator);
-    requested[12]=filterRow.inputA[0];requested[13]=filterRow.inputA[1];requested[14]=numerator;
+    requested[12]=filterRow.bandpassA[0];requested[13]=filterRow.bandpassA[1];requested[14]=numerator;
     if(c.main!=state.main){fastMixTarget=mainMix(c.main);fastMixStep=(fastMixTarget-fastMix)/32;mixRemaining=32;}
     if(!prepared){coefficients=targetCoefficients=requested;prepared=true;}
     else for(size_t j=0;j<15;++j)if(requested[j]!=targetCoefficients[j]){
@@ -170,7 +162,7 @@ std::array<Stereo,2> ReverbUpMotion::tick(Input input) noexcept {
     const bool warming=warmRemaining;
     auto source=input.source;std::array<double,2> wet{};
     for(size_t ch=0;ch<2;++ch){
-        auto& bandpass=inputFilters[ch][0];bandpass.b0=coefficients[14];bandpass.b1=0;bandpass.b2=-coefficients[14];
+        auto& bandpass=inputFilters[ch][0];bandpass.b0=coefficients[14];bandpass.b1=0;bandpass.b2=state.main<=3?0:-coefficients[14];
         bandpass.a1=coefficients[12];bandpass.a2=coefficients[13];
         source[ch]*=coefficients[10]*fastMix;
         for(auto& filter:inputFilters[ch])source[ch]=filter.tick(source[ch]);
