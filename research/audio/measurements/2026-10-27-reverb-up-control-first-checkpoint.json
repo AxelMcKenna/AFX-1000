@@ -1,0 +1,87 @@
+{
+  "kind": "rmx220-reverb-up-control-first-checkpoint",
+  "full_reverb_match": false,
+  "production_changed": false,
+  "main_capture_cases": 256,
+  "amount_capture_cases": 256,
+  "main_fitting_passed": true,
+  "amount_fitting_passed": true,
+  "sub1_saved_predictions_passed": false,
+  "sub1_saved_predictions_failed": 155,
+  "sub1_maximum_absolute_gain_error": 2.4546422053961514e-05,
+  "sub1_fixed_gain_error_limit": 2e-06,
+  "room_formula_audit": {
+    "formula": "float32 scale = 0.3 + 3*(1-max(0,raw-3)/252)^4, unfused scalar operations; integer taps truncate scale*bases",
+    "observation_positions": [
+      32,
+      64,
+      96,
+      128,
+      160,
+      192,
+      224,
+      255
+    ],
+    "compared_taps": 2520,
+    "mismatching_taps": 1,
+    "cases": [
+      {
+        "raw": 104,
+        "predicted": [
+          [
+            708,
+            787
+          ],
+          [
+            727,
+            1274
+          ],
+          [
+            786,
+            1346
+          ],
+          [
+            1315,
+            765
+          ],
+          [
+            1367,
+            817
+          ]
+        ],
+        "measured": [
+          [
+            708,
+            787
+          ],
+          [
+            727,
+            1274
+          ],
+          [
+            786,
+            1346
+          ],
+          [
+            1315,
+            765
+          ],
+          [
+            1368,
+            817
+          ]
+        ],
+        "mismatching_taps": 1
+      }
+    ],
+    "prospective": false,
+    "interpretation": "The formula was suggested by eight earlier recordings while dense capture was underway. Exact measured integer rows remain authoritative."
+  },
+  "main_identification_sha256": "174a1195e598b5cdb165d083e891d1a6da35fc2b3f8672c0604178736be4970b",
+  "amount_identification_sha256": "ecff135c2c96cfeb81553a5ab2ea4f3dfe7b5a07f84b529b3dc0a683da18f1e5",
+  "capture_manifest_sha256": {
+    "main": "48654b74d8ae16861e13998969763c89611b43960a302f9e3e1d4bc3dc44653e",
+    "amount": "eddc6642c7084363bb5f208975da54cd1badf428f2ee46aee25fbd03c3d6dd4d"
+  },
+  "status": "Retained calibration/prediction failures before investigating feedback-filter arithmetic. No accepted full-control model or waveform claim."
+}
