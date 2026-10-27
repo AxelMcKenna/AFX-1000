@@ -1,0 +1,1663 @@
+{
+  "kind": "rmx220-clap-research-development",
+  "passed": false,
+  "source_sha256": {
+    "tools/rmx_clap.py": "278928f3faf6f2cb3a87abe64624c6b4b6e7e1896391219e28f71cacc903f4ac",
+    "tools/rmx_drums.py": "eb322c423caee5aaa74185ba9ba60d98f83aaceabff5a33131b005c967521d98",
+    "CMakeLists.txt": "a63a0f31df808cf80f46eb6eeded3c91124bb597f5e217b29cd2a215000f1757",
+    "src/core/Wav.cpp": "bd8beeb2e3dd5efb39df4ea4d48ea9eaa38201b2173e1b94ca6cb90c8ede0e46",
+    "include/rmx/Wav.h": "dc56a9df676cc549821adbec600ca0df60690e96b7d6fd92a1058dd98f9a2e14",
+    "include/rmx/Dsp.h": "ff22e0fcab3b7176fb53aac8926c2483bc5cf4ee009c9ee7d8bac0094d7f4b93",
+    "research/audio/experiments/ClapResearch.h": "a6b8163ec96c298da4ff5b1ea33e92db1191348b5361595e66b4fcd024e6216e",
+    "research/audio/experiments/ClapResearch.cpp": "2004ef99f9921c9217a6097bc1b9593a92e2920d5961ff55e69dfa092a7b27bb",
+    "research/audio/experiments/clap_research_probe.cpp": "47fa17f465bd26ff3daf62725d8759747000aa5e616149fc54210afd17d84aee"
+  },
+  "renderer_sha256": "341cbabae4f12b083afb53574b3b16d9a278b3fa8ad1491225e8b7a572df8565",
+  "cases": [
+    {
+      "case": "drum-clap-base",
+      "receipt_sha256": "56827bbc5f5c7f1bda69928a91af5b213b47972e5e392167996f7a356a17c637",
+      "output_sha256": "4e14df62c83bca7a8cdc210fd2c78158127c349396d103d9a932bc6e8d5c5f2b",
+      "input_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "plan_sha256": "d13bf21d764c6bc26cc7ec5cba784aaeb28d04fe8c684fe062813b7b0e57e29c",
+      "variant": "base",
+      "candidate_sha256": "b351294c407ba41cd992eb54e924d24f1fe89ae15a4fe16723480d6dda76477a",
+      "dry_trace_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "schedule_sha256": "2c14680aad7f6c695ba7fcc3c58333685f0114597b9b750c515b637cc6df08fe",
+      "whole": {
+        "passed": false,
+        "channels": [
+          {
+            "channel": "left",
+            "relative_rms_error": 0.0473503381919201,
+            "absolute_error_rms": 0.001368967228102125,
+            "passed": false
+          },
+          {
+            "channel": "right",
+            "relative_rms_error": 0.0473503381919201,
+            "absolute_error_rms": 0.001368967228102125,
+            "passed": false
+          }
+        ]
+      },
+      "windows": [
+        {
+          "kind": "attack",
+          "frame": 48000,
+          "start": 48000,
+          "stop": 48256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 48000,
+          "start": 48000,
+          "stop": 96000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 48000,
+          "start": 52800,
+          "stop": 168000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 192000,
+          "start": 192000,
+          "stop": 192256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 192000,
+          "start": 192000,
+          "stop": 240000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 192000,
+          "start": 196800,
+          "stop": 312000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 336000,
+          "start": 336000,
+          "stop": 336256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 336000,
+          "start": 336000,
+          "stop": 384000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 336000,
+          "start": 340800,
+          "stop": 456000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        }
+      ],
+      "passed": false
+    },
+    {
+      "case": "drum-clap-repeat",
+      "receipt_sha256": "20dc53bb415908f7ca5f60bd4d94d33c25c817e812c50d5214f4efd3efa323c1",
+      "output_sha256": "4e14df62c83bca7a8cdc210fd2c78158127c349396d103d9a932bc6e8d5c5f2b",
+      "input_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "plan_sha256": "d13bf21d764c6bc26cc7ec5cba784aaeb28d04fe8c684fe062813b7b0e57e29c",
+      "variant": "repeat",
+      "candidate_sha256": "b351294c407ba41cd992eb54e924d24f1fe89ae15a4fe16723480d6dda76477a",
+      "dry_trace_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "schedule_sha256": "2c14680aad7f6c695ba7fcc3c58333685f0114597b9b750c515b637cc6df08fe",
+      "whole": {
+        "passed": false,
+        "channels": [
+          {
+            "channel": "left",
+            "relative_rms_error": 0.0473503381919201,
+            "absolute_error_rms": 0.001368967228102125,
+            "passed": false
+          },
+          {
+            "channel": "right",
+            "relative_rms_error": 0.0473503381919201,
+            "absolute_error_rms": 0.001368967228102125,
+            "passed": false
+          }
+        ]
+      },
+      "windows": [
+        {
+          "kind": "attack",
+          "frame": 48000,
+          "start": 48000,
+          "stop": 48256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 48000,
+          "start": 48000,
+          "stop": 96000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 48000,
+          "start": 52800,
+          "stop": 168000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 192000,
+          "start": 192000,
+          "stop": 192256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 192000,
+          "start": 192000,
+          "stop": 240000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 192000,
+          "start": 196800,
+          "stop": 312000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 336000,
+          "start": 336000,
+          "stop": 336256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 336000,
+          "start": 336000,
+          "stop": 384000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 336000,
+          "start": 340800,
+          "stop": 456000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        }
+      ],
+      "passed": false
+    },
+    {
+      "case": "drum-clap-block32",
+      "receipt_sha256": "f3dcdeab1d5c7b069c979be033ef06ce309a46104bdf74b4355d2962359dad4a",
+      "output_sha256": "4e14df62c83bca7a8cdc210fd2c78158127c349396d103d9a932bc6e8d5c5f2b",
+      "input_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "plan_sha256": "d13bf21d764c6bc26cc7ec5cba784aaeb28d04fe8c684fe062813b7b0e57e29c",
+      "variant": "block32",
+      "candidate_sha256": "b351294c407ba41cd992eb54e924d24f1fe89ae15a4fe16723480d6dda76477a",
+      "dry_trace_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "schedule_sha256": "ee2b21fddcd716a5b60e7d42e4700159e62e0a1ad76ce174bd37753966b54b90",
+      "whole": {
+        "passed": false,
+        "channels": [
+          {
+            "channel": "left",
+            "relative_rms_error": 0.0473503381919201,
+            "absolute_error_rms": 0.001368967228102125,
+            "passed": false
+          },
+          {
+            "channel": "right",
+            "relative_rms_error": 0.0473503381919201,
+            "absolute_error_rms": 0.001368967228102125,
+            "passed": false
+          }
+        ]
+      },
+      "windows": [
+        {
+          "kind": "attack",
+          "frame": 48000,
+          "start": 48000,
+          "stop": 48256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 48000,
+          "start": 48000,
+          "stop": 96000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 48000,
+          "start": 52800,
+          "stop": 168000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 192000,
+          "start": 192000,
+          "stop": 192256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 192000,
+          "start": 192000,
+          "stop": 240000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 192000,
+          "start": 196800,
+          "stop": 312000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 336000,
+          "start": 336000,
+          "stop": 336256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 336000,
+          "start": 336000,
+          "stop": 384000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 336000,
+          "start": 340800,
+          "stop": 456000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        }
+      ],
+      "passed": false
+    },
+    {
+      "case": "drum-clap-block256",
+      "receipt_sha256": "f235054f08c120cd2eec825ce9ebd2133898958f8d03dd0c1d95c874d6164f3e",
+      "output_sha256": "4e14df62c83bca7a8cdc210fd2c78158127c349396d103d9a932bc6e8d5c5f2b",
+      "input_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "plan_sha256": "d13bf21d764c6bc26cc7ec5cba784aaeb28d04fe8c684fe062813b7b0e57e29c",
+      "variant": "block256",
+      "candidate_sha256": "b351294c407ba41cd992eb54e924d24f1fe89ae15a4fe16723480d6dda76477a",
+      "dry_trace_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "schedule_sha256": "d7c8443df6c3e1b619bf7d20d47de8750b4c177cc7b79cbc1d4414fd69e389b0",
+      "whole": {
+        "passed": false,
+        "channels": [
+          {
+            "channel": "left",
+            "relative_rms_error": 0.0473503381919201,
+            "absolute_error_rms": 0.001368967228102125,
+            "passed": false
+          },
+          {
+            "channel": "right",
+            "relative_rms_error": 0.0473503381919201,
+            "absolute_error_rms": 0.001368967228102125,
+            "passed": false
+          }
+        ]
+      },
+      "windows": [
+        {
+          "kind": "attack",
+          "frame": 48000,
+          "start": 48000,
+          "stop": 48256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 48000,
+          "start": 48000,
+          "stop": 96000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 48000,
+          "start": 52800,
+          "stop": 168000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 192000,
+          "start": 192000,
+          "stop": 192256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 192000,
+          "start": 192000,
+          "stop": 240000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 192000,
+          "start": 196800,
+          "stop": 312000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 336000,
+          "start": 336000,
+          "stop": 336256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4503377716297894e-07,
+                "absolute_error_rms": 5.6673025626689005e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 336000,
+          "start": 336000,
+          "stop": 384000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.0473503385000789,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 336000,
+          "start": 340800,
+          "stop": 456000,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.26080693491426e-07,
+                "absolute_error_rms": 1.1831487269161726e-09,
+                "passed": true
+              }
+            ]
+          }
+        }
+      ],
+      "passed": false
+    },
+    {
+      "case": "drum-clap-phase37",
+      "receipt_sha256": "41d63261e22dc12e76fc9da27b33830fb47e39305afd480221b5dd478034d818",
+      "output_sha256": "e33bd60cc0d03b3756f8d9e162bbc1a6b4cd8b1d0cd5018c4a8fc5ca16ea671a",
+      "input_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "plan_sha256": "48577a16db0df09e217b53dc6cfc09c50c473fb0860a69d3c2fe48b88b3a8981",
+      "variant": "phase37",
+      "candidate_sha256": "9981fbfc7717366a25dd426138f21c25486800fe7b079688eed95f6704bec651",
+      "dry_trace_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "schedule_sha256": "6a937fdbf6d93847682f20bc125c5782cdd22607305116bc7769aa72d783a5e3",
+      "whole": {
+        "passed": false,
+        "channels": [
+          {
+            "channel": "left",
+            "relative_rms_error": 0.0473503381919201,
+            "absolute_error_rms": 0.001368967228102125,
+            "passed": false
+          },
+          {
+            "channel": "right",
+            "relative_rms_error": 0.0473503381919201,
+            "absolute_error_rms": 0.001368967228102125,
+            "passed": false
+          }
+        ]
+      },
+      "windows": [
+        {
+          "kind": "attack",
+          "frame": 48037,
+          "start": 48037,
+          "stop": 48293,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4659721451276103e-07,
+                "absolute_error_rms": 5.6723341294532835e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4659721451276103e-07,
+                "absolute_error_rms": 5.6723341294532835e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 48037,
+          "start": 48037,
+          "stop": 96037,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04738363180292363,
+                "absolute_error_rms": 0.002499297456975221,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04738363180292363,
+                "absolute_error_rms": 0.002499297456975221,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 48037,
+          "start": 52837,
+          "stop": 168037,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.263626513090556e-07,
+                "absolute_error_rms": 1.182079144953597e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.263626513090556e-07,
+                "absolute_error_rms": 1.182079144953597e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 192037,
+          "start": 192037,
+          "stop": 192293,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4659721451276103e-07,
+                "absolute_error_rms": 5.6723341294532835e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4659721451276103e-07,
+                "absolute_error_rms": 5.6723341294532835e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 192037,
+          "start": 192037,
+          "stop": 240037,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04738363180292363,
+                "absolute_error_rms": 0.002499297456975221,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04738363180292363,
+                "absolute_error_rms": 0.002499297456975221,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 192037,
+          "start": 196837,
+          "stop": 312037,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.263626513090556e-07,
+                "absolute_error_rms": 1.182079144953597e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.263626513090556e-07,
+                "absolute_error_rms": 1.182079144953597e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 336037,
+          "start": 336037,
+          "stop": 336293,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.4659721451276103e-07,
+                "absolute_error_rms": 5.6723341294532835e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.4659721451276103e-07,
+                "absolute_error_rms": 5.6723341294532835e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 336037,
+          "start": 336037,
+          "stop": 384037,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04738363180292363,
+                "absolute_error_rms": 0.002499297456975221,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04738363180292363,
+                "absolute_error_rms": 0.002499297456975221,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 336037,
+          "start": 340837,
+          "stop": 456037,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.263626513090556e-07,
+                "absolute_error_rms": 1.182079144953597e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.263626513090556e-07,
+                "absolute_error_rms": 1.182079144953597e-09,
+                "passed": true
+              }
+            ]
+          }
+        }
+      ],
+      "passed": false
+    },
+    {
+      "case": "drum-clap-retrigger",
+      "receipt_sha256": "156e5c0113db5e4c6b3975c41fe0d95d5943654fefa134c605d15a7e9290b2ac",
+      "output_sha256": "2961b4749b67c1201b56896839bb880f9b5f11ac48e096c7d1fa0eb400135bb4",
+      "input_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "plan_sha256": "a60a5521ad618fa4b7ddf8c45372dda88b5829b909353b4ae55bfabd24000467",
+      "variant": "retrigger",
+      "candidate_sha256": "56af0d987a7e2567f8ec20596d28a24950a012c9e99d7abcdfd21556e90f5660",
+      "dry_trace_sha256": "e9fcdf1f34b572ca659b3a028f0e5fc7eeb982346257e06763373aad18990cc8",
+      "schedule_sha256": "3ac2ccbf27b32b78ebb7b05468b5fada8c9b07a8af081529af6bb4dfe5b707cc",
+      "whole": {
+        "passed": false,
+        "channels": [
+          {
+            "channel": "left",
+            "relative_rms_error": 0.046152280501509275,
+            "absolute_error_rms": 0.0011177570611481137,
+            "passed": false
+          },
+          {
+            "channel": "right",
+            "relative_rms_error": 0.046152280501509275,
+            "absolute_error_rms": 0.0011177570611481137,
+            "passed": false
+          }
+        ]
+      },
+      "windows": [
+        {
+          "kind": "attack",
+          "frame": 48000,
+          "start": 48000,
+          "stop": 48256,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.350765724343529e-07,
+                "absolute_error_rms": 4.3945375163181114e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.350765724343529e-07,
+                "absolute_error_rms": 4.3945375163181114e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 48000,
+          "start": 48000,
+          "stop": 96000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04504079067169287,
+                "absolute_error_rms": 0.0024992974569780038,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04504079067169287,
+                "absolute_error_rms": 0.0024992974569780038,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 48000,
+          "start": 52800,
+          "stop": 168000,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04647927402037722,
+                "absolute_error_rms": 0.0016132895713479858,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04647927402037722,
+                "absolute_error_rms": 0.0016132895713479858,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 48097,
+          "start": 48097,
+          "stop": 48353,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.451440328161677e-07,
+                "absolute_error_rms": 4.301859039108086e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.451440328161677e-07,
+                "absolute_error_rms": 4.301859039108086e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 48097,
+          "start": 48097,
+          "stop": 96097,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.045884719777657915,
+                "absolute_error_rms": 0.002499297456977799,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.045884719777657915,
+                "absolute_error_rms": 0.002499297456977799,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 48097,
+          "start": 52897,
+          "stop": 168097,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04654538640778739,
+                "absolute_error_rms": 0.001613289571347898,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04654538640778739,
+                "absolute_error_rms": 0.001613289571347898,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 48193,
+          "start": 48193,
+          "stop": 48449,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 1.8821347139773587e-07,
+                "absolute_error_rms": 2.685707370844446e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 1.8821347139773587e-07,
+                "absolute_error_rms": 2.685707370844446e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 48193,
+          "start": 48193,
+          "stop": 96193,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04601980819973766,
+                "absolute_error_rms": 0.0024992974569760123,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04601980819973766,
+                "absolute_error_rms": 0.0024992974569760123,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 48193,
+          "start": 52993,
+          "stop": 168193,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.046662435257904124,
+                "absolute_error_rms": 0.001613289571347798,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.046662435257904124,
+                "absolute_error_rms": 0.001613289571347798,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 48289,
+          "start": 48289,
+          "stop": 48545,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 1.6606025520156424e-07,
+                "absolute_error_rms": 2.9117506271307116e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 1.6606025520156424e-07,
+                "absolute_error_rms": 2.9117506271307116e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 48289,
+          "start": 48289,
+          "stop": 96289,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04560862988035848,
+                "absolute_error_rms": 0.002499297456978109,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04560862988035848,
+                "absolute_error_rms": 0.002499297456978109,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 48289,
+          "start": 53089,
+          "stop": 168289,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04672718432828403,
+                "absolute_error_rms": 0.001613289571347732,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04672718432828403,
+                "absolute_error_rms": 0.001613289571347732,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 96013,
+          "start": 96013,
+          "stop": 96269,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.789481547611952e-07,
+                "absolute_error_rms": 4.2898933303986944e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.789481547611952e-07,
+                "absolute_error_rms": 4.2898933303986944e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 96013,
+          "start": 96013,
+          "stop": 144013,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04735033850305641,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04735033850305641,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 96013,
+          "start": 100813,
+          "stop": 216013,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.2205410735631736e-07,
+                "absolute_error_rms": 1.2291041675557675e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.2205410735631736e-07,
+                "absolute_error_rms": 1.2291041675557675e-09,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "attack",
+          "frame": 96097,
+          "start": 96097,
+          "stop": 96353,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.1590501764054697e-07,
+                "absolute_error_rms": 4.717615784714929e-08,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.1590501764054697e-07,
+                "absolute_error_rms": 4.717615784714929e-08,
+                "passed": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "body",
+          "frame": 96097,
+          "start": 96097,
+          "stop": 144097,
+          "score": {
+            "passed": false,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 0.04735033851822403,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 0.04735033851822403,
+                "absolute_error_rms": 0.0024992974569752204,
+                "passed": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "decay",
+          "frame": 96097,
+          "start": 100897,
+          "stop": 216097,
+          "score": {
+            "passed": true,
+            "channels": [
+              {
+                "channel": "left",
+                "relative_rms_error": 2.2341135572901508e-07,
+                "absolute_error_rms": 1.1913903232172827e-09,
+                "passed": true
+              },
+              {
+                "channel": "right",
+                "relative_rms_error": 2.2341135572901508e-07,
+                "absolute_error_rms": 1.1913903232172827e-09,
+                "passed": true
+              }
+            ]
+          }
+        }
+      ],
+      "passed": false
+    }
+  ],
+  "acceptance": {
+    "relative_rms_error_limit": 0.01,
+    "reference_channel_energy_floor": 1e-20,
+    "silent_channel_absolute_rms_limit": 1e-08,
+    "reference_offset_frames": 32,
+    "candidate_offset_frames": 32,
+    "gain_fit": false,
+    "alignment_search": false
+  },
+  "scope": "Autonomous factory neutral-clap research candidate at 48k/120BPM. Discovery regressions, not a prospective holdout or live Engine claim. The new fixture explicitly models the original nominal32 transport before comparison; the previous Engine baseline had candidate0 transport. No fitted waveform shift or comparison gain."
+}

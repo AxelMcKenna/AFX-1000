@@ -43,9 +43,15 @@ def observe(args):
     snare_offsets=dict(tone_scale=1932,tone_decay_scale=1936,base_frequency=2364,lowpass_frequency=2368,
                        highpass_frequency=2372,second_tone_offset=2376,noise_scale=2380,noise_limit=2384,
                        clip_high=2388,clip_low=2392,output_scale=2396)
+    clap_offsets=dict(output_scale=1840,bandpass_frequency=1848,highpass_frequency=1852,
+                      saw_frequency=1856,burst_seconds=1860,clip_high=1864,clip_low=1868,
+                      tail_scale_alternate=1880,tail_scale_default=1884)
     save_json(args.report,dict(kind='rmx220-drum-local-scalar-observation',binary_sha256=sha256(args.binary),script_sha256=sha256(Path(__file__)),
               symbol_inventory_sha256=hashlib.sha256(result.stdout.encode()).hexdigest(),named_float_arrays=values,
               generator_symbols={name:hex(symbols[name]) for name in methods},
+              clap_numeric_hypothesis=dict(reference_symbol='gf_rbnfx_thru_lvl_table',
+                  scalars={name:dict(byte_offset=offset,value=floats(table+offset,1)[0]) for name,offset in clap_offsets.items()},
+                  decay_choices=floats(symbols['_g_cl_cstm_dec_tbl'],6)),
               snare_numeric_hypothesis=dict(reference_symbol='gf_rbnfx_thru_lvl_table',
                   scalars={name:dict(byte_offset=offset,value=floats(table+offset,1)[0]) for name,offset in snare_offsets.items()},
                   decay_choices=floats(symbols['_g_sn_cstm_dec_tbl'],3),
