@@ -31,11 +31,8 @@ void ReverbUpMotion::Filter::onePole(double hz,bool high) noexcept {
     const double t=std::tan(std::numbers::pi*hz/48000),pole=(1-t)/(1+t);
     b0=high?(1+pole)/2:(1-pole)/2;b1=high?-b0:b0;b2=0;a1=-pole;a2=0;
 }
-void ReverbUpMotion::Filter::clear() noexcept {s1=s2=x1=x2=y1=y2=0;}
+void ReverbUpMotion::Filter::clear() noexcept {s1=s2=0;}
 double ReverbUpMotion::Filter::tick(double x) noexcept {const double y=b0*x+s1;s1=b1*x-a1*y+s2;s2=b2*x-a2*y;return y;}
-double ReverbUpMotion::Filter::tickDirectFormI(double x) noexcept {
-    const double y=b0*x+b1*x1+b2*x2-a1*y1-a2*y2;x2=x1;x1=x;y2=y1;y1=y;return y;
-}
 void ReverbUpMotion::AllPass::prepare(size_t size){length=size;delay.prepare(size);}
 double ReverbUpMotion::AllPass::tick(double x) noexcept {const double y=delay.tap(length)-.7*x;delay.push(x+.7*y);return y;}
 
@@ -115,8 +112,8 @@ void ReverbUpMotion::configure(Controls c) noexcept {
     std::array<double,15> requested{};
     for(size_t j=0;j<5;++j){
         const auto& observed=reverbUpMotionControls[static_cast<size_t>(roomMain)];
-        requested[j]=std::pow(roomMain<4?observed.gainL[j]:row.gainL[j],exponent);
-        requested[j+5]=std::pow(roomMain<4?observed.gainR[j]:row.gainR[j],exponent);
+        requested[j]=static_cast<float>(std::pow(observed.gainL[j],exponent));
+        requested[j+5]=static_cast<float>(std::pow(observed.gainR[j],exponent));
     }
     double wet=row.wetGain*reverbUpAmountGain[static_cast<size_t>(c.amount)]/reverbUpAmountGain[128];
     wet*=1+reverbUpMainCorrection[static_cast<size_t>(roomMain)]*reverbUpAmountCorrection[static_cast<size_t>(c.amount)];
@@ -137,6 +134,7 @@ void ReverbUpMotion::configure(Controls c) noexcept {
             (j<10?160:static_cast<size_t>(c.amount<state.amount?2000:1500)*32));
         targetCoefficients[j]=requested[j];stagedRemaining[j]=length;
         steps[j]=(requested[j]-coefficients[j])/static_cast<double>(length);
+        if(j<10)steps[j]=static_cast<float>((static_cast<float>(requested[j])-static_cast<float>(coefficients[j]))*(1.f/static_cast<float>(length)));
     }
     compensation=1+.5*c.cutoff/255;dryGain=dryLevel(c.main);
     if(!activationPrepared){inputFade=c.enabled?1.f:0.f;dryCurrent=dryTarget=1;activationPrepared=true;}
@@ -152,7 +150,8 @@ std::array<Stereo,2> ReverbUpMotion::tick(Input input) noexcept {
     if(mixRemaining){fastMix+=fastMixStep;if(!--mixRemaining)fastMix=fastMixTarget;}
     if(frame%32==31&&sharedBlocks&&!--sharedBlocks)slowMain=pendingMain;
     for(size_t j=0;j<15;++j)if(stagedRemaining[j]){
-        if(j>=10||!warmRemaining)coefficients[j]+=steps[j];
+        if(j>=10)coefficients[j]+=steps[j];
+        else if(!warmRemaining)coefficients[j]=static_cast<float>(static_cast<float>(coefficients[j])+static_cast<float>(steps[j]));
         if(!--stagedRemaining[j])coefficients[j]=targetCoefficients[j];
     }
     ++frame;
@@ -168,7 +167,7 @@ std::array<Stereo,2> ReverbUpMotion::tick(Input input) noexcept {
         auto& bandpass=inputFilters[ch][0];bandpass.b0=coefficients[14];bandpass.b1=0;bandpass.b2=state.main<=3?0:-coefficients[14];
         bandpass.a1=coefficients[12];bandpass.a2=coefficients[13];
         source[ch]*=coefficients[10]*fastMix;
-        source[ch]=bandpass.tickDirectFormI(source[ch]);
+        for(auto& filter:inputFilters[ch])source[ch]=filter.tick(source[ch]);
     }
     for(size_t j=0;j<5;++j){
         const double left=warming?0:combs[j][0].tap(static_cast<size_t>(delays[j][0]))*coefficients[j];

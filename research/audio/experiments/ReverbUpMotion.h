@@ -33,12 +33,11 @@ private:
         void push(double value) noexcept;
     };
     struct Filter {
-        double b0{},b1{},b2{},a1{},a2{},s1{},s2{},x1{},x2{},y1{},y2{};
+        double b0{},b1{},b2{},a1{},a2{},s1{},s2{};
         void biquad(double hz,bool high) noexcept;
         void onePole(double hz,bool high) noexcept;
         void clear() noexcept;
         double tick(double x) noexcept;
-        double tickDirectFormI(double x) noexcept;
     };
     struct AllPass {
         Delay delay;size_t length{};
