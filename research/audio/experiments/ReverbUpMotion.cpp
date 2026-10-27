@@ -126,18 +126,20 @@ void ReverbUpMotion::configure(Controls c) noexcept {
     double wet=row.wetGain*reverbUpAmountGain[static_cast<size_t>(c.amount)]/reverbUpAmountGain[128];
     wet*=1+reverbUpMainCorrection[static_cast<size_t>(roomMain)]*reverbUpAmountCorrection[static_cast<size_t>(c.amount)];
     const int audibleMain=std::max(4,slowMain),targetAudible=std::max(4,roomMain);
-    const auto& filterRow=reverbUpControls[static_cast<size_t>(targetAudible)];
+    const auto& filterRow=reverbUpControls[static_cast<size_t>(std::max(4,c.main))];
     const double numerator=(1-filterRow.inputA[1])/2;
     requested[10]=inputShape(audibleMain);
     const double targetSend=inputShape(targetAudible);
-    requested[11]=roomMain<4?returnShape(roomMain,c.amount):wet/(targetSend*mainMix(roomMain)*numerator);
+    const double roomNumerator=(1-reverbUpControls[static_cast<size_t>(targetAudible)].inputA[1])/2;
+    requested[11]=roomMain<4?returnShape(roomMain,c.amount):wet/(targetSend*mainMix(roomMain)*roomNumerator);
     requested[12]=filterRow.inputA[0];requested[13]=filterRow.inputA[1];requested[14]=numerator;
     if(c.main!=state.main){fastMixTarget=mainMix(c.main);fastMixStep=(fastMixTarget-fastMix)/32;mixRemaining=32;}
     if(!prepared){coefficients=targetCoefficients=requested;prepared=true;}
     else for(size_t j=0;j<15;++j)if(requested[j]!=targetCoefficients[j]){
+        if(j>=12){coefficients[j]=targetCoefficients[j]=requested[j];stagedRemaining[j]=0;continue;}
         if(j!=10&&!geometryStart&&!amountStart)continue;
-        const size_t length=j>=12?(geometryStart?sharedBlocks*32:1):(j==10?1:(geometryStart?(j<10?sharedBlocks*32:160):
-            (j<10?160:static_cast<size_t>(c.amount<state.amount?2000:2600)*32)));
+        const size_t length=j==10?1:(geometryStart?(j<10?sharedBlocks*32:160):
+            (j<10?160:static_cast<size_t>(c.amount<state.amount?2000:1500)*32));
         targetCoefficients[j]=requested[j];stagedRemaining[j]=length;
         steps[j]=(requested[j]-coefficients[j])/static_cast<double>(length);
     }
