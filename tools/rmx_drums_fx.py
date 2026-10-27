@@ -21,6 +21,12 @@ FRAMES=28*48000
 
 
 def source(stage='discovery'):
+    if stage=='fresh-v6':
+        t=np.arange(FRAMES)/48000;x=np.zeros((FRAMES,2))
+        x[:288000]=np.random.default_rng(0x4452465E).normal(0,.0046,(288000,2))
+        x[:288000]+=.0054*np.column_stack((np.sin(2*np.pi*(457*t[:288000]+61*t[:288000]**2)),np.cos(2*np.pi*2879*t[:288000])))
+        x[147000:213000]=0;x[[0,17,41,113,223,463,953,1871]] += [-.015,.013]
+        return x.astype('<f4')
     if stage=='fresh-v5':
         t=np.arange(FRAMES)/48000;x=np.zeros((FRAMES,2))
         x[:288000]=np.random.default_rng(0x4452465D).normal(0,.0047,(288000,2))
@@ -58,6 +64,19 @@ def source(stage='discovery'):
 
 
 def recipe(stage='discovery'):
+    if stage=='fresh-v6':
+        rows=[];specs=[(effect,route,None) for effect in EFFECTS if effect!=7 for route in (1,2)]
+        specs += [(7,route,main) for main in (11,12,13,14,15,75,79,83,165,166) for route in range(4)]
+        for i,(effect,route,main) in enumerate(specs):
+            name=f'drum-fx-fresh6-{i}-effect{effect}-route{route}';baseline=name+'-dry';first=[2,17,29,41][i%4]
+            events=[(first,pad) for pad in range(4)]+[(109,1),(157,3),(241,2),(347,0),(443,1),(659,3),(48157,1),(48157,3),(96239,0),(96239,2)]+[(240347,pad) for pad in range(4)]
+            c=dict(name=name,drum='kick',pads=[pad for at,pad in events],hits=[at for at,pad in events],
+                   level=[0,13,107,243][(i+route)%4],pitch=[17,97,161,251][(i*3+route)%4],
+                   block=[25,51,71,101,283,557,1583,3181][(i+route*2)%8],effect=effect,enabled=1,route=route,
+                   main=[31,67,143,233][i%4] if main is None else main,amount=[35,93,151,197][(i+route)%4],
+                   cutoff=[31,127,191,243][i%4] if effect in (1,4,9) else 0,baseline=baseline)
+            rows.extend([c|dict(name=baseline,effect=1,enabled=0),c])
+        return rows
     if stage=='fresh-v5':
         rows=[];specs=[(effect,route,None) for effect in EFFECTS if effect!=7 for route in (1,2)]
         specs += [(7,route,main) for main in (14,21,81,127) for route in range(4)]
@@ -173,7 +192,7 @@ def capture(args):
     if args.stage!='discovery':frozen(args)
     save_json(root/'matrix.json',dict(kind='rmx220-drums-fx-captures',stage=args.stage,cases=rows,source_sha256=binding,
               prediction_sha256=sha256(args.prediction) if args.stage!='discovery' else None,
-              scope='Factory drums and seven deterministic Scene effects, four source routes,48k/120BPM. Discovery128; fresh56 (28 FX-on plus28 independent FX-off baselines).'))
+              scope=f'Factory drums and seven deterministic Scene effects,48k/120BPM. Discovery128; fresh campaign{len(recipe(args.stage))} ({len(recipe(args.stage))//2} FX-on plus matching independent FX-off baselines).'))
     return 0
 
 
@@ -230,7 +249,7 @@ def compare(args):
     save_json(root/'comparison.json',dict(kind='rmx220-drums-fx-discovery-comparison',passed=all(r['passed'] for r in rows),cases=rows,
         stage=args.stage,role=('former_prediction_regression' if args.regression else 'fresh_prediction_bound') if args.stage!='discovery' else 'development_regression',prediction_sha256=sha256(args.prediction) if args.stage!='discovery' else None,
         acceptance=ACCEPTANCE,source_sha256=binding,renderer_sha256=binary,backend=args.backend,live_engine=args.backend=='engine',full_drum_match=False,physical_hardware=False,
-        scope='Mixed stereo input and four factory drums, seven deterministic Scene effects, static controls at48k/120BPM. Discovery and first two fresh campaigns cover all four source routes per effect; fresh-v3/v4/v5 focus16 Crush cases across four routes and12 other-effect cases on X-Pad/both routes. Whole/wet/tail and attack/body/decay screens; wet subtracts the independently captured FX-off baseline. Discovery128; fresh campaigns56 each (28 FX-on plus28 independent FX-off baselines). Fixed32/32; no gain/alignment fit or broad FX accuracy claim.'))
+        scope='Mixed stereo input and four factory drums, seven deterministic Scene effects, static controls at48k/120BPM. Discovery and first two fresh campaigns cover all four source routes per effect. Fresh-v3/v4/v5 focus16 Crush cases across four routes and12 other-effect cases on X-Pad/both routes; fresh-v6 expands to40 Crush and12 other-effect cases. Each FX-on program has an independently recorded FX-off baseline. Whole/wet/tail and attack/body/decay screens. Fixed32/32; no gain/alignment fit or broad FX accuracy claim.'))
     return 0 if all(r['passed'] for r in rows) else 1
 
 
@@ -238,8 +257,8 @@ def payload(args):
     stage=getattr(args,'stage','fresh')
     return dict(kind='rmx220-drums-fx-shared-prediction',cases=recipe(stage),source_sha256=source_hashes(),renderer_sha256=sha256(args.renderer),
                 source_samples_sha256=hashlib.sha256(source(stage).tobytes()).hexdigest(),acceptance=ACCEPTANCE,
-                expected='All56 fresh programs pass every per-channel1% whole/wet/tail and attack/body/decay screen. Fixed32/32; no gain or alignment fit.',
-                scope='Shared-clock research adapter, not live Engine. Seven deterministic Scene effects, factory48k/default profiles, static controls. Fresh-v3/v4/v5 focus16 Crush cases across four routes and12 other-effect cases on X-Pad/both routes; earlier fresh campaigns use four routes per effect. New raw level/pitch, irregular callbacks, cold input and simultaneous/staggered drums. No automation, custom profiles/rates, Isolator/Release, DAW or physical hardware qualification.')
+                expected=f'All{len(recipe(stage))} fresh programs pass every per-channel1% whole/wet/tail and attack/body/decay screen. Fixed32/32; no gain or alignment fit.',
+                scope='Shared-clock research adapter, not live Engine. Seven deterministic Scene effects, factory48k/default profiles, static controls. Fresh-v3/v4/v5 focus16 Crush cases across four routes and12 other-effect cases on X-Pad/both routes; fresh-v6 expands to40 Crush and12 other-effect cases. Earlier fresh campaigns use four routes per effect. Each FX-on program has an independent FX-off baseline. New raw level/pitch, irregular callbacks, cold input and simultaneous/staggered drums. No automation, custom profiles/rates, Isolator/Release, DAW or physical hardware qualification.')
 
 
 def predict(args):
@@ -253,7 +272,7 @@ def frozen(args):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);commands=parser.add_subparsers(dest='command',required=True)
     for name in ('capture','compare','predict'):
-        p=commands.add_parser(name);p.add_argument('--stage',choices=['discovery','fresh','fresh-v2','fresh-v3','fresh-v4','fresh-v5'],default='discovery')
+        p=commands.add_parser(name);p.add_argument('--stage',choices=['discovery','fresh','fresh-v2','fresh-v3','fresh-v4','fresh-v5','fresh-v6'],default='discovery')
         keys=['renderer','report'] if name=='predict' else ['host','session',*(['plugin'] if name=='capture' else ['renderer','output'])]
         for key in keys:p.add_argument('--'+key,type=Path,required=True)
         if name!='predict':p.add_argument('--prediction',type=Path)

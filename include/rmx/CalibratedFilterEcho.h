@@ -127,7 +127,10 @@ private:
         // interval boundary. At low controls adding one crosses an exponent
         // boundary; omitting that rounding changes recurring capture frames.
         const float scaled=raw*24.f;
-        const float boundary=scaled*(1.f/255.f)+1.f;
+        // Keep separate statements: a fused multiply-add skips the period's
+        // rounding and changes ten of the256 intervals on the checked build.
+        const float period=scaled*(1.f/255.f);
+        const float boundary=period+1.f;
         holdPeriod=std::max(1.f,boundary-1.f);
         const double t=std::tan(std::numbers::pi*fc/48000);
         feedbackPole=(1-t)/(1+t);feedbackGain=(1+(high?feedbackPole:-feedbackPole))/2;

@@ -55,9 +55,10 @@ def audit(args):
     required={'fresh':['discovery','fresh'],'fresh-v2':['discovery','former','fresh-v2'],
               'fresh-v3':['discovery','former','second','fresh-v3'],
               'fresh-v4':['discovery','former','second','third','fresh-v4'],
-              'fresh-v5':['discovery','former','second','third','fourth','fresh-v5']}[args.stage]
+              'fresh-v5':['discovery','former','second','third','fourth','fresh-v5'],
+              'fresh-v6':['discovery','former','second','third','fourth','fifth','fresh-v6']}[args.stage]
     require(sorted(d[0] for d in args.dataset)==sorted(required),'Requires exactly the complete declared datasets')
-    legacy={'former':('fresh',args.former_prediction),'second':('fresh-v2',args.second_prediction),'third':('fresh-v3',args.third_prediction),'fourth':('fresh-v4',args.fourth_prediction)}
+    legacy={'former':('fresh',args.former_prediction),'second':('fresh-v2',args.second_prediction),'third':('fresh-v3',args.third_prediction),'fourth':('fresh-v4',args.fourth_prediction),'fifth':('fresh-v5',args.fifth_prediction)}
     for name in set(required)&set(legacy):
         recipe_stage,prediction=legacy[name];require(prediction is not None,'Requires the '+name+' frozen prediction')
         old=json.loads(prediction.read_text());call=copy.copy(args);call.stage=recipe_stage;expected=payload(call)
@@ -103,18 +104,19 @@ def audit(args):
     save_json(root/'verification.json',dict(kind='rmx220-shared-drums-fx-independent-audit',evidence_verified=True,audio_passed=all(r['passed'] for r in rows),cases=rows,
         recomputed_stereo_screens=screens,source_sha256=binding,auditor_sha256=sha256(Path(__file__)),prediction_sha256=sha256(args.prediction),renderer_sha256=sha256(args.renderer),
         sanitized_sha256=sha256(args.sanitized),sanitizer_compile_commands_sha256=sha256(command_path),sanitizer_compile_commands=[c['command'] for c in selected],sanitizer_stderr_empty=True,
-        acceptance=ACCEPTANCE,guards=checks,scope='Complete declared discovery/regression/fresh programs, shared-clock research adapter only. Fresh campaigns each contain28 FX-on programs and28 independently captured FX-off baselines. Evidence/score integrity and sanitizer parity do not turn a waveform failure into a pass. Live Engine integration, moving controls, other profiles/rates and physical hardware remain unfinished.'))
+        acceptance=ACCEPTANCE,guards=checks,scope='Complete declared discovery/regression/fresh programs, shared-clock research adapter only. The first five fresh campaigns each contain28 FX-on programs and28 independently captured FX-off baselines; the sixth expands to52 of each. Evidence/score integrity and sanitizer parity do not turn a waveform failure into a pass. Live Engine integration, moving controls, other profiles/rates and physical hardware remain unfinished.'))
     return 0
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('host','renderer','sanitized','prediction','output'):p.add_argument('--'+key,type=Path,required=True)
-    p.add_argument('--prediction-stage',choices=['fresh','fresh-v2','fresh-v3','fresh-v4','fresh-v5'],default='fresh')
+    p.add_argument('--prediction-stage',choices=['fresh','fresh-v2','fresh-v3','fresh-v4','fresh-v5','fresh-v6'],default='fresh')
     p.add_argument('--former-prediction',type=Path)
     p.add_argument('--second-prediction',type=Path)
     p.add_argument('--third-prediction',type=Path)
     p.add_argument('--fourth-prediction',type=Path)
+    p.add_argument('--fifth-prediction',type=Path)
     p.add_argument('--dataset',nargs=3,action='append',required=True,metavar=('STAGE','SESSION','COMPARISON'))
     raise SystemExit(audit(p.parse_args()))
 
