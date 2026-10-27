@@ -30,11 +30,12 @@ def recipe(stage):
         if stage=='fresh':
             specs=[('fresh-level',53,17+pad*41,101,[7,277,619,12071,96073,240289],[(3,'L',213),(61,'L',4),(109,'L',133),(181,'L',252),(12097,'L',39),(12313,'L',193),(96203,'L',113)]),
               ('fresh-pitch',293,213,35+pad*47,[11,283,643,16087,128129,256237],[(5,'P',249),(83,'P',117),(157,'P',123),(233,'P',139),(397,'P',207),(16123,'P',3),(128257,'P',173)]),
-              ('fresh-combined',3203,133,128,[13,307,683,48083,144179,288367],[(2,'L',0),(71,'P',27),(137,'L',254),(199,'P',203),(367,'L',19),(487,'P',134),(48097,'L',211),(48439,'P',67)])]
+              ('fresh-combined',3203,133,128,[13,307,683,48083,144179,288367],[(2,'L',0),(71,'P',27),(137,'L',254),(199,'P',203),(367,'L',19),(487,'P',134),(48097,'L',211),(48439,'P',67)]),
+              ('fresh-mixed',79,239,73,[17]*4+[463]*4+[48101]*4+[144197]*4,[(3,'L',113),(89,'P',237),(167,'L',17),(293,'P',101),(557,'L',253),(48139,'P',35),(48307,'L',193),(144239,'P',151)])]
         for variant,block,level,pitch,hits,changes in specs:
             events=[dict(frame=at,type=kind,value=value) for at,kind,value in changes]
             for i,at in enumerate(hits):
-                instrument=(pad+i)%4 if variant=='mixed' else pad
+                instrument=(pad+i)%4 if variant.endswith('mixed') else pad
                 events.extend([dict(frame=at,type='H',value=instrument),dict(frame=at+32,type='R',value=instrument)])
             events.sort(key=lambda e:e['frame'])
             rows.append(dict(name=f'motion-{drum}-{variant}',drum=drum,variant=variant,block=block,level=level,pitch=pitch,hits=hits,changes=events))
@@ -42,7 +43,7 @@ def recipe(stage):
 
 
 def source_hashes():
-    return core_hashes()|{n:sha256(Path(n)) for n in ['tools/rmx_drums_motion.py','tools/drum_motion_probe.cpp','src/plugin/Plugin.cpp']}
+    return core_hashes()|{n:sha256(Path(n)) for n in ['tools/rmx_drums_motion.py','tools/drum_motion_probe.cpp','tools/rmx_kick_validate.py','src/plugin/Plugin.cpp']}
 
 
 def original_plan(c,inventory):
@@ -61,7 +62,7 @@ def schedule(c):
 
 def payload(args):
     return dict(kind='rmx220-drums-motion-prediction',stage=args.stage,cases=recipe(args.stage),source_sha256=source_hashes(),renderer_sha256=sha256(args.renderer),
-      acceptance=ACCEPTANCE,expected='All12 fresh programs pass unchanged1% whole/attack/body/decay and control-event windows, fixed32/32, no gain or alignment fitting.',
+      acceptance=ACCEPTANCE,expected='All16 fresh programs pass unchanged1% whole/attack/body/decay and control-event windows, including simultaneous drums; fixed32/32, no gain or alignment fitting.',
       scope='Factory default profiles at48k/120BPM; live Engine pitch/level gestures only. No custom profile, rolls, other effects, rates or hardware claim.')
 
 
