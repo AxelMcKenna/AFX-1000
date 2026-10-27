@@ -31,8 +31,11 @@ void ReverbUpMotion::Filter::onePole(double hz,bool high) noexcept {
     const double t=std::tan(std::numbers::pi*hz/48000),pole=(1-t)/(1+t);
     b0=high?(1+pole)/2:(1-pole)/2;b1=high?-b0:b0;b2=0;a1=-pole;a2=0;
 }
-void ReverbUpMotion::Filter::clear() noexcept {s1=s2=0;}
+void ReverbUpMotion::Filter::clear() noexcept {s1=s2=x1=x2=y1=y2=0;}
 double ReverbUpMotion::Filter::tick(double x) noexcept {const double y=b0*x+s1;s1=b1*x-a1*y+s2;s2=b2*x-a2*y;return y;}
+double ReverbUpMotion::Filter::tickDirectFormI(double x) noexcept {
+    const double y=b0*x+b1*x1+b2*x2-a1*y1-a2*y2;x2=x1;x1=x;y2=y1;y1=y;return y;
+}
 void ReverbUpMotion::AllPass::prepare(size_t size){length=size;delay.prepare(size);}
 double ReverbUpMotion::AllPass::tick(double x) noexcept {const double y=delay.tap(length)-.7*x;delay.push(x+.7*y);return y;}
 
@@ -165,7 +168,7 @@ std::array<Stereo,2> ReverbUpMotion::tick(Input input) noexcept {
         auto& bandpass=inputFilters[ch][0];bandpass.b0=coefficients[14];bandpass.b1=0;bandpass.b2=state.main<=3?0:-coefficients[14];
         bandpass.a1=coefficients[12];bandpass.a2=coefficients[13];
         source[ch]*=coefficients[10]*fastMix;
-        for(auto& filter:inputFilters[ch])source[ch]=filter.tick(source[ch]);
+        source[ch]=bandpass.tickDirectFormI(source[ch]);
     }
     for(size_t j=0;j<5;++j){
         const double left=warming?0:combs[j][0].tap(static_cast<size_t>(delays[j][0]))*coefficients[j];
