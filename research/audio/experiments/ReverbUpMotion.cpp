@@ -11,10 +11,9 @@ double returnShape(int main,int amount) noexcept {
     const double a=amount<=127?1:.65+.35*std::pow((255.-amount)/128,2);
     return .7*(a+std::pow(std::min(1.,main/183.),2)*std::pow(1-a,3));
 }
-double inputShape(int main) noexcept {
-    const int audible=std::max(4,main);const auto& row=reverbUpControls[static_cast<size_t>(audible)];
-    const double numerator=(1-row.inputA[1])/2;
-    return row.wetGain/(mainMix(audible)*returnShape(audible,128)*numerator);
+double postBandpassGain(int main) noexcept {
+    const float u=static_cast<float>(std::max(0,main-3))*(1.f/252.f);
+    return 1.f+.8f*(((u*u)*u)*u);
 }
 double decay(int raw) noexcept {return 1+49*std::pow(std::max(0.,raw-3.)/252,3);}
 }
@@ -117,13 +116,11 @@ void ReverbUpMotion::configure(Controls c) noexcept {
     }
     double wet=row.wetGain*reverbUpAmountGain[static_cast<size_t>(c.amount)]/reverbUpAmountGain[128];
     wet*=1+reverbUpMainCorrection[static_cast<size_t>(roomMain)]*reverbUpAmountCorrection[static_cast<size_t>(c.amount)];
-    const int targetAudible=std::max(4,roomMain);
     const auto& filterRow=reverbUpMotionControls[static_cast<size_t>(c.main)];
     const double numerator=filterRow.bandpassB;
-    requested[10]=inputShape(std::max(4,c.main));
-    const double targetSend=inputShape(targetAudible);
-    const double roomNumerator=(1-reverbUpControls[static_cast<size_t>(targetAudible)].inputA[1])/2;
-    requested[11]=roomMain<4?returnShape(roomMain,c.amount):wet/(targetSend*mainMix(roomMain)*roomNumerator);
+    requested[10]=.189f;
+    const double roomNumerator=reverbUpMotionControls[static_cast<size_t>(roomMain)].bandpassB;
+    requested[11]=roomMain<4?returnShape(roomMain,c.amount):wet/(requested[10]*postBandpassGain(roomMain)*mainMix(roomMain)*roomNumerator);
     requested[12]=filterRow.bandpassA[0];requested[13]=filterRow.bandpassA[1];requested[14]=numerator;
     if(c.main!=state.main){fastMixTarget=mainMix(c.main);fastMixStep=(fastMixTarget-fastMix)/32;mixRemaining=32;}
     if(!prepared){coefficients=targetCoefficients=requested;prepared=true;}
@@ -168,6 +165,7 @@ std::array<Stereo,2> ReverbUpMotion::tick(Input input) noexcept {
         bandpass.a1=coefficients[12];bandpass.a2=coefficients[13];
         source[ch]*=coefficients[10]*fastMix;
         for(auto& filter:inputFilters[ch])source[ch]=filter.tick(source[ch]);
+        source[ch]*=postBandpassGain(state.main);
     }
     for(size_t j=0;j<5;++j){
         const double left=warming?0:combs[j][0].tap(static_cast<size_t>(delays[j][0]))*coefficients[j];
