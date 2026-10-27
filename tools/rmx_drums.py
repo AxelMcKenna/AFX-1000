@@ -115,11 +115,45 @@ def analyze(args):
     return 0
 
 
+def compare(args):
+    root = new_directory(args.output)
+    names = ['tools/rmx_drums.py','tools/drum_probe.cpp','src/core/Engine.cpp','include/rmx/Engine.h',
+             'include/rmx/FactoryDrums.h','include/rmx/SampleReader.h','include/rmx/Sample.h','include/rmx/Dsp.h',
+             'include/rmx/Parameters.h','CMakeLists.txt']
+    binding = {name:sha256(Path(name)) for name in names}; binary = sha256(args.renderer); rows = []
+    for c in recipe():
+        raw_a,provenance = checked(args.session,c); plan = root/(c['name']+'.tsv')
+        plan.write_text('RMX_DRUM 1\n'+f'{list(DRUMS).index(c["drum"])} {c["level"]} {c["pitch"]} {c["block"]}\n'+''.join(f'{at}\n' for at in c['hits']))
+        output = root/(c['name']+'.wav'); dry_path = root/(c['name']+'-dry.wav')
+        run([args.renderer,args.session/'silence.wav',output,plan,dry_path])
+        rate,raw_b = float_wav(output); dry_rate,dry = float_wav(dry_path)
+        require(rate == dry_rate == 48000 and raw_b.shape == raw_a.shape == dry.shape and not np.any(dry),'Candidate rate/extent/dry differs')
+        # Fixed independently measured bypass convention: reference32/candidate0.
+        a,b = raw_a[32:].astype(float),raw_b[:len(raw_a)-32].astype(float)
+        row = provenance | dict(drum=c['drum'],variant=c['variant'],candidate_sha256=sha256(output),
+                    dry_trace_sha256=sha256(dry_path),schedule_sha256=sha256(plan),whole=screen(a,b),windows=[])
+        for at in c['hits']:
+            for label,left,right in [('attack',at,at+256),('body',at,at+48000),('decay',at+4800,at+120000)]:
+                right = min(len(a),right)
+                if right > left: row['windows'].append(dict(kind=label,frame=at,start=left,stop=right,score=screen(a[left:right],b[left:right])))
+        row['passed'] = row['whole']['passed'] and all(w['score']['passed'] for w in row['windows'])
+        rows.append(row); print('PASS' if row['passed'] else 'FAIL',c['name'],flush=True)
+    require(binding == {name:sha256(Path(name)) for name in names} and binary == sha256(args.renderer),'Candidate changed during comparison')
+    save_json(root/'comparison.json',dict(kind='rmx220-drum-existing-synthesis-baseline',passed=all(r['passed'] for r in rows),
+              renderer_sha256=binary,source_sha256=binding,cases=rows,
+              acceptance=dict(relative_rms_error_limit=.01,reference_channel_energy_floor=1e-20,silent_channel_absolute_rms_limit=1e-8,
+                              reference_offset_frames=32,candidate_offset_frames=0,gain_fit=False,alignment_search=False),
+              scope='First development comparison of existing Engine drum synthesis, not a fresh candidate holdout. Whole and declared attack/body/decay windows each require 1% per channel. No perceived-similarity percentage.'))
+    return 0 if all(r['passed'] for r in rows) else 1
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__); commands=parser.add_subparsers(dest='command',required=True)
     q=commands.add_parser('capture')
     for name in ('host','plugin','session'):q.add_argument('--'+name,type=Path,required=True)
     q=commands.add_parser('analyze');q.add_argument('--session',type=Path,required=True);q.add_argument('--report',type=Path,required=True)
+    q=commands.add_parser('compare')
+    for name in ('session','renderer','output'):q.add_argument('--'+name,type=Path,required=True)
     args=parser.parse_args();raise SystemExit(globals()[args.command](args))
 
 
