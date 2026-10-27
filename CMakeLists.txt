@@ -45,6 +45,8 @@ target_compile_definitions(rmx_reverb_up_engine_probe PRIVATE RMX_REVERB_ENGINE_
 target_link_libraries(rmx_reverb_up_engine_probe PRIVATE rmx_core)
 add_executable(rmx_drum_probe EXCLUDE_FROM_ALL tools/drum_probe.cpp)
 target_link_libraries(rmx_drum_probe PRIVATE rmx_core)
+add_executable(rmx_drums_fx_probe EXCLUDE_FROM_ALL tools/drums_fx_probe.cpp)
+target_link_libraries(rmx_drums_fx_probe PRIVATE rmx_core)
 add_executable(rmx_kick_research_probe EXCLUDE_FROM_ALL research/audio/experiments/kick_research_probe.cpp)
 target_link_libraries(rmx_kick_research_probe PRIVATE rmx_core)
 target_compile_options(rmx_kick_research_probe PRIVATE -Wall -Wextra -Wpedantic -ffp-contract=off)
