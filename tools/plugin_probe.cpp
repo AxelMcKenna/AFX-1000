@@ -217,8 +217,9 @@ private:
         return true;
     }
     void neutral() {
-        // The RMX neutral path has zero reported latency. Do not conceal a
-        // nontransparent path by searching for a favorable alignment or gain.
+        // The independently measured common source clock has32 frames of
+        // settled latency at48k. Check that fixed delay without fitting gain
+        // or searching alignment; reference campaigns check startup separately.
         juce::AudioBuffer<float> audio(2, block), expected(2, block);
         juce::MidiBuffer midi;
         double error = 0, energy = 0;
@@ -228,18 +229,18 @@ private:
                 for (int i = 0; i < block; ++i) {
                     const float sample = static_cast<float>(.1 * std::sin((n * block + i) * (channel ? .071 : .043)));
                     audio.setSample(channel, i, sample);
-                    expected.setSample(channel, i, sample);
+                    expected.setSample(channel, i, static_cast<float>(.1 * std::sin((n * block + i - 32) * (channel ? .071 : .043))));
                 }
             midi.clear();
             finite = process(audio, midi) && finite;
-            for (int channel = 0; channel < 2; ++channel)
+            if (n >= 2) for (int channel = 0; channel < 2; ++channel)
                 for (int i = 0; i < block; ++i) {
                     error = std::max(error, std::abs(static_cast<double>(audio.getSample(channel, i) - expected.getSample(channel, i))));
                     energy += audio.getSample(channel, i) * audio.getSample(channel, i);
                 }
         }
-        require(finite && plugin.getLatencySamples() == 0 && error < 1e-4 && energy > .01,
-                "neutral-stereo", "max_absolute_error=" + juce::String(error, 9) + "; zero-latency expectation; nonzero stereo input");
+        require(finite && plugin.getLatencySamples() == 32 && error < 1e-4 && energy > .01,
+                "neutral-stereo", "max_absolute_error=" + juce::String(error, 9) + "; fixed32-frame settled delay; nonzero stereo input");
     }
     void parameterExtrema() {
         for (auto* parameter : projectParameters) {

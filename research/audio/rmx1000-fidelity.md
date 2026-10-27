@@ -1,12 +1,29 @@
 # RMX-1000 sound matching research
 
-- Updated: 2026-10-27
-- Status: active; original plug-in captured, static Isolator/Echo/BPF/HPF/LPF/Crush/Noise fitted at 48 kHz; full-device validation incomplete
+- Updated: 2026-10-28
+- Status: active; scoped factory drums, seven deterministic Scene effects, basic Isolator and statistical Noise matching at48k; full-device validation incomplete
 - Question: what evidence, DSP work and validation would support a defensible claim of very close RMX-1000 sound matching?
 - Related implementation: [Scene](../../src/core/Scene.cpp), [Isolate](../../src/core/Isolator.cpp), [engine and Release](../../src/core/Engine.cpp), [drums](../../include/rmx/FactoryDrums.h), [capture tools](../../tools/reference_audio.py).
 - Initial source audit revision: `5f1887fa9fbaa8b655b4a633b282121c802aba58`; linked manufacturer documents and papers were accessed on 2026-10-25. Implementation and numerical measurement updates below are dated 26–27 October 2026.
 
 Controlled input/output measurement has now replaced several provisional DSP choices. Static factory Isolator, Echo and BPF/HPF/LPF/Crush Echo satisfy the declared waveform criterion against the original plug-in, and default Noise satisfies its statistical screen, within the scopes recorded below. The remaining effects and behaviors still use substantial project voicing. No full-device accuracy percentage or hardware equivalence has been established.
+
+### Current distance from the whole-device target
+
+There is substantial identification and validation left; a defensible overall percentage or completion date is not available. The target currently measured is **RMX-1000 Plug-in2.2.0**, rather than physical RMX-1000 hardware. Passing a1% relative waveform-error gate in a defined fixture does not establish99% perceived similarity across the device.
+
+| Area | Current evidence | Remaining gap |
+| --- | --- | --- |
+| Kick, snare, clap, hi-hat | All224 dry programs pass at48k/default profiles; live combined routing and wrappers now checked | Other profiles/decays/envelopes, rolls and wider control motion |
+| Echo, BPF, HPF, LPF, Crush, Reverb Up/Down | Scoped original-reference waveform matches; all568 combined drum/input whole-output programs pass,567 satisfy every raw gate | Wider gestures, settings and combinations; one microscopic wet-window failure retained |
+| Noise | Statistical matching in its recorded scope | Wider motion, settings and interactions |
+| Spiral Up/Down | Partial identification; latest research prototype passes285/361 complete renders | Autonomous full-effect waveform match and production adoption |
+| Release Back Spin/Echo/Brake | Existing project implementations | Original-reference identification and validation of all three |
+| Isolator | Basic static factory mode matched | Cut/Add/Trans-Roll modes and wider motion/interactions |
+| Full performance path | Scoped routing, event and callback checks | Sampling/rolls, complex combinations, profiles/rates/tempos, overload and blind listening |
+| Physical device | No hardware equivalence established | Firmware-specific converter, level, control-response and audio comparison |
+
+Counts describe fixture coverage, not fractions of the device completed. The [live drum integration record](drums.md#live-integration-control-guards-and-wrappers) explains current evidence and its retained failure.
 
 ## What the primary evidence establishes
 
@@ -339,4 +356,6 @@ Mixed input plus drums exposed incompatible source/effect FIFOs in the existing 
 
 The [documented correction](drums.md#corrected-compiled-clock-512-programs) separates source/Scene/effect startup ramps, per-tap return fades, Crush input/feed gains and interval-clock rounding. A compiled256-control sweep caught fused arithmetic that skipped a required float rounding; the final implementation passes optimized/sanitized numeric sweeps and fresh audio checks. Earlier prospective failures remain reviewable. This refines the earlier static Crush report's arithmetic inference; it does not expand that report retroactively.
 
-The combined adapter is still research code. Live Engine common-clock routing, control motion/effect switches and the other unfinished device features above remain required. These waveform checks do not establish full-device99% perceived similarity or physical hardware equivalence.
+The adapter result above is the research checkpoint. Its common-clock routing is now integrated in the live48k Engine, app, AU and VST3. All512 earlier combined programs and55/56 fresh native programs pass every declared gate; all568 whole-output checks pass. One near-null wet-window fails the strict1% ratio despite a7.28e-12 absolute RMS difference. Independent zero-input recordings expose an underlying0.014928% wet-window error and reproduce both final float32 mixed sums exactly; the original raw failure remains failed.
+
+The [final integration record](drums.md#live-integration-control-guards-and-wrappers) documents source-restoration/Panic guards, exact current570-program optimized/sanitized compatibility, all224 dry-drum and1,513 reverb output/dry WAVs preserved, and56 reference regressions plus359 runtime checks per AU/VST3 format. These waveform checks do not establish full-device99% perceived similarity or physical hardware equivalence. Control motion/effect switches and the unfinished areas in the table above remain required.

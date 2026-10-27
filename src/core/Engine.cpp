@@ -286,7 +286,9 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
         pads=mix(pads,isolators[1].process(pads,source.bands,source.beat),source.isoPad*source.isoEnabled);
         const auto routed=fade(input);selected[i]=input*source.sceneInput;generated[i]=pads*source.scenePad;
         unselectedPadPending[i]=pads*(1-source.scenePad);
-        scenePadPending[i]=!measuredDown&&!measuredUp&&!source.sceneEnabled?generated[i]:Stereo{};
+        // Only the fully dry send is a removable pad stem. Scene-off can
+        // still have a nonzero smoother and already-processed queued audio.
+        scenePadPending[i]=!measuredDown&&!measuredUp&&source.sceneMix==0?generated[i]:Stereo{};
         routingPending[i]={fade(source.raw),routed*(1-source.sceneInput)+unselectedPadPending[i],fade(source.wetDry)};
         if(!measuredDown&&!measuredUp){
             const auto send=routed*source.sceneInput+generated[i];
@@ -343,7 +345,12 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     // Hosts can restore controls after prepare and before the first callback.
     // Start from those controls instead of ramping through stale defaults;
     // that ramp otherwise leaves sample-hold effects at a different phase.
-    if(frame==0)smooth=p;
+    if(frame==0){
+        smooth=p;bypassMix=get(Param::Bypass);
+        const auto isoSource=static_cast<int>(get(Param::IsolateSource)),fxSource=static_cast<int>(get(Param::SceneSource));
+        isolateInputMix=isoSource==0||isoSource==2?1.f:0.f;isolatePadMix=isoSource==1||isoSource==2?1.f:0.f;
+        sceneInputMix=fxSource==0||fxSource==2?1.f:0.f;scenePadMix=fxSource==1||fxSource==2?1.f:0.f;
+    }
     if(transport.synced&&std::isfinite(transport.bpm)&&transport.bpm>=40&&transport.bpm<=240) { bpm=transport.bpm; if(std::isfinite(transport.beat)) beat=transport.beat; }
     else if(get(Param::AutoTempo)<.5f) bpm=get(Param::Tempo);
     IsolatorSettings iso;

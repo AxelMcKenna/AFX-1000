@@ -38,6 +38,51 @@ int main(){try{
         for(size_t i=17;i<128;++i)require(a[i]==0&&b[i]==0,"Panic left a native factory voice playing");
         event.reset();require(allocations==0&&arena.allocations()==before,"Factory drum callback/event/reset allocated");tracking=false;
     }
+    {
+        // A processed block generated before Panic is already on the common
+        // clock. During the Scene-off ramp it is not an unprocessed pad stem;
+        // subtracting the full pad invents an inverted transient.
+        rmx::Engine stopped,control;
+        for(auto* engine:{&stopped,&control}){
+            engine->setOutputProtection(false);engine->params.set(rmx::Param::AutoTempo,0);engine->params.set(rmx::Param::Quantize,0);
+            engine->params.set(rmx::Param::SceneType,5);engine->params.set(rmx::Param::SceneSource,1);
+            engine->params.set(rmx::Param::SceneOn,1);engine->params.set(rmx::Param::SceneDepth,1);
+            engine->prepare(48000,32);
+        }
+        std::array<float,32> a{},b{},x{},y{};
+        for(unsigned block=0;block<64;++block){stopped.process(nullptr,nullptr,a.data(),b.data(),32);control.process(nullptr,nullptr,x.data(),y.data(),32);}
+        for(auto* engine:{&stopped,&control})engine->enqueue({rmx::EventType::Trigger,0,1,0,0,0});
+        for(unsigned block=0;block<20;++block){stopped.process(nullptr,nullptr,a.data(),b.data(),32);control.process(nullptr,nullptr,x.data(),y.data(),32);}
+        for(auto* engine:{&stopped,&control})engine->params.set(rmx::Param::SceneOn,0);
+        stopped.process(nullptr,nullptr,a.data(),b.data(),32);control.process(nullptr,nullptr,x.data(),y.data(),32);
+        stopped.enqueue({rmx::EventType::Panic});
+        stopped.process(nullptr,nullptr,a.data(),b.data(),32);control.process(nullptr,nullptr,x.data(),y.data(),32);
+        float peak=0;for(size_t i=0;i<32;++i){peak=std::max(peak,std::abs(x[i]));require(a[i]==x[i]&&b[i]==y[i],"Panic subtracted an unprocessed pad from queued Scene audio");}
+        require(peak>1e-5f,"Queued Scene-off guard did not exercise nonzero audio");
+    }
+    for(unsigned mode=0;mode<3;++mode){
+        // Hosts restore normalized controls after prepare. Source selectors
+        // and master bypass must start at the restored values, just like
+        // controls supplied before prepare, rather than fading stale defaults.
+        rmx::Engine configured,restored;
+        auto configure=[mode](rmx::Engine& engine){
+            engine.setOutputProtection(false);engine.params.set(rmx::Param::AutoTempo,0);engine.params.set(rmx::Param::Quantize,0);
+            engine.params.set(rmx::Param::SceneType,5);engine.params.set(rmx::Param::SceneSource,1);
+            engine.params.set(rmx::Param::SceneOn,mode==2?0:1);engine.params.set(rmx::Param::SceneDepth,151/255.f);
+            engine.params.set(rmx::Param::IsolateSource,1);engine.params.set(rmx::Param::IsolateOn,mode==2?1:0);
+            engine.params.set(rmx::Param::Low,mode==2?-1:0);engine.params.set(rmx::Param::Mid,mode==2?-1:0);engine.params.set(rmx::Param::High,mode==2?-1:0);
+            engine.params.set(rmx::Param::Bypass,mode==1?1:0);
+        };
+        configure(configured);configured.prepare(48000,64);restored.prepare(48000,64);configure(restored);
+        std::array<float,64> left{},right{},a{},b{},x{},y{};
+        const rmx::Event hit{rmx::EventType::Trigger,static_cast<uint8_t>(mode),.7f,17,0,0};
+        for(unsigned block=0;block<16;++block){
+            for(size_t i=0;i<64;++i){left[i]=.013f*std::sin(static_cast<float>(block*64+i)*.11f);right[i]=-.008f*std::cos(static_cast<float>(block*64+i)*.07f);}
+            const auto events=block?std::span<const rmx::Event>{}:std::span<const rmx::Event>{&hit,1};
+            configured.process(left.data(),right.data(),a.data(),b.data(),64,{},events);restored.process(left.data(),right.data(),x.data(),y.data(),64,{},events);
+            for(size_t i=0;i<64;++i)require(a[i]==x[i]&&b[i]==y[i],"Restored source selectors or bypass differ from pre-prepare controls");
+        }
+    }
     for(bool protect:{false,true}){
         rmx::Engine engine;engine.params.set(rmx::Param::XLevel,1.5f);setup(engine,protect);std::array<float,256> a{},b{};
         engine.process(nullptr,nullptr,a.data(),b.data(),256);engine.enqueue({rmx::EventType::Trigger,0,1,0,0,0});float peak=0;
