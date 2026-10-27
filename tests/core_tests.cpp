@@ -30,7 +30,10 @@ int main() {
     try {
         {
             Rig rig; for(size_t i=0;i<256;++i) { rig.l[i]=std::sin(i*.1f)*.25f; rig.r[i]=std::cos(i*.07f)*.2f; }
-            rig.run(10); for(size_t i=0;i<256;++i) { require(std::abs(rig.l[i]-rig.ol[i])<1e-5,"Neutral stereo left differs"); require(std::abs(rig.r[i]-rig.orr[i])<1e-5,"Neutral stereo right differs"); }
+            // The measured common source clock has32 frames of settled
+            // latency, including neutral/bypass paths. No alignment search.
+            rig.run(10); for(size_t i=0;i<256;++i) {const auto at=(i+256-32)%256;
+                require(std::abs(rig.l[at]-rig.ol[i])<1e-5,"Neutral stereo left differs"); require(std::abs(rig.r[at]-rig.orr[i])<1e-5,"Neutral stereo right differs"); }
             rig.engine.params.set(rmx::Param::WetOnly,1); rig.run(10); for(float v:rig.ol) require(std::abs(v)<1e-5,"Wet-only neutral must null");
         }
         {

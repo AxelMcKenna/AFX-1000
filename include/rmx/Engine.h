@@ -73,32 +73,37 @@ private:
     CalibratedReverbDown reverbDown;
     CalibratedReverbUp reverbUp;
     FactoryDrumSynth factoryDrums;
-    struct DrumCue {uint8_t trigger{},stop{};std::array<float,4> velocity{1,1,1,1};};
+    struct DrumCue {uint8_t trigger{},stop{};std::array<float,4> velocity{1,1,1,1};bool flush{};};
     struct SourceFrame {
         Stereo raw{},input{},legacy{},wetDry{};
         std::array<float,3> bands{};
         float isoInput{},isoPad{},isoEnabled{},sceneInput{},scenePad{},sceneMix{},depth{},time{},resonance{},sidechain{},mute{};
         double bpm{},beat{};
+        bool sceneEnabled{};
     };
     std::pmr::vector<SourceFrame> sourceFrames;
     std::pmr::vector<DrumCue> drumCues;
-    std::pmr::vector<Stereo> factoryOutput;
-    std::pmr::vector<float> factoryScratch;
     DrumCue pendingDrumCue;uint8_t factoryMask{};
     bool outputProtection{true};
     struct ReleaseFrame {
         double bpm{};float amount{},time{},mix{};int type{};bool active{},start{};
     };
-    struct OutputFrame {ReleaseFrame release;float gain{},bypass{};bool wetOnly{},reverbEnabled{};};
+    struct OutputFrame {ReleaseFrame release;float gain{},bypass{};bool wetOnly{};};
     struct ParallelAudio {Stereo raw{},unselected{},wetDry{};};
-    std::pmr::vector<Stereo> sceneInput,sceneOutput,downOutput,upOutput;
+    std::pmr::vector<Stereo> sceneOutput;
     std::pmr::vector<OutputFrame> outputFrames;
-    std::pmr::vector<ParallelAudio> parallelInput,parallelOutput;
-    std::array<ParallelAudio,32> routingCollected{},routingPending{};
+    std::pmr::vector<ParallelAudio> parallelOutput;
+    std::array<SourceFrame,32> routingCollected{};
+    std::array<ParallelAudio,32> routingPending{};
+    std::array<Stereo,32> scenePending{};
+    std::array<Stereo,32> scenePadPending{},unselectedPadPending{};
     size_t routingReceived{},routingAvailable{},routingHead{};
     uint64_t routingAge{};float routingFade{};
-    void alignReverbAudio(size_t start,size_t count) noexcept;
-    void renderFactoryDrums(size_t count) noexcept;
+    int coldSceneType{-1};float coldEffect{},coldMix{},coldMixStep{},coldDirect{1},coldTarget{1},coldDirectStep{};
+    void renderSharedSources(size_t count,int type,bool coldProfile,bool measuredDown,bool measuredUp,
+                             CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls) noexcept;
+    void generateSharedBlock(int type,bool coldProfile,bool measuredDown,bool measuredUp,
+                             CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls) noexcept;
     void stopFactoryDrums(uint8_t mask=15) noexcept {pendingDrumCue.stop|=mask;pendingDrumCue.trigger&=static_cast<uint8_t>(~mask);}
     Stereo rollInput{};
     std::array<Isolator,2> isolators;

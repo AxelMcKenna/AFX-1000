@@ -25,6 +25,16 @@ public:
         auto add=[&](auto& processor){processor.process(scratch);for(size_t i=0;i<output.size();++i){const float x=scratch[i];output[i]=output[i]+Stereo{x,x};}};
         add(kick);add(snare);add(clap);add(hat);
     }
+    // The Engine owns the common source/Scene clock at48k. Do not mix this
+    // generated-block entry point with process() between resets.
+    void beginProcessing() noexcept {
+        kick.beginProcessing();snare.beginProcessing();clap.beginProcessing();hat.beginProcessing();
+    }
+    void generateBlock(std::span<Stereo,32> output) noexcept {
+        std::array<float,32> scratch{};std::fill(output.begin(),output.end(),Stereo{});
+        auto add=[&](auto& processor){processor.generateBlock(scratch);for(size_t i=0;i<32;++i)output[i]=output[i]+Stereo{scratch[i],scratch[i]};};
+        add(kick);add(snare);add(clap);add(hat);
+    }
 private:
     drums::Kick kick;drums::Snare snare;drums::Clap clap;drums::Hat hat;
 };

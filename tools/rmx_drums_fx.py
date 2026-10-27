@@ -21,6 +21,12 @@ FRAMES=28*48000
 
 
 def source(stage='discovery'):
+    if stage=='live-fresh':
+        t=np.arange(FRAMES)/48000;x=np.zeros((FRAMES,2))
+        x[:288000]=np.random.default_rng(0x4452465F).normal(0,.0044,(288000,2))
+        x[:288000]+=.0056*np.column_stack((np.sin(2*np.pi*(491*t[:288000]+67*t[:288000]**2)),np.cos(2*np.pi*2953*t[:288000])))
+        x[145000:209000]=0;x[[0,19,43,127,229,479,977,1907]] += [.013,-.016]
+        return x.astype('<f4')
     if stage=='fresh-v6':
         t=np.arange(FRAMES)/48000;x=np.zeros((FRAMES,2))
         x[:288000]=np.random.default_rng(0x4452465E).normal(0,.0046,(288000,2))
@@ -64,6 +70,19 @@ def source(stage='discovery'):
 
 
 def recipe(stage='discovery'):
+    if stage=='live-fresh':
+        rows=[]
+        for i,effect in enumerate(EFFECTS):
+            for route in range(4):
+                name=f'drum-fx-live-effect{effect}-route{route}';baseline=name+'-dry';first=[3,11,31,43][(i+route)%4]
+                events=[(first,pad) for pad in range(4)]+[(127,0),(173,2),(251,1),(359,3),(461,0),(677,2),(48179,0),(48179,3),(96257,1),(96257,2)]+[(240379,pad) for pad in range(4)]
+                c=dict(name=name,drum='kick',pads=[pad for at,pad in events],hits=[at for at,pad in events],
+                       level=[0,17,113,239][(i+route*3)%4],pitch=[23,101,173,249][(i*3+route)%4],
+                       block=[29,53,79,97,293,563,1597,3203][(i+route*2)%8],effect=effect,enabled=1,route=route,
+                       main=[17,73,151,237][(i+route)%4],amount=[41,97,153,199][(i*3+route)%4],
+                       cutoff=[37,131,193,245][(i+route)%4] if effect in (1,4,9) else 0,baseline=baseline)
+                rows.extend([c|dict(name=baseline,effect=1,enabled=0),c])
+        return rows
     if stage=='fresh-v6':
         rows=[];specs=[(effect,route,None) for effect in EFFECTS if effect!=7 for route in (1,2)]
         specs += [(7,route,main) for main in (11,12,13,14,15,75,79,83,165,166) for route in range(4)]
@@ -226,7 +245,8 @@ def compare(args):
     if args.stage!='discovery':
         if args.regression:
             old=json.loads(args.prediction.read_text());expected=payload(args)
-            require(all(old[k]==expected[k] for k in ('kind','cases','source_samples_sha256','acceptance')),'Former capture recipe/gates differ')
+            expected_kind='rmx220-drums-fx-engine-prediction' if args.stage=='live-fresh' else 'rmx220-drums-fx-shared-prediction'
+            require(old['kind']==expected_kind and all(old[k]==expected[k] for k in ('cases','source_samples_sha256','acceptance')),'Former capture recipe/gates differ')
         else:frozen(args)
         manifest=json.loads((args.session/'matrix.json').read_text())
         require(manifest['prediction_sha256']==sha256(args.prediction)==sha256(args.session/'predictions.json'),'Fresh prediction copy differs')
@@ -255,14 +275,19 @@ def compare(args):
 
 def payload(args):
     stage=getattr(args,'stage','fresh')
-    return dict(kind='rmx220-drums-fx-shared-prediction',cases=recipe(stage),source_sha256=source_hashes(),renderer_sha256=sha256(args.renderer),
+    backend=getattr(args,'backend','shared')
+    return dict(kind='rmx220-drums-fx-engine-prediction' if backend=='engine' else 'rmx220-drums-fx-shared-prediction',backend=backend,live_engine=backend=='engine',
+                cases=recipe(stage),source_sha256=source_hashes(),renderer_sha256=sha256(args.renderer),
                 source_samples_sha256=hashlib.sha256(source(stage).tobytes()).hexdigest(),acceptance=ACCEPTANCE,
                 expected=f'All{len(recipe(stage))} fresh programs pass every per-channel1% whole/wet/tail and attack/body/decay screen. Fixed32/32; no gain or alignment fit.',
-                scope='Shared-clock research adapter, not live Engine. Seven deterministic Scene effects, factory48k/default profiles, static controls. Fresh-v3/v4/v5 focus16 Crush cases across four routes and12 other-effect cases on X-Pad/both routes; fresh-v6 expands to40 Crush and12 other-effect cases. Earlier fresh campaigns use four routes per effect. Each FX-on program has an independent FX-off baseline. New raw level/pitch, irregular callbacks, cold input and simultaneous/staggered drums. No automation, custom profiles/rates, Isolator/Release, DAW or physical hardware qualification.')
+                scope=('Actual live Engine with a common source/Scene clock. ' if backend=='engine' else 'Shared-clock research adapter, not live Engine. ')
+                +'Seven deterministic Scene effects, factory48k/default profiles, static controls. Live-fresh covers seven effects and four routes, with28 FX-on and28 independent FX-off programs. Fresh-v3/v4/v5 focus16 Crush cases across four routes and12 other-effect cases; fresh-v6 expands to40 Crush and12 other-effect cases. New raw level/pitch, irregular callbacks, cold input and simultaneous/staggered drums. No automation, custom profiles/rates, Isolator/Release, DAW or physical hardware qualification.')
 
 
 def predict(args):
-    require(args.stage!='discovery','Only fresh campaigns accept predictions');save_json(args.report,payload(args));return 0
+    require(args.stage!='discovery','Only fresh campaigns accept predictions')
+    require(args.stage!='live-fresh' or args.backend=='engine','Live campaign requires actual Engine backend')
+    save_json(args.report,payload(args));return 0
 
 
 def frozen(args):
@@ -272,12 +297,12 @@ def frozen(args):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);commands=parser.add_subparsers(dest='command',required=True)
     for name in ('capture','compare','predict'):
-        p=commands.add_parser(name);p.add_argument('--stage',choices=['discovery','fresh','fresh-v2','fresh-v3','fresh-v4','fresh-v5','fresh-v6'],default='discovery')
+        p=commands.add_parser(name);p.add_argument('--stage',choices=['discovery','fresh','fresh-v2','fresh-v3','fresh-v4','fresh-v5','fresh-v6','live-fresh'],default='discovery')
         keys=['renderer','report'] if name=='predict' else ['host','session',*(['plugin'] if name=='capture' else ['renderer','output'])]
         for key in keys:p.add_argument('--'+key,type=Path,required=True)
         if name!='predict':p.add_argument('--prediction',type=Path)
         if name=='capture':p.add_argument('--renderer',type=Path)
-        if name=='compare':p.add_argument('--backend',choices=['engine','shared'],default='engine')
+        p.add_argument('--backend',choices=['engine','shared'],default='engine' if name=='compare' else 'shared')
         if name=='compare':p.add_argument('--regression',action='store_true',help='Treat a formerly frozen fresh campaign as regression data; preserve its recipe/gates, not its old candidate identity.')
     args=parser.parse_args();raise SystemExit(globals()[args.command](args))
 

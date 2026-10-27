@@ -2,6 +2,7 @@
 """Independently audit shared-clock drum/FX scores, failures and sanitizer parity."""
 import argparse
 import copy
+import hashlib
 import json
 import math
 import os
@@ -56,24 +57,33 @@ def audit(args):
               'fresh-v3':['discovery','former','second','fresh-v3'],
               'fresh-v4':['discovery','former','second','third','fresh-v4'],
               'fresh-v5':['discovery','former','second','third','fourth','fresh-v5'],
-              'fresh-v6':['discovery','former','second','third','fourth','fifth','fresh-v6']}[args.stage]
+              'fresh-v6':['discovery','former','second','third','fourth','fifth','fresh-v6'],
+              'live-fresh':['discovery','former','second','third','fourth','fifth','sixth','live-fresh']}[args.stage]
     require(sorted(d[0] for d in args.dataset)==sorted(required),'Requires exactly the complete declared datasets')
-    legacy={'former':('fresh',args.former_prediction),'second':('fresh-v2',args.second_prediction),'third':('fresh-v3',args.third_prediction),'fourth':('fresh-v4',args.fourth_prediction),'fifth':('fresh-v5',args.fifth_prediction)}
+    legacy={'former':('fresh',args.former_prediction),'second':('fresh-v2',args.second_prediction),'third':('fresh-v3',args.third_prediction),'fourth':('fresh-v4',args.fourth_prediction),'fifth':('fresh-v5',args.fifth_prediction),'sixth':('fresh-v6',args.sixth_prediction)}
     for name in set(required)&set(legacy):
         recipe_stage,prediction=legacy[name];require(prediction is not None,'Requires the '+name+' frozen prediction')
         old=json.loads(prediction.read_text());call=copy.copy(args);call.stage=recipe_stage;expected=payload(call)
-        require(all(old[k]==expected[k] for k in ('kind','cases','source_samples_sha256','acceptance')),'Former recipe/gates differ')
+        require(old['kind']=='rmx220-drums-fx-shared-prediction' and all(old[k]==expected[k] for k in ('cases','source_samples_sha256','acceptance')),'Former recipe/gates differ')
     command_path=args.sanitized.parent/'compile_commands.json';commands=json.loads(command_path.read_text())
     suffixes=('/Scene.cpp','/ReverbUp.cpp','/ReverbDown.cpp','/drums/Kick.cpp','/drums/Snare.cpp','/drums/Clap.cpp','/drums/Hat.cpp','/Wav.cpp')
-    selected=[c for c in commands if c['file'].endswith(suffixes) or (c['file'].endswith('/drums_fx_probe.cpp') and 'RMX_DRUMS_SHARED_FIXTURE=1' in c['command'])]
-    require(len(selected)==9 and all('-fsanitize=address,undefined' in c['command'] for c in selected),'Missing sanitizer units/flags')
+    native=args.backend=='engine'
+    if native:suffixes+=('/Engine.cpp',)
+    selected=[c for c in commands if c['file'].endswith(suffixes) or (c['file'].endswith('/drums_fx_probe.cpp') and ('RMX_DRUMS_SHARED_FIXTURE=1' in c['command'])!=native)]
+    require(len(selected)==(10 if native else 9) and all('-fsanitize=address,undefined' in c['command'] for c in selected),'Missing sanitizer units/flags')
     require(all('-ffp-contract=off' in c['command'] for c in selected if '/drums/' in c['file'] or '/Reverb' in c['file']),'Missing generator/reverb float flags')
+    symbols={}
+    if native:
+        for name,binary in [('optimized',args.renderer),('sanitized',args.sanitized)]:
+            output=subprocess.check_output(['nm','-C',str(binary)],text=True)
+            require('rmx::Engine::process(' in output,'Native fixture lacks the live Engine process entry point')
+            symbols[name]=dict(engine_process_symbol_present=True,nm_output_sha256=hashlib.sha256(output.encode()).hexdigest())
     first_source=first_plan=None
     for stage,session_text,report_text in args.dataset:
         recipe_stage=legacy[stage][0] if stage in legacy else stage
         session=Path(session_text);path=Path(report_text);d=json.loads(path.read_text());cases=recipe(recipe_stage);call=copy.copy(args);call.session=session;call.stage=recipe_stage;baselines={};case_results=[]
         role='development_regression' if stage=='discovery' else 'former_prediction_regression' if stage in legacy else 'fresh_prediction_bound'
-        require(d['kind']=='rmx220-drums-fx-discovery-comparison' and d['backend']=='shared' and not d['live_engine'] and d['stage']==recipe_stage and d['role']==role and d['source_sha256']==binding and d['acceptance']==ACCEPTANCE
+        require(d['kind']=='rmx220-drums-fx-discovery-comparison' and d['backend']==args.backend and d['live_engine']==native and d['stage']==recipe_stage and d['role']==role and d['source_sha256']==binding and d['acceptance']==ACCEPTANCE
                 and d['renderer_sha256']==sha256(args.renderer) and [r['case'] for r in d['cases']]==[c['name'] for c in cases],'Comparison source/recipe/gates differ')
         if stage!='discovery':
             prediction=legacy[stage][1] if stage in legacy else args.prediction
@@ -101,22 +111,26 @@ def audit(args):
             print('AUDITED',c['name'],'PASS' if passed else 'FAIL',flush=True)
         require(d['passed']==all(case_results),'Campaign pass differs')
     checks=guards(args,root,first_source,first_plan);frozen(args);require(binding==source_hashes(),'Candidate changed during audit')
-    save_json(root/'verification.json',dict(kind='rmx220-shared-drums-fx-independent-audit',evidence_verified=True,audio_passed=all(r['passed'] for r in rows),cases=rows,
+    save_json(root/'verification.json',dict(kind='rmx220-live-engine-drums-fx-independent-audit' if native else 'rmx220-shared-drums-fx-independent-audit',backend=args.backend,live_engine=native,
+        engine_symbols=symbols,evidence_verified=True,audio_passed=all(r['passed'] for r in rows),cases=rows,
         recomputed_stereo_screens=screens,source_sha256=binding,auditor_sha256=sha256(Path(__file__)),prediction_sha256=sha256(args.prediction),renderer_sha256=sha256(args.renderer),
         sanitized_sha256=sha256(args.sanitized),sanitizer_compile_commands_sha256=sha256(command_path),sanitizer_compile_commands=[c['command'] for c in selected],sanitizer_stderr_empty=True,
-        acceptance=ACCEPTANCE,guards=checks,scope='Complete declared discovery/regression/fresh programs, shared-clock research adapter only. The first five fresh campaigns each contain28 FX-on programs and28 independently captured FX-off baselines; the sixth expands to52 of each. Evidence/score integrity and sanitizer parity do not turn a waveform failure into a pass. Live Engine integration, moving controls, other profiles/rates and physical hardware remain unfinished.'))
+        acceptance=ACCEPTANCE,guards=checks,scope=('Actual live Engine common-clock routing. ' if native else 'Shared-clock research adapter only. ')
+        +'Complete declared discovery/regression/fresh programs. The first five fresh campaigns and live-fresh each contain28 FX-on and28 independent FX-off programs; fresh-v6 has52 of each. Evidence integrity does not turn an audio failure into a pass. Moving controls, broader source/Isolator/Release interactions, other profiles/rates, wrappers and physical hardware require separate qualification.'))
     return 0
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('host','renderer','sanitized','prediction','output'):p.add_argument('--'+key,type=Path,required=True)
-    p.add_argument('--prediction-stage',choices=['fresh','fresh-v2','fresh-v3','fresh-v4','fresh-v5','fresh-v6'],default='fresh')
+    p.add_argument('--prediction-stage',choices=['fresh','fresh-v2','fresh-v3','fresh-v4','fresh-v5','fresh-v6','live-fresh'],default='fresh')
+    p.add_argument('--backend',choices=['shared','engine'],default='shared')
     p.add_argument('--former-prediction',type=Path)
     p.add_argument('--second-prediction',type=Path)
     p.add_argument('--third-prediction',type=Path)
     p.add_argument('--fourth-prediction',type=Path)
     p.add_argument('--fifth-prediction',type=Path)
+    p.add_argument('--sixth-prediction',type=Path)
     p.add_argument('--dataset',nargs=3,action='append',required=True,metavar=('STAGE','SESSION','COMPARISON'))
     raise SystemExit(audit(p.parse_args()))
 

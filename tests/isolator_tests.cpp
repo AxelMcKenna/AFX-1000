@@ -28,9 +28,14 @@ int main() {try {
     {
         Engine engine;engine.params.set(Param::Low,-1);engine.params.set(Param::Mid,-1);engine.params.set(Param::High,-1);engine.prepare(48000,64);
         std::array<float,64> input,left,right;input.fill(.1f);
+        CalibratedReverbDown clock;clock.prepare(64);clock.setControls({128,128,0,false});
+        std::array<Stereo,64> source,expected;source.fill({.1f,.1f});
+        require(clock.process(source,expected),"Independent inactive clock rejected input");
         engine.process(input.data(),input.data(),left.data(),right.data(),64);
-        for(auto sample:left)require(sample==.1f,"Disabled isolator applied non-neutral knobs");
+        for(size_t i=0;i<64;++i)require(left[i]==expected[i].l&&right[i]==expected[i].r,"Disabled isolator applied non-neutral knobs");
         engine.params.set(Param::IsolateOn,1);
+        engine.process(input.data(),input.data(),left.data(),right.data(),64);
+        // Drain the already-generated neutral block through the same FIFO.
         engine.process(input.data(),input.data(),left.data(),right.data(),64);
         for(auto sample:left)require(sample==0,"Active full-kill isolator did not silence all bands");
     }

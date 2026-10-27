@@ -16,6 +16,8 @@ public:
     void reset() noexcept;
     // Audio-thread target update, before the following callback.
     void setControls(Controls controls) noexcept;
+    // Latch restored controls at the first nonempty common-clock callback.
+    void beginProcessing() noexcept {if(!callbackInput.empty()&&!started)initialize();}
     // No allocation after prepare. In-place input/output is supported. An
     // optional dry trace must be separate from output. Invalid extents return
     // false without consuming audio or changing processor state. Non-finite

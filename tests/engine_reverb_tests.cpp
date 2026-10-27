@@ -73,30 +73,31 @@ int main(){try{
             }
             for(size_t i=0;i<n;++i){
                 const auto want=mode==3?wanted[i]-direct[i]:wanted[i];
-                require(ol[i]==want.l&&orr[i]==want.r,"Engine differs from the independently checked processor/routing oracle");
+                if(ol[i]!=want.l||orr[i]!=want.r){std::cerr<<"Scene "<<scene<<" mode "<<mode<<" block "<<block<<" sample "<<i<<" actual "<<ol[i]<<","<<orr[i]<<" expected "<<want.l<<","<<want.r<<"\n";
+                    require(false,"Engine differs from the independently checked processor/routing oracle");}
             }
             total+=n;
         }
         require(allocations==0&&arena.allocations()==before,"Engine callback/control/reset allocated");tracking=false;
         engine.params.set(rmx::Param::UserSettings,1);engine.params.set(room,1);
-        require(engine.latencySamples()==0,"Unsupported room profile latency differs");
+        require(engine.latencySamples()==32,"Common room-profile clock latency differs");
         engine.params.set(room,0);
         const auto time=scene==4?rmx::Param::ReverbUpTime:rmx::Param::ReverbDownTime;
         const auto filter=scene==4?rmx::Param::ReverbUpFilter:rmx::Param::ReverbDownFilter;
         for(const auto value:{0.f,2.f}){
-            engine.params.set(time,value);require(engine.latencySamples()==0,"Unsupported time profile latency differs");
+            engine.params.set(time,value);require(engine.latencySamples()==32,"Common time-profile clock latency differs");
         }
         engine.params.set(time,1);
         for(const auto value:{0.f,1.f,2.f}){
             engine.params.set(filter,value);
-            require(engine.latencySamples()==((scene==4?value==2:value==0)?32u:0u),"Filter profile latency differs");
+            require(engine.latencySamples()==32,"Common filter-profile clock latency differs");
         }
         engine.params.set(filter,scene==4?2:0);
         engine.params.set(rmx::Param::ReverbDecay,.5f);
-        require(engine.latencySamples()==0,"Unsupported decay profile latency differs");
+        require(engine.latencySamples()==32,"Common decay-profile clock latency differs");
         engine.params.set(rmx::Param::ReverbDecay,.72f);engine.params.set(room,1);
         engine.params.set(rmx::Param::UserSettings,0);require(engine.latencySamples()==32,"Default profile did not mask advanced settings");
-        engine.params.set(rmx::Param::SceneType,1);require(engine.latencySamples()==0,"Legacy Scene latency changed");
+        engine.params.set(rmx::Param::SceneType,1);require(engine.latencySamples()==32,"Non-reverb Scene does not share the source clock");
     }
     };
     routing.template operator()<rmx::CalibratedReverbDown>(9,rmx::Param::ReverbDownRoomSize);
@@ -106,27 +107,26 @@ int main(){try{
         // must follow the same callback timing as input, including transitions.
         rmx::SampleBank bank;auto& asset=bank.slots[0];asset.rate=48000;asset.frames.resize(16384);
         for(size_t i=0;i<asset.frames.size();++i)asset.frames[i]={.025f*std::sin(static_cast<float>(i)*.071f),.019f*std::cos(static_cast<float>(i)*.113f)};
-        rmx::Engine down,dry;rmx::CalibratedReverbDown timing;
+        rmx::Engine down,dry;
         for(auto* engine:{&down,&dry}){
             engine->setBank(&bank);engine->params.set(rmx::Param::AutoTempo,0);
             engine->params.set(rmx::Param::SampleSource,1);engine->params.set(rmx::Param::XLevel,1);
             engine->prepare(48000,128);
         }
-        down.params.set(rmx::Param::SceneType,static_cast<float>(scene));timing.prepare(128);timing.setControls({128,128,0,false});
+        down.params.set(rmx::Param::SceneType,static_cast<float>(scene));
         std::array<float,128> left{},right{},dl{},dr{},bl{},br{};
-        std::array<rmx::Stereo,128> totalInput{},expected{};
         const auto before=arena.allocations();tracking=true;double maxError=0;
         for(unsigned block=0;block<512;++block){
             down.params.set(rmx::Param::SceneSource,static_cast<float>((block/61)%4));
             for(size_t i=0;i<left.size();++i){left[i]=.013f*std::sin(static_cast<float>(block*128+i)*.037f);right[i]=-.011f*std::cos(static_cast<float>(block*128+i)*.053f);}
             const std::array<rmx::Event,1> hit{{{rmx::EventType::Trigger,0,.7f,37,0,1}}};
             const auto events=block%71==0?std::span<const rmx::Event>(hit):std::span<const rmx::Event>{};
-            if(block==300){down.reset();dry.reset();timing.reset();}
+            if(block==300){down.reset();dry.reset();}
             dry.process(left.data(),right.data(),bl.data(),br.data(),128,{},events);
             down.process(left.data(),right.data(),dl.data(),dr.data(),128,{},events);
-            for(size_t i=0;i<left.size();++i)totalInput[i]={bl[i],br[i]};
-            require(timing.process(totalInput,expected),"Sampler timing oracle rejected callback");
-            for(size_t i=0;i<left.size();++i){maxError=std::max(maxError,static_cast<double>(std::max(std::abs(dl[i]-expected[i].l),std::abs(dr[i]-expected[i].r))));}
+            // Both Engines now own the same source clock. Applying another
+            // timing processor here would add a second FIFO to the oracle.
+            for(size_t i=0;i<left.size();++i){maxError=std::max(maxError,static_cast<double>(std::max(std::abs(dl[i]-bl[i]),std::abs(dr[i]-br[i]))));}
         }
         require(maxError<1e-7,"Sampler and input dry buses acquired different callback timing");
         require(allocations==0&&arena.allocations()==before,"Sampler/source transitions allocated");tracking=false;

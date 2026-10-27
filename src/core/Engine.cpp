@@ -21,9 +21,8 @@ float level(Stereo x) noexcept { return std::max(std::abs(x.l),std::abs(x.r)); }
 void Engine::prepare(double sampleRate,uint32_t maxBlock) {
     sr=std::clamp(sampleRate,8000.,192000.);
     const auto block=std::clamp<size_t>(maxBlock,1,CalibratedReverbDown::maximumCallbackFrames);
-    sceneInput.assign(block,{});sceneOutput.assign(block,{});downOutput.assign(block,{});upOutput.assign(block,{});
-    outputFrames.assign(block,{});parallelInput.assign(block,{});parallelOutput.assign(block,{});
-    sourceFrames.assign(block,{});drumCues.assign(block,{});factoryOutput.assign(block,{});factoryScratch.assign(block,0);
+    sceneOutput.assign(block,{});outputFrames.assign(block,{});parallelOutput.assign(block,{});
+    sourceFrames.assign(block,{});drumCues.assign(block,{});
     if(sr==48000){reverbDown.prepare(block);reverbUp.prepare(block);}
     const auto capacity=static_cast<size_t>(sr*16)+4;
     history.prepare(capacity); sceneProcessor.prepare(sr);
@@ -37,8 +36,10 @@ void Engine::prepare(double sampleRate,uint32_t maxBlock) {
 }
 void Engine::reset() noexcept {
     sceneProcessor.reset(); history.reset(); rollInput={}; rollInputMix=0;
-    reverbDown.reset();reverbUp.reset();routingCollected={};routingPending={};
+    reverbDown.reset();reverbUp.reset();routingCollected={};routingPending={};scenePending={};
+    scenePadPending={};unselectedPadPending={};
     routingReceived=routingAvailable=routingHead=0;routingAge=0;routingFade=0;
+    coldSceneType=-1;coldEffect=coldMix=coldMixStep=coldDirectStep=0;coldDirect=coldTarget=1;
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
     factoryDrums.reset();pendingDrumCue={};factoryMask=0;
@@ -135,6 +136,7 @@ void Engine::event(Event e) noexcept {
         case EventType::Panic:
             voices={}; rollPad=-1; sourceRoll=false; sequence.clear(); nudgeDirection=0; nudgeOffset=0;
             stopFactoryDrums();
+            pendingDrumCue.flush=true;
             set(Param::SceneOn,0); set(Param::IsolateOn,0); set(Param::ReleaseAmount,0); set(Param::Low,0); set(Param::Mid,0); set(Param::High,0); set(Param::XHold,0); set(Param::Overdub,0);
             break;
         case EventType::Tap:
@@ -231,40 +233,95 @@ Stereo Engine::release(Stereo x,const ReleaseFrame& controls) noexcept {
 }
 
 unsigned Engine::latencySamples() const noexcept {
-    const auto type=params.get(Param::SceneType);
-    if(sr!=48000||(type!=4&&type!=9))return 0;
-    if(params.get(Param::UserSettings)<.5f)return 32;
-    const bool up=type==4;
-    return params.get(up?Param::ReverbUpRoomSize:Param::ReverbDownRoomSize)==0
-        &&params.get(up?Param::ReverbUpTime:Param::ReverbDownTime)==1
-        &&params.get(up?Param::ReverbUpFilter:Param::ReverbDownFilter)==(up?2:0)
-        &&params.get(Param::ReverbDecay)==.72f?32:0;
+    return sr==48000?32:0;
 }
 
-void Engine::alignReverbAudio(size_t start,size_t count) noexcept {
-    // Carry all parallel dry routes through the same causal callback ordering
-    // and global startup fades as the measured Scene processor. Otherwise the
-    // sampler/unselected source and master bypass would comb against its delay.
-    std::copy_n(parallelInput.begin()+static_cast<std::ptrdiff_t>(start),count,
-                parallelOutput.begin()+static_cast<std::ptrdiff_t>(start));
-    size_t read=0,written=0;
-    while(read<count){
-        const auto take=std::min(32-routingReceived,count-read);
-        for(size_t i=0;i<take;++i){
-            auto audio=parallelInput[start+read+i];float gain=1;
-            if(routingAge<160){routingFade+=.00625f;gain=routingFade;}++routingAge;
-            auto fade=[gain](Stereo x){return Stereo{static_cast<float>(static_cast<float>(x.l*gain)*gain),
-                static_cast<float>(static_cast<float>(x.r*gain)*gain)};};
-            audio.raw=fade(audio.raw);audio.unselected=fade(audio.unselected);audio.wetDry=fade(audio.wetDry);
-            routingCollected[routingReceived+i]=audio;
+void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool measuredDown,bool measuredUp,
+                                CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls) noexcept {
+    // Untouched startup slots follow the original callback's passthrough
+    // ordering. All generated audio and parallel buses share one output FIFO.
+    for(size_t i=0;i<count;++i){sceneOutput[i]=sourceFrames[i].input+sourceFrames[i].legacy;parallelOutput[i]={sourceFrames[i].raw,{},sourceFrames[i].wetDry};}
+    downControls.enabled=measuredDown&&sourceFrames[0].sceneEnabled;reverbDown.setControls(downControls);reverbDown.beginProcessing();
+    upControls.enabled=measuredUp&&sourceFrames[0].sceneEnabled;reverbUp.setControls(upControls);reverbUp.beginProcessing();
+    for(size_t start=0;start<count;){
+        const auto& cue=drumCues[start];
+        for(unsigned pad=0;pad<4;++pad){
+            if(cue.stop&(1u<<pad))factoryDrums.stop(pad);
+            if(cue.trigger&(1u<<pad))factoryDrums.trigger(pad,cue.velocity[pad]);
         }
-        read+=take;routingReceived+=take;
-        const auto emit=std::min(routingAvailable,count-written);
-        std::copy_n(routingPending.begin()+static_cast<std::ptrdiff_t>(routingHead),emit,
-            parallelOutput.begin()+static_cast<std::ptrdiff_t>(start+written));
-        written+=emit;routingAvailable-=emit;routingHead+=emit;
-        if(routingReceived==32){routingPending=routingCollected;routingReceived=0;routingAvailable=32;routingHead=0;}
+        if(cue.flush)for(size_t i=0;i<32;++i){
+            scenePending[i]=scenePending[i]-scenePadPending[i];routingPending[i].unselected=routingPending[i].unselected-unselectedPadPending[i];
+            scenePadPending[i]=unselectedPadPending[i]={};
+        }
+        factoryDrums.beginProcessing();
+        size_t end=start+1;while(end<count&&!drumCues[end].trigger&&!drumCues[end].stop&&!drumCues[end].flush)++end;
+        size_t read=start,written=start;
+        while(read<end){
+            const auto take=std::min(32-routingReceived,end-read);
+            std::copy_n(sourceFrames.begin()+static_cast<std::ptrdiff_t>(read),take,routingCollected.begin()+static_cast<std::ptrdiff_t>(routingReceived));
+            read+=take;routingReceived+=take;
+            const auto emit=std::min(routingAvailable,end-written);
+            std::copy_n(scenePending.begin()+static_cast<std::ptrdiff_t>(routingHead),emit,sceneOutput.begin()+static_cast<std::ptrdiff_t>(written));
+            std::copy_n(routingPending.begin()+static_cast<std::ptrdiff_t>(routingHead),emit,parallelOutput.begin()+static_cast<std::ptrdiff_t>(written));
+            written+=emit;routingAvailable-=emit;routingHead+=emit;
+            if(routingReceived==32){generateSharedBlock(type,coldProfile,measuredDown,measuredUp,downControls,upControls);routingReceived=0;routingAvailable=32;routingHead=0;}
+        }
+        start=end;
     }
+}
+void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,bool measuredUp,
+                                CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls) noexcept {
+    std::array<Stereo,32> drums{},selected{},generated{},discard{};
+    factoryDrums.generateBlock(drums);
+    if(routingAge==0)coldSceneType=coldProfile&&routingCollected[0].sceneEnabled?type:-1;
+    if(type!=coldSceneType||!coldProfile)coldSceneType=-1;
+    for(size_t i=0;i<32;++i){
+        const auto& source=routingCollected[i];
+        float gain=1;if(routingAge<160){routingFade+=.00625f;gain=routingFade;}
+        const auto frame=routingAge++;
+        auto fade=[gain](Stereo x){return Stereo{(x.l*gain)*gain,(x.r*gain)*gain};};
+        Stereo input=source.input,pads=source.legacy*gain+drums[i]*source.mute;
+        isolators[0].tempo(source.bpm);isolators[1].tempo(source.bpm);
+        input=mix(input,isolators[0].process(input,source.bands,source.beat),source.isoInput*source.isoEnabled);
+        pads=mix(pads,isolators[1].process(pads,source.bands,source.beat),source.isoPad*source.isoEnabled);
+        const auto routed=fade(input);selected[i]=input*source.sceneInput;generated[i]=pads*source.scenePad;
+        unselectedPadPending[i]=pads*(1-source.scenePad);
+        scenePadPending[i]=!measuredDown&&!measuredUp&&!source.sceneEnabled?generated[i]:Stereo{};
+        routingPending[i]={fade(source.raw),routed*(1-source.sceneInput)+unselectedPadPending[i],fade(source.wetDry)};
+        if(!measuredDown&&!measuredUp){
+            const auto send=routed*source.sceneInput+generated[i];
+            // The identified initial activation is separate from later
+            // gestures. Once disabled, keep the ordinary control smoother.
+            if(!source.sceneEnabled)coldSceneType=-1;
+            const bool cold=coldSceneType==type&&coldProfile&&source.sceneEnabled;
+            const bool first=cold&&frame<32;
+            if(cold&&frame>=32&&frame<192)coldEffect=std::min(1.f,coldEffect+.00625f);
+            if(frame>=192)coldEffect=1;
+            const auto steady=sceneProcessor.process(send,source.depth,source.time,source.resonance,cold?1.f:source.sceneMix,
+                source.bpm,source.beat,source.sidechain,cold?coldEffect:1,first);
+            auto result=steady;
+            if(cold){
+                if(first){coldMix+=.00625f;result=send;}
+                else if(frame<224){
+                    if(frame==32){
+                        const int raw=std::clamp(static_cast<int>(std::floor(source.depth*255+1.e-4f)),0,255);
+                        const float position=std::clamp(1.f-(raw-3)*(type==7?1.f/126:1.f/63),0.f,1.f);
+                        coldTarget=(type==0||type==1)?1.f:position*position;
+                        coldDirectStep=(coldTarget-coldDirect)*.00625f;coldMixStep=(1-coldMix)*.00625f;
+                    }
+                    if(frame==64)coldDirectStep=(coldTarget-coldDirect)*.00625f;
+                    coldDirect+=coldDirectStep;if(frame<192)coldMix+=coldMixStep;
+                    result=send*coldDirect+(steady-send*coldTarget)*coldMix;
+                    if(frame==191)coldMix=1;if(frame==223)coldDirect=coldTarget;
+                }
+            }
+            scenePending[i]=result;
+        }
+    }
+    downControls.enabled=measuredDown&&routingCollected.back().sceneEnabled;reverbDown.setControls(downControls);
+    upControls.enabled=measuredUp&&routingCollected.back().sceneEnabled;reverbUp.setControls(upControls);
+    if(!reverbDown.processGeneratedBlock(selected,generated,measuredDown?std::span<Stereo,32>(scenePending):std::span<Stereo,32>(discard))&&measuredDown)scenePending={};
+    if(!reverbUp.processGeneratedBlock(selected,generated,measuredUp?std::span<Stereo,32>(scenePending):std::span<Stereo,32>(discard))&&measuredUp)scenePending={};
 }
 void Engine::detectTempo(Stereo x) noexcept {
     tempoTracker.process(x.l,x.r);
@@ -272,18 +329,6 @@ void Engine::detectTempo(Stereo x) noexcept {
         meters.confidence.store(tempoTracker.certainty(),std::memory_order_relaxed);
         if(get(Param::AutoTempo)>.5f&&tempoTracker.certainty()>.15f) bpm=tempoTracker.bpm();
         autoPhaseSlew=get(Param::AutoTempo)>.5f&&get(Param::Quantize)>.5f&&tempoTracker.phaseLocked()?tempoTracker.phaseSlew(beat):0;
-    }
-}
-void Engine::renderFactoryDrums(size_t count) noexcept {
-    for(size_t start=0;start<count;){
-        const auto& cue=drumCues[start];
-        for(unsigned pad=0;pad<4;++pad){
-            if(cue.stop&(1u<<pad))factoryDrums.stop(pad);
-            if(cue.trigger&(1u<<pad))factoryDrums.trigger(pad,cue.velocity[pad]);
-        }
-        size_t end=start+1;while(end<count&&!drumCues[end].trigger&&!drumCues[end].stop)++end;
-        factoryDrums.process(std::span<Stereo>(factoryOutput.data()+start,end-start),std::span<float>(factoryScratch.data(),end-start));
-        start=end;
     }
 }
 void Engine::process(const float* left,const float* right,float* outL,float* outR,uint32_t frames,Transport transport,std::span<const Event> events) noexcept {
@@ -338,7 +383,10 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         &&sceneSettings.reverbTime[1]==1&&sceneSettings.reverbFilter[1]==0&&sceneSettings.decay==.72f;
     const bool measuredUp=sr==48000&&sceneSettings.type==4&&sceneSettings.roomSize[0]==0
         &&sceneSettings.reverbTime[0]==1&&sceneSettings.reverbFilter[0]==2&&sceneSettings.decay==.72f;
-    const bool measuredReverb=measuredDown||measuredUp;
+    auto factorySceneSettings=SceneSettings{};factorySceneSettings.type=sceneSettings.type;
+    const bool coldSceneProfile=sceneSettings==factorySceneSettings&&(sceneSettings.type==0||sceneSettings.type==1
+        ||sceneSettings.type==5||sceneSettings.type==6||sceneSettings.type==7)
+        &&(sceneSettings.type==1||get(Param::SceneResonance)==0);
     const auto rawControl=[](float value,float scale){return std::clamp(static_cast<int>(std::floor(value*scale+1.e-4f)),0,255);};
     uint8_t nextFactoryMask=0;
     if(sr==48000&&get(Param::PitchDownRange)==parameters[static_cast<size_t>(Param::PitchDownRange)].initial
@@ -362,7 +410,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     CalibratedReverbUp::Controls upControls{downControls.main,downControls.amount,downControls.cutoff,false};
 
     const bool overdub=get(Param::Overdub)>.5f;
-    if(!overdub&&previousOverdub) { sequence.clear(); voices={};stopFactoryDrums(); }
+    if(!overdub&&previousOverdub) { sequence.clear(); voices={};stopFactoryDrums();pendingDrumCue.flush=true; }
     previousOverdub=overdub;
     Event e; while(queue.pop(e)) event(e);
     size_t eventIndex=0;
@@ -404,7 +452,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         approach(rollInputMix,rollTarget,smoothing);
         if(rollTarget==0&&rollInputMix<1e-6f) sourceRoll=false;
         Stereo drums=sample();
-        drumCues[k]=pendingDrumCue;pendingDrumCue.trigger=pendingDrumCue.stop=0;
+        drumCues[k]=pendingDrumCue;pendingDrumCue.trigger=pendingDrumCue.stop=0;pendingDrumCue.flush=false;
         input=input*(1-rollInputMix);
         const int isoSource=static_cast<int>(get(Param::IsolateSource));
         approach(isolateInputMix,(isoSource==0||isoSource==2)?1.f:0.f,smoothing);
@@ -418,9 +466,8 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         // Unselected sources bypass it. Noise is generated inside scene() even
         // when neither input is selected.
         sourceFrames[k]={raw,input,drums,raw*db(sm(Param::InputGain)),{sm(Param::Low),sm(Param::Mid),sm(Param::High)},
-            isolateInputMix,isolatePadMix,isolateEnabled,sceneInputMix,scenePadMix,sceneMix,sm(Param::SceneDepth),sm(Param::SceneTime),sm(Param::SceneResonance),peak(rollInput),1-sm(Param::SamplerMute),bpm,beat+nudgeOffset};
+            isolateInputMix,isolatePadMix,isolateEnabled,sceneInputMix,scenePadMix,sceneMix,sm(Param::SceneDepth),sm(Param::SceneTime),sm(Param::SceneResonance),peak(rollInput),1-sm(Param::SamplerMute),bpm,beat+nudgeOffset,get(Param::SceneOn)>.5f};
         auto& output=outputFrames[k];
-        output.reverbEnabled=measuredReverb&&get(Param::SceneOn)>.5f;
         output.release=releaseControls();output.wetOnly=get(Param::WetOnly)>.5f;
         output.gain=db(sm(Param::OutputGain));
         approach(bypassMix,get(Param::Bypass),smoothing);
@@ -433,33 +480,22 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
             nudgeOffset+=nudgeDirection*.02*bpm/(60*sr);
         }
     }
-    renderFactoryDrums(count);
+    if(sr==48000)renderSharedSources(count,sceneSettings.type,coldSceneProfile,measuredDown,measuredUp,downControls,upControls);
+    else {
     for(uint32_t k=0;k<count;++k){
-        const auto& source=sourceFrames[k];Stereo input=source.input,drums=source.legacy+factoryOutput[k]*source.mute;
+        const auto& source=sourceFrames[k];Stereo input=source.input,drums=source.legacy;
         isolators[0].tempo(source.bpm);isolators[1].tempo(source.bpm);
         input=mix(input,isolators[0].process(input,source.bands,source.beat),source.isoInput*source.isoEnabled);
         drums=mix(drums,isolators[1].process(drums,source.bands,source.beat),source.isoPad*source.isoEnabled);
-        const Stereo send=input*source.sceneInput+drums*source.scenePad;sceneInput[k]=send;
-        if(!measuredReverb)sceneOutput[k]=sceneProcessor.process(send,source.depth,source.time,source.resonance,source.sceneMix,source.bpm,source.beat,source.sidechain);
-        parallelInput[k]={source.raw,input+drums-send,source.wetDry};
+        const Stereo send=input*source.sceneInput+drums*source.scenePad;
+        sceneOutput[k]=sceneProcessor.process(send,source.depth,source.time,source.resonance,source.sceneMix,source.bpm,source.beat,source.sidechain);
+        parallelOutput[k]={source.raw,input+drums-send,source.wetDry};
     }
-    if(sr==48000){
-        size_t start=0;
-        while(start<count){
-            size_t end=start+1;
-            while(end<count&&outputFrames[end].reverbEnabled==outputFrames[start].reverbEnabled)++end;
-            downControls.enabled=measuredDown&&outputFrames[start].reverbEnabled;reverbDown.setControls(downControls);
-            upControls.enabled=measuredUp&&outputFrames[start].reverbEnabled;reverbUp.setControls(upControls);
-            const auto n=end-start;
-            reverbDown.process(std::span<const Stereo>(sceneInput.data()+start,n),std::span<Stereo>(downOutput.data()+start,n));
-            reverbUp.process(std::span<const Stereo>(sceneInput.data()+start,n),std::span<Stereo>(upOutput.data()+start,n));
-            alignReverbAudio(start,n);start=end;
-        }
     }
     for(uint32_t k=0;k<count;++k){
         const auto i=offset+k;const auto& output=outputFrames[k];
-        const auto audio=measuredReverb?parallelOutput[k]:parallelInput[k];
-        Stereo processed=audio.unselected+release(measuredDown?downOutput[k]:measuredUp?upOutput[k]:sceneOutput[k],output.release);
+        const auto audio=parallelOutput[k];
+        Stereo processed=audio.unselected+release(sceneOutput[k],output.release);
         if(output.wetOnly)processed=processed-audio.wetDry;
         processed=finite(mix(processed*output.gain,audio.raw,output.bypass));
         // Sample-peak ceiling with linked stereo gain. No lookahead, allocation
