@@ -1,0 +1,45 @@
+{
+  "kind": "rmx220-reverb-up-production-checks",
+  "passed": true,
+  "full_reverb_match": false,
+  "physical_hardware": false,
+  "reports": {
+    "2026-10-27-reverb-up-production-predictions.json": "e5e1c05ec2264223a47f2610d06e8ab78bab5c7520caaccbfd2a9cf5d61ff8cc",
+    "2026-10-27-reverb-up-production-regressions-48k.json": "f51960e2e714b8ff680716dd98a099040c1323e58aae3b79097fa625de8fdc78",
+    "2026-10-27-reverb-up-production-fresh-48k.json": "8732bd98a0b1a7addb26d530adb608febfc5226b51ce58b150e0719b5cdd7525",
+    "2026-10-27-reverb-up-production-audit.json": "553740fb2dba1e1a56a81a0829cff5a7264551bcfdccb06fc49ff41029a2e296",
+    "2026-10-27-reverb-up-production-resources.json": "8f2ee30077f305af1a76736c10debd6996c5fad08b69dc4c70a0d5ccd1cbdef4"
+  },
+  "previous_cases": 1305,
+  "previous_audio_and_dry_byte_identical": 1305,
+  "fresh_cases": 8,
+  "fresh_passes": 8,
+  "total_cases": 1313,
+  "prior_motion_cases": 101,
+  "prior_static_cases": 1204,
+  "fresh_worst_relative_rms": {
+    "whole": 0.00011727346042800258,
+    "wet": 0.00029025089744573283,
+    "post_input_tail": 1.6774181496770154e-05,
+    "wet_event_windows": 0.0012635997703107809,
+    "wet_startup_windows": 0.0005223105149964695
+  },
+  "calibrated_headers_byte_identical_to_research": true,
+  "cpp_changes": "Promote and rename the measured class and includes; reject any output/dry overlap before consuming state. Valid callback DSP is preserved.",
+  "core_ctest": {
+    "passed": 18,
+    "failed": 0,
+    "log_sha256": "604b8ffd50903f8b71996bfbe2e0b4f8cf88ed4bc09592ac36a2252f72e1b985"
+  },
+  "auditor_script_sha256": "a47fe61c060c46d50c19db6c59afa7c801246c1845dfeaaa3af080a1f4c9d56c",
+  "guards": {
+    "changed_recipes": 7,
+    "changed_predictions": 8,
+    "native_requests": 20
+  },
+  "sanitizer_byte_identical_programs": 2,
+  "limitations": [
+    "Standalone bounded factory Up, integer controls, stereo48k/120BPM. Live Up Engine remains approximate.",
+    "MCU timing, firmware cross-build, other profiles/rates/tempos, fractional controls, broader gestures/combinations, overload, listening, hardware and remaining device features are unfinished."
+  ]
+}

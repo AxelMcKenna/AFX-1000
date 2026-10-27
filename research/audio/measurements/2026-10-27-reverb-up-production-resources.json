@@ -1,0 +1,40 @@
+{
+  "kind": "rmx220-reverb-up-production-resources",
+  "passed": true,
+  "platform": "native macOS ARM64; these are not MCU deadline measurements",
+  "object_bytes": 4056,
+  "prepared_buffer_bytes": 436384,
+  "two_processors_arena_used_bytes": 872768,
+  "fixed_arena_capacity_bytes": 1048576,
+  "frames_per_processor": 258902,
+  "callbacks_per_processor": 512,
+  "callback_sizes": [
+    1,
+    9,
+    15,
+    31,
+    32,
+    47,
+    128,
+    255,
+    4096
+  ],
+  "measured_cpp_new_requests_after_prepare": 0,
+  "measured_pmr_requests_after_prepare": 0,
+  "checks": [
+    "First processing, controls, resets, in-place/separate output parity, optional dry state parity",
+    "Rejected extents/nonfinite/overlapping dry buffers preserve output and later state",
+    "Invalid preparation capacities reject without changing prepared storage",
+    "Prepared storage stays bounded and destruction returns arena use to zero"
+  ],
+  "native_log_sha256": "706791172028558809cf20d4e2a2c289dbd3107b1350eb7bf096d04a38fa6f63",
+  "sanitized_log_sha256": "706791172028558809cf20d4e2a2c289dbd3107b1350eb7bf096d04a38fa6f63",
+  "native_executable_sha256": "344a4d3d724b42b1bd30b0a31cf15f5d817b9fd94d469bd179d8832f91bb5436",
+  "sanitized_executable_sha256": "5732a25b13683cdf91699542db10c5ef73a8887e281dd7866c1f362de0407405",
+  "test_source_sha256": "ddbd5812237684d726384680ad8aa939af433b6f1713dd0ff17d18a00fe12b9b",
+  "processor_source_sha256": "6bd967e63bfc80118177cf578de3e04d16d9b41e52c402eff48ee3df4793ed42",
+  "limitations": [
+    "Instrumentation covers C++ new and PMR requests in the stated native programs; it is not interception of every C/runtime allocator.",
+    "No live Engine Up integration, fresh firmware build or MCU deadline measurement. Offline WAV buffers allocate."
+  ]
+}

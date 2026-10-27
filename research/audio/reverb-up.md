@@ -155,3 +155,5 @@ Run `uv run --locked python -m tools.rmx_reverb_up_model_audit --help` for the a
 Current scope is **static integer controls with settled silent pre-roll, factory Up, stereo 48 kHz/120 BPM**. Moving controls, activation/cold startup, fractional controls, other profiles/rates/tempos, live Engine integration, overload, listening and physical hardware remain required by the full sound-matching goal.
 
 The subsequent [motion/startup investigation](reverb-up-motion.md) passes 101 motion cases, including sixteen fresh recordings after correcting a failed first holdout, and all 1,204 static regressions. Its independent audit, failed forecasts, gain/clock derivation and 40-sample read-window discovery are documented separately. The live Up Engine remains approximate.
+
+The [bounded core class](reverb-up-motion.md#bounded-core-processor-27-october-2026) subsequently preserves all 1,305 research output/dry WAVs byte-for-byte and passes eight further fresh motion/startup programs. Native resource checks measure bounded storage and zero tracked callback allocations. Live Up Engine integration is still pending.
