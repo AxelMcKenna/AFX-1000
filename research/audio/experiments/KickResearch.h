@@ -4,10 +4,11 @@
 #include <cstddef>
 #include <cstdint>
 namespace rmx::research {
-// Independent research hypothesis, factory kick at stereo48k, neutral controls.
+// Independent research hypothesis, factory kick at stereo48k.
 // Original scalar observations inform constants; complete waveform tests decide acceptance.
 class KickResearch {
 public:
+    void setControls(unsigned level,unsigned pitch) noexcept;
     void trigger() noexcept {if(processingStarted)requested=true;}
     void process(std::span<float> output) noexcept;
 private:
@@ -28,6 +29,7 @@ private:
     std::array<float,32> pending{};
     size_t received{},available{},head{};
     float phase1{.25f},phase2{.25f},gain{},startupGain{};
+    float frequencyBase{49.91f},frequencyPeak{49.91f*6},noiseMix{.04f},toneLimit{.3f},outputLevel{1};
     uint32_t random1{0x1f9f4541},random2{0x93a6ff6c};
     unsigned state{};bool requested{},processingStarted{};
 };

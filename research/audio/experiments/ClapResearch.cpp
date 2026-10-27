@@ -1,8 +1,14 @@
 #include "ClapResearch.h"
+#include "DrumResearchControls.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
 namespace rmx::research {
+void ClapResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
+    outputLevel=drumLevel(level);const float ratio=drumPitchRate(pitchRaw);
+    bandpass.coefficients=drumBandpass(870*ratio,.7f);highpass.coefficients=drumHighpass(800*ratio,.7f);
+    const auto lp=drumFirstOrder(800*ratio,false);lowpass1.b0=lp[0];lowpass1.b1=lp[1];lowpass1.feedback=lp[2];
+}
 float ClapResearch::Envelope::advance() noexcept {
     if(rising){
         value=position;position+=16*(1.f/(.016f*48000.f));
@@ -41,7 +47,7 @@ void ClapResearch::block() noexcept {
         }
     }
     if(!tail.rising&&tail.value==0&&std::abs(pending.back())<1e-9f)state=0;
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample*=startupGain;}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel;}
 }
 void ClapResearch::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;

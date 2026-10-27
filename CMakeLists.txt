@@ -57,6 +57,11 @@ target_compile_options(rmx_clap_research_probe PRIVATE -Wall -Wextra -Wpedantic 
 add_executable(rmx_hat_research_probe EXCLUDE_FROM_ALL research/audio/experiments/hat_research_probe.cpp research/audio/experiments/HatResearch.cpp)
 target_link_libraries(rmx_hat_research_probe PRIVATE rmx_core)
 target_compile_options(rmx_hat_research_probe PRIVATE -Wall -Wextra -Wpedantic -ffp-contract=off)
+add_executable(rmx_drums_control_probe EXCLUDE_FROM_ALL research/audio/experiments/drums_control_probe.cpp
+    research/audio/experiments/KickResearch.cpp research/audio/experiments/SnareResearch.cpp
+    research/audio/experiments/ClapResearch.cpp research/audio/experiments/HatResearch.cpp)
+target_link_libraries(rmx_drums_control_probe PRIVATE rmx_core)
+target_compile_options(rmx_drums_control_probe PRIVATE -Wall -Wextra -Wpedantic -ffp-contract=off)
 add_executable(rmx_card_export tools/card_export.cpp)
 target_link_libraries(rmx_card_export PRIVATE rmx_core)
 add_executable(rmx_memory_budget tools/memory_budget.cpp)

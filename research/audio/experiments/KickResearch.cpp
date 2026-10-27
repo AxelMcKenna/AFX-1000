@@ -1,13 +1,10 @@
 #include "KickResearch.h"
-#include "KickResearchCalibration.h"
+#include "DrumResearchControls.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
 namespace rmx::research {
 namespace {
-float polynomial(const std::array<float,7>& coefficients,float x) noexcept {
-    float y=coefficients.back();for(size_t i=6;i>0;--i)y=y*x+coefficients[i-1];return y;
-}
 float amplitude(float x) noexcept {
     const float x2=x*x;
     return (x*21.773086547851562f+x2*(x*264.4794616699219f-124.14238739013672f))
@@ -22,6 +19,17 @@ float triangle(float& phase,float frequency) noexcept {
     const float x=phase*4;const float y=phase>.5f?3-x:x-1;
     phase+=frequency*(1.f/48000.f);if(phase>1)phase-=1;return y;
 }
+}
+void KickResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
+    pitchRaw=std::min(pitchRaw,255u);outputLevel=drumLevel(level);const float ratio=drumPitchRate(pitchRaw);
+    noiseMix=.04f;toneLimit=.3f;
+    if(pitchRaw<=120){
+        frequencyBase=(ratio*.8108f+.1892f)*49.91f;
+        frequencyPeak=((ratio*.4578f+.5422f)*49.91f)*6;
+        const float offset=(static_cast<float>(120-pitchRaw)*.0833333358168602f)*12;
+        noiseMix=offset*-.00016666666488163173f+.04f;
+        toneLimit=offset*.00039999998989515007f+.3f;
+    }else{frequencyBase=ratio*49.91f;frequencyPeak=frequencyBase*6;}
 }
 float KickResearch::Envelope::advance() noexcept {
     if(rising){
@@ -46,17 +54,15 @@ void KickResearch::block() noexcept {
     const float gainStep=state>=2?-.00625f:0;if(state>=2)++state;
     if(!state)pending.fill(0);
     else for(size_t begin=0;begin<32;begin+=16){
-        const float frequency=49.91f+(49.91f*6-49.91f)*pitchCurve(pitch.advance());
-        const float level=std::min(.3f,toneCurve(tone.advance()))*.07227f;
-        const float s=polynomial(kickSineHz,frequency),c=polynomial(kickCosineHz,frequency);
-        const float alpha=s*.5f,scale=1.f/(1+alpha),b=alpha*scale;
-        bandpass.coefficients={b,0,-b,(-2*c)*scale,(1-alpha)*scale};
+        const float frequency=frequencyBase+(frequencyPeak-frequencyBase)*pitchCurve(pitch.advance());
+        const float level=std::min(toneLimit,toneCurve(tone.advance()))*.07227f;
+        bandpass.coefficients=drumBandpass(frequency,1);
         const float hiss=pitchCurve(noise.advance());
         for(size_t i=begin;i<begin+16;++i){
             const float a=triangle(phase1,frequency)*23;const float b=triangle(phase2,frequency*.6f)*3;
             const float pitched=bandpass.tick((a+b)*level);
             random1^=random2;const float white=static_cast<float>(std::bit_cast<int32_t>(random2))*(1.f/2147483648.f);random2+=random1;
-            const float mixed=(pitched+(white*hiss)*.04f)*.223872110247612f;
+            const float mixed=(pitched+(white*hiss)*noiseMix)*.223872110247612f;
             const float sample=highpass.tick(mixed);gain+=gainStep;
             pending[i]=static_cast<float>(static_cast<double>(sample*gain)*6.91373157);
         }
@@ -64,7 +70,7 @@ void KickResearch::block() noexcept {
     if(!tone.rising&&tone.value==0&&std::abs(pending.back())<1e-9f)state=0;
     // Global output fade advances on the generated clock, including silence.
     // Applying it after FIFO emission would make callback fragments incorrect.
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample*=startupGain;}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel;}
 }
 void KickResearch::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;

@@ -4,9 +4,10 @@
 #include <cstddef>
 #include <cstdint>
 namespace rmx::research {
-// Neutral factory48k snare hypothesis. Complete original renders decide fidelity.
+// Factory48k snare hypothesis. Complete original renders decide fidelity.
 class SnareResearch {
 public:
+    void setControls(unsigned level,unsigned pitch) noexcept;
     void trigger() noexcept {if(processingStarted)requested=true;}
     void process(std::span<float> output) noexcept;
 private:
@@ -33,6 +34,7 @@ private:
     std::array<float,32> pending{};
     size_t received{},available{},head{};
     float phase1{.25f},phase2{.25f},gain{},startupGain{};
+    float pitchRatio{1},outputLevel{1};
     uint32_t random1{0xd0f61b8f},random2{0x34373a95};
     unsigned state{};bool requested{},processingStarted{};
 };

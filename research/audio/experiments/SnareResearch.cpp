@@ -1,13 +1,10 @@
 #include "SnareResearch.h"
-#include "KickResearchCalibration.h"
+#include "DrumResearchControls.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
 namespace rmx::research {
 namespace {
-float polynomial(const std::array<float,7>& coefficients,float x) noexcept {
-    float y=coefficients.back();for(size_t i=6;i>0;--i)y=y*x+coefficients[i-1];return y;
-}
 float curve60(float x) noexcept {
     if(x<=.05f)return 0;
     const float x2=x*x;
@@ -19,6 +16,13 @@ float triangle(float& phase,float frequency) noexcept {
     const float x=phase*4;const float y=phase>.5f?3-x:x-1;
     phase+=frequency*(1.f/48000.f);if(phase>1)phase-=1;return y;
 }
+}
+void SnareResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
+    outputLevel=drumLevel(level);pitchRatio=drumPitchRate(pitchRaw);
+    lowpass.coefficients=drumLowpass(9000*pitchRatio,1);
+    const auto lp=drumFirstOrder(9000*pitchRatio,false),hp=drumFirstOrder(10000*pitchRatio,true);
+    lowpass1.b0=lp[0];lowpass1.b1=lp[1];lowpass1.feedback=lp[2];
+    highpass1.b0=hp[0];highpass1.b1=hp[1];highpass1.feedback=hp[2];
 }
 float SnareResearch::Envelope::advance() noexcept {
     if(rising){
@@ -44,11 +48,9 @@ void SnareResearch::block() noexcept {
     if(!state)pending.fill(0);
     else for(size_t begin=0;begin<32;begin+=16){
         float p=pitch.advance();p*=p;p=p*p+1;
-        const float frequency=168.2f*p,second=(168.2f+84.8f)*p;
+        const float base=168.2f*pitchRatio,frequency=base*p,second=(base+84.8f)*p;
         const float level=std::min(1.f,curve60(tone.advance())*1.3f)*1.3f;
-        const float s=polynomial(kickSineHz,frequency),c=polynomial(kickCosineHz,frequency);
-        const float alpha=s/(2.0618555545806885f+2.0618555545806885f),scale=1.f/(1+alpha),b=alpha*scale;
-        bandpass.coefficients={b,0,-b,(-2*c)*scale,(1-alpha)*scale};
+        bandpass.coefficients=drumBandpass(frequency,2.0618555545806885f);
         const float hiss=std::min(.66f,curve60(noise.advance())*1.6667f);
         for(size_t i=begin;i<begin+16;++i){
             const float a=triangle(phase1,frequency),b=triangle(phase2,second);
@@ -62,7 +64,7 @@ void SnareResearch::block() noexcept {
         }
     }
     if(!noise.rising&&noise.value==0&&std::abs(pending.back())<1e-9f)state=0;
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample*=startupGain;}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel;}
 }
 void SnareResearch::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;

@@ -7,6 +7,7 @@ namespace rmx::research {
 // Independently implemented neutral factory48k hi-hat research hypothesis.
 class HatResearch {
 public:
+    void setControls(unsigned level,unsigned pitch) noexcept;
     void trigger() noexcept {if(processingStarted)requested=true;}
     void process(std::span<float> output) noexcept;
 private:
@@ -28,7 +29,7 @@ private:
     std::array<float,32> pending{};
     std::array<float,4> phase{};
     size_t received{},available{},head{};
-    float gain{},startupGain{};
+    float gain{},startupGain{},pitchRatio{1},outputLevel{1};
     uint32_t random1{0x77332244},random2{0xefcdab89};
     unsigned state{};bool requested{},processingStarted{};
 };

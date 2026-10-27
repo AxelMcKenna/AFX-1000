@@ -7,6 +7,7 @@ namespace rmx::research {
 // Independently implemented neutral factory48k clap research hypothesis.
 class ClapResearch {
 public:
+    void setControls(unsigned level,unsigned pitch) noexcept;
     void trigger() noexcept {if(processingStarted)requested=true;}
     void process(std::span<float> output) noexcept;
 private:
@@ -32,7 +33,7 @@ private:
     FirstOrder lowpass1{.049754731357097626f,.049754731357097626f,.9004905819892883f};
     std::array<float,32> pending{};
     size_t received{},available{},head{};
-    float phase{1},gain{},startupGain{};
+    float phase{1},gain{},startupGain{},outputLevel{1};
     uint32_t random1{0xb741fe44},random2{0x2c342f89};
     unsigned state{},elapsed{};bool requested{},processingStarted{};
 };

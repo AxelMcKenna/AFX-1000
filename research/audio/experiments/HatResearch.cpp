@@ -1,4 +1,5 @@
 #include "HatResearch.h"
+#include "DrumResearchControls.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -14,6 +15,10 @@ float pulse(float& phase,float frequency) noexcept {
     const float y=phase<.25f?.75f:-.25f;
     phase+=frequency*(1.f/48000.f);if(phase>1)phase-=1;return y;
 }
+}
+void HatResearch::setControls(unsigned level,unsigned pitchRaw) noexcept {
+    outputLevel=drumLevel(level);pitchRatio=drumPitchRate(pitchRaw);
+    highpass1.coefficients=drumHighpass(3360*pitchRatio,1.2f);highpass2.coefficients=drumHighpass(6400*pitchRatio,.851f);
 }
 float HatResearch::Envelope::advance() noexcept {
     if(rising){
@@ -42,7 +47,7 @@ void HatResearch::block() noexcept {
         if(!main.rising){n=curve60(n);a=curve60(a);}
         n=std::min(1.f,n*1.3f)*.15f;a=std::min(1.f,a*1.3f)*.162f;
         for(size_t i=begin;i<begin+16;++i){
-            const float p1=pulse(phase[0],800),p2=pulse(phase[1],525),p3=pulse(phase[2],370),p4=pulse(phase[3],205);
+            const float p1=pulse(phase[0],800*pitchRatio),p2=pulse(phase[1],525*pitchRatio),p3=pulse(phase[2],370*pitchRatio),p4=pulse(phase[3],205*pitchRatio);
             const float pulses=highpass1.tick(((p1+p2)+p3)+p4);
             random1^=random2;const float white=static_cast<float>(std::bit_cast<int32_t>(random2))*(1.f/2147483648.f);random2+=random1;
             const float mixed=highpass2.tick(white*n+pulses*a);
@@ -51,7 +56,7 @@ void HatResearch::block() noexcept {
         }
     }
     if(!main.rising&&main.value==0&&std::abs(pending.back())<1e-9f)state=0;
-    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample*=startupGain;}
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=(sample*startupGain)*outputLevel;}
 }
 void HatResearch::process(std::span<float> output) noexcept {
     if(!output.empty())processingStarted=true;
