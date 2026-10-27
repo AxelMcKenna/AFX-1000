@@ -65,7 +65,11 @@ def capture(args):
     return 0
 
 
-def checked(directory,c):
+def checked(directory,c,*,cold_kick=False):
+    # The original ignores a kick press before its first processing callback.
+    # This measured control hypothesis must be explicitly selected by the caller;
+    # the original discovery/first-prediction contract remains strict by default.
+    require(not cold_kick or c['drum']=='kick','Cold-control hypothesis is kick-only')
     inventory = json.loads((directory/'inventory.json').read_text()); folder = directory/c['name']; receipt_path = folder/'receipt.json'
     receipt = json.loads(receipt_path.read_text()); plan = plan_for(c,inventory)
     require(receipt['complete'] and receipt['role'] == 'reference' and all(receipt['plugin'][k] == v for k,v in IDENTITY.items()),'Wrong original capture')
@@ -77,9 +81,10 @@ def checked(directory,c):
     log = json.loads((folder/'parameter-log.json').read_text())['entries']; requested = [p | dict(frame=-1) for p in plan['parameters']] + plan['events']
     require(len(log) == len(requested),'Unexpected drum parameter log length'); final = parameters(c)
     for req,actual in zip(requested,log):
+        expected = 0 if cold_kick and req['frame']==0 and req['name']=='KickButton' and req['value']==1 else req['value']
         require(all(actual[k] == req[k] for k in ('frame','name','index','id')) and np.float32(actual['requested_value']) == np.float32(req['value'])
-                and abs(actual['immediate_readback']-float(np.float32(req['value']))) <= 1e-14,'Drum immediate readback differs')
-        final[req['name']] = req['value']
+                and abs(actual['immediate_readback']-float(np.float32(expected))) <= 1e-14,'Drum immediate readback differs')
+        final[req['name']] = expected
     readbacks = {p['name']:p['value'] for p in json.loads((folder/'inventory-after.json').read_text())['parameters']}
     require(all(abs(readbacks[k]-float(np.float32(v))) <= 1e-14 for k,v in final.items()),'Drum final readback differs')
     rate,a = float_wav(folder/'audio.wav'); source_rate,x = float_wav(Path(receipt['input_path']))

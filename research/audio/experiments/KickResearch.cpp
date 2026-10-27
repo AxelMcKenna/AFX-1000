@@ -44,8 +44,8 @@ void KickResearch::block() noexcept {
     if(requested){if(!state)start();else if(state==1)state=2;requested=false;}
     if(state>=7)start();
     const float gainStep=state>=2?-.00625f:0;if(state>=2)++state;
-    if(!state){pending.fill(0);return;}
-    for(size_t begin=0;begin<32;begin+=16){
+    if(!state)pending.fill(0);
+    else for(size_t begin=0;begin<32;begin+=16){
         const float frequency=49.91f+(49.91f*6-49.91f)*pitchCurve(pitch.advance());
         const float level=std::min(.3f,toneCurve(tone.advance()))*.07227f;
         const float s=polynomial(kickSineHz,frequency),c=polynomial(kickCosineHz,frequency);
@@ -62,8 +62,12 @@ void KickResearch::block() noexcept {
         }
     }
     if(!tone.rising&&tone.value==0&&std::abs(pending.back())<1e-9f)state=0;
+    // Global output fade advances on the generated clock, including silence.
+    // Applying it after FIFO emission would make callback fragments incorrect.
+    for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample*=startupGain;}
 }
 void KickResearch::process(std::span<float> output) noexcept {
+    if(!output.empty())processingStarted=true;
     std::fill(output.begin(),output.end(),0);size_t read=0,written=0;
     while(read<output.size()){
         const auto take=std::min(32-received,output.size()-read);read+=take;received+=take;

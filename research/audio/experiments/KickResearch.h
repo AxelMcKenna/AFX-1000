@@ -8,7 +8,7 @@ namespace rmx::research {
 // Original scalar observations inform constants; complete waveform tests decide acceptance.
 class KickResearch {
 public:
-    void trigger() noexcept {requested=true;}
+    void trigger() noexcept {if(processingStarted)requested=true;}
     void process(std::span<float> output) noexcept;
 private:
     struct Envelope {
@@ -27,8 +27,8 @@ private:
     Biquad bandpass,highpass{{.9981505274772644f,-1.9963010549545288f,.9981505274772644f,-1.9962975978851318f,.996304452419281f}};
     std::array<float,32> pending{};
     size_t received{},available{},head{};
-    float phase1{.25f},phase2{.25f},gain{};
+    float phase1{.25f},phase2{.25f},gain{},startupGain{};
     uint32_t random1{0x1f9f4541},random2{0x93a6ff6c};
-    unsigned state{};bool requested{};
+    unsigned state{};bool requested{},processingStarted{};
 };
 }
