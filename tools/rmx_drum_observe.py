@@ -39,9 +39,18 @@ def observe(args):
         return list(struct.unpack_from('<'+str(count)+'f',data,offset))
     values = {name:dict(address=hex(symbols[name]),float32_values=floats(symbols[name],5)) for name in NAMES}
     methods = ['PluginDSP::rbnfx_'+name+'()' for name in ('kick','snare','clap','hihat')]
+    table=symbols['gf_rbnfx_thru_lvl_table']
+    snare_offsets=dict(tone_scale=1932,tone_decay_scale=1936,base_frequency=2364,lowpass_frequency=2368,
+                       highpass_frequency=2372,second_tone_offset=2376,noise_scale=2380,noise_limit=2384,
+                       clip_high=2388,clip_low=2392,output_scale=2396)
     save_json(args.report,dict(kind='rmx220-drum-local-scalar-observation',binary_sha256=sha256(args.binary),script_sha256=sha256(Path(__file__)),
               symbol_inventory_sha256=hashlib.sha256(result.stdout.encode()).hexdigest(),named_float_arrays=values,
               generator_symbols={name:hex(symbols[name]) for name in methods},
+              snare_numeric_hypothesis=dict(reference_symbol='gf_rbnfx_thru_lvl_table',
+                  scalars={name:dict(byte_offset=offset,value=floats(table+offset,1)[0]) for name,offset in snare_offsets.items()},
+                  decay_choices=floats(symbols['_g_sn_cstm_dec_tbl'],3),
+                  curve60=dict(threshold=floats(table+1680,1)[0],quadratic_linear=floats(table+2144,2),
+                               upper_vector=floats(table+2256,4),lower_vector=floats(table+2272,4))),
               kick_curve_constants=dict(reference_symbol='gf_rbnfx_thru_lvl_table',byte_offset=2120,
                                         float32_values=floats(symbols['gf_rbnfx_thru_lvl_table']+2120,4)),
               scope='Read-only file observation of numeric constants and symbol names. No code/instruction listing, binary, original audio or DSP state is distributed. Field semantics and complete audio synthesis still require independent identification and waveform tests.'))
