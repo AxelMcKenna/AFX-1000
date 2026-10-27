@@ -1,14 +1,20 @@
 # Reverb Up network identification
 
-27 October 2026. Original RMX-1000 Plug-in 2.2.0, factory Default Up, stereo 48 kHz, 120 BPM, Main raw128 and Sub1 raw128. This continues the full sound-matching goal; it does not establish the other controls, production Up, or hardware equivalence. The [reference-method guide](reference-method.md) explains the experiment's general rules.
+27 October 2026. Original RMX-1000 Plug-in 2.2.0, factory Default Up, stereo 48 kHz, 120 BPM. The current research renderer models static integer Main/Sub1 controls and the measured Sub2 filter. Moving controls, production Up and hardware equivalence remain unfinished. The [reference-method guide](reference-method.md) explains the experiment's general rules.
 
-## Result
+## Current static-control result
+
+The [static control model](measurements/2026-10-27-reverb-up-static-control-model.json) passes [1,204 complete waveform cases](measurements/2026-10-27-reverb-up-static-control-validation-48k.json): **1,024 coefficient-calibration captures, 52 earlier fixtures, 64 regressions from the first mixed set, and 64 new prediction-bound mixed captures**. It independently generates the wet signal from source audio and declared controls. Fresh worst whole/wet/tail errors are about **0.000724%/0.000800%/0.00164%**; overall worst wet/tail errors are about **0.00147%/0.00264%**. The unchanged limit is 1% per channel, with fixed reference/candidate crops32/0 and no comparison gain fitting or wet alignment search.
+
+This is a scoped static research result, not 1,204 blind tests, an exhaustive 65,536-pair waveform sweep, a perceptual score or full-device 99% equivalence. The live Engine's Up path remains approximate. The sections below preserve how the model developed, including the failed first coefficient and mixed-control predictions.
+
+## Neutral-setting checkpoint
 
 The [autonomous static candidate](measurements/2026-10-27-reverb-up-neutral-validation-48k.json) passes **28/28** complete whole/wet/post-input-tail comparisons. Twenty are existing identification/development/component recordings; eight were newly captured after [freezing the candidate](measurements/2026-10-27-reverb-up-neutral-predictions.json). The new set uses two new stereo programs, each at four previously untested cutoff positions: 19, 111, 203 and 247. Audio starts after a one-second silent pre-roll. Duplicated calibration baselines and silence are included in the count and annotated by role.
 
 Fresh worst whole/wet/tail per-channel relative RMS errors are about **0.0013%/0.0026%/0.0039%**. Across all 28 cases, worst wet/tail errors are about **0.0033%/0.0047%**. Every screen retains the 1% limit, reference-channel summed-energy floor `1e-20`, silent-channel absolute RMS limit `1e-8`, reference crop32 and candidate crop0. No comparison gain or wet alignment is fitted. The static dry trace is input at unity; the candidate independently generates the complete reverberation, without a reference wet stem or original reverb output as its input.
 
-The [research C++ renderer](experiments/reverb_up_neutral_probe.cpp) is separate from the live Engine. The Engine's Reverb Up remains the earlier approximation. Main/Sub1 maps, moving controls, cold input, activation, other profiles/rates/tempos, overload, listening and physical hardware remain unfinished.
+The [research C++ renderer](experiments/reverb_up_neutral_probe.cpp) is separate from the live Engine. The Engine's Reverb Up remains the earlier approximation. At this neutral checkpoint, Main/Sub1 maps had not been established; the later static-control work below supplies that separate evidence. Moving controls, cold input, activation, other profiles/rates/tempos, overload, listening and physical hardware remain unfinished.
 
 ## What changed from Down
 
@@ -66,7 +72,7 @@ Run `identify --initial INITIAL_SESSION --calibration CALIBRATION --report NEW_M
 
 Use `compare --model MODEL --calibration CALIBRATION --renderer RENDERER --session initial INITIAL_SESSION --session filters FILTER_SESSION --session holdout HOLDOUT_SESSION --output NEW_DIRECTORY`. The comparator fixes reference/candidate offsets at 32/0. The audit accepts all three sessions, comparison JSONs, frozen prediction/model/calibration, optimized and sanitizer renderers, its sanitizer build directory and a new output directory. Build the complete sanitizer core/fixture with `-fsanitize=address,undefined` compiler/linker flags, `-fno-omit-frame-pointer`, and exported compile commands. Historical frozen hashes require their recorded source version.
 
-The next required step is measuring Up's Main/Sub1 maps and their interaction, followed by motion/startup validation and live Engine integration. Passing a neutral-setting model does not complete full-device 99% fidelity.
+The neutral checkpoint led to the Main/Sub1 measurements below. The current next steps are motion/startup validation and live Engine integration; passing a static model does not complete full-device 99% fidelity.
 
 ## Dense controls: first identification checkpoint
 
@@ -100,3 +106,50 @@ Before new recordings, [freeze the model, renderer, source files, source samples
 The similar error for broad-spectrum and impulse programs suggests a Main/Sub1 level interaction, but that remains a hypothesis until separately measured. Preserve this failed candidate and report before changing it. Next measure Main across its full range at Sub1-255 and Sub1 across its full range at Main255, fit an interaction map only from those calibration sweeps, then freeze a different mixed program set before further original captures. The failed 64 become regressions for a revised candidate, not new validation of that revision.
 
 [`rmx_reverb_up_controls.py`](../../tools/rmx_reverb_up_controls.py) provides `capture`/`identify` for `main`, `amount`, `main-long` and `amount-large`. [`rmx_reverb_up_model.py`](../../tools/rmx_reverb_up_model.py) provides `build`, `predict`, `capture` and `compare`. Use `--help` for exact arguments. Every destination must be new; historical frozen bindings require the recorded source checkpoint. Full control auditing, moving controls, startup, live Engine integration, other rates/profiles/tempos, overload, listening and hardware remain unfinished.
+
+
+## Measured interaction and a further fresh set
+
+The retrospective [failed-case level diagnostic](measurements/2026-10-27-reverb-up-mixed-first-level-diagnostic.json) nearly removes the residual with one constant scale per case. That supported investigating level, but those fitted scales were never used for waveform acceptance or to calibrate the final interaction map.
+
+Instead, capture two additional dense axes: [Main0..255 at Sub1-255](measurements/2026-10-27-reverb-up-main-long-identification.json), then [Sub1-0..255 at Main255](measurements/2026-10-27-reverb-up-amount-large-identification.json). The 512 recordings use the same +0.02 left impulse and three-second tails as the first axes. They each carry feedback forecasts saved before capture. All coefficient fits and assessable forecasts pass; worst gain errors are about `2.94e-7` and `1.49e-7`, below the unchanged `2e-6` limit. Four zero-wet Main positions do not expose internal geometry/gains and are explicitly unassessable for that forecast.
+
+Let `G(M,A)` be the identified wet gain, `B(M)=G(M,128)`, and `U(A)=G(128,A)/G(128,128)`. Use a separable correction to the initial level map:
+
+```text
+C(M) = G(M,255) / (B(M)*U(255)) - 1
+D(A) = (G(255,A) / (B(255)*U(A)) - 1) / C(255)
+model wet gain(M,A) = B(M)*U(A)*(1 + C(M)*D(A))
+```
+
+This is an empirical model, not a manufacturer specification. Zero-wet Main rows use `C=0`; their hidden state remains unqualified for motion. Across the integer map, the correction factor ranges from about **0.96877 to 1.03264**, explaining the earlier roughly 3% failures. The feedback exponent, measured integer delays, input filter and Sub2 output filter retain their separately identified forms. No scale is estimated from the waveform being judged.
+
+The builder requires both interaction reports to match their frozen separable base model, corrected reference and calibration. [Seven invalid provenance/fit inputs](measurements/2026-10-27-reverb-up-static-builder-guards.json) are rejected before writing a model/header. Positive level and stable feedback/input-filter math are checked over all 65,536 integer combinations; these checks are not 65,536 audio comparisons.
+
+All 1,140 existing/calibration cases pass with this revised candidate. Then [freeze a second mixed set](measurements/2026-10-27-reverb-up-mixed-second-predictions.json): change program seed/chirp/tones, impulse times, Main/Sub1 pairs and cutoff positions, retaining the same 1% gates, source-sample hashing, original host and 32/0 offsets. All **64 newly captured cases pass** complete whole/wet/post-input-tail screens, including 18- or 90-second tails. Combined total is **1,204/1,204**. The first candidate's 12 failures and frozen source remain at `a6dff02`; its original coefficient failures remain at `2a827bd`.
+
+### Final audit and implementation checks
+
+The [static-control audit](measurements/2026-10-27-reverb-up-static-control-audit.json) rechecks all 1,204 recipes/receipts/auxiliary hashes, every immediate/final parameter readback, shared original host/bundle identity, and all candidate file hashes. It recomputes every whole/wet/tail screen. The new mixed session must match the current frozen prediction; the prior mixed session retains its earlier frozen candidate and is explicitly a regression. All **1,203 non-silent input prefixes** are bit-identical across original/candidate/input over their first 128 direct-only frames; the silent-input case stays zero.
+
+It also rechecks the debugger/original input, plan, audio, host and bundle hashes plus scalar script/log hashes, and repeats all eight corrected-reference coefficient forecasts. Five changed recipes, nine changed prediction/model bindings and eighteen invalid/existing-output native requests are rejected. The shared WAV loader's NaN-to-zero behavior is separately confirmed. The one-frame Main104 network perturbation still fails at roughly 47.8% wet error.
+
+Two full optimized/sanitized renders are byte-identical, including a fresh stereo program. Compile recipes, object freshness and object/source/calibration hashes verify instrumentation of DSP and shared WAV IO with AddressSanitizer/UndefinedBehaviorSanitizer. All [28 legacy neutral outputs remain byte-identical](measurements/2026-10-27-reverb-up-legacy-neutral-interaction-parity.json). Eight relevant core CTest groups pass; the [check record](measurements/2026-10-27-reverb-up-static-control-checks.json) binds these results. Offline whole-file allocation remains; there is no callback deadline, fresh firmware cross-build or hardware claim.
+
+### Reproduce the interaction model
+
+After retaining the first candidate and failed report, use `capture --stage main-long` and `capture --stage amount-large` with `--neutral CORRECTED_REFERENCE --static-model SEPARABLE_MODEL`, then `identify` for each session with the same inputs. Build the revised model into **new** destinations:
+
+```sh
+uv run --locked python -m tools.rmx_reverb_up_model build \
+  --main MAIN_REPORT --amount AMOUNT_REPORT --neutral CORRECTED_REFERENCE \
+  --calibration CALIBRATION --feedback-validation FRESH_COEFFICIENT_VALIDATION \
+  --main-long MAIN_LONG_REPORT --amount-large AMOUNT_LARGE_REPORT \
+  --interaction-base SEPARABLE_MODEL --report NEW_MODEL --header NEW_HEADER
+```
+
+Review the generated header against `ReverbUpControlCalibration.h`, deliberately install/rebuild it, and compare all prior sessions. Use `predict --recipe mixed-v2`, then `capture --recipe mixed-v2 --prediction NEW_PREDICTION` with original host/plug-in and a new session; `compare --session mixed-v2 NEW_SESSION` renders the independently implemented candidate. Preserve complete original tails rather than using the damped identification response as an acceptance substitute.
+
+Run `uv run --locked python -m tools.rmx_reverb_up_model_audit --help` for the audit arguments. Supply the eleven named sessions, three component comparison reports, current/first mixed predictions, corrected reference/coefficient validation, original read-only observation artifacts, optimized/one-frame/sanitizer renderers and sanitizer build directory. The audit checks the installed original bundle and requires unchanged historical source bindings. Published numeric records omit large captures and raw debugger artifacts; reproducing those checks requires the separately acquired original and locally generated sessions.
+
+Current scope is **static integer controls with settled silent pre-roll, factory Up, stereo 48 kHz/120 BPM**. Moving controls, activation/cold startup, fractional controls, other profiles/rates/tempos, live Engine integration, overload, listening and physical hardware remain required by the full sound-matching goal.

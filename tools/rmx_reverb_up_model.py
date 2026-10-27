@@ -64,10 +64,17 @@ def build(args):
     main_correction,amount_correction=[0.]*256,[0.]*256;interaction_sources=None
     if bool(args.main_long)!=bool(args.amount_large):raise ValueError('Both interaction sweeps are required')
     if args.main_long:
+        if args.interaction_base is None:raise ValueError('Interaction sweeps require their frozen base model')
+        base=json.loads(args.interaction_base.read_text())
+        if (base.get('kind')!='rmx220-reverb-up-static-control-model' or base['interaction_rank']!=1
+                or base['calibration_sha256']!=sha256(args.calibration) or base['neutral_model_sha256']!=sha256(args.neutral)
+                or base['main_identification_sha256']!=sha256(args.main) or base['amount_identification_sha256']!=sha256(args.amount)
+                or base['main_rows']!=rows or base['amount_gains']!=gains):raise ValueError('Interaction base differs from measured anchors')
         high,large=[json.loads(p.read_text()) for p in (args.main_long,args.amount_large)]
         for data,stage,key in [(high,'main-long','main_raw'),(large,'amount-large','amount_raw')]:
             if (data.get('kind')!='rmx220-reverb-up-control-identification' or data['stage']!=stage or not data['fitting_screen_passed']
                     or not data['prospective_predictions_passed'] or data['calibration_sha256']!=sha256(args.calibration)
+                    or data['neutral_model_sha256']!=sha256(args.neutral) or data['static_model_sha256']!=sha256(args.interaction_base)
                     or [c[key] for c in data['cases']]!=list(range(256))):raise ValueError('Incomplete/failed interaction sweep')
         for raw,c in enumerate(high['cases']):
             if rows[raw]['wet_gain']>0:main_correction[raw]=c['wet_gain']/rows[raw]['wet_gain']*gains[128]/gains[255]-1
@@ -75,7 +82,7 @@ def build(args):
         for raw,c in enumerate(large['cases']):amount_correction[raw]=(c['wet_gain']/rows[255]['wet_gain']*gains[128]/gains[raw]-1)/main_correction[255]
         factors=1+np.outer(main_correction,amount_correction)
         if not np.isfinite(factors).all() or factors.min()<=0:raise ValueError('Nonpositive interaction gain')
-        interaction_sources=dict(main_long_sha256=sha256(args.main_long),amount_large_sha256=sha256(args.amount_large))
+        interaction_sources=dict(main_long_sha256=sha256(args.main_long),amount_large_sha256=sha256(args.amount_large),base_model_sha256=sha256(args.interaction_base))
     def numbers(values):return ','.join(format(float(v),'.17g') for v in values)
     header='// Own measured static Default Up maps, 48 kHz. Motion/rates/hardware remain unproven.\n#pragma once\n#include <array>\n'
     header+='struct ReverbUpControlRow {std::array<std::array<int,2>,5> delays;std::array<double,5> gainL,gainR;std::array<double,2> inputA;double wetGain;};\n'
@@ -210,7 +217,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);commands=p.add_subparsers(dest='command',required=True)
     q=commands.add_parser('build')
     for name in ('main','amount','neutral','calibration','report','header'):q.add_argument('--'+name,type=Path,required=True)
-    q.add_argument('--main-long',type=Path);q.add_argument('--amount-large',type=Path);q.add_argument('--feedback-validation',type=Path)
+    q.add_argument('--main-long',type=Path);q.add_argument('--amount-large',type=Path);q.add_argument('--interaction-base',type=Path);q.add_argument('--feedback-validation',type=Path)
     for command in ('predict','capture','compare'):
         q=commands.add_parser(command)
         for name in ('model','calibration'):q.add_argument('--'+name,type=Path,required=True)

@@ -6,7 +6,7 @@ The [sound-matching research](../research/audio/rmx1000-fidelity.md) defines the
 
 Factory Default Reverb Down at 48 kHz now runs the measured processor in the live Engine. The [192-case Engine matrix](../research/audio/measurements/2026-10-27-reverb-down-engine-validation-48k.json) passes, including eight new programs after freezing the integrated candidate. This profile reports a nominal 32-frame delay, including button-off; other profiles/rates use the earlier approximation. [Integration, routing and wrapper checks](../research/audio/reverb-down-motion.md#live-engine-integration-and-prospective-checks) describe its scope. Other effects, combined processing and physical hardware remain part of the unfinished fidelity goal.
 
-An [independent Reverb Up research model](../research/audio/reverb-up.md) passes 28 static Main128/Sub1-128 cases, including eight fresh recordings. It identifies Up-specific input band-pass and feedback high-pass stages. Up's complete Main/Sub1 maps, motion/startup and live Engine integration remain unfinished; the live Up path is still approximate.
+An [independent Reverb Up research model](../research/audio/reverb-up.md) passes 1,204 static cases: 1,024 calibration captures, 116 prior regressions and 64 new mixed-control recordings after a frozen prediction. It identifies Up-specific input/feedback filters, integer delay maps and a Main/Sub1 level interaction; fresh worst wet/tail errors are about 0.00080%/0.00164%. Failed earlier forecasts and unchanged acceptance limits remain documented. Motion/startup and live Engine integration remain unfinished; the live Up path is still approximate.
 
 ## Current reference status
 

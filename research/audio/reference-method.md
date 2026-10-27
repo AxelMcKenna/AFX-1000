@@ -73,3 +73,10 @@ The [bounded-processor checkpoint](measurements/2026-10-27-reverb-down-productio
 The [resource record](measurements/2026-10-27-reverb-down-engine-resources.json) covers bounded buffers, instrumented allocation checks and sanitizer builds. [AU/VST3 wrapper checks](measurements/2026-10-27-reverb-down-engine-plugins.json) exercise eight of those existing programs with whole-output/tail gates and latency readbacks; they are regressions, not further fresh original recordings. AU needs an explicit post-render message dispatch in this synchronous offline host to observe its asynchronous latency notification. Adding `post_render_message_pump_ms: 100` to a capture plan changes metadata observation after audio finishes; all eight AU WAV hashes stay unchanged. The earlier failed zero-latency report is retained.
 
 Coverage of other profiles, rates, tempos, combined effects, listening and physical hardware remains separate work. Passing this scoped matrix does not complete the full sound-matching goal.
+
+
+## Reverb Up extension
+
+The [Up investigation](reverb-up.md) applies the same method to Up's different input and feedback filters. Its current static research model passes 1,204 waveform cases, including 64 new mixed-control recordings after freezing the corrected candidate. Of the remaining cases, 1,024 calibrate coefficients and 116 are earlier regressions. The live Up Engine remains approximate; motion/startup and hardware are not covered.
+
+Two failures are preserved in the development record: nominal feedback-filter arithmetic failed 155 of 256 initial coefficient forecasts; the first separable Main/Sub1 level model then failed 12 of 64 mixed waveforms. Read-only measured feedback scalars informed a revised reference, tested by eight new signed/shifted impulses. Two additional dense control axes identified a level interaction, followed by a different frozen 64-case source/control set. None of the waveform limits or alignment rules changed. The notes include equations, exact integer-delay exceptions, negative controls, command sequence, hashes, audits and every scoped limitation.

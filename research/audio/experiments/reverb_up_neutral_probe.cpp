@@ -1,4 +1,4 @@
-// Independent static factory Up Main128/Sub1-128/48-kHz research model.
+// Independent static factory Up/48-kHz research model; legacy neutral CLI retained.
 #include "rmx/Wav.h"
 #include "rmx/Dsp.h"
 #include "ReverbUpNeutralCalibration.h"
