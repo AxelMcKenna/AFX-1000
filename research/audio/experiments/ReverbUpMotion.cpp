@@ -128,7 +128,7 @@ void ReverbUpMotion::configure(Controls c) noexcept {
     const int audibleMain=std::max(4,slowMain),targetAudible=std::max(4,roomMain);
     const auto& filterRow=reverbUpControls[static_cast<size_t>(std::max(4,c.main))];
     const double numerator=(1-filterRow.inputA[1])/2;
-    requested[10]=inputShape(audibleMain);
+    requested[10]=inputShape(std::max(4,c.main));
     const double targetSend=inputShape(targetAudible);
     const double roomNumerator=(1-reverbUpControls[static_cast<size_t>(targetAudible)].inputA[1])/2;
     requested[11]=roomMain<4?returnShape(roomMain,c.amount):wet/(targetSend*mainMix(roomMain)*roomNumerator);
