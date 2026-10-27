@@ -35,9 +35,9 @@ def replay(rows,period):
 
 
 def analyze(args):
-    cases=recipe('fresh-v3');case=next(c for c in cases if c['name']==args.normal.name)
-    require(case['enabled'] and case['effect']==7 and case['route']==0 and case['main'] in (31,101),'Requires reviewed input-only Crush case')
-    call=copy.copy(args);call.session=args.normal.parent;call.stage='fresh-v3';_,provenance=checked(call,case)
+    cases=recipe(args.stage);case=next(c for c in cases if c['name']==args.normal.name)
+    require(case['enabled'] and case['effect']==7 and case['route']==0 and case['main'] in (15,31,101),'Requires reviewed input-only Crush case')
+    call=copy.copy(args);call.session=args.normal.parent;_,provenance=checked(call,case)
     normal=json.loads((args.normal/'receipt.json').read_text());observed=json.loads((args.observed/'receipt.json').read_text())
     require(observed['complete'] and observed['role']=='reference' and observed['plugin']==normal['plugin'],'Observed identity differs')
     for name,field in [('audio.wav','output_sha256'),('plan.json','plan_sha256'),('state-before.bin','initial_state_sha256'),('state-after.bin','final_state_sha256'),('parameter-log.json','parameter_log_sha256'),('inventory-after.json','final_inventory_sha256')]:
@@ -48,21 +48,23 @@ def analyze(args):
     require(rows[0]['held']==[0.,0.],'Initial held sample differs')
     f=np.float32;raw=f(case['main']);scale=f(1/255)
     grouped=replay(rows,max(f(1),f(f(raw*f(24))*scale)))
+    rounded=replay(rows,max(f(1),f(f(f(f(raw*f(24))*scale)+f(1))-f(1))))
     former=replay(rows,max(f(1),f(f(raw*scale)*f(24))))
     division=replay(rows,max(f(1),f(f(raw/f(255))*f(24))))
-    require(grouped['exact_blocks']==9000,'Corrected clock replay differs')
-    rejected=former if case['main']==31 else division
+    require(rounded['exact_blocks']==9000,'Corrected clock replay differs')
+    rejected=former if case['main']==31 else division if case['main']==101 else grouped
     require(rejected['exact_blocks']<9000,'Wrong grouping was not distinguished')
     save_json(args.report,dict(kind='rmx220-crush-long-clock-scalar-replay',passed=True,original_provenance=provenance,
         observed_receipt_sha256=sha256(args.observed/'receipt.json'),trace_sha256=sha256(args.trace),observer_sha256=sha256(args.observer),analyzer_sha256=sha256(Path(__file__)),
         normal_observed_audio_and_auxiliary_files_byte_identical=True,raw_main=case['main'],blocks=9000,generated_frames=288000,
-        float32_grouping='float32(float32(raw *24) * float32(1/255))',grouped=grouped,former_normalize_first=former,division_first=division,
-        scope='Read-only original scalar component replay for one static48k Crush input-only setting. Main31 distinguishes multiply24-first from normalize-first; Main101 distinguishes reciprocal multiplication from division. Neither a complete waveform qualification nor a broad-control accuracy claim.'))
+        float32_grouping='float32(float32(float32(raw *24) * float32(1/255)) +1) -1',rounded_interval=rounded,grouped_without_interval_rounding=grouped,former_normalize_first=former,division_first=division,
+        scope='Read-only original scalar component replay for one static48k Crush input-only setting. Main31 distinguishes multiply24-first from normalize-first; Main101 distinguishes reciprocal multiplication from division; Main15 distinguishes the additional interval-boundary rounding. Neither a complete waveform qualification nor a broad-control accuracy claim.'))
     return 0
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--stage',choices=['fresh-v3','fresh-v4'],default='fresh-v3')
     for key in ('normal','observed','trace','observer','report','host'):p.add_argument('--'+key,type=Path,required=True)
     raise SystemExit(analyze(p.parse_args()))
 

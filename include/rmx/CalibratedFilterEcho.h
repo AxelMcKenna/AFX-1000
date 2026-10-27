@@ -123,11 +123,12 @@ private:
         const double fc=type==7?std::round(60*std::exp(std::max(raw-4,0)*.0168583737)):
             (high?60*std::pow(10000./60,std::max(raw-4,0)/251.):96*std::pow(23500./96,(255-std::max(raw,4))/251.))*ratio;
         gain=1-std::pow(std::clamp(type==7?(129-raw)/126.:(66-raw)/63.,0.,1.),2);
-        // Multiply by 24 before normalizing. Rounding the normalized control
-        // first changes the clock by an ULP at some settings; the accumulated
-        // phase then captures different source frames in a long render.
+        // Preserve both roundings: the scaled control, then the following
+        // interval boundary. At low controls adding one crosses an exponent
+        // boundary; omitting that rounding changes recurring capture frames.
         const float scaled=raw*24.f;
-        holdPeriod=std::max(1.f,scaled*(1.f/255.f));
+        const float boundary=scaled*(1.f/255.f)+1.f;
+        holdPeriod=std::max(1.f,boundary-1.f);
         const double t=std::tan(std::numbers::pi*fc/48000);
         feedbackPole=(1-t)/(1+t);feedbackGain=(1+(high?feedbackPole:-feedbackPole))/2;
         for(unsigned channel=0;channel<2;++channel) {
