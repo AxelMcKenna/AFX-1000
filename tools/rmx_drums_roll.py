@@ -18,11 +18,11 @@ from tools.rmx_kick_validate import ACCEPTANCE
 def recipe():
     rows=[]
     for pad,drum in enumerate(DRUMS):
-        for position in [-1,*range(8)]:
-            changes=[dict(frame=9600,type='H',value=pad),dict(frame=9632,type='R',value=pad)]
+        for position in [-1,*range(6)]:
+            changes=[dict(frame=1,type='X',value=max(0,position)*51),dict(frame=9600,type='H',value=pad),dict(frame=9632,type='R',value=pad)]
             if position>=0:changes.extend([dict(frame=96000,type='T',value=1),dict(frame=336000,type='T',value=0)])
             rows.append(dict(name=f'roll-{drum}-'+('baseline' if position<0 else f'position{position}'),drum=drum,variant='roll-discovery',block=128,
-              level=128,pitch=128,hits=[9600],position=max(0,position)*32+16,bpm=120,quantize=0,changes=changes))
+              level=128,pitch=128,hits=[9600],position=max(0,position)*51,bpm=120,quantize=0,changes=changes))
     return rows
 
 
@@ -35,7 +35,7 @@ def original_plan(c,inventory):
     def setting(name,value):
         p=next(p for p in inventory['parameters'] if p['name']==name);return {k:p[k] for k in ['name','id','index']}|dict(value=value)
     plan['bpm']=c['bpm'];plan['parameters']=[p|dict(value=c['quantize']) if p['name']=='QuantizeButton' else p for p in plan['parameters']]
-    plan['parameters'].append(setting('XpadPosition',c['position']/255));events=[]
+    events=[]
     for e in c['changes']:
         kind=e['type'];raw=e['value'];name=list(DRUMS.values())[raw] if kind in ('H','R') else dict(T='XpadTouch',X='XpadPosition',F='HoldButton')[kind]
         value=1 if kind=='H' else 0 if kind=='R' else raw/255 if kind=='X' else raw
@@ -54,7 +54,7 @@ def capture(args):
         path=root/(c['name']+'.json');save_json(path,original_plan(c,inventory));run([args.host,'render',args.plugin,source,path,root/c['name'],c['block']])
         c['receipt_sha256']=sha256(root/c['name']/'receipt.json');print('CAPTURED',c['name'],flush=True)
     require(binding==source_hashes(),'Capture source changed');save_json(root/'matrix.json',dict(kind='rmx220-drums-roll-discovery',cases=cases,source_sha256=binding,
-      scope='Original factory48k/120BPM unquantized static-position drum rolls; four independent no-touch baselines. Discovery only.'));return 0
+      scope='Original factory48k/120BPM unquantized six warmed canonical roll positions; four independent no-touch baselines. Discovery only.'));return 0
 
 
 def original(args,c):

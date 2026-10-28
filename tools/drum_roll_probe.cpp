@@ -24,7 +24,11 @@ int main(int argc,char** argv){try{
     engine.params.set(rmx::Param::AutoTempo,0);engine.params.set(rmx::Param::Quantize,static_cast<float>(quantize));engine.params.set(rmx::Param::Tempo,static_cast<float>(bpm));
     engine.params.set(rmx::Param::SampleSource,0);engine.params.set(rmx::Param::SceneOn,0);engine.params.set(rmx::Param::IsolateOn,0);
     engine.params.set(rmx::Param::XLevel,level*1.5f/255);engine.params.set(rmx::Param::XPitch,pitch>=128?(pitch-128)*24.f/127:(static_cast<int>(pitch)-128)*24.f/128);
-    auto position=[&](unsigned raw){engine.params.set(rmx::Param::XRoll,static_cast<float>(std::min(7u,raw/32)));};position(rawPosition);engine.prepare(48000,block);
+    // Compare equivalent musical settings. The project has eight strip
+    // assignments; the original exposes six canonical positions. The two
+    // additional project divisions are outside this reference fixture.
+    constexpr std::array<unsigned,6> projectPositions{0,1,2,3,5,6};
+    auto position=[&](unsigned raw){engine.params.set(rmx::Param::XRoll,static_cast<float>(projectPositions[std::min(5u,raw/51)]));};position(rawPosition);engine.prepare(48000,block);
     rmx::Sample audio,dry;audio.rate=dry.rate=48000;audio.frames.resize(input.frames.size());dry.frames.resize(input.frames.size());
     std::array<float,4096> left{},right{};size_t event=0;unsigned selected=0;
     for(size_t start=0;start<input.frames.size();){
