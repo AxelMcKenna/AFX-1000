@@ -85,7 +85,11 @@ def capture(args):
 
 def compare(args):
     binding=source_hashes();binary=sha256(args.renderer);root=new_directory(args.output);rows=[]
-    if args.stage=='fresh':require(json.loads(args.prediction.read_text())==payload(args) and sha256(args.prediction)==sha256(args.session/'predictions.json'),'Frozen prediction differs')
+    if args.stage=='fresh':
+        if args.regression:
+            old=json.loads(args.prediction.read_text());require(old['kind']=='rmx220-drums-motion-prediction' and old['cases']==recipe('fresh') and old['acceptance']==ACCEPTANCE,'Former motion recipe/gates differ')
+        else:require(json.loads(args.prediction.read_text())==payload(args),'Frozen prediction differs')
+        require(sha256(args.prediction)==sha256(args.session/'predictions.json'),'Frozen prediction copy differs')
     for c in recipe(args.stage):
         a,provenance=checked(args.session,c,plan_builder=original_plan);receipt=json.loads((args.session/c['name']/'receipt.json').read_text())
         require(receipt['host_sha256']==sha256(args.host),'Original host differs')
@@ -111,7 +115,7 @@ def compare(args):
         row['passed']=row['whole']['passed'] and all(w['score']['passed'] for w in windows);rows.append(row)
         print('PASS' if row['passed'] else 'FAIL',c['name'],flush=True)
     require(binding==source_hashes() and binary==sha256(args.renderer),'Sources/renderer changed')
-    save_json(root/'comparison.json',dict(kind='rmx220-drums-motion-comparison',passed=all(r['passed'] for r in rows),stage=args.stage,cases=rows,source_sha256=binding,renderer_sha256=binary,
+    save_json(root/'comparison.json',dict(kind='rmx220-drums-motion-comparison',passed=all(r['passed'] for r in rows),stage=args.stage,role='former_prediction_regression' if args.regression else 'fresh_prediction_bound' if args.stage=='fresh' else 'development_regression',cases=rows,source_sha256=binding,renderer_sha256=binary,
       sanitized_sha256=sha256(args.sanitized) if args.sanitized else None,acceptance=ACCEPTANCE,prediction_sha256=sha256(args.prediction) if args.stage=='fresh' else None,
       scope='Live Engine default-profile48k pitch/level gestures; original provenance/readbacks verified, fixed32/32, no gain/alignment fitting. Discovery cases are regressions rather than fresh predictions.'))
     return 0 if all(r['passed'] for r in rows) else 1
@@ -125,7 +129,7 @@ def main():
         else:
             q.add_argument('--session',type=Path,required=True);q.add_argument('--host',type=Path,required=True)
             if name=='capture':q.add_argument('--plugin',type=Path,required=True)
-            else:q.add_argument('--output',type=Path,required=True);q.add_argument('--sanitized',type=Path)
+            else:q.add_argument('--output',type=Path,required=True);q.add_argument('--sanitized',type=Path);q.add_argument('--regression',action='store_true')
     args=p.parse_args();raise SystemExit(globals()[args.command](args))
 
 

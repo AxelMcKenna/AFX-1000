@@ -15,9 +15,19 @@ from tools.rmx_filter_match import screen
 from tools.rmx_kick_validate import ACCEPTANCE
 
 
-def recipe():
+def recipe(stage='discovery'):
     rows=[]
     for pad,drum in enumerate(DRUMS):
+        if stage=='fresh':
+            specs=[('cold-one',37,239,173,204,7,[(97,1),(192241,0)]),
+              ('warm-two',293,17,73,255,48043,[(96079,1),(336271,0)]),
+              ('cold-quarter',79,255,116,102,3,[(43,1),(144197,0)]),
+              ('restart',1597,128,141,[51,102,153,204][pad],173,[(65573,1),(145007,0),(192193,1),(336421,0)])]
+            for variant,block,level,pitch,position,hit,touches in specs:
+                changes=[dict(frame=1,type='X',value=position),dict(frame=hit,type='H',value=pad),dict(frame=hit+32,type='R',value=pad)]
+                changes += [dict(frame=at,type='T',value=value) for at,value in touches];changes.sort(key=lambda e:e['frame'])
+                rows.append(dict(name=f'roll-fresh-{drum}-{variant}',drum=drum,variant=variant,block=block,level=level,pitch=pitch,hits=[hit],position=position,bpm=120,quantize=0,changes=changes))
+            continue
         for position in [-1,*range(6)]:
             changes=[dict(frame=1,type='X',value=max(0,position)*51),dict(frame=9600,type='H',value=pad),dict(frame=9632,type='R',value=pad)]
             if position>=0:changes.extend([dict(frame=96000,type='T',value=1),dict(frame=336000,type='T',value=0)])
@@ -47,14 +57,32 @@ def schedule(c):
     return f'RMX_DRUM_ROLL 1\n{c["level"]} {c["pitch"]} {c["position"]} {c["block"]} {c["bpm"]} {c["quantize"]}\n'+''.join(f'{e["frame"]} {e["type"]} {e["value"]}\n' for e in c['changes'])
 
 
+def payload(args):
+    return dict(kind='rmx220-drums-roll-prospective-prediction',cases=recipe('fresh'),source_sha256=source_hashes(),renderer_sha256=sha256(args.renderer),acceptance=ACCEPTANCE,
+      expected='All16 fresh full-program, selection/touch/roll/tail windows pass unchanged1% per channel, fixed32/32, no gain or alignment fitting.',
+      scope='Factory default48k/120BPM unquantized positive musical roll divisions, static pitch/level, fragmented callbacks, cold/warm/restart gestures. Extra project positions, strip geometry, moving positions, Hold, Quantize, other tempos/profiles, wrappers and hardware remain separate.')
+
+
+def frozen(args):
+    require(args.prediction is not None and json.loads(args.prediction.read_text())==payload(args),'Frozen roll prediction differs')
+
+
+def predict(args):
+    require(args.stage=='fresh','Only fresh programs can be predicted');save_json(args.report,payload(args));return 0
+
+
 def capture(args):
+    if args.stage=='fresh':frozen(args)
     binding=source_hashes();root=new_directory(args.session);inventory=json.loads(run([args.host,'inventory',args.plugin]));require(all(inventory[k]==v for k,v in IDENTITY.items()),'Wrong original')
-    save_json(root/'inventory.json',inventory);source=root/'silence.wav';write_wav(source,48000,np.zeros(FRAMES*2));cases=recipe()
+    if args.stage=='fresh':(root/'predictions.json').write_bytes(args.prediction.read_bytes())
+    save_json(root/'inventory.json',inventory);source=root/'silence.wav';write_wav(source,48000,np.zeros(FRAMES*2));cases=recipe(args.stage)
     for c in cases:
         path=root/(c['name']+'.json');save_json(path,original_plan(c,inventory));run([args.host,'render',args.plugin,source,path,root/c['name'],c['block']])
         c['receipt_sha256']=sha256(root/c['name']/'receipt.json');print('CAPTURED',c['name'],flush=True)
-    require(binding==source_hashes(),'Capture source changed');save_json(root/'matrix.json',dict(kind='rmx220-drums-roll-discovery',cases=cases,source_sha256=binding,
-      scope='Original factory48k/120BPM unquantized six warmed canonical roll positions; four independent no-touch baselines. Discovery only.'));return 0
+    require(binding==source_hashes(),'Capture source changed')
+    if args.stage=='fresh':frozen(args)
+    save_json(root/'matrix.json',dict(kind='rmx220-drums-roll-captures',stage=args.stage,cases=cases,source_sha256=binding,prediction_sha256=sha256(args.prediction) if args.stage=='fresh' else None,
+      scope='Original factory48k/120BPM unquantized warmed canonical roll controls. Discovery and fresh roles are separate.'));return 0
 
 
 def original(args,c):
@@ -74,33 +102,50 @@ def attack_starts(a):
 
 
 def compare(args):
+    if args.stage=='fresh':
+        if args.regression:
+            old=json.loads(args.prediction.read_text());require(old['kind']=='rmx220-drums-roll-prospective-prediction' and old['cases']==recipe('fresh') and old['acceptance']==ACCEPTANCE,'Former roll recipe/gates differ')
+        else:frozen(args)
+        manifest=json.loads((args.session/'matrix.json').read_text());require(manifest['prediction_sha256']==sha256(args.prediction)==sha256(args.session/'predictions.json'),'Fresh prediction copy differs')
     binding=source_hashes();binary=sha256(args.renderer);root=new_directory(args.output);rows=[]
-    for c in recipe():
+    for c in recipe(args.stage):
         a,provenance=original(args,c);plan=root/(c['name']+'.tsv');plan.write_text(schedule(c));out=root/(c['name']+'.wav');dry=root/(c['name']+'-dry.wav')
         run([args.renderer,args.session/'silence.wav',out,plan,dry]);rate,b=float_wav(out);drate,d=float_wav(dry)
         require(rate==drate==48000 and a.shape==b.shape==d.shape==(FRAMES,2) and not np.any(d),'Candidate extent/rate/dry differs')
         starts=attack_starts(a);candidate_starts=attack_starts(b);a,b=a[32:],b[32:];windows=[]
-        for kind,start,stop in [('selection',9600,9600+120000),('touch-attack',96000,96256),('roll-stop',336000,337024),('tail',336000,FRAMES-32)]:
+        intervals=[('selection',9600,9600+120000),('touch-attack',96000,96256),('roll-stop',336000,337024),('tail',336000,FRAMES-32)]
+        intervals += [('roll-window',at,at+24000) for at in range(96000,336000,24000)]
+        if args.stage=='fresh':
+            touches=[e for e in c['changes'] if e['type']=='T'];last=max(e['frame'] for e in touches)
+            intervals=[('selection',c['hits'][0],c['hits'][0]+120000),('tail',last,FRAMES-32)]
+            for e in touches:intervals.append(('touch-attack' if e['value'] else 'roll-stop',e['frame'],e['frame']+(256 if e['value'] else 1024)))
+            for on,off in zip(touches[::2],touches[1::2]):intervals += [('roll-window',at,min(at+24000,off['frame'])) for at in range(on['frame'],off['frame'],24000)]
+        for kind,start,stop in intervals:
+            stop=min(stop,len(a));require(stop>start,'Invalid roll window')
             windows.append(dict(kind=kind,start=start,stop=stop,score=screen(a[start:stop],b[start:stop])))
-        for at in range(96000,336000,24000):windows.append(dict(kind='roll-window',start=at,stop=at+24000,score=screen(a[at:at+24000],b[at:at+24000])))
         whole=screen(a,b);passed=whole['passed'] and all(w['score']['passed'] for w in windows)
         rows.append(provenance|dict(passed=passed,candidate_sha256=sha256(out),dry_sha256=sha256(dry),schedule_sha256=sha256(plan),whole=whole,windows=windows,
           original_attack_starts=starts,candidate_attack_starts=candidate_starts,original_inter_attack_frames=np.diff(starts).tolist(),candidate_inter_attack_frames=np.diff(candidate_starts).tolist()))
         print('PASS' if passed else 'FAIL',c['name'],'original_attacks',starts[:5],'candidate_attacks',candidate_starts[:5],flush=True)
     require(binding==source_hashes() and binary==sha256(args.renderer),'Source/binary changed')
-    save_json(root/'comparison.json',dict(kind='rmx220-drums-roll-discovery-comparison',passed=all(r['passed'] for r in rows),cases=rows,source_sha256=binding,renderer_sha256=binary,acceptance=ACCEPTANCE,
+    if args.stage=='fresh' and not args.regression:frozen(args)
+    save_json(root/'comparison.json',dict(kind='rmx220-drums-roll-comparison',passed=all(r['passed'] for r in rows),stage=args.stage,role='fresh_prediction_bound' if args.stage=='fresh' and not args.regression else 'development_regression',
+      prediction_sha256=sha256(args.prediction) if args.stage=='fresh' else None,cases=rows,source_sha256=binding,renderer_sha256=binary,acceptance=ACCEPTANCE,
       scope='Discovery whole/touch/roll/tail comparisons at48k/default profiles. Exact attack-template matches are reference timing diagnostics, not candidate alignment or fitting. No full roll, profile, gesture, tempo, quantize, wrapper or hardware qualification.'))
     return 0 if all(r['passed'] for r in rows) else 1
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='command',required=True)
-    for name in ['capture','compare']:
-        q=s.add_parser(name)
+    for name in ['predict','capture','compare']:
+        q=s.add_parser(name);q.add_argument('--stage',choices=['discovery','fresh'],default='discovery');q.add_argument('--prediction',type=Path)
+        if name=='predict':
+            q.add_argument('--renderer',type=Path,required=True);q.add_argument('--report',type=Path,required=True);continue
         for key in ['session','host']:q.add_argument('--'+key,type=Path,required=True)
         if name=='capture':q.add_argument('--plugin',type=Path,required=True)
         else:
-            q.add_argument('--renderer',type=Path,required=True);q.add_argument('--output',type=Path,required=True)
+            q.add_argument('--renderer',type=Path,required=True);q.add_argument('--output',type=Path,required=True);q.add_argument('--regression',action='store_true')
+        if name=='capture':q.add_argument('--renderer',type=Path)
     args=p.parse_args();raise SystemExit(globals()[args.command](args))
 
 
