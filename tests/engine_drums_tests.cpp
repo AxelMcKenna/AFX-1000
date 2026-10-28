@@ -84,18 +84,33 @@ int main(){try{
         }
     }
     {
-        // Original one-beat kick rolls retain the first voice until the next
+        // Original one-beat kick intervals retain the first voice until the next
         // trigger, then fade160 frames before restarting. A tiny tail error
         // must not turn that second hit into an immediate restart.
         rmx::Engine engine;engine.params.set(rmx::Param::XRoll,5);setup(engine);
         std::array<float,256> left{},right{};
         for(unsigned block=0;block<4;++block)engine.process(nullptr,nullptr,left.data(),right.data(),256);
-        engine.enqueue({rmx::EventType::RollStart,0});
+        engine.enqueue({rmx::EventType::Trigger,0});
         std::vector<float> audio(24576);
-        for(size_t at=0;at<audio.size();at+=256){engine.process(nullptr,nullptr,left.data(),right.data(),256);std::copy(left.begin(),left.end(),audio.begin()+static_cast<std::ptrdiff_t>(at));}
+        for(size_t at=0;at<audio.size();at+=256){
+            const rmx::Event repeat{rmx::EventType::Trigger,0,1,192,0,0};
+            const auto events=at==23808?std::span<const rmx::Event>{&repeat,1}:std::span<const rmx::Event>{};
+            engine.process(nullptr,nullptr,left.data(),right.data(),256,{},events);std::copy(left.begin(),left.end(),audio.begin()+static_cast<std::ptrdiff_t>(at));
+        }
         float peak=0;
         for(size_t i=0;i<32;++i){peak=std::max(peak,std::abs(audio[48+i]));require(audio[48+i]==audio[24208+i],"One-beat kick roll lost the reference160-frame retrigger fade");}
         require(peak>1e-5f,"One-beat kick timing guard did not exercise nonzero audio");
+    }
+    {
+        rmx::FactoryRollClock clock;
+        require(!clock.start(0,.25),"Factory roll started without selecting a drum");
+        std::vector<unsigned> frames;
+        for(unsigned frame=0;frame<=48000;frame+=32){
+            if(frame==32){clock.select(0);require(clock.start(0,.25),"Selected factory roll did not start");}
+            if(clock.advance(120))frames.push_back(frame);
+        }
+        require(frames==std::vector<unsigned>{6016,12000,18016,24032,30016,36000,42016,48000},"Factory roll clock differs from original cold-quarter boundary observations");
+        clock.stop();require(!clock.start(0,.25),"Factory roll retained its selection after release");
     }
     for(bool protect:{false,true}){
         rmx::Engine engine;engine.params.set(rmx::Param::XLevel,1.5f);setup(engine,protect);std::array<float,256> a{},b{};

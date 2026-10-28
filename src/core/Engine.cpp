@@ -42,7 +42,7 @@ void Engine::reset() noexcept {
     coldSceneType=-1;coldEffect=coldMix=coldMixStep=coldDirectStep=0;coldDirect=coldTarget=1;
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
-    factoryDrums.reset();pendingDrumCue={};factoryMask=0;
+    factoryDrums.reset();factoryRoll.reset();factoryRollPlaying=true;pendingDrumCue={};factoryMask=0;
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
     rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0;
     rollNext=0; rollStart=0; releaseRead=0; releaseAge=0; nudgeDirection=0; nudgeOffset=0; tapIntervals={}; tapCount=0; tapIndex=0; tapped=false;
@@ -114,15 +114,25 @@ void Engine::hit(int pad,float velocity,int bank,int source,bool toggleLoop) noe
 void Engine::event(Event e) noexcept {
     switch(e.type) {
         // Hardware one-shots are immediate, including when QUANTIZE is on.
-        case EventType::Trigger: set(Param::XSource,0); hit(e.pad,e.velocity,e.bank==255?-1:e.bank,e.source==255?-1:e.source); break;
-        case EventType::SelectPad: selectedPad=e.pad%4;set(Param::XSource,0);break;
+        case EventType::Trigger:
+            set(Param::XSource,0);
+            if(frame>0&&factoryRollEligible()&&(e.source==255||e.source==0))pendingDrumCue.selectPad=static_cast<uint8_t>(e.pad%4+1);
+            hit(e.pad,e.velocity,e.bank==255?-1:e.bank,e.source==255?-1:e.source);break;
+        case EventType::SelectPad:
+            selectedPad=e.pad%4;set(Param::XSource,0);
+            if(frame>0&&factoryRollEligible()&&(e.source==255||e.source==0))pendingDrumCue.selectPad=static_cast<uint8_t>(selectedPad+1);
+            break;
         case EventType::RollStart: {
+            if(factoryRollEligible()){
+                rollPad=-1;pendingDrumCue.rollAction=1;pendingDrumCue.rollPad=e.pad%4;
+                pendingDrumCue.rollBeat=static_cast<uint8_t>(xPadBeatChoice(p,get(Param::XRoll)));break;
+            }
             rollPad=e.pad%4; selectedPad=rollPad; rollStart=beat+nudgeOffset; if(get(Param::XSource)>.5f) sourceRoll=false;
             const double division=xPadDivision(p);
             rollNext=get(Param::Quantize)>.5f?std::ceil(rollStart/division-1e-7)*division:rollStart;
             break;
         }
-        case EventType::RollStop: if(get(Param::XHold)<.5f) rollPad=-1; break;
+        case EventType::RollStop: if(get(Param::XHold)<.5f){rollPad=-1;pendingDrumCue.rollAction=2;}break;
         case EventType::ClearSequence: sequence.clear(); break;
         case EventType::MutePad: sequence.toggleMute(e.pad); break;
         case EventType::DeletePad:
@@ -245,6 +255,10 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
     upControls.enabled=measuredUp&&sourceFrames[0].sceneEnabled;reverbUp.setControls(upControls);reverbUp.beginProcessing();
     for(size_t start=0;start<count;){
         const auto& cue=drumCues[start];
+        if(cue.stop&(1u<<factoryRoll.instrument()))factoryRoll.stop();
+        if(cue.selectPad)factoryRoll.select(cue.selectPad-1);
+        if(cue.rollAction==2)factoryRoll.stop();
+        else if(cue.rollAction==1&&factoryRoll.start(cue.rollPad,xPadBeatValues[cue.rollBeat]))factoryDrums.trigger(cue.rollPad);
         for(unsigned pad=0;pad<4;++pad){
             if(cue.stop&(1u<<pad))factoryDrums.stop(pad);
             if(cue.trigger&(1u<<pad))factoryDrums.trigger(pad,cue.velocity[pad]);
@@ -254,7 +268,7 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
             scenePadPending[i]=unselectedPadPending[i]={};
         }
         factoryDrums.beginProcessing();
-        size_t end=start+1;while(end<count&&!drumCues[end].trigger&&!drumCues[end].stop&&!drumCues[end].flush)++end;
+        size_t end=start+1;while(end<count&&!drumCues[end].trigger&&!drumCues[end].stop&&!drumCues[end].flush&&!drumCues[end].selectPad&&!drumCues[end].rollAction)++end;
         size_t read=start,written=start;
         while(read<end){
             const auto take=std::min(32-routingReceived,end-read);
@@ -272,6 +286,7 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
 void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,bool measuredUp,
                                 CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls) noexcept {
     std::array<Stereo,32> drums{},selected{},generated{},discard{};
+    if(factoryRoll.advance(routingCollected[0].bpm)&&factoryRollPlaying)factoryDrums.trigger(factoryRoll.instrument());
     factoryDrums.generateBlock(drums);
     if(routingAge==0)coldSceneType=coldProfile&&routingCollected[0].sceneEnabled?type:-1;
     if(type!=coldSceneType||!coldProfile)coldSceneType=-1;
@@ -412,6 +427,15 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     const float travel=get(Param::XPitch);
     const int drumPitch=std::clamp(static_cast<int>(std::lround(128+travel*(travel<0?128.f/24:127.f/24))),0,255);
     factoryDrums.setControls(static_cast<unsigned>(drumLevel),static_cast<unsigned>(drumPitch));
+    factoryRollPlaying=transport.playing;
+    if(!factoryRollEligible()){
+        if(factoryRoll.active()){
+            rollPad=static_cast<int>(factoryRoll.instrument());rollStart=beat+nudgeOffset;
+            const auto division=xPadDivision(p);
+            rollNext=get(Param::Quantize)>.5f?std::ceil(rollStart/division-1e-7)*division:rollStart;
+        }
+        factoryRoll.stop();
+    }
     CalibratedReverbDown::Controls downControls{rawControl(get(Param::SceneDepth),255),
         rawControl(get(Param::SceneTime),255.f/7),rawControl(get(Param::SceneResonance),255),false};
     CalibratedReverbUp::Controls upControls{downControls.main,downControls.amount,downControls.cutoff,false};
@@ -459,7 +483,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         approach(rollInputMix,rollTarget,smoothing);
         if(rollTarget==0&&rollInputMix<1e-6f) sourceRoll=false;
         Stereo drums=sample();
-        drumCues[k]=pendingDrumCue;pendingDrumCue.trigger=pendingDrumCue.stop=0;pendingDrumCue.flush=false;
+        drumCues[k]=pendingDrumCue;pendingDrumCue.trigger=pendingDrumCue.stop=pendingDrumCue.selectPad=pendingDrumCue.rollAction=0;pendingDrumCue.flush=false;
         input=input*(1-rollInputMix);
         const int isoSource=static_cast<int>(get(Param::IsolateSource));
         approach(isolateInputMix,(isoSource==0||isoSource==2)?1.f:0.f,smoothing);
