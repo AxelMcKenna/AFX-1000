@@ -110,7 +110,10 @@ int main(){try{
             if(clock.advance(120))frames.push_back(frame);
         }
         require(frames==std::vector<unsigned>{6016,12000,18016,24032,30016,36000,42016,48000},"Factory roll clock differs from original cold-quarter boundary observations");
-        clock.stop();require(!clock.start(0,.25),"Factory roll retained its selection after release");
+        clock.stop();require(!clock.start(0,.25),"Factory roll remained armed after release");
+        clock.select(1);require(!clock.start(1,.25),"Selecting a drum rearmed a released strip position");
+        clock.position();require(clock.start(1,.25),"Repeated strip position did not rearm the roll");
+        clock.stop();clock.position();require(clock.start(1,.25),"Release discarded the prior drum selection");
     }
     for(bool protect:{false,true}){
         rmx::Engine engine;engine.params.set(rmx::Param::XLevel,1.5f);setup(engine,protect);std::array<float,256> a{},b{};

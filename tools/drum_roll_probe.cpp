@@ -38,7 +38,7 @@ int main(int argc,char** argv){try{
             if(e.type=='H'){selected=e.value;engine.enqueue({rmx::EventType::Trigger,static_cast<uint8_t>(selected),1,0,0,0});}
             // Canonical reference zero is an inactive strip position.
             else if(e.type=='T')engine.enqueue({e.value&&currentPosition>=51?rmx::EventType::RollStart:rmx::EventType::RollStop,static_cast<uint8_t>(selected)});
-            else if(e.type=='X')position(e.value);
+            else if(e.type=='X'){position(e.value);engine.enqueue({rmx::EventType::RollPosition});}
             else if(e.type=='F'){engine.params.set(rmx::Param::XHold,static_cast<float>(e.value));if(!e.value)engine.enqueue({rmx::EventType::RollStop});}
         }
         size_t count=std::min<size_t>(block,input.frames.size()-start);if(event<events.size())count=std::min(count,events[event].frame-start);

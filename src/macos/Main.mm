@@ -412,7 +412,7 @@ AudioDeviceID audioDeviceForUID(NSString* uid,const std::vector<AudioDevice>& de
         else {
             dragging=static_cast<int>(i); dragOrigin=point; dragStart=engine->params.get(c.param);
             if(c.kind==Kind::Lever) [self change:c.param value:std::clamp(static_cast<float>((point.y-c.rect.origin.y)/c.rect.size.height),0.f,1.f)];
-            if(c.kind==Kind::Strip) { [self change:c.param value:std::clamp(static_cast<float>((point.x-c.rect.origin.x)/c.rect.size.width*8),0.f,7.f)]; engine->enqueue({rmx::EventType::RollStart,static_cast<uint8_t>(selectedPad)}); }
+            if(c.kind==Kind::Strip) { [self change:c.param value:std::clamp(static_cast<float>((point.x-c.rect.origin.x)/c.rect.size.width*8),0.f,7.f)]; engine->enqueue({rmx::EventType::RollPosition}); engine->enqueue({rmx::EventType::RollStart,static_cast<uint8_t>(selectedPad)}); }
         }
         [self setNeedsDisplay:YES]; break;
     }

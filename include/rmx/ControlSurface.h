@@ -86,6 +86,7 @@ public:
     template<class Send> void touch(bool down,Send send) noexcept {
         if(down==touchHeld) return;
         touchHeld=down;
+        if(down)send(Event{EventType::RollPosition});
         send(Event{down?EventType::RollStart:EventType::RollStop,static_cast<uint8_t>(selectedPad)});
     }
     int pad() const noexcept { return selectedPad; }

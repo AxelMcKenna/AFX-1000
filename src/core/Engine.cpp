@@ -122,6 +122,7 @@ void Engine::event(Event e) noexcept {
             selectedPad=e.pad%4;set(Param::XSource,0);
             if(frame>0&&factoryRollEligible()&&(e.source==255||e.source==0))pendingDrumCue.selectPad=static_cast<uint8_t>(selectedPad+1);
             break;
+        case EventType::RollPosition: pendingDrumCue.rollPosition=true;break;
         case EventType::RollStart: {
             if(factoryRollEligible()){
                 rollPad=-1;pendingDrumCue.rollAction=1;pendingDrumCue.rollPad=e.pad%4;
@@ -255,7 +256,8 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
     upControls.enabled=measuredUp&&sourceFrames[0].sceneEnabled;reverbUp.setControls(upControls);reverbUp.beginProcessing();
     for(size_t start=0;start<count;){
         const auto& cue=drumCues[start];
-        if(cue.stop&(1u<<factoryRoll.instrument()))factoryRoll.stop();
+        if(cue.stop&(1u<<factoryRoll.instrument()))factoryRoll.stop(true);
+        if(cue.rollPosition)factoryRoll.position();
         if(cue.selectPad)factoryRoll.select(cue.selectPad-1);
         if(cue.rollAction==2)factoryRoll.stop();
         else if(cue.rollAction==1&&factoryRoll.start(cue.rollPad,xPadBeatValues[cue.rollBeat]))factoryDrums.trigger(cue.rollPad);
@@ -268,7 +270,7 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
             scenePadPending[i]=unselectedPadPending[i]={};
         }
         factoryDrums.beginProcessing();
-        size_t end=start+1;while(end<count&&!drumCues[end].trigger&&!drumCues[end].stop&&!drumCues[end].flush&&!drumCues[end].selectPad&&!drumCues[end].rollAction)++end;
+        size_t end=start+1;while(end<count&&!drumCues[end].trigger&&!drumCues[end].stop&&!drumCues[end].flush&&!drumCues[end].selectPad&&!drumCues[end].rollAction&&!drumCues[end].rollPosition)++end;
         size_t read=start,written=start;
         while(read<end){
             const auto take=std::min(32-routingReceived,end-read);
@@ -483,7 +485,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         approach(rollInputMix,rollTarget,smoothing);
         if(rollTarget==0&&rollInputMix<1e-6f) sourceRoll=false;
         Stereo drums=sample();
-        drumCues[k]=pendingDrumCue;pendingDrumCue.trigger=pendingDrumCue.stop=pendingDrumCue.selectPad=pendingDrumCue.rollAction=0;pendingDrumCue.flush=false;
+        drumCues[k]=pendingDrumCue;pendingDrumCue.trigger=pendingDrumCue.stop=pendingDrumCue.selectPad=pendingDrumCue.rollAction=0;pendingDrumCue.flush=pendingDrumCue.rollPosition=false;
         input=input*(1-rollInputMix);
         const int isoSource=static_cast<int>(get(Param::IsolateSource));
         approach(isolateInputMix,(isoSource==0||isoSource==2)?1.f:0.f,smoothing);

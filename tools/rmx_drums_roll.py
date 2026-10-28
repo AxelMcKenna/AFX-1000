@@ -18,6 +18,21 @@ from tools.rmx_kick_validate import ACCEPTANCE
 def recipe(stage='discovery'):
     rows=[]
     for pad,drum in enumerate(DRUMS):
+        if stage=='fresh-v3':
+            for index,variant in enumerate(['cold-quarter','warm-two','reselect-position','rearm-prior','no-rearm']):
+                position=[102,255,[51,102,153,204][pad],153,204][index]
+                hit=48089 if variant=='warm-two' else 13+pad*2
+                touches=[(96131,1),(336619,0)] if variant=='warm-two' else [(83+pad*6,1),(150389,0)]
+                changes=[dict(frame=1,type='X',value=position),dict(frame=hit,type='H',value=pad),dict(frame=hit+32,type='R',value=pad)];hits=[hit]
+                if index>=2:
+                    if variant!='rearm-prior':
+                        hits.append(240173);changes += [dict(frame=240173,type='H',value=(pad+1)%4),dict(frame=240205,type='R',value=(pad+1)%4)]
+                    if variant!='no-rearm':changes.append(dict(frame=240251,type='X',value=position))
+                    touches += [(240433,1),(390587,0)]
+                changes += [dict(frame=at,type='T',value=value) for at,value in touches];changes.sort(key=lambda e:e['frame'])
+                rows.append(dict(name=f'roll-fresh3-{drum}-{variant}',drum=drum,variant=variant,block=[61,277,1559,101,313][index]+pad*2,
+                  level=[227,7,43,181,251][index],pitch=[109,239,29,147,203][index],hits=hits,position=position,bpm=120,quantize=0,changes=changes))
+            continue
         if stage=='fresh-v2':
             specs=[('cold-one',53,113,101,204,137,5,[(109,1),(193117,0)]),
               ('warm-two',269,3,249,255,91,48061,[(96113,1),(336379,0)]),
@@ -46,7 +61,7 @@ def recipe(stage='discovery'):
             if position>=0:changes.extend([dict(frame=96000,type='T',value=1),dict(frame=336000,type='T',value=0)])
             rows.append(dict(name=f'roll-{drum}-'+('baseline' if position<0 else f'position{position}'),drum=drum,variant='roll-discovery',block=128,
               level=128,pitch=128,hits=[9600],position=max(0,position)*51,bpm=120,quantize=0,changes=changes))
-    if stage=='fresh-v2':rows.append(dict(name='roll-fresh2-no-selection',drum='kick',variant='no-selection',block=71,level=255,pitch=249,hits=[],position=153,bpm=120,quantize=0,
+    if stage in ('fresh-v2','fresh-v3'):rows.append(dict(name=('roll-fresh3-no-selection' if stage=='fresh-v3' else 'roll-fresh2-no-selection'),drum='kick',variant='no-selection',block=71,level=255,pitch=249,hits=[],position=153,bpm=120,quantize=0,
       changes=[dict(frame=1,type='X',value=153),dict(frame=48097,type='T',value=1),dict(frame=144227,type='T',value=0),dict(frame=192313,type='T',value=1),dict(frame=336509,type='T',value=0)]))
     return rows
 
@@ -75,7 +90,7 @@ def schedule(c):
 def payload(args):
     return dict(kind='rmx220-drums-roll-prospective-prediction',stage=args.stage,cases=recipe(args.stage),source_sha256=source_hashes(),renderer_sha256=sha256(args.renderer),acceptance=ACCEPTANCE,
       expected=f'All{len(recipe(args.stage))} fresh full-program, selection/touch/roll/tail windows pass unchanged1% per channel, fixed32/32, no gain or alignment fitting.',
-      scope='Factory default48k unquantized positive musical roll divisions, static pitch/level, fragmented callbacks and declared cold/warm/restart/reselection gestures. Fresh-v2 adds91/137/160BPM and a silent no-selection fixture. Extra project positions, strip geometry, moving positions, Hold, Quantize, other settings and hardware remain separate.')
+      scope='Factory default48k unquantized roll programs with fixed32/32 and unchanged gates. Fresh-v3 is120BPM: cold/warm, same-position refresh, rearming the prior drum, new selection without position refresh and no-selection silence. Failed fresh-v2 requested91/137/160BPM without effective reference tempo setup and remains unqualified. Extra strip assignments/geometry, moving positions, Hold, Quantize, other settings, wrappers and hardware remain separate.')
 
 
 def frozen(args):
@@ -153,7 +168,7 @@ def compare(args):
 def main():
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='command',required=True)
     for name in ['predict','capture','compare']:
-        q=s.add_parser(name);q.add_argument('--stage',choices=['discovery','fresh','fresh-v2'],default='discovery');q.add_argument('--prediction',type=Path)
+        q=s.add_parser(name);q.add_argument('--stage',choices=['discovery','fresh','fresh-v2','fresh-v3'],default='discovery');q.add_argument('--prediction',type=Path)
         if name=='predict':
             q.add_argument('--renderer',type=Path,required=True);q.add_argument('--report',type=Path,required=True);continue
         for key in ['session','host']:q.add_argument('--'+key,type=Path,required=True)

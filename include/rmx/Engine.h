@@ -22,7 +22,7 @@ static_assert(std::atomic<float>::is_always_lock_free && std::atomic<uint32_t>::
               "Audio parameters and counters require lock-free 32-bit atomics");
 SampleBank makeFactoryBank(double rate=48000,bool fillSampleBanks=true);
 
-enum class EventType : uint8_t { Trigger, RollStart, RollStop, Tap, ClearSequence, Panic, MutePad, DeletePad, Nudge, NudgeStart, NudgeStop,SelectPad };
+enum class EventType : uint8_t { Trigger, RollStart, RollStop, Tap, ClearSequence, Panic, MutePad, DeletePad, Nudge, NudgeStart, NudgeStop,SelectPad,RollPosition };
 struct Event { EventType type{}; uint8_t pad{}; float velocity{1}; uint32_t offset{};uint8_t bank{255},source{255}; };
 struct Transport { double bpm{120}; double beat{}; bool synced{}, playing{true}; };
 struct MeterState { std::atomic<float> input{}, output{}, tempo{120}, confidence{}, load{},protectionGain{1}; std::atomic<uint32_t> droppedEvents{}; std::atomic<unsigned> sequenceSteps{}, padMuteMask{}; };
@@ -76,7 +76,7 @@ private:
     FactoryDrumSynth factoryDrums;
     FactoryRollClock factoryRoll;
     bool factoryRollPlaying{true};
-    struct DrumCue {uint8_t trigger{},stop{},selectPad{},rollAction{},rollPad{},rollBeat{};std::array<float,4> velocity{1,1,1,1};bool flush{};};
+    struct DrumCue {uint8_t trigger{},stop{},selectPad{},rollAction{},rollPad{},rollBeat{};std::array<float,4> velocity{1,1,1,1};bool flush{},rollPosition{};};
     struct SourceFrame {
         Stereo raw{},input{},legacy{},wetDry{};
         std::array<float,3> bands{};

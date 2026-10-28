@@ -81,7 +81,7 @@ public:
             if(c.kind==Kind::Action) { if(c.action==1) menu(); }
             else {
                 dragging=static_cast<int>(i); dragOrigin=pos; dragValue=value(c.param); parameter(c.param)->beginChangeGesture();
-                if(c.kind==Kind::Strip) { setGesture(c.param,std::clamp((pos.x-c.rect.x)/c.rect.w*8,0.f,7.f)); processor.engine.enqueue({rmx::EventType::RollStart,static_cast<uint8_t>(selectedPad)}); }
+                if(c.kind==Kind::Strip) { setGesture(c.param,std::clamp((pos.x-c.rect.x)/c.rect.w*8,0.f,7.f)); processor.engine.enqueue({rmx::EventType::RollPosition}); processor.engine.enqueue({rmx::EventType::RollStart,static_cast<uint8_t>(selectedPad)}); }
                 if(c.kind==Kind::Lever) setGesture(c.param,std::clamp((pos.y-c.rect.y)/c.rect.h,0.f,1.f));
             }
             break;
