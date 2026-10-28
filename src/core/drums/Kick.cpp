@@ -40,8 +40,12 @@ float Kick::Envelope::advance() noexcept {
     return value;
 }
 float Kick::Biquad::tick(float x) noexcept {
-    const auto& c=coefficients;const double y=c[0]*static_cast<double>(x)+s1;
-    s1=c[1]*static_cast<double>(x)-c[3]*y+s2;s2=c[2]*static_cast<double>(x)-c[4]*y;
+    const auto& c=coefficients;const double input=x,previous=s1,y=c[0]*input+previous;
+    // The measured filter retains double working states within16 samples,
+    // then stores them as float32. Keep the factored feedback grouping too.
+    const double first=static_cast<double>(c[3])*c[0],second=static_cast<double>(c[4])*c[0];
+    s1=((c[1]*input-first*input)+s2)-c[3]*previous;
+    s2=(c[2]*input-second*input)-c[4]*previous;
     return static_cast<float>(y);
 }
 void Kick::start() noexcept {
@@ -67,8 +71,9 @@ void Kick::block() noexcept {
             const float sample=highpass.tick(mixed);gain+=gainStep;
             pending[i]=static_cast<float>(static_cast<double>(sample*gain)*6.91373157);
         }
+        bandpass.finishSubblock();highpass.finishSubblock();
     }
-    if(!tone.rising&&tone.value==0&&std::abs(pending.back())<1e-9f)state=0;
+    if(state==1&&!tone.rising&&tone.value==0&&std::abs(pending.back())<1e-9f)state=0;
     // Global output fade advances on the generated clock, including silence.
     // Applying it after FIFO emission would make callback fragments incorrect.
     for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=((sample*voiceVelocity)*startupGain)*outputLevel.advance();}

@@ -26,6 +26,7 @@ private:
     struct Biquad {
         std::array<float,5> coefficients{};double s1{},s2{};
         float tick(float x) noexcept;
+        void finishSubblock() noexcept {s1=static_cast<float>(s1);s2=static_cast<float>(s2);}
         void clear() noexcept {s1=s2=0;}
     };
     void block() noexcept;

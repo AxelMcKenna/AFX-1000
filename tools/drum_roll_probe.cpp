@@ -28,14 +28,16 @@ int main(int argc,char** argv){try{
     // assignments; the original exposes six canonical positions. The two
     // additional project divisions are outside this reference fixture.
     constexpr std::array<unsigned,6> projectPositions{0,1,2,3,5,6};
-    auto position=[&](unsigned raw){engine.params.set(rmx::Param::XRoll,static_cast<float>(projectPositions[std::min(5u,raw/51)]));};position(rawPosition);engine.prepare(48000,block);
+    unsigned currentPosition=rawPosition;
+    auto position=[&](unsigned raw){currentPosition=raw;engine.params.set(rmx::Param::XRoll,static_cast<float>(projectPositions[std::min(5u,raw/51)]));};position(rawPosition);engine.prepare(48000,block);
     rmx::Sample audio,dry;audio.rate=dry.rate=48000;audio.frames.resize(input.frames.size());dry.frames.resize(input.frames.size());
     std::array<float,4096> left{},right{};size_t event=0;unsigned selected=0;
     for(size_t start=0;start<input.frames.size();){
         while(event<events.size()&&events[event].frame==start){
             const auto e=events[event++];
             if(e.type=='H'){selected=e.value;engine.enqueue({rmx::EventType::Trigger,static_cast<uint8_t>(selected),1,0,0,0});}
-            else if(e.type=='T')engine.enqueue({e.value?rmx::EventType::RollStart:rmx::EventType::RollStop,static_cast<uint8_t>(selected)});
+            // Canonical reference zero is an inactive strip position.
+            else if(e.type=='T')engine.enqueue({e.value&&currentPosition>=51?rmx::EventType::RollStart:rmx::EventType::RollStop,static_cast<uint8_t>(selected)});
             else if(e.type=='X')position(e.value);
             else if(e.type=='F'){engine.params.set(rmx::Param::XHold,static_cast<float>(e.value));if(!e.value)engine.enqueue({rmx::EventType::RollStop});}
         }

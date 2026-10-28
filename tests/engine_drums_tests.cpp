@@ -83,6 +83,20 @@ int main(){try{
             for(size_t i=0;i<64;++i)require(a[i]==x[i]&&b[i]==y[i],"Restored source selectors or bypass differ from pre-prepare controls");
         }
     }
+    {
+        // Original one-beat kick rolls retain the first voice until the next
+        // trigger, then fade160 frames before restarting. A tiny tail error
+        // must not turn that second hit into an immediate restart.
+        rmx::Engine engine;engine.params.set(rmx::Param::XRoll,5);setup(engine);
+        std::array<float,256> left{},right{};
+        for(unsigned block=0;block<4;++block)engine.process(nullptr,nullptr,left.data(),right.data(),256);
+        engine.enqueue({rmx::EventType::RollStart,0});
+        std::vector<float> audio(24576);
+        for(size_t at=0;at<audio.size();at+=256){engine.process(nullptr,nullptr,left.data(),right.data(),256);std::copy(left.begin(),left.end(),audio.begin()+static_cast<std::ptrdiff_t>(at));}
+        float peak=0;
+        for(size_t i=0;i<32;++i){peak=std::max(peak,std::abs(audio[48+i]));require(audio[48+i]==audio[24208+i],"One-beat kick roll lost the reference160-frame retrigger fade");}
+        require(peak>1e-5f,"One-beat kick timing guard did not exercise nonzero audio");
+    }
     for(bool protect:{false,true}){
         rmx::Engine engine;engine.params.set(rmx::Param::XLevel,1.5f);setup(engine,protect);std::array<float,256> a{},b{};
         engine.process(nullptr,nullptr,a.data(),b.data(),256);engine.enqueue({rmx::EventType::Trigger,0,1,0,0,0});float peak=0;
