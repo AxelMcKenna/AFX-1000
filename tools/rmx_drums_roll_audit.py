@@ -16,6 +16,7 @@ from tools.rmx_drums import FRAMES,require
 from tools.rmx_drums_motion_audit import measure,same_score
 from tools.rmx_drums_roll import original,payload,recipe,schedule,source_hashes
 from tools.rmx_factory_match import new_directory
+from tools.rmx_drums_strip_motion import recipe as strip_recipe
 
 GATES=dict(relative_rms_error_limit=.01,reference_channel_energy_floor=1e-20,silent_channel_absolute_rms_limit=1e-8,
            reference_offset_frames=32,candidate_offset_frames=32,gain_fit=False,alignment_search=False)
@@ -31,12 +32,13 @@ def windows(c,stage):
         result += [('touch-attack' if e['value'] else 'roll-stop',e['frame'],e['frame']+(256 if e['value'] else 1024)) for e in touches]
         for on,off in zip(touches[::2],touches[1::2]):
             result += [('roll-window',at,min(at+24000,off['frame'])) for at in range(on['frame'],off['frame'],24000)]
+    result += [('strip-change',e['frame'],e['frame']+24000) for e in c['changes'] if e['type']=='X' and e['frame']>1]
     return [dict(kind=kind,start=start,stop=min(stop,FRAMES-32)) for kind,start,stop in result]
 
 
 def verify(args):
     binding=source_hashes();script=sha256(Path(__file__));binaries={str(p):sha256(p) for p in [args.renderer,args.sanitized]}
-    expected=payload(SimpleNamespace(stage='fresh-v3',renderer=args.renderer))
+    expected=payload(SimpleNamespace(stage='fresh-v4',renderer=args.renderer))
     require(json.loads(args.prediction.read_text())==expected,'Fresh frozen prediction differs')
     require(expected['acceptance']==GATES,'Acceptance contract changed')
     commands_path=args.sanitized.parent/'compile_commands.json';commands=json.loads(commands_path.read_text())
@@ -49,12 +51,12 @@ def verify(args):
         text=subprocess.check_output(['nm','-C',str(binary)],text=True);require('rmx::Engine::process(' in text,'Fixture lacks actual Engine')
         symbols[str(binary)]=hashlib.sha256(text.encode()).hexdigest()
     root=new_directory(args.output);rows=[];screens=0;guard=None
-    require([d[0] for d in args.dataset]==['discovery','fresh','fresh-v3'],'Expected complete discovery, former and prospective corpora')
+    require([d[0] for d in args.dataset]==['discovery','fresh','fresh-v3','strip-discovery','fresh-v4'],'Expected complete discovery, former and prospective corpora')
     for stage,session_text,path_text in args.dataset:
-        session=Path(session_text);path=Path(path_text);d=json.loads(path.read_text());cases=recipe(stage)
+        session=Path(session_text);path=Path(path_text);d=json.loads(path.read_text());cases=strip_recipe() if stage=='strip-discovery' else recipe(stage)
         require(d['source_sha256']==binding and d['renderer_sha256']==binaries[str(args.renderer)] and d['acceptance']==GATES and d['stage']==stage,'Comparison source/binary/gates differ')
         require([c['name'] for c in cases]==[r['case'] for r in d['cases']],'Incomplete comparison recipe')
-        if stage=='fresh-v3':require(d['role']=='fresh_prediction_bound' and d['prediction_sha256']==sha256(args.prediction)==sha256(session/'predictions.json'),'Fresh prediction binding differs')
+        if stage=='fresh-v4':require(d['role']=='fresh_prediction_bound' and d['prediction_sha256']==sha256(args.prediction)==sha256(session/'predictions.json'),'Fresh prediction binding differs')
         for c,row in zip(cases,d['cases'],strict=True):
             a,provenance=original(SimpleNamespace(session=session,host=args.host),c)
             require(all(row[k]==v for k,v in provenance.items()),'Original provenance differs')
@@ -81,8 +83,8 @@ def verify(args):
     require(binding==source_hashes() and script==sha256(Path(__file__)) and all(sha256(Path(p))==v for p,v in binaries.items()),'Audit source/binary changed')
     save_json(root/'verification.json',dict(kind='rmx220-drums-roll-independent-audit',evidence_verified=True,audio_passed=all(r['passed'] for r in rows),programs=len(rows),stereo_screens=screens,cases=rows,
       source_sha256=binding,auditor_sha256=script,renderer_sha256=binaries,prediction_sha256=sha256(args.prediction),sanitizer_compile_commands_sha256=sha256(commands_path),
-      sanitizer_compile_commands=[c['command'] for c in units],engine_symbol_sha256=symbols,sanitizer_stderr_empty=True,guards=guard,acceptance=GATES,
-      scope='28 discovery,16 former prediction regressions and21 frozen fresh programs at48k/default profiles/120BPM. Independent whole/selection/touch/roll/stop/tail gates and complete sanitizer byte parity. No other tempos, strip geometry/extra assignments, moving positions, Hold, Quantize, custom profiles, effects during rolls, wrappers or hardware qualification.'))
+      sanitizer_compile_commands=[c['command'] for c in units],engine_symbol_sha256=symbols,sanitizer_stderr_empty=True,strip_discovery_helper_sha256=sha256(Path('tools/rmx_drums_strip_motion.py')),guards=guard,acceptance=GATES,
+      scope='28 static-roll discovery,16 first prediction regressions,21 third prediction regressions,12 held-strip discovery and12 frozen fresh moving-strip programs at48k/default profiles/120BPM. Independent whole/selection/touch/roll/stop/tail gates and complete sanitizer byte parity. No other tempos, strip geometry/extra assignments, Hold, Quantize, custom profiles, effects during rolls, wrappers or hardware qualification.'))
     return 0 if all(r['passed'] for r in rows) else 1
 
 

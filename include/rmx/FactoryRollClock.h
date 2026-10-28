@@ -8,6 +8,15 @@ class FactoryRollClock {
 public:
     void reset() noexcept {*this={};}
     void select(unsigned value) noexcept {pad=value%4;selected=true;}
+    // A changed strip division rebases the offset but retains the new
+    // division's previous phase under the old offset. Resetting both loses
+    // the reference's occasional boundary retrigger. Equal writes only arm.
+    void setDivision(double value) noexcept {
+        if(value==division)return;
+        division=value;
+        previous=std::fmod(std::fmod(timeline,96.)+offset,division);
+        offset=96-std::fmod(timeline,96.);
+    }
     void position() noexcept {positionReady=true;}
     bool start(unsigned value,double beatDivision) noexcept {
         if(!selected||!positionReady)return false;

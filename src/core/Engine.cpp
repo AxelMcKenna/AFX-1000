@@ -430,6 +430,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     const int drumPitch=std::clamp(static_cast<int>(std::lround(128+travel*(travel<0?128.f/24:127.f/24))),0,255);
     factoryDrums.setControls(static_cast<unsigned>(drumLevel),static_cast<unsigned>(drumPitch));
     factoryRollPlaying=transport.playing;
+    factoryRoll.setDivision(xPadDivision(p));
     if(!factoryRollEligible()){
         if(factoryRoll.active()){
             rollPad=static_cast<int>(factoryRoll.instrument());rollStart=beat+nudgeOffset;

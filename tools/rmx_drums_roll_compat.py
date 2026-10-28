@@ -17,7 +17,32 @@ from tools.rmx_drums_roll import source_hashes
 from tools.rmx_factory_match import new_directory
 
 
+def collect(args):
+    reports=[json.loads((p/'verification.json').read_text()) for p in args.collect]
+    require(reports and sorted(r['shard'] for r in reports)==list(range(reports[0]['shards'])) and len(reports)==reports[0]['shards'],'Incomplete shards')
+    first=reports[0]
+    for r in reports:
+        require(r['compatibility_passed'] and r['source_sha256']==source_hashes() and r['verifier_sha256']==sha256(Path(__file__)),'Shard source differs')
+        for k in ['renderer_sha256','parent_summaries_sha256','sanitizer_compile_commands_sha256','engine_symbol_sha256']:
+            require(r[k]==first[k],'Shard build/parent differs')
+    rows=[row for r in reports for row in r['cases']];keys=[(r['group'],r['stage'],r['case']) for r in rows];expected=[]
+    for group in ['dry','motion','fx']:
+        p=Path(f'research/audio/measurements/2026-10-28-drums-roll-prior-{group}.json');require(sha256(p)==first['parent_summaries_sha256'][group],'Published parent differs')
+        for dataset in json.loads(p.read_text())['datasets']:
+            path=Path(dataset['comparison']);require(sha256(path)==dataset['comparison_sha256'],'Parent comparison differs')
+            expected += [(group,dataset['stage'],r['case']) for r in json.loads(path.read_text())['cases']]
+    require(len(keys)==len(set(keys))==836 and set(keys)==set(expected),'Incomplete/duplicate shard coverage')
+    failures=[dict(group=r['group'],stage=r['stage'],case=r['case']) for r in rows if not r['raw_gate_passed']]
+    require(failures==[dict(group='fx',stage='live-fresh',case='drum-fx-live-effect7-route1')],'Inherited failure changed')
+    require(all(sha256(Path(p))==v for p,v in first['renderer_sha256'].items()),'Current binaries changed')
+    root=new_directory(args.output);result=first|dict(programs=836,raw_programs_passed=835,cases=sorted(rows,key=lambda r:keys.index((r['group'],r['stage'],r['case']))),inherited_failures=failures,shard=None,
+      shard_reports_sha256={str(p/'verification.json'):sha256(p/'verification.json') for p in args.collect})
+    save_json(root/'verification.json',result);return 0
+
+
 def verify(args):
+    if args.collect:return collect(args)
+    require(1<=args.shards<=32 and 0<=args.shard<args.shards,'Invalid shard')
     binding=source_hashes();script=sha256(Path(__file__));root=new_directory(args.output);rows=[];parents={};symbols={};units=[]
     commands_path=args.asan/'compile_commands.json';commands=json.loads(commands_path.read_text())
     probes=dict(dry='rmx_drum_probe',motion='rmx_drum_motion_probe',fx='rmx_drums_fx_probe')
@@ -34,14 +59,16 @@ def verify(args):
         parent_path=args.parent_root/f'drums-roll-prior-{group}-v1/verification.json'
         published=Path(f'research/audio/measurements/2026-10-28-drums-roll-prior-{group}.json')
         require(sha256(parent_path)==sha256(published),'Published parent summary changed');parents[group]=sha256(parent_path)
-        parent=json.loads(parent_path.read_text());count=0
+        parent=json.loads(parent_path.read_text());count=0;wanted=0
         for dataset in parent['datasets']:
             path=Path(dataset['comparison']);require(sha256(path)==dataset['comparison_sha256'],'Parent comparison changed')
             d=json.loads(path.read_text());stage=dataset['stage'];session=Path(dataset['session']);helper=dict(dry=dry,motion=motion,fx=fx)[group]
             require(d['acceptance']==helper.ACCEPTANCE,'Parent gates changed')
             cases=(dry.recipe() if stage=='fresh' else dry.cases_for(stage)) if group=='dry' else helper.recipe(stage)
             require([c['name'] for c in cases]==[r['case'] for r in d['cases']] and len(cases)==dataset['programs'],'Parent recipe/count differs')
-            for c,row in zip(cases,d['cases'],strict=True):
+            wanted += sum(i%args.shards==args.shard for i in range(len(cases)))
+            for index,(c,row) in enumerate(zip(cases,d['cases'],strict=True)):
+                if index%args.shards!=args.shard:continue
                 if group=='fx':
                     _,provenance=fx.checked(SimpleNamespace(session=session,host=args.host,stage=stage),c)
                 else:
@@ -61,11 +88,11 @@ def verify(args):
                 if group!='fx':require(sha256(out_dry)==sha256(san_dry)==row['dry_trace_sha256' if group=='dry' else 'dry_sha256'],'Dry trace changed')
                 rows.append(dict(group=group,stage=stage,case=c['name'],raw_gate_passed=row['passed'],candidate_sha256=sha256(out),comparison_sha256=sha256(path),receipt_sha256=provenance['receipt_sha256'],optimized_parent_byte_identical=True,sanitizer_byte_identical=True));count+=1
                 print('UNCHANGED',group,stage,c['name'],flush=True)
-        require(count==dict(dry=224,motion=44,fx=568)[group],'Incomplete parent corpus')
+        require(count==wanted,'Incomplete parent shard')
     failures=[dict(group=r['group'],stage=r['stage'],case=r['case']) for r in rows if not r['raw_gate_passed']]
-    require(failures==[dict(group='fx',stage='live-fresh',case='drum-fx-live-effect7-route1')],'Inherited failure changed')
+    require(failures==([dict(group='fx',stage='live-fresh',case='drum-fx-live-effect7-route1')] if any(r['case']=='drum-fx-live-effect7-route1' for r in rows) else []),'Inherited failure changed')
     require(binding==source_hashes() and script==sha256(Path(__file__)) and all(sha256(Path(p))==v for p,v in binaries.items()),'Compatibility source/binary changed')
-    save_json(root/'verification.json',dict(kind='rmx-drums-roll-prior-byte-compatibility',compatibility_passed=True,programs=len(rows),raw_programs_passed=sum(r['raw_gate_passed'] for r in rows),inherited_failures=failures,cases=rows,
+    save_json(root/'verification.json',dict(kind='rmx-drums-roll-prior-byte-compatibility',compatibility_passed=True,shard=args.shard,shards=args.shards,programs=len(rows),raw_programs_passed=sum(r['raw_gate_passed'] for r in rows),inherited_failures=failures,cases=rows,
       source_sha256=binding,verifier_sha256=script,renderer_sha256=binaries,parent_summaries_sha256=parents,sanitizer_compile_commands_sha256=sha256(commands_path),sanitizer_compile_commands=[c['command'] for c in units],engine_symbol_sha256=symbols,sanitizer_stderr_empty=True,
       scope='224 static dry,44 moving-control and568 drum/Scene programs. Rechecks original provenance and unchanged recipes/gates, then requires complete current optimized audio to equal the published kick-corrected parent bytes and sanitizer audio to equal optimized bytes. This transfers all prior scores/windows without fitting or new captures. The existing near-null Crush wet-window failure remains failed. No new roll/tempo/wrapper qualification.'))
     return 0
@@ -74,6 +101,7 @@ def verify(args):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['core','asan','host','parent-root','output']:p.add_argument('--'+key,type=Path,required=True)
+    p.add_argument('--shard',type=int,default=0);p.add_argument('--shards',type=int,default=1);p.add_argument('--collect',nargs='+',type=Path)
     raise SystemExit(verify(p.parse_args()))
 
 

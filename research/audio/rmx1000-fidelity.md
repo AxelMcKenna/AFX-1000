@@ -1,9 +1,9 @@
 # RMX-1000 sound matching research
 
-- Updated: 2026-10-28
+- Updated: 2026-10-29
 - Status: active; scoped factory drums, seven deterministic Scene effects, basic Isolator and statistical Noise matching at48k; full-device validation incomplete
 - Question: what evidence, DSP work and validation would support a defensible claim of very close RMX-1000 sound matching?
-- Related implementation: [Scene](../../src/core/Scene.cpp), [Isolate](../../src/core/Isolator.cpp), [engine and Release](../../src/core/Engine.cpp), [drums](../../include/rmx/FactoryDrums.h), [capture tools](../../tools/reference_audio.py).
+- Related implementation: [Scene](../../src/core/Scene.cpp), [Isolate](../../src/core/Isolator.cpp), [engine and Release](../../src/core/Engine.cpp), [drums](../../include/rmx/FactoryDrumSynth.h), [capture tools](../../tools/reference_audio.py).
 - Initial source audit revision: `5f1887fa9fbaa8b655b4a633b282121c802aba58`; linked manufacturer documents and papers were accessed on 2026-10-25. Implementation and numerical measurement updates below are dated 26–27 October 2026.
 
 Controlled input/output measurement has now replaced several provisional DSP choices. Static factory Isolator, Echo and BPF/HPF/LPF/Crush Echo satisfy the declared waveform criterion against the original plug-in, and default Noise satisfies its statistical screen, within the scopes recorded below. The remaining effects and behaviors still use substantial project voicing. No full-device accuracy percentage or hardware equivalence has been established.
@@ -14,13 +14,13 @@ There is substantial identification and validation left; a defensible overall pe
 
 | Area | Current evidence | Remaining gap |
 | --- | --- | --- |
-| Kick, snare, clap, hi-hat | All224 static dry programs plus44 pitch/level gesture programs pass at48k/default profiles; live combined routing and wrappers checked | Other profiles/decays/envelopes, rolls and wider control/FX interactions |
+| Kick, snare, clap, hi-hat | All224 static dry,44 pitch/level gesture and89 roll programs pass in their48k/default-profile scopes; roll rearming/held-position motion checked at120BPM; live combined routing and earlier wrappers checked | Other profiles/decays/envelopes, wider tempos, Hold/Quantize, roll wrapper automation and control/FX interactions |
 | Echo, BPF, HPF, LPF, Crush, Reverb Up/Down | Scoped original-reference waveform matches; all568 combined drum/input whole-output programs pass,567 satisfy every raw gate | Wider gestures, settings and combinations; one microscopic wet-window failure retained |
 | Noise | Statistical matching in its recorded scope | Wider motion, settings and interactions |
 | Spiral Up/Down | Partial identification; latest research prototype passes285/361 complete renders | Autonomous full-effect waveform match and production adoption |
 | Release Back Spin/Echo/Brake | Existing project implementations | Original-reference identification and validation of all three |
 | Isolator | Basic static factory mode matched | Cut/Add/Trans-Roll modes and wider motion/interactions |
-| Full performance path | Scoped routing, event and callback checks | Sampling/rolls, complex combinations, profiles/rates/tempos, overload and blind listening |
+| Full performance path | Scoped routing, event and callback checks | Sampling, wider rolls, complex combinations, profiles/rates/tempos, overload and blind listening |
 | Physical device | No hardware equivalence established | Firmware-specific converter, level, control-response and audio comparison |
 
 Counts describe fixture coverage, not fractions of the device completed. The [live drum integration record](drums.md#live-integration-control-guards-and-wrappers) explains current evidence and its retained failure.

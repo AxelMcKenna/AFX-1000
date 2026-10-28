@@ -18,6 +18,17 @@ from tools.rmx_kick_validate import ACCEPTANCE
 def recipe(stage='discovery'):
     rows=[]
     for pad,drum in enumerate(DRUMS):
+        if stage=='fresh-v4':
+            for index,variant in enumerate(['strip-up','strip-down','strip-zigzag']):
+                positions=[[51,102,153,204,255],[255,204,153,102,51],[153,51,204,102,255,153]][index]
+                times=[1,133127+pad*6,181231+pad*6,229357+pad*6,277463+pad*6] if index<2 else [1,121063+pad*6,157169+pad*6,205277+pad*6,253389+pad*6,301433+pad*6]
+                changes=[dict(frame=at,type='X',value=value) for at,value in zip(times,positions)]
+                hit=48099+pad*2
+                changes += [dict(frame=hit,type='H',value=pad),dict(frame=hit+32,type='R',value=pad),dict(frame=96157+pad*6,type='T',value=1),dict(frame=384601+pad*6,type='T',value=0)]
+                changes.sort(key=lambda e:e['frame'])
+                rows.append(dict(name=f'roll-fresh4-{drum}-{variant}',drum=drum,variant=variant,block=[83,283,1549][index]+pad*2,
+                  level=[217,29,183][index],pitch=[111,219,57][index],hits=[hit],position=positions[0],bpm=120,quantize=0,changes=changes))
+            continue
         if stage=='fresh-v3':
             for index,variant in enumerate(['cold-quarter','warm-two','reselect-position','rearm-prior','no-rearm']):
                 position=[102,255,[51,102,153,204][pad],153,204][index]
@@ -89,8 +100,8 @@ def schedule(c):
 
 def payload(args):
     return dict(kind='rmx220-drums-roll-prospective-prediction',stage=args.stage,cases=recipe(args.stage),source_sha256=source_hashes(),renderer_sha256=sha256(args.renderer),acceptance=ACCEPTANCE,
-      expected=f'All{len(recipe(args.stage))} fresh full-program, selection/touch/roll/tail windows pass unchanged1% per channel, fixed32/32, no gain or alignment fitting.',
-      scope='Factory default48k unquantized roll programs with fixed32/32 and unchanged gates. Fresh-v3 is120BPM: cold/warm, same-position refresh, rearming the prior drum, new selection without position refresh and no-selection silence. Failed fresh-v2 requested91/137/160BPM without effective reference tempo setup and remains unqualified. Extra strip assignments/geometry, moving positions, Hold, Quantize, other settings, wrappers and hardware remain separate.')
+      expected=f'All{len(recipe(args.stage))} fresh full-program, selection/touch/strip-change/roll/tail windows pass unchanged1% per channel, fixed32/32, no gain or alignment fitting.',
+      scope='Factory default48k unquantized roll programs with fixed32/32 and unchanged gates. Fresh-v3 is120BPM: cold/warm, same-position refresh, rearming the prior drum, new selection without position refresh and no-selection silence. Fresh-v4 adds held-touch division changes in both directions and zigzags, also120BPM. Failed fresh-v2 requested91/137/160BPM without effective reference tempo setup and remains unqualified. Extra strip assignments/geometry, Hold, Quantize, other settings, wrappers and hardware remain separate.')
 
 
 def frozen(args):
@@ -150,6 +161,7 @@ def compare(args):
             intervals=[('selection',at,at+120000) for at in c['hits']]+[('tail',last,FRAMES-32)]
             for e in touches:intervals.append(('touch-attack' if e['value'] else 'roll-stop',e['frame'],e['frame']+(256 if e['value'] else 1024)))
             for on,off in zip(touches[::2],touches[1::2]):intervals += [('roll-window',at,min(at+24000,off['frame'])) for at in range(on['frame'],off['frame'],24000)]
+        intervals += [('strip-change',e['frame'],e['frame']+24000) for e in c['changes'] if e['type']=='X' and e['frame']>1]
         for kind,start,stop in intervals:
             stop=min(stop,len(a));require(stop>start,'Invalid roll window')
             windows.append(dict(kind=kind,start=start,stop=stop,score=screen(a[start:stop],b[start:stop])))
@@ -168,7 +180,7 @@ def compare(args):
 def main():
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='command',required=True)
     for name in ['predict','capture','compare']:
-        q=s.add_parser(name);q.add_argument('--stage',choices=['discovery','fresh','fresh-v2','fresh-v3'],default='discovery');q.add_argument('--prediction',type=Path)
+        q=s.add_parser(name);q.add_argument('--stage',choices=['discovery','fresh','fresh-v2','fresh-v3','fresh-v4'],default='discovery');q.add_argument('--prediction',type=Path)
         if name=='predict':
             q.add_argument('--renderer',type=Path,required=True);q.add_argument('--report',type=Path,required=True);continue
         for key in ['session','host']:q.add_argument('--'+key,type=Path,required=True)
