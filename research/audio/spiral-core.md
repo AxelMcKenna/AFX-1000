@@ -1,5 +1,10 @@
 # Spiral core identification, updated 27 October 2026
 
+This page preserves the earlier component experiments and their failed complete
+model. See the [29 October reconstruction](spiral-reconstruction.md) for the
+replacement research renderer, 1,709 held-control passes and separate motion
+work. These remain research results until explicitly delivered in the Engine.
+
 The original 2.2.0 plug-in now has reproducible experiments for separating its linked level measurement, clipping, linear filters and internal repeat clock. The [component identification](measurements/2026-10-26-spiral-core-identification.json) records 42 selected reference captures and verification of 94 input/control recipes. These are software observations at Default, Main raw 128, Sub2 zero, 48 kHz and 120 BPM unless explicitly labeled otherwise. No manufacturer implementation or recorded audio is included in the source tree.
 
 The experimental complete model **fails** the [361-render comparison](measurements/2026-10-27-spiral-robustness-prototype-48k.json): 285 pass and 76 fail. It is a research fixture, separate from the production engine. Its partial successes do not establish full Spiral or device similarity. The [initial ten-render comparison](measurements/2026-10-26-spiral-core-prototype-48k.json), [208-render clock checkpoint](measurements/2026-10-26-spiral-neutral-clock-prototype-48k.json) and [343-render envelope checkpoint](measurements/2026-10-26-spiral-envelope-prototype-48k.json) remain as historical records.
