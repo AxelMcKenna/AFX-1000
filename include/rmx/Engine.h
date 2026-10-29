@@ -15,6 +15,7 @@
 #include "CalibratedTransRoll.h"
 #include "CalibratedCutAdd.h"
 #include "CalibratedGateDrive.h"
+#include "CalibratedSpiral.h"
 #include <array>
 #include <atomic>
 #include <span>
@@ -76,6 +77,7 @@ private:
     FractionalDelay history;FactoryRelease factoryRelease;CalibratedGateDrive factoryGate;CalibratedTransRoll factoryTrans;CalibratedCutAdd factoryCut;
     bool factoryReleaseEnabled{};
     SceneProcessor sceneProcessor;
+    CalibratedSpiral factorySpiral;
     CalibratedReverbDown reverbDown;
     CalibratedReverbUp reverbUp;
     FactoryDrumSynth factoryDrums;
@@ -108,10 +110,10 @@ private:
     size_t routingReceived{},routingAvailable{},routingHead{};
     uint64_t routingAge{};float routingFade{};
     int coldSceneType{-1};float coldEffect{},coldMix{},coldMixStep{},coldDirect{1},coldTarget{1},coldDirectStep{};
-    void renderSharedSources(size_t count,int type,bool coldProfile,bool measuredDown,bool measuredUp,
-                             CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls) noexcept;
-    void generateSharedBlock(int type,bool coldProfile,bool measuredDown,bool measuredUp,
-                             CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls) noexcept;
+    void renderSharedSources(size_t count,int type,bool coldProfile,bool measuredDown,bool measuredUp,bool measuredSpiral,bool rawSpiral,
+                             CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls,CalibratedSpiral::Controls spiralControls) noexcept;
+    void generateSharedBlock(int type,bool coldProfile,bool measuredDown,bool measuredUp,bool measuredSpiral,bool rawSpiral,
+                             CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls,CalibratedSpiral::Controls spiralControls) noexcept;
     void stopFactoryDrums(uint8_t mask=15) noexcept {pendingDrumCue.stop|=mask;pendingDrumCue.trigger&=static_cast<uint8_t>(~mask);}
     bool factoryRollEligible() const noexcept {
         return sr==48000&&factoryMask==15&&get(Param::UserSettings)<.5f&&get(Param::Quantize)<.5f

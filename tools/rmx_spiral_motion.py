@@ -19,8 +19,14 @@ def recipe():
 def plan_for(c,inventory):
  def setting(name,value):
   matches=[p for p in inventory['parameters'] if p['name']==name];require(len(matches)==1,'Original control differs '+name);return {k:matches[0][k] for k in ['id','index','name']}|dict(value=value)
- values=dict(AutoButton=1,QuantizeButton=0,InputButton=1,XpadButton=0,IsolatorButton=0,DefaultSwitch=1,UserSwitch=0,SceneVolume=c['main']/255,Sub1Volume=c['time']/255,Sub2Volume=c['pitch']/255);values[programs.BUTTONS[c['direction']]]=1
- names=dict(main='SceneVolume',pitch='Sub2Volume',time='Sub1Volume',enabled=programs.BUTTONS[c['direction']]);events=[setting(names[e['control']],e['raw'] if e['control']=='enabled' else e['raw']/255)|dict(frame=e['frame'],type='parameter') for e in c['changes']]
+ values=dict(AutoButton=1,QuantizeButton=0,InputButton=1,XpadButton=0,IsolatorButton=0,DefaultSwitch=1,UserSwitch=0,SceneVolume=c['main']/255,Sub1Volume=c['time']/255,Sub2Volume=c['pitch']/255);values[programs.BUTTONS[c['direction']]]=int(c.get('initial_enabled',True))
+ names=dict(main='SceneVolume',pitch='Sub2Volume',time='Sub1Volume');events=[];direction=c['direction']
+ for e in c['changes']:
+  if e['control']=='direction':
+   next_direction=['up','down'][e['raw']]
+   if next_direction!=direction:events.append(setting(programs.BUTTONS[direction],0)|dict(frame=e['frame'],type='parameter'))
+   events.append(setting(programs.BUTTONS[next_direction],1)|dict(frame=e['frame'],type='parameter'));direction=next_direction
+  else:events.append(setting(programs.BUTTONS[direction] if e['control']=='enabled' else names[e['control']],e['raw'] if e['control']=='enabled' else e['raw']/255)|dict(frame=e['frame'],type='parameter'))
  return dict(schema_version=1,kind='audio-plugin-capture-plan',role='reference',expected_plugin=IDENTITY,sample_rate=48000,bpm=120,tail_seconds=0,parameters=[setting(k,v) for k,v in values.items()],events=events)
 
 

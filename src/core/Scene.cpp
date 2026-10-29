@@ -31,7 +31,7 @@ void SceneProcessor::prepare(double sampleRate) {
     sideAttack=1-std::exp(-1.f/static_cast<float>(rate*.003));sideRelease=1-std::exp(-1.f/static_cast<float>(rate*.08));updateRoom();reset();
 }
 void SceneProcessor::reset() noexcept {
-    echo.reset();spiral.reset();for(auto& delay:room)delay.reset();damping={};
+    echoLoaned=spiralLoaned=false;echo.reset();spiral.reset();for(auto& delay:room)delay.reset();damping={};
     mainFilter.reset();echoFilter.reset();noiseTilt.reset();noisePolish.reset();calibratedNoise.reset();calibratedFilters.reset();pitchPhase=0;frame=0;random=0x12345678;
     noiseCutoff=90;noiseModGain=1;noiseReturn={};noiseAge=0;
     previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;echoReadGain=0;sharedStartup=false;
@@ -106,6 +106,7 @@ Stereo SceneProcessor::reverb(Stereo input) noexcept {
     return {output.l+sum.r*.1f,output.r+sum.l*.1f};
 }
 Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,float enabled,double bpm,double beat,float sidechain,float startupGain,bool priming) noexcept {
+    if(echoLoaned)return input;
     if(priming)sharedStartup=true;
     const int type=std::clamp(settings.type,0,9);
     macro=std::clamp(macro,0.f,1.f);sub1=std::clamp(sub1,0.f,7.f);sub2=std::clamp(sub2,0.f,1.f);enabled=std::clamp(enabled,0.f,1.f);
@@ -172,7 +173,7 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
         const int filter=settings.reverbFilter[roomSide];
         const auto wet=(filter==2?filtered.high:filter==1?filtered.band*(1/q):filtered.low)*(sub1/7);
         result=type==4?input+wet*(macro*enabled):mix(input,wet,macro*enabled);
-        echo.push(delayed*feedback);spiral.push({});
+        echo.push(delayed*feedback);pushSpiral({});
     } else if(type==3||type==8) {
         const unsigned direction=type==8?1:0;
         float semitones=sub2*12;
@@ -183,7 +184,7 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
         pitchPhase+=(1-speed)/window;pitchPhase-=std::floor(pitchPhase);
         const float weight=static_cast<float>(.5-.5*std::cos(2*pi*pitchPhase));
         const auto shifted=spiral.read(2+window*pitchPhase)*weight+spiral.read(2+window*std::fmod(pitchPhase+.5,1.))*(1-weight);
-        spiral.push(bounded(input*enabled*activation+delayed*feedback));echo.push(bounded(shifted));
+        pushSpiral(bounded(input*enabled*activation+delayed*feedback));echo.push(bounded(shifted));
         result=type==3?input+shifted*(macro*enabled*.8f):mix(input,shifted,macro*enabled);
         (void)reverb({});
     } else {
@@ -209,7 +210,7 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
             // recirculating at exactly 0.5. The return survives button-off.
             result=input+send+returned*.35f;
             echo.push(bounded(send+returned*.5f));
-            spiral.push({});(void)reverb({});++noiseAge;++frame;
+            pushSpiral({});(void)reverb({});++noiseAge;++frame;
             return result;
         } else if(type==2) {
             const float n=noise()*.28f;const auto generated=echoFilter.process({n,n});
@@ -242,7 +243,7 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
         const bool hold=type==1&&settings.echoFeedbackMode==0&&macro>.985f;
         const float inputFade=startupGain*startupGain;
         echo.push(type==2?bounded(send*enabled+noiseReturn*feedback):hold?delayed:bounded(send*(enabled*(type==1?inputFade:activation))+delayed*feedback));
-        spiral.push({});(void)reverb({});
+        pushSpiral({});(void)reverb({});
     }
     ++frame;return result;
 }

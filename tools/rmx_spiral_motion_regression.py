@@ -10,16 +10,23 @@ from tools.noise_statistics import float_wav
 from tools.reference_audio import save_json, sha256
 
 
+def bindings():
+    return match.bindings() | {n:sha256(Path(n)) for n in ['tools/rmx_spiral_motion_regression.py','tools/rmx_spiral_prospective.py']}
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     for name in ['session', 'host', 'renderer', 'sanitizer', 'output']:
         p.add_argument('--'+name, type=Path, required=True)
-    a = p.parse_args(); root = new_directory(a.output); bound = match.bindings()
+    p.add_argument('--engine',action='store_true')
+    a = p.parse_args(); root = new_directory(a.output); bound = bindings()
     own = sha256(Path(__file__)); binaries = {str(b): sha256(b) for b in [a.renderer, a.sanitizer]}
     frozen = json.loads((a.session/'prediction.json').read_text()); source = a.session/'program.wav'
     require(sha256(source) == frozen['input_sha256'], 'Input changed'); _, expected = float_wav(source)
     symbols = subprocess.check_output(['nm', '-C', str(a.sanitizer)], text=True)
     require('___asan_init' in symbols and '___ubsan_handle_' in symbols, 'Missing sanitizers')
+    if a.engine:
+        require('rmx::Engine::process(' in symbols and 'rmx::Engine::process(' in subprocess.check_output(['nm','-C',str(a.renderer)],text=True),'Replay is not the live Engine')
     rows = []
     for c in frozen['cases']:
         receipt, x, input_audio = match.original(a, c, expected)
@@ -40,12 +47,12 @@ def main():
         rows.append(dict(case=c['name'], passed=passed, windows=windows, sanitizer_byte_identical=True,
                          receipt_sha256=sha256(a.session/c['name']/'receipt.json'), candidate_sha256=sha256(native)))
         print('REGRESSION',c['name'],passed,flush=True)
-    require(bound == match.bindings() and own == sha256(Path(__file__)) and
+    require(bound == bindings() and own == sha256(Path(__file__)) and
             all(sha256(Path(b)) == h for b,h in binaries.items()), 'Candidate changed')
-    save_json(root/'verification.json',dict(kind='spiral-motion-independent-regression-audit', passed=all(r['passed'] for r in rows),
+    save_json(root/'verification.json',dict(kind='spiral-motion-independent-regression-audit',live_engine=a.engine,passed=all(r['passed'] for r in rows),
              cases=rows, source_sha256=bound, verifier_sha256=own, binaries_sha256=binaries,
              previous_prediction_sha256=sha256(a.session/'prediction.json'),
-             scope='Existing references. Whole/wet, one-second and event windows1%perchannel; complete optimized/sanitized WAV byte identity. No new prospective, cold-input, live-wrapper or hardware qualification.'))
+             scope='Existing original programs in their recorded recipes. Whole/wet, one-second and event windows1%perchannel; complete optimized/sanitized WAV byte identity. No new prospective capture, broader-profile, live-wrapper or hardware qualification.'))
     return 0 if all(r['passed'] for r in rows) else 1
 
 

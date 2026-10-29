@@ -1,12 +1,12 @@
 # RMX-1000 sound matching research
 
-- Updated: 2026-10-29
-- Status: active; scoped factory drums, seven deterministic Scene effects, basic Isolator and statistical Noise matching at48k; full-device validation incomplete
+- Updated: 2026-10-30
+- Status: active; scoped factory drums, nine deterministic Scene effects, three Isolator modes, Release and statistical Noise at 48 kHz; full-device validation incomplete
 - Question: what evidence, DSP work and validation would support a defensible claim of very close RMX-1000 sound matching?
 - Related implementation: [Scene](../../src/core/Scene.cpp), [Isolate](../../src/core/Isolator.cpp), [engine and Release](../../src/core/Engine.cpp), [drums](../../include/rmx/FactoryDrumSynth.h), [capture tools](../../tools/reference_audio.py).
 - Initial source audit revision: `5f1887fa9fbaa8b655b4a633b282121c802aba58`; linked manufacturer documents and papers were accessed on 2026-10-25. Implementation and numerical measurement updates below are dated 26–27 October 2026.
 
-Controlled input/output measurement has now replaced several provisional DSP choices. Static factory Isolator, Echo and BPF/HPF/LPF/Crush Echo satisfy the declared waveform criterion against the original plug-in, and default Noise satisfies its statistical screen, within the scopes recorded below. The remaining effects and behaviors still use substantial project voicing. No full-device accuracy percentage or hardware equivalence has been established.
+Controlled input/output measurement has now replaced several provisional DSP choices. Echo, BPF/HPF/LPF/Crush Echo, Reverb Up/Down, Spiral Up/Down, all three Isolator modes, Release and factory drums have scoped original-reference qualifications. Default Noise satisfies its statistical screen. Wider profiles, tempos, routes, combined gestures and performance controls remain incompletely qualified. No full-device accuracy percentage or hardware equivalence has been established.
 
 ### Current distance from the whole-device target
 
@@ -17,9 +17,9 @@ There is substantial identification and validation left; a defensible overall pe
 | Kick, snare, clap, hi-hat | All224 static dry,44 pitch/level gesture and89 roll programs pass in their48k/default-profile scopes; roll rearming/held-position motion checked at120BPM; live combined routing and earlier wrappers checked | Other profiles/decays/envelopes, wider tempos, Hold/Quantize, roll wrapper automation and control/FX interactions |
 | Echo, BPF, HPF, LPF, Crush, Reverb Up/Down | Scoped original-reference waveform matches; all568 combined drum/input whole-output programs pass,567 satisfy every raw gate | Wider gestures, settings and combinations; one microscopic wet-window failure retained |
 | Noise | Statistical matching in its recorded scope | Wider motion, settings and interactions |
-| Spiral Up/Down | Partial identification; best prototype285/361, new scalar-envelope experiment284/361 and rejected | Autonomous full-effect waveform match and production adoption |
+| Spiral Up/Down | Live Default/48k/manual120: 1,709 static and 336 dynamic/cold/direction-switch programs pass; complete optimized/sanitized WAV byte identity | Other tempos/rates/User profiles, drum/Isolator/Release combinations and hardware |
 | Release Back Spin/Echo/Brake | Live Default/48k: all216 complete native renders have identical float32 sample bits to the original;88 unseen frozen programs;88 regressions per wrapper | Other tempos/rates/profiles, combined reset/source actions, active type switches and hardware |
-| Isolator | Basic static factory mode matched | Cut/Add/Trans-Roll modes and wider motion/interactions |
+| Isolator | Live Cut/Add, Trans/Roll and Gate/Drive: 146 reference programs per mode, including band gestures and lifecycle changes | Wider tempos/profiles/routes, combined effects and hardware |
 | Full performance path | Scoped routing, event and callback checks | Sampling, wider rolls, complex combinations, profiles/rates/tempos, overload and blind listening |
 | Physical device | No hardware equivalence established | Firmware-specific converter, level, control-response and audio comparison |
 
@@ -370,3 +370,24 @@ The subsequent [pitch/level gesture campaign](drums.md#frozen-drum-gesture-valid
 Both wrappers pass the same88 unseen originals under the normal waveform gates and separate native-delivery limits, plus359 runtime checks each. The maximum wrapper/native absolute sample difference is2.5332e-7. Shared Release storage preserves the existing60MiB memory limit and full SD-card bank replacement. Method, rejected predictions, public lever quantization, scalar observations, playback/filter rounding and reproduction commands are documented in the Release record.
 
 Spiral Up/Down and Cut/Add, Trans/Roll and Gate/Drive still require full sound identification and fresh validation. Combined Release reset/source behavior, other profiles/rates/tempos, overload, listening and physical hardware remain separate gaps. The latest Spiral envelope experiment regressed from285 to284 passing programs out of361 and was rejected; a scalar explanation alone is not sufficient for adoption.
+
+
+## 30 October 2026: Spiral delivered in the shared Engine
+
+[Spiral Up/Down](spiral-reconstruction.md) now uses the identified production
+processor for Default 48 kHz/manual 120 BPM. The live Engine passes 1,709 static
+and 336 dynamic/cold/selector programs, with complete optimized/sanitized WAV
+byte identity. Each AU/VST3 format passes 1,789 delivery programs and 359 runtime
+checks. The dated [validation](measurements/2026-10-30-spiral-live-validation.json)
+records independent whole/wet/window gates, prospective holdouts, failed earlier
+predictions and all preservation checks. Prior drums, roll, Release, Isolator and
+reverb renders retain their recorded audio, including the inherited near-null
+Crush wet-window failure. Prepared audio-buffer allocation is unchanged.
+
+All ten Scene categories now have scoped evidence: nine deterministic effects
+and statistical Noise. This closes the previously missing Spiral category in
+the playable software; it does not close wider User settings, tempos, rates,
+routes, interacting effects, sampling/quantize/Hold or physical hardware. No
+whole-device 99% perceptual-match claim follows from these tests. The firmware
+host suite still has its inherited factory-silence failure (15/16); desktop
+reference results do not qualify physical-board execution.

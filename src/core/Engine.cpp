@@ -27,6 +27,7 @@ void Engine::prepare(double sampleRate,uint32_t maxBlock) {
     const auto capacity=static_cast<size_t>(sr*16)+4;
     if(sr==48000)history.attach(factoryRelease.legacyStorage());else history.prepare(capacity);
     sceneProcessor.prepare(sr);
+    if(sr==48000)factorySpiral.prepare(sceneProcessor.loanableEchoStorage(),sceneProcessor.loanableSpiralStorage());
     for(auto& isolator:isolators) isolator.prepare(sr);
     if(sr==48000){
         std::array<std::span<Stereo>,12> storage{};
@@ -42,7 +43,7 @@ void Engine::prepare(double sampleRate,uint32_t maxBlock) {
 }
 void Engine::reset() noexcept {
     sceneProcessor.reset(); history.reset(); rollInput={}; rollInputMix=0;
-    reverbDown.reset();reverbUp.reset();routingCollected={};routingPending={};scenePending={};
+    factorySpiral.reset();reverbDown.reset();reverbUp.reset();routingCollected={};routingPending={};scenePending={};
     scenePadPending={};unselectedPadPending={};
     routingReceived=routingAvailable=routingHead=0;routingAge=0;routingFade=0;
     coldSceneType=-1;coldEffect=coldMix=coldMixStep=coldDirectStep=0;coldDirect=coldTarget=1;
@@ -254,8 +255,8 @@ unsigned Engine::latencySamples() const noexcept {
     return sr==48000?32:0;
 }
 
-void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool measuredDown,bool measuredUp,
-                                CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls) noexcept {
+void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool measuredDown,bool measuredUp,bool measuredSpiral,bool rawSpiral,
+                                CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls,CalibratedSpiral::Controls spiralControls) noexcept {
     // Untouched startup slots follow the original callback's passthrough
     // ordering. All generated audio and parallel buses share one output FIFO.
     for(size_t i=0;i<count;++i){sceneOutput[i]=sourceFrames[i].input+sourceFrames[i].legacy;parallelOutput[i]={sourceFrames[i].raw,{},sourceFrames[i].wetDry,factoryReleaseEnabled};}
@@ -287,14 +288,15 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
             std::copy_n(scenePending.begin()+static_cast<std::ptrdiff_t>(routingHead),emit,sceneOutput.begin()+static_cast<std::ptrdiff_t>(written));
             std::copy_n(routingPending.begin()+static_cast<std::ptrdiff_t>(routingHead),emit,parallelOutput.begin()+static_cast<std::ptrdiff_t>(written));
             written+=emit;routingAvailable-=emit;routingHead+=emit;
-            if(routingReceived==32){generateSharedBlock(type,coldProfile,measuredDown,measuredUp,downControls,upControls);routingReceived=0;routingAvailable=32;routingHead=0;}
+            if(routingReceived==32){generateSharedBlock(type,coldProfile,measuredDown,measuredUp,measuredSpiral,rawSpiral,downControls,upControls,spiralControls);routingReceived=0;routingAvailable=32;routingHead=0;}
         }
         start=end;
     }
 }
-void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,bool measuredUp,
-                                CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls) noexcept {
-    std::array<Stereo,32> drums{},selected{},generated{},discard{};
+void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,bool measuredUp,bool measuredSpiral,bool rawSpiral,
+                                CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls,CalibratedSpiral::Controls spiralControls) noexcept {
+    std::array<Stereo,32> drums{},selected{},generated{},discard{},spiralSource{};
+    sceneProcessor.setStorageLoaned(measuredSpiral,rawSpiral);factorySpiral.setStorageState(measuredSpiral,rawSpiral);
     if(factoryRoll.advance(routingCollected[0].bpm)&&factoryRollPlaying)factoryDrums.trigger(factoryRoll.instrument());
     factoryDrums.generateBlock(drums);
     // One selected source drives the nonlinear detector and processor. It is
@@ -350,10 +352,10 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
         unselectedPadPending[i]=pads*(1-source.scenePad);
         // Only the fully dry send is a removable pad stem. Scene-off can
         // still have a nonzero smoother and already-processed queued audio.
-        scenePadPending[i]=!useFactoryIsolator&&!measuredDown&&!measuredUp&&source.sceneMix==0?generated[i]:Stereo{};
+        scenePadPending[i]=!useFactoryIsolator&&!measuredDown&&!measuredUp&&!measuredSpiral&&source.sceneMix==0?generated[i]:Stereo{};
         routingPending[i]={fade(source.raw),routed*(1-source.sceneInput)+unselectedPadPending[i],fade(source.wetDry)};
-        if(!measuredDown&&!measuredUp){
-            const auto send=useFactoryIsolator?factoryIsolated[i]:routed*source.sceneInput+generated[i];
+        const auto send=useFactoryIsolator?factoryIsolated[i]:routed*source.sceneInput+generated[i];spiralSource[i]=send;
+        if(!measuredDown&&!measuredUp&&!measuredSpiral){
             // The identified initial activation is separate from later
             // gestures. Once disabled, keep the ordinary control smoother.
             if(!source.sceneEnabled)coldSceneType=-1;
@@ -382,6 +384,8 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
             scenePending[i]=result;
         }
     }
+    factorySpiral.recordRaw(spiralSource);spiralControls.enabled=measuredSpiral&&routingCollected.back().sceneEnabled;factorySpiral.setControls(spiralControls);
+    if(measuredSpiral)factorySpiral.process(spiralSource,scenePending);
     downControls.enabled=measuredDown&&routingCollected.back().sceneEnabled;reverbDown.setControls(downControls);
     upControls.enabled=measuredUp&&routingCollected.back().sceneEnabled;reverbUp.setControls(upControls);
     if(!reverbDown.processGeneratedBlock(selected,generated,measuredDown?std::span<Stereo,32>(scenePending):std::span<Stereo,32>(discard))&&measuredDown)scenePending={};
@@ -457,6 +461,9 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     const bool measuredUp=sr==48000&&sceneSettings.type==4&&sceneSettings.roomSize[0]==0
         &&sceneSettings.reverbTime[0]==1&&sceneSettings.reverbFilter[0]==2&&sceneSettings.decay==.72f;
     auto factorySceneSettings=SceneSettings{};factorySceneSettings.type=sceneSettings.type;
+    const bool measuredSpiral=sr==48000&&(sceneSettings.type==3||sceneSettings.type==8)&&sceneSettings==factorySceneSettings
+        &&get(Param::UserSettings)<.5f&&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120;
+    const bool rawSpiral=sr==48000&&get(Param::UserSettings)<.5f&&((sceneSettings.type!=3&&sceneSettings.type!=8)||measuredSpiral);
     const bool coldSceneProfile=sceneSettings==factorySceneSettings&&(sceneSettings.type==0||sceneSettings.type==1
         ||sceneSettings.type==5||sceneSettings.type==6||sceneSettings.type==7)
         &&(sceneSettings.type==1||get(Param::SceneResonance)==0);
@@ -495,6 +502,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     CalibratedReverbDown::Controls downControls{rawControl(get(Param::SceneDepth),255),
         rawControl(get(Param::SceneTime),255.f/7),rawControl(get(Param::SceneResonance),255),false};
     CalibratedReverbUp::Controls upControls{downControls.main,downControls.amount,downControls.cutoff,false};
+    CalibratedSpiral::Controls spiralControls{static_cast<unsigned>(downControls.main),static_cast<unsigned>(downControls.amount),static_cast<unsigned>(downControls.cutoff),false,sceneSettings.type==8?1:0};
 
     const bool overdub=get(Param::Overdub)>.5f;
     if(!overdub&&previousOverdub) { sequence.clear(); voices={};stopFactoryDrums();pendingDrumCue.flush=true; }
@@ -567,7 +575,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
             nudgeOffset+=nudgeDirection*.02*bpm/(60*sr);
         }
     }
-    if(sr==48000)renderSharedSources(count,sceneSettings.type,coldSceneProfile,measuredDown,measuredUp,downControls,upControls);
+    if(sr==48000)renderSharedSources(count,sceneSettings.type,coldSceneProfile,measuredDown,measuredUp,measuredSpiral,rawSpiral,downControls,upControls,spiralControls);
     else {
     for(uint32_t k=0;k<count;++k){
         const auto& source=sourceFrames[k];Stereo input=source.input,drums=source.legacy;

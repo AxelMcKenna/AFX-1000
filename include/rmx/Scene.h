@@ -29,12 +29,21 @@ public:
     void prepare(double sampleRate);
     void reset() noexcept;
     void configure(const SceneSettings&) noexcept;
+    std::span<Stereo> loanableEchoStorage() noexcept {return echo.loanableStorage();}
+    std::span<Stereo> loanableSpiralStorage() noexcept {return spiral.loanableStorage();}
+    void setStorageLoaned(bool echoStorage,bool spiralStorage) noexcept {
+        if(echoStorage!=echoLoaned)echo.invalidate();
+        if(spiralStorage!=spiralLoaned)spiral.invalidate();
+        echoLoaned=echoStorage;spiralLoaned=spiralStorage;
+    }
     // Optional startup/priming inputs are owned by the common-block adapter;
     // existing streaming callers retain their default behaviour.
     Stereo process(Stereo input,float macro,float sub1,float sub2,float enabled,double bpm,double beat,float sidechain,
                    float startupGain=1,bool priming=false) noexcept;
 private:
     FractionalDelay echo,spiral;
+    bool echoLoaned{},spiralLoaned{};
+    void pushSpiral(Stereo value) noexcept {if(!spiralLoaned)spiral.push(value);}
     std::array<FractionalDelay,8> room;
     std::array<Stereo,8> damping{};
     StateFilter mainFilter,echoFilter,noiseTilt,noisePolish;

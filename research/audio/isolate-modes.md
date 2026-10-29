@@ -4,9 +4,11 @@ This work compares our implementation with the original RMX-1000 Plug-in 2.2.0.
 It does not establish equivalence to physical hardware or a percentage match for
 the whole device. Gate/Drive now runs in the live engine for Default settings at
 48 kHz with matching Isolator/Scene source selections. The measured scope is
-input-only at 120 BPM, with Scene off and Release disengaged. Active Cut/Add and the Spiral models remain unfinished. Trans/Roll now also
-runs in the live engine within its measured manual-tempo scope; see
-[its method and qualification](trans-roll.md).
+input-only at 120 BPM, with Scene off and Release disengaged. Cut/Add and Trans/Roll also run in the live engine within their measured
+manual-tempo scopes; see [Cut/Add](cut-add.md) and
+[Trans/Roll](trans-roll.md). [Spiral Up/Down](spiral-reconstruction.md) is now
+integrated separately. These individual qualifications do not establish
+combined-effect or whole-device equivalence.
 
 ## Discovery
 

@@ -16,8 +16,8 @@ def bindings():return static.bindings()|{n:sha256(Path(n)) for n in ['tools/rmx_
 
 
 def schedule(c):
- rows=[f"RMX_SPIRAL_MOTION 1 {int(c['direction']=='down')} {c['block']} {c['main']} {c['time']} {c['pitch']}"]
- ids=dict(main=0,time=1,pitch=2,enabled=3)
+ rows=[f"RMX_SPIRAL_MOTION 2 {int(c['direction']=='down')} {c['block']} {c['main']} {c['time']} {c['pitch']} {int(c['initial_enabled'])}"] if 'initial_enabled' in c else [f"RMX_SPIRAL_MOTION 1 {int(c['direction']=='down')} {c['block']} {c['main']} {c['time']} {c['pitch']}"]
+ ids=dict(main=0,time=1,pitch=2,enabled=3,direction=4)
  rows += [f"{e['frame']} {ids[e['control']]} {e['raw']}" for e in c['changes']]
  return '\n'.join(rows)+'\n'
 

@@ -1,20 +1,31 @@
-# Spiral reconstruction — 29 October 2026
+# Spiral reconstruction — updated 30 October 2026
 
-The held-control research renderer passes 1,709 original software-reference
-programs: 512 Main positions, 512 pitch positions, 96 mixed controls, 397 unique
-historical programs and 192 fresh programs. The
-[summary](measurements/2026-10-29-spiral-static-v4-summary.json) links the complete
-comparisons and independent audits. Both channels must pass whole-output,
-wet-output and one-second waveform screens. Optimized and ASAN/UBSAN complete
-WAV files are byte-identical throughout this set.
+Spiral Up and Down now run in the playable Engine for Default settings at
+48 kHz and manual 120 BPM. The live Engine passes 1,709 held-control reference
+programs and 336 moving-control, startup and direction-switch programs.
+All 2,045 optimized/sanitized complete WAV pairs are byte-identical. The
+held-control live renders also retain the complete research-renderer WAV bytes.
+The reference is the original RMX-1000 Plug-in 2.2.0; these results do not
+establish a perceptual percentage or physical-device equivalence.
 
-This is research evidence for Default settings, 48 kHz, 120 BPM and the checked
-input route. It does not establish a perceptual similarity percentage, physical
-hardware agreement or delivery in the playable Engine. The static campaigns use
-AutoButton 1 and a silent preamble. Cold input, other profiles, other tempos,
-routes and live wrappers require separate checks. Moving-control results below
-belong to a separate candidate and must not inherit static qualification merely
-because they share equations.
+The 1,709 static cases comprise 512 Main positions, 512 pitch positions,
+96 mixed controls, 397 unique historical programs and 192 fresh programs.
+All static and dynamic cases use the same production Spiral implementation;
+each fixture prepares a fresh Engine.
+The 336 dynamic cases comprise eight retained campaigns (320 cases), including
+previously failed predictions replayed as regressions, and a new independent
+16-case live-Engine holdout. Counts describe distinct programs rather than
+unseen successes: earlier failed predictions remain failures in their original
+reports. Both channels must satisfy the unchanged whole-output, wet-output,
+one-second and event-window gates wherever applicable.
+
+The qualified audio route is input-only, with other effects disengaged. Other
+sample rates, tempos and User settings retain the existing Spiral implementation.
+Their sound and combinations with drums/Isolator/Release require separate
+reference qualification. The implementation uses the actual shared 32-frame
+Engine transport; no per-case gain fitting, wet alignment or latency search is
+introduced. The earlier research campaigns are described below in their original
+chronology and evidence scope.
 
 ## How the missing behavior was found
 
@@ -191,5 +202,155 @@ The rejected static-v2 snapshot retains 2,409 files with manifest SHA-256
 `19818305817bc135c4b5ec0d959d2f045dbaef6f3486762585aef0d65cfe3eda`.
 The bypass proof is retained locally in
 `build/artifacts/research/spiral-bypass-transport-20261029/verification.json`.
-Static and moving-control candidates remain outside the live DSP until their
-storage, lifecycle, wrapper and compatibility checks are complete.
+The earlier snapshots preserve the research stage before live adoption. The
+30 October live qualification below supersedes that delivery boundary within
+its explicitly measured scope.
+
+
+## First activation and switching direction
+
+Initially disabled programs exposed a distinction between warming raw input
+history and starting the private effect. The first engagement emits the raw
+source through the common 160-sample fade. The private delay, pitch and return
+state starts on the following 32-frame block. A versioned schedule now expresses
+initial enable state explicitly; 16 predictions sealed before the original
+captures pass after this correction (v16).
+
+Direction selection is another state transition rather than an ordinary pitch
+knob change. The original host plan releases the old effect button and presses
+the new button at the same frame. The common wet path fades out, then the private
+processor restarts with a fresh dry fade. The first v17 prospective switch set
+passed 11/16. Its five failures are retained. They exposed two missing details:
+the dry fade restarts on the next block, and the pitch ring's audio survives
+Up/Down switches even though its cursors, fractional phase, windows and filters
+restart. Clearing that ring would remove audible history from the new direction.
+The corrected v18 passes those 16 as regressions, then passes a separately
+sealed 32-case holdout covering early, initially disabled, interrupted and
+combined selector/control changes. No failed prediction was relabeled fresh.
+
+## Storage and real-time integration
+
+[CalibratedSpiral](../../include/rmx/CalibratedSpiral.h) and
+[Spiral.cpp](../../src/core/Spiral.cpp) implement the identified arithmetic in
+production code. Long buffers are spans into legacy Scene storage: 132,880 stereo
+frames from the unused echo allocation and 32,768 raw-history frames from the
+legacy pitch allocation. Primary history needs 32,768 frames because the largest
+identified delay is below 24,064. Four return lines retain their individual
+24,004-frame histories. No reference samples or rendered output are embedded.
+
+Ownership changes invalidate the legacy delay metadata. Written-age guards make
+unwritten borrowed primary/raw/return storage read as zero. A 4,096-bit validity
+map does the same for pitch history without clearing a large buffer inside a
+callback. Direction changes preserve that map; relinquishing storage invalidates
+it. The raw input history stays warm while another Default Scene effect runs.
+Storage withdrawal, reset, poisoned storage and unsupported-profile/rate/tempo
+fallbacks are exercised by the dedicated storage test.
+
+The prepared audio-buffer allocation remains 30,100,112 bytes. The Engine object
+is 47,168 bytes (previously 46,016); CalibratedSpiral is 1,128 bytes. With factory
+assets and the 64-second stereo sampler the prepared total is 56,000,912 bytes;
+the measured peak is 56,173,712 within the 62,914,536-byte arena. The callback
+allocation check observes zero global or PMR allocations. Spiral arithmetic is
+compiled with floating-point contraction disabled in both desktop and firmware
+host builds. These are storage/build checks, not an embedded execution deadline
+or physical-board audio qualification.
+
+## Live reference and wrapper reproduction
+
+The excluded CMake targets `rmx_spiral_engine_probe`, `rmx_spiral_core_probe` and
+`rmx_spiral_research_probe` build separate delivery layers from the same fixture.
+Live audits require the Engine processing symbol, bind source and executable
+hashes before/after the run, and compare independently retained original audio,
+inputs, control plans, receipts and auxiliary state. The fresh 16-case Engine
+holdout additionally requires complete sealed-prediction/native/sanitizer byte
+identity before a prospective pass. It includes frame-zero input, initial off,
+1/9/17-frame button touches and combined direction/knob changes.
+
+`tools.rmx_spiral_static_motion_audit` replays the static corpus through the
+stateful live processor. `tools.rmx_spiral_motion_regression` and
+`tools.rmx_spiral_cold_match` replay the dynamic/cold reference sets.
+`tools.rmx_spiral_engine_holdout` performs the fresh prediction/capture/audit
+sequence. Use new output directories and retain the pinned original host and
+plug-in locally. `tools.rmx_spiral_plugins` binds an explicitly supplied project
+AU/VST3 bundle to the native qualification, checks parameter delivery/readback
+and latency, and applies independent original-reference and wrapper/native
+gates. Gain uses the plug-in's decoded 0 dB parameter value, not an approximate
+normalized setting.
+
+Wrapper captures are retained losslessly as a native WAV base plus a gzip stream
+of PCM-byte XOR differences. RIFF prefix/suffix and SHA-256 checks preserve the
+entire WAV, including subnormal values. Packaging is performed only after the
+ordinary captured WAV has passed its audio checks, and unpacking must reproduce
+its complete bytes. This reduces duplicate local storage without changing any
+audio, error metric or threshold. Restore a retained wrapper WAV with:
+
+```sh
+uv run --locked python -m tools.wav_delta path/to/case/audio.delta.json restored.wav
+```
+
+The metadata and its adjacent native base/XOR stream must stay together.
+APFS copy-on-write copies similarly preserve already byte-verified identical
+native/sanitized outputs; the archive records source hashes and relocation.
+Reference recordings, original executables and compiled binaries remain in
+ignored local artifacts. Numerical reports and our own reconstruction code are
+tracked in Git.
+
+
+## 30 October delivery results
+
+Both explicitly hosted formats pass 1,789 reference programs each: all 1,709
+static cases, the 16 new Engine holdouts, 32 selector cases and 32 long/cold
+cases. These are delivery regressions against the retained original recordings,
+not additional unseen Original programs. Each format also passes all 359 runtime
+checks. The largest wrapper/native absolute sample difference is
+`1.1175870895385742e-8`; the largest relative RMS difference is
+`7.394251084274274e-10`. Both are below the separately declared `1e-5` delivery
+limits. Reported latency is 32 frames. This qualification uses the explicit
+project bundles in the local capture host; it is not an every-DAW or controller
+qualification.
+
+All 38 native tests and five selected ASAN/UBSAN test groups pass. Firmware host
+checks remain 15/16: the inherited `full_integration` failure reports
+“Full engine factory path is silent.” The desktop factory-drum/reference probes
+are separate evidence. Both firmware Makefiles and host CMake include Spiral
+with contraction disabled; no new ARM image, board execution or real-time
+hardware result is claimed.
+
+To hear the measured Spiral path in the preview, use 48 kHz, Default settings,
+turn AUTO BPM off and set 120 BPM. Select Spiral Up or Down, enable Scene FX and
+use input audio with the other effects disengaged. Unsupported settings continue
+through the earlier implementation.
+
+
+The integration also preserves all 836 earlier drum programs byte for byte in
+both optimized and sanitized renders, including the 224 dry, 44 gesture and
+568 combined drum/Scene cases. Their prior scores transfer unchanged: 835 pass
+every raw gate, while `drum-fx-live-effect7-route1` retains its microscopic
+near-null wet-window failure. All 568 combined whole-output gates still pass.
+All 89 drum-roll programs and their dry traces remain byte-identical. All 216
+Release renders retain complete float32 sample-bit identity with the Original.
+The 1,513 reverb renders retain their qualified complete WAV and dry-trace bytes.
+All 146 programs per Gate/Drive, Trans/Roll and Cut/Add retain complete qualified
+parent WAV bytes in native and sanitized builds, with an additional strict
+438-program sanitizer replay requiring empty diagnostic output. These are
+compatibility replays of earlier scopes, not fresh original captures or new
+combined-Spiral qualifications.
+
+The [live validation record](measurements/2026-10-30-spiral-live-validation.json)
+links complete numerical reports, retained report hashes, compiler/source
+bindings, runtime checks and the archived failed v17 prediction. Tracked reports
+keep every field and numeric value, with one compact case per line; the record
+pins both their Git copy and the byte-exact original local report. The local
+archive is `build/artifacts/research/rmx-spiral-live-20261030`; playable bundles
+are in `build/live-engine-preview-20261030-spiral`.
+
+
+The stable local app and AU copies have their ad-hoc resource envelopes sealed.
+Before/after checks require every Mach-O section's bytes, address, offset and
+flags to stay identical. The signed AU is then checked again against the same
+16 Engine holdouts and all 359 runtime assertions. This is a packaging replay,
+not 16 new Original programs. The VST3 copy already has a valid resource seal
+and remains byte-identical to its full qualification. The regular
+[Mac packager](../../tools/package_macos.py) also signs and strictly verifies
+copies without changing the source build products. The local preview is not a
+notarized release.

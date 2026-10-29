@@ -11,6 +11,10 @@ struct SpiralMotionPitch {
         filter.c={.7878031134605408f,0,-.7878031134605408f,-.42026737332344055f,-.5756062865257263f};
     }
     unsigned wrap(int value)const noexcept{return static_cast<unsigned>(value+8192)%4096;}
+    void restart(bool direction){
+        writer=second=windowBlocks=0;reader=4096-(direction?640:1792);
+        change=direction?48:117;fraction=window=fade=0;direct=1;down=direction;filter.state={};
+    }
     Block read(unsigned& cursor,float& phase,float increment){
         Block result{};
         for(unsigned i=0;i<32;++i){
@@ -47,6 +51,10 @@ struct SpiralMovingReturn {
     float sendGate{1};bool enabled{true};
     float activation{},activationTarget{-1},activationStep{};unsigned activationBlocks{};
     SpiralMovingReturn(){for(auto& line:lines)line.resize(24004);}
+    void restart(){
+        weights=targets=steps=readGain={};writer=age=blocks=lastTime=activationBlocks=0;
+        sendGate=1;enabled=true;activation=activationStep=0;activationTarget=-1;
+    }
     void controls(unsigned time,unsigned main,bool active){
         enabled=active;
         if(time!=lastTime){
@@ -71,10 +79,11 @@ struct SpiralMovingReturn {
     }
 };
 
-// Development model for continuously enabled Default48k/120BPM controls.
-// Button transitions, cold source and production delivery remain separate work.
+// Research Default48k/120BPM processor. Qualification belongs to the recorded
+// reference campaigns; live delivery and selection lifecycle are separate checks.
 struct SpiralMotion {
-    struct Controls {unsigned main{128},time{},pitch{};bool enabled{true};} controls;
+    struct Controls {unsigned main{128},time{},pitch{};bool enabled{true};int direction{-1};} controls;
+    int lastDesired{-2},pendingRestart{-1};unsigned historyWritten{};
     bool down{},first{true},descending{},active{true},initialized{},dryRestart{true},dryWarming{true};unsigned currentMain{128},writer{},quiet{},activityCount{},dryBlocks{},rawWriter{},rawAge{},primaryAge{},privateAge{};
     float rawMix{1},rawStep{},primaryGain{},privateGain{},commonWet{},commonStep{.00625f};bool rawArmed{};
     float dryTarget{1},dryStep{},activityAverage{},inputGate{1},inputGain{1},dryGain{1},outputGain{},average{},held{},phase{},velocity{},acceleration{},targetVelocity{};
@@ -95,6 +104,13 @@ struct SpiralMotion {
     }
     float targetGain(float loopGain)const{
         return std::min(1-((1-std::min(static_cast<float>(delay)*1.0416666555101983e-5f,1.f))*.1809999942779541f+.3199999928474426f)*loopGain,.30000001192092896f)*1.4125374555587769f;
+    }
+    void restartPrivate(bool direction){
+        down=direction;initialized=descending=false;active=true;dryRestart=dryWarming=true;
+        writer=quiet=activityCount=dryBlocks=rawAge=primaryAge=privateAge=historyWritten=0;
+        rawMix=1;rawStep=primaryGain=privateGain=activityAverage=average=held=phase=velocity=acceleration=targetVelocity=0;
+        rawArmed=false;inputGate=inputGain=1;inputFilter.state=high.state=low.state=post.state={};
+        pitch.restart(direction);echoes.restart();lastDesired=-2;
     }
     void updateDelay(unsigned target){
         const int difference=static_cast<int>(target)-static_cast<int>(delay);constexpr int limit=24000;
@@ -117,7 +133,9 @@ struct SpiralMotion {
     }
     void process(std::span<const Stereo,32> input,std::span<Stereo,32> output){
         for(auto x:input){rawHistory[rawWriter]=x;rawWriter=(rawWriter+1)%32768;}
-        if(first){first=false;for(unsigned i=0;i<32;++i)commonWet+=commonStep;commonStep=(1-commonWet)*.00625f;std::copy(input.begin(),input.end(),output.begin());return;}
+        if(first&&!controls.enabled){std::copy(input.begin(),input.end(),output.begin());return;}
+        if(first){first=false;if(controls.direction>=0){down=controls.direction!=0;pitch.restart(down);}lastDesired=static_cast<int>(down);for(unsigned i=0;i<32;++i)commonWet+=commonStep;commonStep=(1-commonWet)*.00625f;std::copy(input.begin(),input.end(),output.begin());return;}
+        if(pendingRestart>=0){restartPrivate(pendingRestart!=0);pendingRestart=-1;}
         if(!initialized){initialized=true;currentMain=controls.main;delay=targetDelay(currentMain);const float x=currentMain<=3?0.f:(currentMain-3)*.003968254197388887f;inputGain=std::min(4*x,1.f);outputGain=targetGain(.8f+std::min(10*x,1.f)*(down?.4f:.7f));}
         if(currentMain<controls.main)++currentMain;else if(currentMain>controls.main)--currentMain;
         const float position=currentMain<=3?0.f:(currentMain-3)*.003968254197388887f;
@@ -148,13 +166,13 @@ struct SpiralMotion {
         // integer offsets are relative to the first new index, not the old index.
         for(unsigned i=0;i<32;++i){
             const int integer=previousInteger+integers[i]-integers[0];const float fraction=fractions[i];
-            const auto a=history[(writer+i+196608-integer)%196608],b=history[(writer+i+196608-integer-1)%196608];primaryGain=std::min(1.f,primaryGain+(primaryReady?.00625f:0.f));const auto tap=(a*(1-fraction))*primaryGain+(b*fraction)*primaryGain;
+            const int ago=integer-static_cast<int>(i);const auto a=ago>0&&static_cast<unsigned>(ago)<=historyWritten?history[(writer+i+196608-integer)%196608]:Stereo{},b=ago>=0&&static_cast<unsigned>(ago+1)<=historyWritten?history[(writer+i+196608-integer-1)%196608]:Stereo{};primaryGain=std::min(1.f,primaryGain+(primaryReady?.00625f:0.f));const auto tap=(a*(1-fraction))*primaryGain+(b*fraction)*primaryGain;
             rawMix+=rawStep;rawInputGain+=inputStep;
             const auto old=rawHistory[(rawWriter+i+32768-target)%32768];const auto direct=(old*rawMix)*rawInputGain;const auto loop=tap*(1-rawMix);
             wet[i]={std::clamp((direct.l+wet[i].l)+loop.l,-held,held),std::clamp((direct.r+wet[i].r)+loop.r,-held,held)};
         }
         if(rawMix<std::abs(rawStep)){rawMix=rawStep=0;}
-        high.process(wet,wet);low.process(wet,wet);for(unsigned i=0;i<32;++i)history[(writer+i)%196608]=wet[i]*loopGain;writer=(writer+32)%196608;
+        high.process(wet,wet);low.process(wet,wet);for(unsigned i=0;i<32;++i)history[(writer+i)%196608]=wet[i]*loopGain;writer=(writer+32)%196608;historyWritten=std::min(historyWritten+32,196608u);
         // This output regulator is deliberately slow: one update per sample at 1/96000.
         const float gainStep=(targetGain(loopGain)-outputGain)*1.0416666555101983e-5f;post.process(wet,wet);
         float activityPeak=0;
@@ -163,9 +181,12 @@ struct SpiralMotion {
         if(activityCount<=1498){const float sum=activityAverage*static_cast<float>(activityCount)+activityPeak;++activityCount;activityAverage=static_cast<float>(static_cast<double>(sum)/activityCount);}
         else{activityAverage=(activityAverage*1499.f+activityPeak)*.0006666666595265269f;activityCount=1500;}
         pitch.process(wet,delayed,controls.pitch);echoes.controls(controls.time,controls.main,active);
+        const int desired=controls.enabled?(controls.direction<0?static_cast<int>(down):controls.direction):-1;
+        if(desired!=lastDesired){commonStep=((desired<0||desired==static_cast<int>(down)?1.f:0.f)-commonWet)*.00625f;lastDesired=desired;dryRestart=true;}
         for(unsigned i=0;i<32;++i){dryGain+=dryStep;const auto y=delayed[i];const auto tail=echoes.process(y);if(privateAge++<160)privateGain+=.00625f;commonWet+=commonStep;output[i]=input[i]*dryGain+((y+tail)*privateGain)*commonWet;}
         if(privateGain>1-.00625f)privateGain=1;
         if(commonWet>1-.00625f){commonWet=1;commonStep=0;}
+        if(commonWet<.00625f){commonWet=commonStep=0;if(desired>=0&&desired!=static_cast<int>(down))pendingRestart=desired;}
         if(privateAge==32)dryRestart=true;
         if(dryBlocks&&!--dryBlocks){dryGain=dryTarget;dryStep=0;dryWarming=false;}
         echoes.endBlock();if(active!=controls.enabled)dryRestart=true;active=controls.enabled;
