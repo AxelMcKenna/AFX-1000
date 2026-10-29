@@ -11,6 +11,7 @@
 #include "CalibratedReverbUp.h"
 #include "FactoryDrumSynth.h"
 #include "FactoryRollClock.h"
+#include "FactoryRelease.h"
 #include <array>
 #include <atomic>
 #include <span>
@@ -69,7 +70,8 @@ public:
     // The measured reverb adapters also reproduce partial-block startup.
     unsigned latencySamples() const noexcept;
 private:
-    FractionalDelay history;
+    FractionalDelay history;FactoryRelease factoryRelease;
+    bool factoryReleaseEnabled{};
     SceneProcessor sceneProcessor;
     CalibratedReverbDown reverbDown;
     CalibratedReverbUp reverbUp;
@@ -92,7 +94,7 @@ private:
         double bpm{};float amount{},time{},mix{};int type{};bool active{},start{};
     };
     struct OutputFrame {ReleaseFrame release;float gain{},bypass{};bool wetOnly{};};
-    struct ParallelAudio {Stereo raw{},unselected{},wetDry{};};
+    struct ParallelAudio {Stereo raw{},unselected{},wetDry{};bool factoryRelease{};};
     std::pmr::vector<Stereo> sceneOutput;
     std::pmr::vector<OutputFrame> outputFrames;
     std::pmr::vector<ParallelAudio> parallelOutput;

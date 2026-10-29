@@ -5,6 +5,7 @@
 #include <memory_resource>
 #include <numbers>
 #include <vector>
+#include <span>
 
 namespace rmx {
 struct Stereo { float l{},r{}; };
@@ -17,13 +18,18 @@ inline float poleCoefficient(float hz,double rate) { return 1-std::exp(-2*std::n
 
 class FractionalDelay {
 public:
-    void prepare(size_t count) { frames.assign(std::max(size_t{4},count),{});head=0; }
-    void reset() noexcept { std::fill(frames.begin(),frames.end(),Stereo{});head=0; }
+    void prepare(size_t count) { owned.assign(std::max(size_t{4},count),{});external={};head=written=0; }
+    // Borrow storage from mutually exclusive processors; no callback allocation.
+    void attach(std::span<Stereo> storage) noexcept {external=storage;invalidate();}
+    void invalidate() noexcept {head=written=0;}
+    void reset() noexcept {auto frames=storage(); std::fill(frames.begin(),frames.end(),Stereo{});head=written=0; }
     void push(Stereo value) noexcept {
+        auto frames=storage();
         if(frames.empty())return;
-        frames[head]=value;if(++head==frames.size())head=0;
+        frames[head]=value;if(++head==frames.size())head=0;written=std::min(written+1,frames.size());
     }
     Stereo read(double ago) const noexcept {
+        const auto frames=storage();
         if(frames.empty())return {};
         ago=std::isfinite(ago)?std::clamp(ago,1.,static_cast<double>(frames.size()-2)):1.;
         const double position=static_cast<double>(head)-ago,whole=std::floor(position);
@@ -32,10 +38,13 @@ public:
         auto index=static_cast<std::ptrdiff_t>(whole);
         if(index<0)index+=static_cast<std::ptrdiff_t>(frames.size());
         const auto first=static_cast<size_t>(index),next=first+1==frames.size()?0:first+1;
-        return mix(frames[first],frames[next],static_cast<float>(position-whole));
+        const auto older=static_cast<size_t>(std::ceil(ago)),newer=older-1;
+        return mix(older<=written?frames[first]:Stereo{},newer<=written?frames[next]:Stereo{},static_cast<float>(position-whole));
     }
 private:
-    std::pmr::vector<Stereo> frames;size_t head{};
+    std::span<Stereo> storage() noexcept {return external.empty()?std::span<Stereo>{owned}:external;}
+    std::span<const Stereo> storage() const noexcept {return external.empty()?std::span<const Stereo>{owned}:external;}
+    std::pmr::vector<Stereo> owned;std::span<Stereo> external;size_t head{},written{};
 };
 
 // Topology-preserving state-variable filter. Coefficients are updated at the

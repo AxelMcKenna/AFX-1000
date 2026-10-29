@@ -101,7 +101,9 @@ int main() { try {
         require(r.run(128)<1e-4,"Input roll remained latched without Hold");
     }
     {
-        Rig r; r.input.fill(.2f); r.engine.params.set(Param::SceneSource,0); r.engine.params.set(Param::ReleaseType,2); r.engine.params.set(Param::ReleaseTime,.125f); r.engine.params.set(Param::ReleaseAmount,1); r.engine.reset(); r.run(24000);
+        // This routing check requests a custom Release time. Default-profile
+        // Brake has a measured slow final tail and ignores that custom knob.
+        Rig r; r.input.fill(.2f); r.engine.params.set(Param::UserSettings,1); r.engine.params.set(Param::SceneSource,0); r.engine.params.set(Param::ReleaseType,2); r.engine.params.set(Param::ReleaseTime,.125f); r.engine.params.set(Param::ReleaseAmount,1); r.engine.reset(); r.run(24000);
         r.engine.enqueue({EventType::Trigger,1}); require(r.run(128)>.1,"Release muted the unselected X-Pad bus");
         for(size_t i=0;i<128;++i) require(std::abs(r.left[i]+r.right[i])<1e-6,"Release left the selected dry input audible");
     }

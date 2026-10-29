@@ -23,9 +23,10 @@ void Engine::prepare(double sampleRate,uint32_t maxBlock) {
     const auto block=std::clamp<size_t>(maxBlock,1,CalibratedReverbDown::maximumCallbackFrames);
     sceneOutput.assign(block,{});outputFrames.assign(block,{});parallelOutput.assign(block,{});
     sourceFrames.assign(block,{});drumCues.assign(block,{});
-    if(sr==48000){reverbDown.prepare(block);reverbUp.prepare(block);}
+    if(sr==48000){reverbDown.prepare(block);reverbUp.prepare(block);factoryRelease.prepare();}
     const auto capacity=static_cast<size_t>(sr*16)+4;
-    history.prepare(capacity); sceneProcessor.prepare(sr);
+    if(sr==48000)history.attach(factoryRelease.legacyStorage());else history.prepare(capacity);
+    sceneProcessor.prepare(sr);
     for(auto& isolator:isolators) isolator.prepare(sr);
     // Eight beats at the slowest supported tempo require twelve seconds.
     capturedRoll.assign(static_cast<size_t>(sr*60/40*xPadBeatValues.back())+4,{});
@@ -42,6 +43,7 @@ void Engine::reset() noexcept {
     coldSceneType=-1;coldEffect=coldMix=coldMixStep=coldDirectStep=0;coldDirect=coldTarget=1;
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
+    factoryRelease.reset();factoryReleaseEnabled=false;
     factoryDrums.reset();factoryRoll.reset();factoryRollPlaying=true;pendingDrumCue={};factoryMask=0;
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
     rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0;
@@ -251,7 +253,7 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
                                 CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls) noexcept {
     // Untouched startup slots follow the original callback's passthrough
     // ordering. All generated audio and parallel buses share one output FIFO.
-    for(size_t i=0;i<count;++i){sceneOutput[i]=sourceFrames[i].input+sourceFrames[i].legacy;parallelOutput[i]={sourceFrames[i].raw,{},sourceFrames[i].wetDry};}
+    for(size_t i=0;i<count;++i){sceneOutput[i]=sourceFrames[i].input+sourceFrames[i].legacy;parallelOutput[i]={sourceFrames[i].raw,{},sourceFrames[i].wetDry,factoryReleaseEnabled};}
     downControls.enabled=measuredDown&&sourceFrames[0].sceneEnabled;reverbDown.setControls(downControls);reverbDown.beginProcessing();
     upControls.enabled=measuredUp&&sourceFrames[0].sceneEnabled;reverbUp.setControls(upControls);reverbUp.beginProcessing();
     for(size_t start=0;start<count;){
@@ -341,6 +343,10 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
     upControls.enabled=measuredUp&&routingCollected.back().sceneEnabled;reverbUp.setControls(upControls);
     if(!reverbDown.processGeneratedBlock(selected,generated,measuredDown?std::span<Stereo,32>(scenePending):std::span<Stereo,32>(discard))&&measuredDown)scenePending={};
     if(!reverbUp.processGeneratedBlock(selected,generated,measuredUp?std::span<Stereo,32>(scenePending):std::span<Stereo,32>(discard))&&measuredUp)scenePending={};
+    for(size_t i=0;i<32;++i){routingPending[i].factoryRelease=factoryReleaseEnabled;}
+    if(factoryReleaseEnabled){
+        std::array<Stereo,32> released{};factoryRelease.process(scenePending,released,routingCollected[0].bpm);scenePending=released;
+    }
 }
 void Engine::detectTempo(Stereo x) noexcept {
     tempoTracker.process(x.l,x.r);
@@ -429,6 +435,10 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     const float travel=get(Param::XPitch);
     const int drumPitch=std::clamp(static_cast<int>(std::lround(128+travel*(travel<0?128.f/24:127.f/24))),0,255);
     factoryDrums.setControls(static_cast<unsigned>(drumLevel),static_cast<unsigned>(drumPitch));
+    const bool measuredRelease=sr==48000&&get(Param::UserSettings)<.5f;
+    if(measuredRelease!=factoryReleaseEnabled){factoryRelease.invalidate();history.invalidate();}
+    factoryReleaseEnabled=measuredRelease;
+    if(sr==48000)factoryRelease.setControls(static_cast<unsigned>(get(Param::ReleaseType)),static_cast<unsigned>(std::clamp(static_cast<int>(get(Param::ReleaseAmount)*3.f),0,3))*85u,factoryReleaseEnabled);
     factoryRollPlaying=transport.playing;
     factoryRoll.setDivision(xPadDivision(p));
     if(!factoryRollEligible()){
@@ -529,7 +539,9 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     for(uint32_t k=0;k<count;++k){
         const auto i=offset+k;const auto& output=outputFrames[k];
         const auto audio=parallelOutput[k];
-        Stereo processed=audio.unselected+release(sceneOutput[k],output.release);
+        Stereo processed;
+        if(audio.factoryRelease)processed=audio.unselected+sceneOutput[k];
+        else processed=audio.unselected+release(sceneOutput[k],output.release);
         if(output.wetOnly)processed=processed-audio.wetDry;
         processed=finite(mix(processed*output.gain,audio.raw,output.bypass));
         // Sample-peak ceiling with linked stereo gain. No lookahead, allocation

@@ -114,11 +114,12 @@ def main():
     usage['QSPIFLASH'] = max(usage['QSPIFLASH'], binary.stat().st_size)
     if usage['QSPIFLASH'] > REGIONS['QSPIFLASH'][1]:
         raise ValueError('QSPI image exceeds application region')
-    cpp_sources = [ROOT / ('src/core/' + file) for file in ('Engine.cpp', 'Isolator.cpp', 'Scene.cpp', 'CardSamples.cpp', 'CardSettings.cpp', 'ReverbDown.cpp', 'ReverbUp.cpp')]
+    cpp_sources = [ROOT / ('src/core/' + file) for file in ('FactoryRelease.cpp', 'Engine.cpp', 'Isolator.cpp', 'Scene.cpp', 'CardSamples.cpp', 'CardSettings.cpp', 'ReverbDown.cpp', 'ReverbUp.cpp')]
+    cpp_sources += sorted((ROOT / 'src/core/drums').glob('*.cpp'))
     cpp_sources += sorted((ROOT / 'firmware/daisy').glob('*.cpp'))
     makefiles = [ROOT / 'firmware/daisy/Makefile', args.sdk / 'core/Makefile']
     units = {str(source.relative_to(ROOT)): translation_unit(source, args.elf.parent, ROOT / 'firmware/daisy', args.elf, makefiles) for source in cpp_sources}
-    source_paths = sorted((ROOT / 'include/rmx').glob('*.h')) + cpp_sources
+    source_paths = sorted((ROOT / 'include/rmx').rglob('*.h')) + cpp_sources
     source_paths += list((ROOT / 'firmware/daisy').glob('*.h'))
     source_paths += [ROOT / 'firmware/daisy/Makefile',
                      ROOT / 'firmware/daisy/dependencies.lock.json', ROOT / 'hardware/generated/BoardConfig.h']

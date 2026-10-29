@@ -167,3 +167,11 @@ uv run --locked python -m tools.rmx_spiral_robustness recurrence \
 ```
 
 These audit commands record diagnostics and failed predictions; command completion does not certify full-effect agreement. Add the four new sessions to the earlier 343-case `compare` sweep to obtain 361 complete renders. Its aggregate result remains exit code 1. Keep all original recordings, plug-in binaries, traces and compiled experiments in ignored local artifacts.
+
+## Read-only scalar observations: 29 October 2026
+
+The [new scalar experiment](measurements/2026-10-29-spiral-scalar-experiment.json) retains another rejected model. A sparse observer of the pinned original records numerical envelope state and filter coefficients, without dumping sample buffers or instructions. Its completed Down/64-block render and all five auxiliary artifacts are byte-identical to the ordinary original capture.
+
+The source peak uses the absolute half-sum of stereo channels. Its held floor is smoothed over `max(120, trunc(period_ms * .375))` blocks, which is 187 at 120 BPM, with float32 state. The activity counter advances per sample and resets when the linked wet half-sum reaches `held_peak * float32(.001)`. At the end of a block, a counter of at least 4,801 causes a float32 multiplication by 0.8912509083747864 and resets the counter. This explains why a block-level inactivity approximation is insufficient at collisions. The observed biquad helper uses double working accumulators, float32 outputs and float32 state storage at each 32-sample boundary.
+
+These observations do not make the existing fitted pitch/output path exact. Replacing its envelope rule alone passes **284/361** complete programs: 51/122 Up and 233/239 Down, compared with the previous 285/361. A separate measured-filter trial also fails the Down/64-block wet gate at approximately 8.31% left and 8.72% right. Neither candidate is adopted. The next required identification is the actual pitch reader, interpolation/filter topology and clock, followed by complete autonomous and fresh checks. The live Spiral approximation remains unchanged.
