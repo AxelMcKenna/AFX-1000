@@ -18,6 +18,12 @@ public:
     juce::String assetMessage;
     RMXProcessor():AudioProcessor(BusesProperties().withInput("Stereo input",juce::AudioChannelSet::stereo(),true).withOutput("Stereo output",juce::AudioChannelSet::stereo(),true)),tree(*this,nullptr,"RMX",layout()) {
         for(size_t i=0;i<rmx::parameterCount;++i) { raw[i]=tree.getRawParameterValue(js(rmx::parameters[i].id)); pendingValues[i].store(std::numeric_limits<float>::quiet_NaN()); }
+        // 0 dB is 2/3 of the host range. Its float-normalized round trip can
+        // decode to a tiny nonzero value; retain exact unity for that request.
+        for(size_t i=0;i<hostUnityGain.size();++i){
+            const auto* parameter=tree.getParameter(js(rmx::parameters[i].id));
+            hostUnityGain[i]=parameter->convertFrom0to1(parameter->convertTo0to1(0.f));
+        }
         lastCC.fill(-1);
         publish(rmx::makeFactoryBank()); startTimerHz(30);
     }
@@ -73,7 +79,7 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
     bool isBusesLayoutSupported(const BusesLayout& b) const override { return b.getMainInputChannelSet()==juce::AudioChannelSet::stereo()&&b.getMainOutputChannelSet()==juce::AudioChannelSet::stereo(); }
     void prepareToPlay(double rate,int block) override {
-        for(size_t i=0;i<rmx::parameterCount;++i) engine.params.set(static_cast<rmx::Param>(i),raw[i]->load());
+        for(size_t i=0;i<rmx::parameterCount;++i) engine.params.set(static_cast<rmx::Param>(i),engineParameter(i));
         engine.setBank(&published.load()->bank);engine.setOutputProtection(false); engine.prepare(rate,static_cast<uint32_t>(block));
         pendingLatency.store(static_cast<int>(engine.latencySamples()),std::memory_order_relaxed);
         setLatencySamples(pendingLatency.load(std::memory_order_relaxed));
@@ -83,7 +89,7 @@ public:
     void processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi) override {
         juce::ScopedNoDenormals noDenormals;
         if(buffer.getNumChannels()<2) { buffer.clear(); return; }
-        for(size_t i=0;i<rmx::parameterCount;++i) engine.params.set(static_cast<rmx::Param>(i),raw[i]->load(std::memory_order_relaxed));
+        for(size_t i=0;i<rmx::parameterCount;++i) engine.params.set(static_cast<rmx::Param>(i),engineParameter(i));
         const auto* assets=published.load(std::memory_order_acquire); engine.setBank(&assets->bank);
         std::array<rmx::Event,256> events{}; size_t count=0;
         struct ClockEvent { uint32_t offset;uint8_t status,a,b; };
@@ -197,6 +203,12 @@ private:
     uint64_t generation{};
     juce::CriticalSection assetLock;
     std::array<std::atomic<float>*,rmx::parameterCount> raw{};
+    static_assert(static_cast<size_t>(rmx::Param::InputGain)==0&&static_cast<size_t>(rmx::Param::OutputGain)==1);
+    std::array<float,2> hostUnityGain{};
+    float engineParameter(size_t index) const noexcept {
+        const float value=raw[index]->load(std::memory_order_relaxed);
+        return index<hostUnityGain.size()&&value==hostUnityGain[index]?0.f:value;
+    }
     std::array<std::atomic<float>,rmx::parameterCount> pendingValues;
     std::atomic<int> pendingLatency{};
     std::array<std::atomic<int>,128> ccMap{};

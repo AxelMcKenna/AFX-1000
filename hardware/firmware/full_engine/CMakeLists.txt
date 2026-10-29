@@ -6,12 +6,12 @@ get_filename_component(RMX_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../.." ABSOLUTE)
 add_library(rmx_full_core
   ${RMX_ROOT}/src/core/drums/Kick.cpp ${RMX_ROOT}/src/core/drums/Snare.cpp
   ${RMX_ROOT}/src/core/drums/Clap.cpp ${RMX_ROOT}/src/core/drums/Hat.cpp
-  ${RMX_ROOT}/src/core/FactoryRelease.cpp ${RMX_ROOT}/src/core/ReverbDown.cpp ${RMX_ROOT}/src/core/ReverbUp.cpp
+  ${RMX_ROOT}/src/core/GateDrive.cpp ${RMX_ROOT}/src/core/FactoryRelease.cpp ${RMX_ROOT}/src/core/ReverbDown.cpp ${RMX_ROOT}/src/core/ReverbUp.cpp
   ${RMX_ROOT}/src/core/Engine.cpp ${RMX_ROOT}/src/core/Scene.cpp
   ${RMX_ROOT}/src/core/Isolator.cpp ${RMX_ROOT}/src/core/CardSamples.cpp
   ${RMX_ROOT}/src/core/CardSettings.cpp ${RMX_ROOT}/src/core/State.cpp
   ${RMX_ROOT}/src/core/Wav.cpp ${RMX_ROOT}/src/core/CardExport.cpp BootStorage.cpp KernelTransport.cpp)
-set_source_files_properties(${RMX_ROOT}/src/core/FactoryRelease.cpp ${RMX_ROOT}/src/core/ReverbDown.cpp ${RMX_ROOT}/src/core/ReverbUp.cpp ${RMX_ROOT}/src/core/drums/Kick.cpp ${RMX_ROOT}/src/core/drums/Snare.cpp ${RMX_ROOT}/src/core/drums/Clap.cpp ${RMX_ROOT}/src/core/drums/Hat.cpp PROPERTIES COMPILE_OPTIONS "-ffp-contract=off")
+set_source_files_properties(${RMX_ROOT}/src/core/GateDrive.cpp ${RMX_ROOT}/src/core/FactoryRelease.cpp ${RMX_ROOT}/src/core/ReverbDown.cpp ${RMX_ROOT}/src/core/ReverbUp.cpp ${RMX_ROOT}/src/core/drums/Kick.cpp ${RMX_ROOT}/src/core/drums/Snare.cpp ${RMX_ROOT}/src/core/drums/Clap.cpp ${RMX_ROOT}/src/core/drums/Hat.cpp PROPERTIES COMPILE_OPTIONS "-ffp-contract=off")
 target_compile_definitions(rmx_full_core PUBLIC RMX_EMBEDDED_COMPRESSED_KERNELS=1)
 target_include_directories(rmx_full_core PUBLIC include ${RMX_ROOT}/include ${RMX_ROOT})
 target_compile_options(rmx_full_core PRIVATE -Wall -Wextra -Wpedantic)

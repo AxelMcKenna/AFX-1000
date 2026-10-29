@@ -114,7 +114,7 @@ def main():
     usage['QSPIFLASH'] = max(usage['QSPIFLASH'], binary.stat().st_size)
     if usage['QSPIFLASH'] > REGIONS['QSPIFLASH'][1]:
         raise ValueError('QSPI image exceeds application region')
-    cpp_sources = [ROOT / ('src/core/' + file) for file in ('FactoryRelease.cpp', 'Engine.cpp', 'Isolator.cpp', 'Scene.cpp', 'CardSamples.cpp', 'CardSettings.cpp', 'ReverbDown.cpp', 'ReverbUp.cpp')]
+    cpp_sources = [ROOT / ('src/core/' + file) for file in ('GateDrive.cpp', 'FactoryRelease.cpp', 'Engine.cpp', 'Isolator.cpp', 'Scene.cpp', 'CardSamples.cpp', 'CardSettings.cpp', 'ReverbDown.cpp', 'ReverbUp.cpp')]
     cpp_sources += sorted((ROOT / 'src/core/drums').glob('*.cpp'))
     cpp_sources += sorted((ROOT / 'firmware/daisy').glob('*.cpp'))
     makefiles = [ROOT / 'firmware/daisy/Makefile', args.sdk / 'core/Makefile']

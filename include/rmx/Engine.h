@@ -12,6 +12,7 @@
 #include "FactoryDrumSynth.h"
 #include "FactoryRollClock.h"
 #include "FactoryRelease.h"
+#include "CalibratedGateDrive.h"
 #include <array>
 #include <atomic>
 #include <span>
@@ -70,7 +71,7 @@ public:
     // The measured reverb adapters also reproduce partial-block startup.
     unsigned latencySamples() const noexcept;
 private:
-    FractionalDelay history;FactoryRelease factoryRelease;
+    FractionalDelay history;FactoryRelease factoryRelease;CalibratedGateDrive factoryGate;
     bool factoryReleaseEnabled{};
     SceneProcessor sceneProcessor;
     CalibratedReverbDown reverbDown;

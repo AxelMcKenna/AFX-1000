@@ -43,7 +43,7 @@ void Engine::reset() noexcept {
     coldSceneType=-1;coldEffect=coldMix=coldMixStep=coldDirectStep=0;coldDirect=coldTarget=1;
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
-    factoryRelease.reset();factoryReleaseEnabled=false;
+    factoryRelease.reset();factoryReleaseEnabled=false;factoryGate.reset();
     factoryDrums.reset();factoryRoll.reset();factoryRollPlaying=true;pendingDrumCue={};factoryMask=0;
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
     rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0;
@@ -292,6 +292,24 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
     std::array<Stereo,32> drums{},selected{},generated{},discard{};
     if(factoryRoll.advance(routingCollected[0].bpm)&&factoryRollPlaying)factoryDrums.trigger(factoryRoll.instrument());
     factoryDrums.generateBlock(drums);
+    // One selected source drives the nonlinear detector and processor. It is
+    // already on the shared source fade, before Scene's generated-source input.
+    const bool useFactoryGate=get(Param::UserSettings)<.5f&&get(Param::IsolateMode)==3
+        &&get(Param::IsolateSource)==get(Param::SceneSource);
+    std::array<unsigned,3> rawBands{};
+    for(unsigned band=0;band<3;++band)rawBands[band]=static_cast<unsigned>(std::clamp(
+        static_cast<int>(std::lround((get(static_cast<Param>(static_cast<unsigned>(Param::Low)+band))+1)*127.5f)),0,255));
+    factoryGate.setControls(rawBands,useFactoryGate&&get(Param::IsolateOn)>.5f);
+    std::array<Stereo,32> gateSource{},gateOutput{};
+    float gateFade=routingFade;auto gateAge=routingAge;
+    for(size_t i=0;i<32;++i){
+        float gain=1;if(gateAge++<160){gateFade+=.00625f;gain=gateFade;}
+        const auto& source=routingCollected[i];
+        const Stereo routed{(source.input.l*gain)*gain,(source.input.r*gain)*gain};
+        const auto pads=source.legacy*gain+drums[i]*source.mute;
+        gateSource[i]=routed*source.isoInput+pads*source.isoPad;
+    }
+    factoryGate.process(gateSource,gateOutput);
     if(routingAge==0)coldSceneType=coldProfile&&routingCollected[0].sceneEnabled?type:-1;
     if(type!=coldSceneType||!coldProfile)coldSceneType=-1;
     for(size_t i=0;i<32;++i){
@@ -301,16 +319,21 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
         auto fade=[gain](Stereo x){return Stereo{(x.l*gain)*gain,(x.r*gain)*gain};};
         Stereo input=source.input,pads=source.legacy*gain+drums[i]*source.mute;
         isolators[0].tempo(source.bpm);isolators[1].tempo(source.bpm);
-        input=mix(input,isolators[0].process(input,source.bands,source.beat),source.isoInput*source.isoEnabled);
-        pads=mix(pads,isolators[1].process(pads,source.bands,source.beat),source.isoPad*source.isoEnabled);
+        const auto legacyInput=isolators[0].process(input,source.bands,source.beat);
+        const auto legacyPads=isolators[1].process(pads,source.bands,source.beat);
+        if(!useFactoryGate){
+            input=mix(input,legacyInput,source.isoInput*source.isoEnabled);
+            pads=mix(pads,legacyPads,source.isoPad*source.isoEnabled);
+        }
         const auto routed=fade(input);selected[i]=input*source.sceneInput;generated[i]=pads*source.scenePad;
+        if(useFactoryGate){selected[i]={};generated[i]=gateOutput[i];}
         unselectedPadPending[i]=pads*(1-source.scenePad);
         // Only the fully dry send is a removable pad stem. Scene-off can
         // still have a nonzero smoother and already-processed queued audio.
-        scenePadPending[i]=!measuredDown&&!measuredUp&&source.sceneMix==0?generated[i]:Stereo{};
+        scenePadPending[i]=!useFactoryGate&&!measuredDown&&!measuredUp&&source.sceneMix==0?generated[i]:Stereo{};
         routingPending[i]={fade(source.raw),routed*(1-source.sceneInput)+unselectedPadPending[i],fade(source.wetDry)};
         if(!measuredDown&&!measuredUp){
-            const auto send=routed*source.sceneInput+generated[i];
+            const auto send=useFactoryGate?gateOutput[i]:routed*source.sceneInput+generated[i];
             // The identified initial activation is separate from later
             // gestures. Once disabled, keep the ordinary control smoother.
             if(!source.sceneEnabled)coldSceneType=-1;
