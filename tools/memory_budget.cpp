@@ -28,10 +28,10 @@ int main() {
                 for(auto p:{rmx::Param::Low,rmx::Param::Mid,rmx::Param::High}) engine.params.set(p,mode%2?-.9f:1.f);
                 for(int i=0;i<100;++i) engine.process(in.data(),in.data(),left.data(),right.data(),64);
             }
-            // Exercise both owners of the borrowed Isolator rings, including
+            // Exercise all owners of the borrowed Isolator rings, including
             // withdrawing a live loan through profile, source and tempo changes.
-            engine.params.set(rmx::Param::IsolateMode,2);
-            for(unsigned phase=0;phase<32;++phase){
+            for(unsigned phase=0;phase<96;++phase){
+                engine.params.set(rmx::Param::IsolateMode,static_cast<float>((phase/4)%3));
                 engine.params.set(rmx::Param::UserSettings,phase%4==1?1.f:0.f);
                 engine.params.set(rmx::Param::SceneSource,phase%4==2?1.f:0.f);
                 engine.params.set(rmx::Param::Tempo,phase%4==3?127.f:120.f);

@@ -31,7 +31,7 @@ void Engine::prepare(double sampleRate,uint32_t maxBlock) {
     if(sr==48000){
         std::array<std::span<Stereo>,12> storage{};
         for(size_t i=0;i<isolators.size();++i){const auto available=isolators[i].loanableStorage();std::copy(available.begin(),available.end(),storage.begin()+static_cast<std::ptrdiff_t>(i*6));}
-        factoryTrans.prepare(storage);
+        factoryTrans.prepare(storage);factoryCut.prepare(factoryTrans);
     }
     // Eight beats at the slowest supported tempo require twelve seconds.
     capturedRoll.assign(static_cast<size_t>(sr*60/40*xPadBeatValues.back())+4,{});
@@ -48,7 +48,7 @@ void Engine::reset() noexcept {
     coldSceneType=-1;coldEffect=coldMix=coldMixStep=coldDirectStep=0;coldDirect=coldTarget=1;
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
-    factoryRelease.reset();factoryReleaseEnabled=false;factoryGate.reset();factoryTrans.reset();
+    factoryRelease.reset();factoryReleaseEnabled=false;factoryGate.reset();factoryTrans.reset();factoryCut.reset();
     factoryDrums.reset();factoryRoll.reset();factoryRollPlaying=true;pendingDrumCue={};factoryMask=0;
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
     rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0;
@@ -304,14 +304,19 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
     const bool useFactoryTrans=get(Param::UserSettings)<.5f&&get(Param::IsolateMode)==2
         &&get(Param::IsolateSource)==get(Param::SceneSource)
         &&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120;
-    const bool useFactoryIsolator=useFactoryGate||useFactoryTrans;
-    for(auto& isolator:isolators)isolator.setStorageLoaned(useFactoryTrans);
-    factoryTrans.setStorageActive(useFactoryTrans);
+    const bool useFactoryCut=get(Param::UserSettings)<.5f&&get(Param::IsolateMode)==1
+        &&get(Param::IsolateSource)==get(Param::SceneSource)
+        &&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120;
+    const bool useFactoryIsolator=useFactoryGate||useFactoryTrans||useFactoryCut;
+    // Cut/Add and Trans/Roll are exclusive owners of the legacy Isolator rings.
+    for(auto& isolator:isolators)isolator.setStorageLoaned(useFactoryTrans||useFactoryCut);
+    factoryTrans.setStorageActive(useFactoryTrans);factoryCut.setStorageActive(useFactoryCut);
     std::array<unsigned,3> rawBands{};
     for(unsigned band=0;band<3;++band)rawBands[band]=static_cast<unsigned>(std::clamp(
         static_cast<int>(std::lround((get(static_cast<Param>(static_cast<unsigned>(Param::Low)+band))+1)*127.5f)),0,255));
     factoryGate.setControls(rawBands,useFactoryGate&&get(Param::IsolateOn)>.5f);
     factoryTrans.setControls(rawBands,useFactoryTrans&&get(Param::IsolateOn)>.5f);
+    factoryCut.setControls(rawBands,useFactoryCut&&get(Param::IsolateOn)>.5f);
     std::array<Stereo,32> gateSource{},gateOutput{};
     float gateFade=routingFade;auto gateAge=routingAge;
     for(size_t i=0;i<32;++i){
@@ -323,7 +328,8 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
     }
     factoryGate.process(gateSource,gateOutput);
     std::array<Stereo,32> transOutput{};factoryTrans.process(gateSource,transOutput);
-    const auto& factoryIsolated=useFactoryTrans?transOutput:gateOutput;
+    std::array<Stereo,32> cutOutput{};factoryCut.process(gateSource,cutOutput);
+    const auto& factoryIsolated=useFactoryCut?cutOutput:useFactoryTrans?transOutput:gateOutput;
     if(routingAge==0)coldSceneType=coldProfile&&routingCollected[0].sceneEnabled?type:-1;
     if(type!=coldSceneType||!coldProfile)coldSceneType=-1;
     for(size_t i=0;i<32;++i){

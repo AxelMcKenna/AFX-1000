@@ -187,3 +187,14 @@ binds the source, final reports and test logs. The local delivery archive contai
 `23f74414dd078ee3db3e5676c70c21b6bda80afca17e5e5462c10147c8826513`.
 The stable preview is `build/live-engine-preview-20261029-gatedrive` in the main
 checkout.
+
+## Cut/Add reconstruction
+
+The [Cut/Add research record](cut-add.md) documents the crossover, continuously
+warm kick detector, manual filters, seven Add taps and Classic dry transition
+path. Its corrected research candidate passes 146 original-reference programs,
+including 60 genuinely new programs recorded after predictions were frozen.
+Independent scoring and sanitized replay agree on all 146. The earlier failed
+60-program prediction remains retained. Live integration shares the existing
+Trans/Roll delay-storage pool; other tempos, profiles and hardware remain
+unqualified. See the Cut/Add record for the precise signal and storage rules.
