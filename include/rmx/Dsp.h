@@ -21,6 +21,7 @@ public:
     void prepare(size_t count) { owned.assign(std::max(size_t{4},count),{});external={};head=written=0; }
     // Borrow storage from mutually exclusive processors; no callback allocation.
     void attach(std::span<Stereo> storage) noexcept {external=storage;invalidate();}
+    std::span<Stereo> loanableStorage() noexcept {return storage();}
     void invalidate() noexcept {head=written=0;}
     void reset() noexcept {auto frames=storage(); std::fill(frames.begin(),frames.end(),Stereo{});head=written=0; }
     void push(Stereo value) noexcept {

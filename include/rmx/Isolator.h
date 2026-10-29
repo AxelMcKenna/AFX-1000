@@ -19,6 +19,8 @@ class Isolator {
 public:
     void prepare(double sampleRate);
     void reset() noexcept;
+    std::array<std::span<Stereo>,6> loanableStorage() noexcept;
+    void setStorageLoaned(bool loaned) noexcept;
     void configure(const IsolatorSettings& settings) noexcept;
     void tempo(double bpm) noexcept { secondsPerBeat=60/std::clamp(bpm,40.,240.); }
     Stereo process(Stereo input,const std::array<float,3>& controls,double beat) noexcept;
@@ -37,7 +39,7 @@ private:
     double secondsPerBeat{.5},rate{48000}; uint64_t frame{};
     float lowAlpha{},highAlpha{},attack{},release{},gateAttack{},gateRelease{},transSlew{},kickSlowAlpha{},kickDecay{};
     float kickFast{},kickSlow{},kickGate{}; unsigned kickRefractory{};
-    float lastMid{2},lastHigh{2}; bool configured{};
+    float lastMid{2},lastHigh{2}; bool configured{},storageLoaned{};
     Stereo cut(Stereo input,const std::array<float,3>& controls) noexcept;
     Stereo roll(Band& band,Stereo input,float control,size_t length) noexcept;
 };

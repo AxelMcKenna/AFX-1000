@@ -28,6 +28,11 @@ void Engine::prepare(double sampleRate,uint32_t maxBlock) {
     if(sr==48000)history.attach(factoryRelease.legacyStorage());else history.prepare(capacity);
     sceneProcessor.prepare(sr);
     for(auto& isolator:isolators) isolator.prepare(sr);
+    if(sr==48000){
+        std::array<std::span<Stereo>,12> storage{};
+        for(size_t i=0;i<isolators.size();++i){const auto available=isolators[i].loanableStorage();std::copy(available.begin(),available.end(),storage.begin()+static_cast<std::ptrdiff_t>(i*6));}
+        factoryTrans.prepare(storage);
+    }
     // Eight beats at the slowest supported tempo require twelve seconds.
     capturedRoll.assign(static_cast<size_t>(sr*60/40*xPadBeatValues.back())+4,{});
     smoothing=1-std::exp(-1.f/static_cast<float>(sr*.008));
@@ -43,7 +48,7 @@ void Engine::reset() noexcept {
     coldSceneType=-1;coldEffect=coldMix=coldMixStep=coldDirectStep=0;coldDirect=coldTarget=1;
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
-    factoryRelease.reset();factoryReleaseEnabled=false;factoryGate.reset();
+    factoryRelease.reset();factoryReleaseEnabled=false;factoryGate.reset();factoryTrans.reset();
     factoryDrums.reset();factoryRoll.reset();factoryRollPlaying=true;pendingDrumCue={};factoryMask=0;
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
     rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0;
@@ -296,10 +301,17 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
     // already on the shared source fade, before Scene's generated-source input.
     const bool useFactoryGate=get(Param::UserSettings)<.5f&&get(Param::IsolateMode)==3
         &&get(Param::IsolateSource)==get(Param::SceneSource);
+    const bool useFactoryTrans=get(Param::UserSettings)<.5f&&get(Param::IsolateMode)==2
+        &&get(Param::IsolateSource)==get(Param::SceneSource)
+        &&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120;
+    const bool useFactoryIsolator=useFactoryGate||useFactoryTrans;
+    for(auto& isolator:isolators)isolator.setStorageLoaned(useFactoryTrans);
+    factoryTrans.setStorageActive(useFactoryTrans);
     std::array<unsigned,3> rawBands{};
     for(unsigned band=0;band<3;++band)rawBands[band]=static_cast<unsigned>(std::clamp(
         static_cast<int>(std::lround((get(static_cast<Param>(static_cast<unsigned>(Param::Low)+band))+1)*127.5f)),0,255));
     factoryGate.setControls(rawBands,useFactoryGate&&get(Param::IsolateOn)>.5f);
+    factoryTrans.setControls(rawBands,useFactoryTrans&&get(Param::IsolateOn)>.5f);
     std::array<Stereo,32> gateSource{},gateOutput{};
     float gateFade=routingFade;auto gateAge=routingAge;
     for(size_t i=0;i<32;++i){
@@ -310,6 +322,8 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
         gateSource[i]=routed*source.isoInput+pads*source.isoPad;
     }
     factoryGate.process(gateSource,gateOutput);
+    std::array<Stereo,32> transOutput{};factoryTrans.process(gateSource,transOutput);
+    const auto& factoryIsolated=useFactoryTrans?transOutput:gateOutput;
     if(routingAge==0)coldSceneType=coldProfile&&routingCollected[0].sceneEnabled?type:-1;
     if(type!=coldSceneType||!coldProfile)coldSceneType=-1;
     for(size_t i=0;i<32;++i){
@@ -321,19 +335,19 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
         isolators[0].tempo(source.bpm);isolators[1].tempo(source.bpm);
         const auto legacyInput=isolators[0].process(input,source.bands,source.beat);
         const auto legacyPads=isolators[1].process(pads,source.bands,source.beat);
-        if(!useFactoryGate){
+        if(!useFactoryIsolator){
             input=mix(input,legacyInput,source.isoInput*source.isoEnabled);
             pads=mix(pads,legacyPads,source.isoPad*source.isoEnabled);
         }
         const auto routed=fade(input);selected[i]=input*source.sceneInput;generated[i]=pads*source.scenePad;
-        if(useFactoryGate){selected[i]={};generated[i]=gateOutput[i];}
+        if(useFactoryIsolator){selected[i]={};generated[i]=factoryIsolated[i];}
         unselectedPadPending[i]=pads*(1-source.scenePad);
         // Only the fully dry send is a removable pad stem. Scene-off can
         // still have a nonzero smoother and already-processed queued audio.
-        scenePadPending[i]=!useFactoryGate&&!measuredDown&&!measuredUp&&source.sceneMix==0?generated[i]:Stereo{};
+        scenePadPending[i]=!useFactoryIsolator&&!measuredDown&&!measuredUp&&source.sceneMix==0?generated[i]:Stereo{};
         routingPending[i]={fade(source.raw),routed*(1-source.sceneInput)+unselectedPadPending[i],fade(source.wetDry)};
         if(!measuredDown&&!measuredUp){
-            const auto send=useFactoryGate?gateOutput[i]:routed*source.sceneInput+generated[i];
+            const auto send=useFactoryIsolator?factoryIsolated[i]:routed*source.sceneInput+generated[i];
             // The identified initial activation is separate from later
             // gestures. Once disabled, keep the ordinary control smoother.
             if(!source.sceneEnabled)coldSceneType=-1;

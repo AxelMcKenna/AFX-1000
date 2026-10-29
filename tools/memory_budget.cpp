@@ -11,7 +11,7 @@ int main() {
     auto* previous=std::pmr::set_default_resource(&arena);
     try {
         {
-            rmx::Engine engine; engine.prepare(48000,64);
+            rmx::Engine engine;engine.params.set(rmx::Param::AutoTempo,0);engine.prepare(48000,64);
             const auto engineBytes=arena.used();
             auto bank=rmx::makeFactoryBank(); engine.setBank(&bank);
             const auto factoryBytes=arena.used();
@@ -28,6 +28,18 @@ int main() {
                 for(auto p:{rmx::Param::Low,rmx::Param::Mid,rmx::Param::High}) engine.params.set(p,mode%2?-.9f:1.f);
                 for(int i=0;i<100;++i) engine.process(in.data(),in.data(),left.data(),right.data(),64);
             }
+            // Exercise both owners of the borrowed Isolator rings, including
+            // withdrawing a live loan through profile, source and tempo changes.
+            engine.params.set(rmx::Param::IsolateMode,2);
+            for(unsigned phase=0;phase<32;++phase){
+                engine.params.set(rmx::Param::UserSettings,phase%4==1?1.f:0.f);
+                engine.params.set(rmx::Param::SceneSource,phase%4==2?1.f:0.f);
+                engine.params.set(rmx::Param::Tempo,phase%4==3?127.f:120.f);
+                for(unsigned i=0;i<64;++i)in[i]=.05f*std::sin(static_cast<float>(phase*64+i)*.171f);
+                engine.process(in.data(),in.data(),left.data(),right.data(),64);
+                for(unsigned i=0;i<64;++i)if(!std::isfinite(left[i])||!std::isfinite(right[i]))throw std::runtime_error("Isolator storage transition produced nonfinite output");
+            }
+            engine.params.set(rmx::Param::UserSettings,0);engine.params.set(rmx::Param::SceneSource,0);engine.params.set(rmx::Param::Tempo,120);
             engine.params.set(rmx::Param::SampleSource,1);
             for(unsigned bankIndex=0;bankIndex<4;++bankIndex) {
                 bank.slots[bankIndex*4].playback={120,true};

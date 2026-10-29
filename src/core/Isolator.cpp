@@ -32,7 +32,20 @@ void Isolator::prepare(double sampleRate) {
     kickSlowAlpha=1-std::exp(-1.f/static_cast<float>(rate*.25));kickDecay=std::exp(-1.f/static_cast<float>(rate*.09));
     kickFilter.configure(180,.7071f,rate);configured=false;configure(settings);reset();
 }
+std::array<std::span<Stereo>,6> Isolator::loanableStorage() noexcept {
+    std::array<std::span<Stereo>,6> storage{};
+    for(size_t i=0;i<3;++i){storage[i*2]=bands[i].history.loanableStorage();storage[i*2+1]=bands[i].capture;}
+    return storage;
+}
+void Isolator::setStorageLoaned(bool loaned) noexcept {
+    if(storageLoaned==loaned)return;
+    storageLoaned=loaned;
+    // Returning a loan invalidates history in constant time. Captures become
+    // readable only after their ordinary recording path has filled them again.
+    for(auto& band:bands){band.history.invalidate();band.captured=band.length=0;band.position=0;band.recording=false;}
+}
 void Isolator::reset() noexcept {
+    storageLoaned=false;
     lowState={};highState={};kickFilter.reset();cutHighPass.reset();cutLowPass.reset();
     for(auto& filter:lowCrossover)filter.reset();
     for(auto& filter:highCrossover)filter.reset();
@@ -94,6 +107,7 @@ Stereo Isolator::process(Stereo input,const std::array<float,3>& controls,double
         // to low/high would change its measured centre-position response.
         split={low,mid,high};
     }
+    if(storageLoaned){++frame;return input;}
     Stereo result=settings.mode==1?cut(input,controls):Stereo{};
     for(size_t b=0;b<3;++b) {
         auto& band=bands[b];const float k=std::clamp(controls[b],-1.f,1.f);const auto dry=split[b];

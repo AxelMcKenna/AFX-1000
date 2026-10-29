@@ -4,8 +4,9 @@ This work compares our implementation with the original RMX-1000 Plug-in 2.2.0.
 It does not establish equivalence to physical hardware or a percentage match for
 the whole device. Gate/Drive now runs in the live engine for Default settings at
 48 kHz with matching Isolator/Scene source selections. The measured scope is
-input-only at 120 BPM, with Scene off and Release disengaged. Active Cut/Add,
-Trans/Roll and the Spiral models remain unfinished.
+input-only at 120 BPM, with Scene off and Release disengaged. Active Cut/Add and the Spiral models remain unfinished. Trans/Roll now also
+runs in the live engine within its measured manual-tempo scope; see
+[its method and qualification](trans-roll.md).
 
 ## Discovery
 
@@ -68,8 +69,8 @@ Development progressed from 22/26 Gate/Drive programs passing to 25/26, then
 26/26 after correcting the detector history initialization. The largest relative
 error among those development windows is 0.0000529167 (0.00529167%), in a
 neutral startup pulse window. This is a development result, not independent
-qualification. Trans/Roll currently reproduces its two neutral programs only;
-active Trans/Roll and Cut/Add remain unfinished.
+qualification. At that stage Trans/Roll reproduced its two neutral programs only;
+its active matching is documented separately. Cut/Add remains unfinished.
 
 ## Independent checks
 

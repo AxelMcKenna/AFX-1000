@@ -110,12 +110,12 @@ def capture(a):
     require(binding==source_hashes(),'Discovery source changed');save_json(root/'matrix.json',dict(kind='rmx220-isolate-modes-discovery',cases=rows,source_sha256=binding))
 
 
-def original(a,c):
+def original(a,c,*,expected_source=None):
     folder=a.session/c['name'];r=json.loads((folder/'receipt.json').read_text());inventory=json.loads((a.session/'inventory.json').read_text());plan=plan_for(c,inventory)
     require(r['complete'] and r['role']=='reference' and r['sample_rate']==48000 and r['frames']==FRAMES and r['maximum_block_size']==c['block'] and r['host_sha256']==sha256(a.host) and all(r['plugin'][k]==v for k,v in IDENTITY.items()),'Wrong reference extent/identity')
     require(json.loads((folder/'plan.json').read_text())==plan,'Original plan differs')
     for name,key in [('audio.wav','output_sha256'),('plan.json','plan_sha256'),('state-before.bin','initial_state_sha256'),('state-after.bin','final_state_sha256'),('parameter-log.json','parameter_log_sha256'),('inventory-after.json','final_inventory_sha256')]:require(sha256(folder/name)==r[key],'Original artifact changed')
-    input_path=a.session/(c['source']+'.wav');require(sha256(input_path)==sha256(Path(r['input_path']))==r['input_sha256'],'Original input changed');rate,x=float_wav(input_path);require(rate==48000 and np.array_equal(x,source(a.stage)[c['source']]),'Source samples differ')
+    input_path=a.session/(c['source']+'.wav');require(sha256(input_path)==sha256(Path(r['input_path']))==r['input_sha256'],'Original input changed');rate,x=float_wav(input_path);require(rate==48000 and np.array_equal(x,source(a.stage)[c['source']] if expected_source is None else expected_source),'Source samples differ')
     for b in r['plugin']['binary_files']:require(sha256(Path(r['plugin']['bundle'])/b['path'])==b['sha256'],'Original binary changed')
     entries=json.loads((folder/'parameter-log.json').read_text())['entries'];requests=[p|dict(frame=-1) for p in plan['parameters']]+plan['events'];require(len(entries)==len(requests),'Original control count differs');final={}
     for request,event in zip(requests,entries,strict=True):
