@@ -29,6 +29,7 @@ int main(){try{
             split.process(nullptr,nullptr,x.data()+37,y.data()+37,91);
             for(size_t i=0;i<128;++i)require(a[i]==x[i]&&b[i]==y[i],"Internal drum event offset differs from explicit callback split");
         }
+        event.params.set(rmx::Param::Overdub,1);
         const auto before=arena.allocations();tracking=true;
         for(unsigned block=0;block<200;++block){
             const rmx::Event hit{rmx::EventType::Trigger,static_cast<uint8_t>(block%4),.5f,13,0,0};
@@ -114,6 +115,46 @@ int main(){try{
         clock.select(1);require(!clock.start(1,.25),"Selecting a drum rearmed a released strip position");
         clock.position();require(clock.start(1,.25),"Repeated strip position did not rearm the roll");
         clock.stop();clock.position();require(clock.start(1,.25),"Release discarded the prior drum selection");
+    }
+    {
+        rmx::FactoryRollClock clock;
+        clock.setHold(true);clock.position();
+        for(unsigned i=0;i<40;++i)require(!clock.advance(120),"Unselected Hold emitted a drum");
+        clock.select(2);require(clock.selectOnly(),"Initial Hold lost its silent running clock");
+        clock.release();require(clock.active(),"Physical release cancelled latched Hold");
+        clock.setHold(false);require(!clock.active(),"Hold-off did not stop a released strip");
+        clock.position();require(clock.start(2,.25),"Position write did not rearm released Hold");
+        clock.setHold(true);clock.setHold(false);require(clock.active(),"Hold-off cancelled a physical touch");
+        clock.release();require(!clock.active(),"Touch release left an unheld roll running");
+    }
+    {
+        rmx::FactoryRollClock clock;clock.beginCallback(true,0,32);clock.advance(120);
+        clock.beginCallback(true,.01,32);clock.advance(120);
+        require(clock.currentBeat()==.02,"Auto callback did not apply its PPQ correction");
+        clock.beginCallback(true,.011,32);clock.advance(120);
+        require(clock.currentBeat()==.02,"Backward Auto correction moved a frozen clock");
+        clock.advance(120);require(clock.currentBeat()==.02,"Pending Auto correction was discarded");
+        clock.beginCallback(true,.012,32);clock.advance(120);
+        require(clock.currentBeat()==.02,"Auto callback overwrote its pending correction");
+    }
+    for(unsigned action=0;action<3;++action){
+        rmx::Engine recording,control;setup(recording);setup(control);recording.params.set(rmx::Param::Overdub,1);
+        std::array<float,256> a{},b{},x{},y{};
+        for(unsigned block=0;block<4;++block){recording.process(nullptr,nullptr,a.data(),b.data(),256);control.process(nullptr,nullptr,x.data(),y.data(),256);}
+        for(auto* engine:{&recording,&control})engine->enqueue({rmx::EventType::Trigger,0,1,0,0,0});
+        for(unsigned block=0;block<2;++block){recording.process(nullptr,nullptr,a.data(),b.data(),256);control.process(nullptr,nullptr,x.data(),y.data(),256);}
+        if(action==0)recording.params.set(rmx::Param::Overdub,0);
+        else recording.enqueue({action==1?rmx::EventType::DeletePad:rmx::EventType::ClearSequence,0});
+        float peak=0;
+        for(unsigned block=0;block<16;++block){
+            recording.process(nullptr,nullptr,a.data(),b.data(),256);control.process(nullptr,nullptr,x.data(),y.data(),256);
+            for(size_t i=0;i<256;++i){peak=std::max(peak,std::abs(x[i]));require(a[i]==x[i]&&b[i]==y[i],"Pattern deletion/recording-off cut a sounding factory drum");}
+        }
+        require(peak>.01f,"Pattern tail guard did not exercise audible audio");
+        if(action==2){
+            recording.enqueue({rmx::EventType::Trigger,1,1,0,0,0});recording.process(nullptr,nullptr,a.data(),b.data(),256);
+            require(recording.meters.sequenceSteps.load()==1,"Cleared factory pattern could not record another hit");
+        }
     }
     for(bool protect:{false,true}){
         rmx::Engine engine;engine.params.set(rmx::Param::XLevel,1.5f);setup(engine,protect);std::array<float,256> a{},b{};

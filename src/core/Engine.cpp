@@ -50,7 +50,7 @@ void Engine::reset() noexcept {
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
     factoryRelease.reset();factoryReleaseEnabled=false;factoryGate.reset();factoryTrans.reset();factoryCut.reset();
-    factoryDrums.reset();factoryRoll.reset();factoryRollPlaying=true;pendingDrumCue={};factoryMask=0;
+    factoryDrums.reset();factoryRoll.reset();factorySequence.clear();factoryRollPlaying=true;factoryPreviousHold=factoryPreviousQuantize=factoryPreviousSequence=false;pendingDrumCue={};factoryMask=0;
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
     rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0;
     rollNext=0; rollStart=0; releaseRead=0; releaseAge=0; nudgeDirection=0; nudgeOffset=0; tapIntervals={}; tapCount=0; tapIndex=0; tapped=false;
@@ -116,6 +116,9 @@ void Engine::hit(int pad,float velocity,int bank,int source,bool toggleLoop) noe
     if(bank<0)bank=static_cast<int>(get(Param::Bank));
     if(source<0)source=static_cast<int>(get(Param::SampleSource));
     const bool stopped=trigger(pad,velocity,bank,source,toggleLoop);
+    if(get(Param::Overdub)>.5f&&source==0&&factorySequenceEligible()){
+        pendingDrumCue.record|=static_cast<uint8_t>(1u<<(pad%4));return;
+    }
     if(get(Param::Overdub)>.5f&&!sequence.record(beat+nudgeOffset,{static_cast<unsigned>(pad%4),static_cast<unsigned>(bank),velocity,source==0,stopped}))
         meters.droppedEvents.fetch_add(1,std::memory_order_relaxed);
 }
@@ -141,11 +144,12 @@ void Engine::event(Event e) noexcept {
             rollNext=get(Param::Quantize)>.5f?std::ceil(rollStart/division-1e-7)*division:rollStart;
             break;
         }
-        case EventType::RollStop: if(get(Param::XHold)<.5f){rollPad=-1;pendingDrumCue.rollAction=2;}break;
-        case EventType::ClearSequence: sequence.clear(); break;
-        case EventType::MutePad: sequence.toggleMute(e.pad); break;
+        case EventType::RollStop: pendingDrumCue.rollAction=2;if(get(Param::XHold)<.5f)rollPad=-1;break;
+        case EventType::ClearSequence: sequence.clear();pendingDrumCue.control|=64;break;
+        case EventType::MutePad: if(factorySequenceEligible())pendingDrumCue.mute^=static_cast<uint8_t>(1u<<(e.pad%4));else sequence.toggleMute(e.pad);break;
         case EventType::DeletePad:
-            sequence.erase(e.pad%4);
+            sequence.erase(e.pad%4);pendingDrumCue.erase|=static_cast<uint8_t>(1u<<(e.pad%4));
+            if(factorySequenceEligible())break;
             stopFactoryDrums(static_cast<uint8_t>(1u<<(e.pad%4)));
             for(auto& voice:voices) if(voice.slot>=0&&voice.slot%4==e.pad%4) voice.slot=-1;
             break;
@@ -155,7 +159,7 @@ void Engine::event(Event e) noexcept {
         case EventType::Panic:
             voices={}; rollPad=-1; sourceRoll=false; sequence.clear(); nudgeDirection=0; nudgeOffset=0;
             stopFactoryDrums();
-            pendingDrumCue.flush=true;
+            pendingDrumCue.flush=true;pendingDrumCue.control|=64;
             set(Param::SceneOn,0); set(Param::IsolateOn,0); set(Param::ReleaseAmount,0); set(Param::Low,0); set(Param::Mid,0); set(Param::High,0); set(Param::XHold,0); set(Param::Overdub,0);
             break;
         case EventType::Tap:
@@ -265,20 +269,27 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
     for(size_t start=0;start<count;){
         const auto& cue=drumCues[start];
         if(cue.stop&(1u<<factoryRoll.instrument()))factoryRoll.stop(true);
-        if(cue.rollPosition)factoryRoll.position();
+        if(cue.control&64)factorySequence.clearPattern();
+        if(cue.control&16)factorySequence.enable((cue.control&32)!=0);
+        factorySequence.quantize(factoryPreviousQuantize);
+        factorySequence.toggleMute(cue.mute);factorySequence.erase(cue.erase);
+        factorySequence.record(cue.record,cue.velocity,factoryRoll.currentBeat());
+        if(cue.control&4)factoryRoll.setQuantize((cue.control&8)!=0);
+        if(cue.control&1)factoryRoll.setHold((cue.control&2)!=0);
+        if(cue.rollPosition&&factoryRoll.position())factoryDrums.trigger(factoryRoll.instrument());
         if(cue.selectPad)factoryRoll.select(cue.selectPad-1);
-        if(cue.rollAction==2)factoryRoll.stop();
+        if(cue.rollAction==2)factoryRoll.release();
         else if(cue.rollAction==1&&factoryRoll.start(cue.rollPad,xPadBeatValues[cue.rollBeat]))factoryDrums.trigger(cue.rollPad);
         for(unsigned pad=0;pad<4;++pad){
             if(cue.stop&(1u<<pad))factoryDrums.stop(pad);
-            if(cue.trigger&(1u<<pad))factoryDrums.trigger(pad,cue.velocity[pad]);
+            if((cue.trigger&(1u<<pad))&&!(cue.selectPad&&factoryRoll.selectOnly()))factoryDrums.trigger(pad,cue.velocity[pad]);
         }
         if(cue.flush)for(size_t i=0;i<32;++i){
             scenePending[i]=scenePending[i]-scenePadPending[i];routingPending[i].unselected=routingPending[i].unselected-unselectedPadPending[i];
             scenePadPending[i]=unselectedPadPending[i]={};
         }
         factoryDrums.beginProcessing();
-        size_t end=start+1;while(end<count&&!drumCues[end].trigger&&!drumCues[end].stop&&!drumCues[end].flush&&!drumCues[end].selectPad&&!drumCues[end].rollAction&&!drumCues[end].rollPosition)++end;
+        size_t end=start+1;while(end<count&&!drumCues[end].trigger&&!drumCues[end].stop&&!drumCues[end].flush&&!drumCues[end].selectPad&&!drumCues[end].rollAction&&!drumCues[end].rollPosition&&!drumCues[end].control&&!drumCues[end].record&&!drumCues[end].mute&&!drumCues[end].erase)++end;
         size_t read=start,written=start;
         while(read<end){
             const auto take=std::min(32-routingReceived,end-read);
@@ -298,6 +309,8 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
     std::array<Stereo,32> drums{},selected{},generated{},discard{},spiralSource{};
     sceneProcessor.setStorageLoaned(measuredSpiral,rawSpiral);factorySpiral.setStorageState(measuredSpiral,rawSpiral);
     if(factoryRoll.advance(routingCollected[0].bpm)&&factoryRollPlaying)factoryDrums.trigger(factoryRoll.instrument());
+    factoryDrums.setMuteMask(factorySequence.muteMask());
+    factorySequence.advance(factoryRoll.currentBeat(),factoryRollPlaying,[&](unsigned pad,float velocity){factoryDrums.trigger(pad,velocity);});
     factoryDrums.generateBlock(drums);
     // One selected source drives the nonlinear detector and processor. It is
     // already on the shared source fade, before Scene's generated-source input.
@@ -472,8 +485,9 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     if(sr==48000&&get(Param::PitchDownRange)==parameters[static_cast<size_t>(Param::PitchDownRange)].initial
         &&get(Param::PitchUpRange)==parameters[static_cast<size_t>(Param::PitchUpRange)].initial){
         for(unsigned pad=0;pad<4;++pad){
-            auto same=[&](Param first){const auto i=static_cast<size_t>(first)+pad;return p[i]==parameters[i].initial;};
-            if(same(Param::KickGain)&&same(Param::KickDecay)&&same(Param::KickEnvelope))nextFactoryMask|=static_cast<uint8_t>(1u<<pad);
+            nextFactoryMask|=static_cast<uint8_t>(1u<<pad);
+            const auto value=[&](Param first){return static_cast<int>(get(static_cast<Param>(static_cast<size_t>(first)+pad)));};
+            factoryDrums.setProfile(pad,value(Param::KickGain),static_cast<unsigned>(value(Param::KickDecay)),value(Param::KickEnvelope)!=0);
         }
     }
     if(nextFactoryMask!=factoryMask){
@@ -490,6 +504,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     factoryReleaseEnabled=measuredRelease;
     if(sr==48000)factoryRelease.setControls(static_cast<unsigned>(get(Param::ReleaseType)),static_cast<unsigned>(std::clamp(static_cast<int>(get(Param::ReleaseAmount)*3.f),0,3))*85u,factoryReleaseEnabled);
     factoryRollPlaying=transport.playing;
+    if(sr==48000)factoryRoll.beginCallback(transport.synced&&std::isfinite(transport.beat),transport.beat,frames);
     factoryRoll.setDivision(xPadDivision(p));
     if(!factoryRollEligible()){
         if(factoryRoll.active()){
@@ -505,8 +520,15 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     CalibratedSpiral::Controls spiralControls{static_cast<unsigned>(downControls.main),static_cast<unsigned>(downControls.amount),static_cast<unsigned>(downControls.cutoff),false,sceneSettings.type==8?1:0};
 
     const bool overdub=get(Param::Overdub)>.5f;
-    if(!overdub&&previousOverdub) { sequence.clear(); voices={};stopFactoryDrums();pendingDrumCue.flush=true; }
+    if(!overdub&&previousOverdub) {sequence.clear();if(!factoryPreviousSequence){voices={};stopFactoryDrums();pendingDrumCue.flush=true;}}
     previousOverdub=overdub;
+    if(sr==48000){
+        const bool nextSequence=overdub&&factorySequenceEligible();
+        if(nextSequence!=factoryPreviousSequence){pendingDrumCue.control|=static_cast<uint8_t>(16|(nextSequence?32:0));factoryPreviousSequence=nextSequence;}
+        const bool hold=get(Param::XHold)>.5f,quantize=get(Param::Quantize)>.5f;
+        if(hold!=factoryPreviousHold){pendingDrumCue.control|=static_cast<uint8_t>(1|(hold?2:0));factoryPreviousHold=hold;}
+        if(quantize!=factoryPreviousQuantize){pendingDrumCue.control|=static_cast<uint8_t>(4|(quantize?8:0));factoryPreviousQuantize=quantize;}
+    }
     Event e; while(queue.pop(e)) event(e);
     size_t eventIndex=0;
     float inputPeak=0,outputPeak=0,minimumProtection=1;
@@ -547,7 +569,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         approach(rollInputMix,rollTarget,smoothing);
         if(rollTarget==0&&rollInputMix<1e-6f) sourceRoll=false;
         Stereo drums=sample();
-        drumCues[k]=pendingDrumCue;pendingDrumCue.trigger=pendingDrumCue.stop=pendingDrumCue.selectPad=pendingDrumCue.rollAction=0;pendingDrumCue.flush=pendingDrumCue.rollPosition=false;
+        drumCues[k]=pendingDrumCue;pendingDrumCue.trigger=pendingDrumCue.stop=pendingDrumCue.selectPad=pendingDrumCue.rollAction=pendingDrumCue.control=pendingDrumCue.record=pendingDrumCue.mute=pendingDrumCue.erase=0;pendingDrumCue.flush=pendingDrumCue.rollPosition=false;
         input=input*(1-rollInputMix);
         const int isoSource=static_cast<int>(get(Param::IsolateSource));
         approach(isolateInputMix,(isoSource==0||isoSource==2)?1.f:0.f,smoothing);
@@ -607,7 +629,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     }
     offset+=count;
     }
-    meters.sequenceSteps.store(static_cast<unsigned>(sequence.size()),std::memory_order_relaxed); meters.padMuteMask.store(sequence.muteMask(),std::memory_order_relaxed);
+    meters.sequenceSteps.store(static_cast<unsigned>(sequence.size())+factorySequence.size(),std::memory_order_relaxed); meters.padMuteMask.store(sequence.muteMask()|factorySequence.muteMask(),std::memory_order_relaxed);
     meters.protectionGain.store(minimumProtection,std::memory_order_relaxed);
     meters.input.store(inputPeak,std::memory_order_relaxed); meters.output.store(outputPeak,std::memory_order_relaxed); meters.tempo.store(static_cast<float>(bpm),std::memory_order_relaxed);
 }

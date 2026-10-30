@@ -1,5 +1,6 @@
 #include "rmx/drums/Hat.h"
 #include "rmx/drums/Controls.h"
+#include "rmx/drums/Profile.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -15,6 +16,13 @@ float pulse(float& phase,float frequency) noexcept {
     const float y=phase<.25f?.75f:-.25f;
     phase+=frequency*(1.f/48000.f);if(phase>1)phase-=1;return y;
 }
+}
+void Hat::setProfile(unsigned rawGain,unsigned decay,bool envelope) noexcept {
+    decay=std::min(decay,2u);customizationGain=profileGain(rawGain);linearEnvelope=envelope;
+    if(!envelope&&decay==0)customizationGain*=1.1220184564590454f;
+    if(envelope&&decay!=0)customizationGain*=.8912509083747864f;
+    constexpr std::array<float,3> decays{.18f,.3f,.56f};
+    main.decay=decays[decay]*(envelope?.45f:1.f);attack.decay=main.decay*.7875f;
 }
 void Hat::setControls(unsigned level,unsigned pitchRaw) noexcept {
     outputLevel.set(level);pitchRatio=drumPitchRate(pitchRaw);
@@ -45,15 +53,16 @@ void Hat::block() noexcept {
     if(!state)pending.fill(0);
     else for(size_t begin=0;begin<32;begin+=16){
         float n=main.advance(),a=attack.advance();
-        if(!main.rising){n=curve60(n);a=curve60(a);}
-        n=std::min(1.f,n*1.3f)*.15f;a=std::min(1.f,a*1.3f)*.162f;
+        if(!main.rising&&!linearEnvelope){n=curve60(n);a=curve60(a);}
+        if(!linearEnvelope){n=std::min(1.f,n*1.3f);a=std::min(1.f,a*1.3f);}
+        n*=.15f;a*=.162f;
         for(size_t i=begin;i<begin+16;++i){
             const float p1=pulse(phase[0],800*pitchRatio),p2=pulse(phase[1],525*pitchRatio),p3=pulse(phase[2],370*pitchRatio),p4=pulse(phase[3],205*pitchRatio);
             const float pulses=highpass1.tick(((p1+p2)+p3)+p4);
             random1^=random2;const float white=static_cast<float>(std::bit_cast<int32_t>(random2))*(1.f/2147483648.f);random2+=random1;
             const float mixed=highpass2.tick(white*n+pulses*a);
             gain+=gainStep;
-            pending[i]=static_cast<float>(static_cast<double>((mixed*.4466835856437683f)*gain)*6.91373157);
+            pending[i]=static_cast<float>(static_cast<double>(((mixed*.4466835856437683f)*customizationGain)*gain)*6.91373157);
         }
     }
     if(!main.rising&&main.value==0&&std::abs(pending.back())<1e-9f)state=0;

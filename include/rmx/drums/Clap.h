@@ -8,6 +8,7 @@ namespace rmx::drums {
 // Independently implemented neutral factory48k clap research hypothesis.
 class Clap {
 public:
+    void setProfile(unsigned gain,unsigned decay,bool envelope) noexcept;
     void setControls(unsigned level,unsigned pitch) noexcept;
     void trigger(float velocity=1) noexcept {if(processingStarted){requested=true;requestedVelocity=std::clamp(velocity,0.f,1.f);}}
     void stop() noexcept {state=0;requested=false;pending.fill(0);}
@@ -41,6 +42,7 @@ private:
     size_t received{},available{},head{};
     float phase{1},gain{},startupGain{};
     DrumLevelRamp outputLevel;
+    float customizationScale{.3981071710586548f};bool linearEnvelope{};
     float voiceVelocity{1},nextVelocity{1},requestedVelocity{1};
     uint32_t random1{0xb741fe44},random2{0x2c342f89};
     unsigned state{},elapsed{};bool requested{},processingStarted{};

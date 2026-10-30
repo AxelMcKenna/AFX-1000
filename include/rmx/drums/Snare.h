@@ -8,6 +8,7 @@ namespace rmx::drums {
 // Factory48k snare hypothesis. Complete original renders decide fidelity.
 class Snare {
 public:
+    void setProfile(unsigned gain,unsigned decay,bool envelope) noexcept;
     void setControls(unsigned level,unsigned pitch) noexcept;
     void trigger(float velocity=1) noexcept {if(processingStarted){requested=true;requestedVelocity=std::clamp(velocity,0.f,1.f);}}
     void stop() noexcept {state=0;requested=false;pending.fill(0);}
@@ -42,6 +43,7 @@ private:
     float phase1{.25f},phase2{.25f},gain{},startupGain{};
     float pitchRatio{1};
     DrumLevelRamp outputLevel;
+    float customizationGain{1};bool linearEnvelope{};
     float voiceVelocity{1},nextVelocity{1},requestedVelocity{1};
     uint32_t random1{0xd0f61b8f},random2{0x34373a95};
     unsigned state{};bool requested{},processingStarted{};

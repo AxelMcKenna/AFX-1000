@@ -11,6 +11,7 @@
 #include "CalibratedReverbUp.h"
 #include "FactoryDrumSynth.h"
 #include "FactoryRollClock.h"
+#include "FactoryDrumSequence.h"
 #include "FactoryRelease.h"
 #include "CalibratedTransRoll.h"
 #include "CalibratedCutAdd.h"
@@ -82,8 +83,10 @@ private:
     CalibratedReverbUp reverbUp;
     FactoryDrumSynth factoryDrums;
     FactoryRollClock factoryRoll;
-    bool factoryRollPlaying{true};
-    struct DrumCue {uint8_t trigger{},stop{},selectPad{},rollAction{},rollPad{},rollBeat{};std::array<float,4> velocity{1,1,1,1};bool flush{},rollPosition{};};
+    FactoryDrumSequence factorySequence;
+    bool factoryRollPlaying{true},factoryPreviousHold{},factoryPreviousQuantize{},factoryPreviousSequence{};
+    struct DrumCue {uint8_t trigger{},stop{},selectPad{},rollAction{},rollPad{},rollBeat{},control{},record{};std::array<float,4> velocity{1,1,1,1};bool flush{},rollPosition{};uint8_t mute{},erase{};};
+    static_assert(sizeof(DrumCue)==28);
     struct SourceFrame {
         Stereo raw{},input{},legacy{},wetDry{};
         std::array<float,3> bands{};
@@ -116,8 +119,13 @@ private:
                              CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls,CalibratedSpiral::Controls spiralControls) noexcept;
     void stopFactoryDrums(uint8_t mask=15) noexcept {pendingDrumCue.stop|=mask;pendingDrumCue.trigger&=static_cast<uint8_t>(~mask);}
     bool factoryRollEligible() const noexcept {
-        return sr==48000&&factoryMask==15&&get(Param::UserSettings)<.5f&&get(Param::Quantize)<.5f
+        return sr==48000&&factoryMask==15&&get(Param::UserSettings)<.5f
             &&get(Param::Overdub)<.5f&&get(Param::XSource)<.5f&&get(Param::SampleSource)<.5f;
+    }
+    bool factorySequenceEligible() const noexcept {
+        return sr==48000&&factoryMask==15&&get(Param::UserSettings)<.5f
+            &&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120
+            &&get(Param::XSource)<.5f&&get(Param::SampleSource)<.5f;
     }
     Stereo rollInput{};
     std::array<Isolator,2> isolators;

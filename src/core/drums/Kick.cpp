@@ -1,5 +1,6 @@
 #include "rmx/drums/Kick.h"
 #include "rmx/drums/Controls.h"
+#include "rmx/drums/Profile.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -19,6 +20,12 @@ float triangle(float& phase,float frequency) noexcept {
     const float x=phase*4;const float y=phase>.5f?3-x:x-1;
     phase+=frequency*(1.f/48000.f);if(phase>1)phase-=1;return y;
 }
+}
+void Kick::setProfile(unsigned rawGain,unsigned decay,bool envelope) noexcept {
+    decay=std::min(decay,2u);customizationGain=profileGain(rawGain);linearEnvelope=envelope;
+    constexpr std::array<float,3> decays{.29f,.44f,.76f},scales{1.f,1.517241358757019f,2.620689630508423f};
+    tone.decay=decays[decay]*(envelope?.75f:1.f);
+    pitch.decay=(static_cast<float>(decay)*.2f+.8f)*.343f;linearScale=scales[decay];
 }
 void Kick::setControls(unsigned level,unsigned pitchRaw) noexcept {
     pitchRaw=std::min(pitchRaw,255u);outputLevel.set(level);const float ratio=drumPitchRate(pitchRaw);
@@ -60,7 +67,8 @@ void Kick::block() noexcept {
     if(!state)pending.fill(0);
     else for(size_t begin=0;begin<32;begin+=16){
         const float frequency=frequencyBase+(frequencyPeak-frequencyBase)*pitchCurve(pitch.advance());
-        const float level=std::min(toneLimit,toneCurve(tone.advance()))*.07227f;
+        const float envelope=tone.advance();
+        const float level=std::min(toneLimit,linearEnvelope?(envelope*linearScale)*2:toneCurve(envelope))*.07227f;
         bandpass.coefficients=drumBandpass(frequency,1);
         const float hiss=pitchCurve(noise.advance());
         for(size_t i=begin;i<begin+16;++i){
@@ -69,7 +77,7 @@ void Kick::block() noexcept {
             random1^=random2;const float white=static_cast<float>(std::bit_cast<int32_t>(random2))*(1.f/2147483648.f);random2+=random1;
             const float mixed=(pitched+(white*hiss)*noiseMix)*.223872110247612f;
             const float sample=highpass.tick(mixed);gain+=gainStep;
-            pending[i]=static_cast<float>(static_cast<double>(sample*gain)*6.91373157);
+            pending[i]=static_cast<float>(static_cast<double>((sample*customizationGain)*gain)*6.91373157);
         }
         bandpass.finishSubblock();highpass.finishSubblock();
     }

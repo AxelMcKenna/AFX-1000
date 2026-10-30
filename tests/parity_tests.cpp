@@ -83,6 +83,11 @@ int main() { try {
         edge(Button::Hold,true);edge(Button::HiHat,true);edge(Button::HiHat,false);edge(Button::Hold,false);
         require(events.back().type==EventType::SelectPad&&events.back().pad==3&&p.get(Param::XHold)==0,"Hold+pad did not select silently without latching Hold");
         surface.touch(true,send);require(events.back().type==EventType::RollStart&&events.back().pad==3,"Silent selection did not select the strip's drum");surface.touch(false,send);
+        surface.touch(true,send);
+        edge(Button::Hold,true);edge(Button::Hold,false);require(p.get(Param::XHold)==1,"Hold click did not latch");
+        const auto beforeHoldOff=events.size();edge(Button::Hold,true);edge(Button::Hold,false);
+        require(p.get(Param::XHold)==0&&events.size()==beforeHoldOff,"Hold-off stopped a physically touched strip");
+        surface.touch(false,send);require(events.back().type==EventType::RollStop,"Physical release lost roll stop");
         edge(Button::Overdub,true); edge(Button::Overdub,false); require(p.get(Param::Overdub)==1,"Overdub click failed");
         edge(Button::Overdub,true); edge(Button::Kick,true); edge(Button::Kick,false); edge(Button::Overdub,false);
         require(events.back().type==EventType::DeletePad&&p.get(Param::Overdub)==1,"Delete chord toggled recording");

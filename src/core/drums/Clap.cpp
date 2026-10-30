@@ -1,9 +1,15 @@
 #include "rmx/drums/Clap.h"
 #include "rmx/drums/Controls.h"
+#include "rmx/drums/Profile.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
 namespace rmx::drums {
+void Clap::setProfile(unsigned rawGain,unsigned decay,bool envelope) noexcept {
+    decay=std::min(decay,2u);customizationScale=profileGain(rawGain)*.3981071710586548f;linearEnvelope=envelope;
+    constexpr std::array<float,3> noiseDecays{.14f,.24f,.44f},tailDecays{.7f,1.25f,2.f};
+    noise.decay=noiseDecays[decay]*(envelope?.65f:1.f);tail.decay=tailDecays[decay]*(envelope?.3f:1.f);
+}
 void Clap::setControls(unsigned level,unsigned pitchRaw) noexcept {
     outputLevel.set(level);const float ratio=drumPitchRate(pitchRaw);
     bandpass.coefficients=drumBandpass(870*ratio,.7f);highpass.coefficients=drumHighpass(800*ratio,.7f);
@@ -33,18 +39,18 @@ void Clap::block() noexcept {
     const float gainStep=state>=2?-.00625f:0;if(state>=2)++state;
     if(!state)pending.fill(0);
     else for(size_t begin=0;begin<32;begin+=16){
-        float n=noise.advance();n*=n;n*=n;
+        float n=noise.advance();if(!linearEnvelope){n*=n;n*=n;}
         const bool burst=elapsed<static_cast<unsigned>(.031f*48000.f);
         if(elapsed<0x7ffeffff)elapsed+=16;
-        float t=tail.advance();t*=t;t*=t;
+        float t=tail.advance();t*=t;if(!linearEnvelope)t*=t;
         for(size_t i=begin;i<begin+16;++i){
             const float saw=phase;phase-=91.f*(1.f/48000.f);if(phase<0)phase=1;
             random1^=random2;const float white=static_cast<float>(std::bit_cast<int32_t>(random2))*(1.f/2147483648.f);random2+=random1;
             const float filtered=bandpass.tick(white),low=lowpass1.tick(filtered),high=highpass.tick(filtered);
-            const float mixed=burst?saw*high:(low*t)*.075f+(high*n)*.8f;
+            const float mixed=burst?saw*high:(low*t)*(linearEnvelope?.2f:.075f)+(high*n)*.8f;
             const float clipped=std::clamp(mixed,-.218871608376503f,.218871608376503f);
             gain+=gainStep;
-            pending[i]=static_cast<float>(static_cast<double>((clipped*.3981071710586548f)*gain)*6.91373157);
+            pending[i]=static_cast<float>(static_cast<double>((clipped*customizationScale)*gain)*6.91373157);
         }
     }
     if(!tail.rising&&tail.value==0&&std::abs(pending.back())<1e-9f)state=0;

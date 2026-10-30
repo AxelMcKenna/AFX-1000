@@ -39,7 +39,7 @@ public:
             }
             if(!used) {
                 if(button==Button::Overdub) toggle(Param::Overdub);
-                if(button==Button::Hold) { toggle(Param::XHold); if(read(Param::XHold)<.5f) send(Event{EventType::RollStop}); }
+                if(button==Button::Hold) { toggle(Param::XHold); if(read(Param::XHold)<.5f&&!touchHeld) send(Event{EventType::RollStop}); }
                 if(button==Button::Tap) send(Event{EventType::Tap});
             }
             return;

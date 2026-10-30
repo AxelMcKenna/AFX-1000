@@ -1,5 +1,6 @@
 #include "rmx/drums/Snare.h"
 #include "rmx/drums/Controls.h"
+#include "rmx/drums/Profile.h"
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -16,6 +17,12 @@ float triangle(float& phase,float frequency) noexcept {
     const float x=phase*4;const float y=phase>.5f?3-x:x-1;
     phase+=frequency*(1.f/48000.f);if(phase>1)phase-=1;return y;
 }
+}
+void Snare::setProfile(unsigned rawGain,unsigned decay,bool envelope) noexcept {
+    decay=std::min(decay,2u);customizationGain=profileGain(rawGain);linearEnvelope=envelope;
+    constexpr std::array<float,3> decays{.32f,.49f,.78f};
+    tone.decay=(static_cast<float>(decay)*.25f+1.f)*.15f;
+    noise.decay=decays[decay]*(envelope?.44f:1.f);
 }
 void Snare::setControls(unsigned level,unsigned pitchRaw) noexcept {
     outputLevel.set(level);pitchRatio=drumPitchRate(pitchRaw);
@@ -52,7 +59,7 @@ void Snare::block() noexcept {
         const float base=168.2f*pitchRatio,frequency=base*p,second=(base+84.8f)*p;
         const float level=std::min(1.f,curve60(tone.advance())*1.3f)*1.3f;
         bandpass.coefficients=drumBandpass(frequency,2.0618555545806885f);
-        const float hiss=std::min(.66f,curve60(noise.advance())*1.6667f);
+        const float envelope=noise.advance();const float hiss=std::min(.66f,(linearEnvelope?envelope:curve60(envelope))*1.6667f);
         for(size_t i=begin;i<begin+16;++i){
             const float a=triangle(phase1,frequency),b=triangle(phase2,second);
             const float octaves=(std::abs(a)-.5f)+(std::abs(b)-.5f);
@@ -61,7 +68,7 @@ void Snare::block() noexcept {
             const float filtered=lowpass.tick(highpass1.tick(lowpass1.tick(white)));
             const float mixed=std::clamp(pitched+filtered*hiss,-.7943282127380371f,.7943282127380371f);
             gain+=gainStep;
-            pending[i]=static_cast<float>(static_cast<double>((mixed*gain)*.1258925348520279f)*6.91373157);
+            pending[i]=static_cast<float>(static_cast<double>(((mixed*customizationGain)*gain)*.1258925348520279f)*6.91373157);
         }
     }
     if(!noise.rising&&noise.value==0&&std::abs(pending.back())<1e-9f)state=0;

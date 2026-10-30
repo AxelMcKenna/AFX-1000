@@ -391,3 +391,8 @@ routes, interacting effects, sampling/quantize/Hold or physical hardware. No
 whole-device 99% perceptual-match claim follows from these tests. The firmware
 host suite still has its inherited factory-silence failure (15/16); desktop
 reference results do not qualify physical-board execution.
+
+
+## 30 October 2026: drum settings and performance
+
+The [drum performance campaign](drum-performance.md) adds504 passing native original-reference programs:296 User drum programs,128 Hold/Quantize programs,32 Auto-tempo programs and48 overdub/mute/delete programs. Optimized and sanitized complete WAV bytes agree throughout. The record explains public RSD/state loading, clock observations, failed fresh predictions, loop-boundary correction, independent gates and delivery checks. Broader rates/ranges, custom rolls, multi-drum overdubs, recording strip gestures, interacting effects and physical hardware remain separate gaps. No whole-device99% claim follows.
