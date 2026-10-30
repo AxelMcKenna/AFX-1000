@@ -11,7 +11,7 @@ class FactoryDrumSequence {
 public:
     void clear() noexcept {*this={};}
     void clearPattern() noexcept {const bool active=enabled;clear();enabled=active;}
-    void enable(bool value) noexcept {if(enabled!=value){clear();enabled=value;}}
+    void enable(bool value) noexcept {if(enabled!=value){const auto previousMute=muted;clear();enabled=value;if(!value)muted=previousMute;}}
     void quantize(bool value) noexcept {quantized=value;}
     void record(uint8_t mask,const std::array<float,4>& values,double beat) noexcept {
         if(!enabled||!mask)return;

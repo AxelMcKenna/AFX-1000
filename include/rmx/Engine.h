@@ -118,12 +118,19 @@ private:
     void generateSharedBlock(int type,bool coldProfile,bool measuredDown,bool measuredUp,bool measuredSpiral,bool rawSpiral,
                              CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls,CalibratedSpiral::Controls spiralControls) noexcept;
     void stopFactoryDrums(uint8_t mask=15) noexcept {pendingDrumCue.stop|=mask;pendingDrumCue.trigger&=static_cast<uint8_t>(~mask);}
+    bool factoryRollAssignmentsDefault() const noexcept {
+        for(unsigned i=0;i<8;++i){
+            const auto index=static_cast<size_t>(Param::XPadBeat1)+i;
+            if(p[index]!=parameters[index].initial)return false;
+        }
+        return true;
+    }
     bool factoryRollEligible() const noexcept {
-        return sr==48000&&factoryMask==15&&get(Param::UserSettings)<.5f
+        return sr==48000&&factoryMask==15&&factoryRollAssignmentsDefault()
             &&get(Param::Overdub)<.5f&&get(Param::XSource)<.5f&&get(Param::SampleSource)<.5f;
     }
     bool factorySequenceEligible() const noexcept {
-        return sr==48000&&factoryMask==15&&get(Param::UserSettings)<.5f
+        return sr==48000&&factoryMask==15&&factoryRollAssignmentsDefault()
             &&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120
             &&get(Param::XSource)<.5f&&get(Param::SampleSource)<.5f;
     }

@@ -396,3 +396,8 @@ reference results do not qualify physical-board execution.
 ## 30 October 2026: drum settings and performance
 
 The [drum performance campaign](drum-performance.md) adds504 passing native original-reference programs:296 User drum programs,128 Hold/Quantize programs,32 Auto-tempo programs and48 overdub/mute/delete programs. Optimized and sanitized complete WAV bytes agree throughout. The record explains public RSD/state loading, clock observations, failed fresh predictions, loop-boundary correction, independent gates and delivery checks. Broader rates/ranges, custom rolls, multi-drum overdubs, recording strip gestures, interacting effects and physical hardware remain separate gaps. No whole-device99% claim follows.
+
+
+## 30 October 2026: combined drum performance
+
+The [combined drum campaign](drum-combinations.md) adds204 passing original-reference programs, including102 frozen fresh predictions, mixed overdub patterns, custom-profile rolls/overdubs and all nine deterministic Scene effects. The current engine also preserves the preceding504 drum programs byte-for-byte. Whole and wet windows retain their original1%per-channel gates. Wrapper one-shot/FX delivery is separate from native strip/button-event coverage; arbitrary settings, rates, tempos and hardware remain outside this qualification.

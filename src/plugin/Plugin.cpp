@@ -18,11 +18,11 @@ public:
     juce::String assetMessage;
     RMXProcessor():AudioProcessor(BusesProperties().withInput("Stereo input",juce::AudioChannelSet::stereo(),true).withOutput("Stereo output",juce::AudioChannelSet::stereo(),true)),tree(*this,nullptr,"RMX",layout()) {
         for(size_t i=0;i<rmx::parameterCount;++i) { raw[i]=tree.getRawParameterValue(js(rmx::parameters[i].id)); pendingValues[i].store(std::numeric_limits<float>::quiet_NaN()); }
-        // 0 dB is 2/3 of the host range. Its float-normalized round trip can
-        // decode to a tiny nonzero value; retain exact unity for that request.
-        for(size_t i=0;i<hostUnityGain.size();++i){
-            const auto* parameter=tree.getParameter(js(rmx::parameters[i].id));
-            hostUnityGain[i]=parameter->convertFrom0to1(parameter->convertTo0to1(0.f));
+        // A normalized default can decode to a neighbouring float. Preserve
+        // the exact native initial value for that one host representation.
+        for(size_t i=0;i<hostDefaultValues.size();++i){
+            const auto& info=rmx::parameters[i];const auto* parameter=tree.getParameter(js(info.id));
+            hostDefaultValues[i]=parameter->convertFrom0to1(parameter->convertTo0to1(info.initial));
         }
         lastCC.fill(-1);
         publish(rmx::makeFactoryBank()); startTimerHz(30);
@@ -204,10 +204,10 @@ private:
     juce::CriticalSection assetLock;
     std::array<std::atomic<float>*,rmx::parameterCount> raw{};
     static_assert(static_cast<size_t>(rmx::Param::InputGain)==0&&static_cast<size_t>(rmx::Param::OutputGain)==1);
-    std::array<float,2> hostUnityGain{};
+    std::array<float,rmx::parameterCount> hostDefaultValues{};
     float engineParameter(size_t index) const noexcept {
         const float value=raw[index]->load(std::memory_order_relaxed);
-        return index<hostUnityGain.size()&&value==hostUnityGain[index]?0.f:value;
+        return value==hostDefaultValues[index]?rmx::parameters[index].initial:value;
     }
     std::array<std::atomic<float>,rmx::parameterCount> pendingValues;
     std::atomic<int> pendingLatency{};

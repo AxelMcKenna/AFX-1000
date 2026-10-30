@@ -358,6 +358,21 @@ juce::var failure(const juce::String& error) {
 
 int main(int argc, char** argv) {
     try {
+        if(argc==2&&std::string(argv[1])=="--default-roundtrips") {
+            juce::Array<juce::var> changed;
+            for(const auto& info:rmx::parameters) {
+                juce::NormalisableRange<float> range(info.min,info.max,info.discrete?1.f:0.f);
+                const float encoded=range.snapToLegalValue(range.convertFrom0to1(range.convertTo0to1(info.initial)));
+                if(encoded!=info.initial) {
+                    auto* row=new juce::DynamicObject;
+                    row->setProperty("id",juce::String(info.id.data()));row->setProperty("native_default",static_cast<double>(info.initial));
+                    row->setProperty("decoded_host_default",static_cast<double>(encoded));changed.add(juce::var(row));
+                }
+            }
+            auto* report=new juce::DynamicObject;report->setProperty("kind","host-default-roundtrip-diagnostic");
+            report->setProperty("changed_defaults",changed);report->setProperty("juce_version",juce::SystemStats::getJUCEVersion());
+            std::cout<<juce::JSON::toString(juce::var(report)).toStdString()<<std::endl;return 0;
+        }
         juce::String path;
         int timeout = 120;
         for (int i = 1; i < argc; ++i) {

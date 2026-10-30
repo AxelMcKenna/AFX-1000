@@ -156,6 +156,30 @@ int main(){try{
             require(recording.meters.sequenceSteps.load()==1,"Cleared factory pattern could not record another hit");
         }
     }
+    for(bool overdub:{false,true}){
+        // Drum-only customization leaves the default beat map and FX settings
+        // intact. User and Default must therefore share their generated clock.
+        rmx::Engine user,factory;
+        user.params.set(rmx::Param::UserSettings,1);
+        for(auto* engine:{&user,&factory}){engine->params.set(rmx::Param::Overdub,overdub);engine->params.set(rmx::Param::XRoll,1);setup(*engine);}
+        std::array<float,256> a{},b{},x{},y{};float peak=0;
+        for(unsigned block=0;block<1000;++block){
+            const rmx::Event hit{rmx::EventType::Trigger,0,1,17,0,0},touch{rmx::EventType::RollStart,0,1,39};
+            std::array<rmx::Event,2> events{hit,touch};
+            const auto count=overdub?1u:2u;
+            const auto actions=block==4?std::span<const rmx::Event>(events.data(),count):std::span<const rmx::Event>{};
+            user.process(nullptr,nullptr,a.data(),b.data(),256,{},actions);factory.process(nullptr,nullptr,x.data(),y.data(),256,{},actions);
+            for(size_t i=0;i<256;++i){peak=std::max(peak,std::abs(x[i]));require(a[i]==x[i]&&b[i]==y[i],"Drum-only User settings changed measured roll/overdub timing");}
+        }
+        require(peak>.1f,"User clock guard did not exercise audible drums");
+    }
+    {
+        rmx::Engine engine;setup(engine);engine.params.set(rmx::Param::Overdub,1);std::array<float,256> a{},b{};
+        engine.process(nullptr,nullptr,a.data(),b.data(),256);engine.enqueue({rmx::EventType::Trigger,0,1,0,0,0});
+        engine.process(nullptr,nullptr,a.data(),b.data(),256);engine.enqueue({rmx::EventType::MutePad,0});
+        engine.process(nullptr,nullptr,a.data(),b.data(),256);engine.params.set(rmx::Param::Overdub,0);
+        for(unsigned block=0;block<8;++block){engine.process(nullptr,nullptr,a.data(),b.data(),256);for(float value:a)require(value==0,"Recording-off unmuted a sounding factory drum");}
+    }
     for(bool protect:{false,true}){
         rmx::Engine engine;engine.params.set(rmx::Param::XLevel,1.5f);setup(engine,protect);std::array<float,256> a{},b{};
         engine.process(nullptr,nullptr,a.data(),b.data(),256);engine.enqueue({rmx::EventType::Trigger,0,1,0,0,0});float peak=0;

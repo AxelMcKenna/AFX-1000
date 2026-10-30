@@ -8,6 +8,7 @@ from types import SimpleNamespace
 
 import numpy as np
 
+from tools import rmx_drum_combos as combos
 from tools import rmx_drum_user_match as native
 from tools import rmx_drum_user_settings as loader
 from tools.noise_statistics import float_wav
@@ -24,10 +25,12 @@ def main():
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--workers', type=int, default=2)
     a = parser.parse_args(); require(1 <= a.workers <= 4, 'Invalid worker count')
-    bound = native.bindings(); own = sha256(Path(__file__)); host_hash = sha256(a.host)
+    plugin_source = sha256(Path('src/plugin/Plugin.cpp')); own = sha256(Path(__file__)); host_hash = sha256(a.host)
     report_hash = sha256(a.native_report); report = json.loads(a.native_report.read_text())
+    combined = report['kind'] == 'rmx220-drum-combo-comparison'
+    module = combos if combined else native; bound = module.bindings()
     require(report['passed'] and report['acceptance'] == ACCEPTANCE and report['source_sha256'] == bound, 'Native evidence differs')
-    matrix = json.loads((a.session / 'matrix.json').read_text()); expected = loader.recipe(matrix['stage'])
+    matrix = json.loads((a.session / 'matrix.json').read_text()); expected = combos.recipe(matrix['stage']) if combined else loader.recipe(matrix['stage'])
     cases = [{k: v for k, v in row.items() if k != 'receipt_sha256'} for row in matrix['cases']]
     require([c['name'] for c in expected] == [c['name'] for c in cases] == [c['case'] for c in report['cases']], 'Native coverage differs')
     root = new_directory(a.output); inventory = json.loads(run([a.host, 'inventory', a.plugin])); save_json(root / 'inventory.json', inventory)
@@ -43,21 +46,25 @@ def main():
 
     def one(pair):
         c, previous = pair
-        original, provenance = native.original(SimpleNamespace(session=a.session, host=a.reference_host), c)
+        original, provenance = module.original(SimpleNamespace(session=a.session, host=a.reference_host), c)
         require(all(previous[k] == value for k, value in provenance.items()), 'Original provenance differs')
         travel = (c['pitch'] - 128) * (24 / 127 if c['pitch'] >= 128 else 24 / 128)
-        values = {'Auto BPM': 0, 'Quantize': 0, 'Scene FX': 1 / 9, 'Scene enabled': 0, 'Isolate enabled': 0,
-            'Release lever': 0, 'Sample source': 0, 'Default / User settings': 1, 'Sampler level': c['level'] / 255,
+        values = {'Auto BPM': 0, 'Quantize': 0, 'Scene FX': c.get('effect', 1) / 9, 'Scene enabled': c.get('enabled', 0), 'Isolate enabled': 0,
+            'Release lever': 0, 'Sample source': 0, 'Default / User settings': c.get('user', 1), 'Sampler level': c['level'] / 255,
             'Sampler pitch travel': (travel + 24) / 48, 'Sampler mute': 0, 'Bypass': 0, 'Send/return': 0,
             'Output gain': 2 / 3, 'Input gain': 2 / 3}
+        if combined:
+            require(c['family'] == 'fx' and all(e['type'] in 'HR' for e in c['changes']), 'Wrapper fixture supports one-shots; strip/mute/delete delivery needs separate interfaces')
+            values.update({'Scene source': c['route'] / 3, 'Scene depth': c['main'] / 255, 'Scene sub parameter 1': c['amount'] / 255, 'Scene sub parameter 2': c['cutoff'] / 255})
         for label, node in zip(['Kick', 'Snare', 'Clap', 'Hi-hat'], ['Kick', 'Snare', 'Clap', 'Hihat'], strict=True):
             profile = c['settings'].get(node, {})
             values[label + ' gain'] = (6 - profile.get('GainCb', 3)) / 6
             values[label + ' decay'] = profile.get('DecayCb', 1) / 2
             values[label + ' envelope'] = profile.get('EnvelopeCb', 0)
         events = []
-        for frame in c['hits']:
-            note = 36 + list(DRUMS).index(c['drum'])
+        hits = [(e['frame'], e['value']) for e in c['changes'] if e['type'] == 'H'] if combined else [(frame, list(DRUMS).index(c['drum'])) for frame in c['hits']]
+        for frame, pad in hits:
+            note = 36 + pad
             events += [dict(frame=frame, type='midi', bytes=[0x90, note, 127]), dict(frame=frame + 32, type='midi', bytes=[0x80, note, 0])]
         plan = dict(schema_version=1, kind='audio-plugin-capture-plan', role='candidate', expected_plugin=identity,
             sample_rate=48000, bpm=120, tail_seconds=0, post_render_message_pump_ms=100,
@@ -95,12 +102,21 @@ def main():
             delivery_passed=delivery, max_wrapper_native_difference=peak, relative_wrapper_native_error=relative)
 
     with concurrent.futures.ThreadPoolExecutor(a.workers) as pool: rows = list(pool.map(one, zip(cases, report['cases'], strict=True)))
-    require(bound == native.bindings() and own == sha256(Path(__file__)) and report_hash == sha256(a.native_report)
-        and host_hash == sha256(a.host) and all(sha256(a.plugin / path) == h for path, h in binaries.items()), 'Wrapper inputs changed')
-    save_json(root / 'verification.json', dict(kind='rmx220-user-drum-wrapper-validation', passed=all(r['passed'] for r in rows),
+    if combined:
+        for index in range(0, len(cases), 2):
+            baseline, active = rows[index:index + 2]
+            reference_dry, _ = module.original(SimpleNamespace(session=a.session, host=a.reference_host), cases[index])
+            reference, _ = module.original(SimpleNamespace(session=a.session, host=a.reference_host), cases[index + 1])
+            _, rendered_dry = float_wav(root / baseline['case'] / 'audio.wav'); _, rendered = float_wav(root / active['case'] / 'audio.wav')
+            x = reference[32:].astype(float) - reference_dry[32:]; y = rendered[32:].astype(float) - rendered_dry[32:]
+            active['wet_windows'] = [dict(start=w['start'], stop=w['stop'], kind=w['kind'], score=screen(x[w['start']:w['stop']], y[w['start']:w['stop']])) for w in report['cases'][index + 1]['wet_windows']]
+            active['passed'] &= all(w['score']['passed'] for w in active['wet_windows'])
+    require(bound == module.bindings() and own == sha256(Path(__file__)) and report_hash == sha256(a.native_report)
+        and plugin_source == sha256(Path('src/plugin/Plugin.cpp')) and host_hash == sha256(a.host) and all(sha256(a.plugin / path) == h for path, h in binaries.items()), 'Wrapper inputs changed')
+    save_json(root / 'verification.json', dict(kind='rmx220-combo-drum-wrapper-validation' if combined else 'rmx220-user-drum-wrapper-validation', passed=all(r['passed'] for r in rows),
         format=inventory['format'], programs=len(rows), cases=rows, source_sha256=bound, verifier_sha256=own, native_report_sha256=report_hash,
-        host_sha256=host_hash, plugin_binaries_sha256=binaries, acceptance=ACCEPTANCE,
-        scope='Existing original-reference User drum programs through explicit AU/VST3 MIDI and normalized controls. All native reference windows, separate1e-5 delivery limits and latency32. No additional fresh Original, DAW, controller or hardware claim.'))
+        host_sha256=host_hash, plugin_source_sha256=plugin_source, plugin_binaries_sha256=binaries, acceptance=ACCEPTANCE,
+        scope='Existing original-reference drum programs (User profiles, and mixed Scene FX when declared) through explicit AU/VST3 MIDI and normalized controls. All native reference windows, separate1e-5 delivery limits and latency32. No additional fresh Original, DAW, controller or hardware claim.'))
     return 0 if all(r['passed'] for r in rows) else 1
 
 

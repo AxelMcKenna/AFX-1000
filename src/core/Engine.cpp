@@ -475,8 +475,8 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         &&sceneSettings.reverbTime[0]==1&&sceneSettings.reverbFilter[0]==2&&sceneSettings.decay==.72f;
     auto factorySceneSettings=SceneSettings{};factorySceneSettings.type=sceneSettings.type;
     const bool measuredSpiral=sr==48000&&(sceneSettings.type==3||sceneSettings.type==8)&&sceneSettings==factorySceneSettings
-        &&get(Param::UserSettings)<.5f&&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120;
-    const bool rawSpiral=sr==48000&&get(Param::UserSettings)<.5f&&((sceneSettings.type!=3&&sceneSettings.type!=8)||measuredSpiral);
+        &&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120;
+    const bool rawSpiral=sr==48000&&(get(Param::UserSettings)<.5f||sceneSettings==factorySceneSettings)&&((sceneSettings.type!=3&&sceneSettings.type!=8)||measuredSpiral);
     const bool coldSceneProfile=sceneSettings==factorySceneSettings&&(sceneSettings.type==0||sceneSettings.type==1
         ||sceneSettings.type==5||sceneSettings.type==6||sceneSettings.type==7)
         &&(sceneSettings.type==1||get(Param::SceneResonance)==0);

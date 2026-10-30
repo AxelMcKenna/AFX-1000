@@ -10,6 +10,7 @@ from types import SimpleNamespace
 
 import numpy as np
 
+from tools import rmx_drum_combos as combos
 from tools import rmx_drum_performance as performance
 from tools import rmx_drum_user_match as user
 from tools.noise_statistics import float_wav
@@ -50,6 +51,7 @@ def main():
     for report_path in a.report:
         report = json.loads(report_path.read_text()); reports[str(report_path.resolve())] = sha256(report_path)
         custom = report['kind'] == 'rmx220-drum-user-settings-comparison'
+        combined = report['kind'] == 'rmx220-drum-combo-comparison'
         # The comparison stores the capture location in Original provenance only
         # indirectly. Match the immutable matrix via its exact case names and receipt.
         original_root = a.original_root
@@ -65,8 +67,8 @@ def main():
                 matches.append((path.parent, matrix))
         require(len(matches) == 1, 'Missing/ambiguous Original matrix')
         session, matrix = matches[0]
-        module = user if custom else performance
-        cases = [{k: v for k, v in c.items() if k != 'receipt_sha256'} for c in matrix['cases']] if custom else performance.recipe(matrix['stage'])
+        module = combos if combined else user if custom else performance
+        cases = [{k: v for k, v in c.items() if k != 'receipt_sha256'} for c in matrix['cases']] if custom or combined else performance.recipe(matrix['stage'])
         for case, previous in zip(cases, report['cases'], strict=True):
             original, provenance = module.original(SimpleNamespace(session=session, host=a.host), case)
             require(all(previous[k] == value for k, value in provenance.items()), 'Original provenance differs')
@@ -84,12 +86,29 @@ def main():
                         left, right = new_channel[key], old_channel[key]
                         require((left is None and right is None) or (left is not None and right is not None and abs(left - right) <= 1e-11 * max(1, abs(right))), 'Independent arithmetic differs')
                 windows.append(dict(start=start, stop=stop, kind=window['kind'], score=score))
-            require(all(w['score']['passed'] for w in windows) == previous['passed'], 'Aggregate verdict differs')
+            wet_windows = []
+            if previous.get('wet_windows'):
+                baseline = next(row for row in report['cases'] if row['case'] == previous['baseline'])
+                baseline_case = next(c for c in cases if c['name'] == baseline['case'])
+                reference_dry, _ = module.original(SimpleNamespace(session=session, host=a.host), baseline_case)
+                dry_rate, candidate_dry = read_retained(report_path.parent / (baseline['case'] + '.wav'), baseline['candidate_sha256'])
+                require(dry_rate == rate, 'Wet baseline rate differs')
+                reference_wet = x.astype(float) - reference_dry[32:]
+                candidate_wet = y.astype(float) - candidate_dry[32:]
+                for window in previous['wet_windows']:
+                    start, stop = window['start'], window['stop']; score = independent(reference_wet[start:stop], candidate_wet[start:stop])
+                    require(score['passed'] == window['score']['passed'], 'Independent wet verdict differs')
+                    for new_channel, old_channel in zip(score['channels'], window['score']['channels'], strict=True):
+                        for key in ['relative_rms_error', 'absolute_error_rms']:
+                            left, right = new_channel[key], old_channel[key]
+                            require((left is None and right is None) or (left is not None and right is not None and abs(left - right) <= 1e-11 * max(1, abs(right))), 'Independent wet arithmetic differs')
+                    wet_windows.append(dict(start=start, stop=stop, kind=window['kind'], score=score))
+            require(all(w['score']['passed'] for w in windows + wet_windows) == previous['passed'], 'Aggregate verdict differs')
             negatives = {'silence': np.zeros_like(x), 'polarity': -x, 'right-channel-silence': np.column_stack((x[:, 0], np.zeros(len(x)))),
                 '32-frame-shift': np.vstack((np.zeros((32, 2)), x[:-32])), '2-percent-gain': x.astype(float) * 1.02}
             rejected = {name: not independent(x, audio)['passed'] for name, audio in negatives.items()}
             require(all(rejected.values()), 'Independent gate accepted a negative control')
-            rows.append(dict(case=case['name'], comparison_sha256=reports[str(report_path.resolve())], passed=previous['passed'], windows=windows,
+            rows.append(dict(case=case['name'], comparison_sha256=reports[str(report_path.resolve())], passed=previous['passed'], windows=windows, wet_windows=wet_windows,
                 negative_controls_rejected=rejected, complete_sanitizer_wav_byte_identity=True, original_receipt_sha256=provenance['receipt_sha256']))
             print('AUDITED', case['name'], previous['passed'], flush=True)
     require(all(sha256(Path(path)) == h for path, h in reports.items()), 'Comparison changed during audit')

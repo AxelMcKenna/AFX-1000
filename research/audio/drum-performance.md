@@ -1,5 +1,7 @@
 # Drum profiles and performance timing
 
+Follow-up: [combined drum performance](drum-combinations.md) adds204 programs for multi-drum patterns, custom-profile rolls/overdubs and drums through active Scene effects. The earlier504-program checkpoint below retains its original scope and evidence.
+
 30 October 2026. This campaign uses the locally installed **RMX-1000 Plug-in 2.2.0** as the reference. The actual production Engine now passes **504 reference programs** for custom drum synthesis and Default drum performance at stereo48k. Optimized and AddressSanitizer/UndefinedBehaviorSanitizer renders have identical complete WAV bytes. These are fixed-alignment waveform checks, not a whole-device perceptual similarity percentage. The float fixtures and plug-ins preserve above-unity reference peaks; the native app retains its existing output-protection policy.
 
 | Qualified native scope | Complete programs | Boundaries |
