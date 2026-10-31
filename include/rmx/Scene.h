@@ -30,6 +30,10 @@ public:
     void prepare(double sampleRate);
     void reset() noexcept;
     void configure(const SceneSettings&) noexcept;
+    void setNoiseSidechain(const std::array<float,32>& detector,float threshold,bool available) noexcept {
+        noiseSidechainAvailable=available;
+        if(available){noiseSidechainDetector=detector;noiseSidechainThreshold=threshold;}
+    }
     std::span<Stereo> loanableEchoStorage() noexcept {return echo.loanableStorage();}
     std::span<Stereo> loanableSpiralStorage() noexcept {return spiral.loanableStorage();}
     void setStorageLoaned(bool echoStorage,bool spiralStorage) noexcept {
@@ -53,6 +57,9 @@ private:
     std::array<float,2> noiseMotionEdges{};
     unsigned noiseMotionCursor{},noiseMotionAge{};
     int noiseEffectiveMain{};
+    std::array<float,32> noiseSidechainDetector{};
+    float noiseSidechainThreshold{};
+    bool noiseSidechainAvailable{};
     CalibratedFilterEcho calibratedFilters;
     SceneSettings settings;
     double rate{48000},pitchPhase{};uint64_t frame{};

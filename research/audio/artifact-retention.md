@@ -6,6 +6,8 @@ The bounded Noise and drum replay tools use one case at a time, enforce a512MiB 
 
 The modulation runner additionally deletes native audio before rendering ASAN, then deletes ASAN before the Original capture. Its extended comparisons retain only one whole WAV at a time. Read-only internal-buffer diagnostics use short temporary captures and keep numerical errors, correlations and timing fits after deleting their private audio intermediates.
 
+The Sidechain runner keeps one synthetic input and one output WAV at a time, within the same512MiB budget, and checks dry-stem subtraction separately. Retain failed detector hypotheses and inconclusive audio verdicts alongside successful control and delivery checks. Its separate reference-host build changes only an input-duration guard; preserve the old host until the byte-identity bridge is verified.
+
 Use:
 
 - `uv run --locked python -m tools.rmx_noise_stream --help`

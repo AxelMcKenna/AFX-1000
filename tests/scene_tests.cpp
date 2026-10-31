@@ -13,6 +13,30 @@ float sine(double frequency,size_t i) {return .2f*static_cast<float>(std::sin(2*
 double energy(Stereo x) {return x.l*x.l+x.r*x.r;}
 int main() {try {
     {
+        NoiseModulator motion;std::array<float,32> detector{};detector.fill(1);
+        const auto first=motion.sidechain(43,detector,.05f);
+        require(first.back()>.15f&&first.back()<.16f,"Sidechain incorrectly reused deterministic-wave depth saturation");
+        detector.fill(0);float previous=first.back();
+        for(unsigned block=0;block<4000;++block){
+            const auto& values=motion.sidechain(43,detector,.05f);
+            require(values.back()<=previous&&std::isfinite(values.back()),"Sidechain silence failed to release");
+            previous=values.back();
+        }
+        require(previous==0,"Sidechain retained denormal gate history");
+        motion.reset();detector.fill(1);
+        require(motion.sidechain(43,detector,.05f)==first,"Sidechain reset retained prior envelope history");
+        CalibratedGateDrive plain,observed;plain.reset();observed.reset();
+        plain.setControls({32,217,69},true);observed.setControls({32,217,69},true);
+        std::array<Stereo,32> input{},a{},b{};std::array<float,32> peaks{};
+        for(unsigned block=0;block<400;++block){
+            for(unsigned i=0;i<32;++i)input[i]={sine(137,block*32+i),sine(7127,block*32+i)};
+            plain.process(input,a);observed.process(input,b,peaks);
+            for(unsigned i=0;i<32;++i)require(a[i].l==b[i].l&&a[i].r==b[i].r,"Detector extraction changed Gate/Drive audio");
+            require(plain.lowThreshold()==observed.lowThreshold(),"Detector extraction changed threshold history");
+        }
+        require(*std::max_element(peaks.begin(),peaks.end())>.1f,"Low-frequency Sidechain detector lost its source");
+    }
+    {
         // Sweep every static width/control cell, including the high-frequency
         // edge where coefficient errors can destabilize the feedback filter.
         for(int width=0;width<3;++width)for(int raw=0;raw<256;++raw){

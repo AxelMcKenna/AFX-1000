@@ -61,8 +61,14 @@ def main():
                 require(correlation==case['stereo_correlation_passed'],'Stereo verdict differs')
                 qualified=ov==pv=='pass' and correlation and all(v=='pass' for v in stability.values()) and all(v=='pass' for v in thirds.values())
                 require(qualified==case['passed'],'Aggregate qualification differs')
-                require(verdict(a,ta,a*10**.3,ta*10**.3)[0]=='different' and phase(x,tx,x[:,::-1],tx[:,::-1])[0]=='different','A negative control passed')
-                rows.append(dict(case=case['name'],qualified=qualified,overall=ov,profile=pv,profile_thirds=thirds,stationarity=stability,maximum_profile_arithmetic_difference=max(errors),negative_controls_rejected=True,summary_sha256=sha256(power_path),report_sha256=sources[str(path)]))
+                require(verdict(a,ta,a*10**.3,ta*10**.3)[0]=='different','A gain negative control passed')
+                inversion=phase(x,tx,x[:,::-1],tx[:,::-1])[0]
+                if report['kind']=='bounded-noise-sidechain-audio-validation':
+                    require(phase(x,tx,x*10**.3,tx*10**.3)[0]=='different' and case['negative_controls']['profile_gain3db']=='different','A profile gain negative passed')
+                    require(inversion==case['negative_controls']['stimulus_phase_inversion'],'Phase reversal diagnostic differs')
+                else:require(inversion=='different','A control inversion negative passed')
+                gates=['gain3db','profile_gain3db'] if report['kind']=='bounded-noise-sidechain-audio-validation' else ['gain3db','control_polarity_inversion']
+                rows.append(dict(case=case['name'],qualified=qualified,overall=ov,profile=pv,profile_thirds=thirds,stationarity=stability,maximum_profile_arithmetic_difference=max(errors),negative_controls_rejected=True,required_negative_control_gates=gates,phase_reversal_diagnostic=inversion,summary_sha256=sha256(power_path),report_sha256=sources[str(path)]))
     save_json(args.output,dict(kind='independent-noise-motion-power-audit',verification_passed=True,cases=rows,report_sha256=sources,auditor_sha256=sha256(Path(__file__)),shared_auditor_sha256=sha256(Path('tools/rmx_noise_power_audit.py')),
         scope='Separate float64 log differences, sums/einsum moments and HAC variance; every overall and profile interval, early/late verdict, stereo gate and aggregate qualification. Confirms retained arithmetic and summary binding after raw audio cleanup; no listening or whole-device percentage.'))
 

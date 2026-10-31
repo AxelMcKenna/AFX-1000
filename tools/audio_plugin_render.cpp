@@ -200,7 +200,7 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
     require(input.hasFileExtension("wav"), "Use an uncompressed WAV probe for reference capture");
     std::unique_ptr<juce::AudioFormatReader> reader(formats.createReaderFor(input));
     require(reader != nullptr && reader->numChannels == 2 && reader->lengthInSamples > 0
-        && reader->lengthInSamples <= reader->sampleRate * 180, "Input must be a stereo audio file of at most 180 seconds");
+        && reader->lengthInSamples <= reader->sampleRate * 1204, "Input must be a stereo audio file of at most 1204 seconds");
     const auto rate = reader->sampleRate;
     require(number(field(plan, "sample_rate"), "sample rate") == rate, "Plan/input rates differ; no implicit resampling");
     const int64_t total = reader->lengthInSamples + static_cast<int64_t>(std::llround(rate * tail));

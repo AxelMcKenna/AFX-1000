@@ -35,6 +35,7 @@ void SceneProcessor::reset() noexcept {
     mainFilter.reset();echoFilter.reset();noiseTilt.reset();noisePolish.reset();calibratedNoise.reset();calibratedFilters.reset();pitchPhase=0;frame=0;random=0x12345678;
     noiseCutoff=90;noiseModGain=1;noiseReturn={};noiseAge=0;
     noiseMotion.reset();noiseMotionEdges={};noiseMotionCursor=noiseMotionAge=0;noiseEffectiveMain=0;
+    noiseSidechainDetector={};noiseSidechainThreshold=0;noiseSidechainAvailable=false;
     previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;echoReadGain=0;sharedStartup=false;
 }
 void SceneProcessor::configure(const SceneSettings& next) noexcept {
@@ -204,14 +205,17 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
         if(measuredNoise) {
             const int raw=static_cast<int>(std::floor(macro*255+1.e-4f));
             const int rawSub2=static_cast<int>(std::floor(sub2*255+1.e-4f));
-            const bool moving=!resonance&&rawSub2>0&&settings.waveform[2]<3;
+            const bool sidechainMotion=settings.waveform[2]==4&&noiseSidechainAvailable;
+            const bool moving=!resonance&&rawSub2>0&&(settings.waveform[2]<3||sidechainMotion);
             bool motionReady=false;
             // The Original starts its Noise control stream one common block
             // after activation; output then retains the shared32-frame delay.
             if(noiseMotionAge<32){if(enabled>0)++noiseMotionAge;}
             else{
                 if(noiseMotionCursor==0){
-                    const auto& controls=noiseMotion.generate(rawSub2,settings.waveform[2],resonance);
+                    const auto& controls=sidechainMotion&&!resonance
+                        ?noiseMotion.sidechain(rawSub2,noiseSidechainDetector,noiseSidechainThreshold)
+                        :noiseMotion.generate(rawSub2,settings.waveform[2],resonance);
                     noiseMotionEdges={controls[0],controls[16]};
                 }
                 if((noiseMotionCursor&15u)==0)

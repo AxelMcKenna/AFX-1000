@@ -12,7 +12,8 @@ public:
         for(size_t i=0;i<3;++i)controls[2-i]=std::min(lowMidHigh[i],255u);
         enabled=active;
     }
-    void process(std::span<const Stereo,32> input,std::span<Stereo,32> output) noexcept;
+    void process(std::span<const Stereo,32> input,std::span<Stereo,32> output,std::span<float> lowDetector={}) noexcept;
+    float lowThreshold() const noexcept { return bands[2].level.target; }
 private:
     struct Biquad {
         std::array<float,5> c{};std::array<float,4> state{};

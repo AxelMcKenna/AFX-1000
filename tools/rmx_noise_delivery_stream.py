@@ -16,18 +16,26 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['host','renderer','noise-report','output']:p.add_argument('--'+key,type=Path,required=True)
     p.add_argument('--extra-noise-report',type=Path,action='append',default=[])
+    p.add_argument('--input-stimulus',choices=['low','asymmetric','steps'],help='Use a declared synthetic input for delivery checks')
     p.add_argument('--all-cases',action='store_true',help='Check transport delivery even when Original fidelity remains inconclusive')
     p.add_argument('--plugin',type=Path,action='append',required=True);a=p.parse_args()
     require(not a.output.exists(),'Report already exists');source=sha256(Path('src/plugin/Plugin.cpp'));own=sha256(Path(__file__));report_hash=sha256(a.noise_report)
     extra_hashes={str(path):sha256(path) for path in a.extra_noise_report};qualified_cases={}
     for path in [a.noise_report]+a.extra_noise_report:
-        qualified=json.loads(path.read_text());require(qualified['kind'] in ['rmx220-bounded-user-noise-statistical-validation','bounded-noise-motion-validation'],'Wrong native Noise report')
+        qualified=json.loads(path.read_text());require(qualified['kind'] in ['rmx220-bounded-user-noise-statistical-validation','bounded-noise-motion-validation','bounded-noise-sidechain-audio-validation'],'Wrong native Noise report')
         for c in qualified['cases']:
             if c['passed'] or a.all_cases:qualified_cases[c['name']]=c
     cases=list(qualified_cases.values());require(cases,'Expected qualified Noise presets')
-    cases=[noise.recipe()[0]]+cases;rows=[];peak=0
+    cases=[noise.recipe()[0]]+cases;rows=[];peak=0;stimulus_source=None
     with tempfile.TemporaryDirectory(prefix='rmx-bounded-noise-delivery-',dir='/private/tmp') as directory:
-        root=Path(directory);space=RenderSpace(root);write_wav(root/'silence.wav',48000,np.zeros(96000))
+        root=Path(directory);space=RenderSpace(root)
+        if a.input_stimulus:
+            from tools.rmx_noise_sidechain_controls import stimulus
+            stimulus_source=sha256(Path('tools/rmx_noise_sidechain_controls.py'))
+            input_samples=stimulus(a.input_stimulus).reshape(-1)
+        else:input_samples=np.zeros(96000)
+        write_wav(root/'silence.wav',48000,input_samples)
+        input_hash=sha256(root/'silence.wav')
         for plugin in a.plugin:
             inv=json.loads(space.run([a.host,'inventory',plugin]));identity={k:inv[k] for k in ['name','manufacturer','version']}
             require(identity==dict(name='RMX',manufacturer='Axel McKenna',version='0.1.0'),'Wrong project plug-in')
@@ -37,7 +45,12 @@ def main():
             for old in cases:
                 c=old|dict(frames=144000)
                 with tempfile.TemporaryDirectory(prefix='case-',dir=root) as d:
-                    case=Path(d);program=case/'native.tsv';program.write_text(noise.schedule(c));wave=case/'native.wav'
+                    case=Path(d);program=case/'native.tsv';schedule=noise.schedule(c)
+                    if a.input_stimulus:
+                        lines=schedule.splitlines()
+                        if lines[0].endswith(' 1'):lines[1]+=' 0 0 0 0'
+                        lines[0]='RMX_NOISE_USER 3';schedule='\n'.join(lines)+'\n'
+                    program.write_text(schedule);wave=case/'native.wav'
                     space.run([a.renderer,root/'silence.wav',wave,program])
                     controls={'Auto BPM':0,'Quantize':0,'Scene FX':2/9,'Scene enabled':0,'Isolate enabled':0,'Release lever':0,
                         'Default / User settings':c['user'],'Scene source':0,'Scene depth':c['main']/255,
@@ -65,9 +78,10 @@ def main():
                         reported_latency=receipt['reported_latency_frames'],native_sha256=sha256(wave),wrapper_sha256=receipt['output_sha256'],receipt=receipt,receipt_sha256=sha256(output/'receipt.json')))
                     peak=max(peak,space.peak);print('DELIVERY',inv['format'],c['name'],passed,maximum,relative,flush=True)
     require(not root.exists() and source==sha256(Path('src/plugin/Plugin.cpp')) and own==sha256(Path(__file__)) and report_hash==sha256(a.noise_report)
-        and all(sha256(Path(path))==digest for path,digest in extra_hashes.items()),'Delivery inputs changed/audio retained')
+        and all(sha256(Path(path))==digest for path,digest in extra_hashes.items())
+        and (stimulus_source is None or stimulus_source==sha256(Path('tools/rmx_noise_sidechain_controls.py'))),'Delivery inputs changed/audio retained')
     save_json(a.output,dict(kind='bounded-noise-project-wrapper-delivery',passed=all(r['passed'] for r in rows),cases=rows,
-        native_noise_report_sha256=report_hash,additional_noise_reports_sha256=extra_hashes,all_declared_cases_requested=a.all_cases,plugin_source_sha256=source,verifier_sha256=own,peak_temporary_bytes=peak,raw_audio_retained=False,
+        native_noise_report_sha256=report_hash,additional_noise_reports_sha256=extra_hashes,all_declared_cases_requested=a.all_cases,input_stimulus=a.input_stimulus,input_sha256=input_hash,input_stimulus_source_sha256=stimulus_source,plugin_source_sha256=source,verifier_sha256=own,peak_temporary_bytes=peak,raw_audio_retained=False,
         scope=('Default and all declared presets' if a.all_cases else 'Default and all qualified presets')+' from the supplied Noise reports through explicit AU/VST3 bundles. Three-second full output vs actual native Engine; separate1e-5 delivery gates and latency32. Source-report Original qualification is retained separately from delivery. No new Original fidelity, DAW/controller or hardware claim.'))
 
 

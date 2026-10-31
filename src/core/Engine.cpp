@@ -351,7 +351,10 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
         const auto pads=source.legacy*gain+drums[i]*source.mute;
         gateSource[i]=routed*source.isoInput+pads*source.isoPad;
     }
-    factoryGate.process(gateSource,gateOutput);
+    std::array<float,32> noiseDetector{};
+    const bool noiseSidechain=type==2&&get(Param::UserSettings)>.5f&&get(Param::NoiseWave)==4&&get(Param::NoiseModMode)==0;
+    factoryGate.process(gateSource,gateOutput,noiseSidechain?std::span<float>(noiseDetector):std::span<float>{});
+    sceneProcessor.setNoiseSidechain(noiseDetector,factoryGate.lowThreshold(),noiseSidechain);
     std::array<Stereo,32> transOutput{};factoryTrans.process(gateSource,transOutput);
     std::array<Stereo,32> cutOutput{};factoryCut.process(gateSource,cutOutput);
     const auto& factoryIsolated=useFactoryCut?cutOutput:useFactoryTrans?transOutput:gateOutput;

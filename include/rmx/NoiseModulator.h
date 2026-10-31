@@ -9,6 +9,31 @@ namespace rmx {
 class NoiseModulator {
 public:
     void reset() noexcept { *this=NoiseModulator{}; }
+    const std::array<float,32>& sidechain(int raw,const std::array<float,32>& detector,float target) noexcept {
+        raw=std::clamp(raw,0,255);
+        if(!initialized){smoothed=raw;initialized=true;}
+        for(unsigned i=0;i<32;++i){
+            const int desired=std::max(0,raw-3);
+            smoothed+=smoothed<desired?1:smoothed>desired?-1:0;
+            smoothed=std::clamp(smoothed,0,252);
+        }
+        if(target!=thresholdTarget){
+            thresholdStep=(target-thresholdTarget)*.00625f;
+            threshold=thresholdTarget;thresholdTarget=target;thresholdBlocks=5;
+        }
+        const float amount=smoothed*(1.f/252);
+        for(unsigned i=0;i<32;++i){
+            threshold+=thresholdStep;
+            const float boundary=threshold*.41356974840164185f;
+            envelope=envelope<detector[i]?(detector[i]-envelope)+envelope:envelope*.9996678233146667f;
+            gate=boundary<envelope?(gate+.0024430807679891586f)-gate*.0024430807679891586f:gate*.9996205568313599f;
+            output[i]=gate*amount;
+        }
+        if(thresholdBlocks&&!--thresholdBlocks){threshold=target;thresholdStep=0;}
+        if(envelope<1e-10f)envelope=0;
+        if(gate<1e-10f)gate=0;
+        return output;
+    }
     const std::array<float,32>& generate(int raw,int wave,bool resonance=false) noexcept {
         raw=std::clamp(raw,0,255);
         if(!initialized){smoothed=raw;initialized=true;}
@@ -51,6 +76,8 @@ public:
 private:
     std::array<float,32> output{};
     float phase{},period{9600},depth{},randomTarget{},randomStep{};
+    float threshold{.05f},thresholdTarget{.05f},thresholdStep{},envelope{},gate{1};
+    unsigned thresholdBlocks{};
     uint32_t counter{},random{0x6b8b4567};
     int smoothed{};
     unsigned remaining{};

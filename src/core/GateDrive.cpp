@@ -120,10 +120,11 @@ void CalibratedGateDrive::processBand(unsigned index,std::span<const Stereo,32> 
         if(changeSide){b.side=-b.side;b.gate=1;b.envelope=0;}
     }
 
-void CalibratedGateDrive::process(std::span<const Stereo,32> input,std::span<Stereo,32> output) noexcept {
+void CalibratedGateDrive::process(std::span<const Stereo,32> input,std::span<Stereo,32> output,std::span<float> lowDetector) noexcept {
         std::array<Stereo,32> low{},middle{},high{},above{};
         lpLow.process(input,low);hpLow.process(input,above);lpHigh.process(above,middle);hpHigh.process(input,high);
         bands[0].level.update(high);bands[1].level.update(middle);bands[2].level.update(low);
+        if(lowDetector.size()==32)for(size_t i=0;i<32;++i)lowDetector[i]=std::max(std::abs(low[i].l),std::abs(low[i].r));
         if(selected){if(initializing){initializeBands();initializing=false;}processBand(0,high,high);processBand(1,middle,middle);processBand(2,low,low);}
         if(enabled!=selected){step=-.00625f;phase=1;}else if(phase==2)step=.00625f;
         for(size_t i=0;i<32;++i){

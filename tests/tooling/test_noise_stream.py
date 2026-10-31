@@ -13,6 +13,19 @@ from tools.rmx_noise_user import xml
 
 
 class NoiseStreamTests(unittest.TestCase):
+    def test_sidechain_dry_subtraction_detects_one_sample_misalignment(self):
+        from tools.rmx_noise_sidechain_controls import stimulus
+        from tools.rmx_noise_sidechain_stream import residual
+        from tools.reference_audio import write_wav
+        pattern=stimulus('asymmetric');dry=np.tile(pattern,(2,1))
+        with tempfile.TemporaryDirectory() as directory:
+            for delay in [32,31]:
+                shifted=np.zeros_like(dry);shifted[delay:]=dry[:-delay]
+                path=Path(directory)/f'dry-{delay}.wav';write_wav(path,48000,shifted.reshape(-1))
+                error=np.max(np.abs(residual(path,pattern)))
+                if delay==32:self.assertEqual(error,0)
+                else:self.assertGreater(error,.1)
+
     def test_motion_screen_rejects_wrong_gain_and_inverted_control_profile(self):
         from tools.noise_motion_statistics import measure
         levels=np.broadcast_to(np.asarray([1.,2.,4.,8.])[None,:,None],(30,4,2)).copy()
