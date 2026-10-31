@@ -35,6 +35,12 @@ int main(){try{
             const rmx::Event hit{rmx::EventType::Trigger,static_cast<uint8_t>(block%4),.5f,13,0,0};
             event.process(nullptr,nullptr,a.data(),b.data(),128,{},std::span{&hit,1});
         }
+        event.enqueue({rmx::EventType::RollStart,0});
+        for(unsigned block=0;block<400;++block){
+            if(block==200){event.params.set(rmx::Param::XRoll,2);event.enqueue({rmx::EventType::RollPosition});}
+            if(block==300)event.enqueue({rmx::EventType::RollStop});
+            event.process(nullptr,nullptr,a.data(),b.data(),128);
+        }
         const rmx::Event panic{rmx::EventType::Panic,0,1,17};event.process(nullptr,nullptr,a.data(),b.data(),128,{},std::span{&panic,1});
         for(size_t i=17;i<128;++i)require(a[i]==0&&b[i]==0,"Panic left a native factory voice playing");
         event.reset();require(allocations==0&&arena.allocations()==before,"Factory drum callback/event/reset allocated");tracking=false;
@@ -136,6 +142,25 @@ int main(){try{
         clock.advance(120);require(clock.currentBeat()==.02,"Pending Auto correction was discarded");
         clock.beginCallback(true,.012,32);clock.advance(120);
         require(clock.currentBeat()==.02,"Auto callback overwrote its pending correction");
+    }
+    {
+        rmx::FactoryRollClock clock;clock.beginCallback(true,0,32);clock.advance(120);
+        clock.beginCallback(true,8,32);require(clock.currentBeat()==8,"Forward host jump did not relocate the roll timer");clock.advance(120);
+        clock.beginCallback(true,2,32);require(clock.currentBeat()==2,"Backward host jump did not relocate the roll timer");
+        clock.beginCallback(false,2,32);const auto paused=clock.currentBeat();clock.advance(120);
+        require(clock.currentBeat()>paused,"Stopped host froze the independent roll timer");
+    }
+    {
+        // A quiet, low-pitched linear snare tail crosses its silence threshold
+        // during the retrigger fade. The scheduled second attack must survive.
+        rmx::drums::Snare snare;snare.setProfile(3,1,true);snare.setControls(17,39);snare.beginProcessing();snare.trigger();
+        std::array<float,32> block{};double restartedEnergy=0;
+        for(unsigned i=0;i<500;++i){
+            if(i==375)snare.trigger();
+            snare.generateBlock(block);
+            if(i>=390&&i<480)for(float value:block)restartedEnergy+=value*value;
+        }
+        require(restartedEnergy>1e-4,"A dying snare tail cancelled its scheduled retrigger");
     }
     for(unsigned action=0;action<3;++action){
         rmx::Engine recording,control;setup(recording);setup(control);recording.params.set(rmx::Param::Overdub,1);

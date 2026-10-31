@@ -127,14 +127,20 @@ void Engine::event(Event e) noexcept {
         // Hardware one-shots are immediate, including when QUANTIZE is on.
         case EventType::Trigger:
             set(Param::XSource,0);
+            if(get(Param::Overdub)>.5f&&factorySequenceEligible()&&factorySequence.stripTouched())break;
             if(frame>0&&factoryRollEligible()&&(e.source==255||e.source==0))pendingDrumCue.selectPad=static_cast<uint8_t>(e.pad%4+1);
             hit(e.pad,e.velocity,e.bank==255?-1:e.bank,e.source==255?-1:e.source);break;
         case EventType::SelectPad:
             selectedPad=e.pad%4;set(Param::XSource,0);
             if(frame>0&&factoryRollEligible()&&(e.source==255||e.source==0))pendingDrumCue.selectPad=static_cast<uint8_t>(selectedPad+1);
             break;
-        case EventType::RollPosition: pendingDrumCue.rollPosition=true;break;
+        case EventType::RollPosition:
+            pendingDrumCue.rollPosition=true;pendingDrumCue.rollBeat=static_cast<uint8_t>(xPadBeatChoice(p,get(Param::XRoll)));break;
         case EventType::RollStart: {
+            if(get(Param::Overdub)>.5f&&factorySequenceEligible()){
+                rollPad=-1;pendingDrumCue.rollAction=3;pendingDrumCue.rollPad=e.pad%4;
+                pendingDrumCue.rollBeat=static_cast<uint8_t>(xPadBeatChoice(p,get(Param::XRoll)));break;
+            }
             if(factoryRollEligible()){
                 rollPad=-1;pendingDrumCue.rollAction=1;pendingDrumCue.rollPad=e.pad%4;
                 pendingDrumCue.rollBeat=static_cast<uint8_t>(xPadBeatChoice(p,get(Param::XRoll)));break;
@@ -276,9 +282,13 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
         factorySequence.record(cue.record,cue.velocity,factoryRoll.currentBeat());
         if(cue.control&4)factoryRoll.setQuantize((cue.control&8)!=0);
         if(cue.control&1)factoryRoll.setHold((cue.control&2)!=0);
-        if(cue.rollPosition&&factoryRoll.position())factoryDrums.trigger(factoryRoll.instrument());
+        if(cue.rollPosition){
+            factorySequence.stripDivision(cue.rollBeat);
+            if(factoryRoll.position())factoryDrums.trigger(factoryRoll.instrument());
+        }
         if(cue.selectPad)factoryRoll.select(cue.selectPad-1);
-        if(cue.rollAction==2)factoryRoll.release();
+        if(cue.rollAction==2){factoryRoll.release();factorySequence.strip(cue.rollBeat,false);}
+        else if(cue.rollAction==3)factorySequence.strip(cue.rollBeat,true);
         else if(cue.rollAction==1&&factoryRoll.start(cue.rollPad,xPadBeatValues[cue.rollBeat]))factoryDrums.trigger(cue.rollPad);
         for(unsigned pad=0;pad<4;++pad){
             if(cue.stop&(1u<<pad))factoryDrums.stop(pad);
@@ -308,7 +318,7 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
                                 CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls,CalibratedSpiral::Controls spiralControls) noexcept {
     std::array<Stereo,32> drums{},selected{},generated{},discard{},spiralSource{};
     sceneProcessor.setStorageLoaned(measuredSpiral,rawSpiral);factorySpiral.setStorageState(measuredSpiral,rawSpiral);
-    if(factoryRoll.advance(routingCollected[0].bpm)&&factoryRollPlaying)factoryDrums.trigger(factoryRoll.instrument());
+    if(factoryRoll.advance(routingCollected[0].bpm))factoryDrums.trigger(factoryRoll.instrument());
     factoryDrums.setMuteMask(factorySequence.muteMask());
     factorySequence.advance(factoryRoll.currentBeat(),factoryRollPlaying,[&](unsigned pad,float velocity){factoryDrums.trigger(pad,velocity);});
     factoryDrums.generateBlock(drums);
@@ -504,7 +514,9 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     factoryReleaseEnabled=measuredRelease;
     if(sr==48000)factoryRelease.setControls(static_cast<unsigned>(get(Param::ReleaseType)),static_cast<unsigned>(std::clamp(static_cast<int>(get(Param::ReleaseAmount)*3.f),0,3))*85u,factoryReleaseEnabled);
     factoryRollPlaying=transport.playing;
-    if(sr==48000)factoryRoll.beginCallback(transport.synced&&std::isfinite(transport.beat),transport.beat,frames);
+    // The reference keeps its roll timer running at the last BPM when host
+    // playback stops, then relocates to host PPQ when playback resumes.
+    if(sr==48000)factoryRoll.beginCallback(transport.synced&&transport.playing&&std::isfinite(transport.beat),transport.beat,frames);
     factoryRoll.setDivision(xPadDivision(p));
     if(!factoryRollEligible()){
         if(factoryRoll.active()){
@@ -525,7 +537,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     if(sr==48000){
         const bool nextSequence=overdub&&factorySequenceEligible();
         if(nextSequence!=factoryPreviousSequence){pendingDrumCue.control|=static_cast<uint8_t>(16|(nextSequence?32:0));factoryPreviousSequence=nextSequence;}
-        const bool hold=get(Param::XHold)>.5f,quantize=get(Param::Quantize)>.5f;
+        const bool hold=get(Param::XHold)>.5f&&!overdub,quantize=get(Param::Quantize)>.5f;
         if(hold!=factoryPreviousHold){pendingDrumCue.control|=static_cast<uint8_t>(1|(hold?2:0));factoryPreviousHold=hold;}
         if(quantize!=factoryPreviousQuantize){pendingDrumCue.control|=static_cast<uint8_t>(4|(quantize?8:0));factoryPreviousQuantize=quantize;}
     }

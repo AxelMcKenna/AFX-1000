@@ -65,7 +65,7 @@ def capture(args):
     return 0
 
 
-def checked(directory,c,*,cold_kick=False,plan_builder=plan_for):
+def checked(directory,c,*,cold_kick=False,plan_builder=plan_for,readback_for=None):
     # The original ignores a kick press before its first processing callback.
     # This measured control hypothesis must be explicitly selected by the caller;
     # the original discovery/first-prediction contract remains strict by default.
@@ -78,10 +78,17 @@ def checked(directory,c,*,cold_kick=False,plan_builder=plan_for):
                        (folder/'state-before.bin','initial_state_sha256'),(folder/'state-after.bin','final_state_sha256'),
                        (folder/'parameter-log.json','parameter_log_sha256'),(folder/'inventory-after.json','final_inventory_sha256')]:
         require(sha256(path) == receipt[field],'Modified capture artifact')
-    log = json.loads((folder/'parameter-log.json').read_text())['entries']; requested = [p | dict(frame=-1) for p in plan['parameters']] + plan['events']
+    log = json.loads((folder/'parameter-log.json').read_text())['entries']; requested = [p | dict(frame=-1) for p in plan['parameters']] + [e for e in plan['events'] if e['type'] == 'parameter']
+    require(all(e['type'] in ['parameter', 'transport'] for e in plan['events']), 'Unsupported reference event')
+    transport = [e for e in plan['events'] if e['type'] == 'transport']
+    if transport:
+        transport_path = folder/'transport-log.json'
+        require(receipt.get('explicit_transport') and sha256(transport_path) == receipt['transport_log_sha256'], 'Transport log binding differs')
+        require(json.loads(transport_path.read_text()) == dict(kind='explicit-transport-event-log', entries=transport), 'Transport delivery differs')
     require(len(log) == len(requested),'Unexpected drum parameter log length'); final = parameters(c)
     for req,actual in zip(requested,log):
         expected = 0 if cold_kick and req['frame']==0 and req['name']=='KickButton' and req['value']==1 else req['value']
+        if readback_for is not None: expected = readback_for(req, expected)
         require(all(actual[k] == req[k] for k in ('frame','name','index','id')) and np.float32(actual['requested_value']) == np.float32(req['value'])
                 and abs(actual['immediate_readback']-float(np.float32(expected))) <= 1e-14,'Drum immediate readback differs')
         final[req['name']] = expected

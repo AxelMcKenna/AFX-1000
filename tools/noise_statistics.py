@@ -94,6 +94,23 @@ def stereo_correlation(samples):
 def measure(reference, candidate, rate, band_margin=.5, level_margin=.1):
     a, ta = powers(reference, rate)
     b, tb = powers(candidate, rate)
+    return measure_powers(a, ta, b, tb, rate, stereo_correlation(reference),
+                          stereo_correlation(candidate), band_margin, level_margin)
+
+
+def measure_powers(a, ta, b, tb, rate, reference_correlation, candidate_correlation,
+                   band_margin=.5, level_margin=.1):
+    """Apply the same screen to retained two-second power summaries.
+
+    This permits one temporary render at a time without retaining long WAVs.
+    The band powers, total powers and correlation are sufficient for this
+    stationary screen; they do not preserve transient or waveform information.
+    """
+    for bands, total in [(a, ta), (b, tb)]:
+        if bands.shape != (len(total), len(CENTRES), 2) or total.shape != (len(total), 2) or len(total) < 20:
+            raise ValueError('Invalid power summary extent')
+        if not np.isfinite(bands).all() or not np.isfinite(total).all() or np.any(bands < 0) or np.any(total < 0):
+            raise ValueError('Invalid power summary values')
     if min(float(np.min(ta.mean(axis=0))), float(np.min(tb.mean(axis=0)))) <= 1e-20:
         raise ValueError('Both channels must contain non-silent noise')
     delta, half, passed = interval(a, b, band_margin)
@@ -119,8 +136,8 @@ def measure(reference, candidate, rate, band_margin=.5, level_margin=.1):
                 'equivalence_screen_passed': bool(level_pass[ch])} for ch, channel in enumerate(('left', 'right'))],
             'bands': rows, 'all_meaningful_bands_passed': bool(np.all(passed[meaningful])),
             'whole_level_passed': bool(np.all(level_pass)),
-            'stereo_zero_lag_correlation': {'reference': stereo_correlation(reference),
-                                          'candidate': stereo_correlation(candidate)},
+            'stereo_zero_lag_correlation': {'reference': reference_correlation,
+                                          'candidate': candidate_correlation},
             'limitations': ['Approximate statistical intervals, not exact coverage guarantees.',
                 'Stationarity and sufficient block independence must be checked separately.',
                 'No sample-null or general similarity percentage is assigned.']}

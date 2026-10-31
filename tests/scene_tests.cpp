@@ -13,6 +13,20 @@ float sine(double frequency,size_t i) {return .2f*static_cast<float>(std::sin(2*
 double energy(Stereo x) {return x.l*x.l+x.r*x.r;}
 int main() {try {
     {
+        // Sweep every static width/control cell, including the high-frequency
+        // edge where coefficient errors can destabilize the feedback filter.
+        for(int width=0;width<3;++width)for(int raw=0;raw<256;++raw){
+            CalibratedNoise noise;noise.configure(raw,width);uint32_t random=0x7129a6d3;double sum=0,stereoDifference=0;
+            for(unsigned i=0;i<2048;++i){
+                const auto white=[&](){random=random*1664525u+1013904223u;return static_cast<int32_t>(random)*(1.f/2147483648.f);};
+                const auto y=noise.process({white(),white()});
+                require(std::isfinite(y.l)&&std::isfinite(y.r)&&std::abs(y.l)<10&&std::abs(y.r)<10,"Noise width sweep became unstable");
+                sum+=energy(y);stereoDifference+=(y.l-y.r)*(y.l-y.r);
+            }
+            if(raw>=32){require(sum>1e-6,"Noise width unexpectedly silent");require(stereoDifference>1e-6,"Noise width collapsed independent stereo excitation");}
+        }
+    }
+    {
         // Return component only; the input here stands in for a separately
         // generated pitch stream. This does not exercise a Spiral generator.
         FactoryEchoReturn processor;processor.prepare(48000);

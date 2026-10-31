@@ -15,7 +15,13 @@ public:
         const double candidate=(32*(beat-lastHostBeat))/frames;lastHostBeat=beat;
         if(candidate>=0&&candidate<.0222)hostIncrement=candidate;
         // Finish a pending backward correction before accepting another.
-        if(correction==0)correction=timeline-beat;
+        if(correction==0){
+            const double difference=timeline-beat;
+            // A host discontinuity beyond one beat relocates the timer.
+            // Smaller callback discrepancies drain through the usual slew.
+            if(difference>1||difference< -1){timeline=beat;correction=0;}
+            else correction=difference;
+        }
     }
     // A changed strip division rebases the offset but retains the new
     // division's previous phase under the old offset. Resetting both loses
@@ -48,6 +54,7 @@ public:
     bool advance(double bpm) noexcept {
         const double scaled=32*bpm;
         const double increment=external?hostIncrement:scaled/(48000.*60);
+        if(!external)hostIncrement=increment;
         double adjustment=0;
         if(external){
             if(correction>0){adjustment=-std::min(correction,increment);correction=std::max(0.,correction-increment);}

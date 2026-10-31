@@ -11,6 +11,7 @@ from types import SimpleNamespace
 import numpy as np
 
 from tools import rmx_drum_combos as combos
+from tools import rmx_drum_gestures as gestures
 from tools import rmx_drum_performance as performance
 from tools import rmx_drum_user_match as user
 from tools.noise_statistics import float_wav
@@ -67,6 +68,8 @@ def main():
                 matches.append((path.parent, matrix))
         require(len(matches) == 1, 'Missing/ambiguous Original matrix')
         session, matrix = matches[0]
+        if combined and matrix['stage'].split('-fresh')[0] in ['recorded', 'divisions', 'transport']:
+            gestures.activate()
         module = combos if combined else user if custom else performance
         cases = [{k: v for k, v in c.items() if k != 'receipt_sha256'} for c in matrix['cases']] if custom or combined else performance.recipe(matrix['stage'])
         for case, previous in zip(cases, report['cases'], strict=True):

@@ -71,7 +71,9 @@ void Snare::block() noexcept {
             pending[i]=static_cast<float>(static_cast<double>(((mixed*customizationGain)*gain)*.1258925348520279f)*6.91373157);
         }
     }
-    if(!noise.rising&&noise.value==0&&std::abs(pending.back())<1e-9f)state=0;
+    // A natural tail can expire during the five-block retrigger fade.
+    // Keep that scheduled restart even when the old voice becomes silent.
+    if(state==1&&!noise.rising&&noise.value==0&&std::abs(pending.back())<1e-9f)state=0;
     for(auto& sample:pending){startupGain=std::min(1.f,startupGain+.00625f);sample=((sample*voiceVelocity)*startupGain)*outputLevel.advance();}
 }
 void Snare::process(std::span<float> output) noexcept {

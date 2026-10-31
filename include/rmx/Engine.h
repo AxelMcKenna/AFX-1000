@@ -126,7 +126,7 @@ private:
         return true;
     }
     bool factoryRollEligible() const noexcept {
-        return sr==48000&&factoryMask==15&&factoryRollAssignmentsDefault()
+        return sr==48000&&factoryMask==15
             &&get(Param::Overdub)<.5f&&get(Param::XSource)<.5f&&get(Param::SampleSource)<.5f;
     }
     bool factorySequenceEligible() const noexcept {

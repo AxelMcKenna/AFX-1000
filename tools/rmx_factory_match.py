@@ -14,7 +14,7 @@ import subprocess
 import numpy as np
 
 from tools.fidelity import calibrate, compare, stereo
-from tools.reference_audio import read_wav, save_json, sha256, write_wav
+from tools.reference_audio import check_output_storage, read_wav, save_json, sha256, write_wav
 
 
 IDENTITY = {'name': 'RMX-1000 Plug-in', 'manufacturer': 'Pioneer Corporation', 'version': '2.2.0'}
@@ -29,6 +29,7 @@ def run(args):
 
 
 def new_directory(path):
+    check_output_storage(path)
     path.mkdir(parents=True, exist_ok=False)
     return path.resolve()
 

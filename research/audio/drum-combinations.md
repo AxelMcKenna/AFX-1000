@@ -46,3 +46,5 @@ The app, AU and VST3 use the same production core. AU/VST3 delivery checks use t
 The engine object and prepared audio-buffer budget remain unchanged. The native app keeps its existing output-protection policy; floating-point comparisons and plug-in delivery preserve above-unity reference peaks.
 
 Noise statistics, arbitrary custom Scene/Isolator settings, nondefault strip assignments, other pitch ranges/rates, tempo ramps/seeks, recording strip gestures and physical-board/controller behaviour remain unqualified. The earlier near-null mixed-Crush wet-window failure and firmware-host factory-silence failure remain documented; this campaign does not relabel or erase them.
+
+The subsequent [recorded-strip/division/transport campaign](drum-gestures.md) extends this checkpoint. Its240 programs and the earlier708 now have a bounded948-program current-engine byte replay; raw renders are deleted after each case. [User Noise widths](noise-user.md) are qualified separately through statistical screens.

@@ -33,7 +33,15 @@ def xml(settings):
             value = values.get(field, default)
             require(isinstance(value, int) and 0 <= value <= maximum, 'Invalid drum setting')
             fields.append(f'<{drum}{field}>{value}</{drum}{field}>')
-    return '<?xml version="1.0" encoding="UTF-8"?>\n<RMX-1000 version="1.0"><XpadFx><Osc>' + ''.join(fields) + '</Osc></XpadFx></RMX-1000>'
+    extra = ''
+    if 'Xpad' in settings:
+        require(set(settings['Xpad']).issubset({f'Position{i}' for i in range(5)}), 'Unknown strip assignment')
+        values = []
+        for name, value in settings['Xpad'].items():
+            require(isinstance(value, int) and 0 <= value <= 15, 'Invalid strip beat choice')
+            values.append(f'<{name}>{value}</{name}>')
+        extra = '<Xpad>' + ''.join(values) + '</Xpad>'
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<RMX-1000 version="1.0"><XpadFx><Osc>' + ''.join(fields) + '</Osc>' + extra + '</XpadFx></RMX-1000>'
 
 
 def state(template, settings, filename='', directory=''):

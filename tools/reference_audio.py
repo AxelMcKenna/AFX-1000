@@ -16,6 +16,14 @@ import subprocess
 import sys
 
 
+def check_output_storage(path):
+    """Honor a local pause before allocating or launching audio output work."""
+    for destination in {Path(path).absolute(), Path(path).resolve()}:
+        for parent in (destination, *destination.parents):
+            if (parent / ".rmx-audio-output-paused").is_file():
+                raise RuntimeError("RMX audio output is paused after disk exhaustion. Use bounded temporary renders before resuming.")
+
+
 def save_json(path, value):
     with Path(path).open("x") as f:
         f.write(json.dumps(value, indent=2, allow_nan=False) + "\n")
@@ -94,6 +102,7 @@ def read_wav(path, max_seconds=180):
 
 
 def write_wav(path, rate, samples):
+    check_output_storage(path)
     data = array("f", samples)
     if sys.byteorder != "little":
         data.byteswap()
@@ -329,6 +338,7 @@ def generate(directory, rate, duration=16):
 
 
 def render(args):
+    check_output_storage(args.output)
     path = Path(args.manifest).resolve()
     data = json.loads(path.read_text())
     output = Path(args.output)

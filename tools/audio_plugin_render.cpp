@@ -226,6 +226,11 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
                 : status == 0xf6 || status == 0xf8 || status == 0xfa || status == 0xfb
                     || status == 0xfc || status == 0xfe || status == 0xff ? 1 : 0;
             require(length != 0 && bytes.size() == length, "MIDI byte count/status is invalid or unsupported");
+        } else if(type=="transport") {
+            const auto tempo=number(field(event,"bpm"),"transport BPM");
+            require(tempo>=40&&tempo<=240,"Transport BPM must be40..240");
+            require(number(field(event,"beat"),"transport beat")>=0&&number(field(event,"seconds"),"transport seconds")>=0,"Negative transport position");
+            require(field(event,"playing").isBool(),"Transport playing must be boolean");
         } else throw std::runtime_error("Unknown event type");
     }
     // Reserve a new directory atomically; a crash leaves an incomplete capture,
@@ -287,12 +292,19 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
     juce::MidiBuffer midi;
     int eventIndex = 0;
     double maximum = 0;
+    const bool transportEvents=[&]{for(const auto& e:*events.getArray())if(e["type"].toString()=="transport")return true;return false;}();
+    double transportBpm=bpm,transportBeat=0,transportSeconds=0;bool transportPlaying=true;int64_t transportAnchor=0;
+    juce::Array<var> transportLog;
     for (int64_t position = 0; position < total;) {
         midi.clear();
         while (eventIndex < events.size() && static_cast<int64_t>(events[eventIndex]["frame"]) == position) {
             const auto& event = events[eventIndex++];
             if (event["type"].toString() == "parameter") applySetting(event, position);
-            else {
+            else if(event["type"].toString()=="transport") {
+                transportBpm=number(event["bpm"],"transport BPM");transportBeat=number(event["beat"],"transport beat");
+                transportSeconds=number(event["seconds"],"transport seconds");transportPlaying=static_cast<bool>(event["playing"]);transportAnchor=position;
+                transportLog.add(event);
+            } else {
                 const auto& values = event["bytes"];
                 std::array<juce::uint8, 3> bytes{};
                 for (int i = 0; i < values.size(); ++i) bytes[static_cast<size_t>(i)] = static_cast<juce::uint8>(static_cast<int>(values[i]));
@@ -307,7 +319,13 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
         if (available > 0) require(reader->read(&buffer, 0, available, position, true, true), "Input read failed");
         for (int channel = 0; channel < 2; ++channel) for (int i = 0; i < available; ++i)
             require(std::isfinite(buffer.getSample(channel, i)), "Input contains non-finite audio");
-        head.locate(static_cast<double>(position) / rate, rate, bpm, true);
+        if(!transportEvents)head.locate(static_cast<double>(position) / rate, rate, bpm, true);
+        else {
+            const double elapsed=transportPlaying?static_cast<double>(position-transportAnchor)/rate:0;
+            const double beat=transportBeat+elapsed*transportBpm/60;
+            head.locate(transportSeconds+elapsed,rate,transportBpm,transportPlaying);
+            head.position.setPpqPosition(beat);head.position.setPpqPositionOfLastBarStart(std::floor(beat/4)*4);
+        }
         plugin.processBlock(buffer, midi);
         for (int channel = 0; channel < 2; ++channel) for (int i = 0; i < count; ++i) {
             const auto sample = buffer.getSample(channel, i);
@@ -339,7 +357,8 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
         {"initial_frame", -1}, {"entries", parameterLog},
         {"scope", "Immediate readback after each request; plugin control-rate response can occur later."}}));
     saveJSON(destination.getChildFile("inventory-after.json"), inventory(plugin, description, bundle, registeredIdentifier));
-    saveJSON(destination.getChildFile("receipt.json"), object({{"kind", "audio-plugin-capture"},
+    if(transportEvents)saveJSON(destination.getChildFile("transport-log.json"),object({{"kind","explicit-transport-event-log"},{"entries",transportLog}}));
+    auto receipt=object({{"kind", "audio-plugin-capture"},
         {"schema_version", 1}, {"origin", "software"}, {"role", role}, {"complete", true},
         {"created_at_utc", juce::Time::getCurrentTime().toISO8601(true)}, {"plugin", before},
         {"host_sha256", juce::SHA256(juce::File::getSpecialLocation(juce::File::currentExecutableFile)).toHexString()},
@@ -353,7 +372,9 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
         {"bpm", bpm}, {"transport_playing", true}, {"offline", true}, {"tail_seconds", tail},
         {"reported_latency_frames", plugin.getLatencySamples()}, {"reported_tail_seconds", plugin.getTailLengthSeconds()},
         {"post_render_message_pump_ms",messagePumpMs},
-        {"peak", maximum}}));
+        {"peak", maximum}});
+    if(transportEvents){receipt.getDynamicObject()->setProperty("transport_log_sha256",juce::SHA256(destination.getChildFile("transport-log.json")).toHexString());receipt.getDynamicObject()->setProperty("explicit_transport",true);}
+    saveJSON(destination.getChildFile("receipt.json"),receipt);
     std::cout << destination.getChildFile("receipt.json").getFullPathName() << '\n';
 }
 }

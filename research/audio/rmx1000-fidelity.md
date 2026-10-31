@@ -401,3 +401,11 @@ The [drum performance campaign](drum-performance.md) adds504 passing native orig
 ## 30 October 2026: combined drum performance
 
 The [combined drum campaign](drum-combinations.md) adds204 passing original-reference programs, including102 frozen fresh predictions, mixed overdub patterns, custom-profile rolls/overdubs and all nine deterministic Scene effects. The current engine also preserves the preceding504 drum programs byte-for-byte. Whole and wet windows retain their original1%per-channel gates. Wrapper one-shot/FX delivery is separate from native strip/button-event coverage; arbitrary settings, rates, tempos and hardware remain outside this qualification.
+
+### Recorded strips, custom divisions, transport and User Noise —30 October2026
+
+The [gesture follow-up](drum-gestures.md) adds240 strict reference programs, including80 final-model prospective predictions. It reconstructs recorded strip commands, custom beat assignments, pause/seek behavior and a snare retrigger boundary. All948 declared drum/performance programs transfer to the current engine through complete optimized/sanitized candidate-WAV byte identity with qualified results. Raw Original audio was pruned at the user's request; this transfer verifies retained metadata and hashes rather than rereading deleted Original WAVs.
+
+[User Noise](noise-user.md) now has independent stereo Mild/Default/Wild filters. Three fresh User presets pass600-second statistical, stereo and early/late-third checks; the fresh Default control passes its overall comparison but retains inconclusive early/late results. AU/VST3 each deliver the three User presets and Default control byte-identically to the native engine, with359 runtime checks each. No whole-device perceptual percentage follows from those results. Further advanced modulation/resonance settings and hardware validation remain open.
+
+[Bounded artifact retention](artifact-retention.md) replaces the previous accumulating render archives: temporary audio has a512MiB ceiling, with only small summaries and receipts retained.

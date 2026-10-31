@@ -8,10 +8,12 @@ namespace rmx {
 class CalibratedNoise {
 public:
     void reset() noexcept { x1=x2=y1=y2=y3={};lastRaw=-1; }
-    void configure(int raw) noexcept {
+    void configure(int raw,int width=1) noexcept {
         raw=std::clamp(raw,0,255);
-        if(raw==lastRaw)return;
-        lastRaw=raw;
+        width=std::clamp(width,0,2);
+        const int key=raw+256*width;
+        if(key==lastRaw)return;
+        lastRaw=key;
         size_t i=0;
         while(i+2<noiseCalibration.size()&&raw>noiseCalibration[i+1].raw)++i;
         const float h=noiseCalibration[i+1].raw-noiseCalibration[i].raw;
@@ -19,6 +21,33 @@ public:
         for(unsigned column=0;column<4;++column) {
             coefficients[column]=(2*t3-3*t2+1)*value(i,column)+(t3-2*t2+t)*h*slope(i,column)
                 +(-2*t3+3*t2)*value(i+1,column)+(t3-t2)*h*slope(i+1,column);
+        }
+        if(width!=1){
+            // The reference's unmodulated sweep advances the visible control
+            // by50 before deriving the two bilinear band edges. Mild/Wild
+            // use different edge trajectories, with the same feedback law.
+            const int position=std::min(raw+50,255);
+            const double ratio=width==0?.75f:2.f;
+            const double edgeStep=width==0?.9932088255882263f:.9825870990753174f;
+            const double base=width==0?35.f:80.f;
+            const double frequencyStep=width==0?1.01789128780365f:1.0199010372161865f;
+            const double spread=ratio*(position>=234?std::pow(edgeStep,position-234):1);
+            const double low=base*std::pow(frequencyStep,position-4);
+            const double high=low*(spread+.5)/(spread-.5);
+            constexpr double pi=3.14159265358979323846;
+            const double a=std::tan(pi*low/48000),b=std::tan(pi*high/48000);
+            const double delta=b-a,product=a*b,inverse=1/(1+delta+product);
+            const float numerator=static_cast<float>(delta*inverse);
+            float travel=(position-3)*(1.f/252);
+            for(unsigned power=0;power<4;++power)travel*=travel;
+            const float feedback=.7f+travel*.1f;
+            // Preserve the measured excitation/output law while replacing
+            // the filter response. No reference audio or generator is used.
+            const float referenceNumerator=(1-coefficients[1])*.5f;
+            coefficients[3]*=numerator/referenceNumerator;
+            coefficients[0]=static_cast<float>((2*product-2)*inverse)-feedback*numerator;
+            coefficients[1]=static_cast<float>((1-delta+product)*inverse);
+            coefficients[2]=feedback*numerator;
         }
     }
     Stereo process(Stereo white) noexcept {
