@@ -13,6 +13,17 @@ from tools.rmx_noise_user import xml
 
 
 class NoiseStreamTests(unittest.TestCase):
+    def test_motion_screen_rejects_wrong_gain_and_inverted_control_profile(self):
+        from tools.noise_motion_statistics import measure
+        levels=np.broadcast_to(np.asarray([1.,2.,4.,8.])[None,:,None],(30,4,2)).copy()
+        bands=np.repeat(levels[:,:,None,:]/6,6,axis=2)
+        reference=dict(bands=bands,total=levels,exposure=np.full((30,4),100))
+        self.assertEqual(measure(reference,reference)['verdict'],'pass')
+        for changed in [reference|dict(bands=bands*2,total=levels*2),reference|dict(bands=bands[:,::-1],total=levels[:,::-1])]:
+            self.assertEqual(measure(reference,changed)['verdict'],'different')
+        with self.assertRaisesRegex(ValueError,'exposure'):
+            measure(reference,reference|dict(exposure=np.zeros((30,4))))
+
     def test_user_noise_width_order_and_required_scene_fields(self):
         import xml.etree.ElementTree as ET
         for width, original in enumerate([1, 0, 2]):

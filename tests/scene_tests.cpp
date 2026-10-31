@@ -65,6 +65,26 @@ int main() {try {
         }
     }
     {
+        // Exercise moving coefficients through multiple cycles, including the
+        // high-frequency clamp, with independent stereo excitation.
+        for(int width=0;width<3;++width)for(int wave=0;wave<3;++wave)
+            for(int raw:{64,149,233})for(int sub2:{11,43,201,255}){
+                NoiseModulator motion;CalibratedNoise filter;uint32_t random=0x53d90ce1;
+                double power=0,difference=0;
+                for(unsigned block=0;block<750;++block){
+                    const auto& controls=motion.generate(sub2,wave);
+                    for(unsigned i=0;i<32;++i){
+                        if(i%16==0)filter.configure(raw,width,-1,0,std::clamp(raw+static_cast<int>((1-controls[i])*50),0,255));
+                        const auto white=[&](){random=random*1664525u+1013904223u;return static_cast<int32_t>(random)*(1.f/2147483648.f);};
+                        const auto y=filter.process({white(),white()});
+                        require(std::isfinite(y.l)&&std::isfinite(y.r)&&std::abs(y.l)<10&&std::abs(y.r)<10,"Moving Noise filter became unstable");
+                        power+=energy(y);difference+=(y.l-y.r)*(y.l-y.r);
+                    }
+                }
+                require(power>1e-5&&difference>1e-5,"Moving Noise lost stereo excitation");
+            }
+    }
+    {
         // Return component only; the input here stands in for a separately
         // generated pitch stream. This does not exercise a Spiral generator.
         FactoryEchoReturn processor;processor.prepare(48000);

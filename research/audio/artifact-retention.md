@@ -4,6 +4,8 @@ Keep render output temporary. Do not clone whole research trees or retain every 
 
 The bounded Noise and drum replay tools use one case at a time, enforce a512MiB temporary-data limit and delete audio before proceeding. Noise retains compressed two-second band/total powers, correlation and small receipts; drums retain whole-WAV hashes and links to qualified prior evidence. The independent Noise auditor works from those retained summaries. These summaries cannot substitute for raw audio in a future waveform/transient investigation; recapture only the needed case.
 
+The modulation runner additionally deletes native audio before rendering ASAN, then deletes ASAN before the Original capture. Its extended comparisons retain only one whole WAV at a time. Read-only internal-buffer diagnostics use short temporary captures and keep numerical errors, correlations and timing fits after deleting their private audio intermediates.
+
 Use:
 
 - `uv run --locked python -m tools.rmx_noise_stream --help`

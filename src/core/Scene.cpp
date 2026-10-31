@@ -34,12 +34,15 @@ void SceneProcessor::reset() noexcept {
     echoLoaned=spiralLoaned=false;echo.reset();spiral.reset();for(auto& delay:room)delay.reset();damping={};
     mainFilter.reset();echoFilter.reset();noiseTilt.reset();noisePolish.reset();calibratedNoise.reset();calibratedFilters.reset();pitchPhase=0;frame=0;random=0x12345678;
     noiseCutoff=90;noiseModGain=1;noiseReturn={};noiseAge=0;
+    noiseMotion.reset();noiseMotionEdges={};noiseMotionCursor=noiseMotionAge=0;noiseEffectiveMain=0;
     previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;echoReadGain=0;sharedStartup=false;
 }
 void SceneProcessor::configure(const SceneSettings& next) noexcept {
     if(next==settings)return;
     if(next.type!=settings.type)calibratedFilters.invalidate();
-    if(next.type==2&&settings.type!=2) {noiseAge=0;noiseReturn={};}
+    if(next.type==2&&settings.type!=2) {
+        noiseAge=0;noiseReturn={};noiseMotion.reset();noiseMotionCursor=noiseMotionAge=0;
+    }
     settings=next;settings.type=std::clamp(settings.type,0,9);previousCutoff=previousQ=previousEchoCutoff=-1;updateRoom();
 }
 float SceneProcessor::noise() noexcept {random^=random<<13;random^=random>>17;random^=random<<5;return static_cast<float>(static_cast<int32_t>(random))/2147483648.f;}
@@ -199,13 +202,28 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
             send=echoFilter.process(crushed).low;
         }
         if(measuredNoise) {
-            calibratedNoise.configure(static_cast<int>(std::floor(macro*255+1.e-4f)),settings.width[2],
-                resonance?static_cast<int>(std::floor(sub2*255+1.e-4f)):-1,settings.resonance[2]);
+            const int raw=static_cast<int>(std::floor(macro*255+1.e-4f));
+            const int rawSub2=static_cast<int>(std::floor(sub2*255+1.e-4f));
+            const bool moving=!resonance&&rawSub2>0&&settings.waveform[2]<3;
+            bool motionReady=false;
+            // The Original starts its Noise control stream one common block
+            // after activation; output then retains the shared32-frame delay.
+            if(noiseMotionAge<32){if(enabled>0)++noiseMotionAge;}
+            else{
+                if(noiseMotionCursor==0){
+                    const auto& controls=noiseMotion.generate(rawSub2,settings.waveform[2],resonance);
+                    noiseMotionEdges={controls[0],controls[16]};
+                }
+                if((noiseMotionCursor&15u)==0)
+                    noiseEffectiveMain=std::clamp(raw+static_cast<int>((1-noiseMotionEdges[noiseMotionCursor/16])*50),0,255);
+                noiseMotionCursor=(noiseMotionCursor+1)&31u;motionReady=true;
+            }
+            calibratedNoise.configure(raw,settings.width[2],resonance?rawSub2:-1,settings.resonance[2],moving&&motionReady?noiseEffectiveMain:-1);
             send=calibratedNoise.process({noise(),noise()});
             const auto tilt=noiseTilt.process(send);
             send=mix(send,settings.noiseColor<.5f?tilt.low:tilt.high,std::abs(settings.noiseColor-.5f)*2);
-            noiseModGain+=((resonance?1.f:noiseModulation(sub2,beat))-noiseModGain)*noiseModSlew;
-            send=send*(noiseLevel(sub1,settings.noiseMinimum,settings.noiseMaximum)*noiseModGain*enabled);
+            noiseModGain+=((resonance||moving?1.f:noiseModulation(sub2,beat))-noiseModGain)*noiseModSlew;
+            send=send*(noiseLevel(sub1,settings.noiseMinimum,settings.noiseMaximum)*noiseModGain*enabled*(moving&&!motionReady?0.f:1.f));
             const auto returned=noiseAge>=static_cast<uint64_t>(delay)?delayed:Stereo{};
             // Independent tail captures identify a half-beat return of 0.35,
             // recirculating at exactly 0.5. The return survives button-off.

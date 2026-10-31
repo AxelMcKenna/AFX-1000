@@ -29,7 +29,9 @@ b = 1 - (rawMain - 101) * 0.00194805197
 g = (rawMain - 3) * 0.0055210432 * b^8
 ```
 
-The excitation scale is anchored to the preceding measured high-end calibration. A second [read-only observer](experiments/noise_gain_observer.py) sampled the computed level targets at main173,201 and229; independent arithmetic reproduces both targets exactly at all three settings. Observed and ordinary audio and auxiliary hashes again agree. Lower main positions retain the fitted gain and have no new general qualification. The existing non-resonance path stays byte-identical.
+The excitation scale is anchored to the preceding measured high-end calibration. A second [read-only observer](experiments/noise_gain_observer.py) sampled the computed level targets at main173,201 and229; independent arithmetic reproduces both targets exactly at all three settings. Observed and ordinary audio and auxiliary hashes again agree. Lower main positions retain the fitted gain and have no new general qualification. This resonance checkpoint left the existing non-resonance path byte-identical.
+
+The subsequent [modulation campaign](noise-modulation.md) extends this checkpoint to reconstructed Triangle/Saw/Square cutoff motion. It preserves the static/resonance path and reports its remaining weak-band uncertainty separately.
 
 Review caught a coefficient-cache collision between maximum Default resonance and modulation mode with an unused Mild resonance selection. The cache fields now occupy separate ranges, and a regression check exercises that exact transition. Other checks sweep every main position, width and character at Sub2 endpoints/deadband boundaries for finite, bounded stereo output and verify that None ignores Sub2 while Default changes its response. These are functional checks; setting-change transients have no Original qualification yet.
 

@@ -11,7 +11,7 @@ int main(int argc,char** argv){try{
     unsigned sub2{},mode{},wave{},resonance{};
     if(!(file>>magic>>version>>frames>>block>>user>>main>>amount>>width>>minimum>>maximum)||magic!="RMX_NOISE_USER"||(version!=1&&version!=2)
        ||(version==2&&!(file>>sub2>>mode>>wave>>resonance))
-       ||frames<48000||frames>900*48000||block<8||block>4096||user>1||main>255||amount>255||width>2||minimum>3||maximum>3
+       ||frames<48000||frames>1204*48000||block<8||block>4096||user>1||main>255||amount>255||width>2||minimum>3||maximum>3
        ||sub2>255||mode>1||wave>4||resonance>2||file>>extra)
         throw std::runtime_error("Invalid Noise plan");
     rmx::Engine engine;engine.setOutputProtection(false);

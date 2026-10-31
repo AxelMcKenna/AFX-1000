@@ -1,6 +1,7 @@
 #pragma once
 #include "Dsp.h"
 #include "CalibratedNoise.h"
+#include "NoiseModulator.h"
 #include "CalibratedFilterEcho.h"
 #include <array>
 #include <memory_resource>
@@ -48,6 +49,10 @@ private:
     std::array<Stereo,8> damping{};
     StateFilter mainFilter,echoFilter,noiseTilt,noisePolish;
     CalibratedNoise calibratedNoise;
+    NoiseModulator noiseMotion;
+    std::array<float,2> noiseMotionEdges{};
+    unsigned noiseMotionCursor{},noiseMotionAge{};
+    int noiseEffectiveMain{};
     CalibratedFilterEcho calibratedFilters;
     SceneSettings settings;
     double rate{48000},pitchPhase{};uint64_t frame{};

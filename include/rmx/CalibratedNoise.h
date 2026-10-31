@@ -8,13 +8,15 @@ namespace rmx {
 class CalibratedNoise {
 public:
     void reset() noexcept { x1=x2=y1=y2=y3={};lastRaw=-1; }
-    void configure(int raw,int width=1,int resonanceRaw=-1,int character=0) noexcept {
+    void configure(int raw,int width=1,int resonanceRaw=-1,int character=0,int positionOverride=-1) noexcept {
         raw=std::clamp(raw,0,255);
         width=std::clamp(width,0,2);
         resonanceRaw=std::clamp(resonanceRaw,-1,255);
         character=std::clamp(character,0,2);
-        const int key=raw+256*width+1024*(resonanceRaw+1)+524288*character;
+        positionOverride=std::clamp(positionOverride,-1,255);
+        const int key=raw+256*width+1024*(resonanceRaw+1)+524288*character+2097152*(positionOverride+1);
         if(key==lastRaw)return;
+        if((lastRaw>=2097152)!=(positionOverride>=0))x1=x2=y1=y2=y3={};
         lastRaw=key;
         size_t i=0;
         while(i+2<noiseCalibration.size()&&raw>noiseCalibration[i+1].raw)++i;
@@ -23,6 +25,36 @@ public:
         for(unsigned column=0;column<4;++column) {
             coefficients[column]=(2*t3-3*t2+1)*value(i,column)+(t3-2*t2+t)*h*slope(i,column)
                 +(-2*t3+3*t2)*value(i+1,column)+(t3-t2)*h*slope(i+1,column);
+        }
+        if(positionOverride>=0){
+            // Preserve the combined input history when the coefficients move.
+            // A collapsed third-order static recurrence would incorrectly use
+            // today's feedback for the input from two samples earlier.
+            const int position=positionOverride;
+            const double ratio=width==0?.75f:width==1?.8921568393707275f:2.f;
+            const double edgeStep=width==0?.9932088255882263f:width==1?.9917688965797424f:.9825870990753174f;
+            const double frequencyStep=width==0?1.01789128780365f:width==1?1.0157078504562378f:1.0199010372161865f;
+            const double spread=ratio*(position>=234?std::pow(edgeStep,position-234):1);
+            const double low=(width==0?35.f:80.f)*std::pow(frequencyStep,position-4);
+            const double high=low*(spread+.5)/(spread-.5);
+            constexpr double pi=3.14159265358979323846;
+            const double a=std::tan(pi*low/48000),b=std::tan(pi*high/48000);
+            const double delta=b-a,product=a*b,inverse=1/(1+delta+product);
+            float travel=(position-3)*(1.f/252);
+            for(unsigned power=0;power<4;++power)travel*=travel;
+            float excitation=coefficients[3]/((1-coefficients[1])*.5f);
+            if(raw>101){
+                const auto gain=[](int value){
+                    const float base=1+(value-101)*-.00194805197f;
+                    float power=base;for(unsigned n=1;n<8;++n)power*=base;
+                    return ((value-3)*.0055210432f)*power;
+                };
+                constexpr auto anchor=noiseCalibration.back();
+                excitation=gain(raw)*(anchor.b0/((1-anchor.a2)*.5f)/gain(255));
+            }
+            coefficients={static_cast<float>(delta*inverse),static_cast<float>((2*product-2)*inverse),
+                static_cast<float>((1-delta+product)*inverse),.7f+travel*.1f,excitation};
+            return;
         }
         if(width!=1||resonanceRaw>=0){
             // The reference's unmodulated sweep advances the visible control
@@ -79,6 +111,12 @@ public:
         }
     }
     Stereo process(Stereo white) noexcept {
+        if(lastRaw>=2097152){
+            const auto combined=white*coefficients[4]+y1*coefficients[3];
+            const auto output=combined*coefficients[0]-x2*coefficients[0]-y1*coefficients[1]-y2*coefficients[2];
+            x2=x1;x1=combined;y3=y2;y2=y1;y1=output;
+            return output;
+        }
         const auto output=(white-x2)*coefficients[3]-y1*coefficients[0]-y2*coefficients[1]-y3*coefficients[2];
         x2=x1;x1=white;y3=y2;y2=y1;y1=output;
         return output;
@@ -108,7 +146,7 @@ private:
         const float w1=2*h1+h0,w2=h1+2*h0;
         return (w1+w2)/(w1/d0+w2/d1);
     }
-    std::array<float,4> coefficients{};
+    std::array<float,5> coefficients{};
     Stereo x1{},x2{},y1{},y2{},y3{};
     int lastRaw{-1};
 };
