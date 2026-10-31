@@ -37,7 +37,7 @@ def main():
     p.add_argument('--stimulus',choices=['silence','low','high','right','steps','asymmetric'],action='append')
     a=p.parse_args()
     if a.output.exists() or a.output.with_suffix('.partial.json').exists():raise ValueError('Choose a new report')
-    sources={n:sha256(Path(n)) for n in ['include/rmx/NoiseModulator.h','include/rmx/CalibratedGateDrive.h','src/core/GateDrive.cpp','tools/noise_sidechain_probe.cpp','tools/rmx_noise_sidechain_controls.py','research/audio/experiments/noise_sidechain_observer.py','tools/rmx_noise_user.py','tools/rmx_noise_stream.py','tools/reference_audio.py']}
+    sources={n:sha256(Path(n)) for n in ['include/rmx/NoiseModulator.h','src/core/NoiseModulator.cpp','include/rmx/CalibratedGateDrive.h','src/core/GateDrive.cpp','tools/noise_sidechain_probe.cpp','tools/rmx_noise_sidechain_controls.py','research/audio/experiments/noise_sidechain_observer.py','tools/rmx_noise_user.py','tools/rmx_noise_stream.py','tools/reference_audio.py']}
     binaries={k:sha256(getattr(a,k)) for k in ['host','probe','sanitizer']}
     observer=Path('research/audio/experiments/noise_sidechain_observer.py').resolve();rows=[]
     a.output.parent.mkdir(parents=True,exist_ok=True)

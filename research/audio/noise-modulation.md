@@ -6,6 +6,8 @@ The [validation receipt](measurements/2026-11-01-noise-modulation-validation.jso
 
 Eight of the nine new presets pass every gate after the declared extensions. Wild/Saw at main173 and Sub2=223 remains unqualified: its late-window0–500Hz band in the highest control-value bin is inconclusive. All nine pass their overall and full motion-profile comparisons. The retained data keeps these distinctions explicit.
 
+The subsequent [production-arithmetic correction](noise-control-fp.md) identifies compiler contraction in the live generator, moves the controls into shared contraction-disabled core code and closes the Wild/Saw discrepancy. All nine declared deterministic programs qualify after its bridges and fresh reference checks. The earlier verdicts below remain the record of this initial checkpoint.
+
 ## Reconstructing the controls
 
 A [read-only observer](experiments/noise_motion_observer.py) samples the32 modulation values produced by each Original Noise call. It hashes the entire float32 control stream and retains a small set of scalar records. Ordinary and observed renders must have identical audio, plan, before/after state, parameter log and final inventory hashes before their temporary directories are deleted. It never reads or copies the manufacturer's random-generator state.

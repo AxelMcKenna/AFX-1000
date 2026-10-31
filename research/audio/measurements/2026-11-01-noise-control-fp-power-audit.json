@@ -1,0 +1,83 @@
+{
+  "kind": "independent-noise-motion-power-audit",
+  "verification_passed": true,
+  "cases": [
+    {
+      "case": "noise-motion-fp-default-triangle",
+      "qualified": true,
+      "overall": "pass",
+      "profile": "pass",
+      "profile_thirds": {
+        "early": "pass",
+        "late": "pass"
+      },
+      "stationarity": {
+        "reference": "pass",
+        "candidate": "pass"
+      },
+      "maximum_profile_arithmetic_difference": 3.937822290467352e-16,
+      "negative_controls_rejected": true,
+      "required_negative_control_gates": [
+        "gain3db",
+        "control_polarity_inversion"
+      ],
+      "phase_reversal_diagnostic": "different",
+      "summary_sha256": "d929bcf0b97aad79611150f76597f57a22c0a45662a50b6ac838603817e74972",
+      "report_sha256": "40800ccdb29accfa7c0f87aeb998c7dd76d577620708126ae4a2708b13770a13"
+    },
+    {
+      "case": "noise-motion-fp-wild-saw",
+      "qualified": false,
+      "overall": "pass",
+      "profile": "pass",
+      "profile_thirds": {
+        "early": "inconclusive",
+        "late": "inconclusive"
+      },
+      "stationarity": {
+        "reference": "pass",
+        "candidate": "pass"
+      },
+      "maximum_profile_arithmetic_difference": 4.3107878378023656e-16,
+      "negative_controls_rejected": true,
+      "required_negative_control_gates": [
+        "gain3db",
+        "control_polarity_inversion"
+      ],
+      "phase_reversal_diagnostic": "different",
+      "summary_sha256": "dffbd3b2084fd8f168954acf5e18b2a1307d821303b826ebd7c3c026ca0fc400",
+      "report_sha256": "6eb986acea8ea9541a992d5a8bcda3779382af789be52a99462f6fe8659c0d0e"
+    },
+    {
+      "case": "noise-motion-fp-wild-saw",
+      "qualified": true,
+      "overall": "pass",
+      "profile": "pass",
+      "profile_thirds": {
+        "early": "pass",
+        "late": "pass"
+      },
+      "stationarity": {
+        "reference": "pass",
+        "candidate": "pass"
+      },
+      "maximum_profile_arithmetic_difference": 2.8449465006019636e-16,
+      "negative_controls_rejected": true,
+      "required_negative_control_gates": [
+        "gain3db",
+        "control_polarity_inversion"
+      ],
+      "phase_reversal_diagnostic": "different",
+      "summary_sha256": "cb95462ed91050d2f3368a0f34ffb50c616faf92af72a64695c398ac003e88d1",
+      "report_sha256": "363dd411280b8a433d96a78145ffea4dcb4ff7fa44111cdc28da2df6e91cb148"
+    }
+  ],
+  "report_sha256": {
+    "research/audio/measurements/2026-11-01-noise-control-fp-default-triangle-fresh.json": "40800ccdb29accfa7c0f87aeb998c7dd76d577620708126ae4a2708b13770a13",
+    "research/audio/measurements/2026-11-01-noise-control-fp-wild-saw-fresh.json": "6eb986acea8ea9541a992d5a8bcda3779382af789be52a99462f6fe8659c0d0e",
+    "research/audio/measurements/2026-11-01-noise-control-fp-wild-saw-extended.json": "363dd411280b8a433d96a78145ffea4dcb4ff7fa44111cdc28da2df6e91cb148"
+  },
+  "auditor_sha256": "e42d0d99c6e344005e98c549e9331d3cba95699a6443f06da8ab99f7d5afd776",
+  "shared_auditor_sha256": "2102084bda40ffaccf6929714ba1436a2731ac0bb31debede5697287f1673704",
+  "scope": "Separate float64 log differences, sums/einsum moments and HAC variance; every overall and profile interval, early/late verdict, stereo gate and aggregate qualification. Confirms retained arithmetic and summary binding after raw audio cleanup; no listening or whole-device percentage."
+}

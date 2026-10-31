@@ -4,6 +4,8 @@
 
 The [validation receipt](measurements/2026-11-01-noise-sidechain-validation.json) links the complete-control audit, failed detector hypothesis, numerical powers, independent arithmetic, preserved outputs and signed-format delivery checks. The earlier [deterministic modulation checkpoint](noise-modulation.md) remains separate evidence.
 
+The subsequent [production-arithmetic correction](noise-control-fp.md) makes the live Engine and probes share contraction-disabled control functions. All three Sidechain600-second outputs remain byte-identical, preserving this checkpoint's one qualified and two inconclusive audio results. It also closes the preceding deterministic Wild/Saw discrepancy.
+
 ## Finding the detector
 
 The Original computes Sidechain from the low band of the same detector used by Gate/Drive. The existing [Gate/Drive reconstruction](../../src/core/GateDrive.cpp) already supplies its cascaded low-pass sections, per-channel histories, maximum absolute stereo magnitude, rolling peak history and delayed adaptive threshold. The new optional detector output is extracted before Gate/Drive changes its audio. It does not allocate another filter or audio buffer.
@@ -50,4 +52,4 @@ Eight affected native groups, two sanitizer groups and seven Python tooling test
 
 Long captures retain one synthetic input WAV and one rendered WAV at a time, under512MiB; the measured peak is below443MiB. Native audio is summarized and deleted before the sanitizer render, then deleted before the Original render. Only compressed powers, hashes, small numerical reports and one current playable preview remain. No new raw test audio or private state payload is retained in the repository.
 
-Random's generated audio, the two inconclusive Sidechain presets, arbitrary music, changing knobs/settings, other rates/tempos, independent source combinations, broader activation gestures and physical hardware still need separate work. The preceding Wild/Saw weak-band result also remains inconclusive.
+Random's generated audio, the two inconclusive Sidechain presets, arbitrary music, changing knobs/settings, other rates/tempos, independent source combinations, broader activation gestures and physical hardware still need separate work. The preceding Wild/Saw weak-band result was still inconclusive at this checkpoint and is resolved by the linked production-arithmetic follow-up.
