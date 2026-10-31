@@ -1,6 +1,6 @@
 # RMX-1000 sound matching research
 
-- Updated: 2026-10-30
+- Updated: 2026-11-01
 - Status: active; scoped factory drums, nine deterministic Scene effects, three Isolator modes, Release and statistical Noise at 48 kHz; full-device validation incomplete
 - Question: what evidence, DSP work and validation would support a defensible claim of very close RMX-1000 sound matching?
 - Related implementation: [Scene](../../src/core/Scene.cpp), [Isolate](../../src/core/Isolator.cpp), [engine and Release](../../src/core/Engine.cpp), [drums](../../include/rmx/FactoryDrumSynth.h), [capture tools](../../tools/reference_audio.py).
@@ -409,3 +409,9 @@ The [gesture follow-up](drum-gestures.md) adds240 strict reference programs, inc
 [User Noise](noise-user.md) now has independent stereo Mild/Default/Wild filters. Three fresh User presets pass600-second statistical, stereo and early/late-third checks; the fresh Default control passes its overall comparison but retains inconclusive early/late results. AU/VST3 each deliver the three User presets and Default control byte-identically to the native engine, with359 runtime checks each. No whole-device perceptual percentage follows from those results. Further advanced modulation/resonance settings and hardware validation remain open.
 
 [Bounded artifact retention](artifact-retention.md) replaces the previous accumulating render archives: temporary audio has a512MiB ceiling, with only small summaries and receipts retained.
+
+### Noise resonance and modulation discovery —1 November2026
+
+[Noise resonance](noise-resonance.md) now uses independent stereo excitation, reconstructed band edges and the measured Default/Mild/None feedback law. Nine new User width/character presets and a separate failed-case regression pass600-second level/spectrum, stereo and early/late-third comparisons. A prior0.23dB level failure remains failed in its report; the correction reconstructs the high-main level curve and is checked against three independent scalar observations. Twelve static Noise renders remain byte-identical to the preceding qualified engine.
+
+The [validation receipt](measurements/2026-11-01-noise-resonance-validation.json) links compact powers, prospective predictions, receipts and independent arithmetic. AU/VST3 each reproduce native decoded samples exactly for the ten presets and Default control, and each passes359 runtime checks. Raw test audio is deleted. Five modulation-wave observations identify cutoff modulation; waveform/phase/envelope implementation and time-resolved qualification remain open. No whole-device accuracy percentage or hardware equivalence follows from these scoped results. The inherited firmware-host factory-silence failure remains explicit.

@@ -35,3 +35,5 @@ The runner enforces a512MiB temporary-data ceiling and removes each case directo
 ## Remaining scope
 
 These tests cover static widths and the declared custom minimum/maximum levels with Sub2 at zero,48k and120BPM. Modulation/resonance modes, changing User settings while sounding, other rates/tempos, all setting combinations, listening judgments and physical hardware remain unqualified. Other advanced Scene/Isolator settings still need their own reference campaigns.
+
+The subsequent [1 November resonance campaign](noise-resonance.md) extends this evidence to declared static resonance presets and records a separate five-wave modulation investigation. Its scope and uncertainty supersede the resonance entry above only for those reported presets.

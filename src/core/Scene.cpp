@@ -114,7 +114,7 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
     const bool resonance=modulated&&settings.sub2Mode[type]==1;
     const float activation=std::min(1.f,macro*10);
     const auto region=type==1?echoDelayRegion(sub1):sceneDelayRegion(sub1);
-    const bool measuredNoise=type==2&&rate==48000&&!resonance;
+    const bool measuredNoise=type==2&&rate==48000;
     if((type==0||type==5||type==6||type==7)&&rate==48000&&settings.width[type]==1&&!resonance&&sub2==0
             &&settings.feedback==.7f&&settings.feedbackCharacter[type]==1
             &&settings.delayBeats[type]==std::array<int,4>{2,3,4,5}) {
@@ -199,11 +199,12 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
             send=echoFilter.process(crushed).low;
         }
         if(measuredNoise) {
-            calibratedNoise.configure(static_cast<int>(std::floor(macro*255+1.e-4f)),settings.width[2]);
+            calibratedNoise.configure(static_cast<int>(std::floor(macro*255+1.e-4f)),settings.width[2],
+                resonance?static_cast<int>(std::floor(sub2*255+1.e-4f)):-1,settings.resonance[2]);
             send=calibratedNoise.process({noise(),noise()});
             const auto tilt=noiseTilt.process(send);
             send=mix(send,settings.noiseColor<.5f?tilt.low:tilt.high,std::abs(settings.noiseColor-.5f)*2);
-            noiseModGain+=((noiseModulation(sub2,beat))-noiseModGain)*noiseModSlew;
+            noiseModGain+=((resonance?1.f:noiseModulation(sub2,beat))-noiseModGain)*noiseModSlew;
             send=send*(noiseLevel(sub1,settings.noiseMinimum,settings.noiseMaximum)*noiseModGain*enabled);
             const auto returned=noiseAge>=static_cast<uint64_t>(delay)?delayed:Stereo{};
             // Independent tail captures identify a half-beat return of 0.35,

@@ -8,10 +8,12 @@ namespace rmx {
 class CalibratedNoise {
 public:
     void reset() noexcept { x1=x2=y1=y2=y3={};lastRaw=-1; }
-    void configure(int raw,int width=1) noexcept {
+    void configure(int raw,int width=1,int resonanceRaw=-1,int character=0) noexcept {
         raw=std::clamp(raw,0,255);
         width=std::clamp(width,0,2);
-        const int key=raw+256*width;
+        resonanceRaw=std::clamp(resonanceRaw,-1,255);
+        character=std::clamp(character,0,2);
+        const int key=raw+256*width+1024*(resonanceRaw+1)+524288*character;
         if(key==lastRaw)return;
         lastRaw=key;
         size_t i=0;
@@ -22,15 +24,15 @@ public:
             coefficients[column]=(2*t3-3*t2+1)*value(i,column)+(t3-2*t2+t)*h*slope(i,column)
                 +(-2*t3+3*t2)*value(i+1,column)+(t3-t2)*h*slope(i+1,column);
         }
-        if(width!=1){
+        if(width!=1||resonanceRaw>=0){
             // The reference's unmodulated sweep advances the visible control
             // by50 before deriving the two bilinear band edges. Mild/Wild
             // use different edge trajectories, with the same feedback law.
             const int position=std::min(raw+50,255);
-            const double ratio=width==0?.75f:2.f;
-            const double edgeStep=width==0?.9932088255882263f:.9825870990753174f;
+            const double ratio=width==0?.75f:width==1?.8921568393707275f:2.f;
+            const double edgeStep=width==0?.9932088255882263f:width==1?.9917688965797424f:.9825870990753174f;
             const double base=width==0?35.f:80.f;
-            const double frequencyStep=width==0?1.01789128780365f:1.0199010372161865f;
+            const double frequencyStep=width==0?1.01789128780365f:width==1?1.0157078504562378f:1.0199010372161865f;
             const double spread=ratio*(position>=234?std::pow(edgeStep,position-234):1);
             const double low=base*std::pow(frequencyStep,position-4);
             const double high=low*(spread+.5)/(spread-.5);
@@ -45,9 +47,35 @@ public:
             // the filter response. No reference audio or generator is used.
             const float referenceNumerator=(1-coefficients[1])*.5f;
             coefficients[3]*=numerator/referenceNumerator;
+            if(resonanceRaw>=0&&raw>101){
+                // The sparse fitted numerator bends around the filter's upper
+                // clamp. Use the independently reconstructed main-level curve
+                // here, anchored to the existing measured high-end excitation.
+                const auto gain=[](int position){
+                    const float base=1+(position-101)*-.00194805197f;
+                    float power=base;for(unsigned i=1;i<8;++i)power*=base;
+                    return ((position-3)*.0055210432f)*power;
+                };
+                constexpr auto anchor=noiseCalibration.back();
+                const float excitation=anchor.b0/((1-anchor.a2)*.5f)/gain(255);
+                coefficients[3]=numerator*gain(raw)*excitation;
+            }
             coefficients[0]=static_cast<float>((2*product-2)*inverse)-feedback*numerator;
             coefficients[1]=static_cast<float>((1-delta+product)*inverse);
             coefficients[2]=feedback*numerator;
+        }
+        if(resonanceRaw>=0){
+            // In resonance mode Sub2 controls feedback, not output amplitude.
+            // Public Default/Mild/None selections scale it by .7/.5/0.
+            constexpr float characters[]{.7f,.5f,0.f};
+            const float amount=std::max(0,resonanceRaw-3)*(1.f/252);
+            float travel=(std::min(raw+50,255)-3)*(1.f/252);
+            for(unsigned power=0;power<4;++power)travel*=travel;
+            const float feedback=amount*characters[character]+travel*.1f;
+            const float numerator=(1-coefficients[1])*.5f;
+            const float delta=feedback*numerator-coefficients[2];
+            coefficients[0]-=delta;
+            coefficients[2]+=delta;
         }
     }
     Stereo process(Stereo white) noexcept {

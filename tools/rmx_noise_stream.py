@@ -103,6 +103,17 @@ def validate(a):
     bound = bindings(); native_hash = sha256(a.renderer); san_hash = sha256(a.sanitizer); host_hash = sha256(a.host)
     template = a.template.read_bytes(); noise.loader.chunks(template)
     recipe = noise.recipe()
+    if getattr(a, 'recipe', None):
+        require(not a.fresh, 'Choose a custom recipe or fresh presets')
+        recipe = json.loads(a.recipe.read_text())
+        require(isinstance(recipe, list) and recipe and len({c['name'] for c in recipe}) == len(recipe), 'Invalid/duplicate Noise recipe')
+        for c in recipe:
+            require(c['name'].replace('-', '').isalnum(), 'Unsafe Noise case name')
+            for key, maximum in [('user',1),('main',255),('amount',255),('width',2),('minimum',3),('maximum',3),('mode',1),('wave',4),('resonance',2),('sub2',255)]:
+                value=c.get(key,0)
+                require(type(value) is int and 0 <= value <= maximum, 'Invalid Noise control: '+key)
+            require(type(c['block']) is int and 8 <= c['block'] <= 4096, 'Invalid callback size')
+            require(c.get('mode',0)==1 or c.get('sub2',0)==0, 'Stationary runner excludes active modulation')
     if a.fresh:
         recipe = [noise.recipe()[0]] + [dict(name=name, user=1, main=main, amount=amount, width=width,
             minimum=minimum, maximum=maximum, block=block) for name, main, amount, width, minimum, maximum, block in [
@@ -182,6 +193,7 @@ def main():
     p.add_argument('--temp-root', type=Path, default=Path(tempfile.gettempdir()))
     p.add_argument('--duration', type=int, default=180); p.add_argument('--case', action='append')
     p.add_argument('--fresh', action='store_true')
+    p.add_argument('--recipe', type=Path, help='Declared stationary cases; active modulation is excluded')
     validate(p.parse_args())
 
 

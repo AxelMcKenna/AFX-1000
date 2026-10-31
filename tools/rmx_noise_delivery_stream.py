@@ -18,7 +18,7 @@ def main():
     p.add_argument('--plugin',type=Path,action='append',required=True);a=p.parse_args()
     require(not a.output.exists(),'Report already exists');source=sha256(Path('src/plugin/Plugin.cpp'));own=sha256(Path(__file__));report_hash=sha256(a.noise_report)
     qualified=json.loads(a.noise_report.read_text());require(qualified['kind']=='rmx220-bounded-user-noise-statistical-validation','Wrong native Noise report')
-    cases=[c for c in qualified['cases'] if c['passed']];require(len(cases)==3,'Expected three qualified fresh User Noise presets')
+    cases=[c for c in qualified['cases'] if c['passed']];require(cases,'Expected qualified Noise presets')
     cases=[noise.recipe()[0]]+cases;rows=[];peak=0
     with tempfile.TemporaryDirectory(prefix='rmx-bounded-noise-delivery-',dir='/private/tmp') as directory:
         root=Path(directory);space=RenderSpace(root);write_wav(root/'silence.wav',48000,np.zeros(96000))
@@ -35,7 +35,9 @@ def main():
                     space.run([a.renderer,root/'silence.wav',wave,program])
                     controls={'Auto BPM':0,'Quantize':0,'Scene FX':2/9,'Scene enabled':0,'Isolate enabled':0,'Release lever':0,
                         'Default / User settings':c['user'],'Scene source':0,'Scene depth':c['main']/255,
-                        'Scene sub parameter 1':c['amount']/255,'Scene sub parameter 2':0,
+                        'Scene sub parameter 1':c['amount']/255,'Scene sub parameter 2':c.get('sub2',0)/255,
+                        'Noise Sub2 mode':c.get('mode',0),'Noise modulation wave':c.get('wave',0)/4,
+                        'Noise resonance character':c.get('resonance',0)/2,
                         'Noise filter width':c['width']/2,'Noise minimum level':c['minimum']/3,'Noise maximum level':c['maximum']/3,
                         'Input gain':2/3,'Output gain':2/3}
                     plan=dict(schema_version=1,kind='audio-plugin-capture-plan',role='candidate',expected_plugin=identity,
@@ -58,7 +60,7 @@ def main():
     require(not root.exists() and source==sha256(Path('src/plugin/Plugin.cpp')) and own==sha256(Path(__file__)) and report_hash==sha256(a.noise_report),'Delivery inputs changed/audio retained')
     save_json(a.output,dict(kind='bounded-noise-project-wrapper-delivery',passed=all(r['passed'] for r in rows),cases=rows,
         native_noise_report_sha256=report_hash,plugin_source_sha256=source,verifier_sha256=own,peak_temporary_bytes=peak,raw_audio_retained=False,
-        scope='Default and three qualified User Noise presets through explicit AU/VST3 bundles. Three-second full output vs actual native Engine; separate1e-5 delivery gates and latency32. No new Original fidelity, DAW/controller or hardware claim.'))
+        scope='Default and all qualified presets from the supplied Noise report through explicit AU/VST3 bundles. Three-second full output vs actual native Engine; separate1e-5 delivery gates and latency32. No new Original fidelity, DAW/controller or hardware claim.'))
 
 
 if __name__=='__main__':main()

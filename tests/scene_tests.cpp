@@ -27,6 +27,44 @@ int main() {try {
         }
     }
     {
+        // Resonance used to fall back to mono excitation. Exercise both raw
+        // endpoints, deadband boundaries and every width/character at48k.
+        for(int width=0;width<3;++width)for(int character=0;character<3;++character)
+            for(int raw=0;raw<256;++raw)for(int sub2:{0,3,4,128,255}){
+                CalibratedNoise noise;noise.configure(raw,width,sub2,character);
+                double sum=0,difference=0;
+                for(unsigned i=0;i<512;++i){
+                    const auto y=noise.process({i==0?.5f:0,i==17?-.25f:0});
+                    require(std::isfinite(y.l)&&std::isfinite(y.r)&&std::abs(y.l)<10&&std::abs(y.r)<10,"Noise resonance became unstable");
+                    sum+=energy(y);difference+=(y.l-y.r)*(y.l-y.r);
+                }
+                if(raw>=32)require(sum>1e-8&&difference>1e-8,"Noise resonance lost stereo excitation");
+            }
+        // The None choice must ignore Sub2, while Default must change the
+        // impulse response; this checks control routing, not merely bounds.
+        CalibratedNoise noneLow,noneHigh,defaultLow,defaultHigh;
+        noneLow.configure(147,1,0,2);noneHigh.configure(147,1,255,2);
+        defaultLow.configure(147,1,0,0);defaultHigh.configure(147,1,255,0);
+        double changed=0;
+        for(unsigned i=0;i<1024;++i){
+            const Stereo input{i==0?.5f:0,i==19?.25f:0};
+            const auto a=noneLow.process(input),b=noneHigh.process(input);
+            require(a.l==b.l&&a.r==b.r,"None resonance still responds to Sub2");
+            changed+=energy(defaultLow.process(input)-defaultHigh.process(input));
+        }
+        require(changed>1e-5,"Default resonance knob does not change the filter response");
+        // These states previously shared a cache key: full Default resonance
+        // and unmodulated Noise with an unused Mild resonance selection.
+        CalibratedNoise changedSettings,freshSettings;
+        changedSettings.configure(147,1,255,0);
+        changedSettings.configure(147,1,-1,1);freshSettings.configure(147,1,-1,1);
+        for(unsigned i=0;i<128;++i){
+            const Stereo impulse{i==0?.5f:0,0};
+            const auto a=changedSettings.process(impulse),b=freshSettings.process(impulse);
+            require(a.l==b.l&&a.r==b.r,"Noise mode switch reused another state's cached coefficients");
+        }
+    }
+    {
         // Return component only; the input here stands in for a separately
         // generated pitch stream. This does not exercise a Spiral generator.
         FactoryEchoReturn processor;processor.prepare(48000);

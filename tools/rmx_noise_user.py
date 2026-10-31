@@ -33,14 +33,17 @@ def recipe():
 
 
 def schedule(c):
-    return 'RMX_NOISE_USER 1\n' + ' '.join(map(str, [c.get('frames', FRAMES)] + [c[k] for k in ['block', 'user', 'main', 'amount', 'width', 'minimum', 'maximum']])) + '\n'
+    advanced = any(c.get(k, 0) for k in ['sub2', 'mode', 'wave', 'resonance'])
+    values = [c.get('frames', FRAMES)] + [c[k] for k in ['block', 'user', 'main', 'amount', 'width', 'minimum', 'maximum']]
+    if advanced: values += [c.get(k, 0) for k in ['sub2', 'mode', 'wave', 'resonance']]
+    return f'RMX_NOISE_USER {2 if advanced else 1}\n' + ' '.join(map(str, values)) + '\n'
 
 
 def xml(c):
     noise = '<SceneFx><Lock>0</Lock><Noise>' + ''.join(f'<{name}>{value}</{name}>' for name, value in [
         # Original popup order: Default/Mild/Wild. Project: Mild/Default/Wild.
         ('CenterFilterTypeCb', [1, 0, 2][c['width']]), ('Sub1MinSld', c['minimum']), ('Sub1MaxSld', c['maximum']),
-        ('Sub2ModResSelectBtn', 0), ('Sub2ModTypeCb', 0), ('Sub2ResTypeCb', 0)]) + '</Noise></SceneFx>'
+        ('Sub2ModResSelectBtn', c.get('mode', 0)), ('Sub2ModTypeCb', c.get('wave', 0)), ('Sub2ResTypeCb', c.get('resonance', 0))]) + '</Noise></SceneFx>'
     return loader.xml({}).replace('</RMX-1000>', noise + '</RMX-1000>')
 
 
@@ -58,7 +61,7 @@ def plan(c, inventory, root):
         return {k: p[k] for k in ['name', 'id', 'index']} | dict(value=value)
     values = drums.parameters(dict(drum='kick', level=128, pitch=128, position=153))
     values.update(DefaultSwitch=1-c['user'], UserSwitch=c['user'],
-        SceneVolume=c['main']/255, Sub1Volume=c['amount']/255, Sub2Volume=0, NoiseButton=0)
+        SceneVolume=c['main']/255, Sub1Volume=c['amount']/255, Sub2Volume=c.get('sub2', 0)/255, NoiseButton=0)
     result = dict(schema_version=1, kind='audio-plugin-capture-plan', role='reference', expected_plugin=IDENTITY,
         sample_rate=48000, bpm=120, tail_seconds=c.get('frames', FRAMES)/48000-1, parameters=[setting(k, v) for k, v in values.items()],
         events=[setting('NoiseButton', 1) | dict(frame=4800, type='parameter')])
