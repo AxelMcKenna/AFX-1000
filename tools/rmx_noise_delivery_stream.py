@@ -22,7 +22,7 @@ def main():
     require(not a.output.exists(),'Report already exists');source=sha256(Path('src/plugin/Plugin.cpp'));own=sha256(Path(__file__));report_hash=sha256(a.noise_report)
     extra_hashes={str(path):sha256(path) for path in a.extra_noise_report};qualified_cases={}
     for path in [a.noise_report]+a.extra_noise_report:
-        qualified=json.loads(path.read_text());require(qualified['kind'] in ['rmx220-bounded-user-noise-statistical-validation','bounded-noise-motion-validation','bounded-noise-sidechain-audio-validation','bounded-noise-random-audio-validation'],'Wrong native Noise report')
+        qualified=json.loads(path.read_text());require(qualified['kind'] in ['rmx220-bounded-user-noise-statistical-validation','bounded-noise-motion-validation','bounded-noise-sidechain-audio-validation','bounded-noise-random-audio-validation','verified-reference-trajectory-random-noise-validation'],'Wrong native Noise report')
         for c in qualified['cases']:
             if c['passed'] or a.all_cases:qualified_cases[c['name']]=c
     cases=list(qualified_cases.values());require(cases,'Expected qualified Noise presets')

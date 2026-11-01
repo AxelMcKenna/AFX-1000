@@ -35,6 +35,7 @@ void SceneProcessor::reset() noexcept {
     mainFilter.reset();echoFilter.reset();noiseTilt.reset();noisePolish.reset();calibratedNoise.reset();calibratedFilters.reset();pitchPhase=0;frame=0;random=0x12345678;
     noiseCutoff=90;noiseModGain=1;noiseReturn={};noiseAge=0;
     noiseMotion.reset();noiseMotionEdges={};noiseMotionCursor=noiseMotionAge=0;noiseEffectiveMain=0;
+    noiseRandomSource=nullptr;
     noiseSidechainDetector={};noiseSidechainThreshold=0;noiseSidechainAvailable=false;
     previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;echoReadGain=0;sharedStartup=false;
 }
@@ -215,7 +216,7 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
                 if(noiseMotionCursor==0){
                     const auto& controls=sidechainMotion&&!resonance
                         ?noiseMotion.sidechain(rawSub2,noiseSidechainDetector,noiseSidechainThreshold)
-                        :noiseMotion.generate(rawSub2,settings.waveform[2],resonance);
+                        :noiseMotion.generate(rawSub2,settings.waveform[2],resonance,noiseRandomSource);
                     noiseMotionEdges={controls[0],controls[16]};
                 }
                 if((noiseMotionCursor&15u)==0)

@@ -13,6 +13,18 @@ from tools.rmx_noise_user import xml
 
 
 class NoiseStreamTests(unittest.TestCase):
+    def test_verified_trajectory_pairing_preserves_ratio_and_rejects_wrong_gain(self):
+        from tools.noise_reference_trajectory_statistics import measure
+        common=np.exp(np.sin(np.arange(60))*2)
+        total=np.repeat(common[:,None],2,axis=1)
+        reference=dict(bands=np.repeat(total[:,None,:]/30,30,axis=1),total=total)
+        small=reference|dict(bands=reference['bands']*10**(.02/10),total=total*10**(.02/10))
+        result=measure(reference,small)
+        self.assertEqual(result['verdict'],'pass')
+        np.testing.assert_allclose(result['whole_level_ratio_db'],[.02,.02],atol=1e-12)
+        wrong=reference|dict(bands=reference['bands']*10**.3,total=total*10**.3)
+        self.assertEqual(measure(reference,wrong)['verdict'],'different')
+
     def test_random_profiles_allow_independent_exposures_and_reject_gain_error(self):
         from tools.noise_random_statistics import measure
         levels=np.broadcast_to(np.asarray([1.,2.,4.,8.])[None,:,None],(30,4,2)).copy()

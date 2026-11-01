@@ -59,6 +59,9 @@ public:
     MeterState meters;
     void prepare(double sampleRate, uint32_t maxBlock);
     void reset() noexcept;
+    // Install with processing stopped; caller owns the source/context while
+    // processing. Null selects the built-in generator. Reset clears it.
+    void setNoiseRandomSource(const NoiseModulator::RandomSource* source) noexcept {sceneProcessor.setNoiseRandomSource(source);}
     // Floating-point plug-in rendering can preserve original above-unity peaks;
     // device adapters retain the default linked output ceiling.
     void setOutputProtection(bool enabled) noexcept {outputProtection=enabled;}

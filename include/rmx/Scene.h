@@ -30,6 +30,7 @@ public:
     void prepare(double sampleRate);
     void reset() noexcept;
     void configure(const SceneSettings&) noexcept;
+    void setNoiseRandomSource(const NoiseModulator::RandomSource* source) noexcept { noiseRandomSource=source; }
     void setNoiseSidechain(const std::array<float,32>& detector,float threshold,bool available) noexcept {
         noiseSidechainAvailable=available;
         if(available){noiseSidechainDetector=detector;noiseSidechainThreshold=threshold;}
@@ -54,6 +55,7 @@ private:
     StateFilter mainFilter,echoFilter,noiseTilt,noisePolish;
     CalibratedNoise calibratedNoise;
     NoiseModulator noiseMotion;
+    const NoiseModulator::RandomSource* noiseRandomSource{};
     std::array<float,2> noiseMotionEdges{};
     unsigned noiseMotionCursor{},noiseMotionAge{};
     int noiseEffectiveMain{};

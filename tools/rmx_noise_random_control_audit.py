@@ -11,10 +11,15 @@ from tools.rmx_noise_random_controls import verify_targets
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for key in ['discovery','fresh','motion-report','sidechain-report','sidechain-release','random-probe','random-sanitizer','motion-probe','motion-sanitizer','sidechain-probe','sidechain-sanitizer','output']:p.add_argument('--'+key,type=Path,required=True)
+    p.add_argument('--implementation-bridge',type=Path)
     a=p.parse_args();discovery=json.loads(a.discovery.read_text());fresh=json.loads(a.fresh.read_text());rows=[];preserved=[]
     if not fresh['verification_passed'] or not fresh['all_conditional_controls_matched']:raise ValueError('Fresh controls failed')
+    bridge=json.loads(a.implementation_bridge.read_text()) if a.implementation_bridge else None
+    if bridge and not bridge['passed']:raise ValueError('Implementation bridge failed')
     for name,digest in fresh['source_sha256'].items():
-        if sha256(Path(name))!=digest:raise ValueError('Fresh model source changed: '+name)
+        if sha256(Path(name))!=digest:
+            change=bridge['source_changes'].get(name) if bridge else None
+            if not change or change['before_sha256']!=digest or change['after_sha256']!=sha256(Path(name)):raise ValueError('Fresh model source changed: '+name)
     with tempfile.TemporaryDirectory(prefix='rmx-random-control-audit-',dir='/private/tmp') as directory:
         path=Path(directory)/'targets.txt'
         for old in discovery['cases']:
@@ -38,6 +43,8 @@ def main():
             negative=subprocess.run([a.random_probe,str(c['sub2']),str(row['blocks']),str(path),'controls'],capture_output=True,check=True)
             if hashlib.sha256(negative.stdout).hexdigest()==digest:raise ValueError('Wrong-target negative passed')
             own=subprocess.run([a.random_probe,str(c['sub2']),str(row['blocks']),'own','controls'],capture_output=True,check=True)
+            own_sanitized=subprocess.run([a.random_sanitizer,str(c['sub2']),str(row['blocks']),'own','controls'],capture_output=True,check=True)
+            if own.stderr or own_sanitized.stderr or own.stdout!=buffers[0] or own_sanitized.stdout!=buffers[0]:raise ValueError('Default reconstructed control stream differs')
             own_targets=subprocess.run([a.random_probe,str(c['sub2']),str(row['blocks']),'own','targets'],capture_output=True,check=True)
             targets=np.frombuffer(own_targets.stdout,dtype='<f4');path.write_text('\n'.join(format(v,'.17g') for v in targets)+'\n')
             supplied=subprocess.run([a.random_probe,str(c['sub2']),str(row['blocks']),str(path),'controls'],capture_output=True,check=True)
@@ -62,7 +69,7 @@ def main():
                 buffers.append(r.stdout)
             if buffers[0]!=buffers[1] or hashlib.sha256(buffers[0]).hexdigest()!=old['observed_trace_sha256']:raise ValueError('Prior Sidechain controls changed')
             preserved.append(dict(kind='sidechain',case=c['name'],controls=old['blocks']*32,complete_original_native_asan_f32_identity=True))
-    save_json(a.output,dict(kind='random-noise-control-and-regression-audit',verification_passed=True,conditional_random_cases=out,preserved_control_cases=preserved,input_report_sha256={str(path):sha256(path) for path in [a.discovery,a.fresh,a.motion_report,a.sidechain_report,a.sidechain_release]},binary_sha256={name:sha256(getattr(a,name)) for name in ['random_probe','random_sanitizer','motion_probe','motion_sanitizer','sidechain_probe','sidechain_sanitizer']},auditor_sha256=sha256(Path(__file__)),model_sha256=sha256(Path('src/core/NoiseModulator.cpp')),raw_audio_retained=False,scope='Six complete conditional Random control streams and31 preserved deterministic/Sidechain streams through shared production core. Random identity is conditional on the observed target input. Default production targets remain independent; their full controls differ from Original. Includes wrong-target negatives and own-source provider invariance.'))
+    save_json(a.output,dict(kind='random-noise-control-and-regression-audit',verification_passed=True,implementation_bridge_sha256=sha256(a.implementation_bridge) if a.implementation_bridge else None,conditional_random_cases=out,preserved_control_cases=preserved,input_report_sha256={str(path):sha256(path) for path in [a.discovery,a.fresh,a.motion_report,a.sidechain_report,a.sidechain_release]},binary_sha256={name:sha256(getattr(a,name)) for name in ['random_probe','random_sanitizer','motion_probe','motion_sanitizer','sidechain_probe','sidechain_sanitizer']},auditor_sha256=sha256(Path(__file__)),model_sha256=sha256(Path('src/core/NoiseModulator.cpp')),raw_audio_retained=False,scope='Six complete Random control streams match Original through the default native and ASAN production core, also replayed with supplied targets. Preserves31 deterministic/Sidechain streams. Includes wrong-target negatives and target-provider invariance. The three prospective predictions originally used a previously observed target prefix; the default generator reconstruction followed those captures. No audio waveform identity or perceptual percentage.'))
 
 
 if __name__=='__main__':main()

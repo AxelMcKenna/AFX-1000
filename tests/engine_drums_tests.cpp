@@ -52,13 +52,23 @@ int main(){try{
             {rmx::Param::SceneOn,1.f},{rmx::Param::SceneDepth,149/255.f},{rmx::Param::SceneTime,4.f},
             {rmx::Param::SceneResonance,117/255.f},{rmx::Param::NoiseWave,wave}})engine.params.set(param,value);
         engine.prepare(48000,128);std::array<float,128> input{},left{},right{};
+        struct Source {
+            unsigned calls{};
+            static float next(void* context) noexcept {auto& self=*static_cast<Source*>(context);return ++self.calls%2?.75f:-.5f;}
+        } context;
+        const rmx::NoiseModulator::RandomSource source{Source::next,&context};
+        if(wave==3)engine.setNoiseRandomSource(&source);
         const auto before=arena.allocations(),heapBefore=allocations;tracking=true;
         for(unsigned block=0;block<800;++block){
             for(unsigned i=0;i<128;++i)input[i]=((block*128+i)/173)%2?.2f:-.2f;
             engine.process(input.data(),nullptr,left.data(),right.data(),128);
             for(unsigned i=0;i<128;++i)require(std::isfinite(left[i])&&std::isfinite(right[i]),"Random/Sidechain callback produced nonfinite audio");
         }
-        engine.reset();require(allocations==heapBefore&&arena.allocations()==before,"Noise Random/Sidechain callback/reset allocated");tracking=false;
+        require(wave!=3||context.calls>0,"Engine did not forward its Random target provider");
+        const auto beforeReset=context.calls;engine.reset();
+        for(unsigned block=0;block<128;++block)engine.process(input.data(),nullptr,left.data(),right.data(),128);
+        require(context.calls==beforeReset,"Engine reset retained a borrowed Random source");
+        require(allocations==heapBefore&&arena.allocations()==before,"Noise Random/Sidechain callback/reset allocated");tracking=false;
     }
     {
         // A processed block generated before Panic is already on the common

@@ -46,14 +46,15 @@ const std::array<float,32>& NoiseModulator::generate(int raw,int wave,bool reson
                 if(counter>=static_cast<unsigned>(period)){
                     if(source)randomTarget=source->next(source->state);
                     else{
-                        random^=random<<13;random^=random>>17;random^=random<<5;
-                        randomTarget=static_cast<int32_t>(random)*(1.f/2147483648.f);
+                        const auto word=randomSecond;
+                        randomFirst^=randomSecond;randomSecond+=randomFirst;
+                        randomTarget=static_cast<int32_t>(word)*(1.f/2147483648.f);
                     }
                     ++randomDraws;
-                    randomStep=(randomTarget-phase)*(1.f/128);remaining=8;counter=0;
+                    randomStep=(randomTarget-randomPhase)*(1.f/128);remaining=8;counter=0;
                 }
-                for(unsigned i=0;i<16;++i){phase+=randomStep;output[half*16+i]=phase*depth;}
-                if(remaining&&!--remaining){phase=randomTarget;randomStep=0;}
+                for(unsigned i=0;i<16;++i){randomPhase+=randomStep;output[half*16+i]=randomPhase*depth;}
+                if(remaining&&!--remaining){randomPhase=randomTarget;randomStep=0;}
                 counter+=16;
             }
             return output;

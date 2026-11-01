@@ -35,6 +35,9 @@ int main() {try {
             for(unsigned block=0;block<100;++block){const auto& values=replay.generate(raw,3,true,&source);for(float v:values)require(v==0,"Random resonance disable left modulation active");}
             require(targets.used==count,"Disabled Random advanced its target stream");
         }
+        NoiseModulator switched;
+        for(unsigned i=0;i<100;++i)switched.generate(43,0);
+        for(float value:switched.generate(43,3))require(value==0,"Random reused the deterministic waveform's phase history");
     }
     {
         NoiseModulator motion;std::array<float,32> detector{};detector.fill(1);

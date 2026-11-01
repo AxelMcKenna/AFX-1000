@@ -2,6 +2,8 @@
 
 1 November 2026. The live Engine and Noise control probes now call the same production functions, compiled with floating-point contraction disabled. All nine declared Triangle/Saw/Square audio programs qualify after output-preservation bridges and fresh checks of the two changed programs. Sidechain retains one qualified audio program out of three, with its two inconclusive results unchanged.
 
+Subsequent work reconstructs [Random modulation](noise-random.md). This document preserves the preceding checkpoint's measurements and scope.
+
 The [validation receipt](measurements/2026-11-01-noise-control-fp-validation.json) links the production-control audit, whole-WAV bridges, fresh numerical powers, independent arithmetic and signed-format delivery. Earlier [modulation](noise-modulation.md) and [Sidechain](noise-sidechain.md) reports retain their original verdicts.
 
 ## The compiler discrepancy

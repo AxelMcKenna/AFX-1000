@@ -1,0 +1,373 @@
+{
+  "kind": "random-noise-reconstruction-validation",
+  "date": "2026-11-01",
+  "verification_passed": true,
+  "random_audio": {
+    "declared_presets": 3,
+    "qualified_presets": 2,
+    "stationary_seconds_per_case": 1190,
+    "qualification_map": [
+      {
+        "program": "noise-random-w0-reconstructed",
+        "width": 0,
+        "sub2": 29,
+        "qualified": true,
+        "overall": "pass",
+        "profile": "pass",
+        "overall_thirds": {
+          "early": "pass",
+          "late": "pass"
+        },
+        "profile_thirds": {
+          "early": "pass",
+          "late": "pass"
+        }
+      },
+      {
+        "program": "noise-random-w1-reconstructed",
+        "width": 1,
+        "sub2": 117,
+        "qualified": true,
+        "overall": "pass",
+        "profile": "pass",
+        "overall_thirds": {
+          "early": "pass",
+          "late": "pass"
+        },
+        "profile_thirds": {
+          "early": "pass",
+          "late": "pass"
+        }
+      },
+      {
+        "program": "noise-random-w2-reconstructed",
+        "width": 2,
+        "sub2": 223,
+        "qualified": false,
+        "overall": "pass",
+        "profile": "pass",
+        "overall_thirds": {
+          "early": "pass",
+          "late": "pass"
+        },
+        "profile_thirds": {
+          "early": "inconclusive",
+          "late": "pass"
+        }
+      }
+    ],
+    "remaining_inconclusive": {
+      "phase": "early",
+      "control_bin": 3,
+      "channel": "right",
+      "level_difference_db": -0.05511195388288607,
+      "approximate_interval_db": [
+        -0.11222514141940376,
+        0.002001233653631633
+      ],
+      "margin_db": 0.1,
+      "verdict": "inconclusive"
+    },
+    "independent_white_excitation": true,
+    "default_targets_reconstructed_without_captured_prng_memory": true
+  },
+  "controls": {
+    "random_streams": 6,
+    "random_modulation_values": 547008,
+    "preserved_streams": 31,
+    "preserved_modulation_values": 2634208,
+    "all_original_default_native_asan_exact": true,
+    "largest_target_prefix_draws": 27765,
+    "target_prefix_counts_are_not_independent": true,
+    "actual_scene_uses_shared_out_of_line_controls": true,
+    "no_fused_operations_in_control_object": true,
+    "core_archive_sha256": "ec57d6ee0bf8ebdc6dffef937dfe32e4264f3b1ff21371236720caa39f779f74",
+    "control_object_sha256": "236f9ad672a58ba80dadea4efbcd1084b40ef93ca563ec35634c614daba93246"
+  },
+  "regression": {
+    "previous_validation": {
+      "path": "research/audio/measurements/2026-11-01-noise-control-fp-validation.json",
+      "sha256": "1bd99433a4ffa760c4b749f55064a71fc1a47519f9c7dad0e959310f9f2adc51"
+    },
+    "nonrandom_short_wavs_unchanged": 34,
+    "deterministic_600second_wavs_unchanged": 9,
+    "deterministic_and_sidechain_source_arithmetic_preserved": true,
+    "white_excitation_function_unchanged": true,
+    "deterministic_qualification_retained": 9,
+    "sidechain_qualification_retained": 1,
+    "sidechain_inconclusive_retained": 2
+  },
+  "statistical_method": {
+    "estimand": "ratio of mean powers",
+    "paired_covariance_requires_verified_matching_default_trajectory": true,
+    "band_margin_db": 0.5,
+    "level_margin_db": 0.1,
+    "confidence_multiplier": 3,
+    "meaningful_band_floor_db": -40,
+    "self_stationarity": "Retained diagnostic for deliberately nonperiodic trajectory; separate full/early/late between-source gates required",
+    "initial_independent_and_supplied_target_failures_retained": true
+  },
+  "current_source_sha256": {
+    "tools/rmx_drums_fx.py": "043cc828fe5b23532504fd536d1fa1c1b8220481d3ae520d69534079fec9a12b",
+    "tools/drums_fx_probe.cpp": "d9b00562335b07c0b1fda7455b2be7e02c73ddd5b19f456e1f2af0759a70c9e7",
+    "CMakeLists.txt": "94d2a51581e727d654c2d3ef24e152b09e55983201002307ef67f3860c03ab15",
+    "research/audio/experiments/SharedDrumFX.h": "aa8f713f22b54cd3c2028a84d39205e2f850f3ac44d7fb1f6d7013902f44722e",
+    "tools/rmx_drums.py": "676699ac368394edbdbebf64188fd21070583f3ab46d7a2218519c419b3702d8",
+    "tools/rmx_drums_engine.py": "551c52e91d6e54bf19a5c9999737d7614b01123f8a5c2d99cdf30cdbcfdbf796",
+    "tools/rmx_factory_match.py": "165b988795ec557e7fa83308723e8dc23810c02380845eeea83bebbf3582749b",
+    "tools/rmx_filter_match.py": "5ae841eb84c59fc5d10a95391cead92a94ae17acbdf1a44ce25025995085d914",
+    "tools/reference_audio.py": "b0966a3aeec95160ba6616555216883a31675c455bed86db276818c03a51f28e",
+    "tools/noise_statistics.py": "f0fb4b43b9f36343c3cd56c7107e457bd9a04749f9f123f56fe3a097fc181d25",
+    "include/rmx/CalibratedCutAdd.h": "f2d97f5fe0e539a1f62fd860d639a8445c04b3d9a80415bec33f111eadfc1abd",
+    "include/rmx/CalibratedFilterEcho.h": "e604cf2842da9e5e6d224deebfdbb8c35abd1923445ace7e21cbb5435212c9e9",
+    "include/rmx/CalibratedGateDrive.h": "c9271d96fd0ba07609ddb05c52cd687ecfe3e950fe8f575a80f49cde3a691d49",
+    "include/rmx/CalibratedNoise.h": "db58db2617116aa7349009b2256795d6b8ba4b5d71523af8397d2aad9b77d9a9",
+    "include/rmx/CalibratedReleaseBrake.h": "d6322360c91cc60eb4c7b27e92bbb9c46132ab7f572976a7b90138fbe73a2e11",
+    "include/rmx/CalibratedReleaseEcho.h": "7295b77400ac5efd912b3a852214f4a97852be74551facf403dca877b450df99",
+    "include/rmx/CalibratedReleaseSpin.h": "49e5be9f2ee4573cd3d612dc7dd64f1514c5aa56bdc445abf7a4ac151c75a872",
+    "include/rmx/CalibratedReverbDown.h": "9bf2f909167ebe1fbeaab34a6ea52f59d2991d228d12124c39b6bf095280207a",
+    "include/rmx/CalibratedReverbUp.h": "a13e0be6a8ed2288e7608e36b0cbca26efd3bdebd4dd39240eaf668259c311a3",
+    "include/rmx/CalibratedSpiral.h": "5a53bdeb003c9c3433f17b780373098cf752a4e19da738e825ed6139433eb4b7",
+    "include/rmx/CalibratedTransRoll.h": "41b4f70e5bdf64c4f7fc8753e20a17d4806db8e4158e1a1c34f9f87e9226b16a",
+    "include/rmx/CardExport.h": "d8fef657ae059821a12d58534b8e72f3754c54b6f2cbd089cf6c73c202b7339a",
+    "include/rmx/CardSamples.h": "90d1a31bbea4e429c66c5e0c8093137bb1e946ae31cdb061c15ee473b457edd5",
+    "include/rmx/CardSettings.h": "14fcf121c7d6452110bfd30e60d00ac3b56220fee492e807feff035367137fd7",
+    "include/rmx/ControlSurface.h": "a4628aa6e5ce9c0a5f377c14e96cd8a18b80831a15b4ce2e79c66428ff3b4245",
+    "include/rmx/CutFilterCoefficients.h": "97e12fdacd317e8b94dc1889e229c208c212fe641933f42c1c9dc70933f353a1",
+    "include/rmx/Dsp.h": "452bfcf58a434314fd203e68b5cb06e9e2cd506ced7af6f6957c786fdc009073",
+    "include/rmx/EmbeddedControls.h": "34d38e98944ce0579c0e7e57af9648cf6d5d4c10ddfac39979f947c2ca04956c",
+    "include/rmx/Engine.h": "7fad63282d91afd487d2ff54f6ebd2da3149a66ea92d43ff882aacdf15df9256",
+    "include/rmx/FactoryDrumSequence.h": "7c55d6efded3a24c6d5482ede593c066e44984593ab9c23a4316f132c427f79d",
+    "include/rmx/FactoryDrumSynth.h": "55188ac1129d9b669c75246af35e7eddbf40a845b31ea8bd7609b271d5c51a49",
+    "include/rmx/FactoryDrums.h": "1248233fa60af68d30e6f2f725a448101246c6fb1d9f30ab433d6a677d58c408",
+    "include/rmx/FactoryEchoReturn.h": "0c8291afa0af97500e266bac68f87cdb2d753ddc0bc7429958452472d29497ab",
+    "include/rmx/FactoryRelease.h": "c4dd56b11f17fe402e3037cccf7f8e5b453f209b8165ad0f751562cab4458e26",
+    "include/rmx/FactoryRollClock.h": "985183f0c821d54320807a0e1c165e5dd3fda2b225466d5473359cf8bcbc8db6",
+    "include/rmx/FilterEchoCalibration.h": "494938f7372a9712b16d8055088b29dd90009ef48eadd35e8c259ba024d9db58",
+    "include/rmx/FixedArena.h": "7bc52e324661a348bdaae5bd2dffe9ebeda19a744e1f93dceeb784b89550d6f5",
+    "include/rmx/HardwareCalibration.h": "ccbef2c40c492b0986f3f4c2c7a255d4c0fb2dfed266b61a838895008f36643e",
+    "include/rmx/Isolator.h": "c028f76e11421f01ec939380b4472166a8ed68962db2a2aa423681ad3954b2d1",
+    "include/rmx/LoopStretch.h": "77dc0c3ef4514494901f878f642fab70d76b77e300cfb1143cc9684411c6c5fd",
+    "include/rmx/MidiClock.h": "9bd9f34bc641fb25d6b181ea9a8d1ce5b478f395ffd1bb5ca93f89868140eccf",
+    "include/rmx/NoiseCalibration.h": "81bf867ecd9e43904e738dbdaff638db4943d8b7ee70c844c2502f7c3672f215",
+    "include/rmx/NoiseModulator.h": "5711cd8385f4a8e5a54c88bae021d03bafecb058d2f9736d49e4d784c9b83f2d",
+    "include/rmx/Panel.h": "9a5cb32945258f58816cb761e33dca37368e4bbafa6a341d1275690acfa93c51",
+    "include/rmx/PanelController.h": "de924b288e47b269d74ca5ba98be80e00db7e3948cc251352c9f0fa9d43f68ef",
+    "include/rmx/Parameters.h": "0794f7a96a3c621dd1f6d5906a6737a572588b82b27e7936c7caf1a1c46651d6",
+    "include/rmx/ReverbDownCalibration.h": "f06e4bc00f638f0173a685192d43510214dd255cd3ab16568f5d1be387b04d39",
+    "include/rmx/ReverbUpControlCalibration.h": "370eaa2498ba84b950e70b0ad078fa3a67475f9286753bee33d79153a0b7e7ba",
+    "include/rmx/ReverbUpMotionCalibration.h": "41b6029051828d412dd5dbf9d5638a94a8cb4091914912b6a8eb8f6563489fd9",
+    "include/rmx/Sample.h": "e0983d3deb320e7e823a0a5ae6fea79670376570e6039fc0e0550eabec36ded7",
+    "include/rmx/SampleReader.h": "6a33cad229e2a45749362c9a63a305e7e8a3e492f48e028114b0cfd1af0d0b5b",
+    "include/rmx/Scene.h": "984f627496de1e3fe4773ebc5342b15e5f9f8a4edb5058a39110512abf00b978",
+    "include/rmx/Sequencer.h": "1cef7c91c9f0de1e238467de2d5a27cff40b220c25392499f83ecec7c8c6a8f3",
+    "include/rmx/Skin.h": "bb0450236c602bc01060401b16531855fbbb5812fc92e65217605a82c7cac03b",
+    "include/rmx/State.h": "47de90d0787483495f9d475663507266ead864697f8e3f08caf3c96d5edb9c5e",
+    "include/rmx/TempoTracker.h": "b740b7a06c82bac58e27646ac1c49f9126ac2daf66b042035555f33fc0cfedec",
+    "include/rmx/Wav.h": "dc56a9df676cc549821adbec600ca0df60690e96b7d6fd92a1058dd98f9a2e14",
+    "include/rmx/drums/Clap.h": "af013a68ba2ed622e1de021f6a4241f7fc56bb1df3ba73ea61a4c7fb0beadecc",
+    "include/rmx/drums/ControlTables.h": "c4316daf3ed3dc347cf3bb85bb55b9578edbfaaa88c1ae1695f6eac972d3ff19",
+    "include/rmx/drums/Controls.h": "70251c9b08b426f6cfcd817a6c000be7d1272aa408939a55ccdf74a3abf173fd",
+    "include/rmx/drums/FrequencyCalibration.h": "fcbca2a2115eac4dbbecc3cb364fb118681598b79d853d00a1de501d67593f1a",
+    "include/rmx/drums/Hat.h": "d6ff6abc672bd4fedbc0281694a97bf54d8c50914724db08254e544a624a52d2",
+    "include/rmx/drums/Kick.h": "c4da687372adcff11049f12ea03a90576b34f6e5aa8a116328b367dc09c9fb68",
+    "include/rmx/drums/Profile.h": "3ea5391d575ae70512c09ac6d53e061c5364da4bfc28bc512ebd4c1d7aeed15f",
+    "include/rmx/drums/Snare.h": "59c8da40f7b18da422dda7214bf9d4dd4fcf3a6939f12eb82b1356265c5c7a9a",
+    "src/core/CardExport.cpp": "9d4e371a49f0ca4b39256f974f9227f8ad9c587a50d3bee38462950530680a04",
+    "src/core/CardSamples.cpp": "77ad0bdab6cde2b32c8ddd4243919f45303ace9625285d3af30dd34039ca54bc",
+    "src/core/CardSettings.cpp": "8bf3e5d231c8297da6c094d0a94bf3af4bf0a340a2a6872b29a30d83586aa148",
+    "src/core/CutAdd.cpp": "0388958ff8c4573554f22d9219f9c415c0951bbf88820986ebd6d4f3fa82f77e",
+    "src/core/Engine.cpp": "733f5ebb3359c75db38d9cde006c621cf065f72f92401ce5bdb86da35a2b6d3a",
+    "src/core/FactoryRelease.cpp": "ab855319d319761c5e45d6af2e3c7490e3f9c0434f36b414154f26c897970e5b",
+    "src/core/GateDrive.cpp": "d96feaca5689055cdd070ba35f59e49130f987f139c620e5c9e3b9f3c0e9a2f7",
+    "src/core/Isolator.cpp": "63fefd8cace8021341870d0587632dce48817114b9fcb641f059a41020755307",
+    "src/core/NoiseModulator.cpp": "b25f7b56459aa864a22c9c6655b3f8163666a898af5b68bb545603ed673e7585",
+    "src/core/ReverbDown.cpp": "15d9f615cd10ab5540fb1f71f20dc7dfcc488da9054314346716a08af48a21da",
+    "src/core/ReverbUp.cpp": "a33545d30753e28fe9a7cd0d1629b762de8ffd17e03fd79799f856a765501bce",
+    "src/core/Scene.cpp": "ddc4dab9270406c177a8784fc5623a4c4c88d581960c0c3ff9d02c46f2c93e76",
+    "src/core/Spiral.cpp": "2b7c4c914e15dd92f5b00b1f971e466ce0d758063f9ab66dba8f2827a77e44a1",
+    "src/core/State.cpp": "56c315bca32e56fb49ef97ab72c581b84739b59ea6e86b1bcf7a0a23b683fd92",
+    "src/core/TransRoll.cpp": "3bed5282519c34dbf1352dc0d10d6968c47c38e865a2d654942f87d420d7777f",
+    "src/core/Wav.cpp": "bd8beeb2e3dd5efb39df4ea4d48ea9eaa38201b2173e1b94ca6cb90c8ede0e46",
+    "src/core/drums/Clap.cpp": "6d30f3d7e263ecde77d8536e4b0103ea71af2ec8fac323167c1217966bb74a4f",
+    "src/core/drums/Hat.cpp": "f43a7866653cb36203b39c49bb658d87e92bf58b67e3f7fcb6207fbf24968571",
+    "src/core/drums/Kick.cpp": "84a740a2f4a74cdc575812fc0e94eb1e626ff3463dcd180d0e7407b4d74b0510",
+    "src/core/drums/Snare.cpp": "5b674b626bb240b89abe32683c072d9a28db7d2d4565c2bf890379f8eae5c1ff",
+    "tools/rmx_noise_user.py": "3678a241a7f34ec3bcb9ccd78c2a7d696d9996b5bcf65749a31a0cac99b5db2f",
+    "tools/noise_user_probe.cpp": "5ed4d78ddf3012129d7b46c3aca7922d2ff53521ea727f1922e919958688c4ef",
+    "tools/rmx_drum_user_settings.py": "46d43557154648ec5092718e70d99c67985b15d4d7ca4860151454ee40b873cb",
+    "tools/audio_plugin_render.cpp": "ff86d773e9167261caf263c03faa22c2f7649a8ba784fbf238bc1ffc3d86e723",
+    "tools/audio_plugin_host.h": "60916f08b006ccb77f45a8190ea58ba31d30f16a48e50c53efc7bcf8f337a18b",
+    "tools/legacy_vst2_host.h": "4be2f94903190ced412b877625f8e1096ce9bf76c69df7c0468ab7f4882f39ba",
+    "tools/rmx_noise_stream.py": "b6b3d8e219cf426e5aa50b22de51b223220e9097b9ecab182ae5bbbcf3683a57",
+    "tools/rmx_noise_random_reference.py": "6b327baf57957f536d8e060ad23bee1ed6f6b1000ad80a4090a3d601327f8a93",
+    "tools/noise_random_statistics.py": "eca4232a01b44ec77040b245e4a2811c229887b784671c37dbf5cc673cbaf556",
+    "tools/noise_reference_trajectory_statistics.py": "57d657c789de302dab4e03d895da3d6e158bef157483b0baa616491286b48ca7",
+    "tools/noise_random_probe.cpp": "8bb6e6696903815accbcc5f3c7b950e3f1a2e9c88f7d3debca3b6e3cba073fa4"
+  },
+  "measured_binary_sha256": {
+    "renderer": "6348aa2e2ac6507590be0f3acc8d3553d29ae1b86d83b6e4e7bc4ae1aac8a51a",
+    "sanitizer": "236d73b03c452cfb0471e9c7f5ea0d73d8baaec94c152279a47ae3c42e19c8c6",
+    "probe": "3a0a17f6a75c2d3215c1af20ee913190d5685560fe91f233e550e3bfddb5058c",
+    "host": "55c091bd69c01d5618d118c78f6ad7b12b925d10bcfb4b3945db636f75188fbb"
+  },
+  "post_capture_comment_only_source_bridge": {
+    "before_sha256": "9ff545dce2bfb34575cf27919617a18763897720e37f6ebe1422a8e63ff266ed",
+    "after_sha256": "7fad63282d91afd487d2ff54f6ebd2da3149a66ea92d43ff882aacdf15df9256",
+    "only_change": "Comment clarifies that null selects the built-in target generator; no C++ token changes."
+  },
+  "delivery": {
+    "comparisons": 40,
+    "all_decoded_samples_exactly_native": true,
+    "latency_frames": 32,
+    "runtime_checks_per_format": 359,
+    "preview": "/Users/axelmckrnna/dev/rmx-publish/build/live-engine-preview-20261101-noise-random"
+  },
+  "tests": {
+    "native": {
+      "tests": 8,
+      "passed": 8,
+      "log_sha256": "d5fe32e241d69d69f262864cd495efbd87e832fef3e38d77eddf6f15e9401864"
+    },
+    "asan": {
+      "tests": 2,
+      "passed": 2,
+      "log_sha256": "d195fec56b59ff1812a6687cca918734be0a79c6fbf4dcbf224087d5af3ea26f"
+    },
+    "python": {
+      "tests": 9,
+      "passed": 9,
+      "log_sha256": "b83676a25ca706f3c9ce9ede0bb75ac9bd12cd6e14329cc83a04cb9944b3a948"
+    },
+    "firmware": {
+      "tests": 16,
+      "passed": 15,
+      "log_sha256": "b65e009234cb445cdc45194ff18cf737194d7c3835f139227b1633e2d2f671e5"
+    }
+  },
+  "memory": {
+    "engine_object_bytes": 50432,
+    "prepared_audio_buffers_bytes": 30100112,
+    "measurement_log_sha256": "fd0b4bcce364d2dda795d4984f84295560b3f4bb7a6c1da8e3fb7190a5de5217",
+    "random_sidechain_callback_and_reset_allocation_guards_passed": true
+  },
+  "known_firmware_failure": "full_integration: Full engine factory path is silent (inherited)",
+  "retention": {
+    "raw_audio_retained": false,
+    "all_campaign_temporary_directories_removed": true,
+    "maximum_campaign_temporary_bytes": 464183831,
+    "budget_bytes": 536870912,
+    "compressed_power_files": 12,
+    "compressed_power_bytes": 6817251,
+    "prior_preview_removed": true
+  },
+  "reports": {
+    "discovery": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-discovery.json",
+      "sha256": "78a7970fb125c0d01b10edadab5ca4fca6c86d6b34604b531501231a34c3fb72",
+      "source_report_sha256": "0ab402c9847a2b7703738ae7c88d5676b3edf7d9d1777a0937b6d31b53ad3676"
+    },
+    "fresh-controls": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-fresh-controls.json",
+      "sha256": "1f3ca70388f40b9f67fdbc9e565965f86eeb2c73f9dc260289da5759fe2608a1",
+      "source_report_sha256": "3401dd8bae9c925483a8f54b89a629e1250d4bb2e50a67bcffcd781959bea3ad"
+    },
+    "independent-600": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-independent-600.json",
+      "sha256": "47cd679cce1adaa98e5f9f688ba4aae7992ccd2a90296ad5836d17ef456b6d08",
+      "source_report_sha256": "d5fc4d603d9e4528261279e5a1e4c262ace2e1825eef2c9a4b3ab414c465d5dd"
+    },
+    "independent-1190-recovered": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-independent-1190-recovered.json",
+      "sha256": "9bddbb1d53385170b29491736366f2d0d081311a70d0d486876ff6596a7e74a5",
+      "source_report_sha256": "79dfa9e4ed7c41b02ccad807574e75aa968b5e40077207ad50c153615deef855"
+    },
+    "independent-1190-wide": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-independent-1190-wide.json",
+      "sha256": "9f89ecfb7d4f8e594b2d9d7b50305a90fb2ada75e9b39eae5faea0589c36f313",
+      "source_report_sha256": "ea50013c4dc9caf5af63abe3c94c6c440c5276602f682867e10216945e71ef76"
+    },
+    "observed-1190": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-observed-1190.json",
+      "sha256": "b5d74a035a6ba5a112770e7a5fab2e2442cfcccc2f3b93f7c7b4b01ce4adc784",
+      "source_report_sha256": "48dd935990c76c478d2a0a7482dbfda311aef26560794b23e2865d6f55e169f3"
+    },
+    "supplied-target-600": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-supplied-target-600.json",
+      "sha256": "beed4a54d60f3bfe2e0a0d0fc2a38ae43837b35058a1f99cc49d57621e09a39f",
+      "source_report_sha256": "664b3101d7dacfb1e6a2554ce073fca807c9aba9431c379117e1a53e132e4719"
+    },
+    "reference-1190": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-reference-1190.json",
+      "sha256": "0c3b029227883e332c8ff460c55f7d3f4ccf8e10df09f1764e88ed446db9f18b",
+      "source_report_sha256": "b77f8174fc82a50ffc52d0167b6b2bec900737df850e063e8ddec70d8546c882"
+    },
+    "source-bridge": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-source-bridge.json",
+      "sha256": "47d971d997a1f754ed3419db7569cc8671cd1eeccdbf4c200d263d7c5be2cbfe",
+      "source_report_sha256": "8d64cc8bd166c7d8f535a39499eec1711759d4765c6fc8ac4015665ae58d5235"
+    },
+    "output-bridge": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-output-bridge.json",
+      "sha256": "112a436dde88f4f2c28f700360828572f41f0a8a6802ec552e88c05e561cf983",
+      "source_report_sha256": "621a7cd7c4f5153ff3e6250cd90014f7fbb572269e056cd2cab4c6398bf2404f"
+    },
+    "preview": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-preview.json",
+      "sha256": "4d0d96ad8ebed67b0df0fd05168fc72d7679cc1f8cc411b2bcb264ad64ea55d2",
+      "source_report_sha256": "af40d216b42e68e21b0213f8064bee9830cc8af0833c64be5439352075d9bc12"
+    },
+    "delivery-low": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-delivery-low.json",
+      "sha256": "5af1f384d95d57f2710d7072d69c58ff303aca6f783c6cd992665e389e8f65b9",
+      "source_report_sha256": "a1e0c7607aaa198beb94d62ada4bf62cdf35e44aa41c82cda474911e152f3f52"
+    },
+    "delivery-asymmetric": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-delivery-asymmetric.json",
+      "sha256": "ba5271132e233864b4f0fb205de1116208a3364b4d37674c62fe9fdd37c61b33",
+      "source_report_sha256": "38c4db1c70c6485680d90024ee5c90d5b0cad84b4b6c9e2727691f1e521098da"
+    },
+    "earlier-provenance": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-earlier-provenance.json",
+      "sha256": "90e2e9902c5c2300b2736151f47bc60d8a771c6a26ab264e87ee891349cff4f9"
+    },
+    "runtime-au": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-runtime-au.json",
+      "sha256": "875c25901f3d9c1ceddd73247cbbbc3cc03cc6eaed7abe0510a363fb949108b4",
+      "source_report_sha256": "383752003d3653a7c704d10d350e518c39ddc768d79fde67d54b947f7319dc04"
+    },
+    "runtime-vst3": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-runtime-vst3.json",
+      "sha256": "d60695ce9f63c8ec6e8403e4e4d6c32a140e0f7ba17741669555e49bac9c1f76",
+      "source_report_sha256": "b71727a880d171588049498d9b37dd3badd8d3a0b29b47fcd661436d5941544a"
+    },
+    "generator-audit": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-generator-audit.json",
+      "sha256": "2762cce280578149d796b2b9536770719a1475470cdc821c4b26a3660cc28018"
+    },
+    "reference-audit": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-reference-audit.json",
+      "sha256": "cc1c31a2164c9ca81276ebb254e9842101f1db7c072aa0c80d667dd4e1ced303"
+    },
+    "supplied-target-audit": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-supplied-target-audit.json",
+      "sha256": "e354f08045a7a57a5449a3753596fbe63027bf3b327ebcedacd05f2da438abb7"
+    },
+    "independent-audit": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-independent-audit.json",
+      "sha256": "d95001ff6abba34fc5390a018edb2d5fca883bf60556566bd007c95f6bfd8548"
+    },
+    "control-audit": {
+      "path": "research/audio/measurements/2026-11-01-noise-random-control-audit.json",
+      "sha256": "756a28654dff629748dc84db9e51a5b5d76fa5e818f0f4b246bde8a84bd705dd"
+    }
+  },
+  "limits": [
+    "Fixed declared User48kHz/manual120BPM programs against Original plug-in2.2.0",
+    "Wild Random early right-channel high-control-bin level remains inconclusive",
+    "Two Sidechain audio programs remain inconclusive",
+    "Dynamic controls/mode switching, arbitrary music and source combinations, other rates/tempos, blind listening and hardware remain unqualified",
+    "No whole-device or perceptual99% claim"
+  ],
+  "scope": "Reconstructs the default Random modulation generator and cutoff trajectory from output observations; independent white-noise excitation retained. Two of three declared audio programs qualify; every earlier inconclusive result remains explicit. Controls, audio fidelity, wrapper delivery and hardware scope are distinct."
+}

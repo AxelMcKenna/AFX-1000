@@ -36,7 +36,13 @@ def main():
             space.run([a.host,'render',a.plugin,root/'silence.wav',root/'plan.json',root/'original',c['block']]);receipt,_=verify_original(root,c,plan,a.host)
             if datetime.fromisoformat(frozen)>=datetime.fromisoformat(receipt['created_at_utc'].replace('Z','+00:00')):raise ValueError('Prediction followed Original')
             reference=summary(root/'original/audio.wav');ordinary={n:sha256(root/'original'/n) for n in ['audio.wav','plan.json','state-before.bin','state-after.bin','parameter-log.json','inventory-after.json']};receipt_hash=sha256(root/'original/receipt.json');(root/'original/audio.wav').unlink()
-            observer=Path('research/audio/experiments/noise_random_observer.py').resolve();args=['render',str(a.plugin),str(root/'silence.wav'),str(root/'plan.json'),str(root/'observed'),str(c['block'])];commands=root/'observe.lldb';commands.write_text('target create "'+str(a.host)+'"\nsettings set target.run-args '+' '.join('"'+v+'"' for v in args)+'\ncommand script import "'+str(observer)+'"\nrun\nscript noise_random_observer.finish()\nquit\n');space.run(['env','RMX_RANDOM_TRACE='+str(root/'trace.json'),'RMX_RANDOM_FULL=0','lldb','--batch','-s',commands])
+            observer=Path('research/audio/experiments/noise_random_observer.py').resolve();args=['render',str(a.plugin),str(root/'silence.wav'),str(root/'plan.json'),str(root/'observed'),str(c['block']),'600'];commands=root/'observe.lldb';commands.write_text('target create "'+str(a.host)+'"\nsettings set target.run-args '+' '.join('"'+v+'"' for v in args)+'\ncommand script import "'+str(observer)+'"\nrun\nscript noise_random_observer.finish()\nquit\n');debugger_output=space.run(['env','RMX_RANDOM_TRACE='+str(root/'trace.json'),'RMX_RANDOM_FULL=0','lldb','--batch','-s',commands])
+            missing=[n for n in [*ordinary,'receipt.json'] if not (root/'observed'/n).is_file()]
+            if missing:
+                save_json(a.output.with_suffix('.failed.json'),dict(kind='incomplete-random-observation',case=c,missing=missing,debugger_output_tail=debugger_output[-5000:],raw_audio_retained=False))
+                raise ValueError('Observed host capture incomplete: '+', '.join(missing))
+            observed_receipt=json.loads((root/'observed/receipt.json').read_text())
+            if not observed_receipt['complete'] or observed_receipt['frames']!=c['frames']:raise ValueError('Observed host receipt incomplete')
             observed_hashes={n:sha256(root/'observed'/n) for n in ordinary}
             if observed_hashes!=ordinary:
                 failure=dict(kind='rejected-random-observation',case=c,ordinary_sha256=ordinary,observed_sha256=observed_hashes,different=[n for n in ordinary if ordinary[n]!=observed_hashes[n]],raw_audio_retained=False,scope='Observation invariance failed; not a candidate fidelity result. Temporary captures are removed on unwinding.')
