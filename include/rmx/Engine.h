@@ -136,7 +136,8 @@ private:
     }
     bool factorySequenceEligible() const noexcept {
         return sr==48000&&factoryMask==15&&factoryRollAssignmentsDefault()
-            &&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120
+            &&((get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120)
+               ||(get(Param::AutoTempo)>.5f&&wasExternalSync))
             &&get(Param::XSource)<.5f&&get(Param::SampleSource)<.5f;
     }
     Stereo rollInput{};
