@@ -90,6 +90,11 @@ private:
     bool factoryRollPlaying{true},factoryPreviousHold{},factoryPreviousQuantize{},factoryPreviousSequence{},releaseSceneBypass{};
     std::array<float,4> sourceRouteGain{},sourceRouteTarget{},sourceRouteStep{};
     unsigned sourceRouteRemaining{};bool sourceRouteReady{};
+    struct SceneSelection {
+        int selected{-1},requested{-1};bool active{},eligible{},previousEnabled{true};unsigned initialize{};
+        float wet{1},wetTarget{1},wetStep{},input{1},inputTarget{1},inputStep{},direct{1},directTarget{1},directStep{};
+        unsigned wetRemaining{},inputRemaining{},directRemaining{};
+    } sceneSelection;
     struct DrumCue {uint8_t trigger{},stop{},selectPad{},rollAction{},rollPad{},rollBeat{},control{},record{};std::array<float,4> velocity{1,1,1,1};bool flush{},rollPosition{};uint8_t mute{},erase{};};
     static_assert(sizeof(DrumCue)==28);
     struct SourceFrame {

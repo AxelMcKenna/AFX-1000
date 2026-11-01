@@ -52,6 +52,7 @@ void Engine::reset() noexcept {
     factoryRelease.reset();factoryReleaseEnabled=false;factoryGate.reset();factoryTrans.reset();factoryCut.reset();
     factoryDrums.reset();factoryRoll.reset();factorySequence.clear();factoryRollPlaying=true;factoryPreviousHold=factoryPreviousQuantize=factoryPreviousSequence=releaseSceneBypass=false;pendingDrumCue={};factoryMask=0;
     sourceRouteGain=sourceRouteTarget=sourceRouteStep={};sourceRouteRemaining=0;sourceRouteReady=false;
+    sceneSelection={};
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
     rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0;
     rollNext=0; rollStart=0; releaseRead=0; releaseAge=0; nudgeDirection=0; nudgeOffset=0; tapIntervals={}; tapCount=0; tapIndex=0; tapped=false;
@@ -319,7 +320,28 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
 void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,bool measuredUp,bool measuredSpiral,bool rawSpiral,
                                 CalibratedReverbDown::Controls downControls,CalibratedReverbUp::Controls upControls,CalibratedSpiral::Controls spiralControls) noexcept {
     std::array<Stereo,32> drums{},selected{},generated{},discard{},spiralSource{};
+    std::array<float,32> inputGains{};
+    auto& selection=sceneSelection;
+    const bool transitioning=selection.eligible&&selection.active;
+    if(transitioning){
+        type=selection.selected;
+        measuredDown=type==9;measuredUp=type==4;measuredSpiral=type==3||type==8;rawSpiral=true;
+        coldProfile=(type==0||type==1||type==5||type==6||type==7)&&(type==1||get(Param::SceneResonance)==0);
+        sceneProcessor.configure(SceneSettings{type});spiralControls.direction=type==8?1:0;
+        const float wetTarget=selection.requested==selection.selected?1.f:0.f;
+        if(selection.wetTarget!=wetTarget){selection.wetTarget=wetTarget;selection.wetStep=(wetTarget-selection.wet)*.00625f;selection.wetRemaining=160;}
+        const float inputTarget=selection.previousEnabled?1.f:0.f;
+        if(selection.initialize==2&&(type==1||type==7)){selection.input=0;selection.inputTarget=-1;}
+        if(selection.inputTarget!=inputTarget){selection.inputTarget=inputTarget;selection.inputStep=(inputTarget-selection.input)*.00625f;selection.inputRemaining=160;}
+        for(auto& value:inputGains){selection.input+=selection.inputStep;value=selection.input;if(selection.inputRemaining&&!--selection.inputRemaining){selection.input=selection.inputTarget;selection.inputStep=0;}}
+    }
     sceneProcessor.setStorageLoaned(measuredSpiral,rawSpiral);factorySpiral.setStorageState(measuredSpiral,rawSpiral);
+    if(transitioning&&selection.initialize==2){
+        sceneProcessor.restartSelectedEffect();
+        if(measuredUp){upControls.enabled=true;reverbUp.setControls(upControls);reverbUp.startSelected();}
+        if(measuredDown){downControls.enabled=true;reverbDown.setControls(downControls);reverbDown.startSelected();}
+        if(measuredSpiral){factorySpiral.setControls(spiralControls);factorySpiral.startSelected(type==8);}
+    }
     if(factoryRoll.advance(routingCollected[0].bpm))factoryDrums.trigger(factoryRoll.instrument());
     factoryDrums.setMuteMask(factorySequence.muteMask());
     factorySequence.advance(factoryRoll.currentBeat(),factoryRollPlaying,[&](unsigned pad,float velocity){factoryDrums.trigger(pad,velocity);});
@@ -415,8 +437,8 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
             if(frame>=192)coldEffect=1;
             const bool filterMotion=coldProfile&&(type==0||type==5||type==6||type==7);
             const auto steady=sceneProcessor.process(send,(type==0||type==5||type==6)&&filterMotion?routingCollected.back().depth:source.depth,
-                filterMotion?routingCollected.back().time:source.time,source.resonance,cold?1.f:source.sceneMix,
-                source.bpm,source.beat,source.sidechain,cold?coldEffect:1,first);
+                filterMotion?routingCollected.back().time:source.time,source.resonance,transitioning?inputGains[i]:cold?1.f:source.sceneMix,
+                source.bpm,source.beat,source.sidechain,cold?coldEffect:1,first,transitioning,transitioning&&(selection.requested!=selection.selected||!source.sceneEnabled),selection.previousEnabled);
             auto result=steady;
             if(cold){
                 if(first){coldMix+=.00625f;result=send;}
@@ -442,6 +464,22 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
     upControls.enabled=measuredUp&&routingCollected.back().sceneEnabled;reverbUp.setControls(upControls);
     if(!reverbDown.processGeneratedBlock(selected,generated,measuredDown?std::span<Stereo,32>(scenePending):std::span<Stereo,32>(discard))&&measuredDown)scenePending={};
     if(!reverbUp.processGeneratedBlock(selected,generated,measuredUp?std::span<Stereo,32>(scenePending):std::span<Stereo,32>(discard))&&measuredUp)scenePending={};
+    if(transitioning){
+        // The common return gain is independent of the effect's direct level.
+        // Keeping an unconditional dry signal here leaks through HPF/LPF.
+        const float base=(type==0||type==5||type==6||type==7)?sceneProcessor.dryCoefficient():1.f;
+        const float directTarget=selection.previousEnabled?base:1.f;
+        if(selection.directTarget!=directTarget||selection.initialize){selection.directTarget=directTarget;selection.directStep=(directTarget-selection.direct)*.00625f;selection.directRemaining=160;}
+        if(selection.initialize)--selection.initialize;
+        for(size_t i=0;i<32;++i){
+            selection.wet+=selection.wetStep;selection.direct+=selection.directStep;
+            scenePending[i]=spiralSource[i]*selection.direct+(scenePending[i]-spiralSource[i]*base)*selection.wet;
+            if(selection.wetRemaining&&!--selection.wetRemaining){selection.wet=selection.wetTarget;selection.wetStep=0;}
+            if(selection.directRemaining&&!--selection.directRemaining){selection.direct=selection.directTarget;selection.directStep=0;}
+        }
+        if(selection.wet==0&&selection.selected!=selection.requested){selection.selected=selection.requested;selection.initialize=2;coldSceneType=-1;}
+        selection.previousEnabled=routingCollected.back().sceneEnabled;
+    }
     // Release's Default return turns off the complete Scene contribution,
     // including already ringing returns. An ordinary Scene button-off keeps
     // its tails. Carry this action on the common source clock, then leave it
@@ -494,6 +532,22 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
     iso.kickStrength=static_cast<int>(get(Param::CutKickStrength));iso.cutHpfResonance=get(Param::CutHpfResonance)>.5f;iso.cutLpfResonance=get(Param::CutLpfResonance)>.5f;
     for(auto& isolator:isolators) isolator.configure(iso);
     SceneSettings sceneSettings;sceneSettings.type=static_cast<int>(get(Param::SceneType));
+    {
+        auto& selection=sceneSelection;const int requested=sceneSettings.type;
+        const bool spiralPair=(requested==3||requested==8)&&(selection.selected==3||selection.selected==8);
+        selection.eligible=sr==48000&&get(Param::UserSettings)<.5f&&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120&&requested!=2&&selection.selected!=2;
+        if(selection.selected<0||!selection.eligible||(!selection.active&&spiralPair)){
+            selection={};selection.selected=selection.requested=requested;
+        }else{
+            if(!selection.active&&selection.selected!=requested){
+                selection.active=true;
+                selection.input=selection.inputTarget=get(Param::SceneOn)>.5f?1.f:0.f;
+                selection.direct=selection.directTarget=(selection.selected==0||selection.selected==5||selection.selected==6||selection.selected==7)?sceneProcessor.dryCoefficient():1.f;
+            }
+            selection.requested=requested;
+            if(selection.active)sceneSettings.type=selection.selected;
+        }
+    }
     auto integer=[&](Param p){return static_cast<int>(get(p));};
     sceneSettings.sub2Mode[0]=integer(Param::BpfModMode);sceneSettings.waveform[0]=integer(Param::BpfWave);sceneSettings.resonance[0]=integer(Param::BpfResonance);
     sceneSettings.sub2Mode[5]=integer(Param::HpfModMode);sceneSettings.waveform[5]=integer(Param::HpfWave);sceneSettings.resonance[5]=integer(Param::HpfResonance);

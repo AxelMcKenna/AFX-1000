@@ -2,6 +2,7 @@
 #include "Dsp.h"
 #include "FilterEchoCalibration.h"
 #include "FactoryEchoReturn.h"
+#include "NoiseModulator.h"
 #include <array>
 
 namespace rmx {
@@ -16,40 +17,58 @@ public:
     }
     void reset() noexcept {
         echoReturn.reset();
-        clearFilters();age=0;lastType=lastRaw=motionRaw=-1;sharedStartup=false;
+        clearFilters();age=0;lastType=lastRaw=lastMixRaw=motionRaw=-1;sharedStartup=selecting=false;selectedGain=1;
     }
     void invalidate() noexcept {lastType=-1;}
-    Stereo process(Stereo input,int type,int raw,int timeRaw,float enabled,double bpm,float startup=1,bool priming=false) noexcept {
+    void startSelected() noexcept {lastType=-1;selecting=true;selectedReturnGain=1;}
+    float dryCoefficient() const noexcept {return lastType==0?1.f:static_cast<float>(1-gain);}
+    Stereo process(Stereo input,int type,int raw,int timeRaw,float enabled,double bpm,float startup=1,bool priming=false,bool preFilterEnable=false,int modulationOffset=0,float holdModulation=0,bool processingEnabled=true) noexcept {
         raw=std::clamp(raw,0,255);timeRaw=std::clamp(timeRaw,0,255);
         if(type!=lastType) {
-            clearFilters();age=0;lastType=type;lastRaw=motionRaw=-1;
-            echoReturn.restart(type==7?FactoryEchoReturn::Profile::crush:FactoryEchoReturn::Profile::filter);
+            clearFilters();age=selecting?32:0;lastType=type;lastRaw=lastMixRaw=motionRaw=-1;
+            const auto profile=type==7?FactoryEchoReturn::Profile::crush:FactoryEchoReturn::Profile::filter;
+            if(selecting){echoReturn.startSelected(profile);sharedStartup=true;selecting=false;selectedGain=0;}else{echoReturn.restart(profile);selectedGain=1;}
         }
         if(type==0||type==5||type==6){
             if(motionRaw<0)motionRaw=raw;
             if((age&15u)==0)motionRaw+=motionRaw<raw?1:motionRaw>raw?-1:0;
             raw=motionRaw;
         }
-        if(raw!=lastRaw) {configure(type,raw);lastRaw=raw;}
+        const int mixRaw=raw;raw=std::clamp(raw+modulationOffset,0,255);
+        if(raw!=lastRaw||mixRaw!=lastMixRaw) {configure(type,raw,mixRaw);lastRaw=raw;lastMixRaw=mixRaw;}
         if(priming){
             // The common source clock precedes this effect's first active
             // block. Its private filter/return history is still silent.
             sharedStartup=true;++age;return input;
         }
-        const double original[]{input.l,input.r};double direct[2]{},feed[2]{};
+        const auto filteredInput=preFilterEnable?input*enabled:input;
+        if(preFilterEnable)selectedGain=std::min(1.f,selectedGain+.00625f);
+        const double original[]{filteredInput.l,filteredInput.r};double direct[2]{},feed[2]{};
         if(type==7) {
-            const auto heldInput=sharedStartup?input*startup:input;
-            // The reference's settled hold clock starts 32 input frames into
-            // a new instance. Preserve its fractional period and strict test;
-            // rounding to integer intervals audibly changes the aliased signal.
-            if(age<32)held=heldInput;
-            else {
-                holdCounter-=1;
-                if(holdCounter<0) {
-                    // Activation's first hold interval retains the reset
-                    // sample. Subsequent fractional-clock captures refresh it.
-                    if(!(sharedStartup&&age==32&&holdPeriod>1))held=heldInput;
-                    holdCounter+=holdPeriod;
+            const auto heldInput=sharedStartup?filteredInput*startup:filteredInput;
+            if(preFilterEnable){
+                const float period=NoiseModulator::crushPeriod(holdModulation,holdBase);
+                const float count=static_cast<float>(selectedHoldCount);
+                auto next=heldInput;
+                if(selectedHoldCount!=1&&period>=count)next=held;
+                if(count>period){
+                    selectedHoldFraction=((period+1.f)-count)+selectedHoldFraction;selectedHoldCount=1;
+                    if(selectedHoldFraction>=1){next=held;selectedHoldFraction-=1;selectedHoldCount=0;}
+                }
+                held=next;++selectedHoldCount;
+            }else{
+                // The reference's settled hold clock starts 32 input frames into
+                // a new instance. Preserve its fractional period and strict test;
+                // rounding to integer intervals audibly changes the aliased signal.
+                if(age<32)held=heldInput;
+                else {
+                    holdCounter-=1;
+                    if(holdCounter<0) {
+                        // Activation's first hold interval retains the reset
+                        // sample. Subsequent fractional-clock captures refresh it.
+                        if(!(sharedStartup&&age==32&&holdPeriod>1))held=heldInput;
+                        holdCounter+=holdPeriod;
+                    }
                 }
             }
         }
@@ -63,11 +82,27 @@ public:
             } else {
                 const double u=(type==7?(channel==0?held.l:held.r):x)+resonance*feedbackState[channel];
                 const double y=main[channel].tick(u),b=feedbackBand[channel].tick(u);
-                const double f=feedbackGain*b+feedbackPoleState[channel];
+                // Static transfer factors commute, moving filter states do
+                // not. The selected path feeds the main biquad's output
+                // through the complementary first-order section.
+                const bool high=type==5||type==7;
+                const double complementaryGain=(1+(high?-feedbackPole:feedbackPole))/2;
+                const double f=preFilterEnable?
+                    std::sqrt(2.)*(complementaryGain*(y+(high?1:-1)*main[channel].y2))+feedbackPole*feedbackState[channel]:
+                    feedbackGain*b+feedbackPoleState[channel];
                 feedbackPoleState[channel]=(type==5||type==7?-feedbackGain:feedbackGain)*b+feedbackPole*f;
                 previousFeedbackBand[channel]=b;
                 feedbackState[channel]=f;
                 direct[channel]=feed[channel]=x+(y-x)*gain;
+            }
+        }
+        if(preFilterEnable&&selectedGain!=1){
+            const double dry=type==0?1:1-gain;
+            for(unsigned channel=0;channel<2;++channel){
+                const double base=original[channel]*dry;
+                direct[channel]=base+(direct[channel]-base)*selectedGain;
+                if(type==0)feed[channel]=original[channel]+(feed[channel]-original[channel])*selectedGain;
+                else feed[channel]=base+(feed[channel]-base)*selectedGain;
             }
         }
         if(startup!=1){
@@ -83,10 +118,16 @@ public:
                 }
             }
         }
-        const float activation=std::clamp((raw-4)/5.f,0.f,1.f)*enabled;
+        if(preFilterEnable)selectedReturnGain=std::clamp(selectedReturnGain+(processingEnabled?.00625f:-.00625f),0.f,1.f);
+        const float activation=std::clamp((raw-4)/5.f,0.f,1.f)*(preFilterEnable?selectedReturnGain:enabled);
         const float returnGain=startup*startup;
         const auto tail=echoReturn.process({feed[0],feed[1]},timeRaw,activation,bpm,sharedStartup?returnGain:1,sharedStartup);
         ++age;
+        if(preFilterEnable){
+            const double dry=type==0?1:1-gain;
+            return {static_cast<float>(input.l*dry+(direct[0]-original[0]*dry)*enabled+tail[0]),
+                    static_cast<float>(input.r*dry+(direct[1]-original[1]*dry)*enabled+tail[1])};
+        }
         return {static_cast<float>(original[0]+(direct[0]-original[0])*enabled+tail[0]),
                 static_cast<float>(original[1]+(direct[1]-original[1])*enabled+tail[1])};
     }
@@ -121,7 +162,7 @@ private:
         return (2*t3-3*t2+1)*value(points[i],column)+(t3-2*t2+t)*h*slope(i)
             +(-2*t3+3*t2)*value(points[i+1],column)+(t3-t2)*h*slope(i+1);
     }
-    void configure(int type,int raw) noexcept {
+    void configure(int type,int raw,int mixRaw) noexcept {
         if(type==0) {band=bandEchoCalibration[static_cast<size_t>(raw)];return;}
         const bool high=type==5||type==7;
         double ratio=1;
@@ -129,14 +170,15 @@ private:
         if(high)profile(hpfEchoCalibration);else profile(lpfEchoCalibration);
         const double fc=type==7?std::round(60*std::exp(std::max(raw-4,0)*.0168583737)):
             (high?60*std::pow(10000./60,std::max(raw-4,0)/251.):96*std::pow(23500./96,(255-std::max(raw,4))/251.))*ratio;
-        gain=1-std::pow(std::clamp(type==7?(129-raw)/126.:(66-raw)/63.,0.,1.),2);
+        gain=1-std::pow(std::clamp(type==7?(129-mixRaw)/126.:(66-mixRaw)/63.,0.,1.),2);
         // Preserve both roundings: the scaled control, then the following
         // interval boundary. At low controls adding one crosses an exponent
         // boundary; omitting that rounding changes recurring capture frames.
-        const float scaled=raw*24.f;
+        const float scaled=mixRaw*24.f;
         // Keep separate statements: a fused multiply-add skips the period's
         // rounding and changes ten of the256 intervals on the checked build.
         const float period=scaled*(1.f/255.f);
+        holdBase=period;
         const float boundary=period+1.f;
         holdPeriod=std::max(1.f,boundary-1.f);
         const double t=std::tan(std::numbers::pi*fc/48000);
@@ -152,7 +194,7 @@ private:
         }
     }
     void clearFilters() noexcept {
-        bandState={};feedbackState={};feedbackPoleState={};previousFeedbackBand={};held={};holdCounter=0;
+        bandState={};feedbackState={};feedbackPoleState={};previousFeedbackBand={};held={};holdCounter=0;selectedHoldCount=1;selectedHoldFraction=0;
         for(auto& f:main)f.reset();for(auto& f:feedbackBand)f.reset();
     }
     FactoryEchoReturn echoReturn;
@@ -161,6 +203,8 @@ private:
     std::array<double,2> feedbackState{},feedbackPoleState{},previousFeedbackBand{};
     BandEchoPoint band{};double feedbackPole{},feedbackGain{},resonance{},gain{};
     Stereo held{};double holdCounter{},holdPeriod{1};
-    uint64_t age{};int lastType{-1},lastRaw{-1},motionRaw{-1};bool sharedStartup{};
+    float selectedGain{1},selectedReturnGain{1};
+    float holdBase{},selectedHoldFraction{};unsigned selectedHoldCount{1};
+    uint64_t age{};int lastType{-1},lastRaw{-1},lastMixRaw{-1},motionRaw{-1};bool sharedStartup{},selecting{};
 };
 }

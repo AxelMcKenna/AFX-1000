@@ -13,7 +13,8 @@ public:
     struct Controls {int main{128},amount{128},cutoff{};bool enabled{true};};
     static constexpr size_t maximumCallbackFrames=4096;
     void prepare(size_t maxFrames=maximumCallbackFrames);
-    void reset() noexcept;
+    void reset(bool clearStorage=true) noexcept;
+    void startSelected() noexcept;
     // Audio-thread target update, before the following callback.
     void setControls(Controls controls) noexcept;
     // Latch restored controls at the first nonempty common-clock callback.
@@ -32,9 +33,10 @@ public:
     size_t storageBytes() const noexcept;
 private:
     struct Delay {
-        std::pmr::vector<double> data;size_t head{};
+        std::pmr::vector<double> data;size_t head{},written{};
         void prepare(size_t maximum);
         void clear() noexcept;
+        void invalidate() noexcept {head=written=0;}
         double tap(size_t delay) const noexcept;
         void push(double value) noexcept;
     };

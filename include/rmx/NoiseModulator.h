@@ -15,6 +15,9 @@ public:
     void reset() noexcept { *this=NoiseModulator{}; }
     const std::array<float,32>& sidechain(int raw,const std::array<float,32>& detector,float target) noexcept;
     const std::array<float,32>& generate(int raw,int wave,bool resonance=false,const RandomSource* source=nullptr) noexcept;
+    // Keep the product and sum separate on FMA-capable hosts: the rounded
+    // threshold determines which input sample the Crush hold clock captures.
+    static float crushPeriod(float modulation,float base) noexcept;
     uint32_t randomDrawCount() const noexcept { return randomDraws; }
     float randomTargetValue() const noexcept { return randomTarget; }
 private:

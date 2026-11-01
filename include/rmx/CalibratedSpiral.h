@@ -16,6 +16,9 @@ public:
     void reset() noexcept;
     void setStorageState(bool active,bool rawAvailable) noexcept;
     void setControls(Controls target) noexcept;
+    void startSelected(bool direction) noexcept {
+        restartPrivate(direction);first=false;lastDesired=static_cast<int>(direction);commonWet=1;commonStep=0;pendingRestart=-1;
+    }
     void recordRaw(std::span<const Stereo,32> input) noexcept;
     void process(std::span<const Stereo,32> input,std::span<Stereo,32> output) noexcept;
 private:

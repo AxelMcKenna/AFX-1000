@@ -30,6 +30,15 @@ public:
     void prepare(double sampleRate);
     void reset() noexcept;
     void configure(const SceneSettings&) noexcept;
+    void restartSelectedEffect() noexcept {
+        echo.invalidate();echoFilter.reset();mainFilter.reset();calibratedFilters.startSelected();
+        echoReadGain=0;selectedEchoGain=0;frame=32;sharedStartup=true;
+        previousCutoff=previousQ=previousEchoCutoff=-1;
+        filterMotion.reset();filterMotionCursor=0;
+    }
+    float dryCoefficient() const noexcept {
+        return settings.type==0||settings.type==5||settings.type==6||settings.type==7?calibratedFilters.dryCoefficient():1.f;
+    }
     void setNoiseRandomSource(const NoiseModulator::RandomSource* source) noexcept { noiseRandomSource=source; }
     void setNoiseSidechain(const std::array<float,32>& detector,float threshold,bool available) noexcept {
         noiseSidechainAvailable=available;
@@ -45,7 +54,7 @@ public:
     // Optional startup/priming inputs are owned by the common-block adapter;
     // existing streaming callers retain their default behaviour.
     Stereo process(Stereo input,float macro,float sub1,float sub2,float enabled,double bpm,double beat,float sidechain,
-                   float startupGain=1,bool priming=false) noexcept;
+                   float startupGain=1,bool priming=false,bool preFilterEnable=false,bool freezeModulation=false,bool processingEnabled=true) noexcept;
 private:
     FractionalDelay echo,spiral;
     bool echoLoaned{},spiralLoaned{};
@@ -55,6 +64,7 @@ private:
     StateFilter mainFilter,echoFilter,noiseTilt,noisePolish;
     CalibratedNoise calibratedNoise;
     NoiseModulator noiseMotion;
+    NoiseModulator filterMotion;std::array<float,32> filterMotionValues{};unsigned filterMotionCursor{};
     const NoiseModulator::RandomSource* noiseRandomSource{};
     std::array<float,2> noiseMotionEdges{};
     unsigned noiseMotionCursor{},noiseMotionAge{};
@@ -71,7 +81,7 @@ private:
     std::array<std::array<float,8>,2> roomGains{};
     unsigned roomSide{};float sideAttack{},sideRelease{};
     float noiseCutoff{90},noiseCutoffSlew{},noiseModGain{1},noiseModSlew{},noiseReturnAlpha{};
-    float echoReadGain{};bool sharedStartup{};
+    float echoReadGain{},selectedEchoGain{1};bool sharedStartup{};
     Stereo noiseReturn{};uint64_t noiseAge{};
     void updateRoom() noexcept;
     float noise() noexcept;

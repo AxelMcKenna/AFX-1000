@@ -18,19 +18,23 @@ public:
         for(auto& line:lines)line.reset();
         for(auto& channel:filters)for(auto& filter:channel)filter.reset();
         age=0;readGain={};lastTime=-1;dynamicWeights=false;weights=weightTargets=weightSteps=oldWeights={};weightRemaining=0;weightSwitchAge=0;
+        selectionGain=1;selectionWarm=false;
     }
     // Constant-time transition: old delay contents are ignored until replaced.
     void restart(Profile next) noexcept {
         profile=next;age=0;readGain={};lastTime=-1;dynamicWeights=false;weights=weightTargets=weightSteps=oldWeights={};weightRemaining=0;weightSwitchAge=0;
+        selectionGain=1;selectionWarm=false;
         for(auto& channel:filters)for(auto& filter:channel) {
             filter.configure(next==Profile::crush?60:283.99944,rate);filter.reset();
         }
     }
+    void startSelected(Profile next) noexcept {restart(next);selectionGain=0;selectionWarm=true;}
     // The shared-clock path filters before the write gain and starts each
     // tap's read fade on its first complete block. Select filterInput once
     // after reset/restart; the default retains the established static API.
     std::array<double,2> process(const std::array<double,2>& feed,int timeRaw,float enabled,double bpm,float inputGain=1,bool filterInput=false) noexcept {
         timeRaw=std::clamp(timeRaw,0,255);
+        if(selectionWarm){selectionGain=std::min(1.f,selectionGain+.00625f);enabled*=selectionGain*selectionGain;if(selectionGain==1)selectionWarm=false;}
         auto source=feed;
         if(filterInput&&profile!=Profile::spiral){
             source={filters[0][1].tick(filters[0][0].tick(source[0])),filters[1][1].tick(filters[1][0].tick(source[1]))};
@@ -98,6 +102,7 @@ private:
     std::array<std::array<HighPass,2>,2> filters;
     std::array<float,4> readGain{};
     std::array<float,4> weights{},weightTargets{},weightSteps{},oldWeights{};
+    float selectionGain{1};bool selectionWarm{};
     uint64_t weightSwitchAge{};unsigned weightRemaining{};int lastTime{-1};bool dynamicWeights{};
     Profile profile{Profile::filter};double rate{48000};uint64_t age{};
 };

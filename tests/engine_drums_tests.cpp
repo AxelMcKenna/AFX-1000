@@ -51,6 +51,17 @@ int main(){try{
         }
         const rmx::Event panic{rmx::EventType::Panic,0,1,17};event.process(nullptr,nullptr,a.data(),b.data(),128,{},std::span{&panic,1});
         for(size_t i=17;i<128;++i)require(a[i]==0&&b[i]==0,"Panic left a native factory voice playing");
+        event.params.set(rmx::Param::Overdub,0);event.params.set(rmx::Param::SceneOn,1);
+        event.params.set(rmx::Param::SceneDepth,151/255.f);event.params.set(rmx::Param::SceneTime,97*7/255.f);
+        constexpr std::array types{0,4,7,1,8,9,5,3,6,2};
+        for(unsigned block=0;block<480;++block){
+            if(block%24==0)event.params.set(rmx::Param::SceneType,static_cast<float>(types[(block/24)%types.size()]));
+            if(block%24==9)event.params.set(rmx::Param::SceneOn,0);
+            if(block%24==12)event.params.set(rmx::Param::SceneOn,1);
+            const rmx::Event hit{rmx::EventType::Trigger,static_cast<uint8_t>(block%4),.5f,13,0,0};
+            event.process(nullptr,nullptr,a.data(),b.data(),128,{},std::span{&hit,1});
+            for(unsigned i=0;i<128;++i)require(std::isfinite(a[i])&&std::isfinite(b[i]),"Effect selection produced nonfinite drum audio");
+        }
         event.reset();require(allocations==0&&arena.allocations()==before,"Factory drum callback/event/reset allocated");tracking=false;
     }
     for(float wave:{3.f,4.f}){

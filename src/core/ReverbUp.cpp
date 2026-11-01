@@ -18,10 +18,10 @@ double postBandpassGain(int main) noexcept {
 }
 double decay(int raw) noexcept {return 1+49*std::pow(std::max(0.,raw-3.)/252,3);}
 }
-void CalibratedReverbUp::Delay::prepare(size_t maximum){data.assign(maximum+1,0);head=0;}
-void CalibratedReverbUp::Delay::clear() noexcept {std::fill(data.begin(),data.end(),0);head=0;}
-double CalibratedReverbUp::Delay::tap(size_t delay) const noexcept {return data[(head+data.size()-delay)%data.size()];}
-void CalibratedReverbUp::Delay::push(double value) noexcept {data[head]=value;if(++head==data.size())head=0;}
+void CalibratedReverbUp::Delay::prepare(size_t maximum){data.assign(maximum+1,0);head=written=0;}
+void CalibratedReverbUp::Delay::clear() noexcept {std::fill(data.begin(),data.end(),0);head=written=0;}
+double CalibratedReverbUp::Delay::tap(size_t delay) const noexcept {return delay>written?0:data[(head+data.size()-delay)%data.size()];}
+void CalibratedReverbUp::Delay::push(double value) noexcept {data[head]=value;written=std::min(written+1,data.size());if(++head==data.size())head=0;}
 void CalibratedReverbUp::Filter::biquad(double hz,bool high) noexcept {
     const double w=2*std::numbers::pi*hz/48000,alpha=std::sin(w)/std::sqrt(2.);
     b0=(1+(high?1:-1)*std::cos(w))/2/(1+alpha);b1=(high?-2:2)*b0;b2=b0;
@@ -50,9 +50,9 @@ void CalibratedReverbUp::prepare(size_t maxFrames){
     allpasses[1][0].prepare(395);allpasses[1][1].prepare(1031);
     callbackInput.assign(maxFrames,{});reset();
 }
-void CalibratedReverbUp::reset() noexcept {
-    for(auto& pair:combs)for(auto& delay:pair)delay.clear();
-    for(auto& chain:allpasses)for(auto& ap:chain)ap.delay.clear();
+void CalibratedReverbUp::reset(bool clearStorage) noexcept {
+    for(auto& pair:combs)for(auto& delay:pair){if(clearStorage)delay.clear();else delay.invalidate();}
+    for(auto& chain:allpasses)for(auto& ap:chain){if(clearStorage)ap.delay.clear();else ap.delay.invalidate();}
     for(auto& chain:inputFilters)for(auto& filter:chain)filter.clear();
     for(auto& filter:outputFilter)filter.clear();for(auto& filter:outputHigh)filter.clear();
     for(auto& pair:feedbackFilters)for(auto& filter:pair)filter.clear();
@@ -62,6 +62,9 @@ void CalibratedReverbUp::reset() noexcept {
     slowMain=pendingMain=0;mainPeriod=60;sharedBlocks=geometryRemaining=mixRemaining=0;frame=32;inputAge=0;
     fastMix=fastMixTarget=fastMixStep=0;dryGain=compensation=1;startupFade=inputFade=dryStep=0;dryCurrent=dryTarget=1;
     warmRemaining=dryRemaining=dryRestart=0;state={};
+}
+void CalibratedReverbUp::startSelected() noexcept {
+    reset(false);initialize();inputAge=160;inputFade=1;
 }
 void CalibratedReverbUp::setControls(Controls controls) noexcept {
     controls.main=std::clamp(controls.main,0,255);controls.amount=std::clamp(controls.amount,0,255);

@@ -1,6 +1,10 @@
 #include "rmx/NoiseModulator.h"
 
 namespace rmx {
+float NoiseModulator::crushPeriod(float modulation,float base) noexcept {
+    const float scaled=modulation*10.f;
+    return std::max(0.f,scaled+base);
+}
 // Compile this translation unit with FP contraction disabled. Both the live
 // Engine and offline control probes call these same operation-ordered functions.
 const std::array<float,32>& NoiseModulator::sidechain(int raw,const std::array<float,32>& detector,float target) noexcept {
