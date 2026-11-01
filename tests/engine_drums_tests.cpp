@@ -45,20 +45,20 @@ int main(){try{
         for(size_t i=17;i<128;++i)require(a[i]==0&&b[i]==0,"Panic left a native factory voice playing");
         event.reset();require(allocations==0&&arena.allocations()==before,"Factory drum callback/event/reset allocated");tracking=false;
     }
-    {
+    for(float wave:{3.f,4.f}){
         rmx::Engine engine;engine.setOutputProtection(false);
         for(auto [param,value]:{std::pair{rmx::Param::AutoTempo,0.f},{rmx::Param::Quantize,0.f},
             {rmx::Param::UserSettings,1.f},{rmx::Param::SceneType,2.f},{rmx::Param::SceneSource,0.f},
             {rmx::Param::SceneOn,1.f},{rmx::Param::SceneDepth,149/255.f},{rmx::Param::SceneTime,4.f},
-            {rmx::Param::SceneResonance,117/255.f},{rmx::Param::NoiseWave,4.f}})engine.params.set(param,value);
+            {rmx::Param::SceneResonance,117/255.f},{rmx::Param::NoiseWave,wave}})engine.params.set(param,value);
         engine.prepare(48000,128);std::array<float,128> input{},left{},right{};
         const auto before=arena.allocations(),heapBefore=allocations;tracking=true;
         for(unsigned block=0;block<800;++block){
             for(unsigned i=0;i<128;++i)input[i]=((block*128+i)/173)%2?.2f:-.2f;
             engine.process(input.data(),nullptr,left.data(),right.data(),128);
-            for(unsigned i=0;i<128;++i)require(std::isfinite(left[i])&&std::isfinite(right[i]),"Sidechain callback produced nonfinite audio");
+            for(unsigned i=0;i<128;++i)require(std::isfinite(left[i])&&std::isfinite(right[i]),"Random/Sidechain callback produced nonfinite audio");
         }
-        engine.reset();require(allocations==heapBefore&&arena.allocations()==before,"Noise Sidechain callback/reset allocated");tracking=false;
+        engine.reset();require(allocations==heapBefore&&arena.allocations()==before,"Noise Random/Sidechain callback/reset allocated");tracking=false;
     }
     {
         // A processed block generated before Panic is already on the common

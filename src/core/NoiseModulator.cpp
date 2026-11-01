@@ -28,7 +28,7 @@ const std::array<float,32>& NoiseModulator::sidechain(int raw,const std::array<f
         if(gate<1e-10f)gate=0;
         return output;
     }
-const std::array<float,32>& NoiseModulator::generate(int raw,int wave,bool resonance) noexcept {
+const std::array<float,32>& NoiseModulator::generate(int raw,int wave,bool resonance,const RandomSource* source) noexcept {
         raw=std::clamp(raw,0,255);
         if(!initialized){smoothed=raw;initialized=true;}
         std::array<float,32> increments{};
@@ -44,8 +44,12 @@ const std::array<float,32>& NoiseModulator::generate(int raw,int wave,bool reson
         if(wave==3){
             for(unsigned half=0;half<2;++half){
                 if(counter>=static_cast<unsigned>(period)){
-                    random^=random<<13;random^=random>>17;random^=random<<5;
-                    randomTarget=static_cast<int32_t>(random)*(1.f/2147483648.f);
+                    if(source)randomTarget=source->next(source->state);
+                    else{
+                        random^=random<<13;random^=random>>17;random^=random<<5;
+                        randomTarget=static_cast<int32_t>(random)*(1.f/2147483648.f);
+                    }
+                    ++randomDraws;
                     randomStep=(randomTarget-phase)*(1.f/128);remaining=8;counter=0;
                 }
                 for(unsigned i=0;i<16;++i){phase+=randomStep;output[half*16+i]=phase*depth;}

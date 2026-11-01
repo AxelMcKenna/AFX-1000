@@ -13,6 +13,16 @@ from tools.rmx_noise_user import xml
 
 
 class NoiseStreamTests(unittest.TestCase):
+    def test_random_profiles_allow_independent_exposures_and_reject_gain_error(self):
+        from tools.noise_random_statistics import measure
+        levels=np.broadcast_to(np.asarray([1.,2.,4.,8.])[None,:,None],(30,4,2)).copy()
+        reference=dict(bands=np.repeat(levels[:,:,None,:]/6,6,axis=2),total=levels,exposure=np.full((30,4),100))
+        different_exposure=reference|dict(exposure=np.full((30,4),150))
+        self.assertEqual(measure(reference,different_exposure)['verdict'],'pass')
+        self.assertEqual(measure(reference,different_exposure|dict(bands=reference['bands']*2,total=levels*2))['verdict'],'different')
+        with self.assertRaisesRegex(ValueError,'exposure'):
+            measure(reference,different_exposure|dict(exposure=np.zeros((30,4))))
+
     def test_sidechain_dry_subtraction_detects_one_sample_misalignment(self):
         from tools.rmx_noise_sidechain_controls import stimulus
         from tools.rmx_noise_sidechain_stream import residual

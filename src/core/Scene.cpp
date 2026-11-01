@@ -206,7 +206,7 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
             const int raw=static_cast<int>(std::floor(macro*255+1.e-4f));
             const int rawSub2=static_cast<int>(std::floor(sub2*255+1.e-4f));
             const bool sidechainMotion=settings.waveform[2]==4&&noiseSidechainAvailable;
-            const bool moving=!resonance&&rawSub2>0&&(settings.waveform[2]<3||sidechainMotion);
+            const bool moving=!resonance&&rawSub2>0&&(settings.waveform[2]<=3||sidechainMotion);
             bool motionReady=false;
             // The Original starts its Noise control stream one common block
             // after activation; output then retains the shared32-frame delay.

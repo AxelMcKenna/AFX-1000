@@ -13,6 +13,30 @@ float sine(double frequency,size_t i) {return .2f*static_cast<float>(std::sin(2*
 double energy(Stereo x) {return x.l*x.l+x.r*x.r;}
 int main() {try {
     {
+        struct Targets {
+            std::array<float,128> values{};unsigned count{},used{};bool exhausted{};
+            static float next(void* context) noexcept {
+                auto& self=*static_cast<Targets*>(context);
+                if(self.used==self.count){self.exhausted=true;return 0;}
+                return self.values[self.used++];
+            }
+        };
+        for(int raw:{4,11,43,117,223,255}){
+            NoiseModulator own,replay;Targets targets;
+            std::array<std::array<float,32>,2000> expected{};
+            for(unsigned block=0;block<expected.size();++block){
+                const auto before=own.randomDrawCount();expected[block]=own.generate(raw,3);
+                if(own.randomDrawCount()!=before)targets.values[targets.count++]=own.randomTargetValue();
+            }
+            const NoiseModulator::RandomSource source{Targets::next,&targets};
+            for(const auto& values:expected)require(replay.generate(raw,3,false,&source)==values,"Random target provider changed production ramp arithmetic");
+            require(!targets.exhausted&&targets.used==targets.count,"Random target scheduling consumed the wrong number of draws");
+            const auto count=targets.used;
+            for(unsigned block=0;block<100;++block){const auto& values=replay.generate(raw,3,true,&source);for(float v:values)require(v==0,"Random resonance disable left modulation active");}
+            require(targets.used==count,"Disabled Random advanced its target stream");
+        }
+    }
+    {
         NoiseModulator motion;std::array<float,32> detector{};detector.fill(1);
         const auto first=motion.sidechain(43,detector,.05f);
         require(first.back()>.15f&&first.back()<.16f,"Sidechain incorrectly reused deterministic-wave depth saturation");

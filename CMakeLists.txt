@@ -21,6 +21,8 @@ add_executable(rmx_noise_motion_probe EXCLUDE_FROM_ALL tools/noise_motion_probe.
 target_link_libraries(rmx_noise_motion_probe PRIVATE rmx_core)
 add_executable(rmx_noise_sidechain_probe EXCLUDE_FROM_ALL tools/noise_sidechain_probe.cpp)
 target_link_libraries(rmx_noise_sidechain_probe PRIVATE rmx_core)
+add_executable(rmx_noise_random_probe EXCLUDE_FROM_ALL tools/noise_random_probe.cpp)
+target_link_libraries(rmx_noise_random_probe PRIVATE rmx_core)
 add_executable(rmx_render tools/render.cpp)
 target_link_libraries(rmx_render PRIVATE rmx_core)
 add_executable(rmx_spiral_return_probe tools/spiral_return_probe.cpp)
