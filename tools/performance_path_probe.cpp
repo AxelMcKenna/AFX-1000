@@ -2,6 +2,10 @@
 #include "rmx/Wav.h"
 #include <fstream>
 #include <iostream>
+#ifdef RMX_PATTERN_DIAGNOSTIC
+#include <cstdlib>
+#include <iomanip>
+#endif
 
 int main(int argc,char** argv){try{
     if(argc!=5)throw std::runtime_error("Usage: drum_performance_probe SILENCE NEW_OUTPUT SCHEDULE NEW_DRY");
@@ -75,6 +79,14 @@ int main(int argc,char** argv){try{
     rmx::Sample audio,dry;audio.rate=dry.rate=48000;audio.frames.resize(input.frames.size());dry.frames.resize(input.frames.size());
     std::array<float,4096> left{},right{},inputLeft{},inputRight{};size_t event=0;unsigned selected=0;bool mute=false,erase=false,touched=false;
     double hostTempo=bpm,hostBeat=0,hostSeconds=0;size_t hostAnchor=0;bool hostPlaying=true;
+#ifdef RMX_PATTERN_DIAGNOSTIC
+    // Offline-only build with -fno-access-control. Observe our own command
+    // metadata after callbacks; the ordinary fixture contains no tracing code.
+    const char* tracePath=std::getenv("RMX_PATTERN_NATIVE_TRACE");
+    if(!tracePath||std::filesystem::exists(tracePath))throw std::runtime_error("Choose a new native command trace");
+    std::ofstream trace(tracePath);trace<<std::setprecision(17);
+    std::array<uint8_t,128> oldSlots{},oldSkip{};
+#endif
     for(size_t start=0;start<input.frames.size();){
         while(event<events.size()&&events[event].frame==start){const auto e=events[event++];
             switch(e.type){
@@ -111,6 +123,15 @@ int main(int argc,char** argv){try{
         (void)hostSeconds;
         if(version==4)for(size_t i=0;i<count;++i){inputLeft[i]=input.frames[start+i].l;inputRight[i]=input.frames[start+i].r;}
         engine.process(version==4?inputLeft.data():nullptr,version==4?inputRight.data():nullptr,left.data(),right.data(),static_cast<uint32_t>(count),transport);
+#ifdef RMX_PATTERN_DIAGNOSTIC
+        const auto& sequence=engine.factorySequence;
+        if(sequence.slots!=oldSlots||sequence.skip!=oldSkip){
+            trace<<"{\"frame_end\":"<<start+count<<",\"beat\":"<<engine.factoryRoll.currentBeat()<<",\"offset\":"<<sequence.offset<<",\"slots\":[";
+            bool comma=false;for(unsigned i=0;i<128;++i)if(sequence.slots[i]){if(comma)trace<<',';trace<<'['<<i<<','<<static_cast<unsigned>(sequence.slots[i])<<']';comma=true;}
+            trace<<"],\"skip\":[";comma=false;for(unsigned i=0;i<128;++i)if(sequence.skip[i]){if(comma)trace<<',';trace<<'['<<i<<','<<static_cast<unsigned>(sequence.skip[i])<<']';comma=true;}
+            trace<<"]}\n";oldSlots=sequence.slots;oldSkip=sequence.skip;
+        }
+#endif
         for(size_t i=0;i<count;++i)audio.frames[start+i]={left[i],right[i]};start+=count;
     }
     rmx::writeWav(output,audio);rmx::writeWav(dryPath,dry);
