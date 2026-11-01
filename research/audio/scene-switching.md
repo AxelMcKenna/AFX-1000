@@ -1,0 +1,37 @@
+# Scene switching against the Original plugin
+
+The 1 November 2026 switch checkpoint passes **9/9 regression programs and 9/9 fresh timing holdouts**, with all 18 separately captured drum/source controls passing. These ten-second programs switch away from and back to each of BPF Echo, Echo, Spiral Up, Reverb Up, HPF Echo, LPF Echo, Crush, Spiral Down and Reverb Down, then disable and re-enable Scene. They exercise multiple drums, rolls or overdubs, different sample pitch/level and callbacks from 43 to 4096 frames.
+
+This qualifies those declared Default programs at 48 kHz and manual 120 BPM. Noise switching, arbitrary switch pairs, rapid interrupted changes, other settings and tempos, music and physical hardware remain outside the qualification. It is not a whole-device percentage.
+
+The [regression report](measurements/2026-11-01-scene-switch-regression.json.gz), [fresh holdouts](measurements/2026-11-01-scene-switch-holdout.json.gz) and [validation receipt](measurements/2026-11-01-scene-switch-validation.json) bind the exact programs, source and binaries. Every channel must satisfy the existing 1% relative RMS limit, or 1e-8 absolute RMS for reference silence, in the complete output, each second and each event window. The active-minus-matched-control signal must pass the same screens. No per-case gain, delay or crop is fitted. Worst checked regression error is 0.0791% in whole-output windows and 0.1717% in effect-difference windows; the fresh set reaches 0.0205% and 0.0450% respectively.
+
+## How the model was identified
+
+The common clock generates 32 samples at a time, independently of host callbacks. A requested effect first fades the selected effect's wet contribution out over 160 generated samples. Its private processor continues during that fade. The selected type changes at zero; the new processor initializes on the following block and fades in for another 160 samples. Direct sound has its own envelope. Its initialization recalculates the ramp after the first block: a zero-to-one transition ends successive blocks at approximately .20, .36, .52, .68, .84 and 1.0. An unconditional dry path leaks through HPF and LPF.
+
+A button-off changes the private processing phase at the end of the current block. Input and direct ramps start on the next block. Existing delay tails remain audible. The echo return also has an independent send gate after its input filter; fading only the input leaves extra filter history entering later repeats. Echo's output tail is independent of its input enable gain.
+
+Hot selection resets private filter and return state. Reverb delay storage uses write-extent invalidation, and other delay paths ignore old samples until replaced. This avoids clearing large sample buffers or allocating memory in the audio callback. Filters, Echo, Crush, reverb and Spiral have different startup states; one shared fade cannot replace them. Filter echo sends ramp both their activation and timing weights from zero.
+
+The modulator's computed control stream was predicted before observing the Original. All 116 used half-block edges in each of three reference programs agree as float32 values. BPF/HPF add the truncated control times 50 to cutoff Main; LPF uses 40. Crush instead adds control times 10 to its fractional sample-hold period on every sample. Its capture counter, fractional carry and strict comparisons matter. The period multiply and add retain separate float32 roundings. The old effect's modulation buffer stops advancing as soon as a different effect is requested, while the rest of its fade-out processing continues.
+
+A final HPF discrepancy exposed filter state placement. A band-pass followed by a first-order section has the same static transfer response as the main biquad followed by its complementary first-order section, after normalization. They do not carry equivalent state under cutoff movement. The selected path now uses the latter order. Established non-switch paths retain their prior arithmetic.
+
+## Reference checks and rejected hypotheses
+
+The read-only [selector observer](experiments/scene_selector_observer.py) pins the Original executable SHA-256 and reads bounded control windows. It never reads sample buffers or writes DSP state. The [driver](../../tools/rmx_performance_path_observe.py) requires ordinary and debugger-observed audio, plan, initial/final states, parameter log and final inventory to have identical hashes. Tempo observations additionally require transport-log identity. Published original audio hashes pin repeat captures to the earlier performance campaign.
+
+The [provenance archive](measurements/2026-11-01-scene-switch-provenance.json.gz) retains failed predictions, control traces, source snapshots, observer revisions and diagnostic receipts. Earlier observer fields interpreted four integer sample-age counters as floats; those fields are historical diagnostics, not evidence of four read gains. The current observer reports their integer values and names the separate send gain correctly. Pointer-relative cursor fields were not used to qualify delay progression.
+
+A native diagnostic build recorded its own gain envelopes. Its complete WAVs matched the ordinary model before the scalar traces were accepted. The production source excludes that diagnostic hook. Whole-WAV replay under the final optimized and sanitizer binaries checks that its removal and expression cleanup preserve the accepted predictions.
+
+The first common-gain-only model passed none of the nine switch programs. Private restarts and input placement improved only part of the set. Forcing return read gains to one made errors worse and was rejected. A single modulation scale for all filters was also rejected. One intermediate run was invalidated by a source edit before its campaign finished; its partial results are retained without claiming complete verification. A separate callback-invariance experiment differed before the first switch, so that assumed invariant was not used as a sound-matching gate. Each reference comparison instead uses its declared callback size.
+
+## Reproduction and retention
+
+Run `uv run --locked python -m tools.rmx_performance_path --stage fresh --family switch` with explicit `--renderer`, `--sanitizer`, `--host`, `--plugin` and a new `--output`. Use `--stage fresh2` for the timing holdouts. Both require complete native/sanitizer WAV identity before rendering the Original. The retained-energy auditor recomputes each window and aggregate from stored sums of squares after raw cleanup.
+
+For read-only control replay, use `uv run --locked python -m tools.rmx_performance_path_observe --mode performance-selector --family switch --effect-index 0` with the pinned Intel host, original bundle, new output and the regression row's `--expected-output-sha256`. Indices 0–8 follow the effect order above. `--family tempo` is available for the next investigation; it is not a completed tempo qualification.
+
+Captures run serially with a 512 MiB file budget and automatic per-case cleanup. Only compact metadata and the current validated playable build are retained. No recorded reference audio or Original assembly is distributed. The audio pause marker remains in place. AU/VST3 delivery, native/sanitizer checks, preservation and firmware results are recorded separately in the validation receipt; delivery identity alone is not Original fidelity evidence.

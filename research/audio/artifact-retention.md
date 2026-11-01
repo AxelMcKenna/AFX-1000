@@ -21,3 +21,5 @@ Use:
 Keep `.rmx-audio-output-paused` in place while using these bounded workflows. It blocks legacy output paths under that checkout; the new runners use automatically cleaned temporary directories.
 
 Published reports retain failed and inconclusive verdicts. Preserve small source manifests and useful numerical diagnostics. Keep one current playable preview and the canonical reference installation. Historical raw-capture paths from before the30 October cleanup are intentionally unavailable; the cleanup archive preserves deduplicated metadata and research sources.
+
+The [Scene-switch checkpoint](scene-switching.md) retains compressed regression/holdout windows, failed hypotheses, source snapshots, corrected observer interpretation and native diagnostic identity receipts. Original assembly is excluded. Its separate preservation replay checks 180 manual programs, 99 earlier prediction hashes and 18 final optimized/sanitized switch outputs. Source snapshots preserve intermediate hypotheses without keeping their compiled builds.

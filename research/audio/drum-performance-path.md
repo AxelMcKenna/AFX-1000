@@ -2,17 +2,17 @@
 
 The 1 November 2026 pass compares the actual shared engine with RMX-1000 Plug-in 2.2.0 at 48 kHz. It covers moving Scene controls, all three Isolator modes, Release, effect switching, host tempo changes and drums mixed with synthetic external input. It does **not** establish a whole-device percentage or physical RMX-1000 equivalence.
 
-The final qualification table and source/binary bindings are in the [validation receipt](measurements/2026-11-01-performance-path-validation.json). These are ten-second programs with multiple pads, rolls or overdubs, varied callbacks, pitch and level. Each active program has a separately rendered control containing the same source and drum commands with the effects removed.
+The initial checkpoint and its source/binary bindings are in the [performance validation receipt](measurements/2026-11-01-performance-path-validation.json). The later [Scene-switch checkpoint](scene-switching.md) updates selection to 9/9 and the declared total to 43/54; its separate receipt binds the current model. These are ten-second programs with multiple pads, rolls or overdubs, varied callbacks, pitch and level. Each active program has a separately rendered control containing the same source and drum commands with the effects removed.
 
 | Fresh family | Active programs passing every gate | Main remaining issue |
 | --- | --- | --- |
 | Scene Main/Sub 1 movement | 6/9 | Echo, HPF Echo and Crush movement |
 | Scene plus moving Isolator bands | 9/9 | Wider independent routes, profiles and tempos remain outside this fixture |
 | Release mid-pattern | 8/9 | Back Spin combined with Reverb Up |
-| Scene selection and enable/disable | 0/9 | Selection transition and private processor restart |
+| Scene selection and enable/disable | 9/9 | Arbitrary pairs, interrupted switches, Noise and wider profiles/tempos remain outside this fixture |
 | Host tempo 120 → 137 → 91 BPM | 2/9 | Echo/filter delay geometry and Spiral outside manual 120 BPM |
 | Source changes with external input | 9/9 | Wider material, levels and User settings |
-| **Declared active programs** | **34/54** | Coverage count, not device accuracy |
+| **Declared active programs** | **43/54** | Coverage count, not device accuracy |
 
 All 54 matched drum/source controls pass, using the final boundary regression for the tempo family and complete prediction-WAV identity for the other families. All nine additional fresh tempo controls also pass. Reverb Up and Down are the two qualifying active tempo cases. The full-output HPF motion windows pass, but its effect-difference windows still fail; it remains unqualified. Earlier failed and interrupted campaigns retain their original verdicts.
 
@@ -38,7 +38,7 @@ The fault was a suppression flag attached to a future table slot. A host correct
 
 A short reference control trace changes BPF Echo → Echo → BPF Echo. Requested and selected effects differ during a five-block fade-out. The common wet gain moves 1.0 → 0.8 → 0.6 → 0.4 → 0.2 → 0.0 in 32-frame blocks, then the newly selected processor initializes and fades in over another 160 samples. Complete ordinary and observed capture artifacts agree.
 
-The current renderer still changes engines immediately. A correct implementation must coordinate the common gain, selected-effect clock and private delay/filter initialization across callbacks. This measurement is retained as the next implementation target; it is **not** presented as a completed sound match.
+The subsequent [Scene-switch implementation](scene-switching.md) coordinates these gains, the selected-effect clock and private restarts. All nine regression programs and nine fresh timing holdouts pass every gate, with paired controls. Its documented scope excludes arbitrary switch pairs, interrupted changes, Noise and wider settings/tempos.
 
 ## Reproduction, validation and retention
 
