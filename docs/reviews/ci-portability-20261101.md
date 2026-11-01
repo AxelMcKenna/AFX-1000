@@ -39,5 +39,11 @@ poisoned-history, ownership-transition, finite-output and zero-allocation checks
 The snapshot avoids validating these fixes against concurrent DSP edits.
 Fresh GitHub CI results remain the final cross-platform check.
 
+The first follow-up ARM run exposed four more omitted files: the UV-recovery
+packet's frozen Python build dependencies matched the root `build*/` ignore
+rule. Their existing bytes match every recorded SHA-256 and are now included
+with a directory-specific ignore exception. The preserved packet's manifests,
+receipts, handoff and qualification flags remain unchanged.
+
 Mac CAD stayed disabled. No bulk audio, supplier request, order or fabrication
 release was produced by this CI repair.
