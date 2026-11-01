@@ -10,7 +10,7 @@ juce::String js(std::string_view text) { return juce::String::fromUTF8(text.data
 juce::Colour orange=juce::Colour::fromRGB(255,110,41),cyan=juce::Colour::fromRGB(46,209,222);
 }
 class RMXEditor;
-class RMXProcessor final : public juce::AudioProcessor,private juce::Timer {
+class RMXProcessor final : public juce::AudioProcessor,private juce::Timer,private juce::AudioProcessorParameter::Listener {
 public:
     rmx::Engine engine;
     juce::AudioProcessorValueTreeState tree;
@@ -23,11 +23,15 @@ public:
         for(size_t i=0;i<hostDefaultValues.size();++i){
             const auto& info=rmx::parameters[i];const auto* parameter=tree.getParameter(js(info.id));
             hostDefaultValues[i]=parameter->convertFrom0to1(parameter->convertTo0to1(info.initial));
+            tree.getParameter(js(info.id))->addListener(this);
         }
         lastCC.fill(-1);
         publish(rmx::makeFactoryBank()); startTimerHz(30);
     }
-    ~RMXProcessor() override { stopTimer(); }
+    ~RMXProcessor() override {
+        stopTimer();
+        for(const auto& info:rmx::parameters)tree.getParameter(js(info.id))->removeListener(this);
+    }
     static juce::AudioProcessorValueTreeState::ParameterLayout layout() {
         juce::AudioProcessorValueTreeState::ParameterLayout result;
         for(size_t i=0;i<rmx::parameterCount;++i) {
@@ -79,7 +83,11 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
     bool isBusesLayoutSupported(const BusesLayout& b) const override { return b.getMainInputChannelSet()==juce::AudioChannelSet::stereo()&&b.getMainOutputChannelSet()==juce::AudioChannelSet::stereo(); }
     void prepareToPlay(double rate,int block) override {
-        for(size_t i=0;i<rmx::parameterCount;++i) engine.params.set(static_cast<rmx::Param>(i),engineParameter(i));
+        for(size_t i=0;i<rmx::parameterCount;++i) {
+            consumedHostRevision[i]=hostRevision[i].load(std::memory_order_acquire);
+            engine.params.set(static_cast<rmx::Param>(i),engineParameter(i));
+            pendingValues[i].store(std::numeric_limits<float>::quiet_NaN(),std::memory_order_relaxed);
+        }
         engine.setBank(&published.load()->bank);engine.setOutputProtection(false); engine.prepare(rate,static_cast<uint32_t>(block));
         pendingLatency.store(static_cast<int>(engine.latencySamples()),std::memory_order_relaxed);
         setLatencySamples(pendingLatency.load(std::memory_order_relaxed));
@@ -89,7 +97,17 @@ public:
     void processBlock(juce::AudioBuffer<float>& buffer,juce::MidiBuffer& midi) override {
         juce::ScopedNoDenormals noDenormals;
         if(buffer.getNumChannels()<2) { buffer.clear(); return; }
-        for(size_t i=0;i<rmx::parameterCount;++i) engine.params.set(static_cast<rmx::Param>(i),engineParameter(i));
+        // Apply host notifications once. Release and MIDI can change an engine
+        // control before its message-thread feedback reaches the host. Copying
+        // every stale host value on every callback would undo those gestures.
+        for(size_t i=0;i<rmx::parameterCount;++i) {
+            const auto revision=hostRevision[i].load(std::memory_order_acquire);
+            if(revision!=consumedHostRevision[i]) {
+                engine.params.set(static_cast<rmx::Param>(i),engineParameter(i));
+                consumedHostRevision[i]=revision;
+                pendingValues[i].store(std::numeric_limits<float>::quiet_NaN(),std::memory_order_relaxed);
+            }
+        }
         const auto* assets=published.load(std::memory_order_acquire); engine.setBank(&assets->bank);
         std::array<rmx::Event,256> events{}; size_t count=0;
         struct ClockEvent { uint32_t offset;uint8_t status,a,b; };
@@ -162,7 +180,13 @@ public:
         sampleClock+=static_cast<uint64_t>(buffer.getNumSamples());
         // Return reset gestures to host automation from the message thread.
         for(auto p:{rmx::Param::SceneOn,rmx::Param::Low,rmx::Param::Mid,rmx::Param::High,rmx::Param::XHold,rmx::Param::Overdub,rmx::Param::Tempo,rmx::Param::AutoTempo,rmx::Param::XSource}) {
-            const auto i=static_cast<size_t>(p); if(engine.params.get(p)!=raw[i]->load(std::memory_order_relaxed)) pendingValues[i].store(engine.params.get(p),std::memory_order_relaxed);
+            const auto i=static_cast<size_t>(p);
+            if(engine.params.get(p)!=engineParameter(i)) {
+                // An offline host need not dispatch the UI timer between
+                // blocks. Publish synchronously there, as for latency above.
+                if(isNonRealtime())change(p,engine.params.get(p));
+                else pendingValues[i].store(engine.params.get(p),std::memory_order_relaxed);
+            }
         }
     }
     void getStateInformation(juce::MemoryBlock& destination) override {
@@ -210,6 +234,12 @@ private:
         return value==hostDefaultValues[index]?rmx::parameters[index].initial:value;
     }
     std::array<std::atomic<float>,rmx::parameterCount> pendingValues;
+    std::array<std::atomic<uint32_t>,rmx::parameterCount> hostRevision{};
+    std::array<uint32_t,rmx::parameterCount> consumedHostRevision{};
+    void parameterValueChanged(int index,float) override {
+        if(index>=0&&index<static_cast<int>(hostRevision.size()))hostRevision[static_cast<size_t>(index)].fetch_add(1,std::memory_order_release);
+    }
+    void parameterGestureChanged(int,bool) override {}
     std::atomic<int> pendingLatency{};
     std::array<std::atomic<int>,128> ccMap{};
     std::array<float,128> lastCC{};

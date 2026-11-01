@@ -242,7 +242,7 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
     buses.inputBuses.getReference(0) = juce::AudioChannelSet::stereo();
     buses.outputBuses.getReference(0) = juce::AudioChannelSet::stereo();
     require(plugin.setBusesLayout(buses), "Plugin rejected stereo layout");
-    plugin.setNonRealtime(true);
+    const bool nativeAUOffline=rmx::host::setNonRealtime(plugin,true);
     rmx::host::Playhead head;
     plugin.setPlayHead(&head);
     struct ProcessingScope {
@@ -372,6 +372,7 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
         {"bpm", bpm}, {"transport_playing", true}, {"offline", true}, {"tail_seconds", tail},
         {"reported_latency_frames", plugin.getLatencySamples()}, {"reported_tail_seconds", plugin.getTailLengthSeconds()},
         {"post_render_message_pump_ms",messagePumpMs},
+        {"audio_unit_offline_property_verified",nativeAUOffline},
         {"peak", maximum}});
     if(transportEvents){receipt.getDynamicObject()->setProperty("transport_log_sha256",juce::SHA256(destination.getChildFile("transport-log.json")).toHexString());receipt.getDynamicObject()->setProperty("explicit_transport",true);}
     saveJSON(destination.getChildFile("receipt.json"),receipt);

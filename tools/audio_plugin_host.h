@@ -11,6 +11,31 @@
 #endif
 
 namespace rmx::host {
+// JUCE's generic host flag does not forward AUv2's OfflineRender property.
+// When supported, set and verify that public property on the actual instance.
+inline bool setNonRealtime(juce::AudioPluginInstance& plugin,bool offline) {
+    plugin.setNonRealtime(offline);
+   #if JUCE_MAC
+    if(plugin.getPluginDescription().pluginFormatName=="AudioUnit") {
+        struct Visitor final:juce::ExtensionsVisitor {
+            AudioUnit unit{};
+            void visitAudioUnitClient(const AudioUnitClient& client) override {unit=client.getAudioUnitHandle();}
+        } visitor;
+        plugin.getExtensions(visitor);auto unit=visitor.unit;
+        UInt32 size=0;Boolean writable=false;
+        if(unit&&AudioUnitGetPropertyInfo(unit,kAudioUnitProperty_OfflineRender,kAudioUnitScope_Global,0,&size,&writable)==noErr&&writable) {
+            UInt32 value=offline?1u:0u;
+            if(size!=sizeof(value)||AudioUnitSetProperty(unit,kAudioUnitProperty_OfflineRender,kAudioUnitScope_Global,0,&value,sizeof(value))!=noErr)
+                throw std::runtime_error("Cannot set AU offline rendering property");
+            UInt32 actual=0;size=sizeof(actual);
+            if(AudioUnitGetProperty(unit,kAudioUnitProperty_OfflineRender,kAudioUnitScope_Global,0,&actual,&size)!=noErr||actual!=value)
+                throw std::runtime_error("AU offline rendering readback differs");
+            return true;
+        }
+    }
+   #endif
+    return false;
+}
 // AudioComponentRegister is a public, process-local registration API. This
 // loads the factory from the explicitly requested AUv2 bundle; it does not copy
 // a component into a system/user plugin folder or update the global registry.

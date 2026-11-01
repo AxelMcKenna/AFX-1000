@@ -115,6 +115,7 @@ public:
         stateRecall();
         deadline.stage = 7;
         pads();
+        releaseFeedback();
         deadline.stage = 8;
         transportAndConfigurations();
         deadline.stage = 9;
@@ -320,6 +321,45 @@ private:
             }
             require(finite && energy > 1e-8, "midi-pad/" + juce::String(note), "silent input, factory note produces energy=" + juce::String(energy, 9));
         }
+    }
+    void releaseFeedback() {
+        for(bool offline:{false,true}) {
+            const bool nativeAUOffline=rmx::host::setNonRealtime(plugin,offline);
+            restoreInitial();prepare(48000,128);
+            value("Auto BPM",0);value("Scene FX",5.f/9);value("Scene source",0);
+            value("Scene depth",95.f/255);value("Scene sub parameter 1",97.f/255);
+            value("Scene sub parameter 2",0);value("Scene enabled",1);value("Release FX",0);
+            bool finite=signalBlocks(64);
+            value("Release lever",1);finite=signalBlocks(16)&&finite;
+            value("Release lever",0);finite=signalBlocks(256)&&finite;
+            const auto errorFromDry=[&] {
+                juce::AudioBuffer<float> audio(2,block);juce::MidiBuffer midi;
+                double error=0;
+                for(int n=0;n<16;++n) {
+                    const double start=position;
+                    for(int ch=0;ch<2;++ch)for(int i=0;i<block;++i)
+                        audio.setSample(ch,i,static_cast<float>((ch?.075:.1)*std::sin((start+i/rate)*2*3.141592653589793*(ch?431:173))));
+                    finite=process(audio,midi)&&finite;
+                    for(int ch=0;ch<2;++ch)for(int i=0;i<block;++i) {
+                        const float expected=static_cast<float>((ch?.075:.1)*std::sin((start+(i-32)/rate)*2*3.141592653589793*(ch?431:173)));
+                        error=std::max(error,std::abs(static_cast<double>(audio.getSample(ch,i)-expected)));
+                    }
+                }
+                return error;
+            };
+            const auto afterReturn=errorFromDry();
+            require(finite&&afterReturn<=1e-5,"release-feedback/"+juce::String(offline?"offline":"realtime"),
+                "No message dispatch: Release return keeps Scene off across callbacks; max dry error="+juce::String(afterReturn,9));
+            // AUv2 drops a same-value host write while realtime feedback is
+            // still waiting for the message thread. Send an explicit off/on
+            // gesture in that mode; offline feedback must already expose off.
+            if(!offline){value("Scene enabled",0);finite=signalBlocks(1)&&finite;}
+            value("Scene enabled",1);finite=signalBlocks(64)&&finite;
+            const auto afterEnable=errorFromDry();
+            require(finite&&afterEnable>.001,"release-reenable/"+juce::String(offline?"offline":"realtime"),
+                "Explicit host Scene enable after Release; native AU offline property verified="+juce::String(nativeAUOffline?"true":"false")+"; max effect difference="+juce::String(afterEnable,9));
+        }
+        rmx::host::setNonRealtime(plugin,false);
     }
     void transportAndConfigurations() {
         restoreInitial();
