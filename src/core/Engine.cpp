@@ -50,7 +50,8 @@ void Engine::reset() noexcept {
     for(auto& isolator:isolators) isolator.reset();
     voices={}; sequence.clear();
     factoryRelease.reset();factoryReleaseEnabled=false;factoryGate.reset();factoryTrans.reset();factoryCut.reset();
-    factoryDrums.reset();factoryRoll.reset();factorySequence.clear();factoryRollPlaying=true;factoryPreviousHold=factoryPreviousQuantize=factoryPreviousSequence=false;pendingDrumCue={};factoryMask=0;
+    factoryDrums.reset();factoryRoll.reset();factorySequence.clear();factoryRollPlaying=true;factoryPreviousHold=factoryPreviousQuantize=factoryPreviousSequence=releaseSceneBypass=false;pendingDrumCue={};factoryMask=0;
+    sourceRouteGain=sourceRouteTarget=sourceRouteStep={};sourceRouteRemaining=0;sourceRouteReady=false;
     frame=0; beat=0; bpm=params.get(Param::Tempo); lastTap=0;
     rollPad=-1; selectedPad=0; sourceRoll=false; capturedLength=0; captureCopied=0; capturePosition=0;
     rollNext=0; rollStart=0; releaseRead=0; releaseAge=0; nudgeDirection=0; nudgeOffset=0; tapIntervals={}; tapCount=0; tapIndex=0; tapped=false;
@@ -233,7 +234,7 @@ Engine::ReleaseFrame Engine::releaseControls() noexcept {
     const bool active=get(Param::ReleaseAmount)>.005f;
     const bool start=active&&!previousRelease;
     if(!active&&previousRelease) {
-        if(get(Param::ReleaseKeepScene)<.5f) set(Param::SceneOn,0);
+        if(get(Param::ReleaseKeepScene)<.5f) {set(Param::SceneOn,0);pendingDrumCue.control|=128;}
         if(get(Param::ReleaseKeepIsolate)<.5f) { set(Param::Low,0); set(Param::Mid,0); set(Param::High,0); }
         if(get(Param::ReleaseKeepSampler)<.5f) {
             set(Param::XHold,0); set(Param::Overdub,0); rollPad=-1; sourceRoll=false; voices={}; sequence.clear();
@@ -276,6 +277,7 @@ void Engine::renderSharedSources(size_t count,int type,bool coldProfile,bool mea
         const auto& cue=drumCues[start];
         if(cue.stop&(1u<<factoryRoll.instrument()))factoryRoll.stop(true);
         if(cue.control&64)factorySequence.clearPattern();
+        if(cue.control&128)releaseSceneBypass=true;
         if(cue.control&16)factorySequence.enable((cue.control&32)!=0);
         factorySequence.quantize(factoryPreviousQuantize);
         factorySequence.toggleMute(cue.mute);factorySequence.erase(cue.erase);
@@ -322,6 +324,24 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
     factoryDrums.setMuteMask(factorySequence.muteMask());
     factorySequence.advance(factoryRoll.currentBeat(),factoryRollPlaying,[&](unsigned pad,float velocity){factoryDrums.trigger(pad,velocity);});
     factoryDrums.generateBlock(drums);
+    std::array<std::array<float,4>,32> routes{};
+    const bool measuredRouting=get(Param::UserSettings)<.5f;
+    if(measuredRouting){
+        const int source=static_cast<int>(get(Param::SceneSource));
+        const float input=source==0||source==2?1.f:0.f,pads=source==1||source==2?1.f:0.f;
+        const std::array<float,4> target{1-input,1-pads,input,pads};
+        if(!sourceRouteReady){sourceRouteGain=sourceRouteTarget=target;sourceRouteReady=true;}
+        if(target!=sourceRouteTarget){
+            sourceRouteTarget=target;
+            for(unsigned i=0;i<4;++i)sourceRouteStep[i]=(target[i]-sourceRouteGain[i])*.00625f;
+            sourceRouteRemaining=160;
+        }
+        for(auto& route:routes){
+            for(unsigned i=0;i<4;++i)sourceRouteGain[i]+=sourceRouteStep[i];
+            route=sourceRouteGain;
+            if(sourceRouteRemaining&&!--sourceRouteRemaining){sourceRouteGain=sourceRouteTarget;sourceRouteStep={};}
+        }
+    }else sourceRouteReady=false;
     // One selected source drives the nonlinear detector and processor. It is
     // already on the shared source fade, before Scene's generated-source input.
     const bool useFactoryGate=get(Param::UserSettings)<.5f&&get(Param::IsolateMode)==3
@@ -349,7 +369,8 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
         const auto& source=routingCollected[i];
         const Stereo routed{(source.input.l*gain)*gain,(source.input.r*gain)*gain};
         const auto pads=source.legacy*gain+drums[i]*source.mute;
-        gateSource[i]=routed*source.isoInput+pads*source.isoPad;
+        const bool shared=measuredRouting&&get(Param::IsolateSource)==get(Param::SceneSource);
+        gateSource[i]=routed*(shared?routes[i][2]:source.isoInput)+pads*(shared?routes[i][3]:source.isoPad);
     }
     std::array<float,32> noiseDetector{};
     const bool noiseSidechain=type==2&&get(Param::UserSettings)>.5f&&get(Param::NoiseWave)==4&&get(Param::NoiseModMode)==0;
@@ -362,6 +383,9 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
     if(type!=coldSceneType||!coldProfile)coldSceneType=-1;
     for(size_t i=0;i<32;++i){
         const auto& source=routingCollected[i];
+        const float sceneInput=measuredRouting?routes[i][2]:source.sceneInput,scenePad=measuredRouting?routes[i][3]:source.scenePad;
+        const float dryInput=measuredRouting?routes[i][0]:1-source.sceneInput,dryPad=measuredRouting?routes[i][1]:1-source.scenePad;
+        const bool shared=measuredRouting&&get(Param::IsolateSource)==get(Param::SceneSource);
         float gain=1;if(routingAge<160){routingFade+=.00625f;gain=routingFade;}
         const auto frame=routingAge++;
         auto fade=[gain](Stereo x){return Stereo{(x.l*gain)*gain,(x.r*gain)*gain};};
@@ -370,17 +394,17 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
         const auto legacyInput=isolators[0].process(input,source.bands,source.beat);
         const auto legacyPads=isolators[1].process(pads,source.bands,source.beat);
         if(!useFactoryIsolator){
-            input=mix(input,legacyInput,source.isoInput*source.isoEnabled);
-            pads=mix(pads,legacyPads,source.isoPad*source.isoEnabled);
+            input=mix(input,legacyInput,(shared?routes[i][2]:source.isoInput)*source.isoEnabled);
+            pads=mix(pads,legacyPads,(shared?routes[i][3]:source.isoPad)*source.isoEnabled);
         }
-        const auto routed=fade(input);selected[i]=input*source.sceneInput;generated[i]=pads*source.scenePad;
+        const auto routed=fade(input);selected[i]=input*sceneInput;generated[i]=pads*scenePad;
         if(useFactoryIsolator){selected[i]={};generated[i]=factoryIsolated[i];}
-        unselectedPadPending[i]=pads*(1-source.scenePad);
+        unselectedPadPending[i]=pads*dryPad;
         // Only the fully dry send is a removable pad stem. Scene-off can
         // still have a nonzero smoother and already-processed queued audio.
         scenePadPending[i]=!useFactoryIsolator&&!measuredDown&&!measuredUp&&!measuredSpiral&&source.sceneMix==0?generated[i]:Stereo{};
-        routingPending[i]={fade(source.raw),routed*(1-source.sceneInput)+unselectedPadPending[i],fade(source.wetDry)};
-        const auto send=useFactoryIsolator?factoryIsolated[i]:routed*source.sceneInput+generated[i];spiralSource[i]=send;
+        routingPending[i]={fade(source.raw),routed*dryInput+unselectedPadPending[i],fade(source.wetDry)};
+        const auto send=useFactoryIsolator?factoryIsolated[i]:routed*sceneInput+generated[i];spiralSource[i]=send;
         if(!measuredDown&&!measuredUp&&!measuredSpiral){
             // The identified initial activation is separate from later
             // gestures. Once disabled, keep the ordinary control smoother.
@@ -389,7 +413,9 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
             const bool first=cold&&frame<32;
             if(cold&&frame>=32&&frame<192)coldEffect=std::min(1.f,coldEffect+.00625f);
             if(frame>=192)coldEffect=1;
-            const auto steady=sceneProcessor.process(send,source.depth,source.time,source.resonance,cold?1.f:source.sceneMix,
+            const bool filterMotion=coldProfile&&(type==0||type==5||type==6||type==7);
+            const auto steady=sceneProcessor.process(send,(type==0||type==5||type==6)&&filterMotion?routingCollected.back().depth:source.depth,
+                filterMotion?routingCollected.back().time:source.time,source.resonance,cold?1.f:source.sceneMix,
                 source.bpm,source.beat,source.sidechain,cold?coldEffect:1,first);
             auto result=steady;
             if(cold){
@@ -416,6 +442,14 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
     upControls.enabled=measuredUp&&routingCollected.back().sceneEnabled;reverbUp.setControls(upControls);
     if(!reverbDown.processGeneratedBlock(selected,generated,measuredDown?std::span<Stereo,32>(scenePending):std::span<Stereo,32>(discard))&&measuredDown)scenePending={};
     if(!reverbUp.processGeneratedBlock(selected,generated,measuredUp?std::span<Stereo,32>(scenePending):std::span<Stereo,32>(discard))&&measuredUp)scenePending={};
+    // Release's Default return turns off the complete Scene contribution,
+    // including already ringing returns. An ordinary Scene button-off keeps
+    // its tails. Carry this action on the common source clock, then leave it
+    // when the user enables a Scene effect again.
+    if(releaseSceneBypass){
+        if(routingCollected.back().sceneEnabled)releaseSceneBypass=false;
+        else scenePending=spiralSource;
+    }
     for(size_t i=0;i<32;++i){routingPending[i].factoryRelease=factoryReleaseEnabled;}
     if(factoryReleaseEnabled){
         std::array<Stereo,32> released{};factoryRelease.process(scenePending,released,routingCollected[0].bpm);scenePending=released;
@@ -598,7 +632,10 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         // Unselected sources bypass it. Noise is generated inside scene() even
         // when neither input is selected.
         sourceFrames[k]={raw,input,drums,raw*db(sm(Param::InputGain)),{sm(Param::Low),sm(Param::Mid),sm(Param::High)},
-            isolateInputMix,isolatePadMix,isolateEnabled,sceneInputMix,scenePadMix,sceneMix,sm(Param::SceneDepth),sm(Param::SceneTime),sm(Param::SceneResonance),peak(rollInput),1-sm(Param::SamplerMute),bpm,beat+nudgeOffset,get(Param::SceneOn)>.5f};
+            isolateInputMix,isolatePadMix,isolateEnabled,sceneInputMix,scenePadMix,sceneMix,
+            coldSceneProfile&&(sceneSettings.type==0||sceneSettings.type==5||sceneSettings.type==6)?get(Param::SceneDepth):sm(Param::SceneDepth),
+            coldSceneProfile&&(sceneSettings.type==0||sceneSettings.type==5||sceneSettings.type==6||sceneSettings.type==7)?get(Param::SceneTime):sm(Param::SceneTime),
+            sm(Param::SceneResonance),peak(rollInput),1-sm(Param::SamplerMute),bpm,beat+nudgeOffset,get(Param::SceneOn)>.5f};
         auto& output=outputFrames[k];
         output.release=releaseControls();output.wetOnly=get(Param::WetOnly)>.5f;
         output.gain=db(sm(Param::OutputGain));

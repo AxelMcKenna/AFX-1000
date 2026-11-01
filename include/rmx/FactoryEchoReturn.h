@@ -17,11 +17,11 @@ public:
     void reset() noexcept {
         for(auto& line:lines)line.reset();
         for(auto& channel:filters)for(auto& filter:channel)filter.reset();
-        age=0;readGain={};
+        age=0;readGain={};lastTime=-1;dynamicWeights=false;weights=weightTargets=weightSteps=oldWeights={};weightRemaining=0;weightSwitchAge=0;
     }
     // Constant-time transition: old delay contents are ignored until replaced.
     void restart(Profile next) noexcept {
-        profile=next;age=0;readGain={};
+        profile=next;age=0;readGain={};lastTime=-1;dynamicWeights=false;weights=weightTargets=weightSteps=oldWeights={};weightRemaining=0;weightSwitchAge=0;
         for(auto& channel:filters)for(auto& filter:channel) {
             filter.configure(next==Profile::crush?60:283.99944,rate);filter.reset();
         }
@@ -36,12 +36,20 @@ public:
             source={filters[0][1].tick(filters[0][0].tick(source[0])),filters[1][1].tick(filters[1][0].tick(source[1]))};
         }
         if(inputGain!=1)for(auto& value:source)value*=inputGain;
-        std::array<float,4> weights{};
+        std::array<float,4> targetWeights{};
         const float position=std::clamp((timeRaw-3)/62.25f,0.f,4.f);
         const unsigned upper=std::min(3u,static_cast<unsigned>(position));
-        if(upper>0)weights[upper-1]=upper+1-position;
-        weights[upper]=position-upper;
-        if(position==4)weights[3]=1;
+        if(upper>0)targetWeights[upper-1]=upper+1-position;
+        targetWeights[upper]=position-upper;
+        if(position==4)targetWeights[3]=1;
+        if(lastTime<0){weights=targetWeights;lastTime=timeRaw;}
+        else if(timeRaw!=lastTime){
+            if(!dynamicWeights){oldWeights=weights;weightSwitchAge=age;dynamicWeights=true;}
+            weightTargets=targetWeights;
+            for(unsigned i=0;i<4;++i)weightSteps[i]=(weightTargets[i]-weights[i])*.00625f;
+            weightRemaining=160;lastTime=timeRaw;
+        }
+        if(dynamicWeights)for(unsigned i=0;i<4;++i)weights[i]+=weightSteps[i];
         const double beat=rate*std::floor(60000/std::clamp(bpm,40.,240.))/1000;
         const double send=profile==Profile::spiral?0.7079457843841379:1;
         Stereo returned{};
@@ -53,10 +61,21 @@ public:
                 if(age>=firstRead)readGain[i]=std::min(1.f,readGain[i]+.00625f);
                 tap=tap*readGain[i];
             }
-            returned=returned+tap*weights[i];
-            lines[i].push({static_cast<float>(std::clamp(source[0]*send*enabled+tap.l*.75,-8.,8.)),
-                           static_cast<float>(std::clamp(source[1]*send*enabled+tap.r*.75,-8.,8.))});
+            if(dynamicWeights){
+                // Static output weighting commutes with these linear loops.
+                // On the first gesture, convert old taps lazily and put each
+                // new weight on its send, preserving the already heard tail.
+                if(age>=static_cast<uint64_t>(delay)&&age-static_cast<uint64_t>(delay)<weightSwitchAge)tap=tap*oldWeights[i];
+                returned=returned+tap;
+                lines[i].push({static_cast<float>(std::clamp(source[0]*weights[i]*send*enabled+tap.l*.75,-8.,8.)),
+                               static_cast<float>(std::clamp(source[1]*weights[i]*send*enabled+tap.r*.75,-8.,8.))});
+            }else{
+                returned=returned+tap*weights[i];
+                lines[i].push({static_cast<float>(std::clamp(source[0]*send*enabled+tap.l*.75,-8.,8.)),
+                               static_cast<float>(std::clamp(source[1]*send*enabled+tap.r*.75,-8.,8.))});
+            }
         }
+        if(weightRemaining&&!--weightRemaining){weights=weightTargets;weightSteps={};}
         ++age;
         if(profile==Profile::spiral||filterInput)return {returned.l*.7,returned.r*.7};
         return {filters[0][1].tick(filters[0][0].tick(returned.l))*.7,
@@ -78,6 +97,8 @@ private:
     std::array<FractionalDelay,4> lines;
     std::array<std::array<HighPass,2>,2> filters;
     std::array<float,4> readGain{};
+    std::array<float,4> weights{},weightTargets{},weightSteps{},oldWeights{};
+    uint64_t weightSwitchAge{};unsigned weightRemaining{};int lastTime{-1};bool dynamicWeights{};
     Profile profile{Profile::filter};double rate{48000};uint64_t age{};
 };
 }

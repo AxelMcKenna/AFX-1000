@@ -87,7 +87,9 @@ private:
     FactoryDrumSynth factoryDrums;
     FactoryRollClock factoryRoll;
     FactoryDrumSequence factorySequence;
-    bool factoryRollPlaying{true},factoryPreviousHold{},factoryPreviousQuantize{},factoryPreviousSequence{};
+    bool factoryRollPlaying{true},factoryPreviousHold{},factoryPreviousQuantize{},factoryPreviousSequence{},releaseSceneBypass{};
+    std::array<float,4> sourceRouteGain{},sourceRouteTarget{},sourceRouteStep{};
+    unsigned sourceRouteRemaining{};bool sourceRouteReady{};
     struct DrumCue {uint8_t trigger{},stop{},selectPad{},rollAction{},rollPad{},rollBeat{},control{},record{};std::array<float,4> velocity{1,1,1,1};bool flush{},rollPosition{};uint8_t mute{},erase{};};
     static_assert(sizeof(DrumCue)==28);
     struct SourceFrame {

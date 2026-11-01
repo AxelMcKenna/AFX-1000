@@ -16,14 +16,19 @@ public:
     }
     void reset() noexcept {
         echoReturn.reset();
-        clearFilters();age=0;lastType=lastRaw=-1;sharedStartup=false;
+        clearFilters();age=0;lastType=lastRaw=motionRaw=-1;sharedStartup=false;
     }
     void invalidate() noexcept {lastType=-1;}
     Stereo process(Stereo input,int type,int raw,int timeRaw,float enabled,double bpm,float startup=1,bool priming=false) noexcept {
         raw=std::clamp(raw,0,255);timeRaw=std::clamp(timeRaw,0,255);
         if(type!=lastType) {
-            clearFilters();age=0;lastType=type;lastRaw=-1;
+            clearFilters();age=0;lastType=type;lastRaw=motionRaw=-1;
             echoReturn.restart(type==7?FactoryEchoReturn::Profile::crush:FactoryEchoReturn::Profile::filter);
+        }
+        if(type==0||type==5||type==6){
+            if(motionRaw<0)motionRaw=raw;
+            if((age&15u)==0)motionRaw+=motionRaw<raw?1:motionRaw>raw?-1:0;
+            raw=motionRaw;
         }
         if(raw!=lastRaw) {configure(type,raw);lastRaw=raw;}
         if(priming){
@@ -60,6 +65,7 @@ public:
                 const double y=main[channel].tick(u),b=feedbackBand[channel].tick(u);
                 const double f=feedbackGain*b+feedbackPoleState[channel];
                 feedbackPoleState[channel]=(type==5||type==7?-feedbackGain:feedbackGain)*b+feedbackPole*f;
+                previousFeedbackBand[channel]=b;
                 feedbackState[channel]=f;
                 direct[channel]=feed[channel]=x+(y-x)*gain;
             }
@@ -86,14 +92,15 @@ public:
     }
 private:
     struct Biquad {
-        double b0{},b1{},b2{},a1{},a2{},s1{},s2{};
+        double b0{},b1{},b2{},a1{},a2{},s1{},s2{},x1{},x2{},y1{},y2{};
         void configure(double hz,double rate,bool high) noexcept {
             const double w=2*std::numbers::pi*hz/rate,alpha=std::sin(w)/std::sqrt(2.);
             a1=-2*std::cos(w)/(1+alpha);a2=(1-alpha)/(1+alpha);
             b0=(1+(high?-a1:a1)+a2)/4;b1=(high?-2:2)*b0;b2=b0;
         }
-        double tick(double x) noexcept {const double y=b0*x+s1;s1=b1*x-a1*y+s2;s2=b2*x-a2*y;return y;}
-        void reset() noexcept {s1=s2=0;}
+        void restoreHistory() noexcept {s1=((b1*x1+b2*x2)-a1*y1)-a2*y2;s2=b2*x1-a2*y1;}
+        double tick(double x) noexcept {const double y=b0*x+s1;s1=b1*x-a1*y+s2;s2=b2*x-a2*y;x2=x1;x1=x;y2=y1;y1=y;return y;}
+        void reset() noexcept {s1=s2=x1=x2=y1=y2=0;}
     };
     static double value(const FilterEchoPoint& p,unsigned column) noexcept {return column==0?p.cutoffRatio:p.resonance;}
     template<size_t N> static double interpolate(const std::array<FilterEchoPoint,N>& points,int raw,unsigned column) noexcept {
@@ -138,18 +145,22 @@ private:
             main[channel].configure(fc,48000,high);
             auto& b=feedbackBand[channel];b.a1=main[channel].a1;b.a2=main[channel].a2;
             b.b0=(1-b.a2)/2;b.b1=0;b.b2=-b.b0;
+            if(lastRaw>=0){
+                main[channel].restoreHistory();b.restoreHistory();
+                feedbackPoleState[channel]=(high?-feedbackGain:feedbackGain)*previousFeedbackBand[channel]+feedbackPole*feedbackState[channel];
+            }
         }
     }
     void clearFilters() noexcept {
-        bandState={};feedbackState={};feedbackPoleState={};held={};holdCounter=0;
+        bandState={};feedbackState={};feedbackPoleState={};previousFeedbackBand={};held={};holdCounter=0;
         for(auto& f:main)f.reset();for(auto& f:feedbackBand)f.reset();
     }
     FactoryEchoReturn echoReturn;
     std::array<Biquad,2> main,feedbackBand;
     std::array<std::array<double,5>,2> bandState{};
-    std::array<double,2> feedbackState{},feedbackPoleState{};
+    std::array<double,2> feedbackState{},feedbackPoleState{},previousFeedbackBand{};
     BandEchoPoint band{};double feedbackPole{},feedbackGain{},resonance{},gain{};
     Stereo held{};double holdCounter{},holdPeriod{1};
-    uint64_t age{};int lastType{-1},lastRaw{-1};bool sharedStartup{};
+    uint64_t age{};int lastType{-1},lastRaw{-1},motionRaw{-1};bool sharedStartup{};
 };
 }

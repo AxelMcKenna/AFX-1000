@@ -13,6 +13,23 @@ float sine(double frequency,size_t i) {return .2f*static_cast<float>(std::sin(2*
 double energy(Stereo x) {return x.l*x.l+x.r*x.r;}
 int main() {try {
     {
+        FactoryEchoReturn stationary,gesture;
+        stationary.prepare(48000);gesture.prepare(48000);
+        double worst=0;
+        for(unsigned frame=0;frame<72000;++frame){
+            const std::array<double,2> input=frame<128?std::array<double,2>{.1,-.15}:std::array<double,2>{};
+            const auto a=stationary.process(input,97,1,120);
+            const auto b=gesture.process(input,frame<18000?97:139,1,120);
+            for(unsigned channel=0;channel<2;++channel)worst=std::max(worst,std::abs(a[channel]-b[channel]));
+        }
+        require(worst<1e-6,"Echo timing gesture rescaled already recorded tails");
+        gesture.reset();stationary.reset();
+        for(unsigned frame=0;frame<32000;++frame){
+            const std::array<double,2> input=frame<128?std::array<double,2>{.1,-.15}:std::array<double,2>{};
+            require(gesture.process(input,97,1,120)==stationary.process(input,97,1,120),"Echo reset retained gesture state");
+        }
+    }
+    {
         struct Targets {
             std::array<float,128> values{};unsigned count{},used{};bool exhausted{};
             static float next(void* context) noexcept {

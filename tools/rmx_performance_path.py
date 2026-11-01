@@ -52,7 +52,11 @@ def recipe(stage):
                 c.update(route=i%3,source='external',isolate_enabled=1,isolate_mode=i%3+1)
                 extra=[(144239,'S',(i+1)%3),(240337,'U',83),(288419,'S',(i+2)%3),(384601,'S',i%3)]
             c['changes'] += [dict(frame=f+shift,type=k,value=v) for f,k,v in extra]
-            c['changes'].sort(key=lambda e:e['frame']);c['hits']=[e['frame'] for e in c['changes'] if e['type']=='H'];rows.append(c)
+            c['changes'].sort(key=lambda e:e['frame']);c['hits']=[e['frame'] for e in c['changes'] if e['type']=='H']
+            if stage!='discovery':
+                c['block']=[43,131,257,1021,4096,79][i%6]
+                c['level']=[89,117,137][i%3];c['pitch']=[117,128,139][i%3]
+            rows.append(c)
     return rows
 
 
