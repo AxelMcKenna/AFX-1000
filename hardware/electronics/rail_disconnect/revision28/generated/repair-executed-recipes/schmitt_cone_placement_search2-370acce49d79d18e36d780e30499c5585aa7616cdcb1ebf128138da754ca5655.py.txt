@@ -1,0 +1,126 @@
+"""Joint new-cell pad, actual ten-drill, stem and courtyard preflight."""
+
+import hashlib
+import json
+import math
+from pathlib import Path
+
+from shapely.geometry import LineString, Point, Polygon, box
+from shapely.ops import unary_union
+from shapely.prepared import prep
+
+from ...common.sexpr import children, first, read_sexpr
+from ...output_stage.check_placement import courtyard
+from .schmitt_cone_candidate import GROUPS, ROOT, SOURCE
+from .schmitt_cone_fanout import ENDS
+
+
+def main():
+    t = read_sexpr((SOURCE / "rail_disconnect.kicad_pcb").read_text())
+    pads = json.loads((SOURCE / "generated/native-pads.json").read_text())["pad_polygons"]
+    obs = []
+    allobs = []
+    courts = []
+    for p in pads:
+        for layer, gs in p["layers"].items():
+            for g in gs:
+                poly = Polygon(g["outer"], g["holes"])
+                allobs.append(poly)
+                if layer == "F.Cu":
+                    obs.append(poly)
+    for k in ("segment", "via"):
+        for n in children(t, k):
+            if k == "via":
+                q = Point(*map(float, first(n, "at")[1:])).buffer(float(first(n, "size")[1]) / 2)
+                allobs.append(q)
+                obs.append(q)
+            else:
+                q = LineString([list(map(float, first(n, z)[1:])) for z in ("start", "end")]).buffer(
+                    float(first(n, "width")[1]) / 2
+                )
+                allobs.append(q)
+                if first(n, "layer")[1] == "F.Cu":
+                    obs.append(q)
+    for f in children(t, "footprint"):
+        if first(f, "layer")[1] == "F.Cu":
+            try:
+                courts.append(box(*courtyard(f, "F.CrtYd")))
+            except (IndexError, ValueError):
+                pass
+    copper = prep(unary_union(obs).buffer(0.205))
+    drill = prep(unary_union(allobs).buffer(0.505))
+    cs = unary_union(courts)
+    found = []
+    for index, group in enumerate(GROUPS):
+        targets = [p["position_mm"] for p in pads if p["net"] in group]
+        tx = sum(p[0] for p in targets) / len(targets)
+        ty = sum(p[1] for p in targets) / len(targets)
+        cand = []
+        for yi in range(191, 202):
+            y = 100 + yi * 0.25
+            for xi in range(25, 553):
+                x = 100 + xi * 0.25
+                cx = x - 0.7
+                cy = y + 3.2
+                u = box(x - 2.225, y - 1.45, x + 2.225, y + 1.45)
+                c = box(cx - 1.55, cy - 0.75, cx + 1.55, cy + 0.75)
+                if u.intersects(cs) or c.intersects(cs):
+                    continue
+                lands = [
+                    box(x + sx - 0.425, y + yy - 0.15, x + sx + 0.425, y + yy + 0.15)
+                    for sx in (-1.55, 1.55)
+                    for yy in (-0.75, -0.25, 0.25, 0.75)
+                ] + [box(cx + sx - 0.475, cy - 0.5, cx + sx + 0.475, cy + 0.5) for sx in (-0.8, 0.8)]
+                if any(copper.intersects(p) for p in lands):
+                    continue
+                vias = [
+                    (x + dx, y + dy) for n, (dx, dy) in ENDS.items() if not (index == 6 and n in (2, 5))
+                ] + [(cx - 0.8, cy), (cx + 0.8, cy)]
+                if any(drill.intersects(Point(v)) for v in vias):
+                    continue
+                # Actual lead-centre horizontal stems, .2mm width and .2mm clearance.
+                stems = [
+                    LineString([(x + (-1.55 if n <= 4 else 1.55), y + dy), (x + dx, y + dy)])
+                    for n, (dx, dy) in ENDS.items()
+                    if not (index == 6 and n in (2, 5))
+                ]
+                if any(copper.intersects(s.buffer(0.1)) for s in stems):
+                    continue
+                cand.append((math.hypot(x - tx, y - ty), x, y, u, c, vias))
+        if not cand:
+            print("no complete ten-drill candidate", index, flush=True)
+            break
+        score, x, y, u, c, vias = min(cand, key=lambda v: v[0])
+        cs = unary_union([cs, u.buffer(0.05), c.buffer(0.05)])
+        obs.extend([u, c])
+        allobs.extend([Point(v).buffer(0.3) for v in vias])
+        copper = prep(unary_union(obs).buffer(0.205))
+        drill = prep(unary_union(allobs).buffer(0.505))
+        found.append(
+            dict(
+                ref=f"U{36 + index}",
+                local_mm=[x - 100, y - 100],
+                cap_local_mm=[x - 100 - 0.7, y - 100 + 3.2],
+                score=score,
+                candidates=len(cand),
+            )
+        )
+        print(found[-1], flush=True)
+    out = ROOT / "generated/schmitt-cone-proposal/placement-search2.json"
+    out.write_text(
+        json.dumps(
+            dict(
+                source_sha256=hashlib.sha256((SOURCE / "rail_disconnect.kicad_pcb").read_bytes()).hexdigest(),
+                recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                rows=found,
+                complete=len(found) == 7,
+                all_native_MCAD_PDN_pending=True,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

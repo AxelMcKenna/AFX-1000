@@ -1,0 +1,17 @@
+# C84 functional bypass relocation — private source-specific checkpoint
+
+READY for review/merge as a capacitor-only functional layout step. It does not close ANA_PG1 or E28_ANA_FOLLOW2. Their original two-component gaps remain, as do all thirty original uncapped airwires. This source has not been adopted into E28/canonical.
+
+Parent PCB b3f1e15d8ca25756a28518e7449efaf1dc439a24619c9c331cf3a5fd719d3e56 is preserved. Use candidate-paired/rail_disconnect.kicad_pcb plus the exact four-removal/four-addition ledger in c84-functional-proof.json. Merge only that geometry against the eventual actual owner source.
+
+C84 remains KEMET C0603C104K4RACTU, same manufacturer footprint/net roles. Its actual native pose is local(62.8,52.4),270° (saved -90°), front. AUX pad1 is(62.8,51.6); AGND pad2 is(62.8,53.2). The native ground-pad HitTest contains the existing AGND via centre(63.275,53.475). No new drill is created. Its front courtyard is approximately[62.1,50.85..63.5,53.95]; new full-unit body/assembly/fit checks remain necessary.
+
+The original first .675mm U41.8 AUX stem remains exact. Two obsolete AUX pieces and the two pieces comprising the old cap-only ground stub are replaced. Four new .20mm AUX segments reconnect the actual old source via pair, capacitor and U41. Every one of1464 original vias, every other footprint and every other track stays exact; all original force/reference/timing and other ground primitives are unchanged. All273 footprints/269 circuit parts remain present. PCB setup/layers/outline/zone contracts are unchanged.
+
+The actual F copper U41.8-to-C84.1 centreline is2.533259mm at.20mm width. Source-feed detour from old via(61.95,52.225) to cap is1.526469mm; the added bridge to old via(61.75,53.475) is1.265899mm. C84.2 touches the old ground annulus directly. U41.4's existing local ground connection remains; the nonzero six-layer plane transfer between the cap ground via and U41 ground must be included in a subsequent impedance/noise/PDN analysis. Direct same-net connectivity does not prove the local bypass impedance or effective-C requirement. The inherited effective-C>=50nF remains unaccepted.
+
+Fresh strict KiCad10.0.7: PCB hard violations0, warnings158, schematic parity0, reported=uncapped opens30, ignored_checks[]. Fresh ERC0, ignored_checks[]. Native XML matches269 actual component values/assigned pins. Native transitive components show AUX is one component; ANA_PG1 and FOLLOW2 remain two each, and the other buffered output gaps are unchanged. Six cross-artifact tests pass. Original P03 strict-native seal also passes a read-only copied-project audit enabling all four stock ERC ignores; all81 parent files verify unchanged.
+
+Saved-fill differences versus an independent parent refill are below5e-6mm² per entry, recorded without claiming exact zero or an electrical bound. No source/return/force/noise/thermal/capacitor current or fabrication acceptance is inherited. The newly covered ground via requires actual resin filling/capping/flatness and assembly approval, all still false. No MCAD/physical/whole-board routing qualification is claimed.
+
+Rejected poses, the modern/numeric-net serialization failure, and bounded ANA/FOLLOW2 routing screens remain outside this seal in the containing /tmp study, unchanged by this packet. The63.3mm X trial failed native clearance to the actual ANA_SOURCE_OK receiving via64.1,53.475 and was rejected. Captured recipes preserve their original study paths; actual source/artifact hashes below are authoritative.

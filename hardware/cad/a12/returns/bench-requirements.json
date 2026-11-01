@@ -1,0 +1,112 @@
+{
+  "revision": "A12-R01",
+  "physical_tests_performed": 0,
+  "physical_fit_verified": false,
+  "electrical_joint_qualified": false,
+  "mechanical_stability_qualified": false,
+  "fabrication_released": false,
+  "traceability": [
+    "Actual E28/P03 native board/BOM/filled-copper hashes, exact STEP/drawing/configuration hashes and measured assembled terminal-plane coordinates",
+    "Copper stock alloy/temper and conductivity certificate, critical bare-copper section measurements, plating provider/lot/thickness/adhesion/finish process",
+    "Original approved W\u00fcrth terminal drawing, actual usable thread depth and tolerance, land/stencil/reflow/cleaning process and assembly lot",
+    "MCAM Ketron1000 natural unfilled PEEK material/lot certificate, machined threads, seat/cap metrology, actual fastener dimensions and calibrated torque tools",
+    "Instrument ID, calibration, positive expanded uncertainty and tested source/load/temperature/time/service-cycle conditions"
+  ],
+  "required_measurements": [
+    {
+      "metric": "each_complete_terminal_assembly_resistance_mohm",
+      "instrument_roles": [
+        "four_wire_resistance",
+        "electrical_current",
+        "temperature"
+      ],
+      "upper_allocation_mohm": 0.35,
+      "limit_basis": "Project allocation, not a manufacturer guaranteed contact resistance",
+      "acceptance": "Each entire bar contact/stud/solder-to-PCB assembly measured resistance plus positive expanded uncertainty<=0.35mOhm. Define Kelvin planes at bar bulk and actual board return-access copper; reverse current to remove thermal EMF. Measure at declared operating temperatures and loads, after assembly torque, thermal cycling, vibration/service and reassembly."
+    },
+    {
+      "metric": "bare_finished_bar_resistance_mohm",
+      "instrument_roles": [
+        "four_wire_resistance",
+        "temperature",
+        "dimensional"
+      ],
+      "upper_allocation_mohm": 0.1,
+      "minimum_normal_copper_area_mm2": 20,
+      "limit_basis": "Project allocations;1D geometry/resistivity screen excludes3D current crowding",
+      "acceptance": "Measure actual finished bar with defined terminal reference planes, temperature and uncertainty. Inspect minimum bare-copper normal section at hole necks, bends and machined ramps; coating cannot silently substitute for copper core. Confirm conductivity certificate and maximum plating envelope."
+    },
+    {
+      "metric": "complete_board_to_board_return_resistance_mohm",
+      "instrument_roles": [
+        "four_wire_resistance",
+        "electrical_current",
+        "temperature"
+      ],
+      "upper_target_mohm": 2,
+      "pcb_access_suballocation_mohm": 1,
+      "sum_of_nominal_suballocations_mohm": 1.8,
+      "acceptance": "Measure between actual operating board return reference planes including both terminal assemblies, copper bar and connected PCB return access; measured plus expanded uncertainty<=2mOhm. Suballocation sum is not an assembled physical pass."
+    },
+    {
+      "metric": "terminal_fastening_and_lifetime",
+      "instrument_roles": [
+        "torque",
+        "force",
+        "dimensional",
+        "four_wire_resistance"
+      ],
+      "trial_m3_torque_nm": [
+        0.36,
+        0.44
+      ],
+      "terminal_drawing_and_assembler_process_approved": false,
+      "allowable_joint_force_n": null,
+      "allowable_joint_moment_nm": null,
+      "acceptance": "Verify received thread engagement/clearance, washer and head dimensions, contact-face flatness and selected tin process. Use a separate temporary holding/support fixture so tightening torque does not load the SMT solder joint or3mm PEEK stem. Define allowable operating force/moment and service/vibration/thermal-cycle profile before qualification; limits remain open.",
+      "maximum_manufacturer_drawing_nm": 0.5,
+      "general_tolerance_basis": "Wurth001.004 invokesDIN ISO2768-1m; exact application and solder seating allowance require approval",
+      "usable_thread_minimum_approved_mm": null
+    },
+    {
+      "metric": "retainer_clearance_and_creep",
+      "instrument_roles": [
+        "dimensional",
+        "force",
+        "torque",
+        "temperature"
+      ],
+      "minimum_allocated_cap_to_copper_gap_mm": 0.15,
+      "nominal_cap_gap_mm": 0.3,
+      "trial_base_m2_torque_nm": 0.05,
+      "trial_cap_m1p6_torque_nm": 0.02,
+      "trial_torques_are_manufacturer_allowables": false,
+      "acceptance": "Measure actual terminal planes and machine matched copper rise/retainer seat heights; no forced correction of P03 plane6.3..6.7. Verify gap with positive uncertainty, stem/PCB/floor clearances and cap slip allowance at dimensional and temperature corners. Test PEEK thread pullout, creep and repeated service; indicative material properties are not guaranteed thread or life limits."
+    },
+    {
+      "metric": "differential_thermal_expansion_and_board_movement",
+      "instrument_roles": [
+        "temperature",
+        "displacement",
+        "force",
+        "four_wire_resistance"
+      ],
+      "allowable_operating_force_n": null,
+      "allowable_operating_moment_nm": null,
+      "acceptance": "Characterize the actual dogleg compliance, terminal/PCB motion and restrained thermal expansion in the complete assembly. Verify that motion does not overload soldered studs, bind the PEEK channel or cause contact slip/fretting and resistance drift. A fully restrained elastic screen is not a predicted actual assembly force; missing load/life limits prevent stability qualification."
+    },
+    {
+      "metric": "electrical_insulation_and_audio_noise",
+      "instrument_roles": [
+        "insulation_resistance",
+        "electrical",
+        "oscilloscope",
+        "audio_analyzer"
+      ],
+      "minimum_insulation_resistance_ohm": null,
+      "dielectric_test_voltage_v": null,
+      "audio_limits_source": "Whole-unit audio/rail qualification contract, unchanged",
+      "acceptance": "Verify separate ANA/DIG bars and floating CHASSIS isolation, PEEK condition and absence of fastener/live-copper contact after aging/service. Establish system insulation limits. Measure ground bounce, switching-current coupling, rail transients, audio noise and susceptibility in actual operating cable/ground configurations; DC area/resistance does not establish RF/noise performance."
+    }
+  ]
+}

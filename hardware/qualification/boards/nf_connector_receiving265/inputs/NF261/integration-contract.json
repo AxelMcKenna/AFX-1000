@@ -1,0 +1,94 @@
+{
+  "revision": "NF05H261-native-interface-proposal",
+  "parent_NF04R_READY_logic_retained": true,
+  "actual_E28_source_global": {
+    "name": "GLOBAL_MASTER NFJ1.6",
+    "receiving_source": "E28 U12.11 ALL_RAILS_ALLOW through actual qualified buffer",
+    "NOT_source": "U29.7 E28_MASTER_ENABLE",
+    "native_E28_harness_implemented": false
+  },
+  "J1": {
+    "1": "AUX2V6 input",
+    "2": "shared NF AGND: quiet reference/control plus RAW5 LED/bleed and AUX currents; finite common impedance/noise requires modeling",
+    "3": "DIG5_FORCE operating raw5 input; P03 J23/J21 branch, NEVER testJ3",
+    "4": "physical NC; no module power here",
+    "7": "unused RESET_REQUEST legacy monitor node; not implemented reset command",
+    "18": "N19_ARM_CONDITIONED output-monitor-only",
+    "19": "N19_START output-monitor-only",
+    "22": "N19_CLAMPS_RELEASE output monitor<=1uA load RECEIVING",
+    "24": "N12_ARM_CONDITIONED output-monitor-only",
+    "25": "N12_START output-monitor-only",
+    "28": "N12_CLAMPS_RELEASE output monitor<=1uA load RECEIVING",
+    "30": "NF_OUTPUT_VALID to new E28J12.1, GNDJ12.2; existing NF04R receiver/loading held"
+  },
+  "separate_module_input": {
+    "port": "J6",
+    "pin1": "GUARDED_12V_FORCE",
+    "pin2": "MODULE_INPUT_GND",
+    "native_only_return_members": [
+      "U17.1",
+      "U22.1",
+      "C4.2",
+      "C31.2",
+      "J6.2"
+    ],
+    "board_tie_to_AGND": false,
+    "return_destination": "P03 operating source ground via separate force return; finite common-source coupling remains",
+    "normal_current_screen_a": 0.17412935323383083,
+    "input_bulk_initial_nominal_f": 2e-05,
+    "inrush_bound_a": null,
+    "connector_candidate": "JST XH2, exact mate/wire/contact/process UNACCEPTED",
+    "remaining_J1_GND_includes_RAW5_and_AUX": true
+  },
+  "unchanged_force": {
+    "J2.1": "N19_P03_SRC",
+    "J2.2": "N19_E28_SRC to actual E28J1.3",
+    "J4.1": "N12_P03_SRC",
+    "J4.2": "N12_E28_SRC to actual E28J1.5",
+    "contacts_total5mohm": "receiving allocation only; old1mm header holes cannot accept proposed18AWG pigtails",
+    "new_force_footprint_or_harness_implemented": false,
+    "wire_resistance_additional_to_contacts": true
+  },
+  "unchanged_clamps": {
+    "J3.1": "N19_BANK_GATE",
+    "J3.2": "N19_BANK_COMMON",
+    "J5.1": "N12_BANK_GATE",
+    "J5.2": "N12_BANK_COMMON",
+    "gate_current_charge_contact_and_loop_inductance_accepted": false
+  },
+  "sequencing": {
+    "ARM_START_standalone_locally_generated": true,
+    "N12_waits_for_complete_and_protected_N19": true,
+    "absolute_UV_gate_does_not_forge_a_physical_GLOBAL_OFF_interval": true,
+    "stale_state_reset_and_minimum_actual_OFF_interval_verified": false,
+    "ARM_retained_until_NATIVE_GLOBAL_VALID_low": true,
+    "new_UV_gate_does_not_reset_fault_latches": true,
+    "UV_automatic_reclosure_design_hold": true
+  },
+  "PCB_layout": {
+    "parts": 261,
+    "actual_board_or_placement_authored": false,
+    "proposed_existing_reference_mm": [
+      149,
+      39
+    ],
+    "outline_mount_airflow_qualified": false,
+    "manufacturer_DCU_pattern_count": 6,
+    "manufacturer_DCK6_pattern_count": 7,
+    "old231_placement_or_root233_route_inherited": false
+  },
+  "DIG_receiving_proposal_a": 2.44,
+  "AUX_normal_receiving_a": 0.01,
+  "AUX_fault_receiving_a": 0.013,
+  "AUX_inside_existing90mA_pool": true,
+  "physical_qualified": false,
+  "startup_qualified": false,
+  "release_approved": false,
+  "new_NF_local_AUX_receiving_v": [
+    2.52,
+    2.7
+  ],
+  "old_NF2p548min_not_supported_even_at_P03_source": true,
+  "raw5_control_branch_short_current_protection_implemented": false,
+  "module_input_branch_short_current_protection_accepted": false
+}

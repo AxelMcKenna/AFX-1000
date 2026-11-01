@@ -1,0 +1,49 @@
+2026-10-27 20:11:42.557 INFO   Freerouting v2.5.0 (build-date: 2026-10-05)
+2026-10-27 20:11:42.584 WARN   [startup] freerouting.json contains a stale 'logging.file.location' value: '/private/tmp/afx-e28-force-guard-router-v3/router.log'. The actual log file is being written to '/Users/axelmckrnna/dev/rmx-publish/hardware/electronics/rail_disconnect/revision28/generated/original-force-reference-router2/baseline-router.log' (as resolved at startup). The stale value will be corrected in freerouting.json on next save. If you see this in Docker, the old JSON was written by an earlier version that stored the host path; the fix is to delete freerouting.json so it is regenerated with the correct path.
+2026-10-27 20:11:42.805 INFO   Hardware: 4 CPU cores, 526 CPU score, 4096 MB RAM
+2026-10-27 20:11:42.806 WARN   GUI is disabled and you don't have a console available, so the only feedback from Freerouting is in the log.
+2026-10-27 20:11:50.028 INFO   [0C6B6C\D54023] Loading board file 'afx-c0e2f1045ac1f7966aa9304d.dsn'...
+2026-10-27 20:11:55.517 WARN   DSN file 'afx-c0e2f1045ac1f7966aa9304d.dsn' was loaded with 173 warning(s).
+2026-10-27 20:11:55.646 INFO   Applied drill-hole clearance override: 250.0 um (2500 board units), 48 hole keepouts reclassified.
+2026-10-27 20:11:55.653 WARN   Power-plane validation failed:
+- Dedicated power layer 'In1.Cu' contains 644 signal wire(s)/trace(s).
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 116, Net(s): [/5V_DIG_SRC]) and Area (ID 115, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 116, Net(s): [/5V_DIG_SRC]) and Area (ID 114, Net(s): [/AGND]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 116, Net(s): [/5V_DIG_SRC]) and Area (ID 112, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 116, Net(s): [/5V_DIG_SRC]) and Area (ID 111, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 115, Net(s): [/5V_DIG_SRC]) and Area (ID 114, Net(s): [/AGND]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 115, Net(s): [/5V_DIG_SRC]) and Area (ID 112, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 114, Net(s): [/AGND]) and Area (ID 113, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 114, Net(s): [/AGND]) and Area (ID 112, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 114, Net(s): [/AGND]) and Area (ID 111, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 113, Net(s): [/5V_DIG_SRC]) and Area (ID 112, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In4.Cu' contains 571 signal wire(s)/trace(s).
+
+Proper Definition and Best Practices for Power Planes:
+1. What Belongs on a Power Plane:
+   - Solid Copper Pours: A single, uninterrupted sheet of copper assigned to one voltage (e.g., +3.3V).
+   - Split Planes: Multiple distinct voltage zones divided by thin isolation gaps (puzzle pieces).
+   - Vias and Anti-Pads: Plated holes passing through the board, surrounded by circular voids (anti-pads) to prevent shorting.
+   - Thermal Reliefs: Spoked connections for vias or pins that connect to the plane, facilitating soldering.
+2. Why Signal Wires/Traces are Banned:
+   - Destroyed Return Paths: High-speed signals on adjacent layers couple to the solid plane below/above as return paths. Crossing a trace gap detours return currents, causing severe EMI and signal integrity issues.
+   - Compromised Power Delivery: Power planes should provide the lowest impedance path. Routing traces chops up the copper, creating bottleneck restrictions and voltage drops.
+
+2026-10-27 20:12:00.420 WARN   Design Warning: Board has 1476 pre-existing clearance violation(s) in the loaded design (before routing):
+  - 1476 unfixable violation(s) (cannot be resolved by Freerouting):
+      * 1 pin-to-pin clearance violations:
+          - C47.1 [net /E28_DIG_2_DVDT_CAP] <-> J8.1 [net /AGND]
+      * 1475 fixed trace/via clearance violations (first 5 shown):
+          - FixedVia#9553 [net /E28_DIG_1_DVDT_CAP] <-> ObstacleArea#7
+          - FixedVia#9553 [net /E28_DIG_1_DVDT_CAP] <-> ObstacleArea#3
+          - FixedVia#9552 [net /E28_DIG_0_DVDT_CAP] <-> ObstacleArea#4
+          - FixedVia#9552 [net /E28_DIG_0_DVDT_CAP] <-> ObstacleArea#8
+          - FixedVia#9551 [net /E28_DIG_0_DVDT_CAP] <-> ObstacleArea#2
+          ... and 1470 more
+  - 0 potentially fixable violations
+Notice: Freerouting does not modify component placement, board outlines, or fixed items.
+Resolving these 1476 unfixable violation(s) is the responsibility of the board author in their EDA tool (e.g. KiCad).
+2026-10-27 20:12:00.996 INFO   [0C6B6C\D54023] Job '0C6B6C\D54023' started at 2026-10-27T07:12:00.996186Z.
+2026-10-27 20:12:01.092 INFO   [0C6B6C\D54023] Job '0C6B6C\D54023' finished with state: COMPLETED (elapsed: 0.10 seconds, finished at UTC: 2026-10-27T07:12:01.091739Z).
+2026-10-27 20:12:01.116 INFO   Saving output file '/Users/axelmckrnna/dev/rmx-publish/hardware/electronics/rail_disconnect/revision28/generated/original-force-reference-router2/baseline.ses' (SES)...
+2026-10-27 20:12:01.117 INFO   Successfully saved output file '/Users/axelmckrnna/dev/rmx-publish/hardware/electronics/rail_disconnect/revision28/generated/original-force-reference-router2/baseline.ses' (121211 bytes).

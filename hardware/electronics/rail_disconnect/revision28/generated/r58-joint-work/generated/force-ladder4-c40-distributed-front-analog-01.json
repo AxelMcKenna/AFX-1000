@@ -1,0 +1,123 @@
+{
+  "status": "diagnostic_estimate",
+  "ohm": 0.009821579502869143,
+  "nodes": 209743,
+  "edges": 406654,
+  "solver": "scipy.sparse.linalg.spsolve/SuperLU",
+  "solver_version": "1.18.1",
+  "iterations": 0,
+  "relative_residual": 6.297951632112794e-15,
+  "excited_free_nodes": 207433,
+  "floating_unexcited_nodes": 0,
+  "domain": "analog",
+  "grid_mm": 0.1,
+  "extraction_bounds_mm": [
+    156,
+    45.25
+  ],
+  "source_terminal": [
+    "J10",
+    "1"
+  ],
+  "load_terminal": [
+    "J3",
+    "6"
+  ],
+  "fully_on_channels": [
+    "U13",
+    "U14",
+    "U32"
+  ],
+  "ron_full_temp_max_ohm": 0.02,
+  "source_board_sha256": "aa89996630c0296bd6a31add487a31c4e778ee97365e74f2c748f55f3a988e58",
+  "physical_qualified": false,
+  "ampacity_equal_sharing_assumed": false,
+  "source_stud_contact_scenario": {
+    "terminal": "J10.1",
+    "contact_radius_mm": 3.5,
+    "original_electrode_cells": 3936,
+    "scenario_electrode_cells": 2124,
+    "actual_conducting_copper_unchanged": true,
+    "manufacturer_or_assembler_contact_bound_accepted": false,
+    "physical_qualified": false
+  },
+  "full_stud_copper_electrode_used": false,
+  "load_contact_scenario": {
+    "terminal": "J3.6",
+    "original_contact_layers": [
+      "F.Cu",
+      "In1.Cu",
+      "In2.Cu",
+      "In3.Cu",
+      "In4.Cu",
+      "B.Cu"
+    ],
+    "scenario_contact_layer": "F.Cu",
+    "actual_copper_and_barrels_unchanged": true,
+    "interface_assembly_bound_accepted": false,
+    "physical_qualified": false
+  },
+  "all_load_pad_layers_clamped": false,
+  "native_pad_geometry_used": true,
+  "model_inputs": {
+    "model_source_hashes": {
+      "coupled.py": "36ecf8f526cade55ce3edf437120b8f7bfb54fa2ac89e34703b870d33c7f3fe6",
+      "copper.py": "2f3b96f1739957f7eb0e8d713f4fdda56d215b9125e46aac42f0dccb23fce355",
+      "native_mesh.py": "df276f53df0b966b8e76d74310bdf5403862e8319252bef83c010e0f6f3227de",
+      "distributed_mesh.py": "7b5d8a4a6297dba2587c528e7081cc7281f13319180a15159847bc8cb5471773",
+      "generate.py": "c5aa38097bb667cbd74bd0ad6fdaebd2d0ffa386f1877040f512d97925ad1f51",
+      "stackup.json": "52a294c058f1e17aefb06bfde035b00e1f182e8253bf3499ee64641d8465a142"
+    },
+    "candidate_sheet_thickness_each_layer_mm": 0.07,
+    "candidate_copper_temperature_c": 85,
+    "candidate_minimum_barrel_wall_mm": 0.025,
+    "trace_resistivity_at20c_ohm_m": 1.8e-08,
+    "barrel_resistivity_at20c_ohm_m": 2e-08,
+    "temperature_coefficient_per_c": 0.0041,
+    "material_temperature_and_process_bounds_accepted": false,
+    "within_layer_plated_annuli_idealized": false,
+    "distributed_barrel_wall_sectors": 32,
+    "wall_circumferential_conduction_included": false,
+    "package_contact_and_solder_spreading_qualified": false
+  },
+  "distributed_barrel_model_used": true,
+  "distributed_barrel_attachment_diagnostic": {
+    "input": {
+      "physical_holes": 27,
+      "maximum_attachment_displacement_mm": 0.09013878188660347,
+      "within_layer_annuli_shorted": false,
+      "wall_circumferential_conduction_included": false
+    },
+    "output": {
+      "physical_holes": 30,
+      "maximum_attachment_displacement_mm": 0.09013878188660347,
+      "within_layer_annuli_shorted": false,
+      "wall_circumferential_conduction_included": false
+    }
+  },
+  "branch_fraction_at_identical_max_ron": {
+    "U13": 0.33104958452716615,
+    "U14": 0.32551265236276256,
+    "U32": 0.34343776342158094
+  },
+  "branch_current_at_declared_load_a": {
+    "U13": 0.0830934457163187,
+    "U14": 0.0817036757430534,
+    "U32": 0.08620287861881681
+  },
+  "actual_copper_energy_estimate_ohm": 0.0031515432737074718,
+  "input_copper_energy_estimate_ohm": 0.0008768126150708229,
+  "output_copper_energy_estimate_ohm": 0.0022747306586366487,
+  "chip_energy_estimate_ohm": 0.006670036232157357,
+  "copper_plus_unequal_chip_penalty_ohm": 0.0031549128362024755,
+  "energy_closure_error_ohm": -2.9956861644087063e-12,
+  "p02_copper_allocation_ohm": 0.003,
+  "conditional_estimate_within_allocation": false,
+  "limitations": [
+    "Cell-centre mesh is diagnostic, not a certified upper bound; convergence and process coupons required",
+    "Ideal electrical contact within each chip terminal electrode; finite solder/contact and pad spreading unqualified",
+    "RON20mohm full-temperature corner is monotone worst total DC resistance if all channels fully ON; current fractions are not guaranteed sharing",
+    "Every branch ampacity must tolerate the entire load; master alone charges complete bulk during startup",
+    "No startup/SOA/reverse-transient/dynamic/thermal or fabrication approval follows"
+  ]
+}

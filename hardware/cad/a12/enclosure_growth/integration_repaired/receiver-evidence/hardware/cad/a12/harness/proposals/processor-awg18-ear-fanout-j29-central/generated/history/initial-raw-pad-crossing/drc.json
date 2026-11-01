@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-10-28T09:35:54",
+    "ignored_checks": [
+        {
+            "description": "Footprint has no courtyard defined",
+            "key": "missing_courtyard"
+        },
+        {
+            "description": "Track endpoint not centered on via",
+            "key": "track_not_centered_on_via"
+        },
+        {
+            "description": "Tuning profile track geometries",
+            "key": "tuning_profile_track_geometries"
+        },
+        {
+            "description": "Footprint doesn't match symbol's footprint filters",
+            "key": "footprint_filters_mismatch"
+        },
+        {
+            "description": "Footprint component type doesn't match footprint pads",
+            "key": "footprint_type_mismatch"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "10.0.7",
+    "schematic_parity": [],
+    "source": "processor_carrier.kicad_pcb",
+    "unconnected_items": [],
+    "violations": [
+        {
+            "description": "Items shorting two nets (nets /POT_RAW_09 and /V3V3_ANALOG)",
+            "items": [
+                {
+                    "description": "Track [/POT_RAW_09] on In2.Cu, length 9.9600 mm",
+                    "pos": {
+                        "x": 175.0,
+                        "y": 136.54
+                    },
+                    "uuid": "582ecb9e-0370-5694-bfeb-219029bbd676"
+                },
+                {
+                    "description": "PTH pad 3 [/V3V3_ANALOG] of J29",
+                    "pos": {
+                        "x": 175.0,
+                        "y": 139.08
+                    },
+                    "uuid": "c59d795b-a4bf-478c-8029-20d85be44479"
+                }
+            ],
+            "severity": "error",
+            "type": "shorting_items"
+        },
+        {
+            "description": "Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)",
+            "items": [
+                {
+                    "description": "Track [/POT_RAW_09] on In2.Cu, length 9.9600 mm",
+                    "pos": {
+                        "x": 175.0,
+                        "y": 136.54
+                    },
+                    "uuid": "582ecb9e-0370-5694-bfeb-219029bbd676"
+                },
+                {
+                    "description": "PTH pad 3 [/V3V3_ANALOG] of J29",
+                    "pos": {
+                        "x": 175.0,
+                        "y": 139.08
+                    },
+                    "uuid": "c59d795b-a4bf-478c-8029-20d85be44479"
+                }
+            ],
+            "severity": "error",
+            "type": "hole_clearance"
+        }
+    ]
+}

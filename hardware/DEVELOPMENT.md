@@ -2,13 +2,19 @@
 
 This work applies to the 12 V input, higher-headroom external-converter design. B1 is the separate 5 V budget design. The B1 adapter and earlier A08–A11 CAD sources remain separate. The maintained sample reader now has an explicit F06 kernel-transport opt-in; its default table and desktop behavior remain covered by regression tests. Native checks and host builds do not qualify a complete physical unit.
 
+The [current fabrication preparation inventory](fabrication/README.md) selects the newer P03/E28/NF development sources and records fresh source-bound findings. It covers all 13 baseline functional roles plus negative startup and fan protection; the final physical PCB partition remains open. The older milestone counts below retain their original scope and do not override that inventory.
+
+The new [E11 bypass PCB handoff](fabrication/staging/bypass-closed-native-03/handoff.json) closes all native findings and connections for its 55-part circuit on a 110 × 55 mm four-layer candidate. Separate [package corrections](fabrication/package-review.md) update three TPS3431 watchdog lands on NF/fan protection and the bypass's watchdog/latch lands. The rail monitor, codec and DAC receiver still have no PCB; the complete unit remains unreleased.
+
+The newer [three-board qualification decision](validation/board-qualification/README.md) withholds qualification for the pictured ADC, supply and disconnect candidates. It records actual design failures, fresh native checks, a separate ADC plane-opening trial, E27 routing/copper work, a correction to P02's capacitance assumptions and the [Q02 isolated-board capture plan](qualification/boards/README.md). No physical board measurements have been performed.
+
 The second review adds [P02 source and full-distribution analysis](electronics/power_distribution/p02/README.md), an [E26 escape-first layout](electronics/rail_disconnect/revision26/README.md), an [E12 ADC characterization board](electronics/adc_driver/pcb/README.md), the [ESS package/register audit](electronics/converter/package_review/README.md), and [F06 maintained-engine firmware](firmware/full_engine/README.md). These are explicit new variants, not interchangeable files for the earlier assembly. P02 requires a higher-rated input guard, new quiet-star returns, return bars and thermal paths. Their implementation and enclosure fit remain open. E12's sense stars end at its J2 header; the final converter requires co-location or a revised force/sense interface.
 
 E26 is frozen as a partial pilot: 7,935 segments and 496 vias, 21 open connections, 30 native warnings and zero schematic-parity issues. The warnings are 29 dangling escape stubs and one copper sliver. Its strict check fails as expected; byte-exact replay is a recovery tool, not a routing or fabrication pass.
 
 F06 brings the current 152-parameter DSP and 122 advanced User settings into SRAM-boot firmware. Exact kernel packing removes the original SRAM overflow without coefficient quantization. Its boot sample limits and physical qualification gaps remain explicit. The F05 build below remains available as the earlier snapshot.
 
-The standalone CI workflow now includes F06 payload-freshness and host tests. This local batch has not been committed or pushed, so those new workflow steps have no remote CI result yet; local build/test receipts are separate evidence.
+The standalone CI workflow includes F06 payload-freshness and host tests. The earlier design/licensing/gallery batch was published on `main` as `deac107`; the newer board-qualification work has its own local evidence and is separate from that source snapshot.
 
 The [board inventory](wiring/board_readiness/generated/board-readiness.json) now recognizes E12 as a separate routed candidate. Four baseline boards still lack PCBs: rail monitor, converter, DAC receiver and sequenced bypass. Converter U1 lacks a dimensioned manufacturer land-pattern drawing; its footprint remains unassigned. The selected sensor/SD, LED-anode and distribution assemblies are also unfinished.
 

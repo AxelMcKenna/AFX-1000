@@ -1,0 +1,104 @@
+"""Receiving repair pad/Cu and courtyard placement precheck, not native fit."""
+
+import hashlib
+import json
+import math
+from pathlib import Path
+
+from shapely.geometry import LineString, Point, Polygon, box
+from shapely.ops import unary_union
+from shapely.prepared import prep
+
+from ...common.sexpr import children, first, read_sexpr
+from ...output_stage.check_placement import courtyard
+from .schmitt_cone_candidate import GROUPS, ROOT, SOURCE
+
+
+def main():
+    t = read_sexpr((SOURCE / "rail_disconnect.kicad_pcb").read_text())
+    pads = json.loads((SOURCE / "generated/native-pads.json").read_text())["pad_polygons"]
+    obstacles = []
+    courts = []
+    for p in pads:
+        for g in p["layers"].get("F.Cu", []):
+            obstacles.append(Polygon(g["outer"], g["holes"]))
+    for k in ("segment", "via"):
+        for n in children(t, k):
+            if k == "via":
+                obstacles.append(
+                    Point(*map(float, first(n, "at")[1:])).buffer(float(first(n, "size")[1]) / 2)
+                )
+            elif first(n, "layer")[1] == "F.Cu":
+                obstacles.append(
+                    LineString([list(map(float, first(n, q)[1:])) for q in ("start", "end")]).buffer(
+                        float(first(n, "width")[1]) / 2
+                    )
+                )
+    for f in children(t, "footprint"):
+        if first(f, "layer")[1] == "F.Cu":
+            try:
+                courts.append(box(*courtyard(f, "F.CrtYd")))
+            except (IndexError, ValueError):
+                pass
+    obs = prep(unary_union(obstacles).buffer(0.205))
+    cs = unary_union(courts)
+    found = []
+    for index, group in enumerate(GROUPS):
+        targets = [p["position_mm"] for p in pads if p["net"] in group]
+        tx = sum(p[0] for p in targets) / len(targets)
+        ty = sum(p[1] for p in targets) / len(targets)
+        candidates = []
+        for yi in range(185, 211):
+            y = 100 + yi * 0.25
+            for xi in range(25, 553):
+                x = 100 + xi * 0.25
+                # Pair upright, bypass on right. Exact current land examples.
+                u = box(x - 2.225, y - 1.45, x + 2.225, y + 1.45)
+                c = box(x + 3.8 - 1.55, y - 0.75, x + 3.8 + 1.55, y + 0.75)
+                if u.intersects(cs) or c.intersects(cs):
+                    continue
+                lands = [
+                    box(x + sx - 0.425, y + yy - 0.15, x + sx + 0.425, y + yy + 0.15)
+                    for sx in (-1.55, 1.55)
+                    for yy in (-0.75, -0.25, 0.25, 0.75)
+                ]
+                lands.extend(
+                    box(x + 3.8 + sx - 0.475, y - 0.5, x + 3.8 + sx + 0.475, y + 0.5) for sx in (-0.8, 0.8)
+                )
+                if any(obs.intersects(p) for p in lands):
+                    continue
+                score = math.hypot(x - tx, y - ty)
+                candidates.append((score, x, y, u, c))
+        assert candidates, ("no legal candidate", index)
+        score, x, y, u, c = min(candidates, key=lambda v: v[0])
+        cs = unary_union([cs, u.buffer(0.05), c.buffer(0.05)])
+        # New ordinary copper obstacles for subsequent placements.
+        obstacles.extend([u, c])
+        obs = prep(unary_union(obstacles).buffer(0.205))
+        found.append(
+            dict(
+                ref=f"U{36 + index}",
+                local_mm=[x - 100, y - 100],
+                cap_local_mm=[x - 100 + 3.8, y - 100],
+                score=score,
+                candidates=len(candidates),
+            )
+        )
+        print(found[-1], flush=True)
+    out = ROOT / "generated/schmitt-cone-proposal/placement-search.json"
+    out.write_text(
+        json.dumps(
+            dict(
+                source_sha256=hashlib.sha256((SOURCE / "rail_disconnect.kicad_pcb").read_bytes()).hexdigest(),
+                recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                rows=found,
+                all_native_MCAD_PDN_pending=True,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

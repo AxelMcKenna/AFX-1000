@@ -1,0 +1,96 @@
+{
+  "source_sha256": {
+    "hardware/electronics/power_distribution/p02/distribution.py": "aad5d2b0b4b3fce9ab2fb67fb6eb9b0b2e72a3b64426f6671e86401a38597f01",
+    "hardware/cad/a12/harness/ear-supported-assessment/generated/native-neck.json": "0a56bd875987432a881f75f79b8c96be54bc2779cd75e6704b4df26afaf76978",
+    "hardware/cad/a12/harness/ear-supported-assessment/generated/tool-axis.json": "201b5f8e4bf1fb1ea117b1c2cd98256d5c979b0ab38089bfc8e5eb74d7d9e048",
+    "hardware/cad/a12/harness/proposals/processor-awg18-ear-supported/generated/current-native.json": "6738a564757743d194af3ab68d0d0627f987e8b8c24aa0c77ae6af87ca8d0a5c",
+    "hardware/cad/a12/harness/proposals/processor-awg18-ear-supported/generated/package-review.json": "c10b00074e85d2681f5a9510dd08ddfdce27b39888a9cbf5b166f11f74f3cd3f"
+  },
+  "code_sha256": "3bf4cff54ca49d6a526cd65754978f78dcb488d49d4f5d4e24645b74ca9acdeb",
+  "retained_digital_allocations_a": {
+    "seed_local": 1.0,
+    "led_logic": 0.38,
+    "led_group_1": 0.096,
+    "led_group_2": 0.096,
+    "led_group_3": 0.096,
+    "led_group_4": 0.096,
+    "bypass": 0.08,
+    "gain_input": 0.03,
+    "gain_output": 0.03,
+    "monitor_digital": 0.08,
+    "digital_reserve": 0.416
+  },
+  "shared_J13_input_target_a": 2.4,
+  "known_west_of_neck_a": 1.764,
+  "unassigned_physical_force_return_interfaces_a": {
+    "bypass": 0.08,
+    "gain_input": 0.03,
+    "gain_output": 0.03,
+    "monitor_digital": 0.08,
+    "digital_reserve": 0.416
+  },
+  "unassigned_total_a": 0.636,
+  "positive_neck_current_expression": "1.764 A + I_other_west; I_other_west in [0,0.636] A until actual fanout is defined",
+  "positive_neck_current_allocation_interval_a": [
+    1.764,
+    2.4
+  ],
+  "current_rating_may_be_reduced_to_known_branches": false,
+  "nested_3v3_export_allocations_a": {
+    "converter_3v3": 0.035,
+    "controls_3v3": 0.02,
+    "monitor_3v3": 0.02
+  },
+  "nested_3v3_not_additional_Seed_positive_current": true,
+  "local_Seed_return_expression": "1.0 A minus actual outgoing 3V3/export current; .925 A only if retained .075 A export allocation is realized",
+  "ground_current_expression": "Coupled signed local/remote returns plus possible interboard loops; no equal pin split or zero external-current assumption",
+  "actual_5V_DIG_pad_nodes": [
+    {
+      "ref": "J1",
+      "pin": "1",
+      "native_mm": [
+        114.0,
+        105.0
+      ]
+    },
+    {
+      "ref": "J13",
+      "pin": "1",
+      "native_mm": [
+        258.0,
+        158.0
+      ]
+    },
+    {
+      "ref": "J11",
+      "pin": "2",
+      "native_mm": [
+        145.0,
+        121.54
+      ]
+    },
+    {
+      "ref": "R1",
+      "pin": "1",
+      "native_mm": [
+        166.0,
+        147.9625
+      ]
+    }
+  ],
+  "old_J1_role": "Unfitted service pads; no operating branch or second input allocated",
+  "no_physical_force_ports_for_other_allocations": true,
+  "input_joint_single_AWG18_pretinned_bundle_max_mm": 1.4,
+  "two_wires_in_existing_input_bore_qualified": false,
+  "actionable_options": [
+    "Define real outgoing positive and return interfaces for retained bypass/gain, monitor and reserve branches, with actual shared input current and source-to-load network.",
+    "A real ear-side fanout could divert its assigned current before the neck, but only after native terminals, joints, lead bundle and return paths are implemented and checked.",
+    "A west-side fanout retains the full 2.4 A neck allocation. Solve actual finite four-layer copper and signed return network after layout/ports are selected.",
+    "Retain failed vertical-tool criterion until a selected alternate access or an actual bus installation/removal sequence is geometrically demonstrated."
+  ],
+  "neck_width_is_geometric_not_resistance_ampacity_or_noise_proof": true,
+  "full_PDN_solved": false,
+  "physical_qualified": false,
+  "fabrication_released": false,
+  "prior_J1_source_PDN_inherited": false
+}

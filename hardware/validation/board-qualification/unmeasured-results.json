@@ -1,0 +1,258 @@
+{
+  "revision": "Q02",
+  "boards": {
+    "adc": {
+      "all_case_comparisons_passed": false,
+      "design_holds": [
+        "Full AGND planes cover FDA sensitive nodes; manufacturer-recommended openings need a reviewed revision.",
+        "The J2 force/sense stars do not sense the converter pins through the shared harness.",
+        "Stackup/parasitics, effective capacitor and contamination/servo-leakage limits remain unqualified.",
+        "Actual noise, distortion, common-mode settling and stability remain unmeasured.",
+        "Both bias monitors are absent; the proposed -0.16 V upper window also fails the existing output-headroom reserve."
+      ],
+      "qualified": false
+    },
+    "psu": {
+      "all_case_comparisons_passed": false,
+      "design_holds": [
+        "Digital 5 V full-temperature source bounds exceed the project window; the 0\u201385 C junction bound is unproved.",
+        "The protected digital load budget fails even before realistic complete harness losses.",
+        "Actual copper stackup, thermal paths, loop stability, startup and partial-power behavior remain unqualified.",
+        "P02 is a different unimplemented source; its DC model cannot qualify this existing PCB."
+      ],
+      "qualified": false
+    },
+    "disconnect": {
+      "all_case_comparisons_passed": false,
+      "design_holds": [
+        "The pictured E26 pilot has actual open power paths and native DRC findings.",
+        "Actual positive/return copper resistance, gate behavior, late-closure current and MOSFET SOA remain unqualified.",
+        "The board is an overvoltage disconnect, not a standalone undervoltage detector or fault latch.",
+        "Opening MOSFETs does not discharge protected bulk; residual energy must be measured.",
+        "All fourteen generic MOSFET land patterns still need full manufacturer terminal/mask/paste and fabrication review."
+      ],
+      "qualified": false
+    }
+  },
+  "state_counts": {
+    "not_run": 3,
+    "blocked": 24
+  },
+  "cases": [
+    {
+      "id": "adc_unpowered",
+      "board": "adc",
+      "state": "not_run",
+      "reasons": []
+    },
+    {
+      "id": "psu_unpowered",
+      "board": "psu",
+      "state": "not_run",
+      "reasons": []
+    },
+    {
+      "id": "disconnect_unpowered",
+      "board": "disconnect",
+      "state": "not_run",
+      "reasons": []
+    },
+    {
+      "id": "source_P19",
+      "board": "psu",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "protected_star_P19",
+      "board": "disconnect",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "source_N19",
+      "board": "psu",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "protected_star_N19",
+      "board": "disconnect",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "source_P12",
+      "board": "psu",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "protected_star_P12",
+      "board": "disconnect",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "source_N12",
+      "board": "psu",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "protected_star_N12",
+      "board": "disconnect",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "source_V5_REG",
+      "board": "psu",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "protected_star_V5_REG",
+      "board": "disconnect",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "source_5V_DIG",
+      "board": "psu",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "protected_star_5V_DIG",
+      "board": "disconnect",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "psu_dynamics",
+      "board": "psu",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "disconnect_dynamics",
+      "board": "disconnect",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "adc_power",
+      "board": "adc",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "adc_nbias",
+      "board": "adc",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "adc_supply_slew",
+      "board": "adc",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "adc_transfer",
+      "board": "adc",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "adc_stability",
+      "board": "adc",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "adc_leakage",
+      "board": "adc",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "disconnect_faults",
+      "board": "disconnect",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "adc_thermal_emi",
+      "board": "adc",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "psu_thermal_emi",
+      "board": "psu",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    },
+    {
+      "id": "disconnect_thermal_emi",
+      "board": "disconnect",
+      "state": "blocked",
+      "reasons": [
+        "Selected assembly, fixture and physical measurement prerequisites are not satisfied"
+      ]
+    }
+  ],
+  "physical_cases_claimed": 0,
+  "uncertainty_model_and_raw_capture_authenticity": "operator/reviewer attested; not independently authenticated",
+  "fabrication_released": false,
+  "build_ready": false,
+  "complete_unit_qualified": false
+}

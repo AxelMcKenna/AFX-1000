@@ -1,0 +1,137 @@
+{
+  "convention": "Positive signed current enters native AGND copper; external input return J101.2 removes total supply current",
+  "dc_converter_electrodes": [
+    {
+      "ref": "U20",
+      "pins": [
+        "9",
+        "11"
+      ],
+      "expression": "I_digital_input - I_digital_output - I_digital_quiet",
+      "reason": "Buck current balance; do not inject full input current at the input guard",
+      "split_between_package_pins_bounded": false
+    },
+    {
+      "ref": "U23",
+      "pins": [
+        "9",
+        "11"
+      ],
+      "expression": "I_analog_pre_input - I_analog_pre_output - I_analog_pre_quiet",
+      "reason": "Buck current balance; do not inject full input current at the input guard",
+      "split_between_package_pins_bounded": false
+    },
+    {
+      "ref": "U20",
+      "pins": [
+        "5"
+      ],
+      "expression": "I_digital_quiet",
+      "reason": "Actual separate AGND reference/control pin; never replace by PGND9/11",
+      "quiet_control_current_bound_verified": false
+    },
+    {
+      "ref": "U23",
+      "pins": [
+        "5"
+      ],
+      "expression": "I_analog_pre_quiet",
+      "reason": "Actual separate AGND reference/control pin; never replace by PGND9/11",
+      "quiet_control_current_bound_verified": false
+    },
+    {
+      "ref": "U1",
+      "pins": [
+        "11"
+      ],
+      "expression": "I_high_raw_positive_input - I_high_raw_positive_output + I_high_raw_negative_input - I_high_raw_fb2n_bias",
+      "reason": "Positive boost switch average plus negative Cuk switch average; includes chosen IC input loss allocation",
+      "manufacturer_ground_pin": "Exposed pad11 only; pin5 is FB2N, not PGND"
+    },
+    {
+      "ref": "U13",
+      "pins": [
+        "11"
+      ],
+      "expression": "I_low_raw_positive_input - I_low_raw_positive_output + I_low_raw_negative_input - I_low_raw_fb2n_bias",
+      "reason": "Positive boost switch average plus negative Cuk switch average; includes chosen IC input loss allocation",
+      "manufacturer_ground_pin": "Exposed pad11 only; pin5 is FB2N, not PGND"
+    },
+    {
+      "ref": "U1",
+      "pins": [
+        "5"
+      ],
+      "expression": "I_high_raw_fb2n_bias",
+      "reason": "Separate quiet FB2N reference electrode per LT3471 RevC page4",
+      "feedback_bias_at_ground_full_temperature_bound_verified": false
+    },
+    {
+      "ref": "U13",
+      "pins": [
+        "5"
+      ],
+      "expression": "I_low_raw_fb2n_bias",
+      "reason": "Separate quiet FB2N reference electrode per LT3471 RevC page4",
+      "feedback_bias_at_ground_full_temperature_bound_verified": false
+    },
+    {
+      "ref": "D2",
+      "pins": [
+        "1"
+      ],
+      "expression": "I_high_raw_negative_output",
+      "reason": "Cuk capacitor average charge balance: ground cathode receives output-inductor average current; do not lump at IC EP"
+    },
+    {
+      "ref": "D4",
+      "pins": [
+        "1"
+      ],
+      "expression": "I_low_raw_negative_output",
+      "reason": "Cuk capacitor average charge balance: ground cathode receives output-inductor average current; do not lump at IC EP"
+    }
+  ],
+  "local_static_current_electrodes": [
+    {
+      "ref": "U5",
+      "pin": "11",
+      "signed_current_a": 0.006,
+      "scope": "OPA4192 four-channel maximum IQ before signal/servo output current"
+    },
+    {
+      "ref": "U6",
+      "pin": "8",
+      "signed_current_a": -0.003,
+      "scope": "OPA2192 two-channel maximum IQ, negative-supply amplifier"
+    },
+    {
+      "ref": "U10",
+      "pin": "3",
+      "signed_current_a": -0.0225,
+      "scope": "Conservative LT3090 ground-current allocation, not a guaranteed interpolation at actual load"
+    },
+    {
+      "ref": "U11",
+      "pin": "3",
+      "signed_current_a": -0.0225,
+      "scope": "Conservative LT3090 ground-current allocation, not a guaranteed interpolation at actual load"
+    }
+  ],
+  "omitted_or_unclosed_current_terms": [
+    "Actual downstream six-rail signed loads and E28 stage-controller returns, independent rather than cancelling positive/negative loads",
+    "All native bleed/divider/reference/servo output current electrodes and AUX/analog reference/LDO currents",
+    "IC ground-pin current sharing and finite internal connection; a uniform combined electrode is a model assumption",
+    "Buck quiet/control current and full-temperature efficiency/current limits",
+    "Switching-frequency current distribution, capacitor ESL/ESR and common impedance noise"
+  ],
+  "lt3080_control_drive_added_as_fictitious_ground_current": false,
+  "whole_network_kcl_and_voltage_transfer_qualified": false,
+  "physical_tests_performed": 0,
+  "build_ready": false,
+  "source_sha256": {
+    "hardware/electronics/power_distribution/p03/power_p03.kicad_pcb": "3896a26add842e779146725e053c7f07bd6c27fc380a73b2fed1c860fcaa8436",
+    "hardware/electronics/power_distribution/p03/generated/netlist.xml": "c98af7dcc2a2356a8cdbb93e72d67ae2930bb18e265d6ac3b2eb01e0df8e449a",
+    "hardware/electronics/power_distribution/p03/dc_ports.py": "3b24524d7a484d5f92d2cce79a0cdd9b7e1b2c8d9d006e754715d2e2dc467cea"
+  }
+}

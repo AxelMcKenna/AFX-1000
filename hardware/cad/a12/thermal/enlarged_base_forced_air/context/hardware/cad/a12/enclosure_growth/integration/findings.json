@@ -1,0 +1,102 @@
+{
+  "schema": "EI01-FINDINGS",
+  "native_case_count": 42,
+  "native_cases_clear": 39,
+  "native_trial_passed": false,
+  "evidence_validation_passed": true,
+  "findings": [
+    {
+      "id": "TC01_C8",
+      "status": "failed",
+      "native_case": "trill_other_electronics_collision",
+      "volume_mm3": 175.30582780024199,
+      "exclusive_owner_proved_by_empty_case": "isolate_Trill_without_C8_collision",
+      "source_capacitor": {
+        "board": "E28",
+        "ref": "C8",
+        "part": "EEUFR1V152S",
+        "native_envelope_world_mm": [
+          71,
+          134,
+          6.5,
+          16.5,
+          22.61
+        ],
+        "extra_Z_sweep_each_mm": 0.2
+      },
+      "interference_witness_mm": [
+        72,
+        134,
+        25
+      ],
+      "action": "Replace TC01 in a NEW source-bound mounting candidate; no thinning or broad exclusion applied."
+    },
+    {
+      "id": "J29_DIG_RETENTION",
+      "status": "failed",
+      "native_case": "power_electronics_collision",
+      "volume_mm3": 43.81139473398425,
+      "exclusive_owner_proved_by_empty_case": "isolate_power_without_J29_collision",
+      "source_service_requirement_mm": [
+        164.23,
+        97.53,
+        8.1,
+        4.54,
+        9.62,
+        11.31
+      ],
+      "source_service_MPN_and_mating_qualified": false,
+      "action": "Actual native separate J29 placement/rotation repair required; no current PCB changed."
+    },
+    {
+      "id": "REAR_TS_REQUIREMENTS",
+      "status": "failed_interface_allocation",
+      "native_case": "case_electronics_collision",
+      "whole_volume_mm3": 63.83998876571675,
+      "TS_diagnostic_volume_mm3": 63.839532765800755,
+      "nominal_without_Z_sweep_volume_mm3": 21.27982734356328,
+      "exclusive_owner_proved_by_empty_case": "isolate_case_without_rear_ports_collision",
+      "port_ids": [
+        "input_ts_l",
+        "input_ts_r",
+        "output_ts_l",
+        "output_ts_r"
+      ],
+      "source": "hardware/cad/standalone.py#port_box + hardware/cad/a11/housing.scad#base",
+      "contract_box_size_mm": [
+        19,
+        28,
+        19
+      ],
+      "port_axis_Z_mm": 13.2,
+      "nominal_minimum_Z_mm": 3.7,
+      "opening_lower_Z_mm": 3.8,
+      "independent_Z_sweep_each_mm": 0.2,
+      "correlation_note": "Rear port reserves are fixed rear interfaces, not nativePCB tolerance measurements. Diagnostic nominal run stillintersects; the.2scenario is additional conservative provision. RCA coplanarY0contact facets are not additional volumetric clashes.",
+      "actual_selected_jack_3D_body_and_pose_qualified": false,
+      "action": "Resolve actual rearconnector pose/body/cassette requirement in a separate trial. Do not infer actual supplierbody failure from generic19mm box. No envelope was reduced."
+    }
+  ],
+  "intended_contact_guards_mm": {
+    "PCB_standoff_face": 2e-05,
+    "Trill_saddle_seat": -2e-05,
+    "Trill_head_bearing": 2e-05,
+    "rear_diagnostic_Y_contact": 2e-05
+  },
+  "actual_drilled_pad_bores": {
+    "P03": 40,
+    "E28": 45,
+    "E19": 142
+  },
+  "unqualified_scope": [
+    "Exactselectedmates/heights/tolerance and fastening",
+    "J14/J15 fullbranch harness and targetPCBs",
+    "Trill I2C/electrode/strain/tuning/ESD",
+    "Enlarged thermalbase/frontloadpath and35.4315W wholeunit cooling",
+    "Actualcomplete electronics/BOM/current/firmware qualification",
+    "E28source45electricalopensremain"
+  ],
+  "physical_qualified": false,
+  "thermal_qualified": false,
+  "fabrication_released": false
+}

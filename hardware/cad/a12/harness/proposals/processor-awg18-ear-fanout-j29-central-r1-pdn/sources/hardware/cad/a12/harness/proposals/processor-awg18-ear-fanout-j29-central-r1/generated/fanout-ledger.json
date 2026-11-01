@@ -1,0 +1,113 @@
+{
+  "scope": "Private source-tree revision, actual port pins and retained current allocations.",
+  "code_sha256": "5c40f80db6af47680314b1568583bcb363e266780ac28538acfb9983a03d89bb",
+  "source_pcb_sha256": "dc559bd94d0decdb89ee647cde00709f15463304e051497bf8b7dacc719194c8",
+  "native_netlist_sha256": "7cb0a278e3323a25817742abd5b32f4cc84ba66e74b5152e3a3a34546f4fb149",
+  "retained_LOADS_source_sha256": "aad5d2b0b4b3fce9ab2fb67fb6eb9b0b2e72a3b64426f6671e86401a38597f01",
+  "parent_destination_context_sha256": "2af8cf769e4b6a127e3cb25986d013b13f221e07514e983c09cefc71c11bc9f0",
+  "actual_new_pinmaps": {
+    "J13": {
+      "1": "5V_DIG",
+      "2": "AGND"
+    },
+    "J14": {
+      "1": "5V_DIG",
+      "2": "AGND"
+    },
+    "J15": {
+      "1": "5V_DIG",
+      "2": "AGND"
+    }
+  },
+  "new_private_wires": [
+    {
+      "positive_from": [
+        "processor_carrier",
+        "J14",
+        "1"
+      ],
+      "positive_to": [
+        "sequenced_bypass",
+        "J1",
+        "1"
+      ],
+      "positive_current_allocation_a": 0.14,
+      "return_from": [
+        "sequenced_bypass",
+        "J1",
+        "2"
+      ],
+      "return_to": [
+        "processor_carrier",
+        "J14",
+        "2"
+      ],
+      "return_current": "Requires full signed AGND/export/control/bipolar network; no independent equality or equal pin split is assumed",
+      "source_footprint": "AWG18_Solder_2x1_P4mm_D2p2",
+      "source_single_wire_AWG": 18,
+      "pretinned_bundle_max_requirement_mm": 1.4,
+      "finished_source_bore_required_mm": [
+        2.1,
+        2.3
+      ],
+      "destination_native_PCB_exists": false,
+      "route_length_mm": null,
+      "destination_mating_terminal_selected": false,
+      "joint_or_current_qualified": false
+    },
+    {
+      "positive_from": [
+        "processor_carrier",
+        "J15",
+        "1"
+      ],
+      "positive_to": [
+        "rail_monitor",
+        "J1",
+        "1"
+      ],
+      "positive_current_allocation_a": 0.08,
+      "return_from": [
+        "rail_monitor",
+        "J1",
+        "3"
+      ],
+      "return_to": [
+        "processor_carrier",
+        "J15",
+        "2"
+      ],
+      "return_current": "Requires full signed AGND/export/control/bipolar network; no independent equality or equal pin split is assumed",
+      "source_footprint": "AWG18_Solder_2x1_P4mm_D2p2",
+      "source_single_wire_AWG": 18,
+      "pretinned_bundle_max_requirement_mm": 1.4,
+      "finished_source_bore_required_mm": [
+        2.1,
+        2.3
+      ],
+      "destination_native_PCB_exists": false,
+      "route_length_mm": null,
+      "destination_mating_terminal_selected": false,
+      "joint_or_current_qualified": false
+    }
+  ],
+  "input_positive_allocation_a": {
+    "Seed_including_nested3v3": 1.0,
+    "LED": 0.764,
+    "bypass_gain": 0.14,
+    "monitor_digital": 0.08,
+    "reserve_unassigned": 0.416
+  },
+  "input_total_max_allocation_a": 2.4,
+  "presently_assigned_positive_total_a": 1.984,
+  "reserve_assigned_load_or_connector": false,
+  "global_manifest_modified": false,
+  "proposed_source_tree": "E28J4 positive/AGND -> E19J13 shared input; E19J14 -> bypass and E19J15 -> monitor. Replaces logical E28 direct DIG-BYPASS/MONITOR branches only if this new tree is adopted; never parallel duplicate both allocations.",
+  "old_J1_unfitted_service": true,
+  "source_joint_geometry_is_single_AWG18_per_bore": true,
+  "destination_native_boards_and_complete_harness_implemented": false,
+  "current_values_are_allocations_not_native_device_load_upper_bounds": true,
+  "source_to_load_PDN_solved": false,
+  "physical_qualified": false,
+  "fabrication_released": false
+}

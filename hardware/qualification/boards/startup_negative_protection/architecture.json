@@ -1,0 +1,62 @@
+{
+  "revision": "NF02-equations-only-4261-ramp-plus-independent-watchdog",
+  "native_implementation_authored": false,
+  "negative_stage_series_path": [
+    "P03 regulated negative source (kept ON)",
+    "retained E28 reverse-blocking B2B bank",
+    "LTC4261 VEE and upstream Kelvin shunt terminal",
+    "Kelvin current shunt to external N-channel SOURCE",
+    "external N-channel DRAIN to original protected negative net",
+    "ALL original protected bulk and external load remain downstream"
+  ],
+  "controller_candidate": "LTC4261IGN#PBF",
+  "controller_standalone_controls": {
+    "ON": "isolated RUN: HIGH starts, LOW stops; local 47k pulldown to VEE",
+    "EN": "VEE for enable, or separately proved default-HIGH inhibit; NEVER use ISO7710F default-LOW as an active-low EN permit",
+    "UVH_UVL_OV": "actual AGND-to-VEE rail measurement, with complete divider/error/partial-power proof still required",
+    "PGI": "VEE if unused; internal PGI watchdog is not credited as the independent startup deadline",
+    "DRAIN": "protected output via manufacturer 1Mohm connection; pin clamp current below2mA",
+    "RAMP": "CR to protected drain; RF/CF noise filter with RF*CR<=50us and CF>=3*CR at required effective corners",
+    "SS": "separately selected small CSS, including full charge/discharge in timing proof",
+    "TMR": "separately selected CTMR; native debounce/PG timing must not restart the external watchdog",
+    "PG": "informational only: internally latched low-VDS indication is NOT live absolute output-valid",
+    "SDAI_SCL": "pull to local INTVCC if unused; no live MCU/I2C path assumed",
+    "all_unused_pins": "bind explicitly per package pin-functions table; never infer from the QFN pin numbers"
+  },
+  "independent_protection": {
+    "watchdog_candidate": "TPS3431SDRBR",
+    "watchdog_supply": "existing AUX, with its own supervised valid signal and local decoupling",
+    "watchdog_arming": "Hold stage RUN LOW. Enable watchdog and wait for ENOUT and WDO HIGH; primary reset release170..230ms is NOT included in the20ms post-RUN receiving reserve. A single accepted WDI falling edge coincident with latched RUN establishes deadline epoch. No further WDI edges during STARTING.",
+    "watchdog_disable": "Only latched COMPLETED plus live independent absolute READY may disable watchdog. Any subsequent absolute-voltage loss asynchronously clears RUN and latches FAULT; READY chatter cannot rearm or pet watchdog.",
+    "fault_latch": "WDO LOW sets persistent hardware FAULT. AUX-invalid, absolute source invalid, controller fault or requested stop asynchronously clear RUN. New attempt requires explicit OFF/reset action after source and protected output are safe; no periodic autoretry.",
+    "primary_fail_off": "ISO7710F default-LOW output drives ON. Use one independent output per stage and a real AUX-to5V translator; exact translator and its partial-power behavior remain unselected.",
+    "secondary_fail_off": "FAULT also removes retained B2B bank permit; loaded Si8751/B2B turn-off must be measured/bounded. Optional local UCC27511A sink-only clamp is a candidate, not accepted by a1mA invented IQ guarantee.",
+    "native_controller_peak_limit": "45..55mV table over required current shunt. Native620us circuit-breaker delay is measured unloaded; no loaded fault-time or250mV peak-current guarantee inferred.",
+    "single_fault_tolerance_claimed": false,
+    "hardware_logic_implemented": false
+  },
+  "floating_bias": {
+    "positive_source": "guarded positive12V, NOT AUX",
+    "switch_candidate": "BSS84AK, discrete P-channel oriented so its body diode blocks positive-source feed when OFF",
+    "enable": "independent actual AFTER-BANK absolute UV plus AUX-valid plus bank permit; defaults OFF even if negative rail absent",
+    "partial_power": "VIN/INTVCC UVLO is insufficient because positive guard could keep the floating controller alive after negative source disappears. Bias path off-leakage, turn-off delay and VEE minimum effective capacitor are explicit receiving conditions, not manufacturer guarantees.",
+    "load_side_collapse": "Preserve reverse blocking and analyze charged load/body diode/cross-rail paths, every input clamp, capacitor displacement and gate residual charge; simplified positive-VEE calculation is not a complete bound.",
+    "new_primary_interfaces_installed": false
+  },
+  "state_contract": {
+    "OFF": "RUN LOW; bias OFF unless source-valid test phase explicitly enabled; B2B default OFF; FAULT cannot self-reset",
+    "ARMING": "source LDO stays ON; enable B2B while downstream pass remains OFF, verify actual after-bank UV, enable floating bias, wait valid bias and watchdog ENOUT/WDO. No bulk charge admitted yet.",
+    "STARTING": "latched RUN plus one WDI falling edge; one bipolar stage at a time after positive5V banks fully charged; full external load remains present from0V; external deadline is never paused by controller UV restart",
+    "ON": "independent live absolute output valid and debounced completion; disable startup watchdog only through latched COMPLETED",
+    "FAULT": "immediately revoke isolated RUN and B2B permit and switch bias OFF through specified fail-off paths; latched until explicit safe OFF/reset; fault energy includes finite turn-off and stored-source energy"
+  },
+  "protected_bulk_relocated": false,
+  "original_external_load_targets_reduced": false,
+  "full_trajectory_ramp_current_guaranteed": false,
+  "loaded_hardoff_guaranteed": false,
+  "peak_fault_current_guaranteed": false,
+  "startup_qualified": false,
+  "soa_qualified": false,
+  "physical_qualified": false,
+  "build_ready": false
+}

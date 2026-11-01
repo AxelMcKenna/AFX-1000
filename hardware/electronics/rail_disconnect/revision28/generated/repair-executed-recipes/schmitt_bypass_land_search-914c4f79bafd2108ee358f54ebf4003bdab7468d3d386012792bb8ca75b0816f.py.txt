@@ -1,0 +1,43 @@
+"""Actual current B-face land/courtyard search for the moved receiving-cell bypass."""
+import hashlib,json,math
+from pathlib import Path
+from shapely.geometry import Point,LineString,Polygon,box
+from shapely.ops import unary_union
+from shapely.prepared import prep
+from ...common.sexpr import children,first,read_sexpr
+from ...output_stage.check_placement import courtyard
+ROOT=Path(__file__).resolve().parent;SOURCE=ROOT/'generated/schmitt-receiver-bypass-repair-work'
+
+def main():
+ t=read_sexpr((SOURCE/'rail_disconnect.kicad_pcb').read_text());padfile=ROOT/'generated/schmitt-near-reconnect-work/generated/native-pads.json';pads=json.loads(padfile.read_text())['pad_polygons'];names={str(n[1]):str(n[2]).lstrip('/') for n in children(t,'net')};courts=[];obstacles=[]
+ for p in pads:
+  if p['ref']=='C79':continue
+  for g in p['layers'].get('B.Cu',[]):obstacles.append((p['net'],Polygon(g['outer'],g['holes'])))
+ for k in ('segment','via'):
+  for n in children(t,k):
+   net=names[str(first(n,'net')[1])]
+   if k=='via':obstacles.append((net,Point(*map(float,first(n,'at')[1:])).buffer(float(first(n,'size')[1])/2)))
+   elif first(n,'layer')[1]=='B.Cu':obstacles.append((net,LineString([list(map(float,first(n,z)[1:])) for z in ('start','end')]).buffer(float(first(n,'width')[1])/2)))
+ for f in children(t,'footprint'):
+  ref=next(v[2] for v in children(f,'property') if v[1]=='Reference')
+  if ref!='C79' and first(f,'layer')[1]=='B.Cu':
+   try:courts.append(box(*courtyard(f,'B.CrtYd')))
+   except (ValueError,IndexError):pass
+ courts.append(Point(104,120).buffer(3.05));court=prep(unary_union(courts));obs={net:prep(unary_union([p for n,p in obstacles if n!=net]).buffer(.205)) for net in ['AGND','V2V5_AUX']};rows=[]
+ for ix in range(50,201):
+  x=100+ix*.125
+  for iy in range(68,201):
+   y=100+iy*.125
+   # Keep this bypass outside both signal rows of U36.
+   if 111<y<116.75:continue
+   for angle in (0,90):
+    hw,hh=(1.55,.75) if angle==0 else (.75,1.55);body=box(x-hw,y-hh,x+hw,y+hh)
+    if court.intersects(body):continue
+    pp=[]
+    for net,sign in [('V2V5_AUX',-1),('AGND',1)]:
+     px,py=(x+sign*.8,y) if angle==0 else (x,y-sign*.8);w,h=(.95,1.0) if angle==0 else (1.0,.95);pp.append((net,box(px-w/2,py-h/2,px+w/2,py+h/2)))
+    if any(obs[net].intersects(p) for net,p in pp):continue
+    score=math.dist((x,y),(112.05,114.5))+.2*math.dist((x,y),(114.3,116));rows.append(dict(local_mm=[x-100,y-100],angle=angle,face='B',score=score))
+ rows.sort(key=lambda r:r['score']);assert rows
+ out=ROOT/'generated/schmitt-cone-proposal/bypass-land-search.json';out.write_text(json.dumps(dict(source_pcb_sha256=hashlib.sha256((SOURCE/'rail_disconnect.kicad_pcb').read_bytes()).hexdigest(),unchanged_other_pad_geometry_source_sha256=hashlib.sha256(padfile.read_bytes()).hexdigest(),recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),candidate_count=len(rows),best=rows[:20],native_and_MCAD_required=True),indent=2)+'\n');print(json.dumps(rows[:5],indent=2))
+if __name__=='__main__':main()

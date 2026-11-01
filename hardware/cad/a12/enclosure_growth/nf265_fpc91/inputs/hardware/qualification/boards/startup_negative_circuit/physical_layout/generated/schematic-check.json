@@ -1,0 +1,72 @@
+{
+  "commands": [
+    {
+      "label": "netlist",
+      "command": [
+        "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "export",
+        "netlist",
+        "--format",
+        "kicadxml",
+        "--output",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/startup_negative_circuit/physical_layout/generated/netlist.xml",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/startup_negative_circuit/physical_layout/negative_startup_physical.kicad_sch"
+      ],
+      "returncode": 0
+    },
+    {
+      "label": "erc",
+      "command": [
+        "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "erc",
+        "--format",
+        "json",
+        "--output",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/startup_negative_circuit/physical_layout/generated/erc.json",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/startup_negative_circuit/physical_layout/negative_startup_physical.kicad_sch"
+      ],
+      "returncode": 0
+    }
+  ],
+  "exact_captured265_pin_value_differences": 0,
+  "physical_footprint_ids_synchronized": true,
+  "ERC_errors": 0,
+  "ERC_warnings": 2,
+  "warnings": [
+    {
+      "description": "Pin GND1 not connected to ground net",
+      "items": [
+        {
+          "description": "Symbol U24 Pin 4 [GND1, Power input, Line]",
+          "pos": {
+            "x": 210.82,
+            "y": 2087.88
+          },
+          "uuid": "fd8b1c37-7ec3-56ec-a1fd-1962a29ec86f"
+        }
+      ],
+      "severity": "warning",
+      "type": "ground_pin_not_ground"
+    },
+    {
+      "description": "Pin GND1 not connected to ground net",
+      "items": [
+        {
+          "description": "Symbol U19 Pin 4 [GND1, Power input, Line]",
+          "pos": {
+            "x": 789.94,
+            "y": 1287.78
+          },
+          "uuid": "32d74065-9044-570f-9e15-a5653092500c"
+        }
+      ],
+      "severity": "warning",
+      "type": "ground_pin_not_ground"
+    }
+  ],
+  "PCB_native_parity_required": true,
+  "source_script_sha256": "a23bda282e0b47992a9faa9b32041de2557dec52e84f05360b961cc5df5ba011",
+  "physical_qualified": false
+}

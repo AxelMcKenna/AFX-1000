@@ -1,0 +1,168 @@
+{
+  "revision": "NF03C-private-integration-before-new-PCB",
+  "predecessor_reference_archive": "../generated/history/unoptimized-reference/sources.tar.gz",
+  "predecessor_archive_sha256": "888f9d5f6156bbe0f0264f4b1782c25c66326244943400eac2cf8b61ec5a839f",
+  "approval_or_physical_acceptance": false,
+  "force_order": [
+    "P03 native regulated negative output",
+    "NEW NF03C shunt and slew/current-limit passFET",
+    "existing E28 source header and B2B pair",
+    "existing protectedC8/C16 and original downstream load"
+  ],
+  "order_changed_from_NF02": true,
+  "reason": "A new module before E28 avoids splitting the existing on-board bank-drain/protected-capacitor node. The retained B2B pair is downstream of the new limiter and remains an independent bidirectional isolation element. Its effect on charged-load/reverse-discharge paths must be proved; no NF02 topology pass inherited.",
+  "six_rail_external_identity": "Original six operating rail roles remain. New private module distinguishes P03_SRC versus E28_SRC boundary explicitly. Positive5V and bipolarpositive12/19V paths are not rerouted by this proposal.",
+  "power_interfaces": {
+    "negative_force": "Two P03negativeinputs and two E28negativeoutputs. Real wire/joint/contact assembly must be selected and measured; no spare/test header or ideal0-ohm join credited.",
+    "negative_source_sense": "NEW high-impedance Kelvin pair from true P03negativeinputs to E28R49.1/R53.1; only those resistor input nets retargeted. Force current never uses the sense wires.",
+    "protected_output_sense": "NEW high-impedance pair from actual E28N19(C8.2/J3.3) andN12(C16.2/J3.5). These are downstream of B2B and all force losses, not a lowVDS or source-PG proxy.",
+    "gate_clamps": "Actual E28 Q3/Q4.2 N19_GATE to Q3/Q4.1 N19_COMMON and Q7/Q8.2 N12_GATE to Q7/Q8.1 N12_COMMON; NEVER the distinct Si8751 DRIVE side of the series gate network. New pass clamp is PASS_GATE to PASS_SOURCE.",
+    "bias_input": "NEW guarded12V/AGND branch for twoTMR1-1215 isolated24V modules; two499ohm series resistors per floatingVIN. The complete21.6..26.4V delivered-module window is a RECEIVING requirement including startup/no-load/transients, not a guaranteed manufacturer maximum.",
+    "digital_control_feed": "NEW operatingDIGforce/return branch inside existing2.4A allocation. NoP03J3 or unselected spareheader; fan andNF cannot silently share an unanalysed protectedbranch.",
+    "reference_control": "Actual E28PROTECT_REF/AGND andAUX_VALID; loading, sharedreturn, filtering, startup/reference-failure/partialpower must be recalculated with newloads. No physical new connector declared implemented."
+  },
+  "existing_components": {
+    "retained_unchanged_power_devices": [
+      "E28U2/U4Si8751",
+      "E28Q3/Q4N19bank",
+      "E28Q7/Q8N12bank",
+      "E28C8/C16protectedbulk",
+      "E28R16/R32bleeds"
+    ],
+    "retained_shared_reference": [
+      "E28U7REF35125QDBVR",
+      "E28REF_LOW_OK/REF_HIGH_OK supervisors and their original references"
+    ],
+    "retained_source_inverse_amplifiers": [
+      "E28U8OPA2333AID",
+      "E28R49/R50/R51N19gain",
+      "E28R53/R54N12gain"
+    ],
+    "required_sense_input_net_changes_only": {
+      "E28R49.1": "N19_P03_KELVIN",
+      "E28R53.1": "N12_P03_KELVIN"
+    },
+    "retained_source_ov": [
+      "E28U9negativeOVchannels",
+      "E28R52/R55sensefilters andreference/hysteresisnetworks"
+    ],
+    "retained_global_prerequisites": [
+      "P03U25ALL_SOURCES_READY presence/debounce (not precisionwindow)",
+      "E28AUX_VALID",
+      "E28all-sourceOV/refvalidinterlock"
+    ],
+    "removed_existing_components": [],
+    "original_positive5v_timing_logic_unchanged": true,
+    "current_E28_native_routing_not_edited": true
+  },
+  "genuinely_new_monitoring": {
+    "source_uv": "OneTLV1822dual comparator reading existing SOURCE inverter signals at their actual filtered nodes; adds no duplicated source opamp or reference.",
+    "protected_output": "OneOPA2333dual inverter plus oneTLV1824quad comparator monitors both actual protectedoutputs forUV/OV against existingREF35125. Protected sensing is not currently provided for these rails.",
+    "new_output_amplifier_input_feedback_ohm": {
+      "N19": [
+        160000,
+        10000
+      ],
+      "N12": [
+        102000,
+        10000
+      ]
+    },
+    "nominal_source_uv_magnitude_v": {
+      "N19": 18.4,
+      "N12": 11.5
+    },
+    "nominal_output_window_magnitude_v": {
+      "N19": [
+        18.4,
+        19.6
+      ],
+      "N12": [
+        11.5,
+        12.5
+      ]
+    },
+    "precision_final_load_window_acceptance": false,
+    "existing_source_OV_threshold_corner_packet_accepted": false,
+    "poweroff_input_protection": "Use actualOPA333 manufacturer's input-current/diode conditions and realseriesresistance. No assumption that an unpowered opamp input is an idealvirtualground; record input current, clamp potential and AUXbackfeed through all new paths."
+  },
+  "new_power_and_shutdown": {
+    "two_LTC4261IGN_pass_stages": "Now grounded to trueP03_SRC beforeE28. Original protectedbulk remains after BOTH stages; no outputbulk duplicated onnewmodule.",
+    "controller_feed_nominal_ohm": 784,
+    "isolator": "ISO7721F perrail: nativeINTVCC floatside1; OUTA2 drivesON, INB3 receives wiredAND ofVIN/INTVCC validity. HostSIDE2 receivesBIASstatus atOUTB6 anddrivesRUN atINA7. Two actual dualtranslators cross5V/AUX domains.",
+    "NC_clamps": "FourTLP4590AF(F retained from reference, with realgatecharge/sink/current/release/staticleakage/partialpower receiving tests. Both clamps released byARM; passON remainsLOW untilSTART/PERMIT.",
+    "source_or_controller_reset": "IndependentAGND/AUX source/output monitors andwatchdog revoke isolatedRUN andNCclampLEDrelease; neither relies onLTC4261PG or its restart state.",
+    "hardoff_loaded_bound_guaranteed": false,
+    "two_TMR1_1215": "One isolated24V per trueP03negative source reference. Replaces duplicated floating LDO/status electronics and NF02 galvanic positive-to-negative bias. Module efficiency/no-load startup/input surge require validation.",
+    "controller_feed_rejected_predecessor": "15V/213..215ohm feed draws >74mA atVIN0; excluded before compact native implementation.",
+    "native_bias_validity": "Two floatingTPS3890 perrail senseVIN~10.20V andINTVCC~4.646V. Neither threshold is a guaranteed internal-UVLO bound; transfer/delay/partialpower remains prototype receiving work."
+  },
+  "logic_compaction": {
+    "functions_preserved": [
+      "Direct conditionedSTARTedge permit with source/global/fault asynchronous clear",
+      "Completion retained until ARM/OFF/AUXreset, not self-cleared byPERMIT",
+      "Reuse existingE28 U21 armedfault latch through a NEW requestOR/return interface",
+      "Independent TPS3431 deadline perrail, no outputchatter petting",
+      "VIN+INTVCC validityreturn and NCdefaultOFF, with partialpower receiving tests required"
+    ],
+    "parts": [
+      "SN74HCS08PWR quadAND",
+      "SN74HCS32PWR quadOR",
+      "SN74HCS14PWR hexSchmittINV",
+      "SN74AUP2G14DCKR IOconditioning/buffering",
+      "SN74AUP1G74DCUR permit/completionFF"
+    ],
+    "native_pin_table_review_required_before_packing": false,
+    "actual_packed_native_schematic_authored": true,
+    "reset_clock_AC_and_hazard_qualification": false,
+    "E28_fault_reuse": {
+      "existing_request_output": "U23.11 E28_FAULT_ANY \u2192 NF E28_NATIVE_FAULT_REQUEST",
+      "combined_request_input": "NF E28_COMBINED_FAULT_REQUEST \u2192 E28 U25.10 (only this old two-node net is split)",
+      "existing_latch_feedback": "U28.6 E28_NOT_FAULT \u2192 NF high-impedance feedback; defaultpulldownOFF",
+      "fault_output_J9_never_driven": true,
+      "native_E28_changes_implemented": false,
+      "single_fault_tolerance_claimed": false
+    }
+  },
+  "space": {
+    "unoptimized_reference_courtyard_sum_mm2": 4064.1968,
+    "unoptimized_times1p2_mm2": 4877.03616,
+    "new_front_strip_gross_mm2": 10487.6,
+    "gross_strip_is_available_board_area": false,
+    "target_PCB_placement_not_yet_selected": true,
+    "two_TMR_body_nominal_mm": [
+      17,
+      7.62,
+      11
+    ],
+    "body_tolerances_pin_tails_and_assembly_reserved": false,
+    "all_native_placement_and_enclosure_checks_required": true,
+    "proposed_vertical_study": {
+      "x_world_mm": [
+        125,
+        325
+      ],
+      "board_plane_y_proposal_mm": 184.5,
+      "z_world_mm": [
+        6.5,
+        34.5
+      ],
+      "deep_parts_x_requirement_mm": [
+        160,
+        220
+      ],
+      "matched_mount_datum_thickness_tails_and_airflow_implemented": false,
+      "WIMA_CF_nominal_body_W_H_L_mm": [
+        7.2,
+        13,
+        7.2
+      ],
+      "WIMA_max_body_and_lead_forming_accepted": false
+    }
+  },
+  "known_critical_hold": "Latest E28 N12 Cu43.822mOhm diagnostic plus receiving10mOhm bank/5mOhm contacts fails baseline20%-guarded fullendpoint lower voltage. A private R40top180.750kohm scenario can recover both-corner margin but is unimplemented/unaccepted. E28 force continuity remains separate from Kelvin-pad retargeting.",
+  "newPCBimplemented": false,
+  "physical_qualified": false,
+  "startup_qualified": false,
+  "fabrication_released": false
+}

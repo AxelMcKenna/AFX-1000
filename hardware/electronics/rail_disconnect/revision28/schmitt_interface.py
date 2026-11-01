@@ -1,0 +1,122 @@
+"""Install real pin-compatible Schmitt RUN/READY receivers in explicit E28."""
+
+import hashlib
+import json
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+from .integrate_positive import board_net, footprint, native_parts, write_schematic
+from .manufacturer import ROOT
+from .positive_footprints import check_lvc14, lvc14
+from .repair import Router
+
+
+def main():
+    path = ROOT / "rail_disconnect.kicad_pcb"
+    before = path.read_bytes()
+    tree = read_sexpr(before.decode())
+    old = Router(tree)
+    parts = native_parts()
+    by = {p["ref"]: p for p in parts}
+    nets = {str(n[2]).lstrip("/"): int(n[1]) for n in children(tree, "net")}
+    for name in sorted({board_net(c, p) for c in parts for p in c["pins"]}):
+        if name not in nets:
+            nets[name] = max(nets.values()) + 1
+            tree.append([a("net"), a(str(nets[name])), "/" + name])
+    fp = lvc14()
+    contract = check_lvc14(fp)
+    (ROOT / "RMX_E28.pretty/SN74LVC14A_PW0014A.kicad_mod").write_text(sexpr(fp) + "\n")
+    removed = []
+    kept = []
+    raw = {
+        "POWER_RUN",
+        "P03_SOURCES_READY",
+        "E28_RUN_LOGIC",
+        "E28_NOT_SOURCE_READY",
+        "E28_SOURCE_READY_LOGIC",
+    }
+    names = {str(n[1]): str(n[2]).lstrip("/") for n in children(tree, "net")}
+    formerly_ground = [p["xy"] for p in old.by_ref["U28"] if p["pin"] in ("9", "11", "13")]
+    for node in tree:
+        drop = False
+        if isinstance(node, list) and node and node[0] in ("segment", "via"):
+            net = names[str(first(node, "net")[1])]
+            drop = net in raw
+            if net == "AGND" and (node[0] == "via" or first(node, "layer")[1] == "B.Cu"):
+                points = [
+                    tuple(float(v) - 100 for v in first(node, k)[1:3])
+                    for k in (("at",) if node[0] == "via" else ("start", "end"))
+                ]
+                drop |= any(__import__("math").dist(p, q) < 0.65 for p in points for q in formerly_ground)
+        elif isinstance(node, list) and node and node[0] == "footprint":
+            ref = next(p[2] for p in children(node, "property") if p[1] == "Reference")
+            if ref == "U28":
+                at = first(node, "at")
+                pose = (
+                    float(at[1]) - 100,
+                    float(at[2]) - 100,
+                    float(at[3]) if len(at) > 3 else 0,
+                    "B" if first(node, "layer")[1] == "B.Cu" else "F",
+                )
+                node = footprint(by[ref], pose, nets)
+            elif ref in by:
+                pp = {str(p["number"]): p for p in by[ref]["pins"]}
+                for pad in children(node, "pad"):
+                    if str(pad[1]) in pp:
+                        name = board_net(by[ref], pp[str(pad[1])])
+                        first(pad, "net")[1:] = [
+                            a(str(nets[name])),
+                            "/" + name if not name.startswith("unconnected-") else name,
+                        ]
+                if ref in ("R93", "R140", "R142"):
+                    for prop in children(node, "property"):
+                        if prop[1] in ("Value", "MPN"):
+                            prop[2] = by[ref]["part"]
+        if drop:
+            removed.append(sexpr(node))
+        else:
+            kept.append(node)
+    tree = kept
+    # Legacy numbered-net files require declarations before their first pad
+    # reference. Otherwise native loading can discard a newly assigned pad net.
+    declarations = children(tree, "net")
+    tree = [n for n in tree if not (isinstance(n, list) and n and n[0] == "net")]
+    boundary = next(
+        i
+        for i, n in enumerate(tree)
+        if isinstance(n, list) and n and n[0] in ("footprint", "segment", "via", "zone")
+    )
+    tree[boundary:boundary] = declarations
+    write_schematic(parts)
+    path.write_text(sexpr(tree) + "\n")
+    primary = Path("/private/tmp/e28-sn74lvc14a.pdf")
+    (ROOT / "generated/schmitt-interface-repair.json").write_text(
+        json.dumps(
+            dict(
+                before_sha256=hashlib.sha256(before).hexdigest(),
+                after_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                part="SN74LVC14APWR",
+                physical_part_count_increase=0,
+                existing_pose_preserved=True,
+                manufacturer_land_contract=contract,
+                primary_pdf_sha256=hashlib.sha256(primary.read_bytes()).hexdigest(),
+                raw_input_pull_downs_ohm={"POWER_RUN": 10000, "P03_SOURCES_READY": 15000},
+                source_ready_pullup_requirement_ohm=2200,
+                external_output_load_requirement_a=20e-6,
+                original_non_schmitt_inputs_removed=True,
+                removed_items=removed,
+                input_thresholds_at_actual_supply_accepted=False,
+                partial_power_or_ioff_accepted=False,
+                physical_qualified=False,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+    print(
+        "Installed pin-compatible U28 Schmitt RUN/READY receivers; canonical source is untouched in isolated mode."
+    )
+
+
+if __name__ == "__main__":
+    main()

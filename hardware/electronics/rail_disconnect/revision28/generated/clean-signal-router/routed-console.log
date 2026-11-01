@@ -1,0 +1,60 @@
+2026-10-27 18:14:17.452 INFO   Freerouting v2.5.0 (build-date: 2026-10-05)
+2026-10-27 18:14:17.483 WARN   [startup] freerouting.json contains a stale 'logging.file.location' value: '/private/tmp/afx-e28-force-guard-router-v3/router.log'. The actual log file is being written to '/Users/axelmckrnna/dev/rmx-publish/hardware/electronics/rail_disconnect/revision28/generated/clean-signal-router/routed-router.log' (as resolved at startup). The stale value will be corrected in freerouting.json on next save. If you see this in Docker, the old JSON was written by an earlier version that stored the host path; the fix is to delete freerouting.json so it is regenerated with the correct path.
+2026-10-27 18:14:17.704 INFO   Hardware: 4 CPU cores, 523 CPU score, 4096 MB RAM
+2026-10-27 18:14:17.706 WARN   GUI is disabled and you don't have a console available, so the only feedback from Freerouting is in the log.
+2026-10-27 18:14:21.351 INFO   [840B81\D9C262] Loading board file 'afx-56b6b4112b15cbcc8d58041b.dsn'...
+2026-10-27 18:14:22.866 WARN   DSN file 'afx-56b6b4112b15cbcc8d58041b.dsn' was loaded with 3 warning(s).
+2026-10-27 18:14:22.962 INFO   Applied drill-hole clearance override: 250.0 um (2500 board units), 48 hole keepouts reclassified.
+2026-10-27 18:14:22.969 WARN   Power-plane validation failed:
+- Dedicated power layer 'In1.Cu' contains 62 signal wire(s)/trace(s).
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 156, Net(s): [/5V_DIG_SRC]) and Area (ID 153, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 156, Net(s): [/5V_DIG_SRC]) and Area (ID 42, Net(s): [/AGND]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 155, Net(s): [/5V_DIG_SRC]) and Area (ID 153, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 155, Net(s): [/5V_DIG_SRC]) and Area (ID 152, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 155, Net(s): [/5V_DIG_SRC]) and Area (ID 42, Net(s): [/AGND]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 154, Net(s): [/5V_DIG_SRC]) and Area (ID 152, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 154, Net(s): [/5V_DIG_SRC]) and Area (ID 42, Net(s): [/AGND]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 153, Net(s): [/5V_DIG_SRC]) and Area (ID 152, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 153, Net(s): [/5V_DIG_SRC]) and Area (ID 42, Net(s): [/AGND]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 152, Net(s): [/5V_DIG_SRC]) and Area (ID 42, Net(s): [/AGND]) overlap.
+- Dedicated power layer 'In4.Cu' contains 31 signal wire(s)/trace(s).
+
+Proper Definition and Best Practices for Power Planes:
+1. What Belongs on a Power Plane:
+   - Solid Copper Pours: A single, uninterrupted sheet of copper assigned to one voltage (e.g., +3.3V).
+   - Split Planes: Multiple distinct voltage zones divided by thin isolation gaps (puzzle pieces).
+   - Vias and Anti-Pads: Plated holes passing through the board, surrounded by circular voids (anti-pads) to prevent shorting.
+   - Thermal Reliefs: Spoked connections for vias or pins that connect to the plane, facilitating soldering.
+2. Why Signal Wires/Traces are Banned:
+   - Destroyed Return Paths: High-speed signals on adjacent layers couple to the solid plane below/above as return paths. Crossing a trace gap detours return currents, causing severe EMI and signal integrity issues.
+   - Compromised Power Delivery: Power planes should provide the lowest impedance path. Routing traces chops up the copper, creating bottleneck restrictions and voltage drops.
+
+2026-10-27 18:14:24.495 INFO   [840B81\D9C262] Job '840B81\D9C262' started at 2026-10-27T05:14:24.495009Z.
+2026-10-27 18:14:26.092 WARN   Design Warning: Board has 1046 pre-existing clearance violation(s) in the loaded design (before routing):
+  - 1046 unfixable violation(s) (cannot be resolved by Freerouting):
+      * 1 pin-to-pin clearance violations:
+          - C47.1 [net /E28_DIG_2_DVDT_CAP] <-> J8.1 [net /AGND]
+      * 1045 fixed trace/via clearance violations (first 5 shown):
+          - FixedVia#4464 [net /AGND] <-> ObstacleArea#2
+          - FixedVia#4464 [net /AGND] <-> ObstacleArea#5
+          - FixedVia#4464 [net /AGND] <-> ObstacleArea#3
+          - FixedVia#4463 [net /5V_DIG_SRC] <-> ObstacleArea#5
+          - FixedVia#4463 [net /5V_DIG_SRC] <-> ObstacleArea#3
+          ... and 1040 more
+  - 0 potentially fixable violations
+Notice: Freerouting does not modify component placement, board outlines, or fixed items.
+Resolving these 1046 unfixable violation(s) is the responsibility of the board author in their EDA tool (e.g. KiCad).
+2026-10-27 18:14:26.129 INFO   [840B81\D9C262] Pipeline thread limits: autorouter pass is single-threaded, optimizer.max_threads=3.
+2026-10-27 18:14:29.556 INFO   [840B81\D9C262] Fanout stage started on board '87fbc64b2614c6d36f8a9f5b440dd4e7' with 797 of 822 SMD pins needing fanout (25 already connected, 0 netless).
+2026-10-27 18:15:44.320 INFO   [840B81\D9C262] Fanout pass #1 on board '94a4897db91f5b2f71540475274b2402' completed in 74.02 seconds with 353 SMD pins fanouted, 259 not routed, 0 insert errors, +52 extra vias (0 SMD pins still to check in pass, ripup costs=100).
+2026-10-27 18:16:12.069 INFO   [840B81\D9C262] Fanout pass #2 on board 'c7be1e1aa1f2b5245e81161d5238c529' completed in 27.71 seconds with 110 SMD pins fanouted, 155 not routed, 0 insert errors, +3 extra vias (0 SMD pins still to check in pass, ripup costs=200).
+2026-10-27 18:16:31.437 INFO   [840B81\D9C262] Fanout pass #3 on board '5639d37e1a41487cca434ea9ee16896c' completed in 19.33 seconds with 102 SMD pins fanouted, 51 not routed, 0 insert errors, +6 extra vias (0 SMD pins still to check in pass, ripup costs=300).
+2026-10-27 18:16:52.283 INFO   [840B81\D9C262] Fanout pass #4 on board '72b7df9220e8a158cfc6effb2fd7739e' completed in 20.76 seconds with 94 SMD pins fanouted, 52 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=400).
+2026-10-27 18:17:19.403 INFO   [840B81\D9C262] Fanout pass #5 on board '9475a52208ba83bdf272cc66bedc53c9' completed in 27.07 seconds with 93 SMD pins fanouted, 50 not routed, 0 insert errors, +2 extra vias (0 SMD pins still to check in pass, ripup costs=500).
+2026-10-27 18:17:42.290 INFO   [840B81\D9C262] Fanout pass #6 on board '351a80b28bfe3c715dcb8a726b98acba' completed in 22.84 seconds with 92 SMD pins fanouted, 48 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=600).
+2026-10-27 18:18:01.330 INFO   [840B81\D9C262] Fanout pass #7 on board '1b2e131c99ee5427ebbf8aa5747b4495' completed in 19.00 seconds with 92 SMD pins fanouted, 48 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=700).
+2026-10-27 18:18:20.146 INFO   [840B81\D9C262] Fanout pass #8 on board 'f656745cec5b1ad8f7535136e8dc0535' completed in 18.78 seconds with 92 SMD pins fanouted, 48 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=800).
+2026-10-27 18:18:38.761 INFO   [840B81\D9C262] Fanout pass #9 on board 'f25f83363a33df4e1acfa7e9d2f69fef' completed in 18.58 seconds with 92 SMD pins fanouted, 48 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=900).
+2026-10-27 18:18:38.761 INFO   Fanout stopped after 9 passes: no progress for 3 consecutive passes.
+2026-10-27 18:18:40.520 INFO   [840B81\D9C262] Fanout stage completed: started with 822 total SMD pins, completed in 250.27 seconds, escaped pins: 448/822 (54.5%), using 246.49 total CPU seconds, 133.40 GB total allocated, and 655.6 MB peak heap usage.
+2026-10-27 18:18:52.028 INFO   [840B81\D9C262] Auto-routing stage started on board 'f25f83363a33df4e1acfa7e9d2f69fef' with baseline score 326.17 for 392 unrouted items.

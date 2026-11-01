@@ -1,0 +1,88 @@
+"""Add actual clear landings for residual native pad-only copper components.
+
+The pass removes nothing. Every new barrel/trace and its actual pour withdrawal
+must be checked afresh; an analytical escape is never a native-closure claim.
+"""
+
+import hashlib
+import json
+import shutil
+import uuid
+from pathlib import Path
+
+from ...common.sexpr import a, children, read_sexpr, sexpr
+from .receiving_escape_centered import escape
+from .repair import Router
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/pg-master-local-repair-work"
+WORK = ROOT / "generated/residual-landing-pass-work"
+EXCLUDE = {"ANA_PG1"}  # Independently developed by the power-board owner.
+
+
+def main():
+    assert not WORK.exists()
+    source = SOURCE / "rail_disconnect.kicad_pcb"
+    original = source.read_bytes()
+    digest = hashlib.sha256(original).hexdigest()
+    assert digest == "09265b396dbb002eaa8127d569d69d6aa93291ea79db57c137fcf3fe5073d05b"
+    tree = read_sexpr(original.decode())
+    graph_path = SOURCE / "generated/residual-components.json"
+    graph = json.loads(graph_path.read_text())
+    assert graph["source_sha256"][str(source.resolve())] == digest
+    attempts = []
+    for net, row in graph["inventory"].items():
+        if net in EXCLUDE:
+            continue
+        for component in row["components"]:
+            if len(component) != 1 or component[0]["kind"] != "PAD":
+                continue
+            actual = component[0]
+            rt = Router(tree)
+            pad = next(p for p in rt.by_ref[actual["ref"]] if p["pin"] == actual["pin"])
+            assert pad["net"] == net
+            result, reason = escape(rt, pad, maxdistance=6, step=0.025)
+            attempts.append(dict(ref=actual["ref"], pin=actual["pin"], net=net, route=result, reason=reason))
+            print(actual["ref"], actual["pin"], net, bool(result), reason, flush=True)
+    for index, node in enumerate(tree):
+        if isinstance(node, list) and node and node[0] in ("segment", "via") and not children(node, "uuid"):
+            node.append(
+                [
+                    a("uuid"),
+                    a(
+                        str(
+                            uuid.uuid5(
+                                uuid.NAMESPACE_URL, f"rmx:E28:residualLanding:{digest}:{index}:{sexpr(node)}"
+                            )
+                        )
+                    ),
+                ]
+            )
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for path in SOURCE.iterdir():
+        if path.is_file() and (
+            path.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym")
+            or path.name in ("components.json", "fp-lib-table", "sym-lib-table")
+        ):
+            shutil.copy2(path, WORK / path.name)
+        elif path.suffix == ".pretty":
+            shutil.copytree(path, WORK / path.name)
+    (WORK / source.name).write_text(sexpr(tree) + "\n")
+    report = dict(
+        source_pcb_sha256=digest,
+        native_graph_sha256=hashlib.sha256(graph_path.read_bytes()).hexdigest(),
+        recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        attempts=attempts,
+        all_original_objects_and_parts_fixed=True,
+        nothing_removed=True,
+        original_design_rules_unchanged=True,
+        fresh_native_fill_and_finite_copper_validation_required=True,
+        physical_qualified=False,
+    )
+    (WORK / "generated/landing-pass.json").write_text(json.dumps(report, indent=2) + "\n")
+    assert source.read_bytes() == original
+
+
+if __name__ == "__main__":
+    main()

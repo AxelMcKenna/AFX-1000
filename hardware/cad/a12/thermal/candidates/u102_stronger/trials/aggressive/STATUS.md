@@ -1,0 +1,1 @@
+Aggressive comparison only: removed13 foreign via endpoints and corresponding bottom copper, reopening12 circuits including required control/supply/status paths. Not selected for adoption. Preserved only to quantify actual thermal tradeoff; no physical or electrical completeness claim.

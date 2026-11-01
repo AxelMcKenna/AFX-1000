@@ -1,0 +1,183 @@
+{
+  "scope": "FH01 C engine host tests and ATtiny84 target compilation only",
+  "host_result": "FH01 software engine: 12647 assertions passed",
+  "compiler": "avr-gcc (GCC) 7.3.0",
+  "compiler_archive_sha256": "f6ed2346953fcf88df223469088633eb86de997fa27ece117fd1ef170d69c1f8",
+  "installed_toolchain_files_matching_archive": 2018,
+  "compiler_archive_url": "https://downloads.arduino.cc/tools/avr-gcc-7.3.0-atmel3.6.1-arduino7-x86_64-apple-darwin14.tar.bz2",
+  "text_bytes": 1760,
+  "data_bytes": 0,
+  "bss_bytes": 90,
+  "stack_worst_case_qualified": false,
+  "target_execution_verified": false,
+  "clock_adc_interrupts_watchdogs_verified": false,
+  "native_schematic_implemented": false,
+  "fabrication_release": false,
+  "commands": [
+    {
+      "argv": [
+        "clang",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "firmware/health.c",
+        "firmware/test_health.c",
+        "-o",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/generated/host_test"
+      ],
+      "returncode": 0,
+      "log": "host_compile.log"
+    },
+    {
+      "argv": [
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/generated/host_test"
+      ],
+      "returncode": 0,
+      "log": "host_test.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/afx-avr/data/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-gcc",
+        "--version"
+      ],
+      "returncode": 0,
+      "log": "compiler_version.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/afx-avr/data/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-gcc",
+        "-std=gnu11",
+        "-mmcu=attiny84",
+        "-Os",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-fstack-usage",
+        "-c",
+        "firmware/health.c",
+        "-o",
+        "generated/health.o"
+      ],
+      "returncode": 0,
+      "log": "health_compile.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/afx-avr/data/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-gcc",
+        "-std=gnu11",
+        "-mmcu=attiny84",
+        "-Os",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-fstack-usage",
+        "-c",
+        "firmware/attiny84a.c",
+        "-o",
+        "generated/attiny84a.o"
+      ],
+      "returncode": 0,
+      "log": "attiny84a_compile.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/afx-avr/data/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-gcc",
+        "-std=gnu11",
+        "-mmcu=attiny84",
+        "-Os",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-c",
+        "firmware/startup.c",
+        "-o",
+        "generated/startup.o"
+      ],
+      "returncode": 0,
+      "log": "startup_compile.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/afx-avr/data/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-gcc",
+        "-mmcu=attiny84",
+        "-Wl,--gc-sections,-Map=generated/fan_health.map",
+        "generated/health.o",
+        "generated/attiny84a.o",
+        "generated/startup.o",
+        "-o",
+        "generated/fan_health.elf"
+      ],
+      "returncode": 0,
+      "log": "target_link.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/afx-avr/data/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-objcopy",
+        "-O",
+        "ihex",
+        "-R",
+        ".eeprom",
+        "generated/fan_health.elf",
+        "generated/fan_health.hex"
+      ],
+      "returncode": 0,
+      "log": "hex_export.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/afx-avr/data/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-size",
+        "generated/fan_health.elf"
+      ],
+      "returncode": 0,
+      "log": "target_size.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/afx-avr/data/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-objdump",
+        "-d",
+        "generated/fan_health.elf"
+      ],
+      "returncode": 0,
+      "log": "target_disassembly.log"
+    }
+  ],
+  "inputs": {
+    "firmware/attiny84a.c": "8285ac2994a3a65464101a4021bb568d8bbc734aeaa87d1b0074fb6c02f24e9c",
+    "firmware/health.c": "9414d1165e5b3dbd15ad455dc0c391c0d0594c30f2a310e2f931bf7fe63b8db4",
+    "firmware/health.h": "350b9c80e8e60532d68054727ab43df55267e7895a2446cf7c19670105f66d4e",
+    "firmware/startup.c": "26bcfd11424720efa7060d3afc2809cf36e5239bbd21bc9ecd64ff8c418779a8",
+    "firmware/test_health.c": "0e12ef3a229c5932a3b93e914ac12646d60b48e5ba8988d0f7b80fbe41bc0f41",
+    "verify_firmware.py": "b49e7ffe0c93ca5c1739b6ff056de2683b0027392feaecbd8dae14bef96ebc7c"
+  },
+  "outputs": {
+    "generated/attiny84a.o": "b2065da11b954fa762a142720740d0da60e099301fb36721ec5ba3fca106b02a",
+    "generated/attiny84a.su": "e482797377f9b8894089776a4386223bbd4b8e1b1adf1221fead76fdab5acb8e",
+    "generated/attiny84a_compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "generated/compiler_version.log": "6d62be7056c942b9c272f1736f4441b58749725dbe62c40bb0f5cf25341a1336",
+    "generated/fan_health.elf": "b3df590f948a3c1cd460b6e4de26fce807851ebf82f8f558aa0b48f987cf24b6",
+    "generated/fan_health.hex": "53636e8e5c81a21479f5f2c742ec1a89d30c1817e5091510c438372f99da7d77",
+    "generated/fan_health.map": "068a1d8c77a6f369df48f460efddf65c654f26a894d4638ac962456e5831cf55",
+    "generated/health.o": "b6d4c56e0d251f9e15bf591ad6afe1efb057892734505f031c36c9e3ec19e597",
+    "generated/health.su": "0ab7ff39d0e65b09fa9e2114a8863923e86e1fbd0bf864e8b58ddc1cb73070c1",
+    "generated/health_compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "generated/hex_export.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "generated/host_compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "generated/host_test": "c68e68237afe31f8f1960943e4593701582d70850fe32e871dda661fc9cb57ab",
+    "generated/host_test.log": "e1a5fba274fb181406ed8b64f28cae6decc684d8a3ac43a681a7e88aaca26a26",
+    "generated/rejected_adapter_stack_usage.log": "1a39c67d11956aca6a69d941e8c3e43fbeb67f8c14d6d0ee6f45f9d86f1a7fe4",
+    "generated/startup.o": "150225945a1dceffa46594e7261556344f3a35a3d4545ce97a43e33638736749",
+    "generated/startup_compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "generated/target_disassembly.log": "17f1a9dcedda427b13832281f20607a16e9c7fb13a220416fe04d4729954054f",
+    "generated/target_link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "generated/target_size.log": "10f2160f47f393f58328ec9b7c476a2a70dd1c084183073d1f03a01bd607bae4",
+    "generated/temperature-comparison.json": "227766aed92a5c317118b2810df59165133a312d5043852470fce8a3c4fd51b9"
+  }
+}

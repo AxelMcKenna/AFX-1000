@@ -1,5 +1,7 @@
 # Standalone verification record
 
+The [three-board qualification decision](board-qualification/README.md) records fresh native checks and demonstrated design/analytical failures for the pictured E12/E14/E26 candidates, plus separate repair and diagnostic work. Qualification, fabrication and physical performance remain unapproved. The [Q02 capture plan](../qualification/boards/README.md) is unmeasured and retains all unresolved limits and design holds.
+
 The newer [second design review](second-review.json) and [complete-unit acceptance boundary](quality-review.md) distinguish current evidence from unfinished implementation and physical tests. The [F06 maintained-engine record](full-engine/verification.json) covers the opt-in exact kernel transport, current DSP/controls/storage host suites and both SRAM ARM builds. [Development status](../DEVELOPMENT.md) distinguishes the P02/E26/E12 variants from the earlier assembly. The first parallel-pass record below remains historical evidence; it does not qualify the newer variants or a physical unit.
 
 The [parallel workstream record](parallel-workstreams.json) and [development handoff](../DEVELOPMENT.md) cover the newer P01 power analysis, independent E25 routing, E10 PCB candidate, system interconnects, F05 storage, compact mechanical kit and Q01 unmeasured bench plan. These add design/software evidence without qualifying a physical complete unit. Earlier records below retain their original stage scope.

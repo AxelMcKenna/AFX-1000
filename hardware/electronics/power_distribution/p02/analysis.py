@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import re
 
 from ...common.netlists import netlist, number
 from .check import contract
@@ -128,6 +129,39 @@ def return_architecture():
     )
 
 
+def retained_capacitance_inventory(parts=None, pins=None):
+    if parts is None or pins is None:
+        parts, pins = netlist(ROOT / "generated/disconnect-netlist.xml")
+    rows = {}
+    for domain, ref, net, reserve in (
+        ("DIG", "C24", "5V_DIG", 1460e-6),
+        ("ANA", "C20", "V5_REG", 400e-6),
+    ):
+        value = parts[ref].findtext("value")
+        assert pins[ref] == {"1": net, "2": "AGND"}, (ref, "retained bulk net/polarity changed")
+        tolerance = re.search(r"\b([0-9.]+)%", value)
+        assert tolerance, (ref, "missing explicit native capacitance tolerance")
+        nominal = number(value)
+        fraction = float(tolerance.group(1)) / 100
+        assert 0 < fraction < 1 and nominal > 0
+        known_max = nominal * (1 + fraction)
+        rows[domain] = dict(
+            native_reference=ref,
+            native_value=value,
+            native_rail=net,
+            nominal_bulk_f=nominal,
+            tolerance_fraction=fraction,
+            known_retained_bulk_maximum_f=known_max,
+            additional_capacitance_scenario_allocation_f=reserve,
+            scenario_capacitance_f=known_max + reserve,
+            other_board_module_cable_and_local_source_inventory_complete=False,
+            complete_network_upper_bound_f=None,
+            additional_reserve_is_guaranteed=False,
+            effective_capacitance_esr_model_or_measurement_qualified=False,
+        )
+    return rows
+
+
 def operating_limits(sources):
     dig_load = sum(i for r, _, i in LOADS.values() if r == "DIG")
     ana_load = sum(i for r, _, i in LOADS.values() if r == "ANA")
@@ -154,8 +188,9 @@ def operating_limits(sources):
     total_power = raw_input_power + pre_power + auxiliaries_power + other_vin_power
     input_current = total_power / 10.5
     tau_min = 10000 * 0.999 * 12.69e-6
-    digital_cmax = 0.0071  # E26bulk+loadsource caps including tolerance, explicit bound
-    analog_cmax = 0.0011
+    capacitance = retained_capacitance_inventory()
+    digital_cmax = capacitance["DIG"]["scenario_capacitance_f"]
+    analog_cmax = capacitance["ANA"]["scenario_capacitance_f"]
     dig_charge = digital_cmax * sources["DIG"][1] / tau_min
     ana_charge = analog_cmax * sources["ANA"][1] / tau_min
     return dict(
@@ -200,8 +235,11 @@ def operating_limits(sources):
             replacement_input_profile_implemented=False,
         ),
         startup=dict(
+            capacitance_inventory=capacitance,
+            complete_network_capacitance_bound_verified=False,
+            complete_preconnected_startup_proof=False,
             reference_tau_min_s=tau_min,
-            ramp_screen_scope="reference-acquired preconnected RC ramp only; initial SET-current floor is excluded",
+            ramp_screen_scope="Reference-acquired preconnected RC ramp under declared capacitance scenario allocations only; complete network inventory and initial SET-current floor are excluded",
             initial_set_floor_inrush_qualified=False,
             initial_set_floor_digital_cap_current_demand_a=digital_cmax * 0.000051 / 80e-9,
             initial_set_floor_analog_cap_current_demand_a=analog_cmax * 0.000102 / 80e-9,
@@ -251,6 +289,7 @@ def analyze():
         "Reference assembly/aging/humidity, capacitor leakage and resistor total errors are allocations, not complete manufacturer guarantees.",
         "Closed-loop SET buffer compensation, actual module effective capacitor range, ripple and load-step reserves need simulation/measurement.",
         "Slow SET ramp screens preconnected bulk only; startup floor, shutdown, partial power and late E26 gate closure are unqualified.",
+        "Retained C20/C24 tolerance maxima are sourced from a fresh native disconnect export. Additional capacitor reserves are unverified scenario allocations, not a complete-network upper bound.",
         "SD-card 3V3 current/inrush, Seed 3V3 source capacity, emitters, coil current and R1 derating remain unverified actual-load budgets.",
         "Two new <=2mohm source-to-E26 ground straps and a <=1mohm input-guard star path require new mounting/contact/return interfaces and qualification.",
     ]
@@ -293,6 +332,8 @@ def analyze():
         ROOT / "loads.py",
         ROOT / "spec.py",
         ROOT / "generated/netlist.xml",
+        ROOT / "generated/disconnect-netlist.xml",
+        REPO / "hardware/electronics/rail_disconnect/rail_disconnect.kicad_sch",
     ]
     result["source_sha256"] = {
         str(p.relative_to(REPO)): hashlib.sha256(p.read_bytes()).hexdigest() for p in deps

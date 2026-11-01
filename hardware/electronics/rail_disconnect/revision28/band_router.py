@@ -1,0 +1,148 @@
+"""Routing aid for the explicit156x54.5logic band; native rules remain authority."""
+
+import math
+
+import numpy as np
+from scipy.ndimage import distance_transform_edt
+
+from hardware.electronics.common.sexpr import children, first
+
+from ..revision26 import router as aid
+from ..revision26.layout import POWER_NETS
+from .distributed_mesh import DistributedBarrelMesh
+from .force_guard import ForceGuard
+from .repair import Router
+
+
+class FastForceGuard(ForceGuard):
+    def __init__(self, tree, router, step):
+        self.step = step
+        self.distances = {}
+        for net in sorted(POWER_NETS):
+            raster = DistributedBarrelMesh.__new__(DistributedBarrelMesh)
+            raster.x, raster.y = router.xx[:, 0], router.yy[0, :]
+            raster.mask = np.zeros((6, router.nx, router.ny), bool)
+            for zone in children(tree, "zone"):
+                if not children(zone, "net") or str(first(zone, "net")[-1]).lstrip("/") != net:
+                    continue
+                for poly in children(zone, "filled_polygon"):
+                    pts = [(float(q[1]) - 100, float(q[2]) - 100) for q in first(poly, "pts")[1:]]
+                    raster.polygon(aid.LAYERS.index(str(first(poly, "layer")[1])), pts)
+            for layer in range(6):
+                if raster.mask[layer].any():
+                    self.distances[net, layer] = distance_transform_edt(
+                        ~raster.mask[layer], sampling=step
+                    ).astype(np.float32)
+        assert self.distances
+
+
+class BandRouter(Router):
+    def __init__(self, tree, filled, native_pads, step=0.1):
+        aid.STEP = step
+        aid.CLEARANCE = 0.2
+        super().__init__(tree)
+        self.nx, self.ny = round(156 / step) + 1, math.floor(54.5 / step) + 1
+        self.xx, self.yy = np.arange(self.nx)[:, None] * step, np.arange(self.ny)[None, :] * step
+        self.cached = {}
+        keys = set()
+        for fp in children(tree, "footprint"):
+            ref = next(p[2] for p in children(fp, "property") if p[1] == "Reference")
+            keys.update((ref, str(p[1])) for p in children(fp, "pad") if len(p) > 3 and str(p[3]) == "custom")
+        self.custom_pad_geometry = [p for p in native_pads["pad_polygons"] if (p["ref"], p["pin"]) in keys]
+        self.force_guard = FastForceGuard(filled, self, step)
+
+    def masks(self, net, width):
+        key = net, width
+        if key not in self.cached:
+            blocked, via = self.physical_masks(net, width)
+            # Add exact native compound lands; generic rectangles remain
+            # conservative reservations for all standard package lands.
+            raster = DistributedBarrelMesh.__new__(DistributedBarrelMesh)
+            raster.x, raster.y = self.xx[:, 0], self.yy[0, :]
+            raster.mask = np.zeros(blocked.shape, bool)
+            for pad in self.custom_pad_geometry:
+                if pad["net"] == net:
+                    continue
+                for layer, polys in pad["layers"].items():
+                    for poly in polys:
+                        raster.polygon(
+                            aid.LAYERS.index(layer), [(q[0] - 100, q[1] - 100) for q in poly["outer"]]
+                        )
+            guard = aid.STEP * 1.415 + 0.02
+            for layer in range(6):
+                if raster.mask[layer].any():
+                    distance = distance_transform_edt(~raster.mask[layer], sampling=aid.STEP)
+                    blocked[layer] |= distance <= 0.2 + width / 2 + guard
+                    via |= distance <= 0.2 + 0.3 + guard
+            self.cached[key] = blocked, via
+        return self.cached[key]
+
+    def physical_masks(self, net, width):
+        blocked = np.zeros((6, self.nx, self.ny), dtype=bool)
+        border = (self.xx < 0.75) | (self.xx > 155.25) | (self.yy < 0.75) | (self.yy > 53.75)
+        border |= (self.xx < 5.75) & (self.yy > 34.25)
+        border |= (self.xx > 153.75) & (self.yy > 34.5)
+        blocked[:] = border
+        via_block = np.array(border, copy=True)
+        # A0.6mm barrel needs0.3+0.5mm centre-to-edge, independently
+        # of the narrower0.2mm trace. Native edge DRC remains authoritative.
+        via_block |= (
+            (self.xx < 0.81)
+            | (self.xx > 155.19)
+            | (self.yy < 0.81)
+            | (self.yy > 53.69)
+            | ((self.xx < 5.81) & (self.yy > 34.19))
+            | ((self.xx > 153.69) & (self.yy > 34.49))
+        )
+        for shape in self.geometry:
+            same = shape["net"] == net
+            # Conventional vias stay clear of SMD lands of their own net too;
+            # no via-in-pad/capped process is assumed.
+            for extra, destination in (
+                (aid.CLEARANCE + width / 2 + 0.02, blocked),
+                (aid.CLEARANCE + 0.3 + 0.02, via_block),
+            ):
+                if same and (destination is blocked or shape["kind"] == "line" or shape.get("through")):
+                    continue
+                if same and destination is via_block:
+                    # A conventional 0.3mm drill stays >=0.26mm from its own
+                    # SMD land and other same-net drill edges. Same-net copper
+                    # needs no electrical-clearance separation.
+                    extra = 0.41 if shape["kind"] == "rect" else 0.26
+                if shape["kind"] == "line":
+                    a, b = shape["start"], shape["end"]
+                    radius = shape["width"] / 2 + extra
+                    x0, x1 = min(a[0], b[0]) - radius, max(a[0], b[0]) + radius
+                    y0, y1 = min(a[1], b[1]) - radius, max(a[1], b[1]) + radius
+                else:
+                    wx, wy = (
+                        (v / 2 for v in shape["size"])
+                        if shape["kind"] == "rect"
+                        else (shape["radius"], shape["radius"])
+                    )
+                    x0, x1 = shape["xy"][0] - wx - extra, shape["xy"][0] + wx + extra
+                    y0, y1 = shape["xy"][1] - wy - extra, shape["xy"][1] + wy + extra
+                ix0, ix1 = max(0, math.floor(x0 / aid.STEP)), min(self.nx, math.ceil(x1 / aid.STEP) + 1)
+                iy0, iy1 = max(0, math.floor(y0 / aid.STEP)), min(self.ny, math.ceil(y1 / aid.STEP) + 1)
+                x, y = self.xx[ix0:ix1], self.yy[:, iy0:iy1]
+                if shape["kind"] == "line":
+                    dx, dy = b[0] - a[0], b[1] - a[1]
+                    t = np.clip(((x - a[0]) * dx + (y - a[1]) * dy) / (dx * dx + dy * dy), 0, 1)
+                    hit = (x - a[0] - t * dx) ** 2 + (y - a[1] - t * dy) ** 2 <= radius * radius
+                elif shape["kind"] == "via":
+                    hit = (x - shape["xy"][0]) ** 2 + (y - shape["xy"][1]) ** 2 <= (
+                        shape["radius"] + extra
+                    ) ** 2
+                else:
+                    hit = (x >= x0) & (x <= x1) & (y >= y0) & (y <= y1)
+                if destination is blocked:
+                    for layer in shape["layers"]:
+                        blocked[layer, ix0:ix1, iy0:iy1] |= hit
+                else:
+                    via_block[ix0:ix1, iy0:iy1] |= hit
+        for shape in self.geometry:
+            if shape["kind"] == "via" and shape["net"] == net:
+                ix, iy = (round(v / aid.STEP) for v in shape["xy"])
+                if math.dist((ix * aid.STEP, iy * aid.STEP), shape["xy"]) < 1e-7:
+                    via_block[ix, iy] = False
+        return blocked, via_block

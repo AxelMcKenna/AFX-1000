@@ -35,7 +35,9 @@ Pitch travel has separate up/down ranges from 1 to 24 semitones. The extra range
 
 ## Hardware design
 
-The standalone A11 design has a 334 × 157 × 38 mm chassis, 29 guided buttons, ten knobs, selector caps, optical inserts and the release mechanism. It includes mounts and clearances for the routed main supply and the placed E25 disconnect board.
+Current work targets the full 12 V standalone unit. The [fabrication preparation inventory](hardware/fabrication/README.md) identifies the selected development sources and remaining holds across all functional roles. The [A12 housing work](hardware/cad/a12/README.md) includes the larger enclosure proposal with 20% more depth and height. The integrated unit remains unfinished.
+
+The earlier A11 design has a 334 × 157 × 38 mm chassis, 29 guided buttons, ten knobs, selector caps, optical inserts and the release mechanism. It includes mounts and clearances for its routed main supply and placed E25 disconnect board.
 
 [![A11 housing, controls and internal board placement](docs/assets/hardware/a11-overview.png)](docs/assets/hardware/a11-overview.png)
 
@@ -54,7 +56,33 @@ Native KiCad layouts from the standalone electronics work. These are engineering
 
 [![E26 six-rail disconnect pilot top copper, vias and component outlines](docs/assets/hardware/e26-disconnect-layout.png)](docs/assets/hardware/e26-disconnect-layout.png)
 
-The disconnect remains incomplete: **21 open connections and 30 native DRC warnings**. The ADC driver is a separate characterization board, and the main supply shown predates the proposed P02 source redesign. These layouts do not yet form one integrated assembly. See the [E26 source and findings](hardware/electronics/rail_disconnect/revision26/) and [current development handoff](hardware/DEVELOPMENT.md).
+The pictured E26 checkpoint has **21 open connections and 30 native DRC warnings**. The ADC driver is a separate characterization board, and the main supply shown predates the proposed P02 source redesign. These layouts do not yet form one integrated assembly. See the [E26 source and findings](hardware/electronics/rail_disconnect/revision26/) and [current development handoff](hardware/DEVELOPMENT.md).
+
+The [three-board qualification review](hardware/validation/board-qualification/README.md) identifies additional electrical/layout failures, a separate ADC repair trial and a new disconnect routing candidate. **Qualification is withheld for all three pictured boards; they are not fabrication-ready.**
+
+**E28 protection-board checkpoint · 156 × 60 mm · eight layers**
+
+[![E28 protection board: actual checked top copper, silkscreen and outline](hardware/electronics/rail_disconnect/revision28/generated/low-power-run-work/generated/native-signal-stub-cleanup-06/closed-top.svg)](hardware/electronics/rail_disconnect/revision28/generated/low-power-run-work/generated/native-signal-stub-cleanup-06/closed-top.svg)
+
+The pictured E28 checkpoint has zero open connections, zero hard DRC errors and zero ERC/parity findings, with all native rule categories enabled. It retains 52 warnings. A newer candidate removes ten geometrically redundant track objects and has 49 warnings, with the same zero opens/hard errors/ERC/parity findings. See the [current fabrication inventory](hardware/fabrication/README.md) and [pictured checkpoint review](hardware/qualification/boards/aux_low_power_run/CLOSED_LAYOUT_REVIEW.md). Manufacturing, P03 interface acceptance and physical qualification remain open. This is an actual KiCad plot, not manufactured hardware or a fabrication release.
+
+**Matching P03 source with integrated RUN transmitter · 160 × 45 mm · six layers**
+
+[![P03 source with integrated AX03 transmitter: actual checked top copper and component bodies](hardware/electronics/power_distribution/p03/candidates/ax03-run-transmitter/generated/native-closed-transmitter/closed-top.svg)](hardware/electronics/power_distribution/p03/candidates/ax03-run-transmitter/generated/native-closed-transmitter/closed-top.svg)
+
+The separate 264-part P03 candidate has zero native DRC errors, warnings, opens, ERC and parity findings. Its [integration review](hardware/qualification/boards/aux_low_power_run/P03_INTEGRATION_REVIEW.md) records the actual local bypass paths, E28 pin map and outstanding manufacturing, harness and physical qualification. Canonical P03 and the preserved source projects remain unchanged; the complete unit is not fabrication-ready.
+
+**Sequenced stereo bypass candidate · 110 × 55 mm · four layers**
+
+[![E11 sequenced bypass: checked top copper, relay and logic placement](hardware/fabrication/staging/bypass-closed-native-03/plots/top/top.svg)](hardware/fabrication/staging/bypass-closed-native-03/plots/top/top.svg)
+
+The new E11 layout contains 55 circuit parts and four mounts, with zero native DRC, ERC, schematic-parity or connectivity findings. It retains the independent input-settling and fresh-permit bypass circuit. The [source-bound handoff](hardware/fabrication/staging/bypass-closed-native-03/handoff.json) and [package corrections](hardware/fabrication/package-review.md) record the checks and limits. Installed fit, exact parts/connectors, assembly process and measured operation remain unqualified.
+
+**Eight-window rail monitor candidate · 80 × 70 mm · four layers**
+
+[![E13 rail monitor: actual checked top copper and all 181 circuit parts](hardware/fabrication/staging/rail-monitor-dogbone-native-01/plots/top/top.svg)](hardware/fabrication/staging/rail-monitor-dogbone-native-01/plots/top/top.svg)
+
+The new E13 layout preserves the original 181-part circuit and adds four mounts. Routing has reduced 383 open connections to **13 remaining**, with zero native geometry, ERC or schematic-parity findings. The [bottom copper](hardware/fabrication/staging/rail-monitor-dogbone-native-01/plots/bottom/bottom.svg), [source-bound handoff](hardware/fabrication/staging/rail-monitor-dogbone-native-01/handoff.json) and [drill-to-SMD screen](hardware/fabrication/staging/rail-monitor-dogbone-native-01/smd-drill-review.json) are available for review. Routing, precision parts, installed fit and assembly/process qualification remain unfinished. This is a development layout, not a fabrication release.
 
 <details>
 <summary>3D bare-board preview · E12 ADC driver</summary>

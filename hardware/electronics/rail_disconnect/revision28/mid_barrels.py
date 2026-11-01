@@ -1,0 +1,64 @@
+"""Additional real analog power barrels between each chip's paired IN/OUT lands.
+
+Filled/capped flush process, mask/paste review and current/thermal acceptance are
+still required. All existing copper and package lands are retained; fresh native
+checks and finite-annulus extraction judge the actual antipads and improvement.
+"""
+
+import hashlib
+import json
+import uuid
+
+from ...common.sexpr import a, children, read_sexpr, sexpr
+from .repair import ROOT, Router
+
+
+def main():
+    path = ROOT / "rail_disconnect.kicad_pcb"
+    before = path.read_bytes()
+    tree = read_sexpr(before.decode())
+    rt = Router(tree)
+    plans = []
+    for ref in ("U13", "U14", "U32"):
+        for pin, other, offset in (("5", "12", 0.020), ("6", "11", -0.020)):
+            p = next(p for p in rt.by_ref[ref] if p["pin"] == pin)
+            q = next(p for p in rt.by_ref[ref] if p["pin"] == other)
+            assert p["net"] == q["net"] and p["layers"] == q["layers"] == (0,)
+            point = (p["xy"][0] + offset, (p["xy"][1] + q["xy"][1]) / 2)
+            count = len(children(tree, "via"))
+            rt.via(p["net"], point)
+            assert len(children(tree, "via")) == count + 1, "Require an emitted physical barrel"
+            plans.append(dict(ref=ref, terminal_pins=[pin, other], net=p["net"], xy_mm=point))
+    ids = []
+    for index, node in enumerate(tree):
+        if isinstance(node, list) and node and node[0] == "via" and not children(node, "uuid"):
+            uid = str(uuid.uuid5(uuid.NAMESPACE_URL, f"rmx:E28:mid-power-barrel:{index}:{sexpr(node)}"))
+            node.append([a("uuid"), a(uid)])
+            ids.append(uid)
+    assert len(ids) == 6
+    path.write_text(sexpr(tree) + "\n")
+    (ROOT / "generated/analog-middle-power-barrels.json").write_text(
+        json.dumps(
+            dict(
+                before_sha256=hashlib.sha256(before).hexdigest(),
+                after_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                actual_new_barrels=plans,
+                protected_ids=ids,
+                barrel_drill_mm=0.3,
+                barrel_land_mm=0.6,
+                actual_package_lands_unchanged=True,
+                actual_foreign_force_antipads_require_extraction=True,
+                filled_capped_planarity_and_solder_mask_paste_accepted=False,
+                first_master_full_inrush_divided_by_branch_count=False,
+                native_all_severity_verification_required=True,
+                physical_qualified=False,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+    print("Added6 actual middle analog power barrels; native verification required", plans)
+
+
+if __name__ == "__main__":
+    main()

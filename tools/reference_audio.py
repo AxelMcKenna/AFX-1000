@@ -5,23 +5,27 @@ Metrics are diagnostics, not an audio quality score. Never remove an effect's
 delay by estimating alignment from its wet output. Calibrate using bypass first.
 """
 import argparse
-from array import array
 import hashlib
 import json
 import math
-from pathlib import Path
 import random
 import struct
 import subprocess
 import sys
+from array import array
+from pathlib import Path
 
 
 def check_output_storage(path):
     """Honor a local pause before allocating or launching audio output work."""
-    for destination in {Path(path).absolute(), Path(path).resolve()}:
+    paths = {Path(path).absolute(), Path(path).resolve()}
+    for destination in paths:
         for parent in (destination, *destination.parents):
             if (parent / ".rmx-audio-output-paused").is_file():
-                raise RuntimeError("RMX audio output is paused after disk exhaustion. Use bounded temporary renders before resuming.")
+                raise RuntimeError(
+                    "RMX audio output is paused after disk exhaustion. "
+                    "Use bounded temporary renders and an agreed retention budget before resuming."
+                )
 
 
 def save_json(path, value):

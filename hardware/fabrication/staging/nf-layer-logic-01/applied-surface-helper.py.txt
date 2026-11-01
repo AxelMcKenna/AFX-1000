@@ -1,0 +1,247 @@
+"""Bounded additive NF logic routes using captured native obstacle polygons.
+
+No force nets, vias, planes, component poses or existing copper are edited.
+This is a planning screen; independent native DRC/connectivity is mandatory.
+"""
+
+import hashlib
+import heapq
+import itertools
+import json
+import math
+import uuid
+from pathlib import Path
+
+from shapely.geometry import LineString, Point, Polygon
+from shapely.ops import unary_union
+from shapely.strtree import STRtree
+
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+
+ROOT = Path(__file__).resolve().parent
+CAPTURE = ROOT / "staging/nf-routing-inputs/capture.json"
+OUTPUT = ROOT / "staging/nf-surface-logic-01"
+SIGNAL_LAYERS = ("F.Cu", "In2.Cu", "In3.Cu", "B.Cu")
+WIDTH, CLEARANCE, MARGIN = .2, .2, .01
+LOGIC_TOKENS = ("FAULT", "READY", "VALID", "COMPLETE", "PERMIT", "ARM_", "START", "SAFE", "WDO", "WD_", "PCLR", "MASTER", "CLAMPS_RELEASE", "SUPPLY_ENABLE", "CONTROLLER_ON")
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def shape(polygons):
+    return unary_union([Polygon(p["outer"], p["holes"]) for p in polygons])
+
+
+def candidate_paths(start, end):
+    """Finite direct, orthogonal and 45-degree doglegs; no unbounded search."""
+    yield [start, end]
+    x, y = start
+    u, v = end
+    yield [start, (x, v), end]
+    yield [start, (u, y), end]
+    dx, dy = u-x, v-y
+    diagonal = min(abs(dx), abs(dy))
+    sx, sy = (1 if dx >= 0 else -1), (1 if dy >= 0 else -1)
+    yield [start, (x+sx*diagonal, y+sy*diagonal), end]
+    yield [start, (u-sx*diagonal, v-sy*diagonal), end]
+    for offset in (.5, -.5, 1., -1., 2., -2., 4., -4.):
+        midx, midy = (x+u)/2+offset, (y+v)/2+offset
+        yield [start, (midx, y), (midx, v), end]
+        yield [start, (x, midy), (u, midy), end]
+
+
+class Screen:
+    def __init__(self, capture):
+        self.outline = shape(capture["outline"]).buffer(-(.5+WIDTH/2+MARGIN))
+        geometry = {layer: [] for layer in SIGNAL_LAYERS}
+        self.added = []
+        for item in capture["objects"]:
+            for layer, polygons in item["layers"].items():
+                if layer in geometry and polygons:
+                    geometry[layer].append((item["net"], shape(polygons), WIDTH/2+CLEARANCE+MARGIN))
+            if item.get("npth"):
+                # Circumscribed disc is deliberately conservative for slots.
+                radius = math.hypot(*item["drill_mm"])/2+.001
+                hole = Point(item["position_mm"]).buffer(radius / math.cos(math.pi/128), quad_segs=32)
+                for layer in SIGNAL_LAYERS:
+                    geometry[layer].append((None, hole, WIDTH/2+.25+MARGIN))
+        for zone in capture["zones"]:
+            layer = zone["layer"]
+            if layer not in geometry or not zone["polygons"]:
+                continue
+            if zone["keepout"]:
+                if zone["prohibit_tracks"]:
+                    geometry[layer].append((None, shape(zone["polygons"]), WIDTH/2+MARGIN))
+            else:
+                geometry[layer].append((zone["net"], shape(zone["polygons"]), WIDTH/2+CLEARANCE+MARGIN))
+        self.geometry = geometry
+        self.trees = {layer: STRtree([g for _, g, _ in rows]) for layer, rows in geometry.items()}
+
+    def legal(self, net, layer, points):
+        line = LineString(points)
+        if line.length < 1e-6 or not self.outline.covers(line):
+            return False
+        for index in self.trees[layer].query(line.buffer(.5)):
+            other_net, obstacle, distance = self.geometry[layer][int(index)]
+            if other_net != net and line.distance(obstacle) <= distance:
+                return False
+        for other_net, other_layer, obstacle in self.added:
+            if other_layer == layer and other_net != net and line.distance(obstacle) <= WIDTH+CLEARANCE+MARGIN:
+                return False
+        return True
+
+    def grid_path(self, net, layer, start, end, budget=35000):
+        """Bounded surface detour with exact segment screens, including diagonals."""
+        step = .1
+        origin = tuple(round(v/step) for v in start)
+        goal = tuple(round(v/step) for v in end)
+        def xy(key):
+            return tuple(round(v*step, 6) for v in key)
+        if not self.legal(net, layer, [start, xy(origin)]) or not self.legal(net, layer, [xy(goal), end]):
+            # Equal points need no bridge, whereas legal() rejects zero length.
+            if (math.dist(start, xy(origin)) > 1e-6 and not self.legal(net, layer, [start, xy(origin)])) or (math.dist(end, xy(goal)) > 1e-6 and not self.legal(net, layer, [xy(goal), end])):
+                return None
+        lower = tuple(min(u, v)-50 for u, v in zip(origin, goal))
+        upper = tuple(max(u, v)+50 for u, v in zip(origin, goal))
+        queue = [(math.dist(origin, goal), 0., origin)]
+        cost, parent, valid = {origin: 0.}, {}, {}
+        visits = 0
+        while queue and visits < budget:
+            _, distance, key = heapq.heappop(queue)
+            if distance > cost[key]+1e-9:
+                continue
+            visits += 1
+            if key == goal:
+                keys = [key]
+                while key in parent:
+                    key = parent[key]
+                    keys.append(key)
+                points = [tuple(start)]+[xy(k) for k in reversed(keys)]+[tuple(end)]
+                points = [p for i, p in enumerate(points) if i == 0 or p != points[i-1]]
+                # Keep only necessary turns; preserve exact source endpoints.
+                simple = [points[0]]
+                index = 0
+                while index < len(points)-1:
+                    target = index+1
+                    for j in range(index+2, len(points)):
+                        if self.legal(net, layer, [points[index], points[j]]):
+                            target = j
+                    simple.append(points[target])
+                    index = target
+                assert self.legal(net, layer, simple)
+                return simple
+            for dx, dy in itertools.product((-1, 0, 1), repeat=2):
+                if dx == dy == 0:
+                    continue
+                neighbor = (key[0]+dx, key[1]+dy)
+                if not all(lo <= v <= hi for lo, v, hi in zip(lower, neighbor, upper)):
+                    continue
+                candidate = distance+math.hypot(dx, dy)
+                if candidate >= cost.get(neighbor, math.inf)-1e-9:
+                    continue
+                edge = tuple(sorted((key, neighbor)))
+                if edge not in valid:
+                    valid[edge] = self.legal(net, layer, [xy(key), xy(neighbor)])
+                if not valid[edge]:
+                    continue
+                cost[neighbor], parent[neighbor] = candidate, key
+                heapq.heappush(queue, (candidate+math.dist(neighbor, goal), candidate, neighbor))
+        return None
+
+
+def run():
+    assert not OUTPUT.exists()
+    capture = json.loads(CAPTURE.read_text())
+    assert all(sha(Path(p)) == digest for p, digest in capture["source_sha256"].items())
+    source = next(Path(p) for p in capture["source_sha256"] if p.endswith(".kicad_pcb"))
+    board = read_sexpr(source.read_text())
+    original = sexpr(board)
+    length = len(board)
+    objects = {p["uuid"]: p for p in capture["objects"]}
+    groups = capture["groups"]
+    by_net = {}
+    endpoints = {}
+    for key, identifiers in groups.items():
+        net = objects[identifiers[0]]["net"]
+        if not any(token in net for token in LOGIC_TOKENS):
+            continue
+        by_net.setdefault(net, []).append(key)
+        contacts = set()
+        for uid in identifiers:
+            obj = objects[uid]
+            if obj["kind"] not in ("PAD", "PCB_TRACK", "PCB_VIA"):
+                continue
+            for layer in obj["layers"]:
+                if layer not in SIGNAL_LAYERS:
+                    continue
+                for xy in [obj["position_mm"]]+([obj["end_mm"]] if "end_mm" in obj else []):
+                    contacts.add((layer, tuple(xy)))
+        endpoints[key] = contacts
+    tasks = []
+    for net, keys in by_net.items():
+        for left, right in itertools.combinations(keys, 2):
+            choices = sorted((math.dist(p, q), layer, p, q)
+                             for layer, p in endpoints[left] for other_layer, q in endpoints[right]
+                             if layer == other_layer and math.dist(p, q) <= 30)
+            if choices:
+                tasks.append((choices[0][0], net, left, right, choices[:80]))
+    screen = Screen(capture)
+    parent = {key: key for key in endpoints}
+
+    def root(key):
+        while parent[key] != key:
+            parent[key] = parent[parent[key]]
+            key = parent[key]
+        return key
+
+    results = []
+    for _, net, left, right, choices in sorted(tasks):
+        if root(left) == root(right):
+            continue
+        accepted = None
+        for _, layer, start, end in choices:
+            for path in candidate_paths(start, end):
+                path = [p for i, p in enumerate(path) if i == 0 or p != path[i-1]]
+                if screen.legal(net, layer, path):
+                    accepted = (layer, path)
+                    break
+            if accepted:
+                break
+        if not accepted:
+            for _, layer, start, end in choices[:3]:
+                path = screen.grid_path(net, layer, start, end)
+                if path:
+                    accepted = (layer, path)
+                    break
+        if not accepted:
+            continue
+        layer, path = accepted
+        line = LineString(path)
+        screen.added.append((net, layer, line))
+        parent[root(right)] = root(left)
+        for start, end in zip(path, path[1:]):
+            ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:NF:surface:{sha(CAPTURE)}:{net}:{layer}:{start}:{end}"))
+            board.append([a("segment"), [a("start"), *start], [a("end"), *end], [a("width"), WIDTH],
+                          [a("layer"), layer], [a("net"), net], [a("uuid"), ident]])
+        results.append(dict(net=net, native_groups=[left, right], layer=layer, points_mm=path, length_mm=line.length))
+        print("Planned", net, layer, round(line.length, 3), "mm", flush=True)
+    print("Screened", len(tasks), "group-pair tasks on", len(by_net), "logic nets; accepted", len(results), flush=True)
+    assert results and sexpr(board[:length]) == original
+    OUTPUT.mkdir()
+    pcb = OUTPUT / source.name
+    pcb.write_text(sexpr(board)+"\n")
+    assert len(children(board, "footprint")) == 267
+    assert {str(first(n, "layer")[1]) for n in board[length:]} <= set(SIGNAL_LAYERS)
+    (OUTPUT / "construction.json").write_text(json.dumps(dict(source_sha256={str(source): sha(source), str(CAPTURE): sha(CAPTURE), str(Path(__file__)): sha(Path(__file__))},
+        candidate_PCB_sha256=sha(pcb), routes=results, route_count=len(results), added_segments=len(board)-length,
+        width_mm=WIDTH, planned_clearance_mm=CLEARANCE, planning_margin_mm=MARGIN,
+        all_original_objects_exact=True, only_logic_nets=True, no_new_vias=True, reserved_planes_unchanged=True,
+        native_DRC_ERC_parity_and_uncapped_connectivity_pending=True, force_capacity_PDN_noise_qualified=False,
+        physical_qualified=False, fabrication_released=False), indent=2)+"\n")
+    print("Added", len(results), "surface logic routes using", len(board)-length, "segments; native acceptance pending")
+
+
+if __name__ == "__main__":
+    run()

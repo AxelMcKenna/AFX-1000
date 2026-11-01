@@ -1,0 +1,2165 @@
+                                                                                                                                                      ISO7710
+                                                                                   SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+      ISO7710 High Speed, Robust EMC Reinforced Single-Channel Digital Isolator
+1 Features                                                             3 Description
+•   100Mbps data rate                                                  The ISO7710 device is a high-performance, single-
+•   Robust isolation barrier:                                          channel digital isolator with 5000VRMS (DW package)
+    – >30-year projected lifetime at 1500VRMS                          and 3000VRMS (D package) isolation ratings per UL
+       working voltage                                                 1577. This device is also certified by VDE, TUV, CSA,
+    – Up to 5000VRMS isolation rating                                  and CQC.
+    – Up to 12.8kV surge capability                                    The ISO7710 device provides high electromagnetic
+    – ±100kV/μs typical CMTI                                           immunity and low emissions at low power
+•   Wide supply range: 2.25V to 5.5V                                   consumption, while isolating CMOS or LVCMOS
+•   2.25V to 5.5V Level translation                                    digital I/Os. The isolation channel has a logic input
+•   Default output high (ISO7710) and low (ISO7710F)                   and output buffer separated by a double capacitive
+    options                                                            silicon dioxide (SiO2) insulation barrier. In the event
+•   Wide temperature range: –55°C to 125°C                             of input power or signal loss, default output is high
+•   Low power consumption, typical 1.7mA at                            for a device without suffix F and low for a device with
+    1Mbps                                                              suffix F. See the Device Functional Modes section for
+•   Low propagation delay: 11ns Typical                                further details.
+    (5V Supplies)
+•   Robust electromagnetic compatibility (EMC)                         Used in conjunction with isolated power supplies, the
+    – System-level ESD, EFT, and surge immunity                        device helps prevent noise currents on data buses,
+    – ±8kV IEC 61000-4-2 contact discharge                             such as RS-485, RS-232, and CAN , or other circuits
+       protection across isolation barrier                             from entering the local ground and interfering with or
+    – Low emissions                                                    damaging sensitive circuitry. Through innovative chip
+•   Wide-SOIC (DW-16) and narrow-SOIC (D-8)                            design and layout techniques, the electromagnetic
+    package options                                                    compatibility of the ISO7710 device has been
+•   Automotive version available: ISO7710-Q1                           significantly enhanced to ease system-level ESD,
+•   Safety-related Certifications                                      EFT, surge, and emissions compliance. The ISO7710
+    – VDE reinforced insulation per DIN EN IEC                         device is available in 16-pin SOIC wide-body (DW)
+       60747-17 (VDE 0884-17)                                          and 8-pin SOIC narrow-body (D) packages.
+    – UL 1577 component recognition program                                                   Device Information
+    – IEC 62368-1, IEC 61010-1, IEC 60601-1 and                                                                PACKAGE
+                                                                       PART NUMBER          PACKAGE(1)                                 BODY SIZE (NOM)
+       GB 4943.1 certifications                                                                                 SIZE(2)
+                                                                                       SOIC (D)             4.90mm × 6mm               4.90mm × 3.91mm
+2 Applications                                                         ISO7710                              10.30mm ×                  10.30mm ×
+                                                                                       SOIC (DW)
+                                                                                                            10.30mm                    7.50mm
+•   Industrial automation
+•   Motor control                                                      (1)   For more information, see Section 11.
+•   Power supplies                                                     (2)   The package size (length × width) is a nominal value and
+                                                                             includes pins, where applicable.
+•   Solar inverters                                                                  VCC1                                          VCC2
+
+•   Medical equipment                                                                             Series Isolation
+                                                                                                    Capacitors
+
+
+                                                                        IN                                                                                     OUT
+
+
+
+
+                                                                                     GND1                                         GND2
+
+
+                                                                                                                 Copyright © 2019, Texas Instruments Incorporated
+
+
+                                                                                             Simplified Schematic
+
+
+
+
+     An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+     intellectual property matters and other important disclaimers. PRODUCTION DATA.
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                                                 www.ti.com
+
+
+                                                                        Table of Contents
+1 Features............................................................................1     5.18 Insulation Characteristics Curves........................... 15
+2 Applications..................................................................... 1       5.19 Typical Characteristics............................................ 16
+3 Description.......................................................................1     6 Parameter Measurement Information.......................... 17
+4 Pin Configuration and Functions...................................3                     7 Detailed Description......................................................18
+  Pin Functions.................................................................... 3       7.1 Overview................................................................... 18
+5 Specifications.................................................................. 4        7.2 Functional Block Diagram......................................... 18
+  5.1 Absolute Maximum Ratings........................................ 5                    7.3 Feature Description...................................................19
+  5.2 ESD Ratings............................................................... 5          7.4 Device Functional Modes..........................................20
+  5.3 Recommended Operating Conditions.........................6                          8 Application and Implementation.................................. 21
+  5.4 Thermal Information....................................................7              8.1 Application Information............................................. 21
+  5.5 Power Ratings.............................................................7           8.2 Typical Application.................................................... 21
+  5.6 Insulation Specifications............................................. 8              8.3 Power Supply Recommendations.............................24
+  5.7 Safety-Related Certifications...................................... 9                 8.4 Layout....................................................................... 24
+  5.8 Safety Limiting Values...............................................10             9 Device and Documentation Support............................26
+  5.9 Electrical Characteristics—5-V Supply......................11                         9.1 Documentation Support............................................ 26
+  5.10 Supply Current Characteristics—5-V Supply.......... 11                               9.2 Receiving Notification of Documentation Updates....26
+  5.11 Electrical Characteristics—3.3-V Supply.................12                           9.3 Support Resources................................................... 26
+  5.12 Supply Current Characteristics—3.3-V Supply....... 12                                9.4 Trademarks............................................................... 26
+  5.13 Electrical Characteristics—2.5-V Supply ............... 13                           9.5 Electrostatic Discharge Caution................................26
+  5.14 Supply Current Characteristics—2.5-V Supply....... 13                                9.6 Glossary....................................................................26
+  5.15 Switching Characteristics—5-V Supply...................14                          10 Revision History.......................................................... 26
+  5.16 Switching Characteristics—3.3-V Supply................14                           11 Mechanical, Packaging, and Orderable
+  5.17 Switching Characteristics—2.5-V Supply................15                             Information.................................................................... 28
+
+
+
+
+2       Submit Document Feedback                                                                                         Copyright © 2024 Texas Instruments Incorporated
+
+                                                                      Product Folder Links: ISO7710
+                                                                                                                                                     ISO7710
+www.ti.com                                                                                               SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+4 Pin Configuration and Functions
+
+                                                  GND1 1                                                     16 GND2
+
+
+                                                   NC         2                                              15    NC
+
+
+                                                  VCC1        3                                              14 VCC2
+
+
+
+
+                                                                                   ISOLATION
+                                                    IN        4                                              13 OUT
+
+
+                                                   NC         5                                              12    NC
+
+
+                                                   NC         6                                              11    NC
+
+
+                                                  GND1 7                                                     10    NC
+
+
+                                                   NC         8                                                  9 GND2
+
+
+
+                                            Figure 4-1. DW Package 16-Pin SOIC Top View
+
+
+
+                                                       VCC1       1                                          8 VCC2
+
+
+
+
+                                                                                   ISOLATION
+                                                         IN       2                                          7    NC
+
+
+                                                       VCC1       3                                          6 OUT
+
+
+                                                    GND1 4                                                   5 GND2
+
+
+
+
+                                             Figure 4-2. D Package 8-Pin SOIC Top View
+
+Pin Functions
+                                PIN
+                                      NO.                                Type(1)                                          DESCRIPTION
+ NAME
+                          DW                       D
+ VCC1                      3                      1, 3                     —            Power supply, VCC1
+ VCC2                      14                      8                       —            Power supply, VCC2
+ GND1                     1, 7                     4                       —            Ground connection for VCC1
+ GND2                    9, 16                     5                       —            Ground connection for VCC2
+ IN                        4                       2                        I           Input channel
+ OUT                       13                      6                       O            Output channel
+ NC             2, 5, 6, 8, 10,11, 12, 15          7                       —            Not connected. Pin has not internal connection
+
+(1)     I = Input, O = Output
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                 Submit Document Feedback   3
+                                                                      Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                www.ti.com
+
+5 Specifications
+
+
+
+
+4     Submit Document Feedback                                                 Copyright © 2024 Texas Instruments Incorporated
+
+                                               Product Folder Links: ISO7710
+                                                                                                                                      ISO7710
+www.ti.com                                                                               SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+5.1 Absolute Maximum Ratings
+See(1)
+                                                                                                    MIN               MAX       UNIT
+ VCC1, VCC2              Supply Voltage (2)                                                         -0.5                  6      V
+ V                       Voltage at INx, OUTx                                                       -0.5    VCCX   + 0.5 (3)     V
+ IO                      Output current                                                              -15                 15     mA
+ TJ                      Junction temperature                                                                          150       °C
+ Tstg                    Storage temperature                                                         -65               150       °C
+
+(1)     Operation outside the Absolute Maximum Ratings may cause permanent device damage. Absolute Maximum Ratings do not imply
+        functional operation of the device at these or any other conditions beyond those listed under Recommended Operating Conditions.
+        If used outside the Recommended Operating Conditions but within the Absolute Maximum Ratings, the device may not be fully
+        functional, and this may affect device reliability, functionality, performance, and shorten the device lifetime.
+(2)     All voltage values except differential I/O bus voltages are with respect to the local ground terminal (GND1 or GND2) and are peak
+        voltage values
+(3)     Maximum voltage must not exceed 6 V.
+
+5.2 ESD Ratings
+                                                                                                               VALUE            UNIT
+                                                               Human body model (HBM), per ANSI/
+                                                                                                                ±6000
+                                                               ESDA/JEDEC JS-001, all pins (1)
+                                                               Charged device model (CDM), per
+ VESD              Electrostatic discharge                     JEDEC specification JESD22-C101, all             ±1500             V
+                                                               pins(2)
+                                                               Contact discharge per IEC 61000-4-2;
+                                                                                                                ±8000
+                                                               Isolation barrier withstand test(3) (4)
+
+(1)     JEDEC document JEP155 states that 500-V HBM allows safe manufacturing with a standard ESD control process.
+(2)     JEDEC document JEP157 states that 250-V CDM allows safe manufacturing with a standard ESD control process.
+(3)     IEC ESD strike is applied across the barrier with all pins on each side tied together creating a two-terminal device.
+(4)     Testing is carried out in air or oil to determine the intrinsic contact discharge capability of the device.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                               Submit Document Feedback      5
+                                                          Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                           www.ti.com
+
+5.3 Recommended Operating Conditions
+                                                                                                MIN             NOM            MAX         UNIT
+    VCC1, VCC2 Supply voltage                                                                   2.25                             5.5         V
+    VCC(UVLO+)     UVLO threshold when supply voltage is rising                                                      2         2.25          V
+    VCC(UVLO-)     UVLO threshold when supply voltage is falling                                    1.7            1.8                       V
+    VHYS(UVLO)     Supply voltage UVLO hysteresis                                                   100           200                       mV
+                                                      VCC2 = 5 V                                     -4
+    IOH            High level output current          VCC2 = 3.3 V                                   -2                                     mA
+                                                      VCC2 = 2.5 V                                   -1
+                                                      VCC2 = 5 V                                                                   4
+    IOL            Low level output current           VCC2 = 3.3 V                                                                 2        mA
+                                                      VCC2 = 2.5 V                                                                 1
+    VIH            High level Input voltage                                               0.7 x VCC1                           VCC1          V
+    VIL            Low level Input voltage                                                            0                  0.3 x VCC1          V
+    DR(1)          Data Rate                                                                          0                         100        Mbps
+    TA             Ambient temperature                                                              -55            25           125          °C
+
+(1)         100 Mbps is the maximum specified data rate, although higher data rates are possible.
+
+
+
+
+6           Submit Document Feedback                                                                      Copyright © 2024 Texas Instruments Incorporated
+
+                                                            Product Folder Links: ISO7710
+                                                                                                                                    ISO7710
+www.ti.com                                                                            SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+5.4 Thermal Information
+                                                                                                 ISO7710
+                                                  (1)
+                          THERMAL METRIC                                        DW (SOIC)                        D(SOIC)            UNIT
+                                                                                 (16-Pin)                        (8-Pin)
+ RθJA           Junction-to-ambient thermal resistance                             94.4             146.1                           °C/W
+ RθJC(top)      Junction-to-case (top) thermal resistance                          57.3             63.1                            °C/W
+ RθJB           Junction-to-board thermal resistance                               57.1             80.0                            °C/W
+ ψJT            Junction-to-top characterization parameter                         40.0             9.6                             °C/W
+ ψJB            Junction-to-board characterization parameter                       56.8             79.0                            °C/W
+ RθJC(bot)      Junction-to-case (bottom) thermal resistance                        —               —                               °C/W
+
+(1)     For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics
+        application note
+
+5.5 Power Ratings
+                      PARAMETER                                    TEST CONDITIONS                         MIN        TYP   MAX      UNIT
+ ISO7710
+ PD          Maximum power dissipation (both sides)                                                                          55      mW
+                                                         VCC1 = VCC2 = 5.5 V, TJ = 150°C, CL =
+ PD1         Maximum power dissipation (side-1)          15 pF, Input a 50-MHz 50% duty cycle                                  13    mW
+                                                         square wave
+ PD2         Maximum power dissipation (side-2)                                                                                42    mW
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                             Submit Document Feedback        7
+                                                         Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                                 www.ti.com
+
+5.6 Insulation Specifications
+                                                                                                                                       VALUE
+                    PARAMETER                                                TEST CONDITIONS                                                        UNIT
+                                                                                                                               DW-16         D-8
+    IEC 60664-1
+    CLR       External clearance(1)                Shortest terminal-to-terminal distance through air                             8      4           mm
+    CPG       External creepage(1)                 Shortest terminal-to-terminal distance across the package surface              8      4           mm
+    DTI       Distance through the insulation      Minimum internal gap (internal clearance)                                     17      17          µm
+    CTI       Comparative tracking index           DIN EN 60112 (VDE 0303-11); IEC 60112; UL 746A                               >600     >600         V
+              Material Group                       According to IEC 60664-1                                                        I     I
+                                                   Rated mains voltage ≤ 150 VRMS                                                I–IV    I-IV
+
+              Overvoltage category per IEC         Rated mains voltage ≤ 300 VRMS                                                I–IV    I-III
+              60664-1                              Rated mains voltage ≤ 600 VRMS                                                I–IV    n/a
+                                                   Rated mains voltage ≤ 1000 VRMS                                               I-III   n/a
+    DIN EN IEC 60747-17 (VDE 0884-17)(2)
+              Maximum repetitive peak
+    VIORM                                          AC voltage (bipolar)                                                         2121     637         VPK
+              isolation voltage
+                                                   AC voltage; time-dependent dielectric breakdown (TDDB) test, see
+              Maximum working isolation                                                                                         1500     450        VRMS
+    VIOWM                                          Section 8.2.3.1
+              voltage
+                                                   DC voltage                                                                   2121     637         VDC
+              Maximum transient isolation          VTEST = VIOTM , t = 60 s (qualification);
+    VIOTM                                                                                                                       8000     4242        VPK
+              voltage                              VTEST = 1.2 × VIOTM, t = 1 s (100% production)
+    VIMP      Maximum impulse voltage(3)           Tested in air, 1.2/50-μs waveform per IEC 62368-1                            8000     5000        VPK
+              Maximum surge isolation              VIOSM ≥ 1.3 x VIMP; Tested in oil (qualification test),
+    VIOSM                                                                                                                       12800 10000          VPK
+              voltage(4)                           1.2/50-µs waveform per IEC 62368-1
+                                                   Method a: After I/O safety test subgroup 2/3,
+                                                   Vini = VIOTM, tini = 60 s;                                                    ≤5      ≤5
+                                                   Vpd(m) = 1.2 × VIORM, tm = 10 s
+                                                   Method a: After environmental tests subgroup 1,
+                                                   Vini = VIOTM, tini = 60 s;                                                    ≤5      ≤5
+    qpd       Apparent charge(5)                   Vpd(m) = 1.6 × VIORM, tm = 10 s                                                                   pC
+                                                   Method b: At routine test (100% production) and preconditioning
+                                                   (type test);
+                                                   Vini = 1.2 x VIOTM, tini = 1 s;                                               ≤5      ≤5
+                                                   Vpd(m) = 1.875 x VIORM (ISO7710), tm = 1 s (method b1) or
+                                                   Vpd(m) = Vini, tm = tini (method b2)
+              Barrier capacitance, input to
+    CIO                                            VIO = 0.4 × sin (2 πft), f = 1 MHz                                            ≅0.4    ≅0.4        pF
+              output(6)
+                                                   VIO = 500 V, TA = 25°C                                                       > 1012 > 1012
+    RIO       Insulation resistance(6)             VIO = 500 V, 100°C ≤ TA ≤ 125°C                                              > 1011 > 1011         Ω
+                                                   VIO = 500 V at TS = 150°C                                                    > 109    > 109
+              Pollution degree                                                                                                    2      2
+                                                                                                                               55/125/ 55/125/
+              Climatic category
+                                                                                                                                 21    21
+    UL 1577
+                                                   VTEST = VISO , t = 60 s (qualification);
+    VISO      Withstand isolation voltage                                                                                       5000     3000       VRMS
+                                                   VTEST = 1.2 × VISO, t = 1 s (100% production)
+
+(1)        Creepage and clearance requirements should be applied according to the specific equipment isolation standards of an application.
+           Care must be taken to maintain the creepage and clearance distance of a board design to verify that the mounting pads of the isolator
+           on the printed-circuit board do not reduce this distance. Creepage and clearance on a printed-circuit board become equal in certain
+           cases. Techniques such as inserting grooves, ribs, or both on a printed circuit board are used to help increase these specifications.
+(2)        This coupler is designed for safe electrical insulation only within the safety ratings. Compliance with the safety ratings shall be ensured
+           by means of suitable protective circuits.
+(3)        Testing is carried out in air to determine the surge immunity of the package
+
+
+8          Submit Document Feedback                                                                          Copyright © 2024 Texas Instruments Incorporated
+
+                                                              Product Folder Links: ISO7710
+                                                                                                                                            ISO7710
+www.ti.com                                                                                  SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+(4)    Testing is carried out in oil to determine the intrinsic surge immunity of the isolation barrier.
+(5)    Apparent charge is electrical discharge caused by a partial discharge (pd).
+(6)    All pins on each side of the barrier tied together creating a two-terminal device.
+
+5.7 Safety-Related Certifications
+             VDE                           CSA                            UL                               CQC                       TUV
+ Certified according to DIN                               Certified according to
+                               Certified according to IEC                                   Certified according to        Certified according to EN
+ EN IEC 60747-17 (VDE                                     UL 1577 Component
+                               62368-1 and IEC 60601-1                                      GB4943.1                      61010-1 and EN 62368-1
+ 0884-17)                                                 Recognition Program
+                                                                                                                          5000 VRMS (DW-16) and
+ Maximum transient           Reinforced insulation per
+                                                                                                                          3000 VRMS (D-8)
+ isolation voltage, 8000     CSA 62368-1 and IEC                                            DW-16: Reinforced
+                                                                                                                          Reinforced insulation per
+ VPK (DW-16, Reinforced) 62368-1, 800 VRMS                                                  Insulation, Altitude ≤ 5000
+                                                                                                                          EN 61010-1 up to working
+ and 4242 VPK (D-8);         (DW-16) and 400 VRMS                                           m, Tropical Climate, 700
+                                                                                                                          voltage of 600 VRMS
+ Maximum repetitive peak (D-8) max working voltage DW-16: Single                            VRMS maximum working
+                                                                                                                          (DW-16) and 300 VRMS
+ isolation voltage, 2121 VPK (pollution degree 2,      protection, 5000 VRMS;               voltage;
+                                                                                                                          (D-8) 5000 VRMS (DW-16)
+ (DW-16, Reinforced) and material group I);            D-8: Single protection,              D-8: Basic Insulation,
+                                                                                                                          and 3000 VRMS (D-8)
+ 637 VPK (D-8); Maximum 2 MOPP (Means of Patient 3000 VRMS                                  Altitude ≤ 5000 m,
+                                                                                                                          Reinforced insulation per
+ surge isolation voltage,    Protection) per CSA                                            Tropical Climate, 400
+                                                                                                                          EN 62368-1 up to working
+ 12800 VPK (DW-16,           60601-1 and IEC 60601-1,                                       VRMS maximum working
+                                                                                                                          voltage of 800 VRMS
+ Reinforced) and 10000       250 VRMS (DW-16) max                                           voltage
+                                                                                                                          (DW-16) and 400 VRMS
+ VPK (D-8)                   working voltage
+                                                                                                                          (D-8)
+                                                                                            Certificate numbers:
+                                                             File number:
+ Certificate number:           Master contract number:                                      CQC21001304083
+                                                             E181974                                                      Client ID number: 77311
+ 40040142                      220991                                                       (DW-16)
+                                                                                            CQC15001121656 (D-8)
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                  Submit Document Feedback             9
+                                                           Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                       www.ti.com
+
+5.8 Safety Limiting Values
+Safety limiting(1) intends to minimize potential damage to the isolation barrier upon failure of input or output circuitry. A failure
+of the I/O can allow low resistance to ground or the supply and, without current limiting, dissipate sufficient power to overheat
+the die and damage the isolation barrier potentially leading to secondary system failures.
+                PARAMETER                                    TEST CONDITIONS                           MIN         TYP         MAX       UNIT
+ DW-16 PACKAGE
+                                                RθJA =94.4°C/W, VI = 5.5 V, TJ = 150°C, TA =
+                                                                                                                                241
+                                                25°C, see Figure 5-1
+            Safety input, output, or supply     RθJA = 94.4°C/W, VI = 3.6 V, TJ = 150°C, TA =
+ IS                                                                                                                             368       mA
+            current                             25°C, see Figure 5-1
+                                                RθJA = 94.4°C/W, VI = 2.75 V, TJ = 150°C, TA
+                                                                                                                                482
+                                                = 25°C, see Figure 5-1
+            Safety input, output, or total      RθJA = 94.4°C/W, TJ = 150°C, TA = 25°C,
+ PS                                                                                                                            1324       mW
+            power                               see Figure 5-2
+ TS         Maximum safety temperature                                                                                          150       °C
+ D-8 PACKAGE
+                                                RθJA =146.1°C/W, VI = 5.5 V, TJ = 150°C, TA
+                                                                                                                                156
+                                                = 25°C, see Figure 5-3
+            Safety input, output, or supply     RθJA = 146.1°C/W, VI = 3.6 V, TJ = 150°C, TA
+ IS                                                                                                                             238       mA
+            current (1)                         = 25°C, see Figure 5-3
+                                                RθJA = 146.1°C/W, VI = 2.75 V, TJ = 150°C,
+                                                                                                                                 311
+                                                TA = 25°C, see Figure 5-3
+            Safety input, output, or total      RθJA = 146.1°C/W, TJ = 150°C, TA = 25°C,
+ PS                                                                                                                             856       mW
+            power (1)                           see Figure 5-4
+ TS         Maximum safety temperature (1)                                                                                      150       °C
+
+(1)   The maximum safety temperature, TS, has the same value as the maximum junction temperature, TJ, specified for the device. The
+      IS and PS parameters represent the safety current and safety power respectively. The maximum limits of IS and PS should not be
+      exceeded. These limits vary with the ambient temperature, TA.
+      The junction-to-air thermal resistance, RθJA, in the Section 5.4 table is that of a device installed on a high-K test board for leaded
+      surface-mount packages. Use these equations to calculate the value for each parameter:
+      TJ = TA + RθJA × P, where P is the power dissipated in the device.
+      TJ(max) = TS = TA + RθJA × PS, where TJ(max) is the maximum allowed junction temperature.
+      PS = IS × VI, where VI is the maximum input voltage.
+
+
+
+
+10    Submit Document Feedback                                                                      Copyright © 2024 Texas Instruments Incorporated
+
+                                                        Product Folder Links: ISO7710
+                                                                                                                                              ISO7710
+www.ti.com                                                                                SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+5.9 Electrical Characteristics—5-V Supply
+VCC1 = VCC2 = 5 V ± 10% (over recommended operating conditions unless otherwise noted)
+                     PARAMETER                                TEST CONDITIONS                          MIN          TYP               MAX      UNIT
+ VOH             High-level output voltage              IOH = -4 mA; see Figure 6-1              VCC2 - 0.4         4.8                         V
+ VOL             Low-level output voltage               IOL = 4 mA; see Figure 6-1                                  0.2                0.4      V
+ VIT+(IN)        Rising input threshold voltage                                                               0.6 x VCC1         0.7 x VCC1     V
+ VIT-(IN)        Falling input threshold voltage                                                 0.3 x VCC1   0.4 x VCC1                        V
+ VI(HYS)         Input threshold voltage hysteresis                                              0.1 x VCC1   0.2 x VCC1                        V
+ IIH             High-level input current               VIH = VCC1 at INx                                                               10      µA
+ IIL             Low-level input current                VIL = 0 V at INx                               -10                                      µA
+                                                        VI = VCC1 or 0 V, VCM = 1200 V;
+ CMTI            Common mode transient immunity                                                         85          100                        kV/μs
+                                                        see Figure 6-3
+                                                        VI = VCC/ 2 + 0.4×sin(2πft), f = 1
+ CI              Input Capacitance (1)                                                                                2                         pF
+                                                        MHz, VCC = 5 V;
+
+(1)    Measured from input pin to same side ground.
+
+5.10 Supply Current Characteristics—5-V Supply
+VCC1 = VCC2 = 5 V ± 10% (over recommended operating conditions unless otherwise noted)
+                                                                                              SUPPLY
+            PARAMETER                              TEST CONDITIONS                                            MIN      TYP            MAX      UNIT
+                                                                                             CURRENT
+ ISO7710
+                                                                                          ICC1                             0.5          1.2
+                                 VI = VCC1(ISO7710), VI = 0 V (ISO7710 with F suffix)
+                                                                                          ICC2                             0.6          1.2
+ Supply current - DC signal
+                                                                                          ICC1                             1.6          2.4
+                                 VI = 0V (ISO7710), VI = VCC1 (ISO7710 with F suffix)
+                                                                                          ICC2                             0.6          1.2
+                                                                                          ICC1                             1.1          1.8
+                                                                      1 Mbps                                                                    mA
+                                                                                          ICC2                             0.6          1.3
+
+                                 All channels switching with square                       ICC1                             1.1          1.9
+ Supply current - AC signal                                           10 Mbps
+                                 wave clock input; CL = 15 pF                             ICC2                             1.1          1.9
+                                                                                          ICC1                             1.4          2.3
+                                                                      100 Mbps
+                                                                                          ICC2                             5.9          7.4
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                               Submit Document Feedback                 11
+                                                         Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                        www.ti.com
+
+5.11 Electrical Characteristics—3.3-V Supply
+VCC1 = VCC2 = 3.3 V ± 10% (over recommended operating conditions unless otherwise noted)
+                  PARAMETER                            TEST CONDITIONS                         MIN                 TYP                MAX UNIT
+ VOH           High-level output voltage         IOH = -2mA; see Figure 6-1              VCC2 - 0.3                  3.2                        V
+ VOL           Low-level output voltage          IOL = 2mA; see Figure 6-1                                           0.1               0.3      V
+ VIT+(IN)      Rising input threshold voltage                                                               0.6 x VCC1           0.7 x VCC1     V
+ VIT-(IN)      Falling input threshold voltage                                           0.3 x VCC1         0.4 x VCC1                          V
+               Input threshold voltage
+ VI(HYS)                                                                                 0.1 x VCC1         0.2 x VCC1                          V
+               hysteresis
+ IIH           High-level input current          VIH = VCC1 at INx                                                                      10     µA
+ IIL           Low-level input current           VIL = 0 V at INx                              -10                                             µA
+               Common mode transient             VI = VCC1 or 0 V, VCM = 1200 V;
+ CMTI                                                                                           85                   100                      kV/µs
+               immunity                          see Figure 6-3
+
+
+
+5.12 Supply Current Characteristics—3.3-V Supply
+VCC1 = VCC2 = 3.3 V ± 10% (over recommended operating conditions unless otherwise noted)
+                                                                                           SUPPLY
+            PARAMETER                            TEST CONDITIONS                                               MIN         TYP      MAX       UNIT
+                                                                                          CURRENT
+ ISO7710
+                                                                                        ICC1                               0.5        1.2
+                                VI = VCC1 (ISO7710), VI = 0 V (ISO7710 with F suffix)
+                                                                                        ICC2                               0.6        1.1
+ Supply current - DC signal
+                                                                                        ICC1                               1.6        2.4
+                                VI = 0V (ISO7710), VI = VCC1 (ISO7710with F suffix)
+                                                                                        ICC2                               0.6        1.2
+                                                                                        ICC1                               1.1        1.8
+                                                                     1 Mbps                                                                   mA
+                                                                                        ICC2                               0.6        1.2
+
+                                All channels switching with square                      ICC1                                 1        1.8
+ Supply current - AC signal                                          10 Mbps
+                                wave clock input; CL = 15 pF                            ICC2                               1.1        1.7
+                                                                                        ICC1                               1.3        2.1
+                                                                     100 Mbps
+                                                                                        ICC2                               4.3        5.6
+
+
+
+
+12      Submit Document Feedback                                                                      Copyright © 2024 Texas Instruments Incorporated
+
+                                                        Product Folder Links: ISO7710
+                                                                                                                                        ISO7710
+www.ti.com                                                                               SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+5.13 Electrical Characteristics—2.5-V Supply
+VCC1 = VCC2 = 2.5 V ± 10% (over recommended operating conditions unless otherwise noted)
+                  PARAMETER                             TEST CONDITIONS                         MIN           TYP                 MAX UNIT
+ VOH           High-level output voltage          IOH = -1mA; see Figure 6-1              VCC2 - 0.2          2.45                         V
+ VOL           Low-level output voltage           IOL = 1mA; see Figure 6-1                                   0.05                 0.2     V
+ VIT+(IN)      Rising input threshold voltage                                                            0.6 x VCC1          0.7 x VCC1    V
+ VIT-(IN)      Falling input threshold voltage                                            0.3 x VCC1     0.4 x VCC1                        V
+               Input threshold voltage
+ VI(HYS)                                                                                  0.1 x VCC1     0.2 x VCC1                        V
+               hysteresis
+ IIH           High-level input current           VIH = VCC1 at INx                                                                 10     µA
+ IIL           Low-level input current            VIL = 0 V at INx                              -10                                        µA
+               Common mode transient              VI = VCC1 or 0 V, VCM = 1200 V;
+ CMTI                                                                                            85              100                      kV/µs
+               immunity                           see Figure 6-3
+
+
+
+5.14 Supply Current Characteristics—2.5-V Supply
+VCC1 = VCC2 = 2.5 V ± 10% (over recommended operating conditions unless otherwise noted)
+                                                                                            SUPPLY
+            PARAMETER                             TEST CONDITIONS                                          MIN         TYP       MAX      UNIT
+                                                                                           CURRENT
+ ISO7710
+                                                                                         ICC1                          0.5        1.2
+                                 VI = VCC1 (ISO7710), VI = 0 V (ISO7710 with F suffix)
+                                                                                         ICC2                          0.6        1.1
+ Supply current - DC signal
+                                                                                         ICC1                          1.6        2.3
+                                 VI = 0V (ISO7710), VI = VCC1 (ISO7710 with F suffix)
+                                                                                         ICC2                          0.6        1.2
+                                                                                         ICC1                          1.1        1.8
+                                                                      1 Mbps                                                              mA
+                                                                                         ICC2                          0.6        1.2
+
+                                 All channels switching with square                      ICC1                          1.1        1.8
+ Supply current - AC signal                                           10 Mbps
+                                 wave clock input; CL = 15 pF                            ICC2                          0.9        1.5
+                                                                                         ICC1                          1.2          2
+                                                                      100 Mbps
+                                                                                         ICC2                          3.4        4.6
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                           Submit Document Feedback               13
+                                                         Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                         www.ti.com
+
+5.15 Switching Characteristics—5-V Supply
+VCC1 = VCC2 = 5 V ± 10% (over recommended operating conditions unless otherwise noted)
+                         PARAMETER                                     TEST CONDITIONS                     MIN       TYP       MAX         UNIT
+ tPLH, tPHL         Propagation delay time                                                                    6        11         17        ns
+                                                              See Figure 6-1
+ PWD                Pulse width distortion(1) |tPHL – tPLH|                                                           0.6        5.9        ns
+ tsk(pp)            Part-to-part skew time (2)                                                                                   4.5        ns
+ tr                 Output signal rise time                                                                            1.8       3.9        ns
+                                                              See Figure 6-1
+ tf                 Output signal fall time                                                                            1.9       3.9        ns
+                    Default output delay time from input      Measured from the time VCC1 goes
+ tDO                                                                                                                   0.1       0.3        μs
+                    power loss                                below 1.7V. See Figure 6-2
+ tie                Time interval error                       216 – 1 PRBS data at 100 Mbps                              1                  ns
+
+(1)        Also known as pulse skew.
+(2)        tsk(pp) is the magnitude of the difference in propagation delay times between any terminals of different devices switching in the same
+           direction while operating at identical supply voltages, temperature, input signals and loads.
+
+5.16 Switching Characteristics—3.3-V Supply
+VCC1 = VCC2 = 3.3 V ± 10% (over recommended operating conditions unless otherwise noted)
+                         PARAMETER                                     TEST CONDITIONS                     MIN       TYP       MAX         UNIT
+ tPLH, tPHL         Propagation delay time                                                                    6        11       18.5        ns
+                                                              See Figure 6-1
+ PWD                Pulse width distortion(1) |tPHL – tPLH|                                                            0.5       5.9        ns
+ tsk(pp)            Part-to-part skew time (2)                                                                                   4.5        ns
+ tr                 Output signal rise time                                                                            0.7         3        ns
+                                                              See Figure 6-1
+ tf                 Output signal fall time                                                                            0.7         3        ns
+                    Default output delay time from input      Measured from the time VCC1 goes
+ tDO                                                                                                                   0.1       0.3        μs
+                    power loss                                below 1.7V. See Figure 6-2
+ tie                Time interval error                       216 – 1 PRBS data at 100 Mbps                              1                  ns
+
+(1)        Also known as pulse skew.
+(2)        tsk(pp) is the magnitude of the difference in propagation delay times between any terminals of different devices switching in the same
+           direction while operating at identical supply voltages, temperature, input signals and loads.
+
+
+
+
+14         Submit Document Feedback                                                                     Copyright © 2024 Texas Instruments Incorporated
+
+                                                              Product Folder Links: ISO7710
+                                                                                                                                                                                                   ISO7710
+www.ti.com                                                                                                                                             SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+5.17 Switching Characteristics—2.5-V Supply
+VCC1 = VCC2 = 2.5 V ± 10% (over recommended operating conditions unless otherwise noted)
+                                                      PARAMETER                                          TEST CONDITIONS                                               MIN        TYP      MAX     UNIT
+ tPLH, tPHL                                      Propagation delay time                                                                                                 7.5        12         21    ns
+                                                                                             See Figure 6-1
+ PWD                                             Pulse width distortion(1) |tPHL – tPLH|                                                                                           0.2       5.9    ns
+ tsk(pp)                                         Part-to-part skew time(2)                                                                                                                   4.6    ns
+ tr                                              Output signal rise time                                                                                                             1       3.5    ns
+                                                                                             See Figure 6-1
+ tf                                              Output signal fall time                                                                                                             1       3.5    ns
+                                                 Default output delay time from input        Measured from the time VCC1 goes
+ tDO                                                                                                                                                                               0.1       0.3    μs
+                                                 power loss                                  below 1.7V. See Figure 6-2
+ tie                                             Time interval error                         216 – 1 PRBS data at 100 Mbps                                                           1              ns
+
+(1)                                   Also known as pulse skew.
+(2)                                   tsk(pp) is the magnitude of the difference in propagation delay times between any terminals of different devices switching in the same
+                                      direction while operating at identical supply voltages, temperature, input signals and loads.
+
+5.18 Insulation Characteristics Curves
+
+                                      600                                                                                                   1400
+                                                                                 VCC1 = VCC2 = 2.75 V
+                                                                                 VCC1 = VCC2 = 3.6 V                                        1200
+                                      500                                        VCC1 = VCC2 = 5.5 V
+
+
+
+
+       Safety Limiting Current (mA)                                                                            Safety Limiting Power (mW)
+                                                                                                                                            1000
+                                      400
+                                                                                                                                             800
+                                      300
+                                                                                                                                             600
+
+                                      200
+                                                                                                                                             400
+
+                                      100                                                                                                    200
+
+
+                                         0                                                                                                     0
+                                             0           50             100            150          200                                            0          50             100            150     200
+                                                              Ambient Temperature (qC)                                                                             Ambient Temperature (qC)          D002
+                                                                                                        D001
+
+       Figure 5-1. Thermal Derating Curve for Limiting                                                         Figure 5-2. Thermal Derating Curve for Limiting
+            Current per VDE for DW-16 Package                                                                        Power per VDE for DW-16 Package
+                                      350                                                                                                   900
+                                                                                 VCC1 = VCC2 = 2.75 V
+                                                                                 VCC1 = VCC2 = 3.6 V                                        800
+                                      300
+                                                                                 VCC1 = VCC2 = 5.5 V
+
+
+
+
+       Safety Limiting Current (mA)                                                                            Safety Limiting Power (mW)
+                                                                                                                                            700
+                                      250
+                                                                                                                                            600
+                                      200                                                                                                   500
+
+                                      150                                                                                                   400
+
+                                                                                                                                            300
+                                      100
+                                                                                                                                            200
+                                       50
+                                                                                                                                            100
+
+                                         0                                                                                                    0
+                                             0   20      40      60     80    100      120   140    160                                           0          50              100            150     200
+                                                              Ambient Temperature (qC)                  D003
+                                                                                                                                                                   Ambient Temperature (qC)          D004
+
+       Figure 5-3. Thermal Derating Curve for Limiting                                                         Figure 5-4. Thermal Derating Curve for Limiting
+              Current per VDE for D-8 Package                                                                          Power per VDE for D-8 Package
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                                                               Submit Document Feedback      15
+                                                                                             Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                                                                                                           www.ti.com
+
+5.19 Typical Characteristics
+
+                                                   7                                                                                                        2.5
+                                                           ICC1 at 2.5 V      ICC2 at 3.3 V                                                                           ICC1 at 2.5 V       ICC2 at 3.3 V
+                                                   6       ICC2 at 2.5 V      ICC1 at 5 V                                                                             ICC2 at 2.5 V       ICC1 at 5 V
+                                                           ICC1 at 3.3 V      ICC2 at 5 V                                                                    2        ICC1 at 3.3 V       ICC2 at 5 V
+
+                                                   5
+
+
+
+
+                 Supply Current (mA)                                                                                        Supply Current (mA)
+                                                                                                                                                            1.5
+                                                   4
+
+                                                   3                                                                                                         1
+
+                                                   2
+                                                                                                                                                            0.5
+                                                   1
+
+                                                   0                                                                                                         0
+                                                       0          25              50            75              100                                               0          25              50               75               100
+                                                                           Data Rate (Mbps)                                                                                           Data Rate (Mbps)                             D006
+                                                                                                                    D005
+
+                                                           TA = 25°C               CL = 15 pF                                                                         TA = 25°C            CL = No Load
+
+     Figure 5-5. ISO7710 Supply Current vs Data Rate                                                                        Figure 5-6. ISO7710 Supply Current vs Data Rate
+                     (With 15 pF Load)                                                                                                       (With No Load)
+                                                   6                                                                                                        0.9
+
+                                                                                                                                                            0.8
+                                                   5
+
+
+
+
+                   High-Level Output Voltage (V)                                                                            Low-Level Output Voltage (V)
+                                                                                                                                                            0.7
+
+                                                   4                                                                                                        0.6
+
+                                                                                                                                                            0.5
+                                                   3
+                                                                                                                                                            0.4
+
+                                                   2                                                                                                        0.3
+
+                                                                                                                                                            0.2
+                                                   1                                                 VCC at 2.5 V                                                                                                  VCC at 2.5 V
+                                                                                                     VCC at 3.3 V                                           0.1                                                    VCC at 3.3 V
+                                                                                                     VCC at 5 V                                                                                                    VCC at 5 V
+                                                   0                                                                                                         0
+                                                   -15                 -10                 -5                       0                                             0               5                  10                            15
+                                                                   High-Level Output Current (mA)                                                                             Low-Level Output Current (mA)                        D012
+                                                                                                                    D011
+
+                                                           TA = 25°C                                                                                                  TA = 25°C
+
+ Figure 5-7. High-Level Output Voltage vs High-level Figure 5-8. Low-Level Output Voltage vs Low-Level
+                   Output Current                                     Output Current
+                                                   2.10                                                                                                     14
+                                                   2.05
+
+
+
+
+     Power Supply UVLO Threshold (V)
+                                                                                                                                                            13
+
+
+
+
+                                                                                                                              Propagation Delay Time (ns)
+                                                   2.00
+                                                   1.95
+                                                                                                                                                            12
+                                                   1.90
+                                                   1.85                                                                                                     11
+                                                   1.80
+                                                   1.75                                                                                                     10
+                                                                                                      VCC1 Rising
+                                                   1.70                                               VCC1 Falling
+                                                                                                                                                             9                              tPLH at 2.5 V          tPHL at 3.3 V
+                                                   1.65                                               VCC2 Rising                                                                           tPHL at 2.5 V          tPLH at 5 V
+                                                                                                      VCC2 Falling                                                                          tPLH at 3.3 V          tPHL at 5 V
+                                                   1.60                                                                                                      8
+                                                      -55 -40 -25 -10     5 20 35 50 65 80             95 110 125                                            -55       -25          5        35        65            95        125
+                                                                        Free-Air Temperature (qC)                    D009                                                         Free Air Temperature (qC)                        D010
+  Figure 5-9. Power Supply Undervoltage Threshold                                                                           Figure 5-10. Propagation Delay Time vs Free-Air
+               vs Free-Air Temperature                                                                                                       Temperature
+
+
+
+16                                             Submit Document Feedback                                                                                                             Copyright © 2024 Texas Instruments Incorporated
+
+                                                                                                        Product Folder Links: ISO7710
+                                                                                                                                                                                                            ISO7710
+www.ti.com                                                                                                                                         SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+6 Parameter Measurement Information
+                                                                                                                                                                                                                    VCC1
+
+
+
+                                            Isolation Barrier
+                                                                                                                                                  VI               50%                             50%
+                           IN                                                                         OUT
+                                                                                                                                                                                                                    0V
+                                                                                                                                                      tPLH                                                 tPHL
+  Input Generator                                                                                                                   CL
+    (See Note A)     VI         50                                                                    VO                            See Note B                                                                      VOH
+                                                                                                                                                              50%                    90%                 50%
+                                                                                                                                                 VO
+                                                                                                                                                                                     10%
+                                                                                                                                                                                                                    VOL
+                                                                                                                                                              tr                                            tf
+
+A.    The input pulse is supplied by a generator having the following characteristics: PRR ≤ 50 kHz, 50% duty cycle, tr ≤ 3 ns, tf ≤ 3ns, ZO =
+      50 Ω. At the input, 50 Ω resistor is required to terminate Input Generator signal. The 50 Ω resistor is not needed in actual application.
+B.    CL = 15 pF and includes instrumentation and fixture capacitance within ±20%.
+
+                          Figure 6-1. Switching Characteristics Test Circuit and Voltage Waveforms
+                                                                      VI   See Note B
+
+                                                                VCC                                                                                                                                         VCC
+                                                                                                                                                                          VI               1.7 V
+
+
+
+
+                                                                                  Isolation Barrier
+                                                                                                                                                                                                            0V
+      IN = 0 V (Devices without suffix F)   IN                                                                                           OUT
+                                                                                                                                                         VO                                tDO
+        IN = VCC (Devices with suffix F)
+                                                                                                                                                                                                   default high
+                                                                                                                                                                                                              VOH
+                                                                                                                                                      CL
+                                                                                                                                                      See Note A         VO                50%
+                                                                                                                                                                                                              VOL
+                                                                                                                                                                                                   default low
+
+
+A.    CL = 15 pF and includes instrumentation and fixture capacitance within ±20%.
+B.    Power Supply Ramp Rate = 10 mV/ns
+
+                          Figure 6-2. Default Output Delay Time Test Circuit and Voltage Waveforms
+                                                                           VCC1                                                             VCC1
+
+                                                                                                       C = 0.1 µF ±1%                                    C = 0.1 µF ±1%
+
+                                                                                                                                                               Pass-fail criteria:
+                                                                                                                                                               The output must
+
+
+
+
+                                                                                                                Isolation Barrier
+                                                                                                                                                               remain stable.
+                                                                 IN                                                                                     OUT
+                                     S1
+                                                                                                                                                                               +
+                                                                                                                                                 EN                   VOH or VOL
+                                                                                                                                                           CL
+                                                                                                                                                   See Note A                  ±
+
+
+                                                                 GND1                                       +   VCM ±                            GND2
+
+A.    CL = 15 pF and includes instrumentation and fixture capacitance within ±20%.
+
+                                     Figure 6-3. Common-Mode Transient Immunity Test Circuit
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                                                                Submit Document Feedback               17
+                                                                             Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                    www.ti.com
+
+7 Detailed Description
+7.1 Overview
+The ISO7710 device has an ON-OFF keying (OOK) modulation scheme to transmit the digital data across
+a silicon dioxide based isolation barrier. The transmitter sends a high frequency carrier across the barrier to
+represent one digital state and sends no signal to represent the other digital state. The receiver demodulates
+the signal after advanced signal conditioning and produces the output through a buffer stage. The device
+also incorporates advanced circuit techniques to maximize the CMTI performance and minimize the radiated
+emissions due the high frequency carrier and IO buffer switching. The conceptual block diagram of a digital
+capacitive isolator, Figure 7-1, shows a functional block diagram of a typical channel.
+7.2 Functional Block Diagram
+
+
+
+             Transmitter                                                                                              Receiver
+
+
+
+
+                   OOK
+                 Modulation
+     TX IN                                                            SiO2 based
+                                                        TX Signal     Capacitive     RX Signal        Envelope                       RX OUT
+                                                       Conditioning    Isolation    Conditioning      Detection
+                                                                        Barrier
+
+
+
+
+                                               Emissions
+                           Oscillator          Reduction
+                                              Techniques
+
+
+
+                           Figure 7-1. Conceptual Block Diagram of a Digital Capacitive Isolator
+
+Figure 7-2 shows a conceptual detail of how the OOK scheme works.
+
+
+                                             TX IN
+
+
+
+
+                             Carrier signal through
+                                   isolation barrier
+
+
+
+
+                                          RX OUT
+
+
+
+                                  Figure 7-2. On-Off Keying (OOK) Based Modulation Scheme
+
+
+
+
+18     Submit Document Feedback                                                                    Copyright © 2024 Texas Instruments Incorporated
+
+                                                            Product Folder Links: ISO7710
+                                                                                                                                ISO7710
+www.ti.com                                                                               SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+7.3 Feature Description
+The ISO7710 device is available in two default output state options to enable a variety of application uses. Table
+7-1 lists the device features.
+                                                         Table 7-1. Device Features
+                        MAXIMUM DATA                  CHANNEL             DEFAULT OUTPUT
+ PART NUMBER                                                                                        PACKAGE        RATED ISOLATION(1)
+                            RATE                      DIRECTION               STATE
+                                                                                                      DW-16        5000 VRMS / 8000 VPK
+      ISO7710                100 Mbps             1 Forward, 0 Reverse            High
+                                                                                                       D-8         3000 VRMS / 4242 VPK
+                                                                                                      DW-16        5000 VRMS / 8000 VPK
+      ISO7710F               100 Mbps             1 Forward, 0 Reverse             Low
+                                                                                                       D-8         3000 VRMS / 4242 VPK
+
+(1)    See the Safety-Related Certifications section for detailed isolation ratings.
+7.3.1 Electromagnetic Compatibility (EMC) Considerations
+Many applications in harsh industrial environment are sensitive to disturbances such as electrostatic discharge
+(ESD), electrical fast transient (EFT), surge and electromagnetic emissions. These electromagnetic disturbances
+are regulated by international standards such as IEC 61000-4-x and CISPR 22. Although system-level
+performance and reliability depends, to a large extent, on the application board design and layout, the ISO7710
+device incorporates many chip-level design improvements for overall system robustness. Some of these
+improvements include:
+• Robust ESD protection cells for input and output signal pins and inter-chip bond pads.
+• Low-resistance connectivity of ESD cells to supply and ground pins.
+• Enhanced performance of high voltage isolation capacitor for better tolerance of ESD, EFT and surge events.
+• Bigger on-chip decoupling capacitors to bypass undesirable high energy signals through a low impedance
+   path.
+• PMOS and NMOS devices isolated from each other by using guard rings to avoid triggering of parasitic
+   SCRs.
+• Reduced common mode currents across the isolation barrier by providing purely differential internal
+   operation.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                           Submit Document Feedback    19
+                                                           Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                                            www.ti.com
+
+7.4 Device Functional Modes
+Table 7-2 lists the functional modes of ISO7710 device.
+                                                                    Table 7-2. Function Table
+             (1)                                     INPUT                OUTPUT
+      VCC1                      VCC2                                                                                        COMMENTS
+                                                      (IN)(3)              (OUT)
+                                                        H                   H           Normal Operation:
+                                                        L                   L           A channel output assumes the logic state of the input.
+       PU                        PU
+                                                                                        Default mode: When IN is open, the corresponding channel output goes to the
+                                                     Open                 Default
+                                                                                        default logic state. Default is High for ISO7710 and Low for ISO7710F.
+                                                                                        Default mode: When VCC1 is unpowered, a channel output assumes the logic
+                                                                                        state based on the selected default option. Default is High for ISO7710 and
+                                                                                        Low for ISO7710F.
+       PD                        PU                     X                 Default       When VCC1 transitions from unpowered to powered-up, a channel output
+                                                                                        assumes the logic state of the input.
+                                                                                        When VCC1 transitions from powered-up to unpowered, channel output
+                                                                                        assumes the selected default state.
+                                                                                        When VCC2 is unpowered, a channel output is undetermined (2).
+        X                        PD                     X            Undetermined       When VCC2 transitions from unpowered to powered-up, a channel output
+                                                                                        assumes the logic state of the input
+
+(1)   PU = Powered up (VCC ≥ 2.25 V); PD = Powered down (VCC ≤ 1.7 V); X = Irrelevant; H = High level; L = Low level
+(2)   The outputs are in undetermined state when 1.7 V < VCC1, VCC2 < 2.25 V.
+(3)   A strongly driven input signal can weakly power the floating VCC via an internal protection diode and cause undetermined output.
+7.4.1 Device I/O Schematics
+
+                           Input (Devices without F suffix)                                                  Input (Devices with F suffix)
+                         VCCI          VCCI   VCCI                 VCCI                                      VCCI           VCCI                     VCCI
+
+                                                 1.5 M
+
+                                985                                                                                 985
+                   INx                                                                                 INx
+
+
+
+                                                                                                                                        1.5 M
+
+
+
+
+                                                                                    Output
+                                                                          VCCO
+
+
+
+
+                                                                                ~20
+                                                                                                OUTx
+
+
+
+
+                                                                                                               Copyright © 2016, Texas Instruments Incorporated
+
+
+                                                                Figure 7-3. Device I/O Schematics
+
+
+
+
+20    Submit Document Feedback                                                                                            Copyright © 2024 Texas Instruments Incorporated
+
+                                                                     Product Folder Links: ISO7710
+                                                                                                                                                                                    ISO7710
+www.ti.com                                                                                                              SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+8 Application and Implementation
+                                                                                           Note
+        Information in the following applications sections is not part of the TI component specification, and
+        TI does not warrant its accuracy or completeness. TI’s customers are responsible for determining
+        suitability of components for their purposes. Customers should validate and test their design
+        implementation to confirm system functionality.
+
+8.1 Application Information
+The ISO7710 device is a high-performance, single-channel digital isolator. The device uses single-ended CMOS-
+logic switching technology. The supply voltage range is from 2.25 V to 5.5 V for both supplies, VCC1 and VCC2.
+When designing with digital isolators, keep in mind that because of the single-ended design structure, digital
+isolators do not conform to any specific interface standard and are only intended for isolating single-ended
+CMOS or TTL digital signal lines. The isolator is typically placed between the data controller (that is, μC or
+UART), and a data converter or a line transceiver, regardless of the interface type or standard.
+8.2 Typical Application
+The ISO7710 device can be used with Texas Instruments' mixed signal microcontroller, CAN transceiver,
+transformer driver, and low-dropout voltage regulator to create an Isolated CAN Interface as shown below.
+VS
+
+3.3 V          10 F
+                            2
+                          Vcc                       1:1.33   MBR0520L
+                                      3                                                                     1                      5       ISO 3.3V
+                                 D2                                                                             IN       OUT
+                                                                                                                    TPS76333
+                      SN6501                                                           10 F 0.1 F                                              10 F
+                                                                                                            3                      2
+                                                                                                                EN       GND
+                                      1
+                                 D1
+                 GND            GND                          MBR0520L
+                      4          5
+                                                                    ISO Barrier
+
+
+
+
+                                                                                                                                       0.1 F
+                                                                                       5               4
+                                                                                  GND2               GND1
+                                      0.1 F                                                                                            3
+                                                                              6                                 2
+                                                                                  OUT      ISO7710     IN                          VCC                  RS 8
+                                                                              8                                 1,3            4                                 10    (optional)
+                                                                                  VCC2              VCC1                           R                  CANH
+                                                29,57                             0.1 F          0.1 F                                                       7
+                                          VDDIO                                                                                          SN65HVD231              10    (optional)
+                                                              26                                                           1                                 6
+                                               CANRXA                                                                              D                  CANL
+                                TMS320F28035PAG                                   0.1 F              0.1 F                         GND                 Vref 5
+                                               CANTXA                             VCC1               VCC2                              2                         SM712
+                                                              25            1,3                                 8
+                                              VSS                                 IN       ISO7710 OUT 6
+                                                                             2
+                                                6,28                              GND1             GND2
+                                                                              4                                     5
+                                                                                                                                                                      4.7 nF /
+                                                                                                                                                                        2 kV
+
+
+
+                                                                                                                                             Copyright © 2016, Texas Instruments Incorporated
+
+                                                               Figure 8-1. Isolated CAN Interface
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                                          Submit Document Feedback         21
+                                                                        Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                         www.ti.com
+
+8.2.1 Design Requirements
+To design with this device, use the parameters listed in Table 8-1.
+                                                     Table 8-1. Design Parameters
+                         PARAMETER                                                                             VALUE
+                 Supply voltage, VCC1 and VCC2                                                          2.25 V to 5.5 V
+          Decoupling capacitor between VCC1 and GND1                                                           0.1 µF
+            Decoupling capacitor from VCC2 and GND2                                                            0.1 µF
+
+
+8.2.2 Detailed Design Procedure
+Unlike optocouplers, which require components to improve performance, provide bias, or limit current, the
+ISO7710 device only requires two external bypass capacitors to operate.
+
+                          VCC1                                                                                    VCC2
+
+                                                      2 mm                                  2 mm
+                                                    maximum                               maximum
+                                    0.1 …F          from VCC1                             from VCC2   0.1 …F
+                                                                1                  8
+
+                                                                2                  7
+                           INPUT                                    IN
+                                                                3           OUT 6
+                                                                                                               OUTPUT
+                                                                4                  5
+
+                          GND1                                                                                    GND2
+
+
+                                              Figure 8-2. Typical ISO7710 Circuit Hook-up
+
+8.2.3 Application Curve
+The following typical eye diagram of the ISO7710 device indicates low jitter and wide open eye at the maximum
+data rate of 100 Mbps.
+
+
+
+
+                                   1 V/ div
+
+
+
+
+                                                                    Time = 3.5 ns / div
+
+                 Figure 8-3. ISO7710 Eye Diagram at 100 Mbps PRBS, 5-V Supplies and 25°C
+
+
+
+
+22    Submit Document Feedback                                                                          Copyright © 2024 Texas Instruments Incorporated
+
+                                                         Product Folder Links: ISO7710
+                                                                                                                             ISO7710
+www.ti.com                                                                            SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+8.2.3.1 Insulation Lifetime
+Insulation lifetime projection data is collected by using industry-standard Time Dependent Dielectric Breakdown
+(TDDB) test method. In this test, all pins on each side of the barrier are tied together creating a two-terminal
+device and high voltage applied between the two sides; See Figure 8-4 for TDDB test setup. The insulation
+breakdown data is collected at various high voltages switching at 60 Hz over temperature. For reinforced
+insulation, VDE standard requires the use of TDDB projection line with failure rate of less than 1 part per million
+(ppm). Even though the expected minimum insulation lifetime is 20 years at the specified working isolation
+voltage, VDE reinforced certification requires additional safety margin of 20% for working voltage and 50% for
+lifetime which translates into minimum required insulation lifetime of 30 years at a working voltage that's 20%
+higher than the specified value.
+Figure 8-5 shows the intrinsic capability of the isolation barrier to withstand high voltage stress over the lifetime
+of the device. Based on the TDDB data, the intrinsic capability of the insulation is 1500 VRMS with a lifetime of
+36 years. Other factors, such as package size, pollution degree, material group, and more can further limit the
+working voltage of the component. The working voltage of DW-16 package is specified up to 1500 VRMS and
+D-8 package up to 450 VRMS. At the lower working voltages, the corresponding insulation lifetime is much longer
+than 36 years.
+
+                                                                                 A
+                            Vcc 1                 Vcc 2
+
+                                                                                                   Time Counter
+
+                                         DUT                                                         > 1 mA
+
+
+
+
+                            GND 1                 GND 2
+                                                                                VS
+
+
+
+                        Oven at 150 °C
+
+                                  Figure 8-4. Test Setup for Insulation Lifetime Measurement
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                        Submit Document Feedback    23
+                                                          Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                                  www.ti.com
+
+                                     1.E+12
+                                                                                                                    TDDB (<1ppm fail rate)
+                                     1.E+11                                                                         Operating zone
+                                                                                                                    VDE safety margin zone
+                                     1.E+10                                       50 %
+                                                    54 years
+                                     1.E+09
+
+                                     1.E+08
+
+
+
+
+                Time to Fail (sec)
+                                     1.E+07
+
+                                     1.E+06
+
+                                     1.E+05         36 years
+
+                                     1.E+04
+
+                                     1.E+03
+                                                                            20%
+                                     1.E+02                           20%
+
+
+
+
+                                     1.E+01
+                                              200              1200           2200          3200          4200   5200          6200
+
+                                                                                     Applied Voltage (VRMS)
+
+                                                         Figure 8-5. Insulation Lifetime Projection Data
+
+8.3 Power Supply Recommendations
+To help provide reliable operation at data rates and supply voltages, a 0.1-μF bypass capacitor is recommended
+at the input and output supply pins (VCC1 and VCC2). The capacitors must be placed as close to the supply
+pins as possible. If only a single primary-side power supply is available in an application, isolated power can
+be generated for the secondary-side with the help of a transformer driver such as Texas Instruments' SN6501
+or SN6505A . For such applications, detailed power supply design and transformer selection recommendations
+are available in SN6501 Transformer Driver for Isolated Power Supplies or SN6505 Low-Noise 1-A Transformer
+Drivers for Isolated Power Supplies .
+8.4 Layout
+8.4.1 Layout Guidelines
+A minimum of four layers is required to accomplish a low EMI PCB design (see Figure 8-6). Layer stacking must
+be in the following order (top-to-bottom): high-speed signal layer, ground plane, power plane and low-frequency
+signal layer.
+•    Routing the high-speed traces on the top layer avoids the use of vias (and the introduction of their
+     inductances) and allows for clean interconnects between the isolator and the transmitter and receiver circuits
+     of the data link.
+•    Placing a solid ground plane next to the high-speed signal layer establishes controlled impedance for
+     transmission line interconnects and provides an excellent low-inductance path for the return current flow.
+•    Placing the power plane next to the ground plane creates additional high-frequency bypass capacitance of
+     approximately 100 pF/in2.
+•    Routing the slower speed control signals on the bottom layer allows for greater flexibility as these signal links
+     usually have margin to tolerate discontinuities such as vias.
+If an additional supply voltage plane or signal layer is needed, add a second power or ground plane system
+to the stack to keep the planes symmetrical.. This makes the stack mechanically stable and prevents warping.
+Also the power and ground plane of each power system can be placed closer together, thus increasing the
+high-frequency bypass capacitance significantly.
+For detailed layout recommendations, refer to the Digital Isolator Design Guide.
+
+
+
+24    Submit Document Feedback                                                                                   Copyright © 2024 Texas Instruments Incorporated
+
+                                                                             Product Folder Links: ISO7710
+                                                                                                                         ISO7710
+www.ti.com                                                                        SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+8.4.1.1 PCB Material
+For digital circuit boards operating at less than 150 Mbps, (or rise and fall times greater than 1 ns), and trace
+lengths of up to 10 inches, use standard FR-4 UL94V-0 printed circuit board. This PCB is preferred over cheaper
+alternatives because of lower dielectric losses at high frequencies, less moisture absorption, greater strength
+and stiffness, and the self-extinguishing flammability-characteristics.
+8.4.2 Layout Example
+
+
+                                High-speed traces
+                                                          10 mils
+                                      Ground plane
+                                                                           Keep this
+                                                                          space free         FR-4
+                                                          40 mils        from planes,       0r ~ 4.5
+                                                                         traces, pads,
+                                                                           and vias
+                                        Power plane
+                                                          10 mils
+                                 Low-speed traces
+                                                  Figure 8-6. Layout Example
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                    Submit Document Feedback    25
+                                                      Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                      www.ti.com
+
+9 Device and Documentation Support
+9.1 Documentation Support
+9.1.1 Related Documentation
+For related documentation, see the following:
+• Texas Instruments, Digital Isolator Design Guide, application note
+• Texas Instruments, Isolation Glossary, application note
+• Texas Instruments, How to use isolation to improve ESD, EFT, and Surge immunity in industrial systems,
+   analog design journal
+• Texas Instruments, SN6501 Transformer Driver for Isolated Power Supplies, data sheet
+• Texas Instruments, SN65HVD23x 3.3-V CAN Bus Transceivers, data sheet
+• Texas Instruments, TMS320F28035 Piccolo™ Microcontrollers, data sheet
+• Texas Instruments, TPS76333 Low-Power 150-mA Low-Dropout Linear Regulators, data sheet
+9.2 Receiving Notification of Documentation Updates
+To receive notification of documentation updates, navigate to the device product folder on ti.com. In the upper
+right corner, click on Alert me to register and receive a weekly digest of any product information that has
+changed. For change details, review the revision history included in any revised document.
+9.3 Support Resources
+TI E2E™ support forums are an engineer's go-to source for fast, verified answers and design help — straight
+from the experts. Search existing answers or ask your own question to get the quick design help you need.
+Linked content is provided "AS IS" by the respective contributors. They do not constitute TI specifications and do
+not necessarily reflect TI's views; see TI's Terms of Use.
+9.4 Trademarks
+Piccolo™ is a trademark of Texas Instruments.
+TI E2E™ is a trademark of Texas Instruments.
+All trademarks are the property of their respective owners.
+9.5 Electrostatic Discharge Caution
+                  This integrated circuit can be damaged by ESD. Texas Instruments recommends that all integrated circuits be handled
+                  with appropriate precautions. Failure to observe proper handling and installation procedures can cause damage.
+                  ESD damage can range from subtle performance degradation to complete device failure. Precision integrated circuits may
+                  be more susceptible to damage because very small parametric changes could cause the device not to meet its published
+                  specifications.
+
+
+9.6 Glossary
+ TI Glossary           This glossary lists and explains terms, acronyms, and definitions.
+
+10 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+
+Changes from Revision D (March 2023) to Revision E (December 2024)                                                                         Page
+• Updated the number formatting for tables, figures, and cross-references throughout the document................ 1
+• Updated maximum power dissipation in the power ratings section....................................................................7
+• Updated distance through isolation, while maintaining other insulation specifications.......................................8
+• Updated maximum total current consumption values throughout the supply current characteristics sections. 11
+• Updated maximum propagation delay specifications throughout the switching characteristics sections......... 14
+• Updated TDDB plot and the projected lifetime................................................................................................. 23
+
+
+
+
+26    Submit Document Feedback                                                                       Copyright © 2024 Texas Instruments Incorporated
+
+                                                        Product Folder Links: ISO7710
+                                                                                                                                                              ISO7710
+www.ti.com                                                                                             SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+Changes from Revision C (April 2020) to Revision D (March 2023)                                                                                        Page
+• Changed standard name from: "DIN V VDE V 0884-11:2017-01" to: "DIN EN IEC 60747-17 (VDE 0884-17)"
+  throughout the document....................................................................................................................................1
+• Removed references to standard IEC/EN/CSA 60950-1 throughout the document...........................................1
+• Removed standard revision and year references from all standard names throughout the document ............. 1
+• Added Maximum impulse voltage (VIMP) specification per DIN EN IEC 60747-17 (VDE 0884-17)....................8
+• Changed test conditions and values of Maximum surge isolation voltage (VIOSM) specification per DIN EN IEC
+  60747-17 (VDE 0884-17)................................................................................................................................... 8
+• Clarified method b test conditions of Apparent charge (qPD)..............................................................................8
+• Changed working voltage lifetime margin from: 87.5% to: 50%, minimum required insulation lifetime from:
+  37.5 years to: 30 years and insulation lifetime per TDDB from: 135 years to: 169 years in per DIN EN IEC
+  60747-17 (VDE 0884-17)................................................................................................................................. 23
+• Changed Figure 8-5 per DIN EN IEC 60747-17 (VDE 0884-17)...................................................................... 23
+
+
+
+Changes from Revision B (March 2017) to Revision C (April 2020)                                                                                                    Page
+• Made editorial and cosmetic changes throughout the document ...................................................................... 1
+• Changed From: "Isolation Barrier Life: >40 Years" To: " >100-year projected lifetime at 1500 VRMS working
+  voltage" in Section 1 ..........................................................................................................................................1
+• Added "Up to 5000 VRMS isolation rating" in Section 1 ..................................................................................... 1
+• Added "Up to 12.8 kV surge capability" in Section 1 .........................................................................................1
+• Added "±8 kV IEC 61000-4-2 contact discharge protection across isolation barrier" in Section 1 .................... 1
+• Added "Automotive version available: ISO7710-Q1" in Section 1 .....................................................................1
+• Changed From: "VDE Reinforced Insulation per DIN V VDE V 0884-10 (VDE V 0884-10):2006-12" To: "VDE
+  reinforced insulation per DIN VDE V 0884-11:2017-01" in Section 1 ................................................................1
+• Combined CSA, CQC, and TUV bullets into a single bullet with standard names in Section 1 ........................ 1
+• Deleted "VDE, UL, CSA, and TUV Certifications for DW-16 package complete; all other certifications
+  planned" bullet in Section 1 ............................................................................................................................... 1
+• Updated Simplified Schematic to show two isolation capacitors in series instead of a single
+  isolation capacitor............................................................................................................................................... 1
+• Added "Contact discarge per IEC 61000-4-2" specification of 8000V ............................................................. 5
+• Changed "Signaling rate" to "Data rate" and added table note.......................................................................... 6
+• Updated DW-16 package VIORM and VIOWM values........................................................................................... 8
+• Added TDDB figure reference to VIOWM ............................................................................................................ 8
+• Updated VIOSM, VIOTM, qpd test conditions..........................................................................................................8
+• Corrected ground symbols for "Input (Devices with F suffix)" in Section 7.4.1 ................................................20
+• Fixed Figure 8-2 INPUT wire connection..........................................................................................................22
+• Added Section 8.2.3.1 sub-section under Section 8.2.3 section...................................................................... 23
+• Added 'How to use isolation to improve ESD, EFT, and Surge immunity in industrial systems' to Section 9.1
+  section.............................................................................................................................................................. 26
+
+
+
+Changes from Revision A (December 2016) to Revision B (March 2017)                                                                                   Page
+• Added D-8 values for TUV..................................................................................................................................9
+• Changed the Electrostatic Discharge Caution statement ................................................................................ 26
+
+
+
+Changes from Revision * (November 2016) to Revision A (December 2016)                                                                                   Page
+• Changed Feature From: IEC 60950-1, IEC 60601-1 and IEC 61010-1 End Equipment Standards To: IEC
+  60950-1 and IEC 60601-1 End Equipment Standards....................................................................................... 1
+• Added Climatic category.....................................................................................................................................8
+• Updated CSA column and changed DW package to (DW-16)........................................................................... 9
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                Submit Document Feedback                27
+                                                                  Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                   www.ti.com
+
+•    Changed tie TYP value from 1.5 to 1 in Switching Characteristics tables throughout the document............... 14
+
+
+11 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical, packaging, and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+28    Submit Document Feedback                                                    Copyright © 2024 Texas Instruments Incorporated
+
+                                               Product Folder Links: ISO7710
+                                                                                                                                                                        ISO7710
+www.ti.com                                                                                                         SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+
+
+                                                                                                                             PACKAGE OUTLINE
+              D0008B                                                          SCALE 2.800
+                                                                                                                          SOIC - 1.75 mm max height
+                                                                                                                           SMALL OUTLINE INTEGRATED CIRCUIT
+
+
+
+                                                                                                                                                      C
+
+                                                                                                                                    SEATING PLANE
+                                                   .228-.244 TYP
+                                                   [5.80-6.19]
+                                                                                                                                          .004 [0.1] C
+                         A                                  PIN 1 ID AREA
+                                                                                                          6X .050
+                                                                                                             [1.27]
+                                                                                              8
+                                   1
+
+
+
+
+                     .189-.197                                                                              2X
+                     [4.81-5.00]                                                                          .150
+                       NOTE 3                                                                             [3.81]
+
+
+
+                                                                                                                            4X (0 -15 )
+                                   4
+                                                                                              5
+                                                                                                         8X .012-.020
+                                       B              .150-.157                                             [0.31-0.51]
+                                                                                                                                                 .069 MAX
+                                                      [3.81-3.98]                                        .010 [0.25]      C A B                   [1.75]
+                                                        NOTE 4
+
+
+
+
+                                                                                                          .005-.010 TYP
+                                                                                                          [0.13-0.25]
+
+
+                                                       4X (0 -15 )
+
+                                       SEE DETAIL A
+                                                                                                    .010
+                                                                                                    [0.25]
+
+
+
+
+                                                                                                                                                          .004-.010
+                                                                                                  0 -8                                                    [0.11-0.25]
+                                                                                                    .016-.050
+                                                                                                    [0.41-1.27]
+                                                                                                                                           DETAIL A
+                                                                                                                            .041            TYPICAL
+                                                                                                                           [1.04]
+
+                                                                                                                                                  4221445/C 02/2019
+
+              NOTES:
+
+              1. Linear dimensions are in inches [millimeters]. Dimensions in parenthesis are for reference only. Controlling dimensions are in inches.
+                 Dimensioning and tolerancing per ASME Y14.5M.
+              2. This drawing is subject to change without notice.
+              3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+                 exceed .006 [0.15], per side.
+              4. This dimension does not include interlead flash.
+              5. Reference JEDEC registration MS-012, variation AA.
+
+
+
+
+                                                                                            www.ti.com
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                             Submit Document Feedback         29
+                                                                Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                                www.ti.com
+
+                                                                                           EXAMPLE BOARD LAYOUT
+          D0008B                                                                                      SOIC - 1.75 mm max height
+                                                                                                        SMALL OUTLINE INTEGRATED CIRCUIT
+
+
+
+
+                   8X (.061 )                                                         8X (.055)
+                       [1.55]                                        SEE                  [1.4]                                       SEE
+                                             SYMM                    DETAILS                                   SYMM                   DETAILS
+                                1                                                                 1
+                                                                 8                                                                8
+
+                8X (.024)                                            SYMM      8X (.024)                                              SYMM
+                    [0.6]                                                          [0.6]
+
+                                                                       (R.002 ) TYP                                                     (R.002 )
+                                                                 5       [0.05]                                                   5       [0.05]
+                                4                                                                 4                                     TYP
+            6X (.050 )                                                       6X (.050 )
+                [1.27]                                                           [1.27]
+                                             (.213)                                                            (.217)
+                                              [5.4]                                                             [5.5]
+
+                                          IPC-7351 NOMINAL                                              HV / ISOLATION OPTION
+                                .150 [3.85] CLEARANCE / CREEPAGE                                  .162 [4.1] CLEARANCE / CREEPAGE
+
+
+                                                              LAND PATTERN EXAMPLE
+                                                                 EXPOSED METAL SHOWN
+                                                                       SCALE:6X
+
+
+
+
+                                                      SOLDER MASK                SOLDER MASK
+                            METAL                                                                                       METAL UNDER
+                                                      OPENING                        OPENING                            SOLDER MASK
+
+
+
+                    EXPOSDE                                                       EXPOSED
+                      METAL                                                         METAL
+                                          .0028 MAX                                                       .0028 MIN
+                                           [0.07]                                                         [0.07]
+                                           ALL AROUND                                                     ALL AROUND
+
+                                    NON SOLDER MASK                                                    SOLDER MASK
+                                        DEFINED                                                          DEFINED
+
+
+                                                             SOLDER MASK DETAILS
+
+                                                                                                                            4221445/C 02/2019
+
+          NOTES: (continued)
+
+          6. Publication IPC-7351 may have alternate designs.
+          7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                            www.ti.com
+
+
+
+
+30    Submit Document Feedback                                                                               Copyright © 2024 Texas Instruments Incorporated
+
+                                                          Product Folder Links: ISO7710
+                                                                                                                                                     ISO7710
+www.ti.com                                                                                          SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+                                                                                           EXAMPLE STENCIL DESIGN
+             D0008B                                                                                       SOIC - 1.75 mm max height
+                                                                                                           SMALL OUTLINE INTEGRATED CIRCUIT
+
+
+
+
+                       8X (.061 )
+                                                                                        8X (.055)
+                           [1.55]                 SYMM                                                             SYMM
+                                                                                            [1.4]
+                                    1                                                                 1
+                                                                      8                                                               8
+
+                     8X (.024)                                                      8X (.024)
+                         [0.6]                                            SYMM          [0.6]                                             SYMM
+
+
+                                                                           (R.002 ) TYP
+                                                                                                                                          (R.002 )
+                                                                      5      [0.05]                                                   5     [0.05]
+                                    4                                                                 4                                   TYP
+                 6X (.050 )                                                       6X (.050 )
+                     [1.27]                                                           [1.27]
+                                                  (.213)                                                           (.217)
+                                                   [5.4]                                                            [5.5]
+
+                                              IPC-7351 NOMINAL                                            HV / ISOLATION OPTION
+                                    .150 [3.85] CLEARANCE / CREEPAGE                                .162 [4.1] CLEARANCE / CREEPAGE
+
+
+                                                                   SOLDER PASTE EXAMPLE
+                                                           BASED ON .005 INCH [0.127 MM] THICK STENCIL
+                                                                            SCALE:6X
+
+
+
+
+                                                                                                                               4221445/C 02/2019
+
+             NOTES: (continued)
+
+             8. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+                design recommendations.
+             9. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                              www.ti.com
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                         Submit Document Feedback          31
+                                                              Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                                             www.ti.com
+
+
+                                                                                                                  PACKAGE OUTLINE
+           DW0016B                                                           SCALE 1.500
+                                                                                                                SOIC - 2.65 mm max height
+                                                                                                                                                      SOIC
+
+
+
+                                                                                                                                            C
+
+                                                    10.63                                                                SEATING PLANE
+                                                          TYP
+                                                    9.97
+                                     PIN 1 ID                                                                                         0.1 C
+                     A
+                                     AREA
+                                                                                                  14X 1.27
+                                                                                           16
+                             1
+
+
+
+
+                   10.5                                                                            2X
+                   10.1                                                                           8.89
+                  NOTE 3
+
+
+
+
+                             8
+                                                                                           9
+                                                                                                    0.51
+                                                                                                16X
+                                                                                                    0.31
+                                                      7.6
+                                 B                                                                0.25   C A      B                    2.65 MAX
+                                                      7.4
+                                                     NOTE 4
+
+
+
+
+                                                                                                  0.33
+                                                                                                       TYP
+                                                                                                  0.10
+
+
+
+
+                                                SEE DETAIL A
+                                                                                                  0.25
+                                                                                           GAGE PLANE
+
+
+                                                                                                                                                0.3
+                                                                                                0 -8                                            0.1
+                                                                                                         1.27
+                                                                                                         0.40                    DETAIL A
+                                                                                                                      (1.4)       TYPICAL
+
+
+                                                                                                                                        4221009/B 07/2016
+
+           NOTES:
+
+           1. All linear dimensions are in millimeters. Dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+              per ASME Y14.5M.
+           2. This drawing is subject to change without notice.
+           3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+              exceed 0.15 mm, per side.
+           4. This dimension does not include interlead flash. Interlead flash shall not exceed 0.25 mm, per side.
+           5. Reference JEDEC registration MS-013.
+
+
+
+
+                                                                             www.ti.com
+
+
+
+
+32    Submit Document Feedback                                                                                            Copyright © 2024 Texas Instruments Incorporated
+
+                                                                Product Folder Links: ISO7710
+                                                                                                                                                        ISO7710
+www.ti.com                                                                                         SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024
+
+                                                                                                EXAMPLE BOARD LAYOUT
+             DW0016B                                                                                   SOIC - 2.65 mm max height
+                                                                                                                                                SOIC
+
+
+
+
+                                               SYMM                                                               SYMM
+                      16X (2)                                                         16X (1.65)                                              SEE
+                                                                        SEE                                                                   DETAILS
+                                                                        DETAILS
+                                1                                                                  1
+                                                                    16                                                                    16
+
+                 16X (0.6)                                                          16X (0.6)
+
+                                                                        SYMM                                                                  SYMM
+
+
+
+
+               14X (1.27)                                                         14X (1.27)
+                                8                                   9                              8                                      9
+                 R0.05 TYP                                                          R0.05 TYP
+                                                  (9.3)                                                           (9.75)
+
+                                          IPC-7351 NOMINAL                                                 HV / ISOLATION OPTION
+                                    7.3 mm CLEARANCE/CREEPAGE                                          8.1 mm CLEARANCE/CREEPAGE
+
+
+                                                             LAND PATTERN EXAMPLE
+                                                                          SCALE:4X
+
+
+
+
+                                                          SOLDER MASK                 SOLDER MASK                          METAL
+                                       METAL              OPENING                         OPENING
+
+
+
+
+                                                     0.07 MAX                                                0.07 MIN
+                                                     ALL AROUND                                              ALL AROUND
+
+
+                                           NON SOLDER MASK                                               SOLDER MASK
+                                               DEFINED                                                     DEFINED
+
+
+                                                                  SOLDER MASK DETAILS
+
+                                                                                                                                   4221009/B 07/2016
+
+
+             NOTES: (continued)
+
+             6. Publication IPC-7351 may have alternate designs.
+             7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                               www.ti.com
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                            Submit Document Feedback          33
+                                                             Product Folder Links: ISO7710
+ISO7710
+SLLSER9E – NOVEMBER 2016 – REVISED DECEMBER 2024                                                                                                 www.ti.com
+
+                                                                                          EXAMPLE STENCIL DESIGN
+          DW0016B                                                                                    SOIC - 2.65 mm max height
+                                                                                                                                          SOIC
+
+
+
+
+                                            SYMM                                                              SYMM
+                   16X (2)                                                        16X (1.65)
+
+                             1                                                                 1
+                                                                 16                                                                16
+
+              16X (0.6)                                                          16X (0.6)
+
+
+                                                                      SYMM                                                              SYMM
+
+
+
+
+            14X (1.27)                                                       14X (1.27)
+                             8                                   9                             8                                   9
+
+             R0.05 TYP                                                          R0.05 TYP
+                                             (9.3)                                                            (9.75)
+
+
+                                       IPC-7351 NOMINAL                                                HV / ISOLATION OPTION
+                                 7.3 mm CLEARANCE/CREEPAGE                                         8.1 mm CLEARANCE/CREEPAGE
+
+
+
+                                                              SOLDER PASTE EXAMPLE
+                                                            BASED ON 0.125 mm THICK STENCIL
+                                                                        SCALE:4X
+
+
+
+
+                                                                                                                            4221009/B 07/2016
+
+          NOTES: (continued)
+
+          8. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+             design recommendations.
+          9. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                           www.ti.com
+
+
+
+
+34    Submit Document Feedback                                                                             Copyright © 2024 Texas Instruments Incorporated
+
+                                                           Product Folder Links: ISO7710
+                                                                                                                                                                     PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                    6-Feb-2026
+
+
+
+
+PACKAGING INFORMATION
+
+       Orderable part number          Status     Material type      Package | Pins      Package qty | Carrier       RoHS             Lead finish/               MSL rating/          Op temp (°C)               Part marking
+                                        (1)            (2)                                                            (3)            Ball material              Peak reflow                                           (6)
+                                                                                                                                          (4)                       (5)
+
+             ISO7710DR                Active      Production            SOIC (D) | 8     2500 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -55 to 125                    7710
+            ISO7710DR.A               Active      Production            SOIC (D) | 8     2500 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -55 to 125                    7710
+            ISO7710DWR                Active      Production        SOIC (DW) | 16       2000 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -55 to 125                  ISO7710
+           ISO7710DWR.A               Active      Production        SOIC (DW) | 16       2000 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -55 to 125                  ISO7710
+          ISO7710DWRG4                Active      Production        SOIC (DW) | 16       2000 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -55 to 125                  ISO7710
+         ISO7710DWRG4.A               Active      Production        SOIC (DW) | 16       2000 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -55 to 125                  ISO7710
+            ISO7710FDR                Active      Production            SOIC (D) | 8     2500 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -55 to 125                   7710F
+           ISO7710FDR.A               Active      Production            SOIC (D) | 8     2500 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -55 to 125                   7710F
+           ISO7710FDWR                Active      Production        SOIC (DW) | 16       2000 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -55 to 125                 ISO7710F
+          ISO7710FDWR.A               Active      Production        SOIC (DW) | 16       2000 | LARGE T&R            Yes               NIPDAU           Level-2-260C-1 YEAR            -55 to 125                 ISO7710F
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+
+
+                                                                                                          Addendum-Page 1
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+    www.ti.com                                                                                                                                                                                            6-Feb-2026
+
+
+
+
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+
+OTHER QUALIFIED VERSIONS OF ISO7710 :
+
+• Automotive : ISO7710-Q1
+
+NOTE: Qualified Version Definitions:
+
+        • Automotive - Q100 devices qualified for high-reliability automotive applications targeting zero defects
+
+
+
+
+                                                                                                          Addendum-Page 2
+                                                                               PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                                                        3-Aug-2025
+
+
+
+TAPE AND REEL INFORMATION
+
+       REEL DIMENSIONS                                                                      TAPE DIMENSIONS
+                                                                                       K0       P1
+
+
+
+                                                                                                                       B0 W
+                                        Reel
+                                      Diameter
+                                                                                    Cavity            A0
+                                                                A0   Dimension designed to accommodate the component width
+                                                                B0   Dimension designed to accommodate the component length
+                                                                K0   Dimension designed to accommodate the component thickness
+                                                                W    Overall width of the carrier tape
+                                                                P1   Pitch between successive cavity centers
+
+
+                                       Reel Width (W1)
+                              QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                      Sprocket Holes
+
+
+                                                 Q1        Q2          Q1    Q2
+
+                                                 Q3        Q4          Q3    Q4                  User Direction of Feed
+
+
+
+                                                            Pocket Quadrants
+
+
+*All dimensions are nominal
+             Device           Package Package Pins              SPQ       Reel   Reel   A0                    B0        K0     P1     W     Pin1
+                               Type Drawing                             Diameter Width (mm)                  (mm)      (mm)   (mm)   (mm) Quadrant
+                                                                          (mm) W1 (mm)
+       ISO7710DR               SOIC       D           8         2500        330.0        12.4         6.4    5.2       2.1    8.0    12.0    Q1
+      ISO7710DWR               SOIC      DW           16        2000        330.0        16.4        10.75   10.7      2.7    12.0   16.0    Q1
+     ISO7710DWRG4              SOIC      DW           16        2000        330.0        16.4        10.75   10.7      2.7    12.0   16.0    Q1
+       ISO7710FDR              SOIC       D           8         2500        330.0        12.4         6.4    5.2       2.1    8.0    12.0    Q1
+      ISO7710FDWR              SOIC      DW           16        2000        330.0        16.4        10.75   10.7      2.7    12.0   16.0    Q1
+
+
+
+
+                                                                      Pack Materials-Page 1
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                              3-Aug-2025
+
+
+
+ TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                               Width (mm)
+                                                                              H
+
+
+
+
+                      W                                   L
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins         SPQ    Length (mm)   Width (mm)   Height (mm)
+        ISO7710DR                SOIC              D            8           2500      353.0        353.0         32.0
+       ISO7710DWR                SOIC             DW           16           2000      353.0        353.0         32.0
+     ISO7710DWRG4                SOIC             DW           16           2000      353.0        353.0         32.0
+       ISO7710FDR                SOIC              D            8           2500      353.0        353.0         32.0
+      ISO7710FDWR                SOIC             DW           16           2000      353.0        353.0         32.0
+
+
+
+
+                                                       Pack Materials-Page 2
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2026, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

@@ -1,0 +1,123 @@
+"""Remove track objects only when conservative remaining native copper covers them.
+
+Sequential deletion prevents circular A-covers-B/B-covers-A claims. Pads/vias
+and all drills stay fixed; no authored zone or rule is edited.
+"""
+
+import argparse
+import hashlib
+import json
+from decimal import Decimal
+from pathlib import Path
+
+from shapely.geometry import Polygon
+from shapely.ops import unary_union
+
+from hardware.electronics.common.sexpr import children, first, read_sexpr, sexpr
+
+ROOT = Path(__file__).resolve().parent
+
+
+def shape(polygons):
+    return unary_union([Polygon(p["outer"],p["holes"]) for p in polygons])
+
+
+def exact_capsule_contains(outer,inner):
+    """Exact integer-nanometre containment of two round-ended straight tracks."""
+    def values(node,tag):
+        numbers = tuple(Decimal(str(v))*1000000 for v in first(node,tag)[1:])
+        assert all(v == v.to_integral_value() for v in numbers), "Coordinates must be exact KiCad nanometres"
+        return tuple(int(v) for v in numbers)
+
+    width_delta = values(outer,"width")[0]-values(inner,"width")[0]
+    if width_delta < 0:
+        return False
+    u,v = values(outer,"start"),values(outer,"end")
+    dx,dy = v[0]-u[0],v[1]-u[1]
+    length2 = dx*dx+dy*dy
+    for tag in ("start","end"):
+        p = values(inner,tag)
+        px,py = p[0]-u[0],p[1]-u[1]
+        projection = px*dx+py*dy
+        if not length2 or projection < 0:
+            if 4*(px*px+py*py) > width_delta*width_delta:
+                return False
+        elif projection > length2:
+            if 4*((p[0]-v[0])**2+(p[1]-v[1])**2) > width_delta*width_delta:
+                return False
+        elif 4*(px*dy-py*dx)**2 > width_delta*width_delta*length2:
+            return False
+    return True
+
+
+def run():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--planes",action="store_true")
+    parser.add_argument("--exact-capsules",action="store_true")
+    parser.add_argument("--label")
+    args = parser.parse_args()
+    capture = ROOT/"staging/e28-copper-audit"
+    report = json.loads((capture/"capture.json").read_text())
+    for name,digest in report["source_sha256"].items():
+        assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == digest
+    source = next(Path(p) for p in report["source_sha256"] if p.endswith(".kicad_pcb"))
+    source_tree = read_sexpr(source.read_text())
+    tracks = {str(first(n,"uuid")[1]):n for n in children(source_tree,"segment")}
+    pads = json.loads((capture/"pads.json").read_text())
+    electrodes = [(p["net"],layer,shape(polys)) for p in pads["pad_polygons"] for layer,polys in p["layers"].items()]
+    if args.planes:
+        planes = json.loads((capture/"planes.json").read_text())
+        assert planes["source_pcb_sha256"] == hashlib.sha256(source.read_bytes()).hexdigest()
+        electrodes += [(p["net"],p["layer"],shape(p["polygons"])) for p in planes["native_filled_zone_polygons"]]
+    support = {key:(value,shape(value["polygons"])) for key,value in report["supporting_copper"].items()}
+    removed, rows = set(), []
+    for target in report["targets"]:
+        region = shape(target["polygons"])
+        sources = [g for net,layer,g in electrodes if net == target["net"] and layer == target["layer"] and g.intersects(region)]
+        sources += [support[key][1] for key in target["supporting_objects"] if support[key][0]["uuid"] not in removed]
+        remaining = unary_union(sources)
+        uncovered = region.difference(remaining)
+        polygon_covered = uncovered.is_empty
+        safe = polygon_covered
+        capsule_support = None
+        if args.exact_capsules and not safe:
+            for key in target["supporting_objects"]:
+                neighbor = support[key][0]["uuid"]
+                if neighbor in tracks and neighbor not in removed and exact_capsule_contains(tracks[neighbor],tracks[target["uuid"]]):
+                    safe,capsule_support = True,neighbor
+                    break
+        if safe:
+            removed.add(target["uuid"])
+        rows.append(dict(uuid=target["uuid"],net=target["net"],layer=target["layer"],
+            target_outer_area_mm2=region.area,uncovered_outer_area_mm2=uncovered.area,
+            full_target_outer_polygon_covered_by_remaining_inner_electrodes=polygon_covered,
+            actual_track_copper_covered_by_remaining_electrodes=safe,removed=safe))
+        rows[-1]["exact_integer_capsule_support_UUID"] = capsule_support
+        rows[-1]["proof_method"] = "exact_integer_capsule_containment" if capsule_support else "conservative_native_polygon_coverage"
+    label = args.label or ("e28-redundant-tracks-exact" if args.exact_capsules else "e28-redundant-tracks-planes" if args.planes else "e28-redundant-tracks")
+    assert label and all(c.isalnum() or c in "-_" for c in label)
+    output = ROOT/"staging"/label
+    assert not output.exists() and removed
+    tree = read_sexpr(source.read_text())
+    count = len(children(tree,"segment"))
+    tree[:] = [node for node in tree if not (isinstance(node,list) and node and node[0] == "segment"
+               and str(first(node,"uuid")[1]) in removed)]
+    assert len(children(tree,"segment")) == count-len(removed)
+    output.mkdir()
+    pcb = output/"rail_disconnect.kicad_pcb"
+    pcb.write_text(sexpr(tree)+"\n")
+    inputs = [source,capture/"capture.json",capture/"pads.json",Path(__file__)]
+    if args.planes:
+        inputs.append(capture/"planes.json")
+    hashes = {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs}
+    (output/"coverage.json").write_text(json.dumps(dict(source_sha256=hashes,
+        candidate_pcb_sha256=hashlib.sha256(pcb.read_bytes()).hexdigest(), removed_track_count=len(removed),
+        sequential_removal=True, checks=rows, all_vias_pads_drills_zones_and_rules_unchanged=True,
+        actual_target_track_copper_covered_by_remaining_electrodes=True,
+        native_refill_DRC_ERC_and_connectivity_pending=True, physical_qualified=False,fabrication_released=False),indent=2)+"\n")
+    print("Conservatively redundant tracks removed:",len(removed),"of",len(rows))
+    print("Via connectivity:",[(v["net"],v["position_mm"],v["connected_layers"]) for v in report["dangling_vias"]])
+
+
+if __name__ == "__main__":
+    run()

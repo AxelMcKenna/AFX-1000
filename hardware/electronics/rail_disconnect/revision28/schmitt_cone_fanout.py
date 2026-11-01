@@ -1,0 +1,114 @@
+"""Real 0.2mm escape tracks / 0.6-0.3 filled capped barrels for seven new cells."""
+
+import hashlib
+import json
+import shutil
+import uuid
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+from .band_local_escape import escape
+from .focused import legal_line
+from .repair import Router
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/schmitt-all-oc-old-leaf-work"
+WORK = ROOT / "generated/schmitt-all-oc-fanout-work"
+ENDS = {
+    1: (-2.55, -0.75),
+    2: (-0.65, -0.25),
+    3: (-2.55, 0.25),
+    4: (-0.65, 0.75),
+    5: (0.65, 0.75),
+    6: (2.6, 0.25),
+    7: (0.65, -0.25),
+    8: (2.6, -0.75),
+}
+
+
+def main():
+    assert not WORK.exists()
+    blob = (SOURCE / "rail_disconnect.kicad_pcb").read_bytes()
+    t = read_sexpr(blob.decode())
+    rt = Router(t)
+    routes = []
+    fps = {
+        next(p[2] for p in children(f, "property") if p[1] == "Reference"): f
+        for f in children(t, "footprint")
+    }
+    for i in range(7):
+        ref = f"U{36 + i}"
+        cx, cy = [float(v) - 100 for v in first(fps[ref], "at")[1:3]]
+        for num in (2, 4, 5, 7, 1, 3, 6, 8):
+            if i == 6 and num in (2, 5):
+                continue
+            p = next(p for p in rt.by_ref[ref] if p["pin"] == str(num))
+            dx, dy = ENDS[num]
+            end = (cx + dx, cy + dy)
+            start = p["xy"]
+            path = [start, (end[0], start[1]), end]
+            path = [q for j, q in enumerate(path) if j == 0 or q != path[j - 1]]
+            if all(legal_line(rt, p["net"], 0, q, r, 0.2) for q, r in zip(path, path[1:])):
+                probe = dict(p, xy=end)
+                got, reason = escape(rt, probe, maxdistance=0.05, step=0.025)
+                if got:
+                    rt.path(p["net"], 0, path, 0.2)
+                    got["pad_stem"] = path
+                else:
+                    got, reason = escape(rt, p, maxdistance=3, step=0.025)
+            else:
+                got, reason = escape(rt, p, maxdistance=3, step=0.025)
+            routes.append(dict(ref=ref, pin=num, net=p["net"], route=got, reason=reason))
+            print(ref, num, bool(got), reason, flush=True)
+    for i in range(79, 86):
+        ref = f"C{i}"
+        for num in ("1", "2"):
+            p = next(p for p in rt.by_ref[ref] if p["pin"] == num)
+            got, reason = escape(rt, p, maxdistance=3, step=0.025)
+            routes.append(dict(ref=ref, pin=num, net=p["net"], route=got, reason=reason))
+            print(ref, num, bool(got), reason, flush=True)
+    for i, n in enumerate(t):
+        if isinstance(n, list) and n and n[0] in ("segment", "via") and not children(n, "uuid"):
+            n.append(
+                [
+                    a("uuid"),
+                    a(
+                        str(
+                            uuid.uuid5(
+                                uuid.NAMESPACE_URL,
+                                f"rmx:E28:allOC:{hashlib.sha256(blob).hexdigest()}:{i}:{sexpr(n)}",
+                            )
+                        )
+                    ),
+                ]
+            )
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for p in SOURCE.iterdir():
+        if p.is_file() and (
+            p.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym")
+            or p.name in ("components.json", "fp-lib-table", "sym-lib-table")
+        ):
+            shutil.copy2(p, WORK / p.name)
+        elif p.suffix == ".pretty":
+            shutil.copytree(p, WORK / p.name)
+    (WORK / "rail_disconnect.kicad_pcb").write_text(sexpr(t) + "\n")
+    (WORK / "generated/escapes.json").write_text(
+        json.dumps(
+            dict(
+                source_pcb_sha256=hashlib.sha256(blob).hexdigest(),
+                recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                routes=routes,
+                original_Cu_preserved=True,
+                actual_force_delta_and_native_checks_pending=True,
+                no_qualification=True,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+    assert (SOURCE / "rail_disconnect.kicad_pcb").read_bytes() == blob
+
+
+if __name__ == "__main__":
+    main()

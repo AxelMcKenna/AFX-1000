@@ -1,0 +1,93 @@
+[
+  {
+    "label": "version",
+    "command": [
+      "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "--version"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "final-netlist",
+    "command": [
+      "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "sch",
+      "export",
+      "netlist",
+      "--format",
+      "kicadxml",
+      "--output",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/generated/netlist.xml",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/fan_power_health.kicad_sch"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "final-erc",
+    "command": [
+      "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "sch",
+      "erc",
+      "--format",
+      "json",
+      "--output",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/generated/erc.json",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/fan_power_health.kicad_sch"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "final-drc",
+    "command": [
+      "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "pcb",
+      "drc",
+      "--format",
+      "json",
+      "--all-track-errors",
+      "--schematic-parity",
+      "--severity-all",
+      "--exit-code-violations",
+      "--output",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/generated/final-drc.json",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/fan_power_health.kicad_pcb"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "native-reference",
+    "command": [
+      "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/native_measure.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "tests",
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "hardware.qualification.boards.fan_health.composite_nf_branch.test_branch",
+      "-v"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "ruff",
+    "command": [
+      "/Users/axelmckrnna/.cache/uv/archive-v0/4FxQ2rYyAjvgsfLW/bin/ruff",
+      "check",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/analyze.py",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/build.py",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/circuit.py",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/compose.py",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/finalize.py",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/native_measure.py",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/route_local.py",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/test_branch.py",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_nf_branch/validate.py"
+    ],
+    "returncode": 0
+  }
+]

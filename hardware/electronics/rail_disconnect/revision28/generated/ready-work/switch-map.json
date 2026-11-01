@@ -1,0 +1,136 @@
+{
+  "channels": [
+    {
+      "name": "bipolar",
+      "implementation": "retained Si8751 + source-verified TI Q5B"
+    },
+    {
+      "name": "analog5",
+      "implementation": "3 parallel TPS259482L, staged after digital"
+    },
+    {
+      "name": "digital5",
+      "implementation": "4 parallel TPS259482L, staged SPLYGD"
+    }
+  ],
+  "comparators": [
+    {
+      "name": "P19",
+      "positive": "P19_OV_REF",
+      "negative": "P19_OV_SENSE",
+      "output": "P19_OV_OK",
+      "sense_parts": [
+        "R56",
+        "R57",
+        "R58"
+      ],
+      "reference_series": "R59",
+      "hysteresis": "R60",
+      "pullup": "R61",
+      "negative_amplifier": null
+    },
+    {
+      "name": "N19",
+      "positive": "N19_OV_REF",
+      "negative": "N19_OV_SENSE",
+      "output": "N19_OV_OK",
+      "sense_parts": [],
+      "reference_series": "R62",
+      "hysteresis": "R63",
+      "pullup": "R64",
+      "negative_amplifier": {
+        "input": [
+          "R49",
+          "R50"
+        ],
+        "feedback": "R51",
+        "series": "R52"
+      }
+    },
+    {
+      "name": "P12",
+      "positive": "P12_OV_REF",
+      "negative": "P12_OV_SENSE",
+      "output": "P12_OV_OK",
+      "sense_parts": [
+        "R65",
+        "R66"
+      ],
+      "reference_series": "R67",
+      "hysteresis": "R68",
+      "pullup": "R69",
+      "negative_amplifier": null
+    },
+    {
+      "name": "N12",
+      "positive": "N12_OV_REF",
+      "negative": "N12_OV_SENSE",
+      "output": "N12_OV_OK",
+      "sense_parts": [],
+      "reference_series": "R70",
+      "hysteresis": "R71",
+      "pullup": "R72",
+      "negative_amplifier": {
+        "input": [
+          "R53"
+        ],
+        "feedback": "R54",
+        "series": "R55"
+      }
+    },
+    {
+      "name": "V5_REG",
+      "positive": "V5_REG_OV_REF",
+      "negative": "V5_REG_OV_SENSE",
+      "output": "V5_REG_OV_OK",
+      "sense_parts": [
+        "R73",
+        "R74"
+      ],
+      "reference_series": "R75",
+      "hysteresis": "R76",
+      "pullup": "R77",
+      "negative_amplifier": null
+    },
+    {
+      "name": "5V_DIG",
+      "positive": "5V_DIG_OV_REF",
+      "negative": "5V_DIG_OV_SENSE",
+      "output": "5V_DIG_OV_OK",
+      "sense_parts": [
+        "R78",
+        "R79"
+      ],
+      "reference_series": "R80",
+      "hysteresis": "R81",
+      "pullup": "R82",
+      "negative_amplifier": null
+    },
+    {
+      "name": "REF_LOW",
+      "positive": "REF_LOW_POSITIVE",
+      "negative": "REF_LOW_AUX",
+      "output": "REF_LOW_OK",
+      "sense_parts": [
+        "R83",
+        "R84"
+      ],
+      "reference_series": "R85",
+      "hysteresis": "R86",
+      "pullup": "R87"
+    },
+    {
+      "name": "REF_HIGH",
+      "positive": "REF_HIGH_POSITIVE",
+      "negative": "PROTECT_REF",
+      "output": "REF_HIGH_OK",
+      "sense_parts": [
+        "R88",
+        "R89"
+      ],
+      "reference_series": "R90",
+      "hysteresis": "R91",
+      "pullup": "R92"
+    }
+  ]
+}

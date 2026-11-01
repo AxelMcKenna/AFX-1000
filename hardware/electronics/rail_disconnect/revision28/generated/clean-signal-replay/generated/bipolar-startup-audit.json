@@ -1,0 +1,187 @@
+{
+  "revision": "E28",
+  "rows": [
+    {
+      "rail": "P19",
+      "driver": "U1",
+      "fets": [
+        "Q1",
+        "Q2"
+      ],
+      "protected_bulk": "C4",
+      "actual_bulk_value": "1500uF 35V electrolytic 20% EEUFR1V152S",
+      "local_bulk_max_f": 0.0018,
+      "local_bulk_only_energy_j": 0.32489999999999997,
+      "driver_permit": "E28_MASTER_ENABLE",
+      "current_or_slew_limit_present": false,
+      "guaranteed_bulk_charge_time_s": null,
+      "proposed_controller": "LM5069-1",
+      "repair_implemented": false
+    },
+    {
+      "rail": "N19",
+      "driver": "U2",
+      "fets": [
+        "Q3",
+        "Q4"
+      ],
+      "protected_bulk": "C8",
+      "actual_bulk_value": "1500uF 35V electrolytic 20% EEUFR1V152S",
+      "local_bulk_max_f": 0.0018,
+      "local_bulk_only_energy_j": 0.32489999999999997,
+      "driver_permit": "E28_MASTER_ENABLE",
+      "current_or_slew_limit_present": false,
+      "guaranteed_bulk_charge_time_s": null,
+      "proposed_controller": "LM5067-1",
+      "repair_implemented": false
+    },
+    {
+      "rail": "P12",
+      "driver": "U3",
+      "fets": [
+        "Q5",
+        "Q6"
+      ],
+      "protected_bulk": "C12",
+      "actual_bulk_value": "220uF 35V electrolytic 20% EEUFR1V221",
+      "local_bulk_max_f": 0.000264,
+      "local_bulk_only_energy_j": 0.019008,
+      "driver_permit": "E28_MASTER_ENABLE",
+      "current_or_slew_limit_present": false,
+      "guaranteed_bulk_charge_time_s": null,
+      "proposed_controller": "LM5069-1",
+      "repair_implemented": false
+    },
+    {
+      "rail": "N12",
+      "driver": "U4",
+      "fets": [
+        "Q7",
+        "Q8"
+      ],
+      "protected_bulk": "C16",
+      "actual_bulk_value": "220uF 35V electrolytic 20% EEUFR1V221",
+      "local_bulk_max_f": 0.000264,
+      "local_bulk_only_energy_j": 0.019008,
+      "driver_permit": "E28_MASTER_ENABLE",
+      "current_or_slew_limit_present": false,
+      "guaranteed_bulk_charge_time_s": null,
+      "proposed_controller": "LM5067-1",
+      "repair_implemented": false
+    }
+  ],
+  "defect": "All four retained hard-disconnect banks enable together with firstDIGmaster; no bounded bipolar inrush element exists.",
+  "mcap_function": "OFF-state drain-dVdt-induced false-turn-on suppression; not regulated load-capacitor soft start.",
+  "si8751_table_conditions": {
+    "vdd_range_v": [
+      2.25,
+      5.5
+    ],
+    "tt_ohm": 10000,
+    "gate_on_no_load_v": [
+      9,
+      13
+    ],
+    "on_resistance_max_ohm": 370000,
+    "on_resistance_min_not_specified": true,
+    "input_high_current_max_a": 0.0095,
+    "input_vih_fraction_vdd": 0.5,
+    "input_vil_fraction_vdd": 0.25,
+    "maximum_turnoff_s": 3.5e-05,
+    "turnoff_test_load_f": 1e-10,
+    "actual_two_fet_gate_charge_tested": false
+  },
+  "retained_fet_limits": {
+    "vds_v": 60,
+    "vgs_abs_v": 20,
+    "rds_max_25c_4v5_ohm": 0.0033,
+    "rds_max_25c_10v_ohm": 0.0022,
+    "gate_leakage_max_25c_at20v_a": 1e-07,
+    "hot_gate_leakage_guaranteed": false,
+    "hot_rds_guaranteed": false,
+    "normalized_hot_rds_is_typical": true,
+    "existing_device_linear_soa_qualified": false
+  },
+  "repair_proposal": {
+    "architecture": "Independent current/power-limited pass stage ahead of EACH retained bidirectional hard-off pair; all protected bulk remains downstream.",
+    "selection": "LM5069-1 positive / LM5067-1 negative are research candidates only; separate linear-rated MOSFET, shunt and protection/level-shift circuitry still need selection.",
+    "sequence": [
+      "all5VstagesfullyON",
+      "P19controlledcharge",
+      "N19controlledcharge",
+      "P12controlledcharge",
+      "N12controlledcharge"
+    ],
+    "advancement": "Each stage must have independently verified protected-voltage completion plus retained raw-source health; PGD alone has coarse VDS threshold and is not precision/unmute approval.",
+    "fault": "Any sourceUV/OV/AUX/run/fault must deassert all enables; latchoff requires deliberate reset; reverse/partial-power behavior is retained through B2B but all new sense/driver pin paths need analysis.",
+    "low_current_shunt_only_proposal_rejected": true,
+    "rejection": "Both controller datasheets require RS<=100mohm for proper operation; proposed1.2ohm/0.28ohm low-current shunts violate this requirement.",
+    "maximum_supported_shunt_ohm": 0.1,
+    "minimum_current_limit_at_max_supported_shunt_a": {
+      "positive": 0.485,
+      "negative": 0.44
+    },
+    "bounded_slew_or_different_controller_required": true,
+    "lm5069_shunt_threshold_at_datasheet_test_v": [
+      0.0485,
+      0.0615
+    ],
+    "lm5067_shunt_threshold_at_datasheet_test_v": [
+      0.044,
+      0.056
+    ],
+    "lm5069_fault_timer_threshold_v": [
+      3.76,
+      4.16
+    ],
+    "lm5069_fault_timer_charge_a": [
+      5.1e-05,
+      0.00012
+    ],
+    "lm5067_fault_timer_threshold_v": [
+      3.76,
+      4.16
+    ],
+    "lm5067_fault_timer_charge_a": [
+      4.4e-05,
+      0.00014
+    ],
+    "threshold_test_conditions": "LM5069 electrical table VIN48V; LM5067 ICC2mA/OUT48VaboveVEE unless stated. Do not silently extend conditional limits to12/19V without manufacturer-supported coverage.",
+    "controller_operating_temperature_c": [
+      -40,
+      125
+    ],
+    "additional_drop_budget_accepted": false,
+    "startup_source_current_headroom_accepted": false,
+    "negative_enable_and_pg_level_shift_selected": false,
+    "current_power_timer_corner_network_selected": false,
+    "linear_pass_fet_and_pulse_soa_selected": false,
+    "native_area_and_height_fit_checked": false,
+    "actual_load_and_full_capacitance_inventory_accepted": false
+  },
+  "build_ready": false,
+  "physical_qualified": false,
+  "sources": {
+    "Si8751": {
+      "url": "https://www.skyworksinc.com/-/media/SkyWorks/SL/documents/public/data-sheets/Si8751-2.pdf",
+      "revision": "206331A, 2022-07-27, 2.3/2.6/Table4.1",
+      "sha256": "bad875e9f53f558e6b9e7896ff624157de6b1962af2baee26bb6e2ca68ca3c66"
+    },
+    "CSD18540Q5B": {
+      "url": "https://www.ti.com/lit/ds/symlink/csd18540q5b.pdf",
+      "revision": "SLPS488B, April2017, 5.1/5.3",
+      "sha256": "2e43c4a2ac82af8a089be0a9e413282326f8d7857254ac07390b458deca854e0"
+    },
+    "LM5069": {
+      "url": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+      "revision": "SNVS452G, January2020, 7.3/7.5/8.4/9.2",
+      "sha256": "d60d8106a6e8113900ff8b9576dd959942fa7169742baf0beeb30684d4d64681"
+    },
+    "LM5067": {
+      "url": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+      "revision": "SNVS532D, August2020, 7.3/7.5/8.3/9.2",
+      "sha256": "22ff73cee2c83f169155ded519adb19202d87c2b525d62cc6412df10d8377bc1"
+    }
+  },
+  "script_sha256": "368392f1ee55d17425d27be202feb8855e99b3ba98c5e1d3ec8cfb3c26c5103a"
+}

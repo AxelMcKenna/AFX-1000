@@ -357,7 +357,7 @@
           ],
           [
             "led_logic",
-            0.0019302164991900307
+            0.0019302164991900305
           ]
         ]
       },
@@ -386,7 +386,7 @@
           ],
           [
             "seed_local",
-            0.0038857088685681903
+            0.00388570886856819
           ],
           [
             "adc_5v",
@@ -394,7 +394,7 @@
           ],
           [
             "led_logic",
-            0.0014765693700559124
+            0.0014765693700559122
           ]
         ]
       },
@@ -1118,13 +1118,13 @@
     "physical_harness_qualified": false
   },
   "operating_limits": {
-    "digital_protected_a": 2.4000000000000004,
+    "digital_protected_a": 2.4,
     "analog_protected_a": 0.251,
     "digital_local_source_allocation_a": 0.018,
     "digital_bleed_max_a": 0.005620037938202331,
-    "digital_regulator_total_a": 2.4236200379382025,
+    "digital_regulator_total_a": 2.423620037938202,
     "analog_regulator_total_a": 0.25329213827923447,
-    "pre_regulator_total_a": 2.7029121762174366,
+    "pre_regulator_total_a": 2.702912176217436,
     "module_rating_a": 6,
     "pre_voltage_allocation_v": [
       5.8,
@@ -1138,19 +1138,19 @@
       "reference_input_margin_v": 0.5
     },
     "thermal": {
-      "digital_pass_plus_control_max_w": 3.5088397431447476,
+      "digital_pass_plus_control_max_w": 3.5088397431447467,
       "analog_pass_plus_ground_max_w": 0.4597787418548773,
-      "module_loss_at_85pct_allocation_w": 2.957303910449666,
+      "module_loss_at_85pct_allocation_w": 2.9573039104496655,
       "ambient_design_c": 60,
       "junction_design_limit_c": 110,
-      "digital_total_theta_required_c_per_w": 14.249724598476023,
+      "digital_total_theta_required_c_per_w": 14.249724598476027,
       "digital_junction_case_c_per_w": 3,
       "analog_total_theta_required_c_per_w": 108.74795950392547,
       "measured_or_layout_qualified": false
     },
     "upstream": {
       "raw_generators_input_w": 12.48,
-      "pre_buck_input_w": 19.715359402997773,
+      "pre_buck_input_w": 19.71535940299777,
       "auxiliaries_w": 0.9397120854000001,
       "control_and_opamp_w": 1.254,
       "total_input_w": 34.38907148839777,
@@ -1162,21 +1162,53 @@
       "replacement_input_profile_implemented": false
     },
     "startup": {
+      "capacitance_inventory": {
+        "DIG": {
+          "native_reference": "C24",
+          "native_value": "4700uF 16V electrolytic 20% EEUFR1C472",
+          "native_rail": "5V_DIG",
+          "nominal_bulk_f": 0.0047,
+          "tolerance_fraction": 0.2,
+          "known_retained_bulk_maximum_f": 0.00564,
+          "additional_capacitance_scenario_allocation_f": 0.00146,
+          "scenario_capacitance_f": 0.0071,
+          "other_board_module_cable_and_local_source_inventory_complete": false,
+          "complete_network_upper_bound_f": null,
+          "additional_reserve_is_guaranteed": false,
+          "effective_capacitance_esr_model_or_measurement_qualified": false
+        },
+        "ANA": {
+          "native_reference": "C20",
+          "native_value": "1500uF 16V electrolytic 20% EEUFR1C152",
+          "native_rail": "V5_REG",
+          "nominal_bulk_f": 0.0015,
+          "tolerance_fraction": 0.2,
+          "known_retained_bulk_maximum_f": 0.0018,
+          "additional_capacitance_scenario_allocation_f": 0.0004,
+          "scenario_capacitance_f": 0.0022,
+          "other_board_module_cable_and_local_source_inventory_complete": false,
+          "complete_network_upper_bound_f": null,
+          "additional_reserve_is_guaranteed": false,
+          "effective_capacitance_esr_model_or_measurement_qualified": false
+        }
+      },
+      "complete_network_capacitance_bound_verified": false,
+      "complete_preconnected_startup_proof": false,
       "reference_tau_min_s": 0.1267731,
-      "ramp_screen_scope": "reference-acquired preconnected RC ramp only; initial SET-current floor is excluded",
+      "ramp_screen_scope": "Reference-acquired preconnected RC ramp under declared capacitance scenario allocations only; complete network inventory and initial SET-current floor are excluded",
       "initial_set_floor_inrush_qualified": false,
       "initial_set_floor_digital_cap_current_demand_a": 4.52625,
-      "initial_set_floor_analog_cap_current_demand_a": 1.4025,
+      "initial_set_floor_analog_cap_current_demand_a": 2.805,
       "digital_preconnected_charge_allocation_a": 0.2832497684514332,
-      "digital_total_with_charge_a": 2.7068698063896357,
-      "analog_preconnected_charge_allocation_a": 0.043514485922098306,
-      "analog_total_with_charge_a": 0.29680662420133275,
+      "digital_total_with_charge_a": 2.7068698063896353,
+      "analog_preconnected_charge_allocation_a": 0.08702897184419661,
+      "analog_total_with_charge_a": 0.3403211101234311,
       "preconnected_ramp_current_screen_passes": true,
       "digital_set_current_floor_v": 0.3468,
       "analog_set_current_floor_v": 0.6936,
       "late_e26_gate_closure_current_limited": false,
       "digital_late_closure_stored_energy_j": 0.09080400486490338,
-      "analog_late_closure_stored_energy_j": 0.013832454620899548,
+      "analog_late_closure_stored_energy_j": 0.027664909241799096,
       "measured_startup_stability": false
     },
     "minimum_load": {
@@ -1204,6 +1236,7 @@
     "Reference assembly/aging/humidity, capacitor leakage and resistor total errors are allocations, not complete manufacturer guarantees.",
     "Closed-loop SET buffer compensation, actual module effective capacitor range, ripple and load-step reserves need simulation/measurement.",
     "Slow SET ramp screens preconnected bulk only; startup floor, shutdown, partial power and late E26 gate closure are unqualified.",
+    "Retained C20/C24 tolerance maxima are sourced from a fresh native disconnect export. Additional capacitor reserves are unverified scenario allocations, not a complete-network upper bound.",
     "SD-card 3V3 current/inrush, Seed 3V3 source capacity, emitters, coil current and R1 derating remain unverified actual-load budgets.",
     "Two new <=2mohm source-to-E26 ground straps and a <=1mohm input-guard star path require new mounting/contact/return interfaces and qualification."
   ],
@@ -1221,10 +1254,12 @@
     "hardware/electronics/power_supply/generated/electrical-screens.json": "89d5627f4ab736da793643908c12e39f3e58b2a9e61482ee7006530d760d60f5",
     "hardware/electronics/common/circuits.py": "9421113290b333f6a554de57d3544fe02688068b7448447c4e845e8231c58db6",
     "hardware/electronics/power_distribution/p02/distribution.py": "aad5d2b0b4b3fce9ab2fb67fb6eb9b0b2e72a3b64426f6671e86401a38597f01",
-    "hardware/electronics/power_distribution/p02/analysis.py": "a8d317b217f42dd88e721ee047681c1d42207c1de7c36e7dd171c78ec6cccfb7",
-    "hardware/electronics/power_distribution/p02/check.py": "d740d965044afa158579b244f36a5aa681dc9136809d48fb99872b600a929e34",
+    "hardware/electronics/power_distribution/p02/analysis.py": "6ef1ef17f8d03849f33cafe5e098f6432cb41c67aad2151f34d0707c2d160ac5",
+    "hardware/electronics/power_distribution/p02/check.py": "d8fd3656cdbd7aef0cb65b13013809307eb25f6ae449caa78f289c6d2834d281",
     "hardware/electronics/power_distribution/p02/loads.py": "fa69bda4adffe9183c364ebab9437ea9da3516e7575b984522c0c0a88190aa76",
     "hardware/electronics/power_distribution/p02/spec.py": "5e9e04ed92be7736c350cf673e432485ad81c9635fa708f7df6b33d3811a2cf6",
-    "hardware/electronics/power_distribution/p02/generated/netlist.xml": "47247c385a02f57adc5af8c34c8bfa50eece34eae401925f2c13377d06e70bf9"
+    "hardware/electronics/power_distribution/p02/generated/netlist.xml": "4e7b6ad6326e0f6dbc80c2b3450c9a84e056c989d682c040c2f1c734e90ace1b",
+    "hardware/electronics/power_distribution/p02/generated/disconnect-netlist.xml": "c8c8dfd837793105b02749ffa0988cb8856664169cbcca5ab7ab828c3dd95f6a",
+    "hardware/electronics/rail_disconnect/rail_disconnect.kicad_sch": "34d964adac712c03cca65b6f0cf1dc67780b28a26622c1bdf7765f86020ea2eb"
   }
 }

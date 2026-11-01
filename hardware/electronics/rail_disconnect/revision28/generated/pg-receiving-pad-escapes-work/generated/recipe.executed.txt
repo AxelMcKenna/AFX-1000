@@ -1,0 +1,81 @@
+"""Escape eight actual bare PG logic pads with explicit ordinary-track deltas."""
+
+import hashlib
+import json
+import shutil
+import uuid
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+from .ordinary_joint_ripup7 import ORDINARY
+from .receiving_escape_centered import escape
+from .repair import Router
+from .schmitt_cone_candidate import GROUPS
+from .schmitt_receiver_joint_surface import geometry, key
+from .schmitt_u37_short_barrels import separation
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/c83-pg2-reconnected-work"
+WORK = ROOT / "generated/pg-receiving-pad-escapes-work"
+PADS = [("U40", "3"), ("U41", "1"), ("U26", "10"), ("U26", "9"), ("U29", "6"), ("U30", "2"), ("U30", "6"), ("U34", "2")]
+
+
+def main():
+    assert not WORK.exists()
+    path = SOURCE / "rail_disconnect.kicad_pcb"
+    original = path.read_bytes()
+    digest = hashlib.sha256(original).hexdigest()
+    assert digest == "1d245eb9cd4375dd4c2873a5903d321c6efecef3ce9602ed2fdcc696e812a3c4"
+    tree = read_sexpr(original.decode())
+    graph_path = SOURCE / "generated/residual-components.json"
+    graph = json.loads(graph_path.read_text())
+    assert next(v for p, v in graph["source_sha256"].items() if Path(p).resolve() == path.resolve()) == digest
+    bare = {(p["ref"], p["pin"]): net for net, row in graph["inventory"].items() for component in row["components"] if len(component) == 1 for p in component if p["kind"] == "PAD"}
+    assert all(p in bare for p in PADS), [(p, bare.get(p)) for p in PADS]
+    names = {str(n[1]): str(n[2]).lstrip("/") for n in children(tree, "net")}
+    signals = {n for group in GROUPS for n in group if n}
+    signals |= {n + "_SCHMITT" for n in signals}
+    ordinary = (set(ORDINARY) | (signals & set(graph["inventory"])) | {"NF_VALID_LOGIC", "NF_OUTPUT_VALID_RAW", "POS_OUTPUT_READY"}) - {"E28_FAULT", "E28_NOT_FAULT", "E28_ARMED", "E28_NOT_ARMED", "E28_OUT_ARMED", "E28_OUT_ARM_BAR", "E28_RESET", "E28_RESET_OUT"}
+    candidates = {str(first(n, "uuid")[1]): (n, geometry(n, names)) for n in children(tree, "segment") if names[str(first(n, "net")[1])] in ordinary}
+    original_ids = {id(n) for n in tree}
+    rows, removed = [], []
+    for ref, number in PADS:
+        rt = Router(tree)
+        pad = next(p for p in rt.by_ref[ref] if p["pin"] == number)
+        assert pad["net"] == bare[ref, number]
+        protected_new = {key(geometry(n, names)) for n in tree if id(n) not in original_ids and isinstance(n, list) and n and n[0] in ("segment", "via")}
+        allowed = {key(g) for node, g in candidates.values() if any(node is n for n in tree)} - protected_new
+        rt.geometry = [g for g in rt.geometry if not (g["kind"] == "line" and key(g) in allowed and g["net"] != pad["net"])]
+        before = {id(n) for n in tree}
+        route, reason = escape(rt, pad, maxdistance=6, step=0.025)
+        new = [geometry(n, names) for n in tree if id(n) not in before and isinstance(n, list) and n and n[0] in ("segment", "via")]
+        ripped = []
+        if route:
+            for uid, (node, g) in candidates.items():
+                if not any(node is n for n in tree) or g["net"] == pad["net"]:
+                    continue
+                if any(separation(g, q) < 0.200001 for q in new):
+                    tree.remove(node)
+                    item = dict(uuid=uid, net=g["net"], literal=sexpr(node))
+                    removed.append(item)
+                    ripped.append(item)
+        rows.append(dict(ref=ref, pin=number, net=pad["net"], route=route, reason=reason, ripped_ordinary_objects=ripped))
+        print(ref, number, pad["net"], bool(route), "removed", len(ripped), reason, flush=True)
+    for index, node in enumerate(tree):
+        if isinstance(node, list) and node and node[0] in ("segment", "via") and not children(node, "uuid"):
+            node.append([a("uuid"), a(str(uuid.uuid5(uuid.NAMESPACE_URL, f"rmx:E28:PGreceiving:{digest}:{index}:{sexpr(node)}")))])
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for source in SOURCE.iterdir():
+        if source.is_file() and (source.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym") or source.name in ("components.json", "fp-lib-table", "sym-lib-table")):
+            shutil.copy2(source, WORK / source.name)
+        elif source.suffix == ".pretty":
+            shutil.copytree(source, WORK / source.name)
+    (WORK / path.name).write_text(sexpr(tree) + "\n")
+    report = dict(source_pcb_sha256=digest, source_graph_sha256=hashlib.sha256(graph_path.read_bytes()).hexdigest(), recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), attempts=rows, affected_ordinary_nets=sorted({r["net"] for r in removed}), removed_ordinary_objects=removed, actual_source_closed_raw_and_buffered_signal_paths_kept_hard=True, new_escapes_kept_hard_for_subsequent_pins=True, all_existing_vias_and_all_force_sense_timing_ground_tracks_parts_values_ports_rules_fixed=True, full_affected_net_restoration_and_fresh_native_PDN_MCAD_required=True, filled_capped_process_accepted=False, physical_qualified=False)
+    (WORK / "generated/pg-receiving-escapes.json").write_text(json.dumps(report, indent=2) + "\n")
+    assert path.read_bytes() == original
+
+
+if __name__ == "__main__":
+    main()

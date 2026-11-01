@@ -1,0 +1,37 @@
+{
+  "resource_info": {
+    "command": [
+      "/usr/local/bin/docker",
+      "info",
+      "--format",
+      "{{json .MemTotal}} {{json .NCPU}} {{json .CgroupVersion}}"
+    ],
+    "returncode": 0
+  },
+  "oom_events": {
+    "command": [
+      "/usr/local/bin/docker",
+      "events",
+      "--since",
+      "1793144104",
+      "--until",
+      "1793144833",
+      "--filter",
+      "type=container",
+      "--filter",
+      "event=oom",
+      "--filter",
+      "image=openscad/openscad",
+      "--format",
+      "{{json .}}"
+    ],
+    "returncode": 0
+  },
+  "failed_case_returncode": 137,
+  "case_specific_OOM_proven": false,
+  "retained_event_window": [
+    "1793144104",
+    "1793144833"
+  ],
+  "scope": "Read-onlydaemonstatus/events; no resourceconfig change"
+}

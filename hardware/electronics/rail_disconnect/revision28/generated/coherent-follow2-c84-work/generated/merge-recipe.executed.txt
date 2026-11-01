@@ -1,0 +1,125 @@
+"""Merge exact independently sealed FOLLOW2 and C84 deltas onto the27-open source."""
+
+import hashlib
+import json
+import re
+import shutil
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/c82-output-reconnected-work"
+WORK = ROOT / "generated/coherent-follow2-c84-work"
+FOLLOW = ROOT / "generated/external-follow2-proposal"
+C84 = ROOT / "generated/external-c84-functional-proposal"
+
+
+def verify_packet(folder, expected):
+    path = folder / "handoff.json"
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == expected
+    data = json.loads(path.read_text())
+    for name, digest in data["files_sha256"].items():
+        p = folder / name
+        assert p.resolve().is_relative_to(folder.resolve())
+        assert hashlib.sha256(p.read_bytes()).hexdigest() == digest, p
+    return data
+
+
+def ref(fp):
+    return next(p[2] for p in children(fp, "property") if p[1] == "Reference")
+
+
+def logical_tree(node, codes):
+    if isinstance(node, list):
+        if node and str(node[0]) == "net":
+            name = str(node[-1]) if len(node) > 2 else str(node[1])
+            return ["net", codes.get(name, name).lstrip("/")]
+        return [logical_tree(x, codes) for x in node]
+    value = str(node)
+    if re.fullmatch(r"[-+]?\d+(?:\.\d*)?(?:[eE][-+]?\d+)?", value):
+        return format(float(value), ".9f")
+    return value
+
+
+def retarget(node, target_codes, old_codes=None):
+    old_codes = old_codes or {}
+    if isinstance(node, list):
+        if node and str(node[0]) == "net":
+            name = str(node[-1]) if len(node) > 2 else str(node[1])
+            name = old_codes.get(name, name).lstrip("/")
+            if name in target_codes:
+                node[:] = [a("net"), a(target_codes[name]), "/" + name]
+        else:
+            for child in node:
+                retarget(child, target_codes, old_codes)
+
+
+def main():
+    assert not WORK.exists()
+    follow_manifest = verify_packet(FOLLOW, "271c6e88d2bb2fa58d1efb3650d670412feb3e4c3a594b3f23f34dea33114391")
+    cap_manifest = verify_packet(C84, "3140350688a03cab069bac27b34e2afdc6505a225ce6732e3b6bbb727843ab2b")
+    path = SOURCE / "rail_disconnect.kicad_pcb"
+    original = path.read_bytes()
+    assert hashlib.sha256(original).hexdigest() == "4e419cdb73786b2ab83080d0b1561f5e882b75ad7058bdcf0b75e4acd1a7da3f"
+    tree = read_sexpr(original.decode())
+    codes = {str(n[1]): str(n[2]).lstrip("/") for n in children(tree, "net")}
+    by_name = {name: code for code, name in codes.items()}
+    objects = {str(first(n, "uuid")[1]): n for k in ("segment", "via") for n in children(tree, k)}
+    follow_delta = json.loads((FOLLOW / "follow2-only-authored-delta.json").read_text())
+    assert not follow_delta["removed"] and len(follow_delta["added"]) == 81
+    parent_tree = read_sexpr((C84 / "source-parent/rail_disconnect.kicad_pcb").read_text())
+    parent_codes = {str(n[1]): str(n[2]).lstrip("/") for n in children(parent_tree, "net")}
+    parent_objects = {str(first(n, "uuid")[1]): n for k in ("segment", "via") for n in children(parent_tree, k)}
+    removed = []
+    cap_delta = json.loads((C84 / "c84-only-authored-delta.json").read_text())
+    for row in cap_delta["removed"]:
+        node = objects[row["uuid"]]
+        old = read_sexpr(row["source_object"])
+        expected = parent_objects[row["uuid"]]
+        assert parent_codes[str(first(expected, "net")[1])] == row["net"]
+        assert logical_tree(node, codes) == logical_tree(expected, parent_codes), row["uuid"]
+        # The old-item ledger used KiCad's transient internal numeric codes;
+        # those are not portable net identities. Cross-check its geometry
+        # against the frozen original item and bind its explicit logical net.
+        first(old, "net")[:] = [a("net"), "/" + row["net"]]
+        assert logical_tree(expected, parent_codes) == logical_tree(old, {}), row["uuid"]
+        removed.append(sexpr(node))
+        tree.remove(node)
+    assert len(removed) == 4
+    old_cap = next(fp for fp in children(parent_tree, "footprint") if ref(fp) == "C84")
+    current_cap = next(fp for fp in children(tree, "footprint") if ref(fp) == "C84")
+    assert logical_tree(current_cap, codes) == logical_tree(old_cap, parent_codes)
+    candidate_tree = read_sexpr((C84 / "candidate-paired/rail_disconnect.kicad_pcb").read_text())
+    candidate_codes = {str(n[1]): str(n[2]).lstrip("/") for n in children(candidate_tree, "net")}
+    new_cap = next(fp for fp in children(candidate_tree, "footprint") if ref(fp) == "C84")
+    cap_before = sexpr(current_cap)
+    # Use the actual native rotated land geometry. Editing only footprint.at
+    # would omit absolute native pad rotations and is not an equivalent part.
+    retarget(new_cap, by_name, candidate_codes)
+    tree[tree.index(current_cap)] = new_cap
+    added = []
+    proof = json.loads((C84 / "c84-functional-proof.json").read_text())
+    for row in follow_delta["added"] + proof["added_segments"]:
+        assert row["uuid"] not in objects
+        node = read_sexpr(row["source_object"])
+        retarget(node, by_name, codes)
+        assert str(first(node, "uuid")[1]) == row["uuid"]
+        tree.append(node)
+        added.append(sexpr(node))
+    assert len(added) == 85
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for source in SOURCE.iterdir():
+        if source.is_file() and (source.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym") or source.name in ("components.json", "fp-lib-table", "sym-lib-table")):
+            shutil.copy2(source, WORK / source.name)
+        elif source.suffix == ".pretty":
+            shutil.copytree(source, WORK / source.name)
+    (WORK / path.name).write_text(sexpr(tree) + "\n")
+    report = dict(source_pcb_sha256=hashlib.sha256(original).hexdigest(), recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), verified_external_files=[len(follow_manifest["files_sha256"]), len(cap_manifest["files_sha256"])], external_handoff_sha256={str(FOLLOW / "handoff.json"): hashlib.sha256((FOLLOW / "handoff.json").read_bytes()).hexdigest(), str(C84 / "handoff.json"): hashlib.sha256((C84 / "handoff.json").read_bytes()).hexdigest()}, removed_exact_C84_local_supply_segments=removed, C84_before=cap_before, C84_after=sexpr(new_cap), added_exact_external_objects=added, all_other_current_objects_and_C82_pose_preserved=True, no_full_board_overwrite=True, external_force_withdrawal_requires_current_source_extraction=True, physical_native_MCAD_PDN_and_noise_qualification_not_inherited=True, physical_qualified=False)
+    (WORK / "generated/merged-external-deltas.json").write_text(json.dumps(report, indent=2) + "\n")
+    assert path.read_bytes() == original
+
+
+if __name__ == "__main__":
+    main()

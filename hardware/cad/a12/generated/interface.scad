@@ -1,0 +1,19 @@
+// Generated conditional A12 supply interface; no physical approval.
+p03_revision = "P03";
+p03_datum = [168, 108, 6.5];
+p03_thickness = 1.6;
+p03_outline = [[0, 0], [160, 0], [160, 35], [152, 35], [152, 45], [6, 45], [6, 35], [0, 35]];
+p03_mounts = [[4, 4], [156, 4], [12, 41], [144, 41], [41, 22], [62, 22], [96, 41], [121, 41], [91, 4], [117, 4]];
+p03_mount_drill = 2.2;
+p03_top_assembly_height_limit = 12;
+p03_bottom_assembly_height_limit = 3;
+p03_minimum_external_clearance = 0.25;
+p03_complete_source_required = true;
+p03_native_pcb_bound = false;
+p03_adjustable_bottom_z_range = [6.3, 6.7];
+p03_mounts_native_pcb_bound = false;
+p03_fabrication_thickness_range = [1.44, 1.76];
+p03_fabrication_thickness_range_accepted = false;
+a12_switch_body_xy = [10, 10];
+a12_switch_body_height = 4.5;
+a12_switch_lead_drop = 4.5;

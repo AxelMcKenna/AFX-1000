@@ -1,0 +1,111 @@
+{
+  "revision": "A12-T01",
+  "physical_tests_performed": 0,
+  "thermal_qualified": false,
+  "fabrication_released": false,
+  "mandatory_traceability": [
+    "Exact P03 native PCB, schematic/BOM, filled copper and heatmap hashes; exact thermal design/STEP/drawing hashes",
+    "Fabricator certified aluminum alloy/temper, actual plating microsection, resin/cap process, thickness and copper stack",
+    "TIM lot, actual cut dimensions and thickness under documented controlled measuring pressure, aging/storage, vendor compression-pressure/contact data for selected1.524mm sheet",
+    "Temperature probe and power instrumentation IDs, calibration and positive expanded uncertainty; source/load operating corner; closed housing, orientation, feet, table and blocked-clearance conditions"
+  ],
+  "required_metrics": [
+    {
+      "id": "p03_peak_local_coldplate_c",
+      "instrument_roles": [
+        "temperature",
+        "ambient_temperature",
+        "electrical_power"
+      ],
+      "upper_limit_c": 60,
+      "limit_basis": "Project coldplate allocation; not a heatsink manufacturer guarantee",
+      "acceptance": "Maximum measured land/base temperature plus positive expanded uncertainty<=60 at40C closed ambient and actual worst source/load corner. Simultaneously record ambient and total electrical heat balance. No case-temperature-only junction inference."
+    },
+    {
+      "id": "p03_lt3471_junction_c",
+      "refs": [
+        "U1",
+        "U13"
+      ],
+      "instrument_roles": [
+        "junction_temperature",
+        "temperature",
+        "electrical_power"
+      ],
+      "upper_project_allocation_c": 85,
+      "manufacturer_temperature_basis": "LT3471 RevC operating/performance TA window-40..85C,Note2 guarantee0..70C and characterization/SPC over-40..85C;125C absolute junction maximum.85C here is a conservative PROJECT junction allocation,not an explicit manufacturer junction rating.",
+      "acceptance": "Bounded junction estimate/measurement plus positive expanded uncertainty<=85. Include package, actual connected copper spreading, via barrels, TIM contacts and both temperature/power uncertainty. Required verified method remains open; neither JEDECthetaJA nor packagecase temperature alone proves this.",
+      "u13_power_conservative_allocation_w": 2.133384,
+      "u13_required_total_junction_to_base_c_per_w_at60c_no_uncertainty": 11.71847168629745,
+      "guardband_formula": "T_base_upper + P_IC_upper * R_junction_to_base_upper <=85C; positive expanded uncertainty and full path/contact/package/material bounds are mandatory.11.718K/W alone is not an acceptance pass."
+    },
+    {
+      "id": "p03_remaining_package_junction_c",
+      "instrument_roles": [
+        "junction_temperature",
+        "temperature",
+        "electrical_power"
+      ],
+      "upper_project_allocation_c": 110,
+      "limit_basis": "Project target; also obey each selected component operating rating and full specification scope",
+      "acceptance": "Every remaining hot package requires its own source-bound junction path and uncertainty. Uncontacted U102,U101,U1,U22,U23,U10,U7 do not inherit a direct TIM path from neighboring lands.85C project limit supersedes110 forU1."
+    },
+    {
+      "id": "a12_tim_compression",
+      "instrument_roles": [
+        "dimensional",
+        "force"
+      ],
+      "allocated_fraction_range": [
+        0.1,
+        0.3
+      ],
+      "maximum_measured_pad_set_thickness_spread_mm": 0.03,
+      "maximum_local_bondline_error_allocation_mm": 0.08,
+      "manufacturer_approved_assembly_range": false,
+      "acceptance": "Thickness/gap and uncertainties must keep all four pads simultaneously within project10..30% allocation. Confirm assembly force, permitted board bow, thermal contact, clamp torque and creep against actual vendor-selected thickness data; current typical modulus is not a pressure/force guarantee. Repeat after thermal cycling/service reassembly."
+    },
+    {
+      "id": "a12_hot_node_chassis_isolation",
+      "instrument_roles": [
+        "insulation_resistance",
+        "dielectric",
+        "electrical"
+      ],
+      "assembly_test_voltage_v": null,
+      "minimum_insulation_resistance_ohm": null,
+      "maximum_leakage_a": null,
+      "limit_basis": "System insulation/touch/noise requirements, environmental category and source maximum/fault voltages must be defined before approval. Typical5000VAC TIM data is not an assembly test limit.",
+      "acceptance": "Verify each electrically live copper region versus floating CHASSIS and between regions after compression, aging and rework. No primary-insulation credit from anodize or solder mask; inspect TIM edge damage, contamination, copper caps, fastener keepouts and minimum physical gap. Missing numerical system limits block qualification."
+    },
+    {
+      "id": "a12_cooling_geometry_and_fit",
+      "instrument_roles": [
+        "dimensional",
+        "temperature",
+        "force"
+      ],
+      "nominal_fin_table_clearance_mm": 10.6,
+      "minimum_loaded_fin_table_clearance_mm": null,
+      "maximum_accessible_surface_temperature_c": null,
+      "limit_basis": "Foot/bumper compression, table blockage, stability and accessible surface requirements remain to be established; nominal CAD gap is not a loaded guarantee.",
+      "acceptance": "Measure loaded foot height, flatness, rocking, screw engagement and support bow. Verify E28 lead/base gap, all through-hole leads and mated harness clearances in complete enclosure. Run realistic surface/adjacent-unit blockage orientations; no catalog vertical-Rtheta substitution."
+    },
+    {
+      "id": "a12_analog_noise_with_floating_base",
+      "instrument_roles": [
+        "audio_analyzer",
+        "oscilloscope",
+        "electrical"
+      ],
+      "numeric_limits_source": "Whole-unit audio qualification contract; unchanged by this variant",
+      "acceptance": "At maximum switching loads and actual source corners verify audio noise, rail ripple and transients with installed isolated metal base, grounded external cables and thermal compression. Typical TIM capacitance and volume resistivity are estimates, not approved common-mode/noise coupling."
+    }
+  ],
+  "unresolved_manufacturer_inputs": [
+    "Minimum thermal/electrical properties and compression-pressure/contact/creep data for exact1.524mm2195667 sheet; current published properties are typical",
+    "Measured certified minimum via copper wall and connected filled top/bottom copper geometry after native rerouting",
+    "Valid native-board junction-to-base/air thermal characterization for every unlanded device and TPS543620HotRod package;thetaJB/psiJT are not interchangeable thermal interfaces",
+    "Measured external pin-fin convection/radiation in installed horizontal closed housing; current h/emissivity/view factors are sensitivity assumptions"
+  ]
+}

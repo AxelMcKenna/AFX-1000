@@ -1,0 +1,1758 @@
+[
+  {
+    "ref": "U1",
+    "part": "LM5067MM-1/NOPB",
+    "footprint": "Package_SO:TSSOP-10_3x3mm_P0.5mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "VCC",
+        "net": "N19_VCC",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "UVLO_EN",
+        "net": "N19_UV",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "OVLO",
+        "net": "N19_OV",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "PWR",
+        "net": "N19_PWR",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "5",
+        "name": "VEE",
+        "net": "N19_BANK_OUT",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "6",
+        "name": "TIMER",
+        "net": "N19_TIMER",
+        "kind": "bidirectional",
+        "side": "R"
+      },
+      {
+        "number": "7",
+        "name": "SENSE",
+        "net": "N19_SENSE",
+        "kind": "input",
+        "side": "R"
+      },
+      {
+        "number": "8",
+        "name": "GATE",
+        "net": "N19_GATE_CTRL",
+        "kind": "output",
+        "side": "R"
+      },
+      {
+        "number": "9",
+        "name": "OUT",
+        "net": "N19_PROTECTED",
+        "kind": "input",
+        "side": "R"
+      },
+      {
+        "number": "10",
+        "name": "PGD",
+        "net": "N19_PG_RAW",
+        "kind": "open_collector",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "All internal thresholds relative to VEE, NOT AGND. -1 latch-off. Table ICC2mA/OUT48V above VEE conditions not established at -12/-19V.",
+    "rail": "N19",
+    "x": 85.09,
+    "y": 74.93
+  },
+  {
+    "ref": "R1",
+    "part": "91m 1% WSL2512R0910FTA",
+    "footprint": "Resistor_SMD:R_2512_6332Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N19_SENSE",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/30100/wsl.pdf",
+    "note": "Kelvin shunt. Negative-rail current enters SENSE and exits VEE.",
+    "rail": "N19",
+    "x": 245.11,
+    "y": 74.93
+  },
+  {
+    "ref": "Q1",
+    "part": "CSD19536KTT",
+    "footprint": "Package_TO_SOT_SMD:TO-263-2",
+    "pins": [
+      {
+        "number": "1",
+        "name": "G",
+        "net": "N19_GATE_FET",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "D_TAB",
+        "net": "N19_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "S",
+        "net": "N19_SENSE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/csd19536ktt.pdf",
+    "note": "Body diode SENSE -> PROTECTED; charged output can reverse-discharge into a collapsed bank. No reverse blocking.",
+    "rail": "N19",
+    "x": 405.13,
+    "y": 74.93
+  },
+  {
+    "ref": "R2",
+    "part": "10 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N19_GATE_CTRL",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_GATE_FET",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Gate stopper; external RC interoperability with LM5067 unverified.",
+    "rail": "N19",
+    "x": 565.15,
+    "y": 74.93
+  },
+  {
+    "ref": "R3",
+    "part": "82 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N19_GATE_CTRL",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_MILLER",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Experimental drain-feedback RC inferred from LT4250 Fig6a, NOT a TI LM5067 reference/guarantee.",
+    "rail": "N19",
+    "x": 85.09,
+    "y": 129.54
+  },
+  {
+    "ref": "C1",
+    "part": "1.5uF bipolar film >=100V effective +/-10% REQUIREMENT",
+    "footprint": "StartupDraft:UNSELECTED_BIPOLAR_FILM_CDV",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+/1",
+        "net": "N19_MILLER",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-/2",
+        "net": "N19_PROTECTED",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.analog.com/media/en/technical-documentation/data-sheets/4250lhfa.pdf",
+    "note": "Bipolar: voltage reverses from -VSYS to +VGS. MPN/leakage/temp/aging and loop compatibility unselected.",
+    "rail": "N19",
+    "x": 245.11,
+    "y": 129.54
+  },
+  {
+    "ref": "C2",
+    "part": "22uF film >=25V effective +/-10% REQUIREMENT",
+    "footprint": "StartupDraft:UNSELECTED_FILM_CGS",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+/1",
+        "net": "N19_GATE_FET",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-/2",
+        "net": "N19_SENSE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.analog.com/media/en/technical-documentation/data-sheets/4250lhfa.pdf",
+    "note": "Anti-injection trial capacitor; hot minimum Vth and initial-state proof missing. Large added gate charge delays ON and OFF.",
+    "rail": "N19",
+    "x": 405.13,
+    "y": 129.54
+  },
+  {
+    "ref": "C3",
+    "part": "470nF film >=16V effective +/-10% REQUIREMENT",
+    "footprint": "StartupDraft:UNSELECTED_FILM_CTIMER",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+/1",
+        "net": "N19_TIMER",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-/2",
+        "net": "N19_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Timer relative to VEE. Zero-start scenarios only; reset must actually bring TIMER <0.3V.",
+    "rail": "N19",
+    "x": 565.15,
+    "y": 129.54
+  },
+  {
+    "ref": "R4",
+    "part": "68100 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N19_PWR",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "LM5067 equation RPWR=1.42e5*RS*PFET. Transfer corners specified at24V/75k; actual selected values unbounded.",
+    "rail": "N19",
+    "x": 85.09,
+    "y": 182.88
+  },
+  {
+    "ref": "R5",
+    "part": "2000 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_VCC",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Input feed resistor, NOT a bleed. N12 cannot establish2mA shunt regulation with VSYS<13.65V; vendor/measurement hold.",
+    "rail": "N19",
+    "x": 245.11,
+    "y": 182.88
+  },
+  {
+    "ref": "C4",
+    "part": "100nF 50V X7R REQUIREMENT",
+    "footprint": "Capacitor_SMD:C_1206_3216Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+/1",
+        "net": "N19_VCC",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-/2",
+        "net": "N19_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Small VCC bypass; exact MPN/effective capacitance open. No upstream protected reservoir.",
+    "rail": "N19",
+    "x": 405.13,
+    "y": 182.88
+  },
+  {
+    "ref": "C5",
+    "part": "1500uF 35V 20% EEUFR1V152S",
+    "footprint": "Capacitor_THT:CP_Radial_D16.0mm_P7.50mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+/1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-/2",
+        "net": "N19_PROTECTED",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://industrial.panasonic.com/ww/products/pt/aluminum-cap-lead/models",
+    "note": "Retained E28C8 is electrically AFTER limiter; polarity positive to AGND. Canonical E28 unchanged.",
+    "rail": "N19",
+    "x": 565.15,
+    "y": 182.88
+  },
+  {
+    "ref": "R6",
+    "part": "47k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_PROTECTED",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Retained bleed, not a proven reset/discharge timer.",
+    "rail": "N19",
+    "x": 85.09,
+    "y": 237.49
+  },
+  {
+    "ref": "R7",
+    "part": "49900 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_UV_SW_IN",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Normally-open relay joins UV upper divider to AGND.",
+    "rail": "N19",
+    "x": 245.11,
+    "y": 237.49
+  },
+  {
+    "ref": "R8",
+    "part": "10k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N19_UV",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Passive default UV pull to VEE. Hot leakage/dynamic OFF not proven.",
+    "rail": "N19",
+    "x": 405.13,
+    "y": 237.49
+  },
+  {
+    "ref": "U2",
+    "part": "TLP170GM(TPL,E",
+    "footprint": "StartupDraft:TLP170GM_11-4M1S_UNREVIEWED",
+    "pins": [
+      {
+        "number": "1",
+        "name": "LED_A",
+        "net": "N19_LED_A",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "LED_K",
+        "net": "N19_LED_K",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "SW",
+        "net": "N19_UV_SW_IN",
+        "kind": "passive",
+        "side": "R"
+      },
+      {
+        "number": "6",
+        "name": "SW",
+        "net": "N19_UV",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://toshiba.semicon-storage.com/info/TLP170GM_datasheet_en_20230522.pdf?did=69102&prodName=TLP170GM",
+    "note": "Normally-open1FormA pins1/3/4/6. LED host-powered. Hot trigger/leakage/RON and exact footprint remain open.",
+    "rail": "N19",
+    "x": 565.15,
+    "y": 237.49
+  },
+  {
+    "ref": "R9",
+    "part": "75000 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_OV",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "",
+    "rail": "N19",
+    "x": 85.09,
+    "y": 290.83
+  },
+  {
+    "ref": "R10",
+    "part": "10k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N19_OV",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "",
+    "rail": "N19",
+    "x": 245.11,
+    "y": 290.83
+  },
+  {
+    "ref": "R11",
+    "part": "680 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "HOST_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_LED_A",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Host3.0..3.6V supplies LED, NEVER AUX or negative rail. Explicit digital-current budget required.",
+    "rail": "N19",
+    "x": 405.13,
+    "y": 290.83
+  },
+  {
+    "ref": "R12",
+    "part": "10k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N19_LED_A",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_LED_K",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "LED leakage shunt; actual hot defaultOFF not proven.",
+    "rail": "N19",
+    "x": 565.15,
+    "y": 290.83
+  },
+  {
+    "ref": "Q2",
+    "part": "BSS138BK,215",
+    "footprint": "Package_TO_SOT_SMD:SOT-23",
+    "pins": [
+      {
+        "number": "1",
+        "name": "G",
+        "net": "N19_ENABLE_GATE",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "S",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "D",
+        "net": "N19_LED_K",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://assets.nexperia.com/documents/data-sheet/BSS138BK.pdf",
+    "note": "Gate-source logic referenced to AGND; no direct negative-domain logic connection. Hot drive/leakage unverified.",
+    "rail": "N19",
+    "x": 85.09,
+    "y": 345.44
+  },
+  {
+    "ref": "R13",
+    "part": "100 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N19_ENABLE_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_ENABLE_GATE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Same3.0..3.6VHIGH/0..0.1VLOW requirement asSC01. E28J9 2.5V is incompatible.",
+    "rail": "N19",
+    "x": 245.11,
+    "y": 345.44
+  },
+  {
+    "ref": "R14",
+    "part": "10k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N19_ENABLE_GATE",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Missing host/high-Z requests OFF; receiver leakage/partialpower must be bounded.",
+    "rail": "N19",
+    "x": 405.13,
+    "y": 345.44
+  },
+  {
+    "ref": "R15",
+    "part": "100k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N19_PG_RAW",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "PG_RAW ranges VEE..AGND, NEVER GPIO. PGD is high with VCC-VEE<2V; not a voltage-health proof.",
+    "rail": "N19",
+    "x": 565.15,
+    "y": 345.44
+  },
+  {
+    "ref": "D1",
+    "part": "STPS1H100A",
+    "footprint": "Diode_SMD:D_SMA",
+    "pins": [
+      {
+        "number": "1",
+        "name": "K",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "A",
+        "net": "N19_PROTECTED",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.st.com/resource/en/datasheet/stps1h100.pdf",
+    "note": "Clamp positive output excursion at interruption; inductive energy/current/negative-source overshoot still unbounded.",
+    "rail": "N19",
+    "x": 85.09,
+    "y": 398.78000000000003
+  },
+  {
+    "ref": "D2",
+    "part": "SMAJ24A",
+    "footprint": "Diode_SMD:D_SMA",
+    "pins": [
+      {
+        "number": "1",
+        "name": "K",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "A",
+        "net": "N19_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.littelfuse.com/assetdocs/littelfuse_tvs_diode_smaj_datasheet?assetguid=13c2a823-03b8-4d1f-9ddc-9b44670aed9d",
+    "note": "Input TVS negative polarity. Pulse/source/thermal coordination open, not a sustained fault clamp.",
+    "rail": "N19",
+    "x": 245.11,
+    "y": 398.78000000000003
+  },
+  {
+    "ref": "J1",
+    "part": "AFTER_B2B_NEGATIVE / AGND",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "BANK_OUT",
+        "net": "N19_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "AGND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Engineering net port only; production connector, receiver, sequencing and power domain validation unselected.",
+    "rail": "N19",
+    "x": 405.13,
+    "y": 398.78000000000003
+  },
+  {
+    "ref": "J2",
+    "part": "PROTECTED_NEGATIVE_BULK_LOAD / AGND",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "PROTECTED",
+        "net": "N19_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "AGND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Engineering net port only; production connector, receiver, sequencing and power domain validation unselected.",
+    "rail": "N19",
+    "x": 565.15,
+    "y": 398.78000000000003
+  },
+  {
+    "ref": "J3",
+    "part": "HOST3V3 / ENABLE3V3 / AGND",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "HOST_3V3",
+        "net": "HOST_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "ENABLE",
+        "net": "N19_ENABLE_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "AGND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Engineering net port only; production connector, receiver, sequencing and power domain validation unselected.",
+    "rail": "N19",
+    "x": 85.09,
+    "y": 453.39
+  },
+  {
+    "ref": "J4",
+    "part": "PG_RAW_NEGATIVE / VEE / AGND - NOT LOGIC",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "PG_RAW",
+        "net": "N19_PG_RAW",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "VEE",
+        "net": "N19_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "AGND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Engineering net port only; production connector, receiver, sequencing and power domain validation unselected.",
+    "rail": "N19",
+    "x": 245.11,
+    "y": 453.39
+  },
+  {
+    "ref": "U101",
+    "part": "LM5067MM-1/NOPB",
+    "footprint": "Package_SO:TSSOP-10_3x3mm_P0.5mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "VCC",
+        "net": "N12_VCC",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "UVLO_EN",
+        "net": "N12_UV",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "OVLO",
+        "net": "N12_OV",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "PWR",
+        "net": "N12_PWR",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "5",
+        "name": "VEE",
+        "net": "N12_BANK_OUT",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "6",
+        "name": "TIMER",
+        "net": "N12_TIMER",
+        "kind": "bidirectional",
+        "side": "R"
+      },
+      {
+        "number": "7",
+        "name": "SENSE",
+        "net": "N12_SENSE",
+        "kind": "input",
+        "side": "R"
+      },
+      {
+        "number": "8",
+        "name": "GATE",
+        "net": "N12_GATE_CTRL",
+        "kind": "output",
+        "side": "R"
+      },
+      {
+        "number": "9",
+        "name": "OUT",
+        "net": "N12_PROTECTED",
+        "kind": "input",
+        "side": "R"
+      },
+      {
+        "number": "10",
+        "name": "PGD",
+        "net": "N12_PG_RAW",
+        "kind": "open_collector",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "All internal thresholds relative to VEE, NOT AGND. -1 latch-off. Table ICC2mA/OUT48V above VEE conditions not established at -12/-19V.",
+    "rail": "N12",
+    "x": 85.09,
+    "y": 570.23
+  },
+  {
+    "ref": "R101",
+    "part": "91m 1% WSL2512R0910FTA",
+    "footprint": "Resistor_SMD:R_2512_6332Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N12_SENSE",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/30100/wsl.pdf",
+    "note": "Kelvin shunt. Negative-rail current enters SENSE and exits VEE.",
+    "rail": "N12",
+    "x": 245.11,
+    "y": 570.23
+  },
+  {
+    "ref": "Q101",
+    "part": "CSD19536KTT",
+    "footprint": "Package_TO_SOT_SMD:TO-263-2",
+    "pins": [
+      {
+        "number": "1",
+        "name": "G",
+        "net": "N12_GATE_FET",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "D_TAB",
+        "net": "N12_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "S",
+        "net": "N12_SENSE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/csd19536ktt.pdf",
+    "note": "Body diode SENSE -> PROTECTED; charged output can reverse-discharge into a collapsed bank. No reverse blocking.",
+    "rail": "N12",
+    "x": 405.13,
+    "y": 570.23
+  },
+  {
+    "ref": "R102",
+    "part": "10 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N12_GATE_CTRL",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_GATE_FET",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Gate stopper; external RC interoperability with LM5067 unverified.",
+    "rail": "N12",
+    "x": 565.15,
+    "y": 570.23
+  },
+  {
+    "ref": "R103",
+    "part": "100 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N12_GATE_CTRL",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_MILLER",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Experimental drain-feedback RC inferred from LT4250 Fig6a, NOT a TI LM5067 reference/guarantee.",
+    "rail": "N12",
+    "x": 85.09,
+    "y": 623.57
+  },
+  {
+    "ref": "C101",
+    "part": "1uF bipolar film >=100V effective +/-10% REQUIREMENT",
+    "footprint": "StartupDraft:UNSELECTED_BIPOLAR_FILM_CDV",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+/1",
+        "net": "N12_MILLER",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-/2",
+        "net": "N12_PROTECTED",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.analog.com/media/en/technical-documentation/data-sheets/4250lhfa.pdf",
+    "note": "Bipolar: voltage reverses from -VSYS to +VGS. MPN/leakage/temp/aging and loop compatibility unselected.",
+    "rail": "N12",
+    "x": 245.11,
+    "y": 623.57
+  },
+  {
+    "ref": "C102",
+    "part": "10uF film >=25V effective +/-10% REQUIREMENT",
+    "footprint": "StartupDraft:UNSELECTED_FILM_CGS",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+/1",
+        "net": "N12_GATE_FET",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-/2",
+        "net": "N12_SENSE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.analog.com/media/en/technical-documentation/data-sheets/4250lhfa.pdf",
+    "note": "Anti-injection trial capacitor; hot minimum Vth and initial-state proof missing. Large added gate charge delays ON and OFF.",
+    "rail": "N12",
+    "x": 405.13,
+    "y": 623.57
+  },
+  {
+    "ref": "C103",
+    "part": "470nF film >=16V effective +/-10% REQUIREMENT",
+    "footprint": "StartupDraft:UNSELECTED_FILM_CTIMER",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+/1",
+        "net": "N12_TIMER",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-/2",
+        "net": "N12_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Timer relative to VEE. Zero-start scenarios only; reset must actually bring TIMER <0.3V.",
+    "rail": "N12",
+    "x": 565.15,
+    "y": 623.57
+  },
+  {
+    "ref": "R104",
+    "part": "49900 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N12_PWR",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "LM5067 equation RPWR=1.42e5*RS*PFET. Transfer corners specified at24V/75k; actual selected values unbounded.",
+    "rail": "N12",
+    "x": 85.09,
+    "y": 678.1800000000001
+  },
+  {
+    "ref": "R105",
+    "part": "330 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_VCC",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Input feed resistor, NOT a bleed. N12 cannot establish2mA shunt regulation with VSYS<13.65V; vendor/measurement hold.",
+    "rail": "N12",
+    "x": 245.11,
+    "y": 678.1800000000001
+  },
+  {
+    "ref": "C104",
+    "part": "100nF 50V X7R REQUIREMENT",
+    "footprint": "Capacitor_SMD:C_1206_3216Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+/1",
+        "net": "N12_VCC",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-/2",
+        "net": "N12_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Small VCC bypass; exact MPN/effective capacitance open. No upstream protected reservoir.",
+    "rail": "N12",
+    "x": 405.13,
+    "y": 678.1800000000001
+  },
+  {
+    "ref": "C105",
+    "part": "220uF 35V 20% EEUFR1V221",
+    "footprint": "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+/1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-/2",
+        "net": "N12_PROTECTED",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://industrial.panasonic.com/ww/products/pt/aluminum-cap-lead/models",
+    "note": "Retained E28C16 is electrically AFTER limiter; polarity positive to AGND. Canonical E28 unchanged.",
+    "rail": "N12",
+    "x": 565.15,
+    "y": 678.1800000000001
+  },
+  {
+    "ref": "R106",
+    "part": "47k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_PROTECTED",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Retained bleed, not a proven reset/discharge timer.",
+    "rail": "N12",
+    "x": 85.09,
+    "y": 731.52
+  },
+  {
+    "ref": "R107",
+    "part": "30100 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_UV_SW_IN",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Normally-open relay joins UV upper divider to AGND.",
+    "rail": "N12",
+    "x": 245.11,
+    "y": 731.52
+  },
+  {
+    "ref": "R108",
+    "part": "10k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N12_UV",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Passive default UV pull to VEE. Hot leakage/dynamic OFF not proven.",
+    "rail": "N12",
+    "x": 405.13,
+    "y": 731.52
+  },
+  {
+    "ref": "U102",
+    "part": "TLP170GM(TPL,E",
+    "footprint": "StartupDraft:TLP170GM_11-4M1S_UNREVIEWED",
+    "pins": [
+      {
+        "number": "1",
+        "name": "LED_A",
+        "net": "N12_LED_A",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "LED_K",
+        "net": "N12_LED_K",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "SW",
+        "net": "N12_UV_SW_IN",
+        "kind": "passive",
+        "side": "R"
+      },
+      {
+        "number": "6",
+        "name": "SW",
+        "net": "N12_UV",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://toshiba.semicon-storage.com/info/TLP170GM_datasheet_en_20230522.pdf?did=69102&prodName=TLP170GM",
+    "note": "Normally-open1FormA pins1/3/4/6. LED host-powered. Hot trigger/leakage/RON and exact footprint remain open.",
+    "rail": "N12",
+    "x": 565.15,
+    "y": 731.52
+  },
+  {
+    "ref": "R109",
+    "part": "43200 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_OV",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "",
+    "rail": "N12",
+    "x": 85.09,
+    "y": 786.13
+  },
+  {
+    "ref": "R110",
+    "part": "10k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N12_OV",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "",
+    "rail": "N12",
+    "x": 245.11,
+    "y": 786.13
+  },
+  {
+    "ref": "R111",
+    "part": "680 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "HOST_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_LED_A",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Host3.0..3.6V supplies LED, NEVER AUX or negative rail. Explicit digital-current budget required.",
+    "rail": "N12",
+    "x": 405.13,
+    "y": 786.13
+  },
+  {
+    "ref": "R112",
+    "part": "10k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N12_LED_A",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_LED_K",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "LED leakage shunt; actual hot defaultOFF not proven.",
+    "rail": "N12",
+    "x": 565.15,
+    "y": 786.13
+  },
+  {
+    "ref": "Q102",
+    "part": "BSS138BK,215",
+    "footprint": "Package_TO_SOT_SMD:SOT-23",
+    "pins": [
+      {
+        "number": "1",
+        "name": "G",
+        "net": "N12_ENABLE_GATE",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "S",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "D",
+        "net": "N12_LED_K",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://assets.nexperia.com/documents/data-sheet/BSS138BK.pdf",
+    "note": "Gate-source logic referenced to AGND; no direct negative-domain logic connection. Hot drive/leakage unverified.",
+    "rail": "N12",
+    "x": 85.09,
+    "y": 839.47
+  },
+  {
+    "ref": "R113",
+    "part": "100 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N12_ENABLE_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_ENABLE_GATE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Same3.0..3.6VHIGH/0..0.1VLOW requirement asSC01. E28J9 2.5V is incompatible.",
+    "rail": "N12",
+    "x": 245.11,
+    "y": 839.47
+  },
+  {
+    "ref": "R114",
+    "part": "10k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "N12_ENABLE_GATE",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Missing host/high-Z requests OFF; receiver leakage/partialpower must be bounded.",
+    "rail": "N12",
+    "x": 405.13,
+    "y": 839.47
+  },
+  {
+    "ref": "R115",
+    "part": "100k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "N12_PG_RAW",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "PG_RAW ranges VEE..AGND, NEVER GPIO. PGD is high with VCC-VEE<2V; not a voltage-health proof.",
+    "rail": "N12",
+    "x": 565.15,
+    "y": 839.47
+  },
+  {
+    "ref": "D101",
+    "part": "STPS1H100A",
+    "footprint": "Diode_SMD:D_SMA",
+    "pins": [
+      {
+        "number": "1",
+        "name": "K",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "A",
+        "net": "N12_PROTECTED",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.st.com/resource/en/datasheet/stps1h100.pdf",
+    "note": "Clamp positive output excursion at interruption; inductive energy/current/negative-source overshoot still unbounded.",
+    "rail": "N12",
+    "x": 85.09,
+    "y": 894.08
+  },
+  {
+    "ref": "D102",
+    "part": "SMAJ15A",
+    "footprint": "Diode_SMD:D_SMA",
+    "pins": [
+      {
+        "number": "1",
+        "name": "K",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "A",
+        "net": "N12_BANK_OUT",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.littelfuse.com/assetdocs/littelfuse_tvs_diode_smaj_datasheet?assetguid=13c2a823-03b8-4d1f-9ddc-9b44670aed9d",
+    "note": "Input TVS negative polarity. Pulse/source/thermal coordination open, not a sustained fault clamp.",
+    "rail": "N12",
+    "x": 245.11,
+    "y": 894.08
+  },
+  {
+    "ref": "J101",
+    "part": "AFTER_B2B_NEGATIVE / AGND",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "BANK_OUT",
+        "net": "N12_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "AGND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Engineering net port only; production connector, receiver, sequencing and power domain validation unselected.",
+    "rail": "N12",
+    "x": 405.13,
+    "y": 894.08
+  },
+  {
+    "ref": "J102",
+    "part": "PROTECTED_NEGATIVE_BULK_LOAD / AGND",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "PROTECTED",
+        "net": "N12_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "AGND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Engineering net port only; production connector, receiver, sequencing and power domain validation unselected.",
+    "rail": "N12",
+    "x": 565.15,
+    "y": 894.08
+  },
+  {
+    "ref": "J103",
+    "part": "HOST3V3 / ENABLE3V3 / AGND",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "HOST_3V3",
+        "net": "HOST_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "ENABLE",
+        "net": "N12_ENABLE_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "AGND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Engineering net port only; production connector, receiver, sequencing and power domain validation unselected.",
+    "rail": "N12",
+    "x": 85.09,
+    "y": 947.42
+  },
+  {
+    "ref": "J104",
+    "part": "PG_RAW_NEGATIVE / VEE / AGND - NOT LOGIC",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "PG_RAW",
+        "net": "N12_PG_RAW",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "VEE",
+        "net": "N12_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "AGND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+    "note": "Engineering net port only; production connector, receiver, sequencing and power domain validation unselected.",
+    "rail": "N12",
+    "x": 245.11,
+    "y": 947.42
+  }
+]

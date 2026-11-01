@@ -1,0 +1,814 @@
+{
+  "revision": "AP01-conservation-and-conditional-port-budget",
+  "source_sha256": {
+    "hardware/cad/a12/thermal/whole_unit/generated/ledger.json": "2e5d333b0fe7d4122d22ea0b7106494c694103484c9701c3edc8174870039055",
+    "hardware/cad/a12/thermal/whole_unit/handoff.json": "d5ae866aefdda9fc152bed0a37165186283037b08db2f029ba48ef2aa961a4d0",
+    "hardware/cad/a12/thermal/forced_air_5v_supply/analysis.json": "4c37f68d887064ae08916a50a8ed01f6648a72b4d6afdca2ac876a443db87a7c",
+    "hardware/cad/a12/thermal/forced_air_5v_supply/source.json": "57dd647c3b96119df620f12e67608e6051c11bcbfb2b51227f21652f7ed86ef7",
+    "hardware/cad/a12/thermal/forced_air_5v_supply/handoff.json": "5809295f320711f157deae87eb6b49222d14ec5962c65b809bc7c4a76616d6c0",
+    "hardware/cad/a12/thermal/forced_air_prototype/build.py": "06c55f4b82468938f88185d0f0552d744e11e9877e6932c9056f4e684afb28d3",
+    "hardware/cad/a12/thermal/forced_air_prototype/handoff.json": "f13f1560469612e0e27734637ff2211595db44c361f84c98a7ccba2439aa7004",
+    "hardware/cad/a12/thermal/air_path_budget/analyze.py": "88d068324011803004342eef7cf74aac70288d3b2317f3b474b4277e6c1a2bf3"
+  },
+  "primary_fan_pdf_sha256": "989f5ccc244424262921a60d8cf2dbe62972d4913196d8bacf4d20834aacbc6c",
+  "primary_PQ_page": 6,
+  "catalogue_PQ_m3h_mmH2O": [
+    [
+      0,
+      1.78
+    ],
+    [
+      1.9,
+      1.32
+    ],
+    [
+      4.3,
+      0.71
+    ],
+    [
+      6.5,
+      0.51
+    ],
+    [
+      8.2,
+      0
+    ]
+  ],
+  "whole_unit_leaf_rows": 89,
+  "total_source_heat_screen_w": 35.43154587633119,
+  "hypothetical_four_land_heat_w": 5.858850288627606,
+  "land_rows": [
+    {
+      "id": "DIG_converter_loss",
+      "watts": 2.165680872961061,
+      "source_part_ref": "U20",
+      "basis": "85% efficiency allocation; includes switching/inductor loss, not separately added again"
+    },
+    {
+      "id": "P12_LDO_drop",
+      "watts": 0.860210930660995,
+      "source_part_ref": "U8",
+      "basis": "Raw-to-regulated voltage drop only, same output corner; regulator output current already delivered once"
+    },
+    {
+      "id": "N12_LDO_drop",
+      "watts": 0.3742236353283726,
+      "source_part_ref": "U11",
+      "basis": "Raw-to-regulated voltage drop only, same output corner; regulator output current already delivered once"
+    },
+    {
+      "id": "RAW_N17_ldo_ground_current_envelope_a",
+      "watts": 0.3253509968243243,
+      "source_part_ref": "U11",
+      "basis": "Actual native bipolar ledger term; LT3090 ground22.5mA is counted HERE, not again as heatmap+input power"
+    },
+    {
+      "id": "U13_converter_loss",
+      "watts": 2.1333838528528526,
+      "source_part_ref": "U13",
+      "basis": "75% dual-converter efficiency allocation; includes external diode/inductor loss, not separately added"
+    }
+  ],
+  "digital_reserve_partition": {
+    "original_w": 2.1061186927366093,
+    "fan_current_allocation_a": 0.132,
+    "fan_motor_power_allocation_w": 0.6682876621183472,
+    "unassigned_remaining_w": 1.4378310306182622,
+    "extra_heat_added_w": 0,
+    "motor_heat_export_credit_w": 0,
+    "note": "All motor heat retained in interior load for conservative air-energy screen; fan-health logic must share remaining reserve or revise source inventory."
+  },
+  "gas_assumptions": {
+    "specific_heat_j_kg_k": 1000,
+    "gas_constant_j_kg_k": 287.05,
+    "inlet_temperature_c": 40,
+    "pressure_pa": [
+      101325,
+      80000
+    ],
+    "properties_are_engineering_assumptions_not_environmental_bounds": true
+  },
+  "scenarios": [
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 48,
+      "internal_air_heat_w": 35.43154587633119,
+      "base_branch_heat_w": 0,
+      "internal_air_minimum_m3h": 14.144772591101002,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 14.144772591101002,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 50,
+      "internal_air_heat_w": 35.43154587633119,
+      "base_branch_heat_w": 0,
+      "internal_air_minimum_m3h": 11.315818072880802,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 11.315818072880802,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 58,
+      "internal_air_heat_w": 35.43154587633119,
+      "base_branch_heat_w": 0,
+      "internal_air_minimum_m3h": 6.286565596044889,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 6.286565596044889,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 60,
+      "internal_air_heat_w": 35.43154587633119,
+      "base_branch_heat_w": 0,
+      "internal_air_minimum_m3h": 5.657909036440401,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 5.657909036440401,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 48,
+      "internal_air_heat_w": 29.572695587703585,
+      "base_branch_heat_w": 5.858850288627606,
+      "internal_air_minimum_m3h": 11.805836963872167,
+      "base_branch_minimum_m3h": 0.9355742508915342,
+      "total_minimum_m3h": 12.741411214763701,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 50,
+      "internal_air_heat_w": 29.572695587703585,
+      "base_branch_heat_w": 5.858850288627606,
+      "internal_air_minimum_m3h": 9.444669571097732,
+      "base_branch_minimum_m3h": 0.9355742508915342,
+      "total_minimum_m3h": 10.380243821989266,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 58,
+      "internal_air_heat_w": 29.572695587703585,
+      "base_branch_heat_w": 5.858850288627606,
+      "internal_air_minimum_m3h": 5.247038650609852,
+      "base_branch_minimum_m3h": 0.9355742508915342,
+      "total_minimum_m3h": 6.182612901501386,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 60,
+      "internal_air_heat_w": 29.572695587703585,
+      "base_branch_heat_w": 5.858850288627606,
+      "internal_air_minimum_m3h": 4.722334785548866,
+      "base_branch_minimum_m3h": 0.9355742508915342,
+      "total_minimum_m3h": 5.6579090364404,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 48,
+      "internal_air_heat_w": 42.51785505159743,
+      "base_branch_heat_w": 0.0,
+      "internal_air_minimum_m3h": 16.9737271093212,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 16.9737271093212,
+      "below_two_fan_nominal_free_air": false,
+      "below_scaled_free_air_sensitivity": false
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 50,
+      "internal_air_heat_w": 42.51785505159743,
+      "base_branch_heat_w": 0.0,
+      "internal_air_minimum_m3h": 13.57898168745696,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 13.57898168745696,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 58,
+      "internal_air_heat_w": 42.51785505159743,
+      "base_branch_heat_w": 0.0,
+      "internal_air_minimum_m3h": 7.543878715253867,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 7.543878715253867,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 60,
+      "internal_air_heat_w": 42.51785505159743,
+      "base_branch_heat_w": 0.0,
+      "internal_air_minimum_m3h": 6.78949084372848,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 6.78949084372848,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 48,
+      "internal_air_heat_w": 35.4872347052443,
+      "base_branch_heat_w": 7.0306203463531265,
+      "internal_air_minimum_m3h": 14.167004356646597,
+      "base_branch_minimum_m3h": 1.122689101069841,
+      "total_minimum_m3h": 15.289693457716439,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": false
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 50,
+      "internal_air_heat_w": 35.4872347052443,
+      "base_branch_heat_w": 7.0306203463531265,
+      "internal_air_minimum_m3h": 11.333603485317278,
+      "base_branch_minimum_m3h": 1.122689101069841,
+      "total_minimum_m3h": 12.45629258638712,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 58,
+      "internal_air_heat_w": 35.4872347052443,
+      "base_branch_heat_w": 7.0306203463531265,
+      "internal_air_minimum_m3h": 6.296446380731821,
+      "base_branch_minimum_m3h": 1.122689101069841,
+      "total_minimum_m3h": 7.4191354818016615,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 101325,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 60,
+      "internal_air_heat_w": 35.4872347052443,
+      "base_branch_heat_w": 7.0306203463531265,
+      "internal_air_minimum_m3h": 5.666801742658639,
+      "base_branch_minimum_m3h": 1.122689101069841,
+      "total_minimum_m3h": 6.78949084372848,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 48,
+      "internal_air_heat_w": 35.43154587633119,
+      "base_branch_heat_w": 0,
+      "internal_air_minimum_m3h": 17.915238534916362,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 17.915238534916362,
+      "below_two_fan_nominal_free_air": false,
+      "below_scaled_free_air_sensitivity": false
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 50,
+      "internal_air_heat_w": 35.43154587633119,
+      "base_branch_heat_w": 0,
+      "internal_air_minimum_m3h": 14.332190827933086,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 14.332190827933086,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 58,
+      "internal_air_heat_w": 35.43154587633119,
+      "base_branch_heat_w": 0,
+      "internal_air_minimum_m3h": 7.962328237740604,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 7.962328237740604,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 60,
+      "internal_air_heat_w": 35.43154587633119,
+      "base_branch_heat_w": 0,
+      "internal_air_minimum_m3h": 7.166095413966543,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 7.166095413966543,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 48,
+      "internal_air_heat_w": 29.572695587703585,
+      "base_branch_heat_w": 5.858850288627606,
+      "internal_air_minimum_m3h": 14.952830379554339,
+      "base_branch_minimum_m3h": 1.1849632621448085,
+      "total_minimum_m3h": 16.137793641699147,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": false
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 50,
+      "internal_air_heat_w": 29.572695587703585,
+      "base_branch_heat_w": 5.858850288627606,
+      "internal_air_minimum_m3h": 11.96226430364347,
+      "base_branch_minimum_m3h": 1.1849632621448085,
+      "total_minimum_m3h": 13.14722756578828,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 58,
+      "internal_air_heat_w": 29.572695587703585,
+      "base_branch_heat_w": 5.858850288627606,
+      "internal_air_minimum_m3h": 6.645702390913039,
+      "base_branch_minimum_m3h": 1.1849632621448085,
+      "total_minimum_m3h": 7.830665653057848,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 60,
+      "internal_air_heat_w": 29.572695587703585,
+      "base_branch_heat_w": 5.858850288627606,
+      "internal_air_minimum_m3h": 5.981132151821735,
+      "base_branch_minimum_m3h": 1.1849632621448085,
+      "total_minimum_m3h": 7.166095413966544,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 48,
+      "internal_air_heat_w": 42.51785505159743,
+      "base_branch_heat_w": 0.0,
+      "internal_air_minimum_m3h": 21.49828624189963,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 21.49828624189963,
+      "below_two_fan_nominal_free_air": false,
+      "below_scaled_free_air_sensitivity": false
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 50,
+      "internal_air_heat_w": 42.51785505159743,
+      "base_branch_heat_w": 0.0,
+      "internal_air_minimum_m3h": 17.1986289935197,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 17.1986289935197,
+      "below_two_fan_nominal_free_air": false,
+      "below_scaled_free_air_sensitivity": false
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 58,
+      "internal_air_heat_w": 42.51785505159743,
+      "base_branch_heat_w": 0.0,
+      "internal_air_minimum_m3h": 9.554793885288724,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 9.554793885288724,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 0,
+      "interior_air_ceiling_c": 60,
+      "internal_air_heat_w": 42.51785505159743,
+      "base_branch_heat_w": 0.0,
+      "internal_air_minimum_m3h": 8.59931449675985,
+      "base_branch_minimum_m3h": 0.0,
+      "total_minimum_m3h": 8.59931449675985,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 48,
+      "internal_air_heat_w": 35.4872347052443,
+      "base_branch_heat_w": 7.0306203463531265,
+      "internal_air_minimum_m3h": 17.943396455465205,
+      "base_branch_minimum_m3h": 1.4219559145737701,
+      "total_minimum_m3h": 19.365352370038977,
+      "below_two_fan_nominal_free_air": false,
+      "below_scaled_free_air_sensitivity": false
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 50,
+      "internal_air_heat_w": 35.4872347052443,
+      "base_branch_heat_w": 7.0306203463531265,
+      "internal_air_minimum_m3h": 14.354717164372161,
+      "base_branch_minimum_m3h": 1.4219559145737701,
+      "total_minimum_m3h": 15.776673078945931,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": false
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 58,
+      "internal_air_heat_w": 35.4872347052443,
+      "base_branch_heat_w": 7.0306203463531265,
+      "internal_air_minimum_m3h": 7.974842869095646,
+      "base_branch_minimum_m3h": 1.4219559145737701,
+      "total_minimum_m3h": 9.396798783669416,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    },
+    {
+      "pressure_pa": 80000,
+      "heat_multiplier": 1.2,
+      "assumed_heat_to_base_w": 5.858850288627606,
+      "interior_air_ceiling_c": 60,
+      "internal_air_heat_w": 35.4872347052443,
+      "base_branch_heat_w": 7.0306203463531265,
+      "internal_air_minimum_m3h": 7.177358582186081,
+      "base_branch_minimum_m3h": 1.4219559145737701,
+      "total_minimum_m3h": 8.59931449675985,
+      "below_two_fan_nominal_free_air": true,
+      "below_scaled_free_air_sensitivity": true
+    }
+  ],
+  "existing_guard": {
+    "hole_count_each": 37,
+    "hole_centres_mm": [
+      [
+        -7.800000000000001,
+        -13.509996299037244
+      ],
+      [
+        -2.6,
+        -13.509996299037244
+      ],
+      [
+        2.6,
+        -13.509996299037244
+      ],
+      [
+        7.800000000000001,
+        -13.509996299037244
+      ],
+      [
+        -10.4,
+        -9.00666419935816
+      ],
+      [
+        -5.2,
+        -9.00666419935816
+      ],
+      [
+        0.0,
+        -9.00666419935816
+      ],
+      [
+        5.2,
+        -9.00666419935816
+      ],
+      [
+        10.4,
+        -9.00666419935816
+      ],
+      [
+        -13.0,
+        -4.50333209967908
+      ],
+      [
+        -7.800000000000001,
+        -4.50333209967908
+      ],
+      [
+        -2.6,
+        -4.50333209967908
+      ],
+      [
+        2.6,
+        -4.50333209967908
+      ],
+      [
+        7.800000000000001,
+        -4.50333209967908
+      ],
+      [
+        13.0,
+        -4.50333209967908
+      ],
+      [
+        -15.600000000000001,
+        0.0
+      ],
+      [
+        -10.4,
+        0.0
+      ],
+      [
+        -5.2,
+        0.0
+      ],
+      [
+        0.0,
+        0.0
+      ],
+      [
+        5.2,
+        0.0
+      ],
+      [
+        10.4,
+        0.0
+      ],
+      [
+        15.600000000000001,
+        0.0
+      ],
+      [
+        -13.0,
+        4.50333209967908
+      ],
+      [
+        -7.800000000000001,
+        4.50333209967908
+      ],
+      [
+        -2.6,
+        4.50333209967908
+      ],
+      [
+        2.6,
+        4.50333209967908
+      ],
+      [
+        7.800000000000001,
+        4.50333209967908
+      ],
+      [
+        13.0,
+        4.50333209967908
+      ],
+      [
+        -10.4,
+        9.00666419935816
+      ],
+      [
+        -5.2,
+        9.00666419935816
+      ],
+      [
+        0.0,
+        9.00666419935816
+      ],
+      [
+        5.2,
+        9.00666419935816
+      ],
+      [
+        10.4,
+        9.00666419935816
+      ],
+      [
+        -7.800000000000001,
+        13.509996299037244
+      ],
+      [
+        -2.6,
+        13.509996299037244
+      ],
+      [
+        2.6,
+        13.509996299037244
+      ],
+      [
+        7.800000000000001,
+        13.509996299037244
+      ]
+    ],
+    "actual_48gon_net_open_area_each_mm2": 511.15101082909956,
+    "radius_selection_mm": 16.65,
+    "cut_diameter_mm": 4.2,
+    "note": "Bolt holes outside fan opening are not counted as working air area."
+  },
+  "candidate_air_path": {
+    "total_m3h": 9.2,
+    "interior_m3h": 8.0,
+    "base_m3h": 1.2,
+    "inlet_net_area_mm2": 2200,
+    "exhaust_net_area_mm2": 2200,
+    "revised_guard_net_area_each_mm2": 800
+  },
+  "pressure_budget_sensitivities": [
+    {
+      "curve_scale_sensitivity": 1,
+      "assumed_discharge_coefficient": 0.6,
+      "guard": "existing_perforated",
+      "guard_net_area_each_mm2": 511.15101082909956,
+      "fan_pressure_sensitivity_pa": 6.374561641451236,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 3.1947270223025037,
+      "guard_loss_sensitivity_pa": 9.78332233480179,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": -6.603487715653058
+    },
+    {
+      "curve_scale_sensitivity": 1,
+      "assumed_discharge_coefficient": 0.6,
+      "guard": "proposed_more_open",
+      "guard_net_area_each_mm2": 800,
+      "fan_pressure_sensitivity_pa": 6.374561641451236,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 3.1947270223025037,
+      "guard_loss_sensitivity_pa": 3.9939703509875173,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": -0.814135731838785
+    },
+    {
+      "curve_scale_sensitivity": 1,
+      "assumed_discharge_coefficient": 0.75,
+      "guard": "existing_perforated",
+      "guard_net_area_each_mm2": 511.15101082909956,
+      "fan_pressure_sensitivity_pa": 6.374561641451236,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 2.0446252942736023,
+      "guard_loss_sensitivity_pa": 6.261326294273147,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": -1.9313899470955125
+    },
+    {
+      "curve_scale_sensitivity": 1,
+      "assumed_discharge_coefficient": 0.75,
+      "guard": "proposed_more_open",
+      "guard_net_area_each_mm2": 800,
+      "fan_pressure_sensitivity_pa": 6.374561641451236,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 2.0446252942736023,
+      "guard_loss_sensitivity_pa": 2.5561410246320118,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": 1.7737953225456224
+    },
+    {
+      "curve_scale_sensitivity": 1,
+      "assumed_discharge_coefficient": 0.9,
+      "guard": "existing_perforated",
+      "guard_net_area_each_mm2": 511.15101082909956,
+      "fan_pressure_sensitivity_pa": 6.374561641451236,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 1.4198786765788902,
+      "guard_loss_sensitivity_pa": 4.3481432599119065,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": 0.6065397049604391
+    },
+    {
+      "curve_scale_sensitivity": 1,
+      "assumed_discharge_coefficient": 0.9,
+      "guard": "proposed_more_open",
+      "guard_net_area_each_mm2": 800,
+      "fan_pressure_sensitivity_pa": 6.374561641451236,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 1.4198786765788902,
+      "guard_loss_sensitivity_pa": 1.77509793377223,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": 3.1795850311001157
+    },
+    {
+      "curve_scale_sensitivity": 0.9,
+      "assumed_discharge_coefficient": 0.6,
+      "guard": "existing_perforated",
+      "guard_net_area_each_mm2": 511.15101082909956,
+      "fan_pressure_sensitivity_pa": 5.346652966644653,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 3.1947270223025037,
+      "guard_loss_sensitivity_pa": 9.78332233480179,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": -7.63139639045964
+    },
+    {
+      "curve_scale_sensitivity": 0.9,
+      "assumed_discharge_coefficient": 0.6,
+      "guard": "proposed_more_open",
+      "guard_net_area_each_mm2": 800,
+      "fan_pressure_sensitivity_pa": 5.346652966644653,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 3.1947270223025037,
+      "guard_loss_sensitivity_pa": 3.9939703509875173,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": -1.842044406645368
+    },
+    {
+      "curve_scale_sensitivity": 0.9,
+      "assumed_discharge_coefficient": 0.75,
+      "guard": "existing_perforated",
+      "guard_net_area_each_mm2": 511.15101082909956,
+      "fan_pressure_sensitivity_pa": 5.346652966644653,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 2.0446252942736023,
+      "guard_loss_sensitivity_pa": 6.261326294273147,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": -2.959298621902096
+    },
+    {
+      "curve_scale_sensitivity": 0.9,
+      "assumed_discharge_coefficient": 0.75,
+      "guard": "proposed_more_open",
+      "guard_net_area_each_mm2": 800,
+      "fan_pressure_sensitivity_pa": 5.346652966644653,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 2.0446252942736023,
+      "guard_loss_sensitivity_pa": 2.5561410246320118,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": 0.7458866477390389
+    },
+    {
+      "curve_scale_sensitivity": 0.9,
+      "assumed_discharge_coefficient": 0.9,
+      "guard": "existing_perforated",
+      "guard_net_area_each_mm2": 511.15101082909956,
+      "fan_pressure_sensitivity_pa": 5.346652966644653,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 1.4198786765788902,
+      "guard_loss_sensitivity_pa": 4.3481432599119065,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": -0.421368969846144
+    },
+    {
+      "curve_scale_sensitivity": 0.9,
+      "assumed_discharge_coefficient": 0.9,
+      "guard": "proposed_more_open",
+      "guard_net_area_each_mm2": 800,
+      "fan_pressure_sensitivity_pa": 5.346652966644653,
+      "inlet_plus_exhaust_loss_sensitivity_pa": 1.4198786765788902,
+      "guard_loss_sensitivity_pa": 1.77509793377223,
+      "remaining_for_channels_baffles_filters_and_other_losses_pa": 2.1516763562935326
+    }
+  ],
+  "candidate_covers_selected_energy_scenarios": true,
+  "candidate_covers_80000Pa_sensitivity": false,
+  "limits": [
+    "Energy conservation yields a necessary bulk-air flow, not a sufficient component cooling or local temperature bound.",
+    "58C air is a planning target for a proposed70C-rated control with60C body target; 2C local rise is unproved. Existing PTV09 has50C limit.",
+    "Land-heat split is hypothetical; converter rows include off-package inductor/diode heat and cannot all be credited to an IC thermal pad.",
+    "Base branch outlet60C with65C base goal is only an air-energy screen; no installed heat-transfer coefficient is proved.",
+    "Two fans are assumed parallel with equal sharing, no recirculation, clean guards and no failed fan; actual network/flow sharing is unproved.",
+    "Catalogue PQ is25C free-air data. Linear interpolation, common Q/P scaling and ideal density pressure correction are sensitivity models, not guaranteed installed curves.",
+    "Cd values are sensitivities; perforation interaction, thickness, protective geometry and channel losses need measurement or defensible flow simulation.",
+    "The old open under-base outlet can bypass the interior. A controlled split, sealed plenum and interior exhaust require new CAD and physical flow validation.",
+    "The source ledger is provisional and predates the new negative controller; its total is a comparison scenario, not a final hot full-unit heat upper bound."
+  ],
+  "installed_airflow_verified": false,
+  "component_temperatures_verified": false,
+  "revised_ports_or_guards_implemented": false,
+  "physical_tests_performed": 0,
+  "fabrication_released": false
+}

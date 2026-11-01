@@ -179,9 +179,20 @@ def main():
         )
         parts, pins = netlist(out / "netlist.xml")
         proof = contract(parts, pins)
+        run(
+            "sch",
+            "export",
+            "netlist",
+            "--format",
+            "kicadxml",
+            "-o",
+            out / "disconnect-netlist.xml",
+            ROOT.parents[1] / "rail_disconnect/rail_disconnect.kicad_sch",
+        )
         run("sch", "export", "svg", "--exclude-drawing-sheet", "-o", out, ROOT / "power_p02.kicad_sch")
     sources = [p for p in ROOT.iterdir() if p.is_file() and p.suffix not in (".kicad_prl", ".lck")]
     sources += [out / "netlist.xml", out / "erc.json"]
+    sources += [out / "disconnect-netlist.xml", ROOT.parents[1] / "rail_disconnect/rail_disconnect.kicad_sch"]
     sources += [ROOT.parents[1] / "common" / n for n in ("flat_schematic.py", "symbols.py", "netlists.py")]
     record = dict(
         revision="P02",

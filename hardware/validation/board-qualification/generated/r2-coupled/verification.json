@@ -1,0 +1,141 @@
+{
+  "revision": "E12-R2 coupled conditional review",
+  "cases": [
+    {
+      "id": "signal_nominal",
+      "parameters": {},
+      "solver_clean": false,
+      "accepted_for_numerical_comparison": false,
+      "deck_sha256": "0a7fa697b240ff5f801705ec2c0ae1a5771cfa8af80291a34dacb7eea9e12582",
+      "at_1khz": {
+        "differential_gain_abs": 0.485942348258043,
+        "common_mode_gain_abs": 0.00030815029396410554
+      }
+    },
+    {
+      "id": "reference_nominal",
+      "parameters": {
+        "drive": "reference"
+      },
+      "solver_clean": false,
+      "accepted_for_numerical_comparison": false,
+      "deck_sha256": "93cee9185bf700a836d0b506079186cc67d2d1f9cce905fd51b639bf7929258f",
+      "at_1khz": {
+        "differential_gain_abs": 2.6266971248244532e-08,
+        "common_mode_gain_abs": 0.014788980181547394
+      }
+    },
+    {
+      "id": "servo_cap_low",
+      "parameters": {
+        "drive": "reference",
+        "servo_cap_scale": 0.9
+      },
+      "solver_clean": false,
+      "accepted_for_numerical_comparison": false,
+      "deck_sha256": "6d8e6e915341af8d7c150ffcf9d0152e2e78112185c46879a4fefbac0ae8219f",
+      "at_1khz": {
+        "differential_gain_abs": 2.6267502512823833e-08,
+        "common_mode_gain_abs": 0.014789279276734988
+      }
+    },
+    {
+      "id": "servo_cap_high",
+      "parameters": {
+        "drive": "reference",
+        "servo_cap_scale": 1.1
+      },
+      "solver_clean": false,
+      "accepted_for_numerical_comparison": false,
+      "deck_sha256": "a0602490c5cc25f11bc0c4731c5d8119cfe396e8668fbb861f676147e8fc727c",
+      "at_1khz": {
+        "differential_gain_abs": 2.626656978121322e-08,
+        "common_mode_gain_abs": 0.01478875401649863
+      }
+    },
+    {
+      "id": "dc_zero_start",
+      "parameters": {
+        "analysis": "dc"
+      },
+      "solver_clean": false,
+      "accepted_for_numerical_comparison": false,
+      "deck_sha256": "bc6ab9e8abf87f33ece3fe3d765668fcdaae002a8bf8019f44c1b62ab3b26a2a",
+      "zero_input_common_mode_v": 1.65002795808124,
+      "vocm_interval_v": [
+        1.64752034190901,
+        1.6510083412179508
+      ]
+    }
+  ],
+  "all_cases_solver_clean": false,
+  "accepted_case_count": 0,
+  "vendor_models": {
+    "ths4551": {
+      "source": "https://www.ti.com/lit/zip/sbomb92b",
+      "sha256": "0a8c0db4398d7849ef46ba831bac4bc5f09352c9ead3a7be6a3a7e36d5a21527",
+      "modified": false,
+      "redistributed": false
+    },
+    "opa192": {
+      "source": "https://www.ti.com/lit/zip/sbom862f",
+      "sha256": "1c438e45e978ffaf5aa13c7e2bb18ad5da70259775522ec41f47633a5db99033",
+      "modified": false,
+      "redistributed": false
+    },
+    "opa1656": {
+      "source": "https://www.ti.com/lit/zip/sbomaw6c",
+      "sha256": "9847ed60c62e792ee6f1c84899278a3c11ce71a6d21804bdd88f51199f1ba055",
+      "modified": false,
+      "redistributed": false
+    }
+  },
+  "source_sha256": {
+    "hardware/qualification/boards/coupled_adc.py": "da69966b644c0718d177223abee944da3c9ab4a3e0c18f4d9ba9138de3ab578c",
+    "hardware/electronics/adc_driver/revision2/generated/netlist.xml": "9d9bc91d025339f5abced2fcae7b293efbcaf740e844400f94eb524de63bab70",
+    "hardware/electronics/adc_driver/revision2/design.py": "d9c1da41988072bd3647826d2f6449a76584eda924da5aa93d3c91cff1489508",
+    "hardware/electronics/adc_driver/revision2/simulate.py": "7642d436fd8d386a949754323bde06f30b73e1677ef99a8a9883bee693383646",
+    "hardware/electronics/adc_driver/qualification/spice.py": "e0bbc19c9b18fde03300ccd5563d6d865220eaed986e75a95e4f345c9efcfa52",
+    "hardware/electronics/common/netlists.py": "1fed0ffc2a6943a5d550fd23342fb5924319864021f0348dd51f931941645339"
+  },
+  "evidence_sha256": {
+    "servo_cap_high.cir": "a0602490c5cc25f11bc0c4731c5d8119cfe396e8668fbb861f676147e8fc727c",
+    "servo_cap_low.cir": "6d8e6e915341af8d7c150ffcf9d0152e2e78112185c46879a4fefbac0ae8219f",
+    "signal_nominal.json": "0087f23cea0265b7077e553483f1d77f4448a1ee5d79b1c256c53bb0d652867f",
+    "dc_zero_start-log.txt": "55a0cb1b60340c3f54f5e821beaa8da11ab063a2038d2edfecfa95d26d1cd519",
+    "reference_nominal-log.txt": "48a4d94c608e745df52801b8ea75fa5d1a98dc576254032f1d31b20b8d2b7196",
+    "signal_nominal.cir": "0a7fa697b240ff5f801705ec2c0ae1a5771cfa8af80291a34dacb7eea9e12582",
+    "servo_cap_high.json": "f23854d77102f56284d4fccff55eb75f10e6d4cc0ef59bdcf343cb8480d45369",
+    "servo_cap_high-log.txt": "414d6d313fa11182866dac1181f90ac471319ace6ecd0771c1010cff6b8eab24",
+    "servo_cap_low-log.txt": "414d6d313fa11182866dac1181f90ac471319ace6ecd0771c1010cff6b8eab24",
+    "servo_cap_low.json": "0f7af14891318166c01b766928ec76d291d242fb0fff1aab5d1ef16859d80491",
+    "reference_nominal.cir": "93cee9185bf700a836d0b506079186cc67d2d1f9cce905fd51b639bf7929258f",
+    "signal_nominal-log.txt": "414d6d313fa11182866dac1181f90ac471319ace6ecd0771c1010cff6b8eab24",
+    "dc_zero_start.cir": "bc6ab9e8abf87f33ece3fe3d765668fcdaae002a8bf8019f44c1b62ab3b26a2a",
+    "initialization.txt": "77294597aa12ac78f52cf401749ff92404002508229dc263b64f70f11be41aae",
+    "reference_nominal.json": "4d03f87d492a9a5a39ed4c407d443ae68b964ce06581263990f64b3386a54e7d",
+    "dc_zero_start.json": "fd1af45e158fa509d6b76c43b849ccccfd7f0c931021a5ac8ec110d38f66fcf3"
+  },
+  "simulator_library_sha256": "0ca3aa63d8b1c714360dcef8322e299c7d53cee7650dd8431c907b020df5df1f",
+  "code_models_sha256": {
+    "analog.cm": "4f70d9f417b26d3a515832f8d7a6538faead60da323be91056c61b17397acc5e",
+    "digital.cm": "c3757d7325089ee97b0a80b4f579dcda8674c205b5e1008ce7b299ed51dbfc4e",
+    "spice2poly.cm": "9a3b7c13cd8661d803d4fadc69952d393f23394050cdcceb22ee56cee450d82f",
+    "table.cm": "b2e047ff149de3543c72be17815542efec5dcee9a1b1d5e1e962ba00a301780e",
+    "tlines.cm": "2475bf9b706f42291d59ba486c113cb4d488d3d841edd05f26cf3732f481acca",
+    "xtradev.cm": "b43d5ecb42b6c853ec7b527d0ba1f716c4fdd9fdc9e678d9ba84132fcfcef422",
+    "xtraevt.cm": "519c481034b8b953a64fd76547b74b46d7942c850e562abcf7cca0fc0a977a76"
+  },
+  "buffer_reference_and_external_common_mode_servo_present": true,
+  "ideal_supply_sources": true,
+  "actual_codec_model_present": false,
+  "pump_and_bias_monitor_and_pd_models_present": false,
+  "vocm_clamp_model_present": false,
+  "extracted_board_parasitics_present": false,
+  "return_ratio_or_phase_margin_verified": false,
+  "full_board_stability_verified": false,
+  "physical_tests_performed": 0,
+  "fabrication_released": false,
+  "build_ready": false,
+  "limitation": "One left channel, ideal3.3V converter reference and static260ohm per-pin loads to1.65V; actual ESS DC/switched load is unavailable. Models exclude diode-clamp conduction/capacitance, pump/PD/power sequences and package/shared-supply coupling. Closed-loop transfer and solver cleanliness are not stability or noise qualification."
+}

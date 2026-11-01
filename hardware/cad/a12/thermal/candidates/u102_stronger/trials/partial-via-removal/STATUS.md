@@ -1,0 +1,1 @@
+Rejected intermediate: preserves major source/control nodes but removes6 V2V5_AUX/AUX_FB barrels, including the actual .55/.20 AUX_FB source VIP. Native0hard/ERC/parity but8opens. Preferred design must retain every foreign barrel and all non-bottom routes. No physical or functional qualification.

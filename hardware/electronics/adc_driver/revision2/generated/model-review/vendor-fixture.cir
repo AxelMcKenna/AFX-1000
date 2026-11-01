@@ -1,0 +1,15 @@
+* source THS4551
+.include "/private/tmp/afx-ths4551-sbomb92b/ths4551.lib"
+X_U1         N03533 N03613 OUT+ OUT- VOCM VCC VEE THS4551
+R_Rf2         N03613 OUT+  1e3 TC1=0 TC2=0 
+R_Rg1         N03523 N03533  1e3 TC1=0 TC2=0 
+V_V1         VCC 0 2.5Vdc
+R_Rg2         0 N03613  1e3 TC1=0 TC2=0 
+R_Rf1         N03533 OUT-  1e3 TC1=0 TC2=0 
+V_V2         VEE 0 -2.5Vdc
+V_V3         N03523 0  AC 1
++SIN 0 0.2 100e6 0 0 0
+R_Rl         OUT+ OUT-  1e3 TC1=0 TC2=0 
+V_V4         VOCM 0 0Vdc
+.dc V_V3 0 .1 .1
+.end

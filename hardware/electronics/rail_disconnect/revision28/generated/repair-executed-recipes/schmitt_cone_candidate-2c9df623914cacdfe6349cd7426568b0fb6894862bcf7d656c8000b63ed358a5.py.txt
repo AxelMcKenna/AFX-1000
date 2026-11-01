@@ -1,0 +1,122 @@
+"""Explicit seven-triple receiving repair; never modifies coherent11 source."""
+import copy
+import csv
+import hashlib
+import json
+import shutil
+from pathlib import Path
+
+from ...common.placement import placed_footprint
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+from .. import generate as sg
+from .reset_buffer_candidate4 import pin
+from .reset_buffer_patterns import BYPASS, TRIPLE, bypass, triple, validate
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / 'generated/coherent-ground-repair-work'
+WORK = ROOT / 'generated/schmitt-all-oc-placement2-work'
+GROUPS = [
+ ['P19_OV_OK','N19_OV_OK','P12_OV_OK'],
+ ['N12_OV_OK','V5_REG_OV_OK','5V_DIG_OV_OK'],
+ ['REF_LOW_OK','REF_HIGH_OK','ANA_SOURCE_OK'],
+ ['DIG_SOURCE_OK','ANA_OUTPUT_OK','DIG_OUTPUT_OK'],
+ ['DIG_PG0','DIG_PG1','DIG_PG2'],
+ ['DIG_PG3','ANA_PG0','ANA_PG1'],
+ ['ANA_PG2',None,None],
+]
+XY = [tuple(r['local_mm']) for r in json.loads((ROOT/'generated/schmitt-cone-proposal/placement-search.json').read_text())['rows']]
+CHANNELS = [(1,7),(3,5),(6,2)]
+
+
+def append_symbol(sch, c):
+    first(sch,'lib_symbols').append(read_sexpr(sg.symbol(c)))
+    x,y=c['x'],c['y']; _,hh=sg.geometry(c);ref=c['ref']
+    sym=read_sexpr(f'(symbol (lib_id "RMX_E17:E17_{ref}") (at {x} {y} 0) (unit 1) (in_bom yes) (on_board yes) (dnp no) (uuid {sg.uid(ref)}))')
+    for key,v,py,hide in [('Reference',ref,y-hh-3.81,False),('Value',c['part'],y+hh+3.81,False),('Footprint',c['footprint'],y,True),('Datasheet',c['source'],y,True)]:
+        sym.append(read_sexpr(f'(property {sg.q(key)} {sg.q(v)} (at {x} {sg.grid(py)} 0) (effects (font (size 1.27 1.27)) {"(hide yes)" if hide else ""}))'))
+    for p in sg.geometry(c)[0]:sym.append(read_sexpr(f'(pin "{p["number"]}" (uuid {sg.uid(ref+"."+p["number"])}))'))
+    sym.append(read_sexpr(f'(instances (project "rail_disconnect" (path "/{first(sch,"uuid")[1]}" (reference "{ref}") (unit 1))))'))
+    sch.append(sym)
+    for p in sg.geometry(c)[0]:
+        px,py=sg.grid(x+p['x']),sg.grid(y-p['y']);end=sg.grid(px+(-5.08 if p['side']=='L' else 5.08));ident=ref+'.'+p['number']
+        if p['net'] is None:
+            sch.append(read_sexpr(f'(no_connect (at {px} {py}) (uuid {sg.uid("nc"+ident)}))'));continue
+        sch.append(read_sexpr(f'(wire (pts (xy {px} {py}) (xy {end} {py})) (stroke (width 0) (type default)) (uuid {sg.uid("wire"+ident)}))'))
+        sch.append(read_sexpr(f'(label "{p["net"]}" (at {end} {py} 0) (effects (font (size 1 1)) (justify {"right" if p["side"]=="L" else "left"} bottom)) (uuid {sg.uid("label"+ident)}))'))
+
+
+def main():
+    assert not WORK.exists()
+    inputs={n:(SOURCE/n).read_bytes() for n in ('rail_disconnect.kicad_pcb','rail_disconnect.kicad_sch','components.json')}
+    t=read_sexpr(inputs['rail_disconnect.kicad_pcb'].decode());s=read_sexpr(inputs['rail_disconnect.kicad_sch'].decode());parts=json.loads(inputs['components.json'])
+    assert len(parts)==255
+    nets={str(n[2]).lstrip('/'):int(n[1]) for n in children(t,'net')}
+    fps={next(p[2] for p in children(f,'property') if p[1]=='Reference'):f for f in children(t,'footprint')}
+    changes=[];loads=[];new=[];poses={}
+    for i,(group,(x,y)) in enumerate(zip(GROUPS,XY)):
+        ref=f'U{36+i}'; capref=f'C{79+i}'; pins=[]
+        for raw,(inp,out) in zip(group,CHANNELS):
+            buffered=raw+'_SCHMITT' if raw else None
+            receivers=[]
+            if raw:
+                for c in parts:
+                    for p in c['pins']:
+                        if p['net']==raw and p['kind']=='input':
+                            assert c['part'].startswith(('SN74LVC08A','SN74AUP2G08')),(c['ref'],c['part'])
+                            receivers.append(dict(ref=c['ref'],pin=p['number'],part=c['part']))
+                            p['net']=buffered
+                            lab=next(n for n in children(s,'label') if str(first(n,'uuid')[1])==sg.uid('label'+c['ref']+'.'+p['number']))
+                            assert lab[1]==raw;lab[1]=buffered
+                            pad=next(q for q in children(fps[c['ref']],'pad') if q[1]==p['number'])
+                            if buffered not in nets:
+                                nets[buffered]=max(nets.values())+1;t.append([a('net'),a(str(nets[buffered])),'/'+buffered])
+                            first(pad,'net')[:]=[a('net'),a(str(nets[buffered])),'/'+buffered]
+                            changes.append(dict(ref=c['ref'],pin=p['number'],old_net=raw,new_net=buffered))
+                assert receivers,raw
+                source=[dict(ref=c['ref'],pin=p['number'],part=c['part']) for c in parts for p in c['pins'] if p['net']==raw and p['kind']=='open_collector']
+                assert len(source)==1,(raw,source)
+                # Conservative entire-receiver leakage allocations, not inferred typical input current.
+                load=sum(20 if r['part'].startswith('SN74LVC') else .5 for r in receivers)+2
+                assert load<100
+                loads.append(dict(raw=raw,buffered=buffered,source=source,receivers=receivers,output_load_allocation_uA=load,continuous_VOH_row_V=2.4,continuous_VOL_row_V=.1,output_slew_measured=False))
+            pins.extend([pin(inp,f'{len(pins)//2+1}A',raw or 'AGND'),pin(out,f'{len(pins)//2+1}Y',buffered,'output','R')])
+        pins.extend([pin(4,'GND','AGND','power_in'),pin(8,'VCC','V2V5_AUX','power_in','R')])
+        new.append(dict(ref=ref,part='SN74LVC3G17DCUR',footprint=TRIPLE,source='https://www.ti.com/lit/ds/symlink/sn74lvc3g17.pdf',pins=pins,x=190.5+(i%3)*160.02,y=2794+(i//3)*215.9,note='Raw open-collector receiving Schmitt repair. Unused inputs GND, outputs NC. Threshold interpolation, output slew, partial-AUX and ICC qualification remain open.'))
+        new.append(dict(ref=capref,part='100nF 16V X7R 10% KEMET C0603C104K4RACTU',footprint=BYPASS,source='https://search.kemet.com/download/specsheet/C0603C104K4RACTU',pins=[pin(1,'1','V2V5_AUX','passive'),pin(2,'2','AGND','passive','R')],x=270.51+(i%3)*160.02,y=2794+(i//3)*215.9,note='Actual manufacturer DensityB lands; effective-C>=50nF receiving requirement unverified.'))
+        poses[ref]=(x,y,0,'F');poses[capref]=(x+3.8,y,0,'F')
+    assert len(loads)==19 and len(changes)==20
+    parts.extend(new)
+    for c in new:append_symbol(s,c)
+    for c in new:
+        for p in c['pins']:
+            if p['net'] is None:
+                name=f'unconnected-({c["ref"]}-{p["name"]}-Pad{p["number"]})'
+                nets[name]=max(nets.values())+1
+                t.append([a('net'),a(str(nets[name])),name])
+    nn=children(t,'net');t[:]=[n for n in t if n not in nn];idx=next(i for i,n in enumerate(t) if isinstance(n,list) and n and n[0]=='footprint');t[idx:idx]=nn
+    WORK.mkdir();(WORK/'generated').mkdir()
+    for p in SOURCE.iterdir():
+        if p.is_file() and (p.suffix in ('.kicad_pcb','.kicad_sch','.kicad_pro','.kicad_sym') or p.name in ('components.json','fp-lib-table','sym-lib-table')):shutil.copy2(p,WORK/p.name)
+        elif p.suffix=='.pretty':shutil.copytree(p,WORK/p.name)
+    modules={TRIPLE:triple(),BYPASS:bypass()}
+    for name,fp in modules.items():
+        validate(fp);(WORK/'RMX_E28.pretty'/(name.split(':')[1]+'.kicad_mod')).write_text(sexpr(fp)+'\n')
+    for c in new:
+        comp=dict(c,value=c['part'],mpn=c['part'],nets={p['number']:p['net'] or f'unconnected-({c["ref"]}-{p["name"]}-Pad{p["number"]})' for p in c['pins']})
+        lib=WORK/'RMX_E28.pretty'/(c['footprint'].split(':')[1]+'.kicad_mod')
+        fp=placed_footprint(comp,poses[c['ref']],lib,nets,namespace='rmx:E28:allOC:')
+        for p in children(fp,'pad'):
+            node=first(p,'net')
+            if node[2].startswith('/unconnected-'):node[2]=node[2][1:]
+        t.append(fp)
+    (WORK/'rail_disconnect.kicad_pcb').write_text(sexpr(t)+'\n');(WORK/'rail_disconnect.kicad_sch').write_text(sexpr(s)+'\n');(WORK/'components.json').write_text(json.dumps(parts,indent=2)+'\n')
+    for p in WORK.glob('*.kicad_sym'):
+        sym=read_sexpr(p.read_text());sym.extend(read_sexpr(sg.symbol(c,False)) for c in new);p.write_text(sexpr(sym)+'\n')
+    with (WORK/'generated/bom.csv').open('w',newline='') as f:
+        w=csv.writer(f);w.writerow(['Reference','Selected part','Footprint','Primary']);w.writerows([c['ref'],c['part'],c['footprint'],c['source']] for c in parts)
+    report=dict(source_sha256={n:hashlib.sha256(v).hexdigest() for n,v in inputs.items()},recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),new_parts=new,poses=poses,endpoint_changes=changes,receiving_nodes=loads,old_Cu_preserved_literal=True,all_native_routing_MCAD_PDN_checks_pending=True,additional_ICC_receiving_reservation_A=.014,ICC_reservation_manufacturer_guaranteed=False,edge_rate_qualified=False,threshold_continuous_VCC_qualified=False,partial_power_fail_off_qualified=False,physical_qualified=False)
+    (WORK/'generated/receiving-change.json').write_text(json.dumps(report,indent=2)+'\n')
+    for n,v in inputs.items():assert (SOURCE/n).read_bytes()==v
+    print('269-part explicit 19-node receiving draft; no routing/native acceptance claimed')
+
+if __name__=='__main__':main()

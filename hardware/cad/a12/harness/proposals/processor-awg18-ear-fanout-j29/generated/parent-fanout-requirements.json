@@ -1,0 +1,202 @@
+{
+  "scope": "Retained0.636A destinations from actual manifest and fresh native schematics.\n\nNo new ports or current redistribution are implemented. The manifest remains\nlogical, and its original E28-star source differs from a future E19 fanout.\n",
+  "source_sha256": {
+    "hardware/wiring/generated/system-interconnect.json": "3410524cfe3bfc5834fe6acdfc76cbe2274915ff6c335be77cba07d3c869afee",
+    "hardware/electronics/power_distribution/p02/distribution.py": "aad5d2b0b4b3fce9ab2fb67fb6eb9b0b2e72a3b64426f6671e86401a38597f01",
+    "hardware/cad/a12/harness/proposals/processor-awg18-ear-wide/fanout.py": "254222a65c3d26a7d83682b546ea4bf241f1d35068b866047629f128a4628ebf",
+    "hardware/electronics/sequenced_bypass/RMX_E11.kicad_sym": "69f60325e690c4b0f3b961565dd8f97f2ae0f4ec28c9931c350a1310953ea32b",
+    "hardware/electronics/sequenced_bypass/sequenced_bypass.kicad_sch": "0657a248edd4bd20fbe27bd53c36fffd89d2322be4eb15063232df1224a943e2",
+    "hardware/electronics/sequenced_bypass/sym-lib-table": "ea86044f0ce06d4fe447a1276f9286318fe40351b2eb44f0c21327c67539ebe9",
+    "hardware/electronics/sequenced_bypass/sequenced_bypass.kicad_pro": "438f5123fbcd4636be3479b5b052f6c6eb1cfa0ada061b945cbfcce2b5995e54",
+    "hardware/electronics/rail_monitor/rail_monitor.kicad_pro": "4915cf36a1da3234240b1a05988624a730f9f01b07e6993363a67744ed5913ad",
+    "hardware/electronics/rail_monitor/rail_monitor.kicad_sch": "cf5c0eb43ab6c5e938bf124f15977db4d5259f573169eea2940e0257b50d8db5",
+    "hardware/electronics/rail_monitor/sym-lib-table": "a6480f3b3a3b727d727a48b1fbd05be3b2f73dcd0946187d2eacef7aab02b4d1",
+    "hardware/electronics/rail_monitor/RMX_E13.kicad_sym": "92eb0ba5b43f6a2d6b458330249eb19d5e6b5932e1d612e831fbe8ee9424c212"
+  },
+  "commands": [
+    {
+      "args": [
+        "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "export",
+        "netlist",
+        "--format",
+        "kicadxml",
+        "-o",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/cad/a12/harness/proposals/processor-awg18-ear-wide/generated/fanout-sequenced_bypass.xml",
+        "/var/folders/0g/mh1jz03x7tj_7qpt3_v6b4zc0000gn/T/afx-ear-fanout-2y91dyi_/sequenced_bypass.kicad_sch"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "export",
+        "netlist",
+        "--format",
+        "kicadxml",
+        "-o",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/cad/a12/harness/proposals/processor-awg18-ear-wide/generated/fanout-rail_monitor.xml",
+        "/var/folders/0g/mh1jz03x7tj_7qpt3_v6b4zc0000gn/T/afx-ear-fanout-l34830uk/rail_monitor.kicad_sch"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "actual_manifest_wires": [
+    {
+      "harness": "DIG-BYPASS",
+      "from": [
+        "rail_disconnect",
+        "J4",
+        "1"
+      ],
+      "to": [
+        "sequenced_bypass",
+        "J1",
+        "1"
+      ],
+      "net": "5V_DIG",
+      "cut_length_mm": null,
+      "production_connector": null,
+      "assembly_released": false
+    },
+    {
+      "harness": "DIG-BYPASS",
+      "from": [
+        "rail_disconnect",
+        "J4",
+        "2"
+      ],
+      "to": [
+        "sequenced_bypass",
+        "J1",
+        "2"
+      ],
+      "net": "AGND",
+      "cut_length_mm": null,
+      "production_connector": null,
+      "assembly_released": false
+    },
+    {
+      "harness": "DIG-MONITOR",
+      "from": [
+        "rail_disconnect",
+        "J4",
+        "1"
+      ],
+      "to": [
+        "rail_monitor",
+        "J1",
+        "1"
+      ],
+      "net": "5V_DIG",
+      "cut_length_mm": null,
+      "production_connector": null,
+      "assembly_released": false
+    },
+    {
+      "harness": "DIG-MONITOR",
+      "from": [
+        "rail_disconnect",
+        "J4",
+        "2"
+      ],
+      "to": [
+        "rail_monitor",
+        "J1",
+        "3"
+      ],
+      "net": "AGND",
+      "cut_length_mm": null,
+      "production_connector": null,
+      "assembly_released": false
+    }
+  ],
+  "actual_native_destination_contracts": {
+    "sequenced_bypass": {
+      "actual_fresh_netlist_sha256": "dc0603587226581d0fddf700a7061b8adf67d6ac765076415df3a28122664ead",
+      "J1_pinmap": {
+        "3": "3V3",
+        "1": "5V",
+        "2": "AGND"
+      },
+      "J1_schematic_footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "actual_native_PCB_exists": false,
+      "all_header_AGND_nodes": [
+        "J1.2",
+        "J3.4",
+        "J2.1",
+        "J6.1",
+        "J7.2",
+        "J8.2",
+        "J9.2",
+        "J9.5"
+      ]
+    },
+    "rail_monitor": {
+      "actual_fresh_netlist_sha256": "86fb39ce77179ef8819103e8e7d5756d419d9d1730733f6c80ea5eb56e9083f6",
+      "J1_pinmap": {
+        "1": "5V_DIG",
+        "3": "AGND",
+        "2": "V3V3_IO"
+      },
+      "J1_schematic_footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+      "actual_native_PCB_exists": false,
+      "all_header_AGND_nodes": [
+        "J1.3",
+        "J2.2",
+        "J3.1",
+        "J4.1"
+      ]
+    }
+  },
+  "retained_positive_wire_current_allocations_a": {
+    "DIG-BYPASS": 0.14,
+    "DIG-MONITOR": 0.08,
+    "digital_reserve_no_physical_endpoint": 0.416
+  },
+  "destinations": {
+    "DIG-BYPASS": {
+      "positive": [
+        "sequenced_bypass",
+        "J1",
+        "1"
+      ],
+      "ground": [
+        "sequenced_bypass",
+        "J1",
+        "2"
+      ]
+    },
+    "DIG-MONITOR": {
+      "positive": [
+        "rail_monitor",
+        "J1",
+        "1"
+      ],
+      "ground": [
+        "rail_monitor",
+        "J1",
+        "3"
+      ]
+    },
+    "digital_reserve": null
+  },
+  "destination_5V_local_alias": "sequenced_bypass J1.1 native5V is the manifest5V_DIG boundary; no new rail source is inferred",
+  "currents_are_retained_allocations_not_native_load_guarantees": true,
+  "return_constraints": "Nominal digital branch components .140/.080A contribute to signed AGND KCL, but return-pin current is not independently bounded: shared AGND headers/3V3/control and bipolar domains require actual coupled model. No equal split or cancellation assumed.",
+  "manifest_current_source": "E28J4 logical star",
+  "future_E19_source_ports_implemented": false,
+  "conflict_to_resolve": "Routing full2.4A through E19J13 while retaining manifestE28-star branches would double-allocate the topology. Explicitly choose/implement source and real fanout; preserve load totals.",
+  "reserve_actual_load_or_connector_assigned": false,
+  "receiver_J1_unfitted_service_preserved": true,
+  "source_J13_multiwire_joint_qualified": false,
+  "full_PDN_solved": false,
+  "physical_qualified": false,
+  "fabrication_released": false
+}

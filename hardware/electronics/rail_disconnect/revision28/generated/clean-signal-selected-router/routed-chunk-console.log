@@ -1,0 +1,54 @@
+2026-10-27 19:24:36.259 INFO   Freerouting v2.5.0 (build-date: 2026-10-05)
+2026-10-27 19:24:36.288 WARN   [startup] freerouting.json contains a stale 'logging.file.location' value: '/private/tmp/afx-e28-force-guard-router-v3/router.log'. The actual log file is being written to '/Users/axelmckrnna/dev/rmx-publish/hardware/electronics/rail_disconnect/revision28/generated/clean-signal-selected-router/routed-chunk-router.log' (as resolved at startup). The stale value will be corrected in freerouting.json on next save. If you see this in Docker, the old JSON was written by an earlier version that stored the host path; the fix is to delete freerouting.json so it is regenerated with the correct path.
+2026-10-27 19:24:36.510 INFO   Hardware: 4 CPU cores, 524 CPU score, 4096 MB RAM
+2026-10-27 19:24:36.513 WARN   GUI is disabled and you don't have a console available, so the only feedback from Freerouting is in the log.
+2026-10-27 19:24:39.874 INFO   [42E025\673351] Loading board file 'afx-d3f37aa005c71f88de4d39ac.dsn'...
+2026-10-27 19:24:41.574 WARN   DSN file 'afx-d3f37aa005c71f88de4d39ac.dsn' was loaded with 106 warning(s).
+2026-10-27 19:24:41.661 INFO   Applied drill-hole clearance override: 250.0 um (2500 board units), 48 hole keepouts reclassified.
+2026-10-27 19:24:41.669 WARN   Power-plane validation failed:
+- Dedicated power layer 'In1.Cu' contains 644 signal wire(s)/trace(s).
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 110, Net(s): [/5V_DIG_SRC]) and Area (ID 109, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 110, Net(s): [/5V_DIG_SRC]) and Area (ID 108, Net(s): [/AGND]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 110, Net(s): [/5V_DIG_SRC]) and Area (ID 106, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 110, Net(s): [/5V_DIG_SRC]) and Area (ID 105, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 109, Net(s): [/5V_DIG_SRC]) and Area (ID 108, Net(s): [/AGND]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 109, Net(s): [/5V_DIG_SRC]) and Area (ID 106, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 108, Net(s): [/AGND]) and Area (ID 107, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 108, Net(s): [/AGND]) and Area (ID 106, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 108, Net(s): [/AGND]) and Area (ID 105, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In1.Cu' has overlapping conduction areas: Area (ID 107, Net(s): [/5V_DIG_SRC]) and Area (ID 106, Net(s): [/5V_DIG_SRC]) overlap.
+- Dedicated power layer 'In4.Cu' contains 571 signal wire(s)/trace(s).
+
+Proper Definition and Best Practices for Power Planes:
+1. What Belongs on a Power Plane:
+   - Solid Copper Pours: A single, uninterrupted sheet of copper assigned to one voltage (e.g., +3.3V).
+   - Split Planes: Multiple distinct voltage zones divided by thin isolation gaps (puzzle pieces).
+   - Vias and Anti-Pads: Plated holes passing through the board, surrounded by circular voids (anti-pads) to prevent shorting.
+   - Thermal Reliefs: Spoked connections for vias or pins that connect to the plane, facilitating soldering.
+2. Why Signal Wires/Traces are Banned:
+   - Destroyed Return Paths: High-speed signals on adjacent layers couple to the solid plane below/above as return paths. Crossing a trace gap detours return currents, causing severe EMI and signal integrity issues.
+   - Compromised Power Delivery: Power planes should provide the lowest impedance path. Routing traces chops up the copper, creating bottleneck restrictions and voltage drops.
+
+2026-10-27 19:24:43.316 INFO   [42E025\673351] Job '42E025\673351' started at 2026-10-27T06:24:43.316611Z.
+2026-10-27 19:24:45.481 WARN   Design Warning: Board has 1540 pre-existing clearance violation(s) in the loaded design (before routing):
+  - 1540 unfixable violation(s) (cannot be resolved by Freerouting):
+      * 1 pin-to-pin clearance violations:
+          - C47.1 [net /E28_DIG_2_DVDT_CAP] <-> J8.1 [net /AGND]
+      * 1539 fixed trace/via clearance violations (first 5 shown):
+          - FixedVia#9201 [net /E28_DIG_1_DVDT_CAP] <-> ObstacleArea#2
+          - FixedVia#9201 [net /E28_DIG_1_DVDT_CAP] <-> ObstacleArea#5
+          - FixedVia#9201 [net /E28_DIG_1_DVDT_CAP] <-> ObstacleArea#3
+          - FixedVia#9200 [net /E28_DIG_0_DVDT_CAP] <-> ObstacleArea#4
+          - FixedVia#9200 [net /E28_DIG_0_DVDT_CAP] <-> ObstacleArea#5
+          ... and 1534 more
+  - 0 potentially fixable violations
+Notice: Freerouting does not modify component placement, board outlines, or fixed items.
+Resolving these 1540 unfixable violation(s) is the responsibility of the board author in their EDA tool (e.g. KiCad).
+2026-10-27 19:24:45.537 INFO   [42E025\673351] Pipeline thread limits: autorouter pass is single-threaded, optimizer.max_threads=3.
+2026-10-27 19:24:52.571 INFO   [42E025\673351] Auto-routing stage started on board '83c69a165ef9b9ab9b3d9ccb74141cd3' with baseline score 218.11 for 508 unrouted items.
+2026-10-27 19:25:55.788 INFO   [42E025\673351] Max items limit reached (100). Stopping auto-router.
+2026-10-27 19:26:04.376 INFO   [42E025\673351] Auto-routing pass #1 on board '83c69a165ef9b9ab9b3d9ccb74141cd3' was completed in 68.37 seconds with score 254.21 (465 unrouted and 1540 violations), using 77.09 CPU seconds and the job allocated 74.75 GB of memory so far.
+2026-10-27 19:26:19.034 INFO   [42E025\673351] Auto-routing stage interrupted: started with 508 unrouted nets, completed in 88.11 seconds, final score: 254.21 (465 unrouted and 1540 violations), using 91.62 total CPU seconds, 89.57 GB total allocated, and 577.6 MB peak heap usage.
+2026-10-27 19:26:19.116 INFO   [42E025\673351] Job '42E025\673351' finished with state: COMPLETED (elapsed: 1 minute 35.80 seconds, finished at UTC: 2026-10-27T06:26:19.115470Z).
+2026-10-27 19:26:19.145 INFO   Saving output file '/Users/axelmckrnna/dev/rmx-publish/hardware/electronics/rail_disconnect/revision28/generated/clean-signal-selected-router/routed-chunk.ses' (SES)...
+2026-10-27 19:26:19.148 INFO   Successfully saved output file '/Users/axelmckrnna/dev/rmx-publish/hardware/electronics/rail_disconnect/revision28/generated/clean-signal-selected-router/routed-chunk.ses' (81490 bytes).

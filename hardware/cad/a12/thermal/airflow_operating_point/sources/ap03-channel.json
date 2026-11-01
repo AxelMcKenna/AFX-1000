@@ -1,0 +1,93 @@
+{
+  "revision": "AP03-channel-bound",
+  "source_sha256": {
+    "channel_budget.py": "b84203797195e2dda7a42a44410fa88ce01da343d4e449685853b42b42d8f6c9",
+    "generated/analysis.json": "b532c5c6376cb4f08cb93c2fa183bcc3cdd7ce367b8593e58c181dc5e3ae63dd",
+    "generated/checks.scad": "111d1736406e90c37f6df4808ba3498ed68f3d4748578cc8bd7d03b26b9f4efa"
+  },
+  "absolute_Z_interval_mm": [
+    -22,
+    -6.7
+  ],
+  "rear_strip_width_mm": 40,
+  "nominal_Y_gap_mm": 6.25,
+  "fan_registered_Y_gap_requirement_mm": 5.95,
+  "bounds": {
+    "nominal": {
+      "gross_mm2": 250.0,
+      "two_nut_AABB_mm2": 17.366696097223944,
+      "two_shank_AABB_mm2": 12.600000000000001,
+      "right_feedthrough_AABB_mm2": 3.5999999999999996,
+      "left_uniform_lower_bound_mm2": 220.03330390277605,
+      "right_uniform_lower_bound_mm2": 216.43330390277606,
+      "overlapping_obstacle_bounds_are_not_subtracted_from_losses_twice": true
+    },
+    "fan_registration": {
+      "gross_mm2": 238.0,
+      "two_nut_AABB_mm2": 17.366696097223944,
+      "two_shank_AABB_mm2": 12.600000000000001,
+      "right_feedthrough_AABB_mm2": 3.5999999999999996,
+      "left_uniform_lower_bound_mm2": 208.03330390277605,
+      "right_uniform_lower_bound_mm2": 204.43330390277606,
+      "overlapping_obstacle_bounds_are_not_subtracted_from_losses_twice": true
+    },
+    "extra_wall_plus02_component_XY_plus02_sensitivity": {
+      "gross_mm2": 230.0,
+      "two_nut_AABB_mm2": 23.30837012152993,
+      "two_shank_AABB_mm2": 17.0,
+      "right_feedthrough_AABB_mm2": 6.4,
+      "left_uniform_lower_bound_mm2": 189.69162987847008,
+      "right_uniform_lower_bound_mm2": 183.29162987847008,
+      "overlapping_obstacle_bounds_are_not_subtracted_from_losses_twice": true
+    }
+  },
+  "continuous_bound_method": "For every Z, remove the full projected XY AABB of every possible intrusion; intersections between nut/shank bounds deliberately overcount removal. No sampled section minimum or zero-loss assumption.",
+  "continuous_bound_scope": "Source-defined rear approach strip only. Not fan rotor area, entire circuit, installed flow or manufacturing approval.",
+  "native_clear_lower_leg_core": {
+    "width_mm": 31,
+    "Y": [
+      139.01,
+      144.94
+    ],
+    "Z": [
+      -22,
+      -12.2
+    ],
+    "area_mm2": 183.82999999999998,
+    "meaning": "Native Boolean tests the whole volume, with explicit10um geometric reservation at eachYboundary. It does not repair/change any part.",
+    "excludes_upper_bolt_row": true
+  },
+  "meter_actual_faceted_total_mm2": 318.2787004060937,
+  "nominal_meter_net_each_mm2": 159.14159265358978,
+  "pressure_sensitivity": {
+    "rho_kg_m3": 1.127214703641126,
+    "Cd": 0.6,
+    "planning_speed_rpm": 5300,
+    "total_m3_h": 10,
+    "base_m3_h": 1.2,
+    "each_fan_m3_h": 5,
+    "parent_curve_head_Pa": 9.046,
+    "common_guard_Pa": 4.006539293927288,
+    "meter_Pa": 1.7171826314638803,
+    "remaining_for_ALL_base_approach_pins_turns_and_outlet_Pa": 3.322278074608831,
+    "worst_rear_strip_dynamic_head_Pa": 0.37460265735718695,
+    "extra_K_loss_Pa": {
+      "1": 0.37460265735718695,
+      "2": 0.7492053147143739,
+      "4": 1.4984106294287478,
+      "8": 2.9968212588574956
+    },
+    "these_K_values_are_sensitivities_not_guaranteed_bounds": true
+  },
+  "limitations": [
+    "Area is not a fan duty point; coupled base/interior branch solution still required.",
+    "Turns, pins, old outlet, fan system effect, feedthrough wires and leakage have no qualified loss bound.",
+    "No Sunon installed fan curve/speed guarantee, rigid-position tolerance or gasket leak acceptance.",
+    "The extra0.2mm wall/component scenario is a proposed receiving sensitivity, not a vendor tolerance.",
+    "Current P03/E28/E19/control/wire source scope remains AP02 captured historical scene."
+  ],
+  "installed_flow_verified": false,
+  "thermal_qualified": false,
+  "physical_qualified": false,
+  "geometry_only": true
+}

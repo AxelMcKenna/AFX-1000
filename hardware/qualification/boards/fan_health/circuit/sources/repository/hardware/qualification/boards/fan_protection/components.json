@@ -1,0 +1,550 @@
+[
+  {
+    "ref": "J1",
+    "part": "JST B2B-XH-A / XHP-2 / SXH-001T-P0.6",
+    "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "FAN5V_IN",
+        "net": "FAN5V_IN",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "FAN_GND",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "x": 55.88,
+    "y": 45.72,
+    "source": "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf",
+    "note": "NEW operating DIG-force branch only. P03J3 is TEST ONLY and cannot supply this circuit. AWG22 input; actual source joint/return/harness unimplemented."
+  },
+  {
+    "ref": "J4",
+    "part": "JST B6B-XH-A / XHP-6 / SXH-001T-P0.6",
+    "footprint": "Connector_JST:JST_XH_B6B-XH-A_1x06_P2.50mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "FAN_GND",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "FAN5V_IN",
+        "net": "FAN5V_IN",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "FAN_L_FAULT_N",
+        "net": "FAN_L_FAULT_N",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "FAN_R_FAULT_N",
+        "net": "FAN_R_FAULT_N",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "5",
+        "name": "FAN_L_TACH",
+        "net": "FAN_L_TACH",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "6",
+        "name": "FAN_R_TACH",
+        "net": "FAN_R_TACH",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "x": 233.68,
+    "y": 45.72,
+    "source": "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf",
+    "note": "To future health board. FAULT open-drain needs host pullups; TACH can reach switched5V, requires5V-tolerant input with power-off protection. No E28RUN interlock implemented."
+  },
+  {
+    "ref": "U1",
+    "part": "TPS2553DBVR-1",
+    "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+    "pins": [
+      {
+        "number": "1",
+        "name": "IN",
+        "net": "FAN5V_IN",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "GND",
+        "net": "FAN_GND",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "EN",
+        "net": "FAN5V_IN",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "FAULT_N",
+        "net": "FAN_L_FAULT_N",
+        "kind": "open_collector",
+        "side": "R"
+      },
+      {
+        "number": "5",
+        "name": "ILIM",
+        "net": "FAN_L_ILIM",
+        "kind": "output",
+        "side": "R"
+      },
+      {
+        "number": "6",
+        "name": "OUT",
+        "net": "FAN_L_5V",
+        "kind": "power_out",
+        "side": "R"
+      }
+    ],
+    "x": 55.88,
+    "y": 114.3,
+    "source": "https://www.ti.com/lit/ds/symlink/tps2553.pdf",
+    "note": "ExactDBVpinmapIN1/GND2/EN3/FAULT4/ILIM5/OUT6. ActivehighEN tiedinput; overcurrent/reverse latch resets only by source power cycle. Thermal cycling behavior remains distinct."
+  },
+  {
+    "ref": "R1",
+    "part": "100k 0.1%25ppm TNPW0805100KBEEA",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN_L_ILIM",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 157.48,
+    "y": 114.3,
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "All-in100k\u00b11% is a receiving requirement; includes initial/TCR/life/assembly, not just catalogue initial tolerance."
+  },
+  {
+    "ref": "R2",
+    "part": "10k 0.1%25ppm TNPW080510K0BEEA",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN_L_5V",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_L_TACH",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 157.48,
+    "y": 154.94,
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Tach pullup follows SWITCHED fan power, not always-on host power. Sink<=.53mA in proposed5.2V/.99R scenario."
+  },
+  {
+    "ref": "R3",
+    "part": "100k 0.1%25ppm TNPW0805100KBEEA",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN_L_5V",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 157.48,
+    "y": 195.57999999999998,
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Output bleed; does not prove discharge time with unknown fan capacitance."
+  },
+  {
+    "ref": "C1",
+    "part": "100nF25V C0G5% C1206C104J3GACTU",
+    "footprint": "Capacitor_SMD:C_1206_3216Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN5V_IN",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 55.88,
+    "y": 160.01999999999998,
+    "source": "https://content.kemet.com/datasheets/KEM_C1003_C0G_SMD.pdf",
+    "note": "Parallel pair at EACH IN/GND. Proposed complete effective\u00b16% gives188nF minimum >100nF recommendation; actual lot/life verification open."
+  },
+  {
+    "ref": "C2",
+    "part": "100nF25V C0G5% C1206C104J3GACTU",
+    "footprint": "Capacitor_SMD:C_1206_3216Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN5V_IN",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 55.88,
+    "y": 195.57999999999998,
+    "source": "https://content.kemet.com/datasheets/KEM_C1003_C0G_SMD.pdf",
+    "note": "Parallel pair at EACH IN/GND. Proposed complete effective\u00b16% gives188nF minimum >100nF recommendation; actual lot/life verification open."
+  },
+  {
+    "ref": "C3",
+    "part": "1uF63V10% WIMA MKS2C041001F00KSSD",
+    "footprint": "Capacitor_THT:C_Rect_L7.2mm_W5.0mm_P5.00mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN_L_5V",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 233.68,
+    "y": 165.1,
+    "source": "https://www.wima.de/wp-content/uploads/media/d_WIMA_MKS_2.pdf",
+    "note": "Proposed.8..1.2uF complete effective receiving interval unverified; fan internal capacitance and motor startup current remain unknown."
+  },
+  {
+    "ref": "J2",
+    "part": "JST B3B-XH-A / XHP-3 / SXH-001T-P0.6",
+    "footprint": "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "FAN_GND",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "FAN_L_5V",
+        "net": "FAN_L_5V",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "FAN_L_TACH",
+        "net": "FAN_L_TACH",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "x": 233.68,
+    "y": 114.3,
+    "source": "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf",
+    "note": "Sunon bare leads black1/red2/yellow3; this NEWXH assignment is not a supplied factory connector. AWG26 crimp/insulation acceptance and retention open;3A catalogue rating appliesAWG22 only."
+  },
+  {
+    "ref": "U101",
+    "part": "TPS2553DBVR-1",
+    "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+    "pins": [
+      {
+        "number": "1",
+        "name": "IN",
+        "net": "FAN5V_IN",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "GND",
+        "net": "FAN_GND",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "EN",
+        "net": "FAN5V_IN",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "FAULT_N",
+        "net": "FAN_R_FAULT_N",
+        "kind": "open_collector",
+        "side": "R"
+      },
+      {
+        "number": "5",
+        "name": "ILIM",
+        "net": "FAN_R_ILIM",
+        "kind": "output",
+        "side": "R"
+      },
+      {
+        "number": "6",
+        "name": "OUT",
+        "net": "FAN_R_5V",
+        "kind": "power_out",
+        "side": "R"
+      }
+    ],
+    "x": 55.88,
+    "y": 279.4,
+    "source": "https://www.ti.com/lit/ds/symlink/tps2553.pdf",
+    "note": "ExactDBVpinmapIN1/GND2/EN3/FAULT4/ILIM5/OUT6. ActivehighEN tiedinput; overcurrent/reverse latch resets only by source power cycle. Thermal cycling behavior remains distinct."
+  },
+  {
+    "ref": "R101",
+    "part": "100k 0.1%25ppm TNPW0805100KBEEA",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN_R_ILIM",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 157.48,
+    "y": 279.4,
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "All-in100k\u00b11% is a receiving requirement; includes initial/TCR/life/assembly, not just catalogue initial tolerance."
+  },
+  {
+    "ref": "R102",
+    "part": "10k 0.1%25ppm TNPW080510K0BEEA",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN_R_5V",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_R_TACH",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 157.48,
+    "y": 320.03999999999996,
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Tach pullup follows SWITCHED fan power, not always-on host power. Sink<=.53mA in proposed5.2V/.99R scenario."
+  },
+  {
+    "ref": "R103",
+    "part": "100k 0.1%25ppm TNPW0805100KBEEA",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN_R_5V",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 157.48,
+    "y": 360.67999999999995,
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Output bleed; does not prove discharge time with unknown fan capacitance."
+  },
+  {
+    "ref": "C101",
+    "part": "100nF25V C0G5% C1206C104J3GACTU",
+    "footprint": "Capacitor_SMD:C_1206_3216Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN5V_IN",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 55.88,
+    "y": 325.12,
+    "source": "https://content.kemet.com/datasheets/KEM_C1003_C0G_SMD.pdf",
+    "note": "Parallel pair at EACH IN/GND. Proposed complete effective\u00b16% gives188nF minimum >100nF recommendation; actual lot/life verification open."
+  },
+  {
+    "ref": "C102",
+    "part": "100nF25V C0G5% C1206C104J3GACTU",
+    "footprint": "Capacitor_SMD:C_1206_3216Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN5V_IN",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 55.88,
+    "y": 360.68,
+    "source": "https://content.kemet.com/datasheets/KEM_C1003_C0G_SMD.pdf",
+    "note": "Parallel pair at EACH IN/GND. Proposed complete effective\u00b16% gives188nF minimum >100nF recommendation; actual lot/life verification open."
+  },
+  {
+    "ref": "C103",
+    "part": "1uF63V10% WIMA MKS2C041001F00KSSD",
+    "footprint": "Capacitor_THT:C_Rect_L7.2mm_W5.0mm_P5.00mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "FAN_R_5V",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "x": 233.68,
+    "y": 330.2,
+    "source": "https://www.wima.de/wp-content/uploads/media/d_WIMA_MKS_2.pdf",
+    "note": "Proposed.8..1.2uF complete effective receiving interval unverified; fan internal capacitance and motor startup current remain unknown."
+  },
+  {
+    "ref": "J3",
+    "part": "JST B3B-XH-A / XHP-3 / SXH-001T-P0.6",
+    "footprint": "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "FAN_GND",
+        "net": "FAN_GND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "FAN_R_5V",
+        "net": "FAN_R_5V",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "FAN_R_TACH",
+        "net": "FAN_R_TACH",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "x": 233.68,
+    "y": 279.4,
+    "source": "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf",
+    "note": "Sunon bare leads black1/red2/yellow3; this NEWXH assignment is not a supplied factory connector. AWG26 crimp/insulation acceptance and retention open;3A catalogue rating appliesAWG22 only."
+  }
+]

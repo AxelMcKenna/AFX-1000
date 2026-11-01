@@ -1,0 +1,238 @@
+.............................................................................................................................................................................................................................................................................................................................Fs..F.............................................................................................................FFFFFFFFFFF.F.....s..F...................................FFFFF................s....
+======================================================================
+FAIL: test_native_full_coverage_and_sealed_positive_controls (test_positive_links.PositiveLinks.test_native_full_coverage_and_sealed_positive_controls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_positive_links.py", line 281, in test_native_full_coverage_and_sealed_positive_controls
+    self.assertEqual(stale_paths(r[group], REPO), [], group)
+AssertionError: Lists differ: ['hardware/cad/a12/repaired.py', 'hardware[318 chars]son'] != []
+
+First list contains 6 additional elements.
+First extra element 0:
+'hardware/cad/a12/repaired.py'
+
++ []
+- ['hardware/cad/a12/repaired.py',
+-  'hardware/cad/a12/positive_links/selected_parts.py',
+-  'hardware/electronics/power_distribution/p03/power_p03.kicad_pcb',
+-  'hardware/electronics/power_distribution/p03/components.json',
+-  'hardware/electronics/rail_disconnect/revision28/rail_disconnect.kicad_pcb',
+-  'hardware/electronics/power_distribution/p03/component-selections.json'] : source_sha256
+
+======================================================================
+FAIL: test_sealed_review_packet_and_no_release_inference (test_positive_links.PositiveLinks.test_sealed_review_packet_and_no_release_inference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_positive_links.py", line 301, in test_sealed_review_packet_and_no_release_inference
+    self.assertEqual(stale_paths(p[group], REPO), [], group)
+AssertionError: Lists differ: ['hardware/cad/a12/positive_links/selected_parts.py'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'hardware/cad/a12/positive_links/selected_parts.py'
+
+- ['hardware/cad/a12/positive_links/selected_parts.py']
++ [] : source_sha256
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/cad/a12/thermal/README.md')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: 'ca80b5ee06c2353fb25f334d7fd5cf6cc2e2f2637597a38fbb5e54fc62e32dee' != '87e29f8f2f279865de5f5f4f3b65c83a5bfa60b563c7c7054638f1654188b482'
+- ca80b5ee06c2353fb25f334d7fd5cf6cc2e2f2637597a38fbb5e54fc62e32dee
++ 87e29f8f2f279865de5f5f4f3b65c83a5bfa60b563c7c7054638f1654188b482
+
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/electronics/power_distribution/p03/board.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '2dd723adfaef34ce9d9f8e8b2ce510d91ca6da3bcdfc63ee0adcac8881fdd4ab' != '69a88d4c9e67ce43193f5d741707f0fb4da10802f9c4900bbb04a0f51f10669e'
+- 2dd723adfaef34ce9d9f8e8b2ce510d91ca6da3bcdfc63ee0adcac8881fdd4ab
++ 69a88d4c9e67ce43193f5d741707f0fb4da10802f9c4900bbb04a0f51f10669e
+
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/electronics/power_distribution/p03/component-selections.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: 'be4582b5c53cd300dc0fa8da17dacdd25296cccbed5b73744118d53d1f0a89ef' != '62fccc3a9d700af81cdc7d6b7f9216c8c8e1b995136207e861458af69f15ac07'
+- be4582b5c53cd300dc0fa8da17dacdd25296cccbed5b73744118d53d1f0a89ef
++ 62fccc3a9d700af81cdc7d6b7f9216c8c8e1b995136207e861458af69f15ac07
+
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/electronics/power_distribution/p03/components.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '2f318ddba4a70cc82915e5a995cb27fd27ead2f48e82eaeca58cc0a3d2f7e47c' != '996418c281e90dfef25eacf4f27f4ec59252fe73e2472fafbaff39bbba0ef845'
+- 2f318ddba4a70cc82915e5a995cb27fd27ead2f48e82eaeca58cc0a3d2f7e47c
++ 996418c281e90dfef25eacf4f27f4ec59252fe73e2472fafbaff39bbba0ef845
+
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/electronics/power_distribution/p03/construction.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '8c747e24797961c0523a06eeb1233e329ff247ab100c8e39f6fb09f9c331dd41' != '386bd2fd3064959f415f8be17a26788a24f771fcf92a758f3d5f2aa8e6042727'
+- 8c747e24797961c0523a06eeb1233e329ff247ab100c8e39f6fb09f9c331dd41
++ 386bd2fd3064959f415f8be17a26788a24f771fcf92a758f3d5f2aa8e6042727
+
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/electronics/power_distribution/p03/generated/heatmap.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '413663a8a220b19d0efa8fb863a53035efa87b83c9b27941c5279bc839170a93' != 'bb264564bc87208ed663cb7ee319b539bcce3a8f2d847555a532a8d088a452ab'
+- 413663a8a220b19d0efa8fb863a53035efa87b83c9b27941c5279bc839170a93
++ bb264564bc87208ed663cb7ee319b539bcce3a8f2d847555a532a8d088a452ab
+
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/electronics/power_distribution/p03/generated/netlist.xml')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '8255a21b802a1460a9aee16d7774882b328a3587fb5a009a8e6660de56217963' != '5c27992ec34af6c0fc605b4818ff2127db86c62918982dfbe762398e2fb60eb3'
+- 8255a21b802a1460a9aee16d7774882b328a3587fb5a009a8e6660de56217963
++ 5c27992ec34af6c0fc605b4818ff2127db86c62918982dfbe762398e2fb60eb3
+
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/electronics/power_distribution/p03/generated/placement.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '48eb1f9b5a0e2366837cdaff9ee348860c5e447a556d6f2173cdf5fe0c16ffb1' != 'b4313a2946cb271f630f7e90e62fd6f01e97191c179c5276cc7c87501bebc655'
+- 48eb1f9b5a0e2366837cdaff9ee348860c5e447a556d6f2173cdf5fe0c16ffb1
++ b4313a2946cb271f630f7e90e62fd6f01e97191c179c5276cc7c87501bebc655
+
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/electronics/power_distribution/p03/models.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '70136f74be68d8e4076c2675cde7df659aab207b5ef01742f9485e9244f0406f' != 'affec78c9f6268f0bcdff47fccc960023f411af49759c64eed69c520873f5a82'
+- 70136f74be68d8e4076c2675cde7df659aab207b5ef01742f9485e9244f0406f
++ affec78c9f6268f0bcdff47fccc960023f411af49759c64eed69c520873f5a82
+
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/electronics/power_distribution/p03/power_p03.kicad_pcb')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '42addb43b8cd1062e37cf1947e47f09fc0a3be940806f597d30586f41241617b' != 'a913baaee43e0adc17c848bcf09632cb8a2bf4bcf81aa625209044e65a0a5d68'
+- 42addb43b8cd1062e37cf1947e47f09fc0a3be940806f597d30586f41241617b
++ a913baaee43e0adc17c848bcf09632cb8a2bf4bcf81aa625209044e65a0a5d68
+
+
+======================================================================
+FAIL: test_all_saved_source_and_evidence_hashes_are_current (test_power_thermal.PowerThermal.test_all_saved_source_and_evidence_hashes_are_current) (path='hardware/electronics/power_distribution/p03/spec.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 47, in test_all_saved_source_and_evidence_hashes_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '036a657eeeeff34ed2a6a32ee3d3d19c1d484408ba8232ec8daf7d9999f17042' != 'fd4507a5ea44c74a757f0c33e631e591938bedc397a550ca0ed7d837716aff49'
+- 036a657eeeeff34ed2a6a32ee3d3d19c1d484408ba8232ec8daf7d9999f17042
++ fd4507a5ea44c74a757f0c33e631e591938bedc397a550ca0ed7d837716aff49
+
+
+======================================================================
+FAIL: test_corrected_loss_ledger_is_source_bound_and_prior_total_is_superseded (test_power_thermal.PowerThermal.test_corrected_loss_ledger_is_source_bound_and_prior_total_is_superseded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 126, in test_corrected_loss_ledger_is_source_bound_and_prior_total_is_superseded
+    self.assertEqual(sha(ledger), self.analysis["loss_ledger_sha256"])
+AssertionError: '413663a8a220b19d0efa8fb863a53035efa87b83c9b27941c5279bc839170a93' != 'bb264564bc87208ed663cb7ee319b539bcce3a8f2d847555a532a8d088a452ab'
+- 413663a8a220b19d0efa8fb863a53035efa87b83c9b27941c5279bc839170a93
++ bb264564bc87208ed663cb7ee319b539bcce3a8f2d847555a532a8d088a452ab
+
+
+======================================================================
+FAIL: test_u13_requires_actual_sheet_spreading_and_guardbanded_whole_path (test_power_thermal.PowerThermal.test_u13_requires_actual_sheet_spreading_and_guardbanded_whole_path)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_power_thermal.py", line 90, in test_u13_requires_actual_sheet_spreading_and_guardbanded_whole_path
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '42addb43b8cd1062e37cf1947e47f09fc0a3be940806f597d30586f41241617b' != 'a913baaee43e0adc17c848bcf09632cb8a2bf4bcf81aa625209044e65a0a5d68'
+- 42addb43b8cd1062e37cf1947e47f09fc0a3be940806f597d30586f41241617b
++ a913baaee43e0adc17c848bcf09632cb8a2bf4bcf81aa625209044e65a0a5d68
+
+
+======================================================================
+FAIL: test_saved_inputs_and_native_evidence_are_current (test_return_hardware.ReturnHardware.test_saved_inputs_and_native_evidence_are_current) (path='hardware/cad/a12/positive_links/selected_parts.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_return_hardware.py", line 36, in test_saved_inputs_and_native_evidence_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '07987002baf1817c3e5109b6f535fed1cb871b27f054489462298aa824092604' != 'b35391103a8ac2cd2cb2827141eac874b663ec6714dbab5d01f29dc7fa718367'
+- 07987002baf1817c3e5109b6f535fed1cb871b27f054489462298aa824092604
++ b35391103a8ac2cd2cb2827141eac874b663ec6714dbab5d01f29dc7fa718367
+
+
+======================================================================
+FAIL: test_saved_inputs_and_native_evidence_are_current (test_return_hardware.ReturnHardware.test_saved_inputs_and_native_evidence_are_current) (path='hardware/electronics/power_distribution/p03/component-selections.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_return_hardware.py", line 36, in test_saved_inputs_and_native_evidence_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: 'be4582b5c53cd300dc0fa8da17dacdd25296cccbed5b73744118d53d1f0a89ef' != '62fccc3a9d700af81cdc7d6b7f9216c8c8e1b995136207e861458af69f15ac07'
+- be4582b5c53cd300dc0fa8da17dacdd25296cccbed5b73744118d53d1f0a89ef
++ 62fccc3a9d700af81cdc7d6b7f9216c8c8e1b995136207e861458af69f15ac07
+
+
+======================================================================
+FAIL: test_saved_inputs_and_native_evidence_are_current (test_return_hardware.ReturnHardware.test_saved_inputs_and_native_evidence_are_current) (path='hardware/electronics/rail_disconnect/revision28/rail_disconnect.kicad_pcb')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_return_hardware.py", line 36, in test_saved_inputs_and_native_evidence_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '2830c8874d73ae9e9a460e360979b741d2c53eaf8fece934bd65020bd4d5cf68' != 'b3be2731d1f72d86164c6d5c7973ff8c10a6bc4251e11ed6982e433ecd8cbe4e'
+- 2830c8874d73ae9e9a460e360979b741d2c53eaf8fece934bd65020bd4d5cf68
++ b3be2731d1f72d86164c6d5c7973ff8c10a6bc4251e11ed6982e433ecd8cbe4e
+
+
+======================================================================
+FAIL: test_saved_inputs_and_native_evidence_are_current (test_return_hardware.ReturnHardware.test_saved_inputs_and_native_evidence_are_current) (path='hardware/electronics/power_distribution/p03/power_p03.kicad_pcb')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_return_hardware.py", line 36, in test_saved_inputs_and_native_evidence_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '42addb43b8cd1062e37cf1947e47f09fc0a3be940806f597d30586f41241617b' != 'a913baaee43e0adc17c848bcf09632cb8a2bf4bcf81aa625209044e65a0a5d68'
+- 42addb43b8cd1062e37cf1947e47f09fc0a3be940806f597d30586f41241617b
++ a913baaee43e0adc17c848bcf09632cb8a2bf4bcf81aa625209044e65a0a5d68
+
+
+======================================================================
+FAIL: test_saved_inputs_and_native_evidence_are_current (test_return_hardware.ReturnHardware.test_saved_inputs_and_native_evidence_are_current) (path='hardware/electronics/power_distribution/p03/components.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/axelmckrnna/dev/rmx-publish/tests/tooling/test_return_hardware.py", line 36, in test_saved_inputs_and_native_evidence_are_current
+    self.assertEqual(sha(REPO / path), expected)
+AssertionError: '2f318ddba4a70cc82915e5a995cb27fd27ead2f48e82eaeca58cc0a3d2f7e47c' != '996418c281e90dfef25eacf4f27f4ec59252fe73e2472fafbaff39bbba0ef845'
+- 2f318ddba4a70cc82915e5a995cb27fd27ead2f48e82eaeca58cc0a3d2f7e47c
++ 996418c281e90dfef25eacf4f27f4ec59252fe73e2472fafbaff39bbba0ef845
+
+
+----------------------------------------------------------------------
+Ran 500 tests in 71.556s
+
+FAILED (failures=20, skipped=3)

@@ -1,0 +1,3120 @@
+{
+  "scope": "Native circuit composition; not PCB/noise/physical acceptance",
+  "parents": {
+    "FH02": "24b17dfcdc91e5c665f1cc7b32acf52138ea1d660623c7d98cf10dda7507f318",
+    "FP01": "ae00a9762f6d98880f0eaa909f9a2a3e62a2e5f3869d2d52dbf2d616f9dfa297"
+  },
+  "original_part_count": 86,
+  "composite_part_count": 84,
+  "removed_headers": [
+    {
+      "parent": "FH02",
+      "ref": "J1",
+      "part": "JST B6B-XH-A / XHP-6 / SXH-001T-P0.6",
+      "pins": [
+        {
+          "number": "1",
+          "name": "GND",
+          "net": "GND",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "RAW5",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "NC",
+          "net": null,
+          "kind": "no_connect",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "NC",
+          "net": null,
+          "kind": "no_connect",
+          "side": "L"
+        },
+        {
+          "number": "5",
+          "name": "TACH_L",
+          "net": "FAN_L_TACH",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "TACH_R",
+          "net": "FAN_R_TACH",
+          "kind": "passive",
+          "side": "L"
+        }
+      ],
+      "reason": "Redundant interboard6pinheader; all four operating nodes now directPCBnets; twoFAULToutputs were unused inFH02"
+    },
+    {
+      "parent": "FP01",
+      "ref": "J4",
+      "part": "JST B6B-XH-A / XHP-6 / SXH-001T-P0.6",
+      "pins": [
+        {
+          "number": "1",
+          "name": "FAN_GND",
+          "net": "FAN_GND",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "FAN5V_IN",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "FAN_L_FAULT_N",
+          "net": "FAN_L_FAULT_N",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "FAN_R_FAULT_N",
+          "net": "FAN_R_FAULT_N",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "5",
+          "name": "FAN_L_TACH",
+          "net": "FAN_L_TACH",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "FAN_R_TACH",
+          "net": "FAN_R_TACH",
+          "kind": "passive",
+          "side": "L"
+        }
+      ],
+      "reason": "Redundant interboard6pinheader; all four operating nodes now directPCBnets; twoFAULToutputs were unused inFH02"
+    }
+  ],
+  "reference_renaming": "FH02unchanged;FP01reference numbers+200",
+  "net_aliases": {
+    "FP01.FAN_GND": "GND"
+  },
+  "unused_output_net_removal": {
+    "FP01.FAN_L_FAULT_N": "U201.4explicitNC",
+    "FP01.FAN_R_FAULT_N": "U301.4explicitNC"
+  },
+  "retained_functional_nodes": [
+    "FAN5V_IN",
+    "GND",
+    "FAN_L_TACH",
+    "FAN_R_TACH"
+  ],
+  "functional_current_budget_delta_a": 0,
+  "same_value_clock_cap_package_change": {
+    "refs": [
+      "C20",
+      "C21"
+    ],
+    "part": "C0603C150J5GACTU",
+    "value": "15pF50V5%C0G",
+    "parent_package": "1206",
+    "composite_package": "0603",
+    "manufacturer_capacitance_qualified": false
+  },
+  "deleted_connector_and_wire_loss_credit_taken": false,
+  "manufacturer_land_change": {
+    "ref": "U8",
+    "drawing": "TI DCU0008A4225266/A09/2014",
+    "primary_FH02_pdf": "sources/sn74lvc1g74.pdf",
+    "primary_page": 23,
+    "pad_size_mm": [
+      0.85,
+      0.3
+    ],
+    "row_centres_mm": 3.1,
+    "pitch_mm": 0.5,
+    "corner_radius_mm": 0.05,
+    "manufacturer_process_accepted": false
+  },
+  "manufacturer_LDO_land_change": {
+    "ref": "U2",
+    "drawing": "TI DGN0008C4218838/A11/2017",
+    "primary_FH02_pdf": "sources/tps7a16.pdf",
+    "primary_pages": [
+      35,
+      36
+    ],
+    "pad_size_mm": [
+      1.4,
+      0.45
+    ],
+    "row_centres_mm": 4.4,
+    "pitch_mm": 0.65,
+    "EP_copper_mm": [
+      2.0,
+      3.0
+    ],
+    "EP_mask_and_125um_stencil_mm": [
+      1.6,
+      1.92
+    ],
+    "manufacturer_process_accepted": false
+  },
+  "parts": [
+    {
+      "ref": "U1",
+      "parent": "FH02",
+      "parent_ref": "U1",
+      "parent_part": "ATtiny84A-SSUR",
+      "composite_part": "ATtiny84A-SSUR",
+      "parent_footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "original_footprint": "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm",
+      "original_library_sha256": "a885b619b22880c9559522d2bf865b059d80453b95a98defc9e6ceef284da1fc",
+      "composite_footprint": "FPC01:Package_SO__SOIC-14_3.9x8.7mm_P1.27mm",
+      "composite_library_sha256": "a885b619b22880c9559522d2bf865b059d80453b95a98defc9e6ceef284da1fc",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "VCC",
+          "net": "V3V3",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "PB0_XTAL1",
+          "net": "XTAL1",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "PB1_XTAL2",
+          "net": "XTAL2",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "PB3_RESET_N",
+          "net": "MCU_RESET_N",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "5",
+          "name": "PB2",
+          "net": "MCU_TACH_R",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "PA7",
+          "net": "MCU_HEALTH",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "7",
+          "name": "PA6_MOSI",
+          "net": "ISP_MOSI",
+          "kind": "bidirectional",
+          "side": "L"
+        },
+        {
+          "number": "8",
+          "name": "PA5_MISO",
+          "net": "ISP_MISO",
+          "kind": "bidirectional",
+          "side": "L"
+        },
+        {
+          "number": "9",
+          "name": "PA4_SCK",
+          "net": "ISP_SCK",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "10",
+          "name": "PA3",
+          "net": "MCU_TACH_L",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "11",
+          "name": "PA2",
+          "net": "HEARTBEAT",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "12",
+          "name": "PA1_ADC1",
+          "net": "TEMP_R_ADC",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "13",
+          "name": "PA0_ADC0",
+          "net": "TEMP_L_ADC",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "14",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U2",
+      "parent": "FH02",
+      "parent_ref": "U2",
+      "parent_part": "TPS7A1633DGNR",
+      "composite_part": "TPS7A1633DGNR",
+      "parent_footprint": "Package_SO:HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm",
+      "original_footprint": "Package_SO:HVSSOP-8-1EP_3x3mm_P0.65mm_EP1.57x1.89mm",
+      "original_library_sha256": "d407bce24b494711d4f7ec53ebfc189c6ac5dd588b2a887ed672ab6ce3b1a095",
+      "composite_footprint": "FPC01:TI_DGN0008C",
+      "composite_library_sha256": "4db3345abf9372ed33d32b44f655c79f5568407a54626932c2fc3a17dee00d4b",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "OUT",
+          "net": "V3V3",
+          "kind": "power_out",
+          "side": "R"
+        },
+        {
+          "number": "2",
+          "name": "DNC",
+          "net": null,
+          "kind": "no_connect",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "PG",
+          "net": "WD_OK",
+          "kind": "open_collector",
+          "side": "R"
+        },
+        {
+          "number": "4",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "5",
+          "name": "EN",
+          "net": "FAN5V_IN",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "NC",
+          "net": null,
+          "kind": "no_connect",
+          "side": "L"
+        },
+        {
+          "number": "7",
+          "name": "DELAY",
+          "net": "LDO_DELAY",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "8",
+          "name": "IN",
+          "net": "FAN5V_IN",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "9",
+          "name": "EP",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U3",
+      "parent": "FH02",
+      "parent_ref": "U3",
+      "parent_part": "SN74LVC2G17DCKR",
+      "composite_part": "SN74LVC2G17DCKR",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-363_SC-70-6",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-363_SC-70-6",
+      "original_library_sha256": "0659d885e00b786968c3ba29152b808777240a91c1fb49ab8d814eb03530115c",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-363_SC-70-6",
+      "composite_library_sha256": "0659d885e00b786968c3ba29152b808777240a91c1fb49ab8d814eb03530115c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1A",
+          "net": "FAN_L_TACH",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "2A",
+          "net": "FAN_R_TACH",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "2Y",
+          "net": "TACH_R_BUF",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "VCC",
+          "net": "V3V3",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "1Y",
+          "net": "TACH_L_BUF",
+          "kind": "output",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "U4",
+      "parent": "FH02",
+      "parent_ref": "U4",
+      "parent_part": "TPS3431SDRBR",
+      "composite_part": "TPS3431SDRBR",
+      "parent_footprint": "Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm",
+      "original_footprint": "Package_SON:VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm",
+      "original_library_sha256": "29e4b74091f3b37223802e22c3629c5836fa62dffc4896bdfb713039b3788d81",
+      "composite_footprint": "FPC01:Package_SON__VSON-8-1EP_3x3mm_P0.65mm_EP1.65x2.4mm",
+      "composite_library_sha256": "29e4b74091f3b37223802e22c3629c5836fa62dffc4896bdfb713039b3788d81",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "VDD",
+          "net": "V3V3",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "CWD",
+          "net": "WD_CWD",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "EN",
+          "net": "WD_EN",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "5",
+          "name": "SET1",
+          "net": "V3V3",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "WDI",
+          "net": "HEARTBEAT_FAST",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "7",
+          "name": "WDO_N",
+          "net": "WD_OK",
+          "kind": "open_collector",
+          "side": "R"
+        },
+        {
+          "number": "8",
+          "name": "ENOUT",
+          "net": "WD_OK",
+          "kind": "open_collector",
+          "side": "R"
+        },
+        {
+          "number": "9",
+          "name": "EP",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U5",
+      "parent": "FH02",
+      "parent_ref": "U5",
+      "parent_part": "SN74AUP1G17DCKR",
+      "composite_part": "SN74AUP1G17DCKR",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-353_SC-70-5",
+      "composite_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "NC",
+          "net": null,
+          "kind": "no_connect",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "net": "WD_OK",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "Y",
+          "net": "WD_OK_FAST",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "VCC",
+          "net": "V3V3",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U6",
+      "parent": "FH02",
+      "parent_ref": "U6",
+      "parent_part": "SN74LVC1T45DBVR",
+      "composite_part": "SN74LVC1T45DBVR",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "original_library_sha256": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-23-6",
+      "composite_library_sha256": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "VCCA",
+          "net": "V3V3",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "A",
+          "net": "WD_OK_FAST",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "B",
+          "net": "WD_OK_5",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "DIR",
+          "net": "V3V3",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "VCCB",
+          "net": "FAN5V_IN",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U7",
+      "parent": "FH02",
+      "parent_ref": "U7",
+      "parent_part": "SN74LVC1G14DCKR",
+      "composite_part": "SN74LVC1G14DCKR",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-353_SC-70-5",
+      "composite_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "NC",
+          "net": null,
+          "kind": "no_connect",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "net": "WD_OK_5",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "Y",
+          "net": "FAULT_CLK",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "VCC",
+          "net": "FAN5V_IN",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U8",
+      "parent": "FH02",
+      "parent_ref": "U8",
+      "parent_part": "SN74LVC1G74DCUR",
+      "composite_part": "SN74LVC1G74DCUR",
+      "parent_footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+      "original_footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+      "original_library_sha256": "dca72da69de3263affb64fd1abd218db3cf30ff727c784b3f02c8c588a2875a8",
+      "composite_footprint": "FPC01:TI_DCU0008A",
+      "composite_library_sha256": "12ccfd02720fa79debc4a803426678e43cde98927c5ba30d83022c8ac09b7721",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "CLK",
+          "net": "FAULT_CLK",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "D",
+          "net": "FAN5V_IN",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "Q_N",
+          "net": "HW_NOFAULT_5",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "4",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "5",
+          "name": "Q",
+          "net": null,
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "6",
+          "name": "CLR_N",
+          "net": "RAW_CLEAR_FAST",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "7",
+          "name": "PRE_N",
+          "net": "FAN5V_IN",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "8",
+          "name": "VCC",
+          "net": "FAN5V_IN",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U9",
+      "parent": "FH02",
+      "parent_ref": "U9",
+      "parent_part": "TPS389001DSET",
+      "composite_part": "TPS389001DSET",
+      "parent_footprint": "Package_SON:WSON-6_1.5x1.5mm_P0.5mm",
+      "original_footprint": "Package_SON:WSON-6_1.5x1.5mm_P0.5mm",
+      "original_library_sha256": "88df8d2d991122b023fd5b662e8456cbd9c23e90a114c566b140885634666949",
+      "composite_footprint": "FPC01:Package_SON__WSON-6_1.5x1.5mm_P0.5mm",
+      "composite_library_sha256": "88df8d2d991122b023fd5b662e8456cbd9c23e90a114c566b140885634666949",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "SENSE",
+          "net": "RAW_POR_SENSE",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "MR_N",
+          "net": "FAN5V_IN",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "VDD",
+          "net": "FAN5V_IN",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "5",
+          "name": "CT",
+          "net": "RAW_POR_CT",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "RESET_N",
+          "net": "RAW_CLEAR_N",
+          "kind": "open_collector",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "U10",
+      "parent": "FH02",
+      "parent_ref": "U10",
+      "parent_part": "SN74LVC1G17DCKR",
+      "composite_part": "SN74LVC1G17DCKR",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-353_SC-70-5",
+      "composite_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "NC",
+          "net": null,
+          "kind": "no_connect",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "net": "RAW_CLEAR_N",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "Y",
+          "net": "RAW_CLEAR_FAST",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "VCC",
+          "net": "FAN5V_IN",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U11",
+      "parent": "FH02",
+      "parent_ref": "U11",
+      "parent_part": "SN74LVC1G17DCKR",
+      "composite_part": "SN74LVC1G17DCKR",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-353_SC-70-5",
+      "composite_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "NC",
+          "net": null,
+          "kind": "no_connect",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "net": "HW_NOFAULT_5",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "Y",
+          "net": "HW_NOFAULT",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "VCC",
+          "net": "V3V3",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U12",
+      "parent": "FH02",
+      "parent_ref": "U12",
+      "parent_part": "SN74LVC1G08DCKR",
+      "composite_part": "SN74LVC1G08DCKR",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-353_SC-70-5",
+      "composite_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "MCU_HEALTH",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "WD_OK_FAST",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "Y",
+          "net": "HEALTH_AND_WD",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "VCC",
+          "net": "V3V3",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U13",
+      "parent": "FH02",
+      "parent_ref": "U13",
+      "parent_part": "SN74LVC1G08DCKR",
+      "composite_part": "SN74LVC1G08DCKR",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-353_SC-70-5",
+      "composite_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "HEALTH_AND_WD",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "HW_NOFAULT",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "Y",
+          "net": "LEAF_PERMISSION",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "VCC",
+          "net": "V3V3",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U14",
+      "parent": "FH02",
+      "parent_ref": "U14",
+      "parent_part": "SN74LVC1G06DCKR",
+      "composite_part": "SN74LVC1G06DCKR",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-353_SC-70-5",
+      "composite_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "NC",
+          "net": null,
+          "kind": "no_connect",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "net": "LEAF_PERMISSION",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "Y",
+          "net": "LED_K",
+          "kind": "open_collector",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "VCC",
+          "net": "V3V3",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U16",
+      "parent": "FH02",
+      "parent_ref": "U16",
+      "parent_part": "SN74LVC1G34DCKR",
+      "composite_part": "SN74LVC1G34DCKR",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+      "original_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-353_SC-70-5",
+      "composite_library_sha256": "869e17094994ff787b769a2d69512455a2f20950d59dd5c4103026ec413bb88e",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "NC",
+          "net": null,
+          "kind": "no_connect",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "net": "HEARTBEAT",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "Y",
+          "net": "HEARTBEAT_FAST",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "VCC",
+          "net": "V3V3",
+          "kind": "power_in",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U15",
+      "parent": "FH02",
+      "parent_ref": "U15",
+      "parent_part": "TLP175A(TPL,E)",
+      "composite_part": "TLP175A(TPL,E)",
+      "parent_footprint": "RMX_FH02:TLP175A_11-4M1S_Receiving",
+      "original_footprint": "RMX_FH02:TLP175A_11-4M1S_Receiving",
+      "original_library_sha256": "38e3960a83753d07e86a963ceb72abb9929c2a3acf3f2c70e39c38f2bdd6a7d2",
+      "composite_footprint": "FPC01:RMX_FH02__TLP175A_11-4M1S_Receiving",
+      "composite_library_sha256": "38e3960a83753d07e86a963ceb72abb9929c2a3acf3f2c70e39c38f2bdd6a7d2",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "LED_A",
+          "net": "LED_A",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "LED_K",
+          "net": "LED_K",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "CONTACT_A",
+          "net": "P03_POWER_RUN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "CONTACT_B",
+          "net": "E28_POWER_RUN",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "X1",
+      "parent": "FH02",
+      "parent_ref": "X1",
+      "parent_part": "ABLS-4.000MHZ-12-D4Y-T",
+      "composite_part": "ABLS-4.000MHZ-12-D4Y-T",
+      "parent_footprint": "RMX_FH02:ABLS_Manufacturer_Land",
+      "original_footprint": "RMX_FH02:ABLS_Manufacturer_Land",
+      "original_library_sha256": "8b9d7320b2b41620cf423a33240fca2461d71e6d3c44c6e8640be56c2995bfeb",
+      "composite_footprint": "FPC01:RMX_FH02__ABLS_Manufacturer_Land",
+      "composite_library_sha256": "8b9d7320b2b41620cf423a33240fca2461d71e6d3c44c6e8640be56c2995bfeb",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "XTAL1",
+          "net": "XTAL1",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "XTAL2",
+          "net": "XTAL2",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R1",
+      "parent": "FH02",
+      "parent_ref": "R1",
+      "parent_part": "1k 0.1%25ppm TNPW08051K00BEEA",
+      "composite_part": "1k 0.1%25ppm TNPW08051K00BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "LED_A",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R2",
+      "parent": "FH02",
+      "parent_ref": "R2",
+      "parent_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "composite_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "LED_A",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "LED_K",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R3",
+      "parent": "FH02",
+      "parent_ref": "R3",
+      "parent_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "composite_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "MCU_HEALTH",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R4",
+      "parent": "FH02",
+      "parent_ref": "R4",
+      "parent_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "composite_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "HEARTBEAT",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R5",
+      "parent": "FH02",
+      "parent_ref": "R5",
+      "parent_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "composite_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "WD_OK",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R6",
+      "parent": "FH02",
+      "parent_ref": "R6",
+      "parent_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "composite_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "MCU_RESET_N",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R7",
+      "parent": "FH02",
+      "parent_ref": "R7",
+      "parent_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "composite_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "WD_EN",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R8",
+      "parent": "FH02",
+      "parent_ref": "R8",
+      "parent_part": "68k 0.1%25ppm TNPW080568K0BEEA",
+      "composite_part": "68k 0.1%25ppm TNPW080568K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "WD_OK_5",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R9",
+      "parent": "FH02",
+      "parent_ref": "R9",
+      "parent_part": "39k 0.1%25ppm TNPW080539K0BEEA",
+      "composite_part": "39k 0.1%25ppm TNPW080539K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "HW_NOFAULT_5",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R10",
+      "parent": "FH02",
+      "parent_ref": "R10",
+      "parent_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "composite_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "RAW_CLEAR_N",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R11",
+      "parent": "FH02",
+      "parent_ref": "R11",
+      "parent_part": "56.2k 0.1%25ppm TNPW080556K2BEEA",
+      "composite_part": "56.2k 0.1%25ppm TNPW080556K2BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "RAW_POR_SENSE",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R12",
+      "parent": "FH02",
+      "parent_ref": "R12",
+      "parent_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "composite_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "RAW_POR_SENSE",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R13",
+      "parent": "FH02",
+      "parent_ref": "R13",
+      "parent_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "composite_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "LEAF_PERMISSION",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R14",
+      "parent": "FH02",
+      "parent_ref": "R14",
+      "parent_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "composite_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN_L_TACH",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R15",
+      "parent": "FH02",
+      "parent_ref": "R15",
+      "parent_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "composite_part": "47k 0.1%25ppm TNPW080547K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN_R_TACH",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R16",
+      "parent": "FH02",
+      "parent_ref": "R16",
+      "parent_part": "1k 0.1%25ppm TNPW08051K00BEEA",
+      "composite_part": "1k 0.1%25ppm TNPW08051K00BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "TACH_L_BUF",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "MCU_TACH_L",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R17",
+      "parent": "FH02",
+      "parent_ref": "R17",
+      "parent_part": "1k 0.1%25ppm TNPW08051K00BEEA",
+      "composite_part": "1k 0.1%25ppm TNPW08051K00BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "TACH_R_BUF",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "MCU_TACH_R",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R20",
+      "parent": "FH02",
+      "parent_ref": "R20",
+      "parent_part": "20k 0.1%25ppm TNPW080520K0BEEA",
+      "composite_part": "20k 0.1%25ppm TNPW080520K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "TEMP_L_NODE",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R21",
+      "parent": "FH02",
+      "parent_ref": "R21",
+      "parent_part": "1k 0.1%25ppm TNPW08051K00BEEA",
+      "composite_part": "1k 0.1%25ppm TNPW08051K00BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "TEMP_L_NODE",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "TEMP_L_ADC",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R22",
+      "parent": "FH02",
+      "parent_ref": "R22",
+      "parent_part": "20k 0.1%25ppm TNPW080520K0BEEA",
+      "composite_part": "20k 0.1%25ppm TNPW080520K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "TEMP_R_NODE",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R23",
+      "parent": "FH02",
+      "parent_ref": "R23",
+      "parent_part": "1k 0.1%25ppm TNPW08051K00BEEA",
+      "composite_part": "1k 0.1%25ppm TNPW08051K00BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "TEMP_R_NODE",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "TEMP_R_ADC",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R24",
+      "parent": "FH02",
+      "parent_ref": "R24",
+      "parent_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "composite_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C1",
+      "parent": "FH02",
+      "parent_ref": "C1",
+      "parent_part": "10uF 25V C3225X7R1E106K250AC",
+      "composite_part": "10uF 25V C3225X7R1E106K250AC",
+      "parent_footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "original_footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "original_library_sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1210_3225Metric",
+      "composite_library_sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C2",
+      "parent": "FH02",
+      "parent_ref": "C2",
+      "parent_part": "10uF 25V C3225X7R1E106K250AC",
+      "composite_part": "10uF 25V C3225X7R1E106K250AC",
+      "parent_footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "original_footprint": "Capacitor_SMD:C_1210_3225Metric",
+      "original_library_sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1210_3225Metric",
+      "composite_library_sha256": "e1dae516e079b70c4736d001fb81bfb4ef5f9c2a37c8175223a44f83a04ff75f",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C3",
+      "parent": "FH02",
+      "parent_ref": "C3",
+      "parent_part": "10nF 50V C0G C1206C103J5GACTU",
+      "composite_part": "10nF 50V C0G C1206C103J5GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "LDO_DELAY",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C4",
+      "parent": "FH02",
+      "parent_ref": "C4",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C5",
+      "parent": "FH02",
+      "parent_ref": "C5",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C6",
+      "parent": "FH02",
+      "parent_ref": "C6",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C8",
+      "parent": "FH02",
+      "parent_ref": "C8",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C9",
+      "parent": "FH02",
+      "parent_ref": "C9",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C10",
+      "parent": "FH02",
+      "parent_ref": "C10",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C11",
+      "parent": "FH02",
+      "parent_ref": "C11",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C12",
+      "parent": "FH02",
+      "parent_ref": "C12",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C13",
+      "parent": "FH02",
+      "parent_ref": "C13",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C15",
+      "parent": "FH02",
+      "parent_ref": "C15",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C16",
+      "parent": "FH02",
+      "parent_ref": "C16",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C17",
+      "parent": "FH02",
+      "parent_ref": "C17",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C18",
+      "parent": "FH02",
+      "parent_ref": "C18",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C19",
+      "parent": "FH02",
+      "parent_ref": "C19",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C7",
+      "parent": "FH02",
+      "parent_ref": "C7",
+      "parent_part": "2.7nF 50V C0G C1206C272J5GACTU",
+      "composite_part": "2.7nF 50V C0G C1206C272J5GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "WD_CWD",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C14",
+      "parent": "FH02",
+      "parent_ref": "C14",
+      "parent_part": "10nF 50V C0G C1206C103J5GACTU",
+      "composite_part": "10nF 50V C0G C1206C103J5GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "RAW_POR_CT",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C20",
+      "parent": "FH02",
+      "parent_ref": "C20",
+      "parent_part": "15pF 50V C0G C1206C150J5GACTU",
+      "composite_part": "15pF 50V C0G5% C0603C150J5GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "original_library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_0603_1608Metric",
+      "composite_library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "XTAL1",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C21",
+      "parent": "FH02",
+      "parent_ref": "C21",
+      "parent_part": "15pF 50V C0G C1206C150J5GACTU",
+      "composite_part": "15pF 50V C0G5% C0603C150J5GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_0603_1608Metric",
+      "original_library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_0603_1608Metric",
+      "composite_library_sha256": "fe0dbfefbb181a0466f93a8de52d84ba7b00fcd9acdbb69575f4128a0af4e405",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "XTAL2",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C22",
+      "parent": "FH02",
+      "parent_ref": "C22",
+      "parent_part": "10nF 50V C0G C1206C103J5GACTU",
+      "composite_part": "10nF 50V C0G C1206C103J5GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "TEMP_L_ADC",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C23",
+      "parent": "FH02",
+      "parent_ref": "C23",
+      "parent_part": "10nF 50V C0G C1206C103J5GACTU",
+      "composite_part": "10nF 50V C0G C1206C103J5GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "TEMP_R_ADC",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C24",
+      "parent": "FH02",
+      "parent_ref": "C24",
+      "parent_part": "100nF 25V C0G C1206C104J3GACTU",
+      "composite_part": "100nF 25V C0G C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "J2",
+      "parent": "FH02",
+      "parent_ref": "J2",
+      "parent_part": "JST B2B-XH-A / XHP-2 / SXH-001T-P0.6",
+      "composite_part": "JST B2B-XH-A / XHP-2 / SXH-001T-P0.6",
+      "parent_footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "original_footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "original_library_sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "composite_footprint": "FPC01:Connector_JST__JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "composite_library_sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "SENSOR",
+          "net": "TEMP_L_NODE",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "net": "GND",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "J3",
+      "parent": "FH02",
+      "parent_ref": "J3",
+      "parent_part": "JST B2B-XH-A / XHP-2 / SXH-001T-P0.6",
+      "composite_part": "JST B2B-XH-A / XHP-2 / SXH-001T-P0.6",
+      "parent_footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "original_footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "original_library_sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "composite_footprint": "FPC01:Connector_JST__JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "composite_library_sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "SENSOR",
+          "net": "TEMP_R_NODE",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "net": "GND",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "J4",
+      "parent": "FH02",
+      "parent_ref": "J4",
+      "parent_part": "JST B2B-XH-A / XHP-2 / SXH-001T-P0.6",
+      "composite_part": "JST B2B-XH-A / XHP-2 / SXH-001T-P0.6",
+      "parent_footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "original_footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "original_library_sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "composite_footprint": "FPC01:Connector_JST__JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "composite_library_sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "FROM_P03_J106_3",
+          "net": "P03_POWER_RUN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "TO_E28_J5_3",
+          "net": "E28_POWER_RUN",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "J5",
+      "parent": "FH02",
+      "parent_ref": "J5",
+      "parent_part": "AVRISP2x3 target-powered3.3V sense ONLY",
+      "composite_part": "AVRISP2x3 target-powered3.3V sense ONLY",
+      "parent_footprint": "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical",
+      "original_footprint": "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical",
+      "original_library_sha256": "8bb8f0a71c1009c3d1e966e2c66c65cf301d26696ac9603fc7cbbfe58a27153e",
+      "composite_footprint": "FPC01:Connector_PinHeader_2.54mm__PinHeader_2x03_P2.54mm_Vertical",
+      "composite_library_sha256": "8bb8f0a71c1009c3d1e966e2c66c65cf301d26696ac9603fc7cbbfe58a27153e",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "ISP_MISO",
+          "net": "ISP_MISO",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "V3V3",
+          "net": "V3V3",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "ISP_SCK",
+          "net": "ISP_SCK",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "ISP_MOSI",
+          "net": "ISP_MOSI",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "5",
+          "name": "MCU_RESET_N",
+          "net": "MCU_RESET_N",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "GND",
+          "net": "GND",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "J201",
+      "parent": "FP01",
+      "parent_ref": "J1",
+      "parent_part": "JST B2B-XH-A / XHP-2 / SXH-001T-P0.6",
+      "composite_part": "JST B2B-XH-A / XHP-2 / SXH-001T-P0.6",
+      "parent_footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "original_footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "original_library_sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "composite_footprint": "FPC01:Connector_JST__JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "composite_library_sha256": "712477fd339c81789760f7b5b8649a986a9336f5fc8c2916fcfedc140b052d6c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "FAN5V_IN",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "FAN_GND",
+          "net": "GND",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U201",
+      "parent": "FP01",
+      "parent_ref": "U1",
+      "parent_part": "TPS2553DBVR-1",
+      "composite_part": "TPS2553DBVR-1",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "original_library_sha256": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-23-6",
+      "composite_library_sha256": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "IN",
+          "net": "FAN5V_IN",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "EN",
+          "net": "FAN5V_IN",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "FAULT_N",
+          "net": null,
+          "kind": "open_collector",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "ILIM",
+          "net": "FAN_L_ILIM",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "6",
+          "name": "OUT",
+          "net": "FAN_L_5V",
+          "kind": "power_out",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R201",
+      "parent": "FP01",
+      "parent_ref": "R1",
+      "parent_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "composite_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN_L_ILIM",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R202",
+      "parent": "FP01",
+      "parent_ref": "R2",
+      "parent_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "composite_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN_L_5V",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "FAN_L_TACH",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R203",
+      "parent": "FP01",
+      "parent_ref": "R3",
+      "parent_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "composite_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN_L_5V",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C201",
+      "parent": "FP01",
+      "parent_ref": "C1",
+      "parent_part": "100nF25V C0G5% C1206C104J3GACTU",
+      "composite_part": "100nF25V C0G5% C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C202",
+      "parent": "FP01",
+      "parent_ref": "C2",
+      "parent_part": "100nF25V C0G5% C1206C104J3GACTU",
+      "composite_part": "100nF25V C0G5% C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C203",
+      "parent": "FP01",
+      "parent_ref": "C3",
+      "parent_part": "1uF63V10% WIMA MKS2C041001F00KSSD",
+      "composite_part": "1uF63V10% WIMA MKS2C041001F00KSSD",
+      "parent_footprint": "Capacitor_THT:C_Rect_L7.2mm_W5.0mm_P5.00mm",
+      "original_footprint": "Capacitor_THT:C_Rect_L7.2mm_W5.0mm_P5.00mm",
+      "original_library_sha256": "da87c22e980b6e6494e4768a5ec91f3060e2634ecb969d6567fe6ad693bb2042",
+      "composite_footprint": "FPC01:Capacitor_THT__C_Rect_L7.2mm_W5.0mm_P5.00mm",
+      "composite_library_sha256": "da87c22e980b6e6494e4768a5ec91f3060e2634ecb969d6567fe6ad693bb2042",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN_L_5V",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "J202",
+      "parent": "FP01",
+      "parent_ref": "J2",
+      "parent_part": "JST B3B-XH-A / XHP-3 / SXH-001T-P0.6",
+      "composite_part": "JST B3B-XH-A / XHP-3 / SXH-001T-P0.6",
+      "parent_footprint": "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+      "original_footprint": "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+      "original_library_sha256": "e8603dd6c4d08fd8a1c2ff4ffb097ee573fb5a888488c0981b64b013e9f15d9d",
+      "composite_footprint": "FPC01:Connector_JST__JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+      "composite_library_sha256": "e8603dd6c4d08fd8a1c2ff4ffb097ee573fb5a888488c0981b64b013e9f15d9d",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "FAN_GND",
+          "net": "GND",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "FAN_L_5V",
+          "net": "FAN_L_5V",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "FAN_L_TACH",
+          "net": "FAN_L_TACH",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "ref": "U301",
+      "parent": "FP01",
+      "parent_ref": "U101",
+      "parent_part": "TPS2553DBVR-1",
+      "composite_part": "TPS2553DBVR-1",
+      "parent_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "original_footprint": "Package_TO_SOT_SMD:SOT-23-6",
+      "original_library_sha256": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca",
+      "composite_footprint": "FPC01:Package_TO_SOT_SMD__SOT-23-6",
+      "composite_library_sha256": "f341c73aac9dcb553456f68bf3fee3d26eb14acf6d8a1cae82b50418fe1d71ca",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "IN",
+          "net": "FAN5V_IN",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "net": "GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "EN",
+          "net": "FAN5V_IN",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "FAULT_N",
+          "net": null,
+          "kind": "open_collector",
+          "side": "R"
+        },
+        {
+          "number": "5",
+          "name": "ILIM",
+          "net": "FAN_R_ILIM",
+          "kind": "output",
+          "side": "R"
+        },
+        {
+          "number": "6",
+          "name": "OUT",
+          "net": "FAN_R_5V",
+          "kind": "power_out",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R301",
+      "parent": "FP01",
+      "parent_ref": "R101",
+      "parent_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "composite_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN_R_ILIM",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R302",
+      "parent": "FP01",
+      "parent_ref": "R102",
+      "parent_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "composite_part": "10k 0.1%25ppm TNPW080510K0BEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN_R_5V",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "FAN_R_TACH",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R303",
+      "parent": "FP01",
+      "parent_ref": "R103",
+      "parent_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "composite_part": "100k 0.1%25ppm TNPW0805100KBEEA",
+      "parent_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_footprint": "Resistor_SMD:R_0805_2012Metric",
+      "original_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "composite_footprint": "FPC01:Resistor_SMD__R_0805_2012Metric",
+      "composite_library_sha256": "f050b6a50cc7e6f86291fb7aa8f87b0d02255e21cfbddf291cdccc87e5889794",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN_R_5V",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C301",
+      "parent": "FP01",
+      "parent_ref": "C101",
+      "parent_part": "100nF25V C0G5% C1206C104J3GACTU",
+      "composite_part": "100nF25V C0G5% C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C302",
+      "parent": "FP01",
+      "parent_ref": "C102",
+      "parent_part": "100nF25V C0G5% C1206C104J3GACTU",
+      "composite_part": "100nF25V C0G5% C1206C104J3GACTU",
+      "parent_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "original_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "composite_footprint": "FPC01:Capacitor_SMD__C_1206_3216Metric",
+      "composite_library_sha256": "b2e4a08e3aaf40bc587090190c0e3969e962d7ae962c172cce0581ae8327651c",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN5V_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C303",
+      "parent": "FP01",
+      "parent_ref": "C103",
+      "parent_part": "1uF63V10% WIMA MKS2C041001F00KSSD",
+      "composite_part": "1uF63V10% WIMA MKS2C041001F00KSSD",
+      "parent_footprint": "Capacitor_THT:C_Rect_L7.2mm_W5.0mm_P5.00mm",
+      "original_footprint": "Capacitor_THT:C_Rect_L7.2mm_W5.0mm_P5.00mm",
+      "original_library_sha256": "da87c22e980b6e6494e4768a5ec91f3060e2634ecb969d6567fe6ad693bb2042",
+      "composite_footprint": "FPC01:Capacitor_THT__C_Rect_L7.2mm_W5.0mm_P5.00mm",
+      "composite_library_sha256": "da87c22e980b6e6494e4768a5ec91f3060e2634ecb969d6567fe6ad693bb2042",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "FAN_R_5V",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "J203",
+      "parent": "FP01",
+      "parent_ref": "J3",
+      "parent_part": "JST B3B-XH-A / XHP-3 / SXH-001T-P0.6",
+      "composite_part": "JST B3B-XH-A / XHP-3 / SXH-001T-P0.6",
+      "parent_footprint": "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+      "original_footprint": "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+      "original_library_sha256": "e8603dd6c4d08fd8a1c2ff4ffb097ee573fb5a888488c0981b64b013e9f15d9d",
+      "composite_footprint": "FPC01:Connector_JST__JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+      "composite_library_sha256": "e8603dd6c4d08fd8a1c2ff4ffb097ee573fb5a888488c0981b64b013e9f15d9d",
+      "actual_pins_renamed": [
+        {
+          "number": "1",
+          "name": "FAN_GND",
+          "net": "GND",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "FAN_R_5V",
+          "net": "FAN_R_5V",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "FAN_R_TACH",
+          "net": "FAN_R_TACH",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    }
+  ],
+  "physical_qualified": false,
+  "fabrication_released": false
+}

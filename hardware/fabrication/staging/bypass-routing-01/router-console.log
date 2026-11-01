@@ -1,0 +1,81 @@
+2026-11-01T03:58:55.578879088Z main ERROR Could not determine local host name
+java.net.UnknownHostException: jdk.internal.util.Exceptions$NonSocketInfo@623795892f6331293313: Temporary failure in name resolution
+	at java.base/java.net.InetAddress.getLocalHost(Unknown Source)
+	at org.apache.logging.log4j.core.util.NetUtils.getHostname(NetUtils.java:71)
+	at org.apache.logging.log4j.core.util.NetUtils.getLocalHostname(NetUtils.java:56)
+	at org.apache.logging.log4j.core.LoggerContext.lambda$setConfiguration$2(LoggerContext.java:691)
+	at java.base/java.util.concurrent.ConcurrentHashMap.computeIfAbsent(Unknown Source)
+	at org.apache.logging.log4j.core.LoggerContext.setConfiguration(LoggerContext.java:691)
+	at org.apache.logging.log4j.core.LoggerContext.reconfigure(LoggerContext.java:786)
+	at org.apache.logging.log4j.core.LoggerContext.reconfigure(LoggerContext.java:808)
+	at org.apache.logging.log4j.core.LoggerContext.start(LoggerContext.java:311)
+	at org.apache.logging.log4j.core.impl.Log4jContextFactory.getContext(Log4jContextFactory.java:264)
+	at org.apache.logging.log4j.core.impl.Log4jContextFactory.getContext(Log4jContextFactory.java:48)
+	at org.apache.logging.log4j.LogManager.getContext(LogManager.java:119)
+	at app.freerouting.startup.LoggingBootstrap.initialize(LoggingBootstrap.java:132)
+	at app.freerouting.Freerouting.main(Freerouting.java:536)
+Caused by: java.net.UnknownHostException: 2f6331293313: Temporary failure in name resolution
+	at java.base/java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+	at java.base/java.net.Inet6AddressImpl.lookupAllHostAddr(Unknown Source)
+	at java.base/java.net.InetAddress$PlatformResolver.lookupByName(Unknown Source)
+	at java.base/java.net.InetAddress.getAddressesFromNameService(Unknown Source)
+	at java.base/java.net.InetAddress$NameServiceAddresses.get(Unknown Source)
+	at java.base/java.net.InetAddress.getAllByName0(Unknown Source)
+	... 14 more
+
+2026-11-01T03:58:55.584772422Z main ERROR Could not determine local host name
+java.net.UnknownHostException: jdk.internal.util.Exceptions$NonSocketInfo@1fa121e22f6331293313: Temporary failure in name resolution
+	at java.base/java.net.InetAddress.getLocalHost(Unknown Source)
+	at org.apache.logging.log4j.core.util.NetUtils.getHostname(NetUtils.java:71)
+	at org.apache.logging.log4j.core.util.NetUtils.getLocalHostname(NetUtils.java:56)
+	at org.apache.logging.log4j.core.LoggerContext.lambda$setConfiguration$2(LoggerContext.java:691)
+	at java.base/java.util.concurrent.ConcurrentHashMap.computeIfAbsent(Unknown Source)
+	at org.apache.logging.log4j.core.LoggerContext.setConfiguration(LoggerContext.java:691)
+	at org.apache.logging.log4j.core.LoggerContext.reconfigure(LoggerContext.java:786)
+	at org.apache.logging.log4j.core.LoggerContext.reconfigure(LoggerContext.java:808)
+	at app.freerouting.startup.LoggingBootstrap.initialize(LoggingBootstrap.java:132)
+	at app.freerouting.Freerouting.main(Freerouting.java:536)
+Caused by: java.net.UnknownHostException: 2f6331293313: Temporary failure in name resolution
+	at java.base/java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+	at java.base/java.net.Inet6AddressImpl.lookupAllHostAddr(Unknown Source)
+	at java.base/java.net.InetAddress$PlatformResolver.lookupByName(Unknown Source)
+	at java.base/java.net.InetAddress.getAddressesFromNameService(Unknown Source)
+	at java.base/java.net.InetAddress$NameServiceAddresses.get(Unknown Source)
+	at java.base/java.net.InetAddress.getAllByName0(Unknown Source)
+	... 10 more
+
+2026-11-01 03:58:55.604 INFO   Freerouting v2.5.0 (build-date: 2026-10-05)
+2026-11-01 03:58:55.636 WARN   [startup] freerouting.json contains a stale 'logging.file.location' value: '/work/router.log'. The actual log file is being written to '/work/config/freerouting.log' (as resolved at startup). The stale value will be corrected in freerouting.json on next save. If you see this in Docker, the old JSON was written by an earlier version that stored the host path; the fix is to delete freerouting.json so it is regenerated with the correct path.
+2026-11-01 03:58:55.858 INFO   Hardware: 2 CPU cores, 467 CPU score, 1024 MB RAM
+2026-11-01 03:58:55.859 WARN   GUI is disabled and you don't have a console available, so the only feedback from Freerouting is in the log.
+2026-11-01 03:58:57.203 INFO   [36FBFE\A80F7B] Loading board file 'routing-view.dsn'...
+2026-11-01 03:58:57.256 INFO   Applied drill-hole clearance override: 250.0 um (2500 board units), 16 hole keepouts reclassified.
+2026-11-01 03:58:57.265 INFO   [36FBFE\A80F7B] Job '36FBFE\A80F7B' started at 2026-11-01T03:58:57.265885672Z.
+2026-11-01 03:58:57.312 INFO   [36FBFE\A80F7B] Pipeline thread limits: autorouter pass is single-threaded, optimizer.max_threads=2.
+2026-11-01 03:58:57.335 INFO   [36FBFE\A80F7B] Fanout stage started on board '99cda7b6daaa3f83d69d39e78e5b824b' with 162 of 168 SMD pins needing fanout (6 already connected, 0 netless).
+2026-11-01 03:58:58.188 INFO   [36FBFE\A80F7B] Fanout pass #1 on board 'a87923e3d51dafced9ad52168c2bbacc' completed in 0.83 seconds with 76 SMD pins fanouted, 79 not routed, 0 insert errors, +9 extra vias (0 SMD pins still to check in pass, ripup costs=100).
+2026-11-01 03:58:58.557 INFO   [36FBFE\A80F7B] Fanout pass #2 on board '15dbd11123189efa08ded4f408ebf87b' completed in 0.36 seconds with 5 SMD pins fanouted, 85 not routed, 0 insert errors, +1 extra via (0 SMD pins still to check in pass, ripup costs=200).
+2026-11-01 03:58:58.640 INFO   [36FBFE\A80F7B] Fanout pass #3 on board 'db7e8549650b64999d8b5a52342a1596' completed in 0.08 seconds with 1 SMD pin fanouted, 7 not routed, 0 insert errors, +1 extra via (0 SMD pins still to check in pass, ripup costs=300).
+2026-11-01 03:58:58.686 INFO   [36FBFE\A80F7B] Fanout pass #4 on board 'db7e8549650b64999d8b5a52342a1596' completed in 0.04 seconds with 0 SMD pins fanouted, 0 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=400).
+2026-11-01 03:58:58.693 INFO   [36FBFE\A80F7B] Fanout stage completed: started with 168 total SMD pins, completed in 1.35 seconds, escaped pins: 104/168 (61.9%), using 1.13 total CPU seconds, 1.35 GB total allocated, and 123.1 MB peak heap usage.
+2026-11-01 03:58:58.724 INFO   [36FBFE\A80F7B] Auto-routing stage started on board 'db7e8549650b64999d8b5a52342a1596' with baseline score 358.65 for 76 unrouted items.
+2026-11-01 03:58:59.800 INFO   [36FBFE\A80F7B] Auto-routing pass #1 on board 'db7e8549650b64999d8b5a52342a1596' was completed in 1.06 seconds with score 687.76 (37 unrouted and 0 violations), using 1.71 CPU seconds and the job allocated 2.04 GB of memory so far.
+2026-11-01 03:59:00.077 INFO   [36FBFE\A80F7B] Auto-routing pass #2 on board '7d85442f0b504c29ad419d63baf11ddb' was completed in 0.26 seconds with score 367.09 (75 unrouted and 0 violations), using 1.71 CPU seconds and the job allocated 2.04 GB of memory so far.
+2026-11-01 03:59:00.448 INFO   [36FBFE\A80F7B] Auto-routing pass #3 on board '956e8bccf5653ee71ff6a77b04f5aa96' was completed in 0.36 seconds with score 383.97 (73 unrouted and 0 violations), using 2.65 CPU seconds and the job allocated 3.35 GB of memory so far.
+2026-11-01 03:59:00.851 INFO   [36FBFE\A80F7B] Auto-routing pass #4 on board 'd21d8af47c89d9cbc68c5fa4203b2044' was completed in 0.39 seconds with score 367.09 (75 unrouted and 0 violations), using 2.65 CPU seconds and the job allocated 3.35 GB of memory so far.
+2026-11-01 03:59:01.196 INFO   [36FBFE\A80F7B] Auto-routing pass #5 on board '956e8bccf5653ee71ff6a77b04f5aa96' was completed in 0.34 seconds with score 383.97 (73 unrouted and 0 violations), using 2.65 CPU seconds and the job allocated 3.35 GB of memory so far.
+2026-11-01 03:59:01.571 INFO   [36FBFE\A80F7B] Auto-routing pass #6 on board '1b97801b1ab5614c9ef834cd79424b61' was completed in 0.36 seconds with score 367.09 (75 unrouted and 0 violations), using 3.61 CPU seconds and the job allocated 4.65 GB of memory so far.
+2026-11-01 03:59:01.901 INFO   [36FBFE\A80F7B] Auto-routing pass #7 on board '956e8bccf5653ee71ff6a77b04f5aa96' was completed in 0.33 seconds with score 383.97 (73 unrouted and 0 violations), using 3.61 CPU seconds and the job allocated 4.65 GB of memory so far.
+2026-11-01 03:59:02.268 INFO   [36FBFE\A80F7B] Auto-routing pass #8 on board '161a271672ab88d7e800ad7cc8e897a6' was completed in 0.36 seconds with score 367.09 (75 unrouted and 0 violations), using 3.61 CPU seconds and the job allocated 4.65 GB of memory so far.
+2026-11-01 03:59:02.600 INFO   [36FBFE\A80F7B] Auto-routing pass #9 on board '956e8bccf5653ee71ff6a77b04f5aa96' was completed in 0.33 seconds with score 383.97 (73 unrouted and 0 violations), using 4.58 CPU seconds and the job allocated 5.99 GB of memory so far.
+2026-11-01 03:59:02.962 INFO   [36FBFE\A80F7B] Auto-routing pass #10 on board 'a7b2ab42e3adf643433a46d126a9a565' was completed in 0.35 seconds with score 367.09 (75 unrouted and 0 violations), using 4.58 CPU seconds and the job allocated 5.99 GB of memory so far.
+2026-11-01 03:59:03.289 INFO   [36FBFE\A80F7B] Auto-routing pass #11 on board '956e8bccf5653ee71ff6a77b04f5aa96' was completed in 0.32 seconds with score 383.97 (73 unrouted and 0 violations), using 5.54 CPU seconds and the job allocated 7.35 GB of memory so far.
+2026-11-01 03:59:03.685 INFO   [36FBFE\A80F7B] Auto-routing pass #12 on board '7d85442f0b504c29ad419d63baf11ddb' was completed in 0.00 seconds with score 687.76 (37 unrouted and 0 violations), using 5.54 CPU seconds and the job allocated 7.35 GB of memory so far.
+2026-11-01 03:59:03.900 INFO   [36FBFE\A80F7B] Auto-routing pass #13 on board '7d85442f0b504c29ad419d63baf11ddb' was completed in 0.21 seconds with score 367.09 (75 unrouted and 0 violations), using 5.54 CPU seconds and the job allocated 7.35 GB of memory so far.
+2026-11-01 03:59:04.187 INFO   [36FBFE\A80F7B] Auto-routing pass #14 on board '4d944d80879b093bc4fac6a1016adc40' was completed in 0.28 seconds with score 383.97 (73 unrouted and 0 violations), using 5.54 CPU seconds and the job allocated 7.35 GB of memory so far.
+2026-11-01 03:59:04.508 INFO   [36FBFE\A80F7B] Auto-routing pass #15 on board '4886620da07d8383df8f1812a97d1db5' was completed in 0.30 seconds with score 367.09 (75 unrouted and 0 violations), using 6.50 CPU seconds and the job allocated 8.82 GB of memory so far.
+2026-11-01 03:59:04.801 INFO   [36FBFE\A80F7B] Auto-routing pass #16 on board '7d85442f0b504c29ad419d63baf11ddb' was completed in 0.00 seconds with score 687.76 (37 unrouted and 0 violations), using 6.50 CPU seconds and the job allocated 8.82 GB of memory so far.
+2026-11-01 03:59:04.839 INFO   [36FBFE\A80F7B] Auto-routing stage completed: started with 145 unrouted nets, completed in 7.52 seconds, final score: 687.76 (37 unrouted and 0 violations), using 6.50 total CPU seconds, 8.82 GB total allocated, and 92.2 MB peak heap usage.
+2026-11-01 03:59:04.846 INFO   [36FBFE\A80F7B] Job '36FBFE\A80F7B' finished with state: COMPLETED (elapsed: 7.58 seconds, finished at UTC: 2026-11-01T03:59:04.845904051Z).
+2026-11-01 03:59:04.866 INFO   Saving output file '/work/routed.ses' (SES)...
+2026-11-01 03:59:04.867 INFO   Successfully saved output file '/work/routed.ses' (31834 bytes).

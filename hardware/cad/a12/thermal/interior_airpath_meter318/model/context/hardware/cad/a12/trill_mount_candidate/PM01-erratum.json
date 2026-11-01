@@ -1,0 +1,17 @@
+{
+  "affected_report_path": "hardware/cad/a12/panel_mount_audit/report.json",
+  "affected_report_sha256": "73012a689dd57baa7162f12bb42576a72a9c268aab032a01ffc630f2a26fbdd9",
+  "affected_fields": "panel_modules[id=touch_backer].baseline_z_mm/candidate_z_mm",
+  "incorrect_mm": [
+    32.6,
+    40.2
+  ],
+  "correct_mm": [
+    34.6,
+    42.2
+  ],
+  "source": "hardware/cad/a11/controls.scad#touch_backer lines122\u2013124",
+  "equation": "baseZ=32.6+(panel_z\u221234)",
+  "explanation": "Report copied base primitiveZ without its enclosing+2 baseline translation. Translation+7.6 and module panel_z-driven classification remain correct. Original PM01 sealed unchanged. Contact positive control rejected short Trill posts; no physical pass occurred.",
+  "physical_qualified": false
+}

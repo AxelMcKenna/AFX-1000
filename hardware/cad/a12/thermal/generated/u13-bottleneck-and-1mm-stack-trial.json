@@ -1,0 +1,228 @@
+{
+  "scope": "ActualnativeXY/copper; secondscenario proposed1.0mmtotalPCBstackoverride,notnative/manufacturerapproved",
+  "source_native_sha256": "ceed963a120145b6a6768c4e30188a5ada0b72a40aff8da56578a4424a370ee4",
+  "source_sha256": {
+    "hardware/cad/a12/thermal/u13_path.py": "132588e96ee251033efbb86d2e3af41c1d51421e11c323b6c2b8432cdbaec0c6",
+    "hardware/cad/a12/thermal/design.json": "54c2964e0a571577c4d04834a9e0331fecddc595f5f1ecb4b34d654096256a0e",
+    "hardware/cad/a12/thermal/analyze.py": "96f3274c52fd465a8789c4049f5c41236636e05956cb6f73b058d93cff0cf3b9",
+    "hardware/cad/a12/thermal/generate.py": "b5fa6a8ac18f1f6af42a356106fa6edadf7c83dd9ebaf84278cf7eab554a5508"
+  },
+  "scenarios": [
+    {
+      "native_pcb_sha256": "ceed963a120145b6a6768c4e30188a5ada0b72a40aff8da56578a4424a370ee4",
+      "native_ep": {
+        "xy_mm": [
+          209.0,
+          108.2
+        ],
+        "size_mm": [
+          1.65,
+          2.38
+        ]
+      },
+      "metal_contact_area_mm2": 165.4714282901014,
+      "sink_domain_area_raster_mm2": 165.48749999999998,
+      "contact_relief": {
+        "centre_relative": [
+          117,
+          4
+        ],
+        "tim_radius_mm": 3.8,
+        "metal_radius_mm": 4.8,
+        "purpose": "Preserve existing bare metal support and its electrical exclusion at local117,4. Inset1mm applies to rectangle and reverse circular relief."
+      },
+      "grid": [
+        160,
+        160
+      ],
+      "outer_copper_assumed_um": 70,
+      "actual_stack_copper_centres_mm": {
+        "F.Cu": 0.035,
+        "In1.Cu": 0.20500000000000002,
+        "In2.Cu": 0.6150000000000001,
+        "In3.Cu": 0.9850000000000002,
+        "In4.Cu": 1.3950000000000002,
+        "B.Cu": 1.5650000000000004
+      },
+      "actual_nominal_copper_thickness_mm": {
+        "F.Cu": 0.07,
+        "In1.Cu": 0.07,
+        "In2.Cu": 0.07,
+        "In3.Cu": 0.07,
+        "In4.Cu": 0.07,
+        "B.Cu": 0.07
+      },
+      "native_stack_total_mm": 1.6000000000000005,
+      "dielectric_override_mm": null,
+      "stack_override_is_an_approved_manufacturer_build": false,
+      "included_layers": [
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu",
+        "In3.Cu",
+        "In4.Cu",
+        "B.Cu"
+      ],
+      "actual_filled_copper_grid_area_mm2": {
+        "F.Cu": 99.24750000000002,
+        "In1.Cu": 170.28,
+        "In2.Cu": 173.07,
+        "In3.Cu": 173.07,
+        "In4.Cu": 173.07,
+        "B.Cu": 173.07
+      },
+      "actual_matching_through_vias": 36,
+      "actual_via_centres_inside_ep": 12,
+      "copper_k_assumed_w_per_mk": 385,
+      "tim_k_typical_w_per_mk": 6,
+      "tim_gap_assumed_mm": 1.22,
+      "ep_peak_to_land_network_c_per_w": 9.9811394331138,
+      "ep_mean_to_land_network_c_per_w": 9.580497011008738,
+      "unit_heat_energy_decomposition_c_per_w": {
+        "sheet_spreading_by_layer": {
+          "F.Cu": 0.6360355453360266,
+          "In1.Cu": 0.5577500867592724,
+          "In2.Cu": 0.1854656249879631,
+          "In3.Cu": 0.09522947159175553,
+          "In4.Cu": 0.11450560450100583,
+          "B.Cu": 0.6106657088735341
+        },
+        "sheet_spreading_total": 2.1996520420495576,
+        "via_barrels_all_segments": 5.914286701008446,
+        "tim_bulk_under_actual_bottom_copper": 1.4665582679312879,
+        "total_equals_ep_mean_network": 9.580497011008738,
+        "peak_above_uniform_source_mean": 0.4006424221050615,
+        "basis": "For1W uniformly distributed overactualEPcells, sum(g*dT^2) overactual sheet/via/TIMnetwork. These are effective energy shares,not independent series resistors. Package3K/W,landaxialandassumedcontactaddedseparately."
+      },
+      "package_theta_jc_c_per_w": 3,
+      "aluminum_land_axial_c_per_w": 0.1910708500783347,
+      "extra_contact_assumed_c_per_w": 0,
+      "conditional_total_junction_to_base_c_per_w": 13.172210283192134,
+      "power_allocation_w": 2.133384,
+      "conditional_junction_at_60c_base_c": 88.10138266279756,
+      "conditional85c_allocation_satisfied_before_uncertainty": false,
+      "maximum_base_for_85c_junction_before_uncertainty_c": 56.89861733720243,
+      "required_total_junction_to_base_at_60c_c_per_w": 11.71847168629745,
+      "remaining_contact_and_parameter_uncertainty_budget_c_per_w": -1.4537385968946843,
+      "kcl_residual_w": 3.842412499288628e-15,
+      "disconnected_zero_heat_copper_cells_excluded": 0,
+      "fictitious_sink_or_gmin_added": false,
+      "solver_converged": true,
+      "assumptions": "Selected native copper sheets discretized from actual saved AGND fills,EP rectangle and matching via nodes. Cell-centre occupancy with each actual via pad annulus represented by lumped vertical barrel conductance distributed across its raster cells; local annular radial spreading and copper-cap conduction are not solved,adiabatic patch edges;non-AGND layers,FR4 and parallel air cooling receive no credit. TIM sinks only beneath bottom copper;mask/contact resistance and package theta uncertainty are not bounded. These are declared scenarios,not guaranteed material minima or a full-board FEA.",
+      "physical_junction_verified": false,
+      "thermal_path_qualified": false
+    },
+    {
+      "native_pcb_sha256": "ceed963a120145b6a6768c4e30188a5ada0b72a40aff8da56578a4424a370ee4",
+      "native_ep": {
+        "xy_mm": [
+          209.0,
+          108.2
+        ],
+        "size_mm": [
+          1.65,
+          2.38
+        ]
+      },
+      "metal_contact_area_mm2": 165.4714282901014,
+      "sink_domain_area_raster_mm2": 165.48749999999998,
+      "contact_relief": {
+        "centre_relative": [
+          117,
+          4
+        ],
+        "tim_radius_mm": 3.8,
+        "metal_radius_mm": 4.8,
+        "purpose": "Preserve existing bare metal support and its electrical exclusion at local117,4. Inset1mm applies to rectangle and reverse circular relief."
+      },
+      "grid": [
+        160,
+        160
+      ],
+      "outer_copper_assumed_um": 70,
+      "actual_stack_copper_centres_mm": {
+        "F.Cu": 0.035,
+        "In1.Cu": 0.20500000000000002,
+        "In2.Cu": 0.395,
+        "In3.Cu": 0.6050000000000001,
+        "In4.Cu": 0.7950000000000002,
+        "B.Cu": 0.9650000000000001
+      },
+      "actual_nominal_copper_thickness_mm": {
+        "F.Cu": 0.07,
+        "In1.Cu": 0.07,
+        "In2.Cu": 0.07,
+        "In3.Cu": 0.07,
+        "In4.Cu": 0.07,
+        "B.Cu": 0.07
+      },
+      "native_stack_total_mm": 1.0,
+      "dielectric_override_mm": [
+        0.1,
+        0.12,
+        0.14,
+        0.12,
+        0.1
+      ],
+      "stack_override_is_an_approved_manufacturer_build": false,
+      "included_layers": [
+        "F.Cu",
+        "In1.Cu",
+        "In2.Cu",
+        "In3.Cu",
+        "In4.Cu",
+        "B.Cu"
+      ],
+      "actual_filled_copper_grid_area_mm2": {
+        "F.Cu": 99.24750000000002,
+        "In1.Cu": 170.28,
+        "In2.Cu": 173.07,
+        "In3.Cu": 173.07,
+        "In4.Cu": 173.07,
+        "B.Cu": 173.07
+      },
+      "actual_matching_through_vias": 36,
+      "actual_via_centres_inside_ep": 12,
+      "copper_k_assumed_w_per_mk": 385,
+      "tim_k_typical_w_per_mk": 6,
+      "tim_gap_assumed_mm": 1.22,
+      "ep_peak_to_land_network_c_per_w": 7.720840115880553,
+      "ep_mean_to_land_network_c_per_w": 7.381052437847939,
+      "unit_heat_energy_decomposition_c_per_w": {
+        "sheet_spreading_by_layer": {
+          "F.Cu": 0.5397325096596007,
+          "In1.Cu": 0.40109778086031456,
+          "In2.Cu": 0.2135303030078016,
+          "In3.Cu": 0.13174883089071482,
+          "In4.Cu": 0.1326498487032235,
+          "B.Cu": 0.6280440408785449
+        },
+        "sheet_spreading_total": 2.0468033140002,
+        "via_barrels_all_segments": 3.8615409308779127,
+        "tim_bulk_under_actual_bottom_copper": 1.4727081929588701,
+        "total_equals_ep_mean_network": 7.381052437847939,
+        "peak_above_uniform_source_mean": 0.33978767803261434,
+        "basis": "For1W uniformly distributed overactualEPcells, sum(g*dT^2) overactual sheet/via/TIMnetwork. These are effective energy shares,not independent series resistors. Package3K/W,landaxialandassumedcontactaddedseparately."
+      },
+      "package_theta_jc_c_per_w": 3,
+      "aluminum_land_axial_c_per_w": 0.1910708500783347,
+      "extra_contact_assumed_c_per_w": 0,
+      "conditional_total_junction_to_base_c_per_w": 10.911910965958887,
+      "power_allocation_w": 2.133384,
+      "conditional_junction_at_60c_base_c": 83.27929626420124,
+      "conditional85c_allocation_satisfied_before_uncertainty": true,
+      "maximum_base_for_85c_junction_before_uncertainty_c": 61.720703735798764,
+      "required_total_junction_to_base_at_60c_c_per_w": 11.71847168629745,
+      "remaining_contact_and_parameter_uncertainty_budget_c_per_w": 0.8065607203385632,
+      "kcl_residual_w": 1.9535393303438754e-15,
+      "disconnected_zero_heat_copper_cells_excluded": 0,
+      "fictitious_sink_or_gmin_added": false,
+      "solver_converged": true,
+      "assumptions": "Selected native copper sheets discretized from actual saved AGND fills,EP rectangle and matching via nodes. Cell-centre occupancy with each actual via pad annulus represented by lumped vertical barrel conductance distributed across its raster cells; local annular radial spreading and copper-cap conduction are not solved,adiabatic patch edges;non-AGND layers,FR4 and parallel air cooling receive no credit. TIM sinks only beneath bottom copper;mask/contact resistance and package theta uncertainty are not bounded. These are declared scenarios,not guaranteed material minima or a full-board FEA.",
+      "physical_junction_verified": false,
+      "thermal_path_qualified": false
+    }
+  ],
+  "physical_junction_verified": false,
+  "thermal_qualified": false
+}

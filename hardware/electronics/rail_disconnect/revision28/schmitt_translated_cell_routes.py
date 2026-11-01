@@ -1,0 +1,128 @@
+"""Joint exact-clearance routes for the translated receiver, using real old anchors."""
+
+import hashlib
+import json
+import math
+import shutil
+import uuid
+from pathlib import Path
+
+from ...common.sexpr import a, children, read_sexpr, sexpr
+from .receiver_surface_path import connect
+from .repair import Router
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/schmitt-translation-backbone-work"
+WORK = ROOT / "generated/schmitt-translated-cell-routes-work"
+
+
+def main():
+    assert not WORK.exists()
+    blob = (SOURCE / "rail_disconnect.kicad_pcb").read_bytes()
+    t = read_sexpr(blob.decode())
+    rt = Router(t)
+    gp = SOURCE / "generated/residual-components.json"
+    graph = json.loads(gp.read_text())
+    assert (
+        next(
+            h
+            for p, h in graph["source_sha256"].items()
+            if Path(p).resolve() == (SOURCE / "rail_disconnect.kicad_pcb").resolve()
+        )
+        == hashlib.sha256(blob).hexdigest()
+    )
+    rows = []
+    for num in ("7", "5", "3", "2", "6"):
+        p = next(p for p in rt.by_ref["U36"] if p["pin"] == num)
+        groups = graph["inventory"][p["net"]]["components"]
+        one = next(g for g in groups if any(n.get("ref") == "U36" and n.get("pin") == num for n in g))
+        others = [g for g in groups if g is not one and any(n["kind"] == "PAD" for n in g)]
+        targets = []
+        if not others:
+            rows.append(dict(ref="U36", pin=num, net=p["net"], other_PADs_already_connected=True))
+            continue
+        main = max(others, key=lambda g: len(g))
+        for n in main:
+            if 5 not in n["layers"]:
+                continue
+            for xy in [n["position_mm"]] + ([n["end_mm"]] if n["kind"] == "PCB_TRACK" else []):
+                targets.append(
+                    dict(xy=xy, uuid=n["uuid"], kind=n["kind"], ref=n.get("ref"), pin=n.get("pin"))
+                )
+        targets = sorted(targets, key=lambda n: math.dist(n["xy"], p["xy"]))[:48]
+        got, reason = connect(rt, p, targets, radius=12, step=0.025, budget=500000)
+        rows.append(dict(ref="U36", pin=num, net=p["net"], route=got, reason=reason))
+        print("U36", num, bool(got), reason, flush=True)
+    # Keep new GND/VCC arms outside the signal corridor. Each named old barrel is
+    # a real same-net source object; the new bypass is a real manufacturer pad.
+    for ref, num, target in [
+        ("U36", "8", ("C79", "1")),
+        ("U36", "4", (9.0, 8.7)),
+        ("C79", "1", (15.675, 12.05)),
+        ("C79", "2", (16.1, 11.3)),
+    ]:
+        p = next(p for p in rt.by_ref[ref] if p["pin"] == num)
+        if isinstance(target[0], str):
+            tr, tp = target
+            q = next(p for p in rt.by_ref[tr] if p["pin"] == tp)
+            targets = [dict(xy=q["xy"], ref=tr, pin=tp, kind="PAD")]
+        else:
+            g = next(
+                g
+                for g in rt.geometry
+                if g["kind"] == "via" and g["net"] == p["net"] and math.dist(g["xy"], target) < 1e-6
+            )
+            targets = [dict(xy=g["xy"], kind="PCB_VIA", actual_existing_same_net_barrel=True)]
+        got, reason = connect(rt, p, targets, radius=12, step=0.025, budget=500000)
+        rows.append(dict(ref=ref, pin=num, net=p["net"], route=got, reason=reason))
+        print(ref, num, bool(got), reason, flush=True)
+    for i, n in enumerate(t):
+        if isinstance(n, list) and n and n[0] in ("segment", "via") and not children(n, "uuid"):
+            n.append(
+                [
+                    a("uuid"),
+                    a(
+                        str(
+                            uuid.uuid5(
+                                uuid.NAMESPACE_URL,
+                                f"rmx:E28:translated-cell:{hashlib.sha256(blob).hexdigest()}:{i}:{sexpr(n)}",
+                            )
+                        )
+                    ),
+                ]
+            )
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for p in SOURCE.iterdir():
+        if p.is_file() and (
+            p.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym")
+            or p.name in ("components.json", "fp-lib-table", "sym-lib-table")
+        ):
+            shutil.copy2(p, WORK / p.name)
+        elif p.suffix == ".pretty":
+            shutil.copytree(p, WORK / p.name)
+    (WORK / "rail_disconnect.kicad_pcb").write_text(sexpr(t) + "\n")
+    (WORK / "generated/cell-routes.json").write_text(
+        json.dumps(
+            dict(
+                source_pcb_sha256=hashlib.sha256(blob).hexdigest(),
+                native_component_graph_sha256=hashlib.sha256(gp.read_bytes()).hexdigest(),
+                recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                surface_recipe_sha256=hashlib.sha256(
+                    (ROOT / "receiver_surface_path.py").read_bytes()
+                ).hexdigest(),
+                attempts=rows,
+                all_original_copper_and_both_new_receiving_barrels_preserved=True,
+                no_new_drills=True,
+                received_edge_partial_power_source_ground_and_PDN_not_qualified=True,
+                all_native_and_MCAD_checks_pending=True,
+                physical_qualified=False,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

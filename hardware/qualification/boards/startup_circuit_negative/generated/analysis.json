@@ -1,0 +1,370 @@
+{
+  "revision": "SC02-negative-native-draft",
+  "rail_scenarios": {
+    "N19": {
+      "retained_bulk_ref": "C8",
+      "native_bulk": "1500uF 35V electrolytic 20% EEUFR1V152S",
+      "retained_bulk_plus20pct_f": 0.0018,
+      "external_and_existing_bleed_a": 0.026419207164714614,
+      "downstream_added_scenario_a": 0.00055,
+      "input_pg_pullup_bad_state_current_scenario_a": 0.00019501688407489118,
+      "output_voltage_max_derived_from_frozen_ledger_v": 19.111654639339335,
+      "input_min_comparison_allocation_v": 18.9,
+      "source_input_min_bound_verified": false,
+      "vcc": {
+        "rin_ohm": 2000,
+        "regulated_at_13p65_possible": true,
+        "regulated_icc_scenario_a": [
+          0.0026171485543369883,
+          0.0033910003206315625
+        ],
+        "recommended_2ma_established_by_comparison": true,
+        "unregulated_1p2ma_load_assumed_vcc_min_v": null,
+        "unregulated_current_allowance_a": null,
+        "guaranteed_operating_supply_interval_v": null,
+        "failure": null,
+        "regulated_ic_heat_scenario_w": 0.04628715437662083,
+        "normal_rin_heat_scenario_w": 0.022928773049999577,
+        "thermal_qualified": false
+      },
+      "divider": {
+        "uv_magnitude_rising_v": [
+          15.050119100797609,
+          17.117354595285857
+        ],
+        "uv_magnitude_falling_v": [
+          14.552616100797609,
+          15.413964795285857
+        ],
+        "ov_magnitude_rising_v": [
+          20.47120206879362,
+          22.03622299398194
+        ],
+        "ov_magnitude_falling_v": [
+          17.928852068793617,
+          21.28397299398194
+        ],
+        "relay_open_uv_from_1ua_offleak_v": 0.010029999999999999,
+        "note": "Magnitudes relative AGND; internal pin thresholds relativeVEE. UV hysteresis sinks10..34uA while LOW; OV hysteresis sources10..34uA while HIGH. Relay50Ohm/1uA25C only, resistor.3% scenario; not hot/defaultOFF qualification."
+      },
+      "ramp": {
+        "net_gate_current_scenario_a": [
+          3e-05,
+          7.4e-05
+        ],
+        "effective_cdv_scenario_f": [
+          1.35e-06,
+          1.65e-06
+        ],
+        "effective_cgs_scenario_f": [
+          1.98e-05,
+          2.4200000000000002e-05
+        ],
+        "assumed_final_vgs_v": 10.0,
+        "output_slew_scenario_v_per_s": [
+          18.18181818181818,
+          54.81481481481481
+        ],
+        "output_only_scenario_s": [
+          0.34865856436632575,
+          1.0511410051636636
+        ],
+        "downstream_peak_scenario_a": 0.12563587383138128,
+        "ideal_capacitor_pass_energy_j": 0.32872980874804264,
+        "ideal_constant_live_pass_energy_slowest_j": 0.27089279290770213,
+        "external_gate_cap_charge_scenario_c": 0.00029003423015490994,
+        "external_cap_charge_time_at_30ua_s": 9.667807671830332,
+        "zero_start_insertion_plus_capcharge_scenario_s": 10.563941005163665,
+        "full_cap_charge_scenario_within_5s": false,
+        "cgs_only_target_to_2p1_at_1p9ma_s": 0.10062105263157896,
+        "cgs_only_target_to_2p1_at_45ma_s": 0.004248444444444445,
+        "rfb_cdv_max_s": 0.000136653,
+        "input_step_initial_feedback_current_if_gate_clamped_a": 0.23542319092558928,
+        "input_step_cdv_energy_scenario_j": 0.0003013356580190391,
+        "step_current_is_guaranteed": false,
+        "anti_injection_cgs_min_at_25c_vth2p1_scenario_f": 1.3366794221829952e-05,
+        "guaranteed_output_slew_v_per_s": null,
+        "guaranteed_complete_startup_s": null,
+        "guaranteed_fault_turnoff_s": null,
+        "cross_controller_network_validated": false,
+        "notes": "32..72uA LM5067 normal table plus +/-2uA unverified allowance =>30..74uA. NOT full-trajectory bounds. LT4250 Fig6a/150us RC rule is cross-controller inference. Cgs/Qgd, variableVth/transconductance, input steps/initialcharge, controller modulation/stability and sink waveform missing. Selected10V finalVGS corresponds to CSD RDS table drive, not an output-ready definition. Full-cap-charge number is conditional time to selected finalVGS, not a load-ready timing guarantee; Cgs-only discharge numbers OMIT Cdv/Miller/loop action and are NOT turnoff bounds."
+      },
+      "external_anti_injection": {
+        "cgs_min_scenario_f": 1.98e-05,
+        "required_at_normal_25c_vth_f": 1.3366794221829952e-05,
+        "comparison_input_step_v": 38.9,
+        "required_at_catalog_tvs_clamp_and_25c_vth_f": 2.8915354666666665e-05,
+        "normal_25c_only_geometry_screen": true,
+        "catalog_clamp_25c_only_screen": false,
+        "hot_vth_lower_bound_v": null,
+        "full_nonlinear_cgd_upper_bound_f": null,
+        "insertion_off_qualified": false,
+        "note": "CSD Vthmin2.1V at25C/250uA, Crssmax61pF atVDS50V/1MHz are not full hot/input-step bounds. TVS catalog clamp only25C specified pulse; not system transient bound. Normal screen is not an OFF guarantee."
+      },
+      "rpwr_ohm": 68100,
+      "typical_selected_power_equation_w": 5.270082030645411,
+      "testpoint_gain_only_sensitivity_w": [
+        3.952561522984058,
+        6.587602538306763
+      ],
+      "guaranteed_actual_selected_powerlimit_w": null,
+      "normal_initial_pass_power_scenario_w": 2.401109430976969,
+      "powerlimit_transfer_note": "LM5067Eq3 and7.5 testpoint24V/75k, no selected12/19V gain/offset/leakage bound. Conservative DC SOA graph reference alone does not cover added-capacitor turnoff energy.",
+      "source_overhead_sensitivity_a": 0.004206556160223752,
+      "source_total_fast_output_sensitivity_a": 0.12984242999160503,
+      "additional_v2v5_aux_load_a": 0,
+      "source_current_hotcapacity_verified": false,
+      "canonical_bulk_rewired": false
+    },
+    "N12": {
+      "retained_bulk_ref": "C16",
+      "native_bulk": "220uF 35V electrolytic 20% EEUFR1V221",
+      "retained_bulk_plus20pct_f": 0.00026399999999999997,
+      "external_and_existing_bleed_a": 0.15126476626861782,
+      "downstream_added_scenario_a": 0.00055,
+      "input_pg_pullup_bad_state_current_scenario_a": 0.00012317034883965595,
+      "output_voltage_max_derived_from_frozen_ledger_v": 12.070694186286284,
+      "input_min_comparison_allocation_v": 11.9,
+      "source_input_min_bound_verified": false,
+      "vcc": {
+        "rin_ohm": 330,
+        "regulated_at_13p65_possible": false,
+        "regulated_icc_scenario_a": null,
+        "recommended_2ma_established_by_comparison": false,
+        "unregulated_1p2ma_load_assumed_vcc_min_v": 11.502812,
+        "unregulated_current_allowance_a": 0.0012,
+        "guaranteed_operating_supply_interval_v": null,
+        "failure": "FAIL: -12V input below13.65V cannot establish recommended ICC>=2mA/internal-zener test condition via passive RIN. Advertised -9V range is not an approved exception to recommended table. Vendor clarification or different qualified supply/controller architecture required.",
+        "regulated_ic_heat_scenario_w": null,
+        "normal_rin_heat_scenario_w": 0.0004766255999999999,
+        "thermal_qualified": false
+      },
+      "divider": {
+        "uv_magnitude_rising_v": [
+          10.050472643968096,
+          11.342890439819456
+        ],
+        "uv_magnitude_falling_v": [
+          9.750375643968095,
+          10.314720239819456
+        ],
+        "ov_magnitude_rising_v": [
+          12.821732391625126,
+          13.782544444533599
+        ],
+        "ov_magnitude_falling_v": [
+          11.357338791625125,
+          13.349248444533599
+        ],
+        "relay_open_uv_from_1ua_offleak_v": 0.010029999999999999,
+        "note": "Magnitudes relative AGND; internal pin thresholds relativeVEE. UV hysteresis sinks10..34uA while LOW; OV hysteresis sources10..34uA while HIGH. Relay50Ohm/1uA25C only, resistor.3% scenario; not hot/defaultOFF qualification."
+      },
+      "ramp": {
+        "net_gate_current_scenario_a": [
+          3e-05,
+          7.4e-05
+        ],
+        "effective_cdv_scenario_f": [
+          9e-07,
+          1.1e-06
+        ],
+        "effective_cgs_scenario_f": [
+          9e-06,
+          1.1000000000000001e-05
+        ],
+        "assumed_final_vgs_v": 10.0,
+        "output_slew_scenario_v_per_s": [
+          27.272727272727273,
+          82.22222222222223
+        ],
+        "output_only_scenario_s": [
+          0.14680574010348182,
+          0.44259212016383037
+        ],
+        "downstream_peak_scenario_a": 0.1735214329352845,
+        "ideal_capacitor_pass_energy_j": 0.019232618874327603,
+        "ideal_constant_live_pass_energy_slowest_j": 0.40552715821381285,
+        "external_gate_cap_charge_scenario_c": 0.00013427776360491492,
+        "external_cap_charge_time_at_30ua_s": 4.475925453497164,
+        "zero_start_insertion_plus_capcharge_scenario_s": 5.372058786830498,
+        "full_cap_charge_scenario_within_5s": true,
+        "cgs_only_target_to_2p1_at_1p9ma_s": 0.045736842105263166,
+        "cgs_only_target_to_2p1_at_45ma_s": 0.0019311111111111115,
+        "rfb_cdv_max_s": 0.0001111,
+        "input_step_initial_feedback_current_if_gate_clamped_a": 0.12192620390188165,
+        "input_step_cdv_energy_scenario_j": 8.013591197636502e-05,
+        "step_current_is_guaranteed": false,
+        "anti_injection_cgs_min_at_25c_vth2p1_scenario_f": 5.2230341986953696e-06,
+        "guaranteed_output_slew_v_per_s": null,
+        "guaranteed_complete_startup_s": null,
+        "guaranteed_fault_turnoff_s": null,
+        "cross_controller_network_validated": false,
+        "notes": "32..72uA LM5067 normal table plus +/-2uA unverified allowance =>30..74uA. NOT full-trajectory bounds. LT4250 Fig6a/150us RC rule is cross-controller inference. Cgs/Qgd, variableVth/transconductance, input steps/initialcharge, controller modulation/stability and sink waveform missing. Selected10V finalVGS corresponds to CSD RDS table drive, not an output-ready definition. Full-cap-charge number is conditional time to selected finalVGS, not a load-ready timing guarantee; Cgs-only discharge numbers OMIT Cdv/Miller/loop action and are NOT turnoff bounds."
+      },
+      "external_anti_injection": {
+        "cgs_min_scenario_f": 9e-06,
+        "required_at_normal_25c_vth_f": 5.2230341986953696e-06,
+        "comparison_input_step_v": 24.4,
+        "required_at_catalog_tvs_clamp_and_25c_vth_f": 1.1681600142857141e-05,
+        "normal_25c_only_geometry_screen": true,
+        "catalog_clamp_25c_only_screen": false,
+        "hot_vth_lower_bound_v": null,
+        "full_nonlinear_cgd_upper_bound_f": null,
+        "insertion_off_qualified": false,
+        "note": "CSD Vthmin2.1V at25C/250uA, Crssmax61pF atVDS50V/1MHz are not full hot/input-step bounds. TVS catalog clamp only25C specified pulse; not system transient bound. Normal screen is not an OFF guarantee."
+      },
+      "rpwr_ohm": 49900,
+      "typical_selected_power_equation_w": 3.861631326420059,
+      "testpoint_gain_only_sensitivity_w": [
+        2.896223494815044,
+        4.827039158025074
+      ],
+      "guaranteed_actual_selected_powerlimit_w": null,
+      "normal_initial_pass_power_scenario_w": 2.0945241517280038,
+      "powerlimit_transfer_note": "LM5067Eq3 and7.5 testpoint24V/75k, no selected12/19V gain/offset/leakage bound. Conservative DC SOA graph reference alone does not cover added-capacitor turnoff energy.",
+      "source_overhead_sensitivity_a": 0.0019276664024762138,
+      "source_total_fast_output_sensitivity_a": 0.1754490993377607,
+      "additional_v2v5_aux_load_a": 0,
+      "source_current_hotcapacity_verified": false,
+      "canonical_bulk_rewired": false
+    }
+  },
+  "shunt": {
+    "nominal_ohm": 0.091,
+    "interval_ohm": [
+      0.0870425,
+      0.09495749999999999
+    ],
+    "declared_fraction_terms": [
+      0.01,
+      0.0075,
+      0.015494505494505494,
+      0.010494505494505495
+    ],
+    "current_limit_a": [
+      0.4633651896901246,
+      0.6433638739696126
+    ],
+    "circuit_breaker_a": [
+      0.7371718926888347,
+      1.4935232788580293
+    ],
+    "currentlimit_shunt_power_w": 0.03602837694229831,
+    "conditions": "WSL initial1%,75ppm/K*100K project screen, one loadlife(1%+.5mOhm), one solderheat(.5%+.5mOhm). Not a qualified mission profile. LM5067 table ICC2mA/OUT48V above VEE unless noted.",
+    "all_in_lifetime_bound_approved": false,
+    "actual_rail_transfer_verified": false
+  },
+  "timer": {
+    "capacitance_scenario_f": [
+      4.23e-07,
+      5.170000000000001e-07
+    ],
+    "leakage_scenario_a": 1e-07,
+    "insertion_from_zero_s": [
+      0.16567499999999996,
+      0.8961333333333334
+    ],
+    "fault_from_zero_s": [
+      0.011352462526766596,
+      0.04899134396355355
+    ],
+    "latched_discharge_4p16_to_0p3_s": 2.4945250000000008,
+    "guaranteed_insertion_s": null,
+    "guaranteed_fault_s": null,
+    "guaranteed_reset_s": null,
+    "initial_timer_upper_before_each_fault_v": null,
+    "reset_requirement": "LM5067-1 requires TIMER<0.3V and a fresh input/UV enable cycle. Do not issue an arbitrary short reset pulse.",
+    "conditions": "RevD7.5 has44..140uA fault charge,2.5..9.5uA insertion and.9..4.25uA fault-end discharge. Narrative8.3.6 says85uA fault vs table95uAtyp; table used. ICC2mA/OUT48V above VEE. EffectiveC/leakage unselected."
+  },
+  "digital_interface": {
+    "host_voltage_requirement_v": [
+      3.0,
+      3.6
+    ],
+    "enable_high_requirement_v": [
+      3.0,
+      3.6
+    ],
+    "enable_low_requirement_v": [
+      0,
+      0.1
+    ],
+    "e28_j9_2p5v_direct_compatible": false,
+    "led_resistor_ohm": 680,
+    "led_series_current_max_scenario_a": 0.0037136066547831252,
+    "led_min_scenario_a": 0.0020935887706417704,
+    "enable_input_max_scenario_a": 0.0003736363636363637,
+    "recommended_tlp_led_typ_a": 0.002,
+    "led_trigger_max_25c_a": 0.001,
+    "negative_local_led_load_a": 0,
+    "additional_v2v5_aux_load_a": 0,
+    "temperature_and_leakage_guarantees_verified": false,
+    "digital_load_budget_verified": false,
+    "host_missing_or_enable_highz": "10k gate pulldown requests OFF; no guaranteed hot/defaultOFF until driver/relay/input leakage and host power sequencing are bounded.",
+    "receiver_and_ready_sequencer_implemented": false
+  },
+  "primary_sources": {
+    "LM5067": {
+      "url": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+      "local_sha256": "22ff73cee2c83f169155ded519adb19202d87c2b525d62cc6412df10d8377bc1",
+      "redistributed": false
+    },
+    "CSD19536KTT": {
+      "url": "https://www.ti.com/lit/ds/symlink/csd19536ktt.pdf",
+      "local_sha256": "19e1a9660fac8577743f40acc2cdc791539afd5232bbc1fc350e15fec735d78d",
+      "redistributed": false
+    },
+    "WSL": {
+      "url": "https://www.vishay.com/docs/30100/wsl.pdf",
+      "local_sha256": "96c2dc89ae1e3039815ed6c41f566a6e9f6b53035f8e45ea2ada1697935a44dc",
+      "redistributed": false
+    },
+    "TLP170GM": {
+      "url": "https://toshiba.semicon-storage.com/info/TLP170GM_datasheet_en_20230522.pdf?did=69102&prodName=TLP170GM",
+      "local_sha256": "3aa39c0e05e1323c1e050cfae29d1361cc52141d39981e82d6aa0558021cc41f",
+      "redistributed": false
+    },
+    "LT4250": {
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/4250lhfa.pdf",
+      "local_sha256": null,
+      "fetched_via_web": true,
+      "reference": "4250lhfa p8Fig6a, APPLICATIONS INFORMATION. ADI PDF direct curl failed; parsed official web source inspected. Exact circuit-image verification remains open; SC02 RC is declared an engineering topology, not a copy/certification.",
+      "redistributed": false
+    },
+    "BSS138BK": {
+      "url": "https://assets.nexperia.com/documents/data-sheet/BSS138BK.pdf",
+      "local_sha256": null,
+      "fetched_via_web": true
+    }
+  },
+  "source_sha256": {
+    "hardware/qualification/boards/startup_circuit_negative/sources/bipolar-planning.json": "aab809ccd8772bcdcad7ac7e0d94b2cbb39c9f12f869924a7bde376433e91b71",
+    "hardware/qualification/boards/startup_circuit_negative/design.py": "6acaa34efdca5a96110cc6ee0e9f86f1d011f84dc09bf6009344271b7e78fb29",
+    "hardware/qualification/boards/startup_circuit_negative/analyze.py": "250eb5a2056555fe70906b846cce7a7ffb74de5318c60db217d86dbdc846cdd2",
+    "hardware/qualification/boards/startup_circuit_negative/sources/e28-components.json": "73898cce16be499b34e5273e4c10ced47e453b0056ea401935381cfe25911040"
+  },
+  "charged_load": "NFET body diode SENSE->PROTECTED can discharge a charged negative load into a missing/collapsed input. InitialCdv/Cgs/CTIMER/output states and external crossrail injection unbounded; no reverse blocking or verified precharge/reset detector.",
+  "late_b2b_closure": "All retained bulk after this new limiter, so closing a bank into an empty local cap cannot bypass this stage. All downstream connections/caps, reset/power-loss paths still require actual integration; canonical bank/PCB untouched.",
+  "pg_health": "PG_RAW negative VEE..AGND and high withVCC-VEE<2V. Not logic-safe and not independent output-valid. Missing receiver and absolute rail/VCC checks.",
+  "soa": {
+    "graph_reference": "CSDRevC Fig4-10 read conservatively at50V DC=2A, Tc25C; TI case-temperature derating to100C gives1A conditional reference, not actual cooling proof.",
+    "dc_current_reference_at50v_case100c_a": 1.0,
+    "currentlimit_margin_1p3_times_upper_a": 0.8363730361604964,
+    "circuitbreaker_upper_a": 1.4935232788580293,
+    "cb_upper_exceeds_1a_reference": true,
+    "case_temperature_bound_c": null,
+    "full_fault_waveform_verified": false,
+    "qualified": false,
+    "limitation": "No pass: externalCgs/Cdv delays actualFETturnoff; CB pulse/currentpeak, source overshoot, powerlimit transfer/reset states and junction/case cooling are unbounded. Graph/DC screen cannot replace waveform SOA."
+  },
+  "complete_startup_bound_s": null,
+  "five_second_wholeunit_pass": false,
+  "whole_unit_implemented": false,
+  "guaranteed_ramp_network": false,
+  "soa_qualified": false,
+  "physical_tests_performed": 0,
+  "fabrication_released": false,
+  "pcb_implemented": false,
+  "canonical_boards_modified": false,
+  "bounds_status": "Calculations are declared sensitivities, including a failing -12V recommended-supply condition. Neither nativeERC nor normal-ramp arithmetic establishes hardware validity."
+}

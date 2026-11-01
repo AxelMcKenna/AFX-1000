@@ -1,0 +1,29 @@
+{
+  "revision": "NF03C-E28-proposed-integration-only",
+  "force_inputs_unchanged": {
+    "N19_E28_SRC": "J1.3 N19_SRC",
+    "N12_E28_SRC": "J1.5 N12_SRC"
+  },
+  "sense_only_input_retargets": {
+    "R49.1": [
+      "N19_SRC",
+      "N19_P03_KELVIN"
+    ],
+    "R53.1": [
+      "N12_SRC",
+      "N12_P03_KELVIN"
+    ]
+  },
+  "split_old_fault_net": [
+    "U23.11 E28_FAULT_ANY",
+    "U25.10 E28_FAULT_ANY"
+  ],
+  "new_fault_return": "U25.10 E28_COMBINED_FAULT_REQUEST",
+  "old_request_export": "U23.11 E28_NATIVE_FAULT_REQUEST",
+  "returned_latched_permission": "U28.6 E28_NOT_FAULT",
+  "source_order": "P03/shunt/pass/E28source/B2B/originalprotectedbulk",
+  "native_implemented": false,
+  "force_continuity_verified_after_sense_change": false,
+  "E28_ARMED_required_before_negative_ARM": true,
+  "physical_qualified": false
+}

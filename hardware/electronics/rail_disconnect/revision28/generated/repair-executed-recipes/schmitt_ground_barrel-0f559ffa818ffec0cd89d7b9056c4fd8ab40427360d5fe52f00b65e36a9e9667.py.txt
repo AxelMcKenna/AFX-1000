@@ -1,0 +1,27 @@
+"""One real GND stitch through a source-cleared site, with exact MASTER detour debt."""
+import hashlib,json,shutil,uuid
+from pathlib import Path
+from ...common.sexpr import a,children,first,read_sexpr,sexpr
+from .repair import Router
+from .receiver_surface_path import connect
+from .schmitt_receiver_joint_surface import key,geometry
+ROOT=Path(__file__).resolve().parent
+SOURCE=ROOT/'generated/schmitt-inner-backbone-ground-work'
+WORK=ROOT/'generated/schmitt-ground-barrel-work'
+
+
+def main():
+ assert not WORK.exists()
+ blob=(SOURCE/'rail_disconnect.kicad_pcb').read_bytes();t=read_sexpr(blob.decode());names={str(n[1]):str(n[2]).lstrip('/') for n in children(t,'net')};sp=ROOT/'generated/schmitt-cone-proposal/ground-site-search.json';search=json.loads(sp.read_text());assert search['source_pcb_sha256']==hashlib.sha256(blob).hexdigest();candidate=next(r for r in search['candidates'] if r['point']==[9.1,11.3]);assert all(g['kind']=='line' and g['net']=='E28_MASTER_ENABLE' for g in candidate['soft_blockers']);ks={key(g) for g in candidate['soft_blockers']};removed=[]
+ for n in list(children(t,'segment')):
+  if key(geometry(n,names)) in ks:removed.append(sexpr(n));t.remove(n)
+ assert len(removed)==7
+ rt=Router(t);pad=next(p for p in rt.by_ref['U36'] if p['pin']=='4');target=tuple(candidate['point']);route,reason=connect(rt,pad,[dict(xy=target,kind='NEW_REAL_GND_BARREL',copper_diameter_mm=.6,drill_diameter_mm=.3)],radius=6,step=.025,budget=300000);print('real ground stitch path',bool(route),reason,flush=True);assert route,reason;rt.via('AGND',target)
+ for i,n in enumerate(t):
+  if isinstance(n,list) and n and n[0] in ('segment','via') and not children(n,'uuid'):n.append([a('uuid'),a(str(uuid.uuid5(uuid.NAMESPACE_URL,f'rmx:E28:ground-stitch:{hashlib.sha256(blob).hexdigest()}:{i}:{sexpr(n)}')))])
+ WORK.mkdir();(WORK/'generated').mkdir()
+ for p in SOURCE.iterdir():
+  if p.is_file() and (p.suffix in ('.kicad_pcb','.kicad_sch','.kicad_pro','.kicad_sym') or p.name in ('components.json','fp-lib-table','sym-lib-table')):shutil.copy2(p,WORK/p.name)
+  elif p.suffix=='.pretty':shutil.copytree(p,WORK/p.name)
+ (WORK/'rail_disconnect.kicad_pcb').write_text(sexpr(t)+'\n');(WORK/'generated/ground-barrel.json').write_text(json.dumps(dict(source_pcb_sha256=hashlib.sha256(blob).hexdigest(),full_stack_site_search_sha256=hashlib.sha256(sp.read_bytes()).hexdigest(),recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),new_actual_ground_barrel=target,copper_diameter_mm=.6,drill_diameter_mm=.3,removed_seven_exact_MASTER_control_pieces=removed,ground_surface_route=route,all_fixed_pads_quiet_force_and_original_ground_Cu_preserved=True,MASTER_must_be_physically_reconnected_before_acceptance=True,actual_refill_uncapped_connectivity_and_PDN_required=True,physical_qualified=False),indent=2)+'\n')
+if __name__=='__main__':main()

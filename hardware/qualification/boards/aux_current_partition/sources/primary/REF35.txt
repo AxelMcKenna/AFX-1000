@@ -1,0 +1,2590 @@
+                                                                                                                                              REF35
+                                                                                       SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+                           REF35 Ultra Low-Power, High-Precision Voltage Reference
+1 Features                                                                3 Description
+•   Ultra-low quiescent current:                                          The REF35 is a family of nanopower, low-drift, high-
+    – 650nA (typical)                                                     precision series reference devices. The REF35 family
+•   Initial accuracy: ±0.05% (maximum)                                    features ±0.05% initial accuracy with 650nA typical
+•   Temperature coefficient (maximum):                                    power consumption. The temperature coefficient
+    – 12ppm/°C (−40°C to 105°C, SOT23 package)                            (12ppm/°C) and long-term stability (40ppm at 1000
+    – 10ppm/°C (−40°C to 85°C, WCSP package)                              hours) of the device can help improve system stability
+•   Output 1/f noise (0.1Hz to 10Hz): 3.3ppmP-P                           and reliability. The low power consumption combined
+•   NR pin to reduce noise                                                with high precision specifications are designed for a
+•   EN pin to reduce shutdown current consumption                         wide variety of portable and low current applications.
+•   Long-term stability: 40ppm at 1k hour                                 The REF35 supplies up to 10mA current with
+•   Thermal hysteresis: 70ppm                                             3.3ppmp-p noise and 20ppm/mA load regulation. With
+•   Operating temperature range: −55°C to +125°C                          this feature set, REF35 creates a strong low-noise,
+•   Output current: +10mA, −5mA                                           high accuracy power supply for precision sensors and
+•   Input voltage: VREF + VDO to 6V                                       12–16b data converters.
+•   Output voltage options:
+    – 1.024V, 1.2V, 1.25V, 1.6V, 1.8V, 2.048V,                            The family is specified for operation from –40°C to
+        2.5V, 3.0V, 3.3V, 4.096V, 5.0V                                    105°C and is functional over –55°C to 125°C. The
+•   Small footprint 6-pin SOT−23 package                                  wide temperature is suited for industrial applications.
+•   Smallest footprint 4-pin WCSP package                                 REF35 is available in wide output voltage variants
+                                                                          starting from 1.024V to 5.0V. The device is offered
+2 Applications                                                            in a space-saving, 6-pin SOT-23 and 4-pin WCSP
+•   Flow transmitter                                                      package options. Contact your local TI sales
+•   Blood glucose monitor                                                 representative for available voltage and package
+•   Servo drive control module                                            options.
+•   Power quality analyzer
+                                                                                                 Package Information
+•   Fault indicator
+                                                                          PART NUMBER                 PACKAGE (1)         BODY SIZE (NOM) (2)
+•   Oscilloscope
+                                                                                                      SOT-23 (6)          2.90mm × 1.60mm
+•   Process analytics                                                     REF35xxx
+•   Optical Module                                                                                    WCSP (4)            1.05mm × 0.84mm
+
+                                                                          (1)     For all available voltage variants and packages, see the
+                                                                                  orderable addendum at the end of the data sheet.
+                                                                          (2)     The package size (length × width) is a nominal value and
+                                                                                  includes pins, where applicable.
+
+                     Connection Diagram                                         Typical Application Use Cases
+
+                                                                                                REF35                      REF35
+                           REF35
+
+                     EN
+    Input                                     Output            Current
+                                                                                                         R   
+                                                         
+                                                         R                              R
+                     VIN           VREF                                                                                REF         VDD
+                                                                SENSE
+                                               1 μF
+            0.1 μF                                                                                V
+                      GND          NR                                                                                  ADC / DAC
+                                                                  REF35
+                                                                                                           R
+                                                                                            R
+                            Optional             GND
+              GND
+                                                                                                                                   GND
+                                                                                                        GND
+                             GND        GND
+                                                          Amplifier Biasing             Sensor power supply
+                                                                                                                    Data Converter power supply
+                                                         CSA, INA, DFA etc            Bridge, Thermocouple etc
+
+                                                         REF35 Use Case
+
+
+
+
+     An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+     intellectual property matters and other important disclaimers. PRODUCTION DATA.
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                                                www.ti.com
+
+
+                                                                        Table of Contents
+1 Features............................................................................1   8 Detailed Description......................................................21
+2 Applications..................................................................... 1       8.1 Overview................................................................... 21
+3 Description.......................................................................1       8.2 Functional Block Diagram......................................... 21
+4 Device Comparison......................................................... 3              8.3 Feature Description...................................................21
+5 Pin Configuration and Functions...................................3                       8.4 Device Functional Modes .........................................22
+6 Specifications.................................................................. 4      9 Application and Implementation.................................. 24
+  6.1 Absolute Maximum Ratings........................................ 4                    9.1 Application Information............................................. 24
+  6.2 ESD Ratings............................................................... 4          9.2 Typical Applications.................................................. 24
+  6.3 Recommended Operating Conditions.........................4                            9.3 Power Supply Recommendations.............................27
+  6.4 Thermal Information....................................................4              9.4 Layout....................................................................... 27
+  6.5 Electrical Characteristics.............................................5            10 Device and Documentation Support..........................29
+  6.6 Electrical Characteristics YBH package......................6                         10.1 Documentation Support.......................................... 29
+  6.7 Typical Characteristics................................................ 8             10.2 Receiving Notification of Documentation Updates..29
+7 Parameter Measurement Information.......................... 15                            10.3 Support Resources................................................. 29
+  7.1 Solder Heat Shift.......................................................15            10.4 Trademarks............................................................. 29
+  7.2 Temperature Coefficient............................................16                 10.5 Electrostatic Discharge Caution..............................29
+  7.3 Long-Term Stability................................................... 16             10.6 Glossary..................................................................29
+  7.4 Thermal Hysteresis................................................... 17            11 Revision History.......................................................... 29
+  7.5 Noise Performance................................................... 18             12 Mechanical, Packaging, and Orderable
+  7.6 Power Dissipation..................................................... 20             Information.................................................................... 30
+
+
+
+
+2       Submit Document Feedback                                                                                         Copyright © 2024 Texas Instruments Incorporated
+
+                                                                       Product Folder Links: REF35
+                                                                                                                                         REF35
+www.ti.com                                                                              SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+4 Device Comparison
+                                                     PRODUCT
+                                                                                                            VREF
+                                  SOT-23 (6)                         WCSP (4)
+                             REF35102QDBVR                        REF35102YBHR                            1.024V
+                             REF35120QDBVR                        REF35120YBHR                              1.2V
+                             REF35125QDBVR                        REF35125YBHR                             1.25V
+                             REF35160QDBVR                        REF35160YBHR                              1.6V
+                             REF35170QDBVR                                -                                 1.7V
+                             REF35180QDBVR                        REF35180YBHR                              1.8V
+                             REF35205QDBVR                                -                               2.048V
+                             REF35250QDBVR                        REF35250YBHR                              2.5V
+                             REF35300QDBVR                        REF35300YBHR                              3.0V
+                             REF35330QDBVR                                -                                 3.3V
+                             REF35360QDBVR                                -                                 3.6V
+                             REF35409QDBVR                        REF35409YBHR                            4.096V
+                             REF35500QDBVR                                -                                 5.0V
+
+
+5 Pin Configuration and Functions
+
+                                                                                                  VREF                  VIN
+               GND            1                  6     VREF
+                                                                                                    A1                  A2
+
+
+               GND            2                  5     NR
+
+                                                                                                   GND                  EN
+                 EN           3                  4     VIN
+                                                                                                    B1                  B2
+
+
+                                  Not to scale
+                      Figure 5-1. DBV Package
+                            6-Pin SOT-23                                                                 Not to scale
+
+
+                              Top View                                                      Figure 5-2. YBH Package
+                                                                                                  4-Pin WCSP
+                                                                                                    Top View
+
+                                                            Table 5-1. Pin Functions
+                        PIN
+                                                         TYPE                                      DESCRIPTION
+    NAME            SOT-23                WCSP
+                                                                      Device ground connection. For DBV package pin 1 and pin 2 are
+     GND               1                    B1          Ground
+                                                                      internally short.
+     GND               2                     -          Ground        Device ground connection.
+      EN               3                    B2           Input        Enable connection. Enables or disables the device.
+     VIN               4                    A2          Power         Input supply voltage connection.
+                                                                      Noise reduction pin. Connect a capacitor to reduce noise. This pin can be
+      NR               5                     -          Output
+                                                                      left floating.
+    VREF               6                    A1          Output        Reference voltage output.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                 Submit Document Feedback          3
+                                                             Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                             www.ti.com
+
+6 Specifications
+6.1 Absolute Maximum Ratings
+over operating free-air temperature range (unless otherwise noted) (1)
+                                                                                                               MIN               MAX           UNIT
+    Input voltage                                                     IN                                       –0.3               6.5           V
+    Enable voltage                                                    EN                                       –0.3       IN + 0.3 (2)          V
+    Output voltage                                                    VREF                                     –0.3       IN + 0.3 (2)          V
+    Output short circuit current                                      ISC                                                          20          mA
+    Operating temperature range                                       TA                                       –55               125            °C
+    Storage temperature range                                         Tstg                                     –65               170            °C
+
+(1)        Operation outside the Absolute Maximum Ratings may cause permanent device damage. Absolute Maximum Ratings do not imply
+           functional operation of the device at these or any other conditions beyond those listed under Recommended Operating Conditions.
+           If used outside the Recommended Operating Conditions but within the Absolute Maximum Ratings, the device may not be fully
+           functional, and this may affect device reliability, functionality, performance, and shorten the device lifetime.
+(2)        IN + 0.3V or 6.5V, whichever is lower
+
+6.2 ESD Ratings
+                                                                                                                         VALUE                 UNIT
+                                                    Human body model (HBM), per ANSI/ESDA/JEDEC JS-001,
+                                                                                                                         ±2000
+                                                    all pins (1)
+    V(ESD)           Electrostatic discharge                                                                                                    V
+                                                    Charged device model (CDM), per ANSI/ESDA/JEDEC
+                                                                                                                          ±750
+                                                    JS-002, all pins (2)
+
+(1)        JEDEC document JEP155 states that 500V HBM allows safe manufacturing with a standard ESD control process.
+(2)        JEDEC document JEP157 states that 250V CDM allows safe manufacturing with a standard ESD control process.
+
+6.3 Recommended Operating Conditions
+over operating free-air temperature range (unless otherwise noted)
+                                                                                                MIN           NOM                  MAX          UNIT
+    IN            Input voltage (1)                                                 VOUT + VDO (2)                                        6      V
+    EN            Enable voltage                                                                  0                                      IN      V
+    IL            Output current                                                                 –5                                      10     mA
+    TA            Operating temperature                                                         –40              25                 125          °C
+
+(1)        For VREF = 1.024V to 1.5V, minimum VIN = 1.7V
+(2)        VDO = Dropout voltage
+
+6.4 Thermal Information
+                                                                                                      REF35
+                             THERMAL METRIC(1)                                      YBH (WCSP)                 DBV (SOT-23)                    UNIT
+                                                                                       4 PINS                         6 PINS
+    RθJA            Junction-to-ambient thermal resistance                              178.9                         164.4                    °C/W
+    RθJC(top)       Junction-to-case (top) thermal resistance                            1.1                          102.5                    °C/W
+    RθJB            Junction-to-board thermal resistance                                60.3                           59.6                    °C/W
+    ΨJT             Junction-to-top characterization parameter                           0.5                           44.0                    °C/W
+    ΨJB             Junction-to-board characterization parameter                        60.2                           59.4                    °C/W
+    RθJC(bot)       Junction-to-case (bottom) thermal resistance                         N/A                           N/A                     °C/W
+
+(1)        For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+           report.
+
+
+
+
+4          Submit Document Feedback                                                                     Copyright © 2024 Texas Instruments Incorporated
+
+                                                                Product Folder Links: REF35
+                                                                                                                                  REF35
+www.ti.com                                                                            SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+6.5 Electrical Characteristics
+At VIN = VREF + 0.5V, VEN = VIN, CL = 10µF, CIN = 0.1µF, IL = 0mA, minimum and maximum specifications at TA = –40℃ to
+125℃, typical specifications TA = 25℃; unless otherwise noted
+             PARAMETER                                   TEST CONDITION                           MIN        TYP       MAX       UNIT
+ ACCURACY AND DRIFT
+               Output voltage accuracy TA = 25℃                                                  –0.05                  0.05      %
+               Output voltage
+                                          –40℃ ≤ TA ≤ 105℃                                                                12    ppm/℃
+               temperature coefficient
+ LINE AND LOAD REGULATION
+                                          VREF < 2.5V; VIN = VREF + VDO to VINMAX; –40℃ ≤
+                                                                                                               40        160    ppm/V
+ ΔVREF/                                   TA ≤ 105℃
+               Line regulation
+ ΔVIN                                     VREF ≥ 2.5V; VIN = VREF + VDO to VINMAX; –40℃ ≤
+                                                                                                               40        120    ppm/V
+                                          TA ≤ 105℃
+                                          IL = 0mA to 10mA,
+                                                                   Source                                      20         60    ppm/mA
+                                          VIN = VREF + VDO
+ ΔVREF/ΔIL     Load regulation
+                                          IL = 0mA to 5mA,
+                                                                   Sink                                        40        350    ppm/mA
+                                          VIN = VREF + VDO
+ POWER SUPPLY
+ VIN           Input voltage (1)                                                            VREF + VDO                     6      V
+                                                                   TA = 25℃                                  0.65        0.9
+                                          Active mode              –40℃ ≤ TA ≤ 85℃                                       1.3
+ IQ            Quiescent current                                   –40℃ ≤ TA ≤ 125℃                                      2.6     µA
+                                                                   TA = 25℃                                              0.1
+                                          Shutdown mode
+                                                                   –40℃ ≤ TA ≤ 125℃                                      0.5
+                                          Active mode (EN = 1 or Float)                       0.7 x VIN
+ VEN           Enable pin voltage                                                                                                 V
+                                          Shutdown mode (EN = 0)                                                    0.3 x VIN
+ IEN           Enable pin current         VEN = VIN                                                          0.05        0.1      uA
+                                          IL = 5mA                                                                       120
+ VDO           Dropout voltage                                                                                                   mV
+                                          IL = 10mA                                                                      250
+               Short circuit current,
+ ISC                                      VREF = 0V, TA = 25℃                                                  33                mA
+               Sourcing
+               Short circuit current,
+ ISC                                      VREF = VIN V, TA = 25℃                                               21                mA
+               Sinking
+ TURN-ON TIME
+ tON           Turn-on time (2)           0.1% settling, CL = 1µF, VREF = 2.5V                                  2                ms
+ NOISE
+ en            Output voltage noise       ƒ = 10Hz to 1kHz, CL = 1µF                                          0.7               ppmrms
+                                          ƒ = 0.1Hz to 10Hz, VREF ≥ 2.5V                                      3.8               ppmp-p
+ enp-p         Low-frequency noise
+                                          ƒ = 0.1Hz to 10Hz, VREF < 2.5V                                      3.3               ppmp-p
+ HYSTERESIS AND LONG-TERM STABILITY
+               Long-term stability        0 to 1000h at 35°C                                                   40                ppm
+               Output voltage
+                                          25°C, –40°C, 105°C, 25°C (cycle 1)                                   70                ppm
+               hysteresis
+               Output voltage
+                                          25°C, –40°C, 105°C, 25°C (cycle 2)                                   20                ppm
+               hysteresis
+               Output voltage
+                                          25°C, –40°C, 85°C, 25°C (cycle 1)                                    50                ppm
+               hysteresis
+               Output voltage
+                                          25°C, –40°C, 85°C, 25°C (cycle 2)                                    13                ppm
+               hysteresis
+ STABLE CAPACITANCE RANGE
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                           Submit Document Feedback       5
+                                                          Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                  www.ti.com
+
+6.5 Electrical Characteristics (continued)
+At VIN = VREF + 0.5V, VEN = VIN, CL = 10µF, CIN = 0.1µF, IL = 0mA, minimum and maximum specifications at TA = –40℃ to
+125℃, typical specifications TA = 25℃; unless otherwise noted
+                 PARAMETER                                  TEST CONDITION                       MIN          TYP          MAX       UNIT
+                  Input capacitor range                                                           0.1                                 µF
+                  Output capacitor
+                                                                                                  0.1                         10      µF
+                  range (3)
+
+(1)         For VREF = 1.024V to 1.5V, minimum VIN = 1.7V
+(2)         Scales linearly with VREF.
+(3)         ESR for the capacitor <= 400mΩ
+
+6.6 Electrical Characteristics YBH package
+At VIN = VREF + 0.5V, VEN = VIN, CREF = 10µF, CIN = 0.1µF, IL = 0mA, minimum and maximum specifications at TA = –40℃ to
+125℃, typical specifications TA = 25℃; unless otherwise noted
+                 PARAMETER                                  TEST CONDITION                       MIN          TYP          MAX       UNIT
+    ACCURACY AND DRIFT
+                  Output voltage accuracy TA = 25℃                                              –0.05                       0.05       %
+                  Output voltage
+                                            –40℃ ≤ TA ≤ 85℃                                                                   10    ppm/℃
+                  temperature coefficient
+    LINE AND LOAD REGULATION
+
+    ΔVREF/                                  VREF < 2.5V; VIN = VREF + VDO to VINMAX                             40          160     ppm/V
+                  Line regulation
+    ΔVIN                                    VREF ≥ 2.5V; VIN = VREF + VDO to VINMAX                             40            80    ppm/V
+                                            IL = 0mA to 10mA,
+                                                                     Source                                     20            60   ppm/mA
+                                            VIN = VREF + VDO
+    ΔVREF/ΔIL     Load regulation
+                                            IL = 0mA to 5mA,
+                                                                     Sink                                       40          350    ppm/mA
+                                            VIN = VREF + VDO
+    POWER SUPPLY
+    VIN           Input voltage (1)                                                        VREF + VDO                          6       V
+                                                                     TA = 25℃                                 0.65           0.9
+                                            Active mode              –40℃ ≤ TA ≤ 85℃                                         1.3
+    IQ            Quiescent current                                  –40℃ ≤ TA ≤ 125℃                                        2.6      µA
+                                                                     TA = 25℃                                                0.1
+                                            Shutdown mode
+                                                                     –40℃ ≤ TA ≤ 125℃                                        0.5
+                                            Active mode (EN = 1 or Float)                    0.7 x VIN
+    VEN           Enable pin voltage                                                                                                   V
+                                            Shutdown mode (EN = 0)                                                     0.3 x VIN
+    IEN           Enable pin current        VEN = VIN                                                         0.05           0.1      uA
+                                            IL = 5mA                                                                        120
+    VDO           Dropout voltage                                                                                                     mV
+                                            IL = 10mA                                                                       250
+                  Short circuit current,
+    ISC                                     VREF = 0V, TA = 25℃                                                 30                    mA
+                  Sourcing
+                  Short circuit current,
+    ISC                                     VREF = VIN V, TA = 25℃                                              20                    mA
+                  Sinking
+    TURNON TIME
+    tON           Turn-on time (2)          0.1% settling, CREF = 1µF, VREF = 2.048V                             2                    ms
+    NOISE
+    en            Output voltage noise      ƒ = 10Hz to 1kHz                                                   0.7                  ppmrms
+                                            ƒ = 0.1Hz to 10Hz, VREF ≥ 2.5V                                     3.8                  ppmp-p
+    enp-p         Low frequency noise
+                                            ƒ = 0.1Hz to 10Hz, VREF < 2.5V                                     3.3                  ppmp-p
+    HYSTERESIS AND LONG-TERM STABILITY
+                  Long-term stability       0 to 1000h at 35°C                                                  40                   ppm
+
+
+6           Submit Document Feedback                                                             Copyright © 2024 Texas Instruments Incorporated
+
+                                                             Product Folder Links: REF35
+                                                                                                                              REF35
+www.ti.com                                                                          SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+6.6 Electrical Characteristics YBH package (continued)
+At VIN = VREF + 0.5V, VEN = VIN, CREF = 10µF, CIN = 0.1µF, IL = 0mA, minimum and maximum specifications at TA = –40℃ to
+125℃, typical specifications TA = 25℃; unless otherwise noted
+             PARAMETER                                  TEST CONDITION                         MIN        TYP       MAX     UNIT
+               Output voltage
+                                          25°C, –40°C, 125°C, 25°C (cycle 1)                               70               ppm
+               hysteresis
+ STABLE CAPACITANCE RANGE
+               Input capacitor range                                                            0.1                          µF
+               Output capacitor range
+               (3)                                                                              0.1                   10     µF
+
+
+(1)    For VREF = 1.024V to 1.5V, minimum VIN = 1.7V.
+(2)    Scales linearly with VREF.
+(3)    ESR for the capacitor can range from 10mΩ to 400mΩ.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                       Submit Document Feedback     7
+                                                          Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                                                                                    www.ti.com
+
+6.7 Typical Characteristics
+at TA = 25°C, VIN = VEN = VREF + 0.3V, IL = 0mA, CL = 10µF, CIN = 0.1µF (unless otherwise noted)
+
+                      1000                                                                                                           50
+                                       VREF = 5V            VREF = 2.5V        VREF = 1.25V                                                                      −40C to 85C           −40C to 105C
+
+                       750                                                                                                           40
+
+
+
+
+                                                                                                                   Population (%)
+                       500
+
+
+    Drift (ppm)
+                                                                                                                                     30
+
+                       250
+                                                                                                                                     20
+
+                           0
+                                                                                                                                     10
+
+                      -250
+                         -40                   0              40               80              120                                    0
+                                                       Te mperature (C)                                                                  0   1   2      3      4    5    6      7   8      9        10   11
+                     SOT23 Package                                                                                                                    Te mperature Coefficient (ppm/C)
+                     Figure 6-1. Output Voltage Drift vs Free-Air Temperature                                    SOT23 Package
+                                                                                                              Figure 6-2. Temperature Coefficient Distribution (VREF = 1.25V)
+                      60                                                                                                             50
+                                                                               −40C to 85C                                                                                             −40C to 85C
+                                                                               −40C to 105C                                                                                            −40C to 105C
+                      48                                                                                                             40
+
+
+
+
+    Population (%)                                                                                                 Population (%)
+                      36                                                                                                             30
+
+
+                      24                                                                                                             20
+
+
+                      12                                                                                                             10
+
+
+                       0                                                                                                              0
+                               0   1     2         3   4     5   6    7    8        9     10   11                                         0   1   2      3      4    5    6      7   8      9        10   11
+                                             Te mperature Coefficient (ppm/C)                                                                        Te mperature Coefficient (ppm/C)
+       SOT23 Package                                                                                                  SOT23 Package
+    Figure 6-3. Temperature Coefficient Distribution (VREF = 2.5V)                                                 Figure 6-4. Temperature Coefficient Distribution (VREF = 5.0V)
+                      500                                                                                                   5,000
+                                                           VREF = 1.024V        VREF = 1.8V                                                    VREF = 1.024V             VREF = 1.8V
+                                                           VREF = 1.2V                                                                         VREF = 1.2V
+                      300                                                                                                   3,800
+
+
+                      100
+
+
+    Drift (ppm)
+                                                                                                                            2,600
+
+
+                      -100                                                                           Drift (ppm)
+                                                                                                                            1,400
+
+                      -300
+                                                                                                                                    200
+
+                      -500
+                          -40                 0               40           80                  120                      -1,000
+                                                       Te mperature (C)                                                     -40                   -7             26          59                92             125
+                                                                                                                                                                 Te mperature (C)
+                     WCSP Package VREF < 2.5V (-40ºC to 85ºC)
+                     Figure 6-5. Output Voltage Drift vs Free-Air Temperature                                                       WCSP Package VREF < 2.5V (-40ºC to 125ºC)
+                                                                                                                                    Figure 6-6. Output Voltage Drift vs Free-Air Temperature
+
+
+
+
+8                     Submit Document Feedback                                                                                                               Copyright © 2024 Texas Instruments Incorporated
+
+                                                                                        Product Folder Links: REF35
+                                                                                                                                                                                                         REF35
+www.ti.com                                                                                                                                       SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+6.7 Typical Characteristics (continued)
+at TA = 25°C, VIN = VEN = VREF + 0.3V, IL = 0mA, CL = 10µF, CIN = 0.1µF (unless otherwise noted)
+
+                                                                                                                                  500
+                                                                                                                                                                      VREF = 2.5V           VREF = 4.096V
+                                                                                                                                                                      VREF = 3V
+                                                                                                                                  300
+
+
+                                                                                                                                  100
+
+
+                                                                                                                Drift (ppm)
+                                                                                                                                  -100
+
+
+                                                                                                                                  -300
+
+
+                                                                                                                                  -500
+                                                                                                                                     -40                    0              40               80           120
+                                                                                                                                                                    Te mperature (C)
+                    WCSP Package VREF < 2.5V (-40ºC to 85ºC)                                                                     WCSP Package VREF ≥ 2.5V (-40ºC to 85ºC)
+                      Figure 6-7. Temperature Coefficient Distribution                                                           Figure 6-8. Output Voltage Drift vs Free-Air Temperature
+                             5,000                                                                                                50
+                                                        VREF = 2.5V        VREF = 4.096V
+                                                        VREF = 3V
+                             3,800
+                                                                                                                                  40
+
+
+
+
+                                                                                                                Population (%)
+                             2,600
+
+
+   Drift (ppm)
+                                                                                                                                  30
+
+                             1,400
+                                                                                                                                  20
+
+                              200
+                                                                                                                                  10
+
+                       -1,000
+                             -40             -7        26          59         92         125
+                                                      Te mperature C)
+                                                                                                                                   0
+                                                                                                                                             0     1    2       3     4    5     6      7        8   9   10
+                 WCSP Package VREF ≥ 2.5V (-40ºC to 125ºC)                                                                                               Te mperature Coefficient (ppm/C)
+                 Figure 6-9. Output Voltage Drift vs Free-Air Temperature
+                                                                                                                                 WCSP Package VREF ≥ 2.5V (-40ºC to 85ºC)
+                                                                                                                                   Figure 6-10. Temperature Coefficient Distribution
+
+                              60                                                                                40
+                                                                                                                                                                                            CL = 10uF
+                                                                                                                                                                                            CL = 1uF
+                              48                                                                                32
+
+
+
+
+            Population (%)                                                                     Population (%)
+                              36                                                                                24
+
+
+                              24                                                                                16
+
+
+                              12                                                                                      8
+
+
+                               0                                                                                      0
+                                   -0.05    -0.03    -0.01       0.01      0.03       0.05                                       1.2     2       2.8 3.6 4.4 5.2     6    6.8 7.6 8.4 9.2 10 10.8
+                                                    Initial Accuracy (%)                                                                                    Noise Bin (ppmp-p)
+                                     Figure 6-11. Initial Accuracy Distribution                                                          Figure 6-12. 0.1Hz to 10Hz Noise Distribution
+                                                                                                                                             (VREF = 1.25V, CNR = Open, IL = 0mA)
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                                                           Submit Document Feedback             9
+                                                                                  Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                                                                                                          www.ti.com
+
+6.7 Typical Characteristics (continued)
+at TA = 25°C, VIN = VEN = VREF + 0.3V, IL = 0mA, CL = 10µF, CIN = 0.1µF (unless otherwise noted)
+
+                                       40                                                                                                 40
+                                                                                               CL= 10uF                                                                                                            CL = 10uF
+                                                                                               CL = 1uF                                                                                                            CL = 1uF
+                                       32                                                                                                 32
+
+
+
+
+                      Population (%)                                                                           Population (%)
+                                       24                                                                                                 24
+
+
+                                       16                                                                                                 16
+
+
+                                        8                                                                                                          8
+
+
+                                        0                                                                                                          0
+                                            1.2   2   2.8 3.6 4.4 5.2   6   6.8 7.6 8.4 9.2 10 10.8                                                    1.2       2       2.8 3.6 4.4 5.2     6       6.8 7.6 8.4 9.2 10 10.8
+                                                                Noise Bin (ppmp-p)                                                                                                   Noise Bin (ppmp-p)
+                                            Figure 6-13. 0.1Hz to 10Hz Noise Distribution                                                                  Figure 6-14. 0.1Hz to 10Hz Noise Distribution
+                                                 (VREF = 2.5V, CNR = Open, IL = 0mA)                                                                            (VREF = 5V, CNR = Open, IL = 0mA)
+
+                                       40                                                                                                          80
+                                                                                             CNR = Open                                                                                                                IL = 0mA
+                                                                                             CNR = 1uF                                                                                                                 IL = 1mA
+                                       32                                                    CNR = 10uF                                            64                                                                  IL = 10mA
+
+
+
+
+                      Population (%)                                                                                              Population (%)
+                                       24                                                                                                          48
+
+
+                                       16                                                                                                          32
+
+
+                                        8                                                                                                          16
+
+
+                                        0                                                                                                              0
+                                            1.2   2   2.8 3.6 4.4 5.2   6   6.8 7.6 8.4 9.2 10 10.8                                                        1.2       2     2.8 3.6 4.4 5.2       6     6.8 7.6 8.4 9.2 10 10.8
+                                                                Noise Bin (ppmp-p)                                                                                                     Noise Bin (ppmp-p)
+                                            Figure 6-15. 0.1Hz to 10Hz Noise Distribution                                                                  Figure 6-16. 0.1Hz to 10Hz Noise Distribution
+                                                  (VREF = 2.5V, CL = 1μF, IL = 0mA)                                                                             (VREF = 2.5V, CL = 1μF, CNR = Open)
+                                   750                                                                                                         1000
+                                                                                             CL = 0.1F                                                                                                               CL = 0.1F
+                                                                                             CL = 1F                                                                                                                 CL = 1F
+                                   600                                                       CL = 10F                                             800                                                                CL = 10F
+
+
+
+
+     Noise Density (nV/Hz)                                                                                      Noise Density (nV/Hz)
+                                   450                                                                                                             600
+
+
+
+                                   300                                                                                                             400
+
+
+
+                                   150                                                                                                             200
+
+
+
+                                       0                                                                                                                0
+                                        10               100         1000            10000          100000                                               10                    100            1000            10000          100000
+                                                                 Frequency (Hz)                                                                                                          Frequency (Hz)
+
+                                              Figure 6-17. Noise Density vs Frequency                                                                         Figure 6-18. Noise Density vs Frequency
+                                                       (VREF = 1.25V, IL = 0mA)                                                                                        (VREF = 2.5V, IL = 0mA)
+
+
+
+
+10                              Submit Document Feedback                                                                                                                             Copyright © 2024 Texas Instruments Incorporated
+
+                                                                                               Product Folder Links: REF35
+                                                                                                                                                                                                   REF35
+www.ti.com                                                                                                                                              SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+6.7 Typical Characteristics (continued)
+at TA = 25°C, VIN = VEN = VREF + 0.3V, IL = 0mA, CL = 10µF, CIN = 0.1µF (unless otherwise noted)
+
+                                                                                                                                              0
+
+
+
+
+                                                                                                         Load Regulation Sourcing (ppm/mA)
+                                                                                                                                              -2
+
+
+                                                                                                                                              -4
+
+
+                                                                                                                                              -6
+
+
+                                                                                                                                              -8
+
+
+                                                                                                                                             -10
+                                                                                                                                               -40              0           40           80        120
+                                               Figure 6-19. Noise Density vs Frequency                                                                               Te mperature (C)
+                                                         (VREF = 5V, IL = 0mA)                                              Figure 6-20. Load Regulation (Sourcing 10mA) vs Free-Air
+                                                                                                                                                  Temperature
+                                      75
+
+
+
+
+   Load Regulation Sinking (ppm/mA)
+                                      60
+                                                                                                                                                   IL = 1 mA
+
+
+                                      45
+
+                                                                                                                                                                          IL = -1 mA
+                                      30
+
+                                                                                                                                               VREF (50 mV/div)
+                                      15
+
+
+                                       0                                                                                                                            Time (1 ms/div)
+                                       -40                0            40           80          120
+                                                                Te mperature (C)                                                                       Figure 6-22. Load Transient Response
+                                      Figure 6-21. Load Regulation (Sinking 5mA) vs Free-Air                                                                   (VREF = 2.5V, CL = 10 μF)
+                                                          Temperature
+
+
+
+
+                                           IL = 10 mA                                                                                               IL = 1 mA
+
+                                                                      IL = -5 mA
+                                                                                                                                                                            IL = -1 mA
+
+
+
+
+                                           VREF (400 mV/div)                                                                                   VREF (100 mV/div)
+
+
+
+
+                                                               Time (1 ms/div)                                                                                      Time (1 ms/div)
+                                                 Figure 6-23. Load Transient Response                                                                   Figure 6-24. Load Transient Response
+                                                        (VREF = 2.5V, CL = 10 μF)                                                                               (VREF = 2.5V, CL = 1μF)
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                                                             Submit Document Feedback     11
+                                                                                         Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                                        www.ti.com
+
+6.7 Typical Characteristics (continued)
+at TA = 25°C, VIN = VEN = VREF + 0.3V, IL = 0mA, CL = 10µF, CIN = 0.1µF (unless otherwise noted)
+
+
+
+
+          IL = 10 mA                                                                                  IL = 1mA
+
+                                      IL = -5 mA
+                                                                                                                                    IL = -1mA
+
+
+
+
+        VREF (600 mV/div)                                                                            VREF (90mV/div)
+
+
+
+
+                               Time (1ms/div)                                                                               Time (1ms/div)
+              Figure 6-25. Load Transient Response                                                         Figure 6-26. Load Transient Response
+                      (VREF = 2.5V, CL = 1μF)                                                                     (VREF = 1.25V, CL = 1μF)
+                                                                                                50
+
+
+
+         IL = 10 mA                                                                             40
+
+
+
+
+                                                                      Line Regulation (ppm/V)
+                                       IL = -5 mA
+                                                                                                30
+
+
+                                                                                                20
+
+        VREF (650 mV/div)
+                                                                                                10
+
+
+
+                               Time (1ms/div)                                                   0
+                                                                                                -40                 0               40           80            120
+              Figure 6-27. Load Transient Response                                                                           Te mperature (C)
+                     (VREF = 1.25V, CL = 1μF)                                                   Figure 6-28. Line Regulation vs Free-Air Temperature
+
+
+
+         VIN (4.3V/div)                                                                              VIN (3V/div)
+
+
+
+        IL = 0mA (160mV/div)                                                                         IL = 0mA (100mV/div)
+
+
+
+        IL = 1mA (160mV/div)                                                                         IL = 1mA (100mV/div)
+
+
+
+
+                               Time (1ms/div)                                                                               Time (1ms/div)
+               Figure 6-29. Line Transient Response                                                         Figure 6-30. Line Transient Response
+                     (VREF = 1.25V, CL = 1 μF)                                                                     (VREF = 2.5V, CL = 1μF)
+
+
+
+
+12    Submit Document Feedback                                                                                          Copyright © 2024 Texas Instruments Incorporated
+
+                                                      Product Folder Links: REF35
+                                                                                                                                                                                                 REF35
+www.ti.com                                                                                                                                          SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+6.7 Typical Characteristics (continued)
+at TA = 25°C, VIN = VEN = VREF + 0.3V, IL = 0mA, CL = 10µF, CIN = 0.1µF (unless otherwise noted)
+
+                                 120                                                                                                     10000
+                                                                                       CIN=0.1F, CL=1F                                                                                CL = 0.1 F
+                                                                                                                                                                                        CL = 1 F
+                                                                                                                                          1000                                          CL = 10 F
+                                      90
+
+
+
+
+                                                                                                                  Output Impedance ()
+                                                                                                                                           100
+
+
+   PSRR (dB)
+                                      60
+                                                                                                                                            10
+
+
+
+                                      30                                                                                                        1
+
+
+
+                                                                                                                                          0.05
+                                      0                                                                                                       10        100    1000    10000   100000 1000000    1E+7
+                                       10            100       1000    10000    100000 1000000          1E+7                                                       Frequency (Hz)
+                                                                   Frequency (Hz)
+                                                                                                                                                       Figure 6-32. Output Impedance
+                                             Figure 6-31. Power Supply Rejection Ratio
+                                                       (VREF = 2.5V, IL = 0mA)
+                                  2.5
+
+
+                                      2
+
+
+
+
+   Quiescent current (A)
+                                  1.5
+
+
+                                      1
+
+
+                                  0.5
+
+
+                                      0
+                                       -40                 0             40               80                120
+                                                                  Te mperature (C)
+                            Figure 6-33. Quiescent Current vs Free-Air Temperature                                                       Figure 6-34. Dropout Voltage vs Free-Air Temperature
+
+                                      60                                                                                                 200
+                                                                                                                                         160
+
+                                      48                                                                                                 120
+
+
+
+
+                                                                                                                  VREF Stability (ppm)
+                                                                                                                                          80
+
+
+
+
+                     Population (%)
+                                      36                                                                                                  40
+                                                                                                                                           0
+                                                                                                                                          -40
+                                      24
+                                                                                                                                          -80
+                                                                                                                                         -120
+                                      12
+                                                                                                                                         -160
+                                                                                                                                         -200
+                                       0                                                                                                        0        400      800        1200      1600      2000
+                                             -0.03     -0.02    -0.01     0     0.01       0.02      0.03                                                            Time (hr)
+                                                                 Solder Heat Shift %
+                                                                                                                          Figure 6-36. Long Term Stability SOT23 - 2000 hours (VREF)
+                                             Figure 6-35. Solder Heat Shift Distribution
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                                                       Submit Document Feedback          13
+                                                                                                  Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                        www.ti.com
+
+6.7 Typical Characteristics (continued)
+at TA = 25°C, VIN = VEN = VREF + 0.3V, IL = 0mA, CL = 10µF, CIN = 0.1µF (unless otherwise noted)
+
+                                                        200
+
+                                                        150
+
+                                                        100
+
+
+
+
+                                 VREF Stability (ppm)
+                                                         50
+
+                                                          0
+
+                                                         -50
+
+                                                        -100
+
+                                                        -150
+
+                                                        -200
+                                                               0   400      800        1200      1600   2000
+                                                                               Time (hr)
+                                          Figure 6-37. Long Term Stability WCSP - 2000 hours (VREF)
+
+
+
+
+14    Submit Document Feedback                                                                          Copyright © 2024 Texas Instruments Incorporated
+
+                                                                   Product Folder Links: REF35
+                                                                                                                                                                   REF35
+www.ti.com                                                                                                            SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+7 Parameter Measurement Information
+7.1 Solder Heat Shift
+The materials used in the manufacture of the REF35 have differing coefficients of thermal expansion, resulting
+in stress on the device die when the part is heated. Mechanical and thermal stress on the device die can cause
+the output voltages to shift, degrading the initial accuracy specifications of the product. Reflow soldering is a
+common cause of this error.
+To illustrate this effect, a total of 32 devices were soldered on one printed circuit board using lead-free solder
+paste and the paste manufacturer suggested reflow profile. Figure 7-1 shows the reflow profile. The printed
+circuit board is comprised of FR4 material. The board thickness is 1.66mm and the area is
+174mm × 135mm.
+                                                               300
+
+
+                                                               250
+
+
+
+
+                                            Temperature (ƒC)
+                                                               200
+
+
+                                                               150
+
+
+                                                               100
+
+
+                                                                50
+
+
+                                                                 0
+                                                                     0       50       100      150       200    250    300    350    400
+                                                                                                    Time (seconds)                    C01
+
+
+
+                                                                             Figure 7-1. Reflow Profile
+
+The reference output voltage is measured before and after the reflow process; Figure 7-2 shows the typical
+shift. Although all tested units exhibit very low shifts (< 0.03%), higher shifts are also possible depending on the
+size, thickness, and material of the printed circuit board (PCB). An important note is that the histograms display
+the typical shift for exposure to a single reflow profile. Exposure to multiple reflows, as is common on PCBs
+with surface-mount components on both sides, causes additional shifts in the output bias voltage. If the PCB is
+exposed to multiple reflows, the device must be soldered in the last pass to minimize its exposure to thermal
+stress.
+                                                               60
+
+
+                                                               48
+
+
+
+
+                                             Population (%)
+                                                               36
+
+
+                                                               24
+
+
+                                                               12
+
+
+                                                                0
+                                                                     -0.03        -0.02     -0.01       0      0.01    0.02   0.03
+                                                                                             Solder Heat Shift %
+
+                                        Figure 7-2. Solder Heat Shift Distribution, VREF (%)
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                             Submit Document Feedback   15
+                                                                              Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                                                    www.ti.com
+
+7.2 Temperature Coefficient
+The REF35 is designed and tested for a low output voltage temperature coefficient. The temperature coefficient
+is defined as the change in output voltage over temperature. The temperature coefficient is calculated using the
+box method in which a box is formed by the minimum/maximum values for the nominal output voltage over the
+operating temperature range. REF35 has a low maximum temperature coefficient of 12ppm/°C from –40°C to
++105°C. The box method specifies limits for the temperature error but does not specify the exact shape and
+slope of the device under test. Due to temperature curvature correction to achieve low-temperature drift, the
+temperature drift is expected to be non-linear. See TI's Analog Design Journal, Precision voltage references, for
+more information on the box method. Use Equation 1 for the box method.
+
+                       §      VREF(MAX) VREF(MIN)       ·
+     Drift             ¨                                ¸ u 106
+                       ¨ VREF(25qC) u Temperature Range ¸
+                       ©                                ¹                                                                                                              (1)
+
+Figure 7-3 shows a typical voltage versus temperature curves for various reference voltages in SOT23 package.
+Figure 7-4 shows the distribution of temperature coefficients for REF35250 devices in SOT23 package.
+
+                    1000                                                                               60
+                             VREF = 5V      VREF = 2.5V      VREF = 1.25V                                                                               −40C to 85C
+                                                                                                                                                        −40C to 105C
+                     750                                                                               48
+
+
+
+
+                                                                                      Population (%)
+                     500
+
+
+      Drift (ppm)
+                                                                                                       36
+
+
+                     250
+                                                                                                       24
+
+                       0
+                                                                                                       12
+
+                    -250
+                       -40        0             40           80         120                            0
+                                         Te mperature (C)                                                  0   1   2      3    4    5    6    7    8       9   10    11
+        Figure 7-3. Output Voltage Drift Vs Free-Air                                                                    Te mperature Coefficient (ppm/C)
+
+                       Temperature                                                 Figure 7-4. Temperature Coefficient Distribution
+
+7.3 Long-Term Stability
+One of the key performance parameters of the REF35 references is long-term stability also known as long-term
+drift. The long-term stability value is tested in a setup that reflects standard PCB board manufacturing practices.
+The boards are made of standard FR4 material and the board does not have special cuts or grooves around the
+devices to relieve the mechanical stress of the PCB. The devices and boards in this test do not undergo high
+temperature burn in post-soldering prior to testing. These conditions reflect a real world use case scenario and
+common manufacturing techniques.
+During the long-term stability testing, precautions are taken to make sure that only the long-term stability drift
+is measured. The boards are maintained at 35°C in an oil bath. The oil bath makes sure that the temperature
+is constant across the device over time compared to an air oven. The measurements are captured every 30
+minutes with a calibrated 8.5 digit multimeter.
+The typical long-term stability characteristic is expressed as a deviation of the reference voltage output over
+time.
+Figure 7-5 shows that the typical drift value for the REF35 6-pin SOT-23 package is 40ppm from 0 to 1000
+hours and 55ppm from 0 to 2000 hours. It is important to understand that long-term stability is not ensured by
+design and that the value is typical. The REF35 will experience the highest drift in the initial 1000 hr. Subsequent
+deviation is typically lower than first 1000 hr.
+
+
+
+
+16      Submit Document Feedback                                                                                            Copyright © 2024 Texas Instruments Incorporated
+
+                                                                   Product Folder Links: REF35
+                                                                                                                                                                                                       REF35
+www.ti.com                                                                                                                                         SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+                            200                                                                                                   200
+                            160                                                                                                   150
+                            120
+                                                                                                                                  100
+
+
+
+
+     VREF Stability (ppm)                                                                                  VREF Stability (ppm)
+                             80
+                                                                                                                                   50
+                             40
+                                 0                                                                                                     0
+
+                             -40                                                                                                   -50
+                             -80
+                                                                                                                                  -100
+                            -120
+                                                                                                                                  -150
+                            -160
+                            -200                                                                                                  -200
+                                     0             400         800        1200        1600        2000                                     0            400          800        1200        1600      2000
+                                                                  Time (hr)                                                                                             Time (hr)
+
+                            SOT23 Package                                                                                         WCSP Package
+    Figure 7-5. Long Term Stability - 2000 hours (VREF)                                                  Figure 7-6. Long Term Stability - 2000 hours (VREF)
+
+
+7.4 Thermal Hysteresis
+Thermal hysteresis is measured with the REF35 soldered to a PCB, similar to a real-world application. Thermal
+hysteresis for the device is defined as the change in output voltage after operating the device at 25°C, cycling
+the device through the specified temperature range, and returning to 25°C. The PCB was baked at 150°C for 30
+minutes before thermal hysteresis was measured. Use Equation 2 to calculate the thermal hysteresis:
+
+                                             § | VPRE VPOST | ·     6
+                        VHYST                ¨                ¸ u 10 ppm
+                                             ©      VNOM      ¹                                                                                                                                       (2)
+
+where
+•              VHYST = thermal hysteresis (in units of ppm)
+•              VNOM = the specified output voltage
+•              VPRE = output voltage measured at 25°C pre-temperature cycling
+•              VPOST = output voltage measured after the device has cycled from 25°C through the specified temperature
+               range of –40°C to +85°C or –40°C to +105°C and returns to 25°C.
+The graphs below show the typical thermal hysteresis distribution across various temperature ranges in two
+cycles.
+
+                            50                                                                                                    50
+
+
+                            40                                                                                                    40
+
+
+
+
+    Population (%)                                                                                         Population (%)
+                            30                                                                                                    30
+
+
+                            20                                                                                                    20
+
+
+                            10                                                                                                    10
+
+
+                             0                                                                                                     0
+                                         0    10     20   30      40    50       60   70     80   90                                           0       10       20      30     40      50        60   70
+                                                    Thermal Hysteresis - Cycle 1 (ppm)                                                                      Thermal Hysteresis - Cycle 2 (ppm)
+                            Figure 7-7. Thermal Hysteresis Distribution                                                           Figure 7-8. Thermal Hysteresis Distribution
+                                       –40ºC to 85ºC, Cycle 1                                                                                –40ºC to 85ºC, Cycle 2
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                                                          Submit Document Feedback            17
+                                                                                           Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                                                           www.ti.com
+
+                      30                                                                                         50
+
+
+                      24                                                                                         40
+
+
+
+
+     Population (%)                                                                            Population (%)
+                      18                                                                                         30
+
+
+                      12                                                                                         20
+
+
+                       6                                                                                         10
+
+
+                       0                                                                                          0
+                           20    30   40     50    60    70   80   90 100 110 120 130                                    0     10     20      30     40        50   60    70    80
+                                         Thermal Hysteresis - Cycle 1 (ppm)                                                         Thermal Hysteresis - Cycle 2 (ppm)
+                      Figure 7-9. Thermal Hysteresis Distribution                                               Figure 7-10. Thermal Hysteresis Distribution
+                                –40ºC to 105ºC, Cycle 1                                                                   –40ºC to 105ºC, Cycle 2
+
+7.5 Noise Performance
+The reference pin output noise is categorized as low frequency and broadband noise. The following sections
+describe these categories in detail.
+7.5.1 Low-Frequency (1/f) Noise
+Flicker noise, also known as 1/f noise, is a low-frequency noise that affects the device output voltage which can
+affect precision measurements in ADCs. This noise increases proportionally with output voltage and operating
+temperature. Noise is measured by filtering the output from 0.1Hz to 10Hz. The 1/f noise is an extremely low
+value, therefore the frequency of interest must be amplified and band-pass filtered. This is done by using a
+high-pass filter to block the DC voltage. The resulting noise is then amplified by a gain of 1000. The bandpass
+filter is created by a series of high-pass and low-pass filter that adds additional gain to make it more visible
+on a oscilloscope as shown in Figure 7-11. Figure 7-12 shows the effect of flicker noise over 10 second for
+REF35250. Flicker noise must be tested in a Faraday cage enclosure to block environmental noise.
+                                Supply
+
+                                                  VIN              VREF
+                                      CIN         EN                                  Buffer                           High-pass                Low Noise
+                                                        REF35xxx              CL                                          Filter                Preamplifier
+                                                                                                                      Fc = 0.07Hz                G = 1000
+                                                  NR      GND
+
+
+                                            Optional
+
+
+
+                                                                GND
+
+
+
+
+                                               2nd Order                  2nd Order                             2nd Order
+                                               High-pass                  Low-pass                              Low-pass
+                                                  Filter                     Filter                                Filter                  Oscilloscope
+                                               Fc = 0.1Hz                 Fc = 10Hz                             Fc = 10Hz
+                                                 G = 10                    G = 10                                 G=1
+
+
+                                                            Figure 7-11. Low-Frequency (1/f) Noise Test Setup
+
+
+
+
+18                    Submit Document Feedback                                                                                             Copyright © 2024 Texas Instruments Incorporated
+
+                                                                              Product Folder Links: REF35
+                                                                                                                                                                               REF35
+www.ti.com                                                                                                             SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+
+
+                                       1V/div
+                                                                                                                                                        GND
+
+
+
+
+                                                                               Time (1sec/div)
+                                                                Figure 7-12. 0.1Hz to 10Hz Voltage Noise
+
+Figure 7-13 shows the typical 1/f noise (0.1Hz to 10Hz) distribution across various load conditions. REF35
+device also offers noise reduction functionality by adding an optional capacitor between NR (pin 5) and ground
+pins.
+
+Figure 7-14 shows the typical 1/f noise (0.1Hz to 10Hz) distribution across REF35 devices with various
+capacitance between NR pin and GND.
+
+                        80                                                                                      40
+                                                                           IL = 0mA                                                                               CNR = Open
+                                                                           IL = 1mA                                                                               CNR = 1uF
+                        64                                                 IL = 10mA                            32                                                CNR = 10uF
+
+
+
+
+       Population (%)                                                                          Population (%)
+                        48                                                                                      24
+
+
+                        32                                                                                      16
+
+
+                        16                                                                                       8
+
+
+                         0                                                                                       0
+                             1.2   2   2.8 3.6 4.4 5.2   6   6.8 7.6 8.4 9.2 10 10.8                                 1.2   2   2.8 3.6 4.4 5.2   6   6.8 7.6 8.4 9.2 10 10.8
+                                                 Noise Bin (ppmp-p)                                                                      Noise Bin (ppmp-p)
+
+    Figure 7-13. 0.1Hz to 10Hz Noise Distribution vs                                        Figure 7-14. 0.1Hz to 10Hz Noise Distribution vs
+                    Load Conditions                                                                         NR Capacitance
+
+7.5.2 Broadband Noise
+Broadband noise is a noise that appears at higher frequency compared to 1/f noise. The broadband noise is
+measured by high-pass filtering the output of the reference device, followed by a gain stage and measuring the
+result on a spectrum analyzer as shown in Figure 7-15.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                                  Submit Document Feedback         19
+                                                                            Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                                                       www.ti.com
+
+                                       Supply
+
+                                                         VIN               VREF
+                                                         EN                                           High-pass
+                                            CIN                                                          Filter            Amplifier                  Spectrum
+                                                                REF35xxx                    CL
+                                                                                                      Fc = 10Hz             G = 11                    Analyzer
+                                                                                                       G = 11
+                                                         NR        GND
+
+
+                                                  Optional
+
+
+
+                                                                         GND
+
+                                                                            Figure 7-15. Broadband Noise Test Setup
+
+For noise sensitive designs, a low-pass filter can be used to reduce broadband output noise. When designing
+a low-pass filter, take special care to make sure the output impedance of the filter does not degrade AC
+performance. This can occur in RC low-pass filters where a large series resistance can impact the load
+transients due to output current fluctuations. The REF35 device also offers noise reduction functionality by
+adding an optional capacitor between NR (pin 5) and ground pins. Figure 7-16 and Figure 7-17 show the noise
+spectrum for REF35250 and REF35500 devices respectively across various load capacitance.
+
+                                1000
+                                                                                        CL = 0.1F
+                                                                                        CL = 1F
+                                800                                                     CL = 10F
+
+
+
+
+       Noise Density (nV/Hz)
+                                600
+
+
+                                400
+
+
+                                200
+
+
+                                  0
+                                   10              100              1000        10000            100000
+                                                               Frequency (Hz)
+
+    Figure 7-16. Noise Spectrum 10Hz to 100kHz (VREF                                                          Figure 7-17. Noise Spectrum 10Hz to 100kHz (VREF
+                         = 2.5V)                                                                                                    = 5V)
+
+7.6 Power Dissipation
+The REF35 voltage references are capable of source up to 10mA and sink up to 5mA of load current across
+the rated input voltage range. However, when used in applications subject to high ambient temperatures, the
+input voltage and load current must be carefully monitored to make sure that the device does not exceeded
+its maximum power dissipation rating. The maximum power dissipation of the device can be calculated with
+Equation 3:
+
+      TJ                        TA       PD u RTJA                                                                                                                         (3)
+
+where
+•    PD is the device power dissipation
+•    TJ is the device junction temperature
+•    TA is the ambient temperature
+•    RθJA is the package (junction-to-air) thermal resistance
+Because of this relationship, acceptable load current in high temperature conditions can be less than the
+maximum current-sourcing capability of the device. In no case must the device be operated outside of its
+maximum power rating because doing so can result in premature failure or permanent damage to the device.
+
+
+
+20     Submit Document Feedback                                                                                                        Copyright © 2024 Texas Instruments Incorporated
+
+                                                                                             Product Folder Links: REF35
+                                                                                                                               REF35
+www.ti.com                                                                          SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+8 Detailed Description
+8.1 Overview
+The REF35 is family of ultra-low current, low-noise, precision band-gap voltage references that are specifically
+designed for excellent initial voltage accuracy and drift. The Functional Block Diagram is a simplified block
+diagram of the REF35 showing basic band-gap topology.
+8.2 Functional Block Diagram
+                                        VIN                              VIN
+
+                                           Rp
+                                                  EN           Digital
+                                                               Core
+                                      Rp for                                                 EN
+                                    Open Drain                                              Control
+                                    EN control                                 R
+                                                            Band-Gap
+                                                                                        Buffer        VREF
+                                                              Core
+
+
+
+
+                                                         GND                       NR
+
+8.3 Feature Description
+8.3.1 Supply Voltage
+The REF35 family of references features an extremely low dropout voltage. For 10mA loaded conditions, a
+maximum dropout voltage is 250mV. Figure 6-34 shows a typical dropout voltage (VDO) versus load current.
+The device supports operation with input voltage range from VREF + VDO to 6V. The typical quiescent current is
+650nA and maximum quiescent current over temperature is only 2.6μA. The low dropout voltage coupled with
+ultra-low current enable the operation across multiple battery powered applications.
+8.3.2 EN Pin
+The REF35 family supports device enable and disable functionality through logic level control on EN pin. The
+EN pin of REF35 does not use an internal pull-up resistor. Instead, the pin uses new 'clean EN' technology. This
+allows the EN pin to be in a no connect condition at start-up, and no extra current is drawn from the supply
+when the EN pin is pulled low in shutdown mode. When EN pin is pulled high or left unconnected at start-up, the
+device is in active mode. When EN pin is driven by an open-drain output, a pull-up resistor to VIN is required.
+The device must be in active mode for normal operation. The EN pin must not be pulled higher than VIN supply
+voltage.
+The device can be placed in shutdown mode by pulling the EN pin low. When in shutdown mode, the output
+of the device becomes high impedance and the quiescent current of the device drops to 100nA at room
+temperature. When changing the device state from shutdown to active state, make sure the EN pin is not left
+floating.
+Also note that for applications where EN pin is no-connect, total parasitic capacitance on EN pin must be
+restricted within 30pF.
+See the Electrical Characteristics table for logic high and logic low voltage levels.
+8.3.3 NR Pin
+The REF35 pin allows access to the band-gap through the NR pin. Placing a capacitor from the NR pin to
+GND creates a low-pass filter in combination with the internal resistance of 60 kΩ. Leakage of the capacitance
+directly impacts the accuracy and temperature drift. If NR functionality is used, choose a low leakage capacitor.
+A capacitance of 1μF creates a low-pass filter with corner frequency around 2.7Hz. Such a filter decreases the
+overall noise on the VREF pin. Higher capacitance results in a lower filter cut off frequency, further reducing
+output noise. Please note, using the capacitor on NR pin also increases start-up time.
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                         Submit Document Feedback   21
+                                                       Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                  www.ti.com
+
+8.4 Device Functional Modes
+8.4.1 Basic Connections
+Figure 8-1 shows the typical connections for the REF35. TI recommends a supply bypass capacitor (CIN)
+ranging from 0.1μF to 10μF. A 0.1μF to 10μF output capacitor (CL) must be connected from REF to GND. The
+equivalent series resistance (ESR) value of CL must be lower than 400mΩ to verify output stability.
+
+                                                    EN
+                                   AVDD                                                     REF
+                                                    VIN           REF35          VREF
+                                                                                             CL
+                                           CIN
+                                                     GND                         NR
+
+
+                                                                          Optional           GND
+                                            GND
+
+                                                           GND                        GND
+
+                                           Figure 8-1. Basic Connections
+
+8.4.2 Start-Up
+Figure 8-2 shows the start-up behavior of REF35250 device with 1μF load capacitance. REF35 device verifies
+the output voltage settles to the expected output voltage within specified accuracy without oscillations. The
+start-up time is dependent on the output voltage variant, output capacitance and NR pin capacitance. Higher
+capacitance leads to longer start-up time.
+
+
+
+
+                                                 VIN (1.5V/div)
+
+
+
+
+                                                 VREF (1.25V/div)
+
+
+
+
+                                                           Time (5 ms/div)
+
+                                 Figure 8-2. REF35250 Start-Up Behavior, C L = 1μF
+
+8.4.3 Output Transient Behavior
+The REF35 output buffer is capable of sourcing 10mA load current as well as sink 5mA of load current. The
+output stage is designed using class AB architecture with ultra-low quiescent current. This architecture avoids
+the dead zone around the no load condition. The output buffer uses a fast start-up implementation to achieve
+2ms typical turn-on time at CL = 1μF and no-load current condition.
+Figure 8-3 and Figure 8-4show the output settling behavior for light load transient and high load transient
+respectively.
+
+
+
+
+22    Submit Document Feedback                                                                    Copyright © 2024 Texas Instruments Incorporated
+
+                                                  Product Folder Links: REF35
+                                                                                                                         REF35
+www.ti.com                                                                     SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+
+
+                                        IL = 100A                      IL = 10mA
+       IL = 0A
+                                                                                            IL = 1mA
+
+
+
+
+       VREF (10mV/div)
+                                                                        VREF (75mV/div)
+
+
+
+
+                              Time (1ms/div)                                              Time (1ms/div)
+      Figure 8-3. Load Transient Response 0μA to                       Figure 8-4. Load Transient Response 1mA to
+                    100μA, C L = 1μF                                                 10mA, C L = 1μF
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                  Submit Document Feedback    23
+                                                     Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                       www.ti.com
+
+9 Application and Implementation
+                                                       Note
+      Information in the following applications sections is not part of the TI component specification, and
+      TI does not warrant its accuracy or completeness. TI’s customers are responsible for determining
+      suitability of components for their purposes. Customers should validate and test their design
+      implementation to confirm system functionality.
+
+9.1 Application Information
+REF35 with low current consumption and class leading performance specifications is suitable reference for
+multiple applications. The device can also be used as a precision low noise power supply to sensor or data
+converter instead of traditional LDO or DC/DC based power supply. Basic applications includes positive/negative
+voltage reference and data acquisition systems. The table below shows the typical application of REF35 and its
+companion ADC/DAC.
+                              Table 9-1. Typical Applications and Companion ADC/DAC
+                                  APPLICATIONS                                                     ADC/DAC
+                PLC - DCS                                                      ADS7028, DAC8881, ADS1287, ADS7953
+                Rack Server                                                             ADS7028, ADS7128, ADS7138
+                Field Transmitters - Pressure, Flow                                              ADS124S08
+                Optical Module, Optical Line Card                                            ADS7066, ADS7138
+                Power quality analyzer                                                             ADC3662
+                Thermal imaging                                                                    ADC3541
+
+
+9.2 Typical Applications
+
+9.2.1 Negative Reference Voltage
+For applications requiring a negative and positive reference voltage, the REF35 and OPA735 can be used to
+provide a dual-supply reference from a 5V supply. Figure 9-1 shows the REF35250 used to provide a 2.5V
+supply reference voltage. The low drift performance of the REF35250 complements the low offset voltage and
+zero drift of the OPA735 to provide an accurate solution for split-supply applications. Take care to match the
+temperature coefficients of R1 and R2.
+                                                      +5 V
+
+
+
+
+                                                        4    3
+
+                                              5     REF35250       6                          +2.5 V
+
+                                                        1    2
+
+                                                                        R1
+                                                                       10 k
+                                                                                      R2
+                                                                                     10 k
+
+
+                                                                              +5 V
+                                                                          -
+                                                                          OPA735              -2.5 V
+                                                                          +
+                                                                              -5 V
+                                                             GND
+
+
+               Figure 9-1. REF35 and OPA735 Create Positive and Negative Reference Voltages
+
+
+
+
+24    Submit Document Feedback                                                                         Copyright © 2024 Texas Instruments Incorporated
+
+                                                       Product Folder Links: REF35
+                                                                                                                                             REF35
+www.ti.com                                                                          SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+9.2.2 Precision Power Supply and Reference
+Figure 9-2 shows the basic configuration for the REF35 device as precision power supply to ADS7038 data
+converter which uses its power supply AVDD as reference. Connect bypass capacitors according to the
+guidelines in the Input and Output Capacitors section.
+                                                                                                   +6 V
+
+
+
+                                                                                            0.1 μF
+
+
+                                                                                            1 μF
+                                                                                                     4        3
+                                                                                        1
+                                                                                             REF35500             5
+                                                                                        2
+                                                                          GND                             6
+
+
+                                                                                               10 μF
+
+
+                                                                                               0.1 μF
+
+
+                                                                                                     AVDD
+                                                    -
+                                                                                            ADS7038
+                                      Input         +
+                                    0 V to 5 V
+
+                                                                                                                  GND
+                                                                                GND
+
+                                                  Figure 9-2. Basic Reference Connection
+
+9.2.2.1 Design Requirements
+A detailed design procedure is described based on a design example. For this design example, use the
+parameters listed in Table 9-2 as the input parameters.
+                                                  Table 9-2. Design Example Parameters
+                                   DESIGN PARAMETER                                            VALUE
+                    Input voltage range VIN                                                    0V - 5V
+                    Output resolution                                                              12-bit
+                    REF35 input capacitor                                                           1µF
+                    REF35 output capacitor                                                         10µF
+
+
+9.2.2.2 Detailed Design Procedure
+9.2.2.2.1 Selection of Reference
+The REF35500 reference is selected for this design. The REF35500 device operates of very low quiescent
+current while offering ±0.05% initial accuracy and very low noise. These parameters help improve system
+accuracy as compared to external LDO based power supply. The 5V reference voltage supports the 0V to 5V
+input range specification.
+9.2.2.2.2 Input and Output Capacitors
+A 1μF to 10μF electrolytic or ceramic capacitor can be connected to the input to improve transient response in
+applications where the supply voltage may fluctuate.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                       Submit Document Feedback   25
+                                                          Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                 www.ti.com
+
+
+A ceramic capacitor of at least a 0.1μF must be connected to the output to improve stability and help filter out
+high frequency noise. Add an additional 10μF capacitor in parallel to improve transient performance in response
+to sudden changes in load current; however, keep in mind that doing so increases the start-up time of the device.
+Best performance and stability is attained with low-ESR, low-inductance ceramic chip-type output capacitors
+(X5R, X7R, or similar). If using an electrolytic capacitor on the output, place a 0.1μF ceramic capacitor in parallel
+to reduce overall ESR on the output. Place the input and output capacitors as close as possible to the device.
+9.2.2.2.3 Selection of ADC
+ADS7038 12-bit 8 channel multiplexed ADC is chosen for this application. The ADC offers low current operation
+with averaging mode to increase the resolution to 16-bit with internal averaging modes while operating with slow
+sampling speed.
+9.2.2.3 Application Curves
+Table 9-3 and Figure 9-3 show the captured measurement results for various DC inputs. The ADC output is
+captured and analyzed for output accuracy error and code spread with REF35500 as power supply versus LDO
+as power supply.
+REF35 offers better accuracy and lower noise than the LDO device at lower quiescent current. This results in
+lower error in measurement as well as lower ADC output code variation across various OSR settings.
+                                   Table 9-3. DC Input Performance Test Results
+                                                        REF35500                                   LDO
+        INPUT V      ADC OSR SETTING
+                                               ERROR            CODE SPREAD         ERROR                CODE SPREAD
+         1.0V                 0                0.01mV               32 LSB           8.9mV                    48 LSB
+                              8                 0.3mV               10 LSB           9.21mV                   16 LSB
+                             128               0.38mV                6 LSB           9.26mV                    6 LSB
+         2.5V                 0                0.69mV               32 LSB          22.89mV                   64 LSB
+                              8                1.44mV               10 LSB          23.63mV                   18 LSB
+                             128               1.17mV                3 LSB          23.41mV                    5 LSB
+          4V                  0                2.27mV               32 LSB          37.84mV                   48 LSB
+                              8                3.01mV               24 LSB          38.62mV                   24 LSB
+                             128               2.46mV                3 LSB          38.09mV                   17 LSB
+
+
+
+
+26    Submit Document Feedback                                                   Copyright © 2024 Texas Instruments Incorporated
+
+                                                Product Folder Links: REF35
+                                                                                                                           REF35
+www.ti.com                                                                       SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+                                  50
+                                            REF35-OSR0                  LDO-OSR0
+                                            REF35-OSR8                  LDO-OSR8
+                                  40        REF35-OSR128                LDO-OSR128
+
+
+
+                                  30
+
+
+                     Error (mV)
+                                  20
+
+
+                                  10
+
+
+                                   0
+                                       0          1            2           3                   4              5
+                                                             Input voltage (V)
+                                                  Figure 9-3. Error vs Input Voltage
+
+9.3 Power Supply Recommendations
+The REF35 family of references feature an extremely low-dropout voltage. These references can be operated
+with a supply of only 50mV above the output voltage at no load. TI recommends a supply bypass capacitor
+ranging between 0.1µF to 10µF.
+9.4 Layout
+9.4.1 Layout Guidelines
+Figure 9-4 shows an example of a PCB layout for a data acquisition system using the REF35. Some key
+considerations are:
+• Connect low-ESR, 0.1μF ceramic bypass capacitors at VIN, VREF of the REF35.
+• Decouple other active devices in the system per the device specifications.
+• Using a solid ground plane helps distribute heat and reduces electromagnetic interference (EMI) noise
+   pickup.
+• Place the external components as close to the device as possible.
+• Do not run sensitive analog traces in parallel with digital traces. Avoid crossing digital and analog traces if
+   possible, and only make perpendicular crossings when absolutely necessary.
+Figure 9-5 shows the pin compatibility with TI REF30xx, REF31xx and REF33xx series references in the 3-pin
+SOT-23 package when using the REF35xxx family footprint. You must rotate the REF30xx, REF31xx and
+REF33xx reference devices by 180º before assembly.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                    Submit Document Feedback    27
+                                                       Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                                      www.ti.com
+
+9.4.2 Layout Examples
+
+
+                                          C                                                                                    C
+
+
+
+
+                       GND    1                     6     VREF                                              GND    1               6     VREF     OUT (Pin 2)
+
+                                                                                                                          REF35
+                                                                                                                          REF30
+                       GND    2                     5      NR                                 GND (Pin 3)   GND    2               5      NR
+                                                                                                                          REF31
+                                                                                                                          REF33
+
+                        EN    3                     4      VIN                                               EN    3               4      VIN     IN (Pin 1)
+
+
+
+                             C Optional                                                                           C Optional
+
+
+                                           C                                                                                   C
+
+                                                        Not to scale                                                                   Not to scale
+      Figure 9-4. Layout Example - DBV package                                          Figure 9-5. Pin Compatibility With REF30xx,
+                                                                                                   REF31xx and REF33xx
+
+                                                        GND                      C
+
+
+
+
+                                                                        VREF                    VIN
+
+
+                                                                          A1                    A2
+
+
+
+                                                   C
+
+                                                                         GND                    EN
+
+
+
+                                          GND
+                                                                          B1                    B2
+
+
+
+
+                                                                               Not to scale
+
+                                                Figure 9-6. Layout Example - YBH package
+
+
+
+
+28    Submit Document Feedback                                                                                    Copyright © 2024 Texas Instruments Incorporated
+
+                                                                 Product Folder Links: REF35
+                                                                                                                                                             REF35
+www.ti.com                                                                                         SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+10 Device and Documentation Support
+10.1 Documentation Support
+10.1.1 Related Documentation
+For related documentation see the following:
+•    Texas Instruments, INA21x Voltage Output, Low- or High-Side Measurement, Bidirectional, Zero-Drift Series,
+     Current-Shunt Monitors data sheet
+•    Texas Instruments, Low-Drift Bidirectional Single-Supply Low-Side Current Sensing Reference Design
+•    Texas Instruments, Precision voltage references Analog Design Journal
+10.2 Receiving Notification of Documentation Updates
+To receive notification of documentation updates, navigate to the device product folder on ti.com. Click on
+Notifications to register and receive a weekly digest of any product information that has changed. For change
+details, review the revision history included in any revised document.
+10.3 Support Resources
+TI E2E™ support forums are an engineer's go-to source for fast, verified answers and design help — straight
+from the experts. Search existing answers or ask your own question to get the quick design help you need.
+Linked content is provided "AS IS" by the respective contributors. They do not constitute TI specifications and do
+not necessarily reflect TI's views; see TI's Terms of Use.
+10.4 Trademarks
+TI E2E™ is a trademark of Texas Instruments.
+All trademarks are the property of their respective owners.
+10.5 Electrostatic Discharge Caution
+                     This integrated circuit can be damaged by ESD. Texas Instruments recommends that all integrated circuits be handled
+                     with appropriate precautions. Failure to observe proper handling and installation procedures can cause damage.
+                     ESD damage can range from subtle performance degradation to complete device failure. Precision integrated circuits may
+                     be more susceptible to damage because very small parametric changes could cause the device not to meet its published
+                     specifications.
+
+
+10.6 Glossary
+ TI Glossary               This glossary lists and explains terms, acronyms, and definitions.
+
+11 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+
+Changes from Revision B (April 2024) to Revision C (September 2024)                                                                          Page
+• Updated YBH Package dimensions..................................................................................................................30
+
+
+
+Changes from Revision A (August 2022) to Revision B (April 2024)                                                                                              Page
+• Added features description for WCSP package................................................................................................. 1
+• Removed product preview status for WCSP package........................................................................................1
+• Added REF35170QBVR & REF35360QDBVR devices as released variant. Updated the WCSP device
+  release options................................................................................................................................................... 3
+• Added more details to device pin external connections..................................................................................... 3
+• Added YBH package performance details.........................................................................................................6
+• Added typical characteristics for WCSP package.............................................................................................. 8
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                             Submit Document Feedback               29
+                                                                 Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                                 www.ti.com
+
+
+Changes from Revision * (December 2021) to Revision A (August 2022)                                                                                     Page
+• Production data release......................................................................................................................................1
+
+
+12 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical packaging and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+30     Submit Document Feedback                                                                                Copyright © 2024 Texas Instruments Incorporated
+
+                                                               Product Folder Links: REF35
+                                                                                                                                                                   REF35
+www.ti.com                                                                                                         SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+
+
+                                                                                                                            PACKAGE OUTLINE
+                 YBH0004-C01                                                   SCALE 12.000
+                                                                                                                       DSBGA - 0.4 mm max height
+                                                                                                                                      DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                      B                   E                                    A
+
+
+
+
+                                              BALL A1
+                                             CORNER
+
+                                                                                                               D
+
+
+
+
+                                                                                                                   C
+                                          0.4 MAX
+
+                                                                                                                         SEATING PLANE
+                                              0.16                            BALL TYP                                 0.05 C
+                                              0.10
+
+
+
+
+                                                                         0.4
+                                                                         TYP
+
+
+
+                                                           B
+                                                                                                                         D: Max = 0.870 mm, Min = 0.810 mm
+                                                  0.4                                                     SYMM
+                                                                                                                          E: Max = 1.085 mm, Min = 1.025 mm
+                                                  TYP
+
+
+                                                           A
+
+
+                                                       0.225        1                         2
+                                                 4X                     SYMM
+                                                       0.185
+                                         0.015        C A B
+
+
+
+
+                                                                                                                                               4231184/A 08/2024
+
+                NOTES:
+
+                1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+                   per ASME Y14.5M.
+                2. This drawing is subject to change without notice.
+
+
+
+
+                                                                                                  www.ti.com
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                            Submit Document Feedback   31
+                                                                  Product Folder Links: REF35
+REF35
+SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024                                                                                                   www.ti.com
+
+
+
+
+                                                                                                EXAMPLE BOARD LAYOUT
+             YBH0004-C01                                                                               DSBGA - 0.4 mm max height
+                                                                                                                        DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                                              (0.4) TYP
+                                                 4X ( 0.2)
+                                                                          1               2
+
+
+                                                                    A
+                                                                                                SYMM
+                                                        (0.4) TYP
+
+                                                                    B
+
+
+
+                                                                               SYMM
+
+
+                                                                LAND PATTERN EXAMPLE
+                                                                    EXPOSED METAL SHOWN
+                                                                         SCALE: 50X
+
+
+
+
+                                                              0.05 MAX                    0.05 MIN                 METAL UNDER
+                                  ( 0.2)                                                                           SOLDER MASK
+                                  METAL
+
+                                                             EXPOSED                                               ( 0.2)
+                          SOLDER MASK                                                 EXPOSED
+                                                             METAL                                                 SOLDER MASK
+                              OPENING                                                   METAL                      OPENING
+                                                                                                     SOLDER MASK
+                                           NON-SOLDER MASK                                             DEFINED
+                                               DEFINED                                               (PREFERRED)
+
+
+                                                                SOLDER MASK DETAILS
+                                                                         NOT TO SCALE
+
+                                                                                                                                4231184/A 08/2024
+
+             NOTES: (continued)
+
+             3. Final dimensions may vary due to manufacturing tolerance considerations and also routing constraints.
+                See Texas Instruments Literature No. SNVA009 (www.ti.com/lit/snva009).
+
+
+
+
+                                                                               www.ti.com
+
+
+
+
+32    Submit Document Feedback                                                                                   Copyright © 2024 Texas Instruments Incorporated
+
+                                                              Product Folder Links: REF35
+                                                                                                                                                     REF35
+www.ti.com                                                                                            SNAS809C – DECEMBER 2021 – REVISED SEPTEMBER 2024
+
+
+
+
+                                                                                                    EXAMPLE STENCIL DESIGN
+                 YBH0004-C01                                                                              DSBGA - 0.4 mm max height
+                                                                                                                         DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                                                    (0.4) TYP
+
+                                                         4X ( 0.21)                                      (R0.05) TYP
+
+                                                                                1               2
+
+
+                                                                        A
+                                                                                                     SYMM
+                                                           (0.4) TYP
+
+                                                                        B
+
+
+                                                             METAL
+                                                               TYP                   SYMM
+
+
+                                                                       SOLDER PASTE EXAMPLE
+                                                                   BASED ON 0.075 mm THICK STENCIL
+                                                                             SCALE: 50X
+
+
+
+
+                                                                                                                                 4231184/A 08/2024
+
+                NOTES: (continued)
+
+                 4. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release.
+
+
+
+
+                                                                                     www.ti.com
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                              Submit Document Feedback   33
+                                                                   Product Folder Links: REF35
+                                                                                                                                PACKAGE OPTION ADDENDUM
+
+  www.ti.com                                                                                                                                                   23-Jan-2026
+
+
+
+
+PACKAGING INFORMATION
+
+ Orderable part number   Status   Material type   Package | Pins     Package qty | Carrier   RoHS      Lead finish/       MSL rating/        Op temp (°C)   Part marking
+                           (1)         (2)                                                    (3)      Ball material      Peak reflow                            (6)
+                                                                                                            (4)                (5)
+
+    REF35102QDBVR        Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2RTI
+   REF35102QDBVR.A       Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2RTI
+     REF35102YBHR        Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         M
+    REF35102YBHR.A       Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         M
+    REF35120QDBVR        Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2RVI
+   REF35120QDBVR.A       Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2RVI
+     REF35120YBHR        Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         A
+    REF35120YBHR.A       Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         A
+    REF35125QDBVR        Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2RUI
+   REF35125QDBVR.A       Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2RUI
+     REF35125YBHR        Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         L
+    REF35125YBHR.A       Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         L
+    REF35160QDBVR        Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125        2UII
+   REF35160QDBVR.A       Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125        2UII
+     REF35160YBHR        Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         C
+    REF35160YBHR.A       Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         C
+    REF35170QDBVR        Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       31QI
+   REF35170QDBVR.A       Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       31QI
+    REF35180QDBVR        Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125        2J2I
+   REF35180QDBVR.A       Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125        2J2I
+     REF35180YBHR        Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         9
+    REF35180YBHR.A       Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         9
+    REF35205QDBVR        Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2UKI
+   REF35205QDBVR.A       Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2UKI
+    REF35250QDBVR        Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2RSI
+   REF35250QDBVR.A       Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2RSI
+     REF35250YBHR        Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         B
+    REF35250YBHR.A       Active    Production     DSBGA (YBH) | 4    12000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 125         B
+    REF35300QDBVR        Active    Production     SOT-23 (DBV) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-2-260C-1 YEAR    -40 to 125       2SLI
+
+
+                                                                                     Addendum-Page 1
+                                                                                                                                                                     PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                   23-Jan-2026
+
+
+
+
+       Orderable part number          Status     Material type      Package | Pins      Package qty | Carrier       RoHS             Lead finish/               MSL rating/          Op temp (°C)               Part marking
+                                        (1)            (2)                                                            (3)            Ball material              Peak reflow                                           (6)
+                                                                                                                                          (4)                       (5)
+
+        REF35300QDBVR.A               Active      Production       SOT-23 (DBV) | 6      3000 | LARGE T&R            Yes             NIPDAUAG           Level-2-260C-1 YEAR            -40 to 125                    2SLI
+          REF35300YBHR                Active      Production       DSBGA (YBH) | 4       12000 | LARGE T&R           Yes               SNAGCU            Level-1-260C-UNLIM            -40 to 125                     S
+         REF35300YBHR.A               Active      Production       DSBGA (YBH) | 4       12000 | LARGE T&R           Yes               SNAGCU            Level-1-260C-UNLIM            -40 to 125                     S
+         REF35330QDBVR                Active      Production       SOT-23 (DBV) | 6      3000 | LARGE T&R            Yes             NIPDAUAG           Level-2-260C-1 YEAR            -40 to 125                    2ULI
+        REF35330QDBVR.A               Active      Production       SOT-23 (DBV) | 6      3000 | LARGE T&R            Yes             NIPDAUAG           Level-2-260C-1 YEAR            -40 to 125                    2ULI
+         REF35360QDBVR                Active      Production       SOT-23 (DBV) | 6      3000 | LARGE T&R            Yes             NIPDAUAG           Level-2-260C-1 YEAR            -40 to 125                    31RI
+        REF35360QDBVR.A               Active      Production       SOT-23 (DBV) | 6      3000 | LARGE T&R            Yes             NIPDAUAG           Level-2-260C-1 YEAR            -40 to 125                    31RI
+         REF35409QDBVR                Active      Production       SOT-23 (DBV) | 6      3000 | LARGE T&R            Yes             NIPDAUAG           Level-2-260C-1 YEAR            -40 to 125                   2UMI
+        REF35409QDBVR.A               Active      Production       SOT-23 (DBV) | 6      3000 | LARGE T&R            Yes             NIPDAUAG           Level-2-260C-1 YEAR            -40 to 125                   2UMI
+          REF35409YBHR                Active      Production       DSBGA (YBH) | 4       12000 | LARGE T&R           Yes               SNAGCU            Level-1-260C-UNLIM            -40 to 125                     T
+         REF35409YBHR.A               Active      Production       DSBGA (YBH) | 4       12000 | LARGE T&R           Yes               SNAGCU            Level-1-260C-UNLIM            -40 to 125                     T
+         REF35500QDBVR                Active      Production       SOT-23 (DBV) | 6      3000 | LARGE T&R            Yes             NIPDAUAG           Level-2-260C-1 YEAR            -40 to 125                   2RWI
+        REF35500QDBVR.A               Active      Production       SOT-23 (DBV) | 6      3000 | LARGE T&R            Yes             NIPDAUAG           Level-2-260C-1 YEAR            -40 to 125                   2RWI
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+
+
+
+                                                                                                          Addendum-Page 2
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+    www.ti.com                                                                                                                                                                                                    23-Jan-2026
+
+
+
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+OTHER QUALIFIED VERSIONS OF REF35 :
+
+• Automotive : REF35-Q1
+
+NOTE: Qualified Version Definitions:
+
+        • Automotive - Q100 devices qualified for high-reliability automotive applications targeting zero defects
+
+
+
+
+                                                                                                          Addendum-Page 3
+                                                                               PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                                                       25-Sep-2024
+
+
+
+TAPE AND REEL INFORMATION
+
+       REEL DIMENSIONS                                                                      TAPE DIMENSIONS
+                                                                                       K0         P1
+
+
+
+                                                                                                                         B0 W
+                                         Reel
+                                       Diameter
+                                                                                    Cavity             A0
+                                                                A0   Dimension designed to accommodate the component width
+                                                                B0   Dimension designed to accommodate the component length
+                                                                K0   Dimension designed to accommodate the component thickness
+                                                                W    Overall width of the carrier tape
+                                                                P1   Pitch between successive cavity centers
+
+
+                                        Reel Width (W1)
+                              QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                        Sprocket Holes
+
+
+                                                  Q1       Q2          Q1    Q2
+
+                                                  Q3       Q4          Q3    Q4                    User Direction of Feed
+
+
+
+                                                            Pocket Quadrants
+
+
+*All dimensions are nominal
+             Device           Package Package Pins              SPQ       Reel   Reel   A0                     B0         K0     P1     W     Pin1
+                               Type Drawing                             Diameter Width (mm)                   (mm)       (mm)   (mm)   (mm) Quadrant
+                                                                          (mm) W1 (mm)
+    REF35102QDBVR             SOT-23     DBV           6        3000        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+     REF35102YBHR             DSBGA      YBH           4        12000       180.0           8.4        0.94   1.17       0.45   2.0    8.0     Q2
+    REF35120QDBVR             SOT-23     DBV           6        3000        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+     REF35120YBHR             DSBGA      YBH           4        12000       180.0           8.4        0.94   1.17       0.45   2.0    8.0     Q2
+    REF35125QDBVR             SOT-23     DBV           6        3000        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+     REF35125YBHR             DSBGA      YBH           4        12000       180.0           8.4        0.94   1.17       0.45   2.0    8.0     Q2
+    REF35160QDBVR             SOT-23     DBV           6        3000        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+     REF35160YBHR             DSBGA      YBH           4        12000       180.0           8.4        0.94   1.17       0.45   2.0    8.0     Q2
+    REF35170QDBVR             SOT-23     DBV           6        3000        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+    REF35180QDBVR             SOT-23     DBV           6        3000        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+     REF35180YBHR             DSBGA      YBH           4        12000       180.0           8.4        0.94   1.17       0.45   2.0    8.0     Q2
+    REF35205QDBVR             SOT-23     DBV           6        3000        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+    REF35250QDBVR             SOT-23     DBV           6        3000        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+     REF35250YBHR             DSBGA      YBH           4        12000       180.0           8.4        0.94   1.17       0.45   2.0    8.0     Q2
+    REF35300QDBVR             SOT-23     DBV           6        3000        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+     REF35300YBHR             DSBGA      YBH           4        12000       180.0           8.4        0.94   1.17       0.45   2.0    8.0     Q2
+
+
+
+
+                                                                      Pack Materials-Page 1
+                                                           PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                       25-Sep-2024
+
+
+
+             Device   Package Package Pins   SPQ       Reel   Reel   A0            B0     K0     P1     W     Pin1
+                       Type Drawing                  Diameter Width (mm)          (mm)   (mm)   (mm)   (mm) Quadrant
+                                                       (mm) W1 (mm)
+    REF35330QDBVR     SOT-23   DBV     6     3000      180.0      8.4      3.23   3.17   1.37   4.0    8.0     Q3
+    REF35360QDBVR     SOT-23   DBV     6     3000      180.0      8.4      3.23   3.17   1.37   4.0    8.0     Q3
+    REF35409QDBVR     SOT-23   DBV     6     3000      180.0      8.4      3.23   3.17   1.37   4.0    8.0     Q3
+     REF35409YBHR     DSBGA    YBH     4     12000     180.0      8.4      0.94   1.17   0.45   2.0    8.0     Q2
+    REF35500QDBVR     SOT-23   DBV     6     3000      180.0      8.4      3.23   3.17   1.37   4.0    8.0     Q3
+
+
+
+
+                                                   Pack Materials-Page 2
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                               25-Sep-2024
+
+
+
+ TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                               Width (mm)
+                                                                               H
+
+
+
+
+                      W                                   L
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins         SPQ     Length (mm)   Width (mm)   Height (mm)
+    REF35102QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+     REF35102YBHR               DSBGA             YBH           4           12000      182.0        182.0         20.0
+    REF35120QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+     REF35120YBHR               DSBGA             YBH           4           12000      182.0        182.0         20.0
+    REF35125QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+     REF35125YBHR               DSBGA             YBH           4           12000      182.0        182.0         20.0
+    REF35160QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+     REF35160YBHR               DSBGA             YBH           4           12000      182.0        182.0         20.0
+    REF35170QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+    REF35180QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+     REF35180YBHR               DSBGA             YBH           4           12000      182.0        182.0         20.0
+    REF35205QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+    REF35250QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+     REF35250YBHR               DSBGA             YBH           4           12000      182.0        182.0         20.0
+    REF35300QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+     REF35300YBHR               DSBGA             YBH           4           12000      182.0        182.0         20.0
+    REF35330QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+    REF35360QDBVR               SOT-23            DBV           6           3000       213.0        191.0         35.0
+
+
+
+
+                                                        Pack Materials-Page 3
+                                                        PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                   25-Sep-2024
+
+
+
+             Device   Package Type   Package Drawing   Pins     SPQ     Length (mm)   Width (mm)   Height (mm)
+    REF35409QDBVR       SOT-23            DBV           6       3000       213.0        191.0         35.0
+     REF35409YBHR       DSBGA             YBH           4      12000       182.0        182.0         20.0
+    REF35500QDBVR       SOT-23            DBV           6       3000       213.0        191.0         35.0
+
+
+
+
+                                                Pack Materials-Page 4
+                                                                                                          PACKAGE OUTLINE
+DBV0006A                                                         SCALE 4.000
+                                                                                                   SOT-23 - 1.45 mm max height
+                                                                                                            SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                               3.0                                                                C
+                                               2.6
+                                            1.75                                                              0.1 C
+                                                             B                      A
+                                            1.45
+               PIN 1
+         INDEX AREA
+
+                             1
+                                                                               6
+
+
+                   2X 0.95
+                                                                                   3.05
+                                                                                   2.75
+          1.9                                                                  5
+                             2
+
+
+
+
+                                                                               4
+                                 3
+                   0.50
+              6X
+                   0.25
+                                                                                                                           0.15
+        0.2        C A B                                                                       4X 0 -15       (1.1)             TYP
+                                                                                                                           0.00
+                                                                                                               1.45
+                                                                                                               0.90
+                                                              4X 4 -15
+
+
+
+              0.25
+   GAGE PLANE                                                                           0.22
+                                                                                             TYP
+                                                                                        0.08
+
+
+
+     8
+       TYP                           0.6
+     0                                   TYP           SEATING PLANE
+                                     0.3
+
+
+
+
+                                                                                                                      4214840/G 08/2024
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. Body dimensions do not include mold flash or protrusion. Mold flash and protrusion shall not exceed 0.25 per side.
+4. Leads 1,2,3 may be wider than leads 4,5,6 for package orientation.
+5. Refernce JEDEC MO-178.
+
+
+
+
+                                                                               www.ti.com
+                                                                               EXAMPLE BOARD LAYOUT
+DBV0006A                                                                             SOT-23 - 1.45 mm max height
+                                                                                                     SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 6X (1.1)
+                                             1
+
+                                  6X (0.6)
+                                                                                         6
+
+
+                                                                                             SYMM
+                                             2                                           5
+                              2X (0.95)
+
+
+                                             3                                           4
+
+                             (R0.05) TYP                         (2.6)
+
+
+                                                     LAND PATTERN EXAMPLE
+                                                       EXPOSED METAL SHOWN
+                                                            SCALE:15X
+
+
+
+
+                                                                                                        SOLDER MASK
+                 SOLDER MASK                     METAL                   METAL UNDER                    OPENING
+                 OPENING                                                 SOLDER MASK
+
+
+
+
+         EXPOSED METAL                                        EXPOSED METAL
+
+                                          0.07 MAX                                           0.07 MIN
+                                          ARROUND                                            ARROUND
+
+                                NON SOLDER MASK                                        SOLDER MASK
+                                    DEFINED                                              DEFINED
+                                  (PREFERRED)
+
+                                                      SOLDER MASK DETAILS
+
+
+
+
+                                                                                                              4214840/G 08/2024
+
+NOTES: (continued)
+
+6. Publication IPC-7351 may have alternate designs.
+7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+ DBV0006A                                                                              SOT-23 - 1.45 mm max height
+                                                                                                      SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 6X (1.1)
+                                             1
+
+                                  6X (0.6)
+                                                                                         6
+
+
+                                                                                             SYMM
+                                             2                                           5
+                             2X(0.95)
+
+
+                                             3                                           4
+
+                            (R0.05) TYP
+                                                                (2.6)
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                 BASED ON 0.125 mm THICK STENCIL
+                                                            SCALE:15X
+
+
+
+
+                                                                                                                   4214840/G 08/2024
+
+NOTES: (continued)
+
+8. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+9. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2026, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

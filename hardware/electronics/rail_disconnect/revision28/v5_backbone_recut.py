@@ -1,0 +1,150 @@
+"""Insert the V5 Schmitt cell near a real legacy stub; never fake source continuity."""
+
+import copy
+import hashlib
+import json
+import shutil
+from collections import deque
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/strict-centering-clear-work"
+ORIGINAL = ROOT / "generated/coherent-ground-repair-work"
+ROUTE_BASE = ROOT / "generated/schmitt-u37-short-barrels-work"
+WORK = ROOT / "generated/v5-backbone-recut-work"
+
+
+def ident(n):
+    return str(first(n, "uuid")[1])
+
+
+def objects(t):
+    return {ident(n): n for k in ("segment", "via") for n in children(t, k)}
+
+
+def without_net(n):
+    n = copy.deepcopy(n)
+    n[:] = [x for x in n if not (isinstance(x, list) and x and x[0] == "net")]
+    return sexpr(n)
+
+
+def main():
+    assert not WORK.exists()
+    pcb = SOURCE / "rail_disconnect.kicad_pcb"
+    blob = pcb.read_bytes()
+    t = read_sexpr(blob.decode())
+    names = {str(n[1]): str(n[2]).lstrip("/") for n in children(t, "net")}
+    codes = {n: k for k, n in names.items()}
+    gp = ROOT / "generated/schmitt-cone-proposal/native-backbone-direct-graph.json"
+    g = json.loads(gp.read_text())
+    row = g["rows"]["V5_REG_OV_OK"]
+    pp = ROOT / "generated/schmitt-cone-proposal/v5-insertion-cut.json"
+    p = json.loads(pp.read_text())
+    assert p["graph_sha256"] == hashlib.sha256(gp.read_bytes()).hexdigest()
+    plan = p["plan"]
+    nodes = row["nodes"]
+    adj = {u: set() for u in nodes}
+    for x, y in row["edges"]:
+        adj[x].add(y)
+        adj[y].add(x)
+    initial = set(plan["cut_track_uuids"])
+    cut = initial | {v for u in initial for v in adj[u] if nodes[v]["kind"] == "PCB_TRACK"}
+    down = set(plan["receiver_terminal_uuids"])
+    q = deque(down)
+    while q:
+        for v in adj[q.popleft()] - cut - down:
+            down.add(v)
+            q.append(v)
+    assert not down & (set(plan["source_terminal_uuids"]) | set(plan["real_upstream_copper_anchor_uuids"]))
+    original = objects(read_sexpr((ORIGINAL / "rail_disconnect.kicad_pcb").read_text()))
+    current = objects(t)
+    routebase = objects(read_sexpr((ROUTE_BASE / "rail_disconnect.kicad_pcb").read_text()))
+    replaced = []
+    for n in list(t):
+        if (
+            isinstance(n, list)
+            and n
+            and n[0] in ("segment", "via")
+            and names[str(first(n, "net")[1])] == "V5_REG_OV_OK_SCHMITT"
+            and ident(n) not in routebase
+        ):
+            replaced.append(sexpr(n))
+            t.remove(n)
+    cut_objects = []
+    retagged = []
+    missing = []
+    for uid, data in nodes.items():
+        if data["kind"] == "PAD":
+            continue
+        n = current.get(uid)
+        if n is None or n not in t:
+            missing.append(uid)
+            continue
+        assert without_net(n) == without_net(original[uid]), uid
+        if uid in cut:
+            cut_objects.append(sexpr(n))
+            t.remove(n)
+            continue
+        wanted = "V5_REG_OV_OK_SCHMITT" if uid in down else "V5_REG_OV_OK"
+        oldnet = names[str(first(n, "net")[1])]
+        assert oldnet in {"V5_REG_OV_OK", "V5_REG_OV_OK_SCHMITT"}
+        if wanted != oldnet:
+            before = sexpr(n)
+            first(n, "net")[1] = a(codes[wanted])
+            retagged.append(dict(uuid=uid, old_net=oldnet, new_net=wanted, before=before, after=sexpr(n)))
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for f in SOURCE.iterdir():
+        if f.is_file() and (
+            f.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym")
+            or f.name in ("components.json", "fp-lib-table", "sym-lib-table")
+        ):
+            shutil.copy2(f, WORK / f.name)
+        elif f.suffix == ".pretty":
+            shutil.copytree(f, WORK / f.name)
+    (WORK / "rail_disconnect.kicad_pcb").write_text(sexpr(t) + "\n")
+    (WORK / "generated/V5-physical-recut.json").write_text(
+        json.dumps(
+            dict(
+                source_pcb_sha256=hashlib.sha256(blob).hexdigest(),
+                original_PCB_sha256=hashlib.sha256(
+                    (ORIGINAL / "rail_disconnect.kicad_pcb").read_bytes()
+                ).hexdigest(),
+                native_graph_sha256=hashlib.sha256(gp.read_bytes()).hexdigest(),
+                insertion_plan_sha256=hashlib.sha256(pp.read_bytes()).hexdigest(),
+                recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                actual_source_PU_hysteresis_terminals_protected=plan["source_terminal_uuids"],
+                real_preexisting_upstream_barrel=plan["real_upstream_copper_anchor_uuids"],
+                upstream_barrel_NOT_assumed_connected_to_real_OC_source=True,
+                buffered_original_item_uuids=sorted(down),
+                expanded_ordinary_cut_track_uuids=sorted(cut),
+                removed_cut_objects=cut_objects,
+                reclassified_existing_Cu=retagged,
+                previous_output_join_replaced=replaced,
+                previously_absent_original_objects_not_resurrected=missing,
+                no_new_drills_pads_parts_or_physical_terminals=True,
+                all_component_pins_values_and_geometry_unchanged=True,
+                all_force_quiet_timing_and_ground_geometry_unchanged=True,
+                both_RAW_real_source_stub_input_and_BUFFERED_output_receiver_components_must_be_fully_rejoined=True,
+                new_native_PDN_noise_and_physical_proof_required=True,
+                physical_qualified=False,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+    print(
+        "V5 insertion:",
+        len(retagged),
+        "realCuobjects retagged,",
+        len(cut_objects),
+        "ordinarycutpieces,",
+        len(replaced),
+        "oldoutputrouteobjectsreplaced; upstreamnotassumedpowered",
+    )
+
+
+if __name__ == "__main__":
+    main()

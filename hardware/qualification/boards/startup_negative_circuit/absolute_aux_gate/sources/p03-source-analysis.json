@@ -1,0 +1,1642 @@
+{
+  "revision": "P03",
+  "scope": "New complete native supply, distinct from legacyE14 and unimplementedP02",
+  "component_count": 255,
+  "sources": {
+    "digital_reference_interval_v": [
+      0.4975,
+      0.5025
+    ],
+    "digital_full_junction_reference_range_c": [
+      -40,
+      150
+    ],
+    "digital_feedback_bias_current_bound_a": 1e-07,
+    "feedback_bias_bound_manufacturer_guaranteed": false,
+    "precision_resistor_total_error_fraction": 0.001,
+    "digital_divider_enclosing_error_fraction": 0.00102,
+    "digital_main_resistor_total_error_fraction": 0.001,
+    "digital_series_trim_total_error_fraction": 0.003,
+    "precision_error_is_lifetime_guarantee": false,
+    "reference_symmetric_terms_v": {
+      "initial": 0.001,
+      "box_temperature": 0.0016499999999999998,
+      "line": 0.000495,
+      "load": 4.0000000000000003e-07,
+      "assembly_aging_humidity_allocation": 0.002,
+      "opamp_offset": 0.00035,
+      "positive_bias": 1e-06
+    },
+    "reference_hot_aged_filter_leakage_allocation_a": 1e-07,
+    "reference_capacitor_leakage_manufacturer_guaranteed": false,
+    "analog_ldo_set_to_output_error_allowance_v": 0.0028539999999999998,
+    "digital_direct_source_interval_v": [
+      4.992227729652826,
+      5.062785319078388
+    ],
+    "analog_local_source_interval_v": [
+      4.997119818710408,
+      5.014870222099218
+    ],
+    "preregulator_dc_interval_v": [
+      5.957967034065935,
+      6.042167166066064
+    ],
+    "digital_lT3083_present": false,
+    "regulator_feedback_crosses_disconnect": false
+  },
+  "source_to_load": {
+    "endpoints": {
+      "processor_5v": {
+        "rail": "DIG",
+        "board": "processor_carrier",
+        "pin": "J1.1",
+        "loads": [
+          "seed_local",
+          "led_logic",
+          "led_group_1",
+          "led_group_2",
+          "led_group_3",
+          "led_group_4"
+        ],
+        "paths": {
+          "DIG": 0.011,
+          "processor": 0.006634153076923077
+        },
+        "minimum_v": 4.9212606589724315,
+        "maximum_v": 5.089155124141506,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.005,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.021828315067286625
+          ],
+          [
+            "led_logic",
+            0.008294759725568918
+          ],
+          [
+            "digital_reserve",
+            0.005052452777201967
+          ],
+          [
+            "led_group_1",
+            0.002095518246459516
+          ]
+        ]
+      },
+      "led_5v": {
+        "rail": "DIG",
+        "board": "led_driver",
+        "pin": "J1.2",
+        "loads": [
+          "led_logic",
+          "led_group_1",
+          "led_group_2",
+          "led_group_3",
+          "led_group_4"
+        ],
+        "paths": {
+          "DIG": 0.011,
+          "processor": 0.006634153076923077,
+          "led": 0.007075748641221374
+        },
+        "minimum_v": 4.9125526435472215,
+        "maximum_v": 5.08947987837654,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.005,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.021828315067286625
+          ],
+          [
+            "led_logic",
+            0.012327936451065103
+          ],
+          [
+            "digital_reserve",
+            0.005052452777201967
+          ],
+          [
+            "led_group_1",
+            0.0031144260507953944
+          ]
+        ]
+      },
+      "bypass_5v": {
+        "rail": "DIG",
+        "board": "sequenced_bypass",
+        "pin": "J1.1",
+        "loads": [
+          "bypass",
+          "gain_input",
+          "gain_output"
+        ],
+        "paths": {
+          "DIG": 0.011,
+          "bypass": 0.00913005880923451
+        },
+        "minimum_v": 4.9309341057444565,
+        "maximum_v": 5.0892641691814715,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.005,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.01519416199036355
+          ],
+          [
+            "led_logic",
+            0.006009053036159622
+          ],
+          [
+            "digital_reserve",
+            0.005052452777201967
+          ],
+          [
+            "bypass",
+            0.0019954685018249967
+          ]
+        ]
+      },
+      "monitor_digital": {
+        "rail": "DIG",
+        "board": "rail_monitor",
+        "pin": "J1.1",
+        "loads": [
+          "monitor_digital"
+        ],
+        "paths": {
+          "DIG": 0.011,
+          "branch": 0.00913005880923451
+        },
+        "minimum_v": 4.932132235827231,
+        "maximum_v": 5.089168787953519,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.005,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.01519416199036355
+          ],
+          [
+            "led_logic",
+            0.005803116293990136
+          ],
+          [
+            "digital_reserve",
+            0.005052452777201967
+          ],
+          [
+            "monitor_digital",
+            0.0019521133982103684
+          ]
+        ]
+      },
+      "adc_5v": {
+        "rail": "ANA",
+        "board": "adc_driver",
+        "pin": "J3.4",
+        "loads": [
+          "adc_5v"
+        ],
+        "paths": {
+          "ANA": 0.012666666666666666,
+          "branch": 0.00913005880923451
+        },
+        "minimum_v": 4.977412252732241,
+        "maximum_v": 5.0229320597038445,
+        "target_v": [
+          4.975,
+          5.025
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.006666666666666667,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.00419416199036355
+          ],
+          [
+            "adc_5v",
+            0.0027081542834605575
+          ],
+          [
+            "converter_5v",
+            0.00234591747798678
+          ],
+          [
+            "led_logic",
+            0.0020082305963076705
+          ]
+        ]
+      },
+      "converter_5v": {
+        "rail": "ANA",
+        "board": "converter",
+        "pin": "J4.1",
+        "loads": [
+          "converter_5v"
+        ],
+        "paths": {
+          "ANA": 0.012666666666666666,
+          "branch": 0.00913005880923451
+        },
+        "minimum_v": 4.978538102650578,
+        "maximum_v": 5.022721570444356,
+        "target_v": [
+          4.975,
+          5.025
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.006666666666666667,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.004089886747524615
+          ],
+          [
+            "converter_5v",
+            0.0036241257112796113
+          ],
+          [
+            "adc_5v",
+            0.0016756553414191283
+          ],
+          [
+            "led_logic",
+            0.0015541569640593537
+          ]
+        ]
+      },
+      "monitor_5v": {
+        "rail": "ANA",
+        "board": "rail_monitor",
+        "pin": "J2.6",
+        "loads": [
+          "monitor_5v"
+        ],
+        "paths": {
+          "ANA": 0.012666666666666666,
+          "branch": 0.00913005880923451
+        },
+        "minimum_v": 4.9794480060797905,
+        "maximum_v": 5.02275369097435,
+        "target_v": [
+          4.975,
+          5.025
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.006666666666666667,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.00419416199036355
+          ],
+          [
+            "converter_5v",
+            0.00234591747798678
+          ],
+          [
+            "adc_5v",
+            0.001693802533506176
+          ],
+          [
+            "led_logic",
+            0.0016231162939901356
+          ]
+        ]
+      },
+      "led_anode_1": {
+        "rail": "DIG",
+        "board": "led_driver",
+        "pin": "J2.25/26 -> emitter anode",
+        "loads": [
+          "led_group_1"
+        ],
+        "paths": {
+          "DIG": 0.011,
+          "processor": 0.006634153076923077,
+          "led": 0.007075748641221374,
+          "branch": 0.015426498159509205
+        },
+        "minimum_v": 4.911071699723909,
+        "maximum_v": 5.08947987837654,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.005,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.021828315067286625
+          ],
+          [
+            "led_logic",
+            0.012327936451065103
+          ],
+          [
+            "digital_reserve",
+            0.005052452777201967
+          ],
+          [
+            "led_group_1",
+            0.004595369874108277
+          ]
+        ]
+      },
+      "led_anode_2": {
+        "rail": "DIG",
+        "board": "led_driver",
+        "pin": "J3.25/26 -> emitter anode",
+        "loads": [
+          "led_group_2"
+        ],
+        "paths": {
+          "DIG": 0.011,
+          "processor": 0.006634153076923077,
+          "led": 0.007075748641221374,
+          "branch": 0.015426498159509205
+        },
+        "minimum_v": 4.911071699723909,
+        "maximum_v": 5.08947987837654,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.005,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.021828315067286625
+          ],
+          [
+            "led_logic",
+            0.012327936451065103
+          ],
+          [
+            "digital_reserve",
+            0.005052452777201967
+          ],
+          [
+            "led_group_2",
+            0.004595369874108277
+          ]
+        ]
+      },
+      "led_anode_3": {
+        "rail": "DIG",
+        "board": "led_driver",
+        "pin": "J4.25/26 -> emitter anode",
+        "loads": [
+          "led_group_3"
+        ],
+        "paths": {
+          "DIG": 0.011,
+          "processor": 0.006634153076923077,
+          "led": 0.007075748641221374,
+          "branch": 0.015426498159509205
+        },
+        "minimum_v": 4.911071699723909,
+        "maximum_v": 5.08947987837654,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.005,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.021828315067286625
+          ],
+          [
+            "led_logic",
+            0.012327936451065103
+          ],
+          [
+            "digital_reserve",
+            0.005052452777201967
+          ],
+          [
+            "led_group_3",
+            0.004595369874108277
+          ]
+        ]
+      },
+      "led_anode_4": {
+        "rail": "DIG",
+        "board": "led_driver",
+        "pin": "J5.25/26 -> emitter anode",
+        "loads": [
+          "led_group_4"
+        ],
+        "paths": {
+          "DIG": 0.011,
+          "processor": 0.006634153076923077,
+          "led": 0.007075748641221374,
+          "branch": 0.015426498159509205
+        },
+        "minimum_v": 4.911071699723909,
+        "maximum_v": 5.08947987837654,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.005,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.021828315067286625
+          ],
+          [
+            "led_logic",
+            0.012327936451065103
+          ],
+          [
+            "digital_reserve",
+            0.005052452777201967
+          ],
+          [
+            "led_group_4",
+            0.004595369874108277
+          ]
+        ]
+      },
+      "gain_input": {
+        "rail": "DIG",
+        "board": "sequenced_bypass",
+        "pin": "J4.1-2 coil on input_range",
+        "loads": [
+          "gain_input"
+        ],
+        "paths": {
+          "DIG": 0.011,
+          "bypass": 0.00913005880923451,
+          "gain_fet": 0.15,
+          "branch": 0.03085299631901841
+        },
+        "minimum_v": 4.9210085158548855,
+        "maximum_v": 5.0892641691814715,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.005,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.01519416199036355
+          ],
+          [
+            "gain_input",
+            0.006173890577754926
+          ],
+          [
+            "led_logic",
+            0.006009053036159622
+          ],
+          [
+            "gain_output",
+            0.005248300688184373
+          ]
+        ]
+      },
+      "gain_output": {
+        "rail": "DIG",
+        "board": "sequenced_bypass",
+        "pin": "J3.1-2 coil on output_stage",
+        "loads": [
+          "gain_output"
+        ],
+        "paths": {
+          "DIG": 0.011,
+          "bypass": 0.00913005880923451,
+          "gain_fet": 0.15,
+          "branch": 0.03085299631901841
+        },
+        "minimum_v": 4.9210085158548855,
+        "maximum_v": 5.0892641691814715,
+        "target_v": [
+          4.9,
+          5.1
+        ],
+        "passes": true,
+        "switch_path_max_ohm": 0.005,
+        "largest_low_losses_v": [
+          [
+            "seed_local",
+            0.01519416199036355
+          ],
+          [
+            "gain_output",
+            0.006173890577754926
+          ],
+          [
+            "led_logic",
+            0.006009053036159622
+          ],
+          [
+            "gain_input",
+            0.005248300688184373
+          ]
+        ]
+      }
+    },
+    "all_pass": true,
+    "ground_nodes": [
+      "E26_A_GND",
+      "E26_D_GND",
+      "adc_driver",
+      "control_inputs",
+      "converter",
+      "dac_receiver",
+      "input_protection",
+      "input_range",
+      "led_driver",
+      "output_stage",
+      "processor_carrier",
+      "rail_monitor",
+      "sequenced_bypass"
+    ],
+    "ground_edges": [
+      {
+        "a": "input_protection",
+        "b": "power_supply",
+        "max_ohm": 0.001,
+        "min_ohm": 0,
+        "harness": "DC-PROTECTED"
+      },
+      {
+        "a": "power_supply",
+        "b": "input_protection",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "POWER-READY"
+      },
+      {
+        "a": "input_protection",
+        "b": "E26_A_GND",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "PWR-AUX-RUN"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "output_stage",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "LOAD-OUTPUT_STAGE"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "input_range",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "LOAD-INPUT_RANGE"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "adc_driver",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "LOAD-ADC_DRIVER"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "dac_receiver",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "LOAD-DAC_RECEIVER"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "rail_monitor",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "LOAD-RAIL_MONITOR"
+      },
+      {
+        "a": "E26_D_GND",
+        "b": "processor_carrier",
+        "max_ohm": 0.006634153076923077,
+        "min_ohm": 0,
+        "harness": "DIG-PROCESSOR"
+      },
+      {
+        "a": "E26_D_GND",
+        "b": "sequenced_bypass",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "DIG-BYPASS"
+      },
+      {
+        "a": "E26_D_GND",
+        "b": "rail_monitor",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "DIG-MONITOR"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "control_inputs",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "CONTROL-BUS"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "sequenced_bypass",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "BYPASS-CONTROL"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "control_inputs",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "REAR-STATUS"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "converter",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "SAI-AUDIO"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "converter",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "CODEC-IO-POWER"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "converter",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "CODEC-CONTROL"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "sequenced_bypass",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "INPUT-READY"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "led_driver",
+        "max_ohm": 0.007075748641221374,
+        "min_ohm": 0,
+        "harness": "LED-CONTROL"
+      },
+      {
+        "a": "processor_carrier",
+        "b": "led_driver",
+        "max_ohm": 0.007075748641221374,
+        "min_ohm": 0,
+        "harness": "LED-CONTROL"
+      },
+      {
+        "a": "rail_monitor",
+        "b": "converter",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "RAIL-HEALTH"
+      },
+      {
+        "a": "adc_driver",
+        "b": "rail_monitor",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "ADC-BIAS-SENSE"
+      },
+      {
+        "a": "sequenced_bypass",
+        "b": "input_range",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "ANALOG-IN"
+      },
+      {
+        "a": "input_range",
+        "b": "adc_driver",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "PREAMP-ADC"
+      },
+      {
+        "a": "adc_driver",
+        "b": "converter",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "ADC-CODEC"
+      },
+      {
+        "a": "converter",
+        "b": "dac_receiver",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "CODEC-DAC"
+      },
+      {
+        "a": "dac_receiver",
+        "b": "output_stage",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "DAC-OUTPUT"
+      },
+      {
+        "a": "output_stage",
+        "b": "sequenced_bypass",
+        "max_ohm": 0.018901997546012274,
+        "min_ohm": 0,
+        "harness": "ANALOG-OUT"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "E26_D_GND",
+        "max_ohm": 0.001,
+        "min_ohm": 0,
+        "harness": "E26-defined-star-bridge"
+      },
+      {
+        "a": "power_supply",
+        "b": "E26_A_GND",
+        "max_ohm": 0.002,
+        "min_ohm": 0,
+        "harness": "P02-NEW-ANALOG-RETURN-STRAP"
+      },
+      {
+        "a": "power_supply",
+        "b": "E26_D_GND",
+        "max_ohm": 0.002,
+        "min_ohm": 0,
+        "harness": "P02-NEW-DIGITAL-RETURN-STRAP"
+      },
+      {
+        "a": "E26_A_GND",
+        "b": "converter",
+        "max_ohm": 0.00913005880923451,
+        "min_ohm": 0,
+        "harness": "P02-CONVERTER-RETURN"
+      }
+    ],
+    "maximum_switch_path_ohm_by_rail": {
+      "DIG": 0.009613208218295177,
+      "ANA": 0.016277235321013255
+    },
+    "source_positive_link_end_to_end_acceptance_ohm": 0.002,
+    "additional_source_regulator_to_stud_copper_bound_ohm": 0.001,
+    "e28_branch_copper_separate_bound_ohm": 0.003,
+    "ground_bar_end_to_end_bound_ohm": 0.002,
+    "input_guard_return_current_bound_a": 4.0,
+    "old_generic_positive_headers_are_operating_ports": false,
+    "all_contacts_and_copper_measured": false,
+    "physical_harness_qualified": false,
+    "resistance_interval_method": "Rayleigh/effective-resistance polarization for every independent R in [0,Rmax]; independent signed load intervals",
+    "physical_topology_note": "Positive M3 stud leads replace source5V header current; dedicated bars replace old source/AGND cable paths."
+  },
+  "input_guard": {
+    "nominal_resistor_ohm": 4019.9999999999995,
+    "resistor_total_error_fraction": 0.003,
+    "manufacturer_nominal_resistor_test_current_a": [
+      4.185,
+      4.815
+    ],
+    "current_interval_a": [
+      4.172482552342971,
+      4.829488465396189
+    ],
+    "manufacturer_conditions": "TPS2663 RevG6.5,-40..125C,VIN-OUT1V,RILIM4.02k; reciprocalR propagation is a design model",
+    "full_fault_energy_and_adapter_coordination_verified": false
+  },
+  "operating_budget": {
+    "digital_protected_a": 2.4,
+    "analog_protected_a": 0.251,
+    "digital_regulator_total_a": 2.4239999999999995,
+    "analog_regulator_total_a": 0.259,
+    "minimum_efficiency_allocation": 0.85,
+    "efficiency_is_manufacturer_guaranteed_at_this_operating_point": false,
+    "protected_input_power_w": 28.248975569796457,
+    "guard_and_auxiliary_input_current_allocation_a": 0.09,
+    "maximum_steady_input_current_a": 2.9725485275302503,
+    "input_normal_profile_a": 4.0,
+    "steady_input_screen_passes": true,
+    "removed_Lt3083_pass_control_heat_w": 3.52,
+    "new_digital_buck_total_loss_allocation_w": 2.16568087296106,
+    "analog_postregulator_loss_w": 0.283617262965115,
+    "input_guard_4a_hot_loss_w": 0.848,
+    "required_digital_complete_theta_c_per_w": 23.08742743414303,
+    "required_guard_complete_theta_c_per_w": 58.9622641509434,
+    "actual_board_theta_extracted": false,
+    "chassis_thermal_path_implemented": false,
+    "analog_dropout_margin_with_50mv_prereg_ripple_v": 0.44309681196671685,
+    "controller_soft_start_4ms_is_typical_not_guaranteed": true
+  },
+  "raw_sources": {
+    "pairs": [
+      {
+        "name": "high",
+        "positive_envelope_v": [
+          21.31620422727273,
+          22.68608645495495
+        ],
+        "negative_magnitude_envelope_v": [
+          21.309758714285717,
+          22.69264104804805
+        ],
+        "load_allocation_each_a": 0.05,
+        "maximum_cuk_peak_current_a": 0.33180745091665553,
+        "cuk_limit_25c_screen_a": 0.9,
+        "cuk_limit_hot_guaranteed": false,
+        "positive_minimum_duty_without_diode": 0.3807527897902462,
+        "manufacturer_minimum_duty_typical": 0.15,
+        "guaranteed_minimum_duty_specified": false,
+        "minimum_raw_ripple_peak_allocation_v": 0.05,
+        "ripple_and_efficiency_measured": false
+      },
+      {
+        "name": "low",
+        "positive_envelope_v": [
+          16.46103179220779,
+          17.54071348948949
+        ],
+        "negative_magnitude_envelope_v": [
+          13.541482818181818,
+          14.460044303303302
+        ],
+        "load_allocation_each_a": 0.2,
+        "maximum_cuk_peak_current_a": 0.7037269917748483,
+        "cuk_limit_25c_screen_a": 0.9,
+        "cuk_limit_hot_guaranteed": false,
+        "positive_minimum_duty_without_diode": 0.19810615964859968,
+        "manufacturer_minimum_duty_typical": 0.15,
+        "guaranteed_minimum_duty_specified": false,
+        "minimum_raw_ripple_peak_allocation_v": 0.05,
+        "ripple_and_efficiency_measured": false
+      }
+    ],
+    "minimum_input_v": 9.8,
+    "p12_control_headroom_v": 4.381031792207791,
+    "p12_control_characterization_differential_v": 2.0,
+    "n12_input_headroom_v": 1.4614828181818176,
+    "n12_required_dropout_v": 0.45,
+    "proposed_positive14v8_minimum_duty_at13v2": 0.07094594594594605,
+    "lower_positive_setpoint_rejected_for_minimum_duty": true,
+    "historical_RAW_N17_now_nominal_negative14v": true,
+    "psrr_noise_and_compensation_qualified": false
+  },
+  "auxiliary": {
+    "source_interval_v": [
+      2.5334786298595318,
+      2.6564414501697993
+    ],
+    "receiver_minimum_v": 2.5,
+    "receiver_characterized_project_window_v": [
+      2.5,
+      2.7
+    ],
+    "receiver_window_is_absolute_maximum_rating": false,
+    "maximum_cable_drop_before_receiver_minimum_v": 0.03347862985953176,
+    "maximum_positive_dynamic_excursion_before_characterized_ceiling_v": 0.04355854983020091,
+    "divider_error_fraction": 0.003,
+    "reference_error_fraction": 0.02,
+    "fb_bias_bound_a": 1e-07,
+    "receiver_interlock_measured": false
+  },
+  "auxiliary_current_and_heat": {
+    "e28_output_current_allocation_a": 0.06,
+    "native_resistive_current_upper_allocations_a": {
+      "R110": 0.0027835051546391755,
+      "R111": 0.00027835051546391755,
+      "R113": 0.0008434864104967198,
+      "R316": 0.0012652296157450798,
+      "R246": 0.00027835051546391755,
+      "R120": 2.7835051546391755e-05,
+      "R117": 9.008107296566911e-06,
+      "R118+R119": 0.00013540621865596792,
+      "R108+R130+R109": 0.00012451203789991486
+    },
+    "known_resistive_subtotal_a": 0.005745683627207652,
+    "u25_u26_u103_static_and_dynamic_plus_leakage_reserve_a": 0.003,
+    "active_current_reserve_manufacturer_and_waveform_verified": false,
+    "total_u102_output_current_allocation_a": 0.09,
+    "remaining_current_after_external_resistive_and_active_reserve_a": 0.021254316372792348,
+    "ldo_ground_current_allocation_a": 0.0001,
+    "maximum_input_voltage_v": 13.2,
+    "ldo_loss_allocation_w": 0.961306923312642,
+    "maximum_normal_input_current_allocation_used_in_quadratic_a": 0.09,
+    "complete_load_transients_and_hot_leakage_bound_verified": false,
+    "physical_tests_performed": 0
+  },
+  "external_ready_interface": {
+    "external_header": "J106.4",
+    "external_net": "P03_ALL_SOURCES_READY",
+    "source_driver": "U25 LTC2910HGN#PBF pin12 active-low RESET open-drain",
+    "separate_internal_buck_pg_net": "P03_SOURCES_READY",
+    "primary_source": "https://www.analog.com/media/en/technical-documentation/data-sheets/2910fc.pdf",
+    "pullup_native_ohm": 2200.0,
+    "pullup_total_error_allocation_fraction": 0.03,
+    "receiver_pulldown_required_ohm": 15000,
+    "receiver_pulldown_total_error_allocation_fraction": 0.02,
+    "receiver_required": "E28 SN74LVC14A Schmitt input, double inversion preserves permission polarity",
+    "receiver_input_count": 1,
+    "receiver_full_temperature_leakage_allocation_a": 2e-05,
+    "extra_source_off_leakage_and_contamination_allocation_a": 2e-06,
+    "extra_source_off_leakage_manufacturer_guaranteed": false,
+    "minimum_received_high_before_wire_and_ground_offsets_v": 2.1519103771622725,
+    "receiver_required_high_v": 2.0,
+    "high_remaining_offset_noise_and_uncertainty_budget_v": 0.15191037716227251,
+    "disconnected_harness_maximum_receiver_v": 0.30600000000000005,
+    "receiver_required_low_v": 0.4,
+    "disconnected_low_margin_v": 0.09399999999999997,
+    "asserted_low_remaining_offset_and_uncertainty_budget_v": 0.10000000000000003,
+    "maximum_additional_sink_before_high_threshold_a": 7.937304065827036e-05,
+    "maximum_asserted_source_sink_current_allocation_a": 0.0012648179241657917,
+    "manufacturer_low_test_current_a": 0.0025,
+    "manufacturer_maximum_low_v": 0.3,
+    "manufacturer_low_test_supply_v": 2.3,
+    "low_assertion_contract_applies_only_with_aux_at_least_2v3": true,
+    "below_2v3_requires_independent_e28_aux_supervisor_fail_off": true,
+    "harness_capacitance_rise_fall_glitch_and_partial_power_qualified": false,
+    "resistor_lifetime_error_and_hot_leakage_verified": false,
+    "physical_qualified": false
+  },
+  "source_valid": {
+    "guard_input_uv_rising_v": [
+      10.115117839750152,
+      10.7354672682368
+    ],
+    "guard_input_uv_falling_v": [
+      9.372027469071146,
+      10.08923819295124
+    ],
+    "protected_input_pg_rising_v": [
+      9.126468007911267,
+      9.619848774388162
+    ],
+    "protected_input_pg_falling_v": [
+      8.458311457562315,
+      9.038876036173518
+    ],
+    "pg_release_below_9v8": true,
+    "ltc2910_positive_presence_rising_v": {
+      "DIG": [
+        4.790683399228771,
+        4.969619697069069
+      ],
+      "ANA": [
+        4.790683399228771,
+        4.969619697069069
+      ],
+      "P19": [
+        16.391239969750252,
+        17.009881071351348
+      ],
+      "P12": [
+        10.306345660339662,
+        10.694346340340338
+      ],
+      "VIN": [
+        9.324911094305696,
+        9.675711706306306
+      ]
+    },
+    "timer_capacitance_nominal_f": 1e-08,
+    "timer_capacitance_tolerance": 0.05,
+    "minimum_presence_debounce_s": 0.056829,
+    "maximum_presence_debounce_s": 0.14744100000000002,
+    "timer_c0g_temperature_factor_allocation": [
+      0.997,
+      1.003
+    ],
+    "one_nf_table_timeout_scaled_to_native_capacitance_is_unverified_allocation": true,
+    "timer_leakage_and_contamination_qualified": false,
+    "buck_pg_is_precision_rail_monitor": false,
+    "ready_is_permission_for_staged_disconnect_not_audio_unmute": true
+  },
+  "internal_pg_logic": {
+    "native_supported_schmitt_gate_and_pin_map": true,
+    "primary_source": "https://www.ti.com/lit/ds/symlink/sn74lvc1g97.pdf",
+    "primary_revision": "SCES416N Rev N",
+    "pin_map": {
+      "1": "AGND",
+      "2": "AGND",
+      "3": "P03_SOURCES_READY",
+      "4": "P03_MON_BUCK_OK",
+      "5": "V2V5_AUX",
+      "6": "POWER_READY"
+    },
+    "truth_table": [
+      {
+        "buck": 0,
+        "guard": 0,
+        "y": 0,
+        "expected": 0
+      },
+      {
+        "buck": 0,
+        "guard": 1,
+        "y": 0,
+        "expected": 0
+      },
+      {
+        "buck": 1,
+        "guard": 0,
+        "y": 0,
+        "expected": 0
+      },
+      {
+        "buck": 1,
+        "guard": 1,
+        "y": 1,
+        "expected": 1
+      }
+    ],
+    "truth_is_and": true,
+    "operating_supply_range_v": [
+      1.65,
+      5.5
+    ],
+    "actual_aux_source_interval_v": [
+      2.5334786298595318,
+      2.6564414501697993
+    ],
+    "recommended_conditions_has_input_transition_rate_row": false,
+    "generic_application_text_references_absent_transition_rate_row": true,
+    "schmitt_positive_threshold_neighbor_rows_v": {
+      "2.3V_max": 1.56,
+      "3.0V_max": 1.87
+    },
+    "schmitt_negative_threshold_neighbor_rows_v": {
+      "2.3V_min": 0.58,
+      "3.0V_min": 0.84
+    },
+    "neighbor_threshold_envelope_is_inference_not_continuous_supply_guarantee": true,
+    "continuous_aux_threshold_enclosure_manufacturer_verified": false,
+    "buck_pg_high_allocation_v": 2.3789786298595317,
+    "buck_pg_low_row_max_v": 0.5,
+    "buck_pg_low_row_test_input_v": 12,
+    "buck_pg_low_over_actual9v8_to13v2_input_verified": false,
+    "buck_pg_loaded_high_margin_to_inferred1v87_v": 0.5089786298595316,
+    "buck_pg_low_margin_to_inferred0v58_v": 0.07999999999999996,
+    "guard_pg_and_enable_intervals_v": {
+      "guard_high": [
+        [
+          2.330988307880358,
+          2.551282919128842
+        ],
+        [
+          1.3649389325959982,
+          1.9896257110218882
+        ],
+        [
+          1.364938932595998,
+          1.9896257110218885
+        ]
+      ],
+      "guard_low": [
+        [
+          0.27650739020068765,
+          0.31710318849968233
+        ],
+        [
+          -0.022296276739515074,
+          0.43042997389105564
+        ],
+        [
+          -0.022296276739515078,
+          0.4304299738910556
+        ]
+      ]
+    },
+    "guard_pg_pulldown_maximum_ohm": 130,
+    "guard_pg_leakage_bound_a": 1.5e-07,
+    "two_enable_signed_current_each_allocation_a": 3e-05,
+    "enable_current_allocation_manufacturer_verified": false,
+    "receiver_input_leakage_row_bound_a": 5e-06,
+    "poweroff_output_leakage_row_bound_a": 1e-05,
+    "monitor_input_load_bound_a": 3e-08,
+    "output_test_current_a": 0.0001,
+    "output_high_minimum_v": 2.4334786298595317,
+    "output_low_maximum_v": 0.1,
+    "monitor_high_trip_max_v": 0.508,
+    "monitor_low_trip_min_v": 0.492,
+    "monitor_input_contamination_and_capacitance_verified": false,
+    "slow_ramp_input_noise_hysteresis_partial_power_and_propagation_tested": false,
+    "physical_qualified": false
+  },
+  "buck_control_and_capacitance": {
+    "DIG": {
+      "regulator": "U20",
+      "primary_source": "https://www.ti.com/lit/ds/symlink/tps543620.pdf",
+      "primary_revision": "SLUSDR5C Rev C",
+      "frequency_interval_hz": [
+        450000.0,
+        550000.0
+      ],
+      "mode_resistor_native_ohm": 18200.0,
+      "programmed_internal_ramp_pf": 4,
+      "programmed_high_current_limit": true,
+      "nominal_soft_start_s": 0.004,
+      "soft_start_tolerance_manufacturer_guaranteed": false,
+      "nominal_inductance_h": 4.7e-06,
+      "initial_inductance_interval_h": [
+        3.76e-06,
+        5.639999999999999e-06
+      ],
+      "hot_dc_current_inductance_bounds_verified": false,
+      "local_output_capacitors": [
+        "C206",
+        "C207",
+        "C208",
+        "C209"
+      ],
+      "local_minimum_capacitance_requirement_f": 8e-05,
+      "local_initial_plus_positive_temperature_partial_maximum_f": 0.000275232,
+      "local_hot_aged_biased_capacitance_verified": false,
+      "local_fsw_over_flc_scenario_interval": [
+        49.03783613819659,
+        136.15436619267174
+      ],
+      "connected_disconnect_capacitance_maximum_scenario_f": 0.0071,
+      "downstream_bulk_treated_as_ideal_parallel_ac_capacitance": false,
+      "local_full_load_step_scenario_a": 2.4,
+      "local_voltage_excursion_scenario_v": 0.02,
+      "ti_eq10_estimated_minimum_capacitance_f": 0.0004244131815783875,
+      "local_allocated_minimum_meets_eq10_estimate": false,
+      "eq10_uses_unverified_fsw_div10_bandwidth": true,
+      "input_pair_native_nominal_f": {
+        "C202": 2.2e-06,
+        "C203": 2.2e-06
+      },
+      "separate_hf_bypass_native_nominal_f": {
+        "C210": 1.0000000000000001e-07,
+        "C211": 1.0000000000000001e-07
+      },
+      "separate_hf_bypass_effective_minimum_requirement_f": 1e-08,
+      "each_input_pair_effective_capacitance_requirement_f": 1e-06,
+      "bp5_effective_capacitance_requirement_f": 2.2e-06,
+      "input_and_bp5_hot_aged_effective_capacitance_verified": false,
+      "complete_coupled_pdn_and_esr_zero_model_accepted": false,
+      "phase_gain_margin_and_switching_jitter_qualified": false,
+      "physical_qualified": false
+    },
+    "ANA_PRE": {
+      "regulator": "U23",
+      "primary_source": "https://www.ti.com/lit/ds/symlink/tps543620.pdf",
+      "primary_revision": "SLUSDR5C Rev C",
+      "frequency_interval_hz": [
+        450000.0,
+        550000.0
+      ],
+      "mode_resistor_native_ohm": 18200.0,
+      "programmed_internal_ramp_pf": 4,
+      "programmed_high_current_limit": true,
+      "nominal_soft_start_s": 0.004,
+      "soft_start_tolerance_manufacturer_guaranteed": false,
+      "nominal_inductance_h": 4.7e-06,
+      "initial_inductance_interval_h": [
+        3.76e-06,
+        5.639999999999999e-06
+      ],
+      "hot_dc_current_inductance_bounds_verified": false,
+      "local_output_capacitors": [
+        "C226",
+        "C227",
+        "C228",
+        "C229"
+      ],
+      "local_minimum_capacitance_requirement_f": 8e-05,
+      "local_initial_plus_positive_temperature_partial_maximum_f": 0.000275232,
+      "local_hot_aged_biased_capacitance_verified": false,
+      "local_fsw_over_flc_scenario_interval": [
+        49.03783613819659,
+        136.15436619267174
+      ],
+      "connected_disconnect_capacitance_maximum_scenario_f": 0.0,
+      "downstream_bulk_treated_as_ideal_parallel_ac_capacitance": false,
+      "local_full_load_step_scenario_a": 0.27,
+      "local_voltage_excursion_scenario_v": 0.05,
+      "ti_eq10_estimated_minimum_capacitance_f": 1.9098593171027442e-05,
+      "local_allocated_minimum_meets_eq10_estimate": true,
+      "eq10_uses_unverified_fsw_div10_bandwidth": true,
+      "input_pair_native_nominal_f": {
+        "C222": 2.2e-06,
+        "C223": 2.2e-06
+      },
+      "separate_hf_bypass_native_nominal_f": {
+        "C230": 1.0000000000000001e-07,
+        "C231": 1.0000000000000001e-07
+      },
+      "separate_hf_bypass_effective_minimum_requirement_f": 1e-08,
+      "each_input_pair_effective_capacitance_requirement_f": 1e-06,
+      "bp5_effective_capacitance_requirement_f": 2.2e-06,
+      "input_and_bp5_hot_aged_effective_capacitance_verified": false,
+      "complete_coupled_pdn_and_esr_zero_model_accepted": false,
+      "phase_gain_margin_and_switching_jitter_qualified": false,
+      "physical_qualified": false
+    }
+  },
+  "negative_monitor": {
+    "powered_input_interval_v": [
+      0.3607384125744587,
+      0.4500345761000245
+    ],
+    "negative19_presence_magnitude_v": [
+      12.40647112362803,
+      17.49582071630327
+    ],
+    "negative12_presence_magnitude_v": [
+      6.857593127915889,
+      9.772592706962408
+    ],
+    "ref_unpowered_or_floating_input_interval_v": [
+      -0.27879808680778395,
+      0.00035487322340166074
+    ],
+    "input_absolute_negative_limit_v": -0.3,
+    "off_inputs_respect_absolute_screen": true,
+    "maximum_reference_load_a": 0.0006719636472292508,
+    "reference_source_rating_a": 0.001,
+    "presence_is_precision_rail_acceptance": false,
+    "partial_power_measured": false
+  },
+  "known_direct_input_capacitance": {
+    "net": "VIN_PROTECTED",
+    "components": [
+      {
+        "ref": "C103",
+        "value": "220uF 35V electrolytic 20% (EEUFR1V221)",
+        "nominal_f": 0.00021999999999999998,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 0.00026399999999999997,
+        "declared_dielectric_positive_temperature_factor": null,
+        "known_initial_and_dielectric_temperature_maximum_f": null,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C104",
+        "value": "1uF 50V X7R",
+        "nominal_f": 1e-06,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 1.2e-06,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 1.38e-06,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C2",
+        "value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+        "nominal_f": 2.2e-05,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.6399999999999998e-05,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.0359999999999994e-05,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C202",
+        "value": "2.2uF 50V X7R 10% TDK C2012X7R1H225K125AC",
+        "nominal_f": 2.2e-06,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.64e-06,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.036e-06,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C203",
+        "value": "2.2uF 50V X7R 10% TDK C2012X7R1H225K125AC",
+        "nominal_f": 2.2e-06,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.64e-06,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.036e-06,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C204",
+        "value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+        "nominal_f": 2.2e-05,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.6399999999999998e-05,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.0359999999999994e-05,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C205",
+        "value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+        "nominal_f": 2.2e-05,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.6399999999999998e-05,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.0359999999999994e-05,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C210",
+        "value": "100nF 50V X7R 10% TDK C1005X7R1H104K050BB",
+        "nominal_f": 1.0000000000000001e-07,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 1.2000000000000002e-07,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 1.3800000000000002e-07,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C211",
+        "value": "100nF 50V X7R 10% TDK C1005X7R1H104K050BB",
+        "nominal_f": 1.0000000000000001e-07,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 1.2000000000000002e-07,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 1.3800000000000002e-07,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C222",
+        "value": "2.2uF 50V X7R 10% TDK C2012X7R1H225K125AC",
+        "nominal_f": 2.2e-06,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.64e-06,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.036e-06,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C223",
+        "value": "2.2uF 50V X7R 10% TDK C2012X7R1H225K125AC",
+        "nominal_f": 2.2e-06,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.64e-06,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.036e-06,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C224",
+        "value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+        "nominal_f": 2.2e-05,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.6399999999999998e-05,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.0359999999999994e-05,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C225",
+        "value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+        "nominal_f": 2.2e-05,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.6399999999999998e-05,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.0359999999999994e-05,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C230",
+        "value": "100nF 50V X7R 10% TDK C1005X7R1H104K050BB",
+        "nominal_f": 1.0000000000000001e-07,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 1.2000000000000002e-07,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 1.3800000000000002e-07,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C231",
+        "value": "100nF 50V X7R 10% TDK C1005X7R1H104K050BB",
+        "nominal_f": 1.0000000000000001e-07,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 1.2000000000000002e-07,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 1.3800000000000002e-07,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C255",
+        "value": "100nF 50V X7R",
+        "nominal_f": 1.0000000000000001e-07,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 1.2000000000000002e-07,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 1.3800000000000002e-07,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C3",
+        "value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+        "nominal_f": 2.2e-05,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.6399999999999998e-05,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.0359999999999994e-05,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C4",
+        "value": "100nF 50V X7R",
+        "nominal_f": 1.0000000000000001e-07,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 1.2000000000000002e-07,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 1.3800000000000002e-07,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C70",
+        "value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+        "nominal_f": 2.2e-05,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 2.6399999999999998e-05,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 3.0359999999999994e-05,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      },
+      {
+        "ref": "C71",
+        "value": "100nF 50V X7R",
+        "nominal_f": 1.0000000000000001e-07,
+        "max_tolerance": 0.2,
+        "initial_tolerance_only_maximum_f": 1.2000000000000002e-07,
+        "declared_dielectric_positive_temperature_factor": 1.15,
+        "known_initial_and_dielectric_temperature_maximum_f": 1.3800000000000002e-07,
+        "exact_mpn_bias_aging_lifetime_bound_verified": false
+      }
+    ],
+    "maximum_known_direct_f": 0.00046139999999999994,
+    "maximum_known_direct_f_basis": "INITIAL TOLERANCE ONLY; partial direct inventory, not full-temperature maximum",
+    "initial_tolerance_only_direct_subtotal_f": 0.00046139999999999994,
+    "known_dielectric_temperature_adjusted_subtotal_f": 0.00022700999999999996,
+    "positive_temperature_bound_missing_refs": [
+      "C103"
+    ],
+    "complete_full_temperature_maximum_f": null,
+    "complete_network_inventory_verified": false
+  },
+  "disconnect_startup": {
+    "DIG": {
+      "parallel_count": 4,
+      "steady_internal_ron_max_each_ohm": 0.02,
+      "steady_parallel_ron_max_ohm": 0.005,
+      "all_on_required": true,
+      "master_alone_charges_full_bulk": true,
+      "complete_capacitance_scenario_f": 0.0071,
+      "complete_capacitance_verified": false,
+      "dvdt_nominal_f": 4.7e-08,
+      "dvdt_tolerance": 0.05,
+      "dvdt_c0g_temperature_minimum_factor": 0.997,
+      "maximum_slew_v_per_s": 202.17427197606258,
+      "maximum_capacitor_current_a": 1.4354373310300443,
+      "full_load_present_during_startup_a": 2.4,
+      "source_total_startup_current_a": 3.859437331030044,
+      "ilim_native_test_point_a": [
+        7.2,
+        8.7
+      ],
+      "one_master_energy_screen_j": 0.248260978014,
+      "worst_energy_needs_minimum_slew_and_thermal_network": true,
+      "startup_soa_measured": false
+    },
+    "ANA": {
+      "parallel_count": 3,
+      "steady_internal_ron_max_each_ohm": 0.02,
+      "steady_parallel_ron_max_ohm": 0.006666666666666667,
+      "all_on_required": true,
+      "master_alone_charges_full_bulk": true,
+      "complete_capacitance_scenario_f": 0.0022,
+      "complete_capacitance_verified": false,
+      "dvdt_nominal_f": 1e-07,
+      "dvdt_tolerance": 0.05,
+      "dvdt_c0g_temperature_minimum_factor": 0.997,
+      "maximum_slew_v_per_s": 95.02190782874942,
+      "maximum_capacitor_current_a": 0.20904819722324874,
+      "full_load_present_during_startup_a": 0.251,
+      "source_total_startup_current_a": 0.46804819722324875,
+      "ilim_native_test_point_a": [
+        1.75,
+        2.25
+      ],
+      "one_master_energy_screen_j": 0.064058562325,
+      "worst_energy_needs_minimum_slew_and_thermal_network": true,
+      "startup_soa_measured": false
+    },
+    "sequence": "All-six-source presence debounce, then digital master/followers; only fourth digital SPLYGD permits analog master.",
+    "OV_recovery": "Explicit EN reset/fault latch required; autonomous OV recovery can bypass dVdt."
+  },
+  "selected_input_chain": {
+    "selected_contract": "hardware/cad/a12/harness/input-feed.json",
+    "selected_contract_sha256": "5c0412dc198305f6362c9338129ae8d1bb6c17fe54d46d523b570c71a2397bd3",
+    "static_plug_terminal_interval_v": [
+      11.43,
+      12.57
+    ],
+    "adapter_captive_cable_counted_again": false,
+    "resistance_entries_ohm": {
+      "jack_catalog_initial_contact_pair": 0.06,
+      "vh_catalog_environmental_four_interfaces": 0.08,
+      "wire_pair_measured_acceptance_requirement": 0.005,
+      "inlet_native_copper_conditional_screen": 0.00905,
+      "q101_hot_rds_engineering_allocation": 0.04,
+      "tps2663_hot_ron_allocation": 0.053
+    },
+    "catalog_and_screen_subtotal_ohm": 0.24705,
+    "total_conditional_feed_allocation_ohm": 0.36,
+    "unproved_remainder_for_rear_fuse_and_p03_copper_ohm": 0.11295,
+    "remainder_is_established_upper_bound": false,
+    "all_contact_hot_lifetime_bounds_established": false,
+    "mandatory_rear_fuse": "0451006.MRL 6A",
+    "redundant_p03_series_fuse_present": false,
+    "maximum_feed_resistance_at_9v8_startup_floor_ohm": 0.42392995397752425,
+    "conditional_operating_points": {
+      "steady": {
+        "current_a": 2.8005669551907824,
+        "protected_voltage_v": 10.421795896131318,
+        "dc_in_before_guard_voltage_v": 10.68224862296406,
+        "protected_9v8_floor_margin_v": 0.6217958961313172,
+        "guard_uv_falling_margin_at_dc_in_v": 0.5930104300128196,
+        "guard_pg_rising_margin_at_protected_node_v": 0.8019471217431562,
+        "adapter_startup_dynamic_droop_included": false
+      },
+      "digital_master_charge_full_load": {
+        "current_a": 3.7392717412308536,
+        "protected_voltage_v": 10.083862173156891,
+        "dc_in_before_guard_voltage_v": 10.43161444509136,
+        "protected_9v8_floor_margin_v": 0.28386217315689066,
+        "guard_uv_falling_margin_at_dc_in_v": 0.34237625214012013,
+        "guard_pg_rising_margin_at_protected_node_v": 0.4640133987687296,
+        "adapter_startup_dynamic_droop_included": false
+      }
+    },
+    "initial_raw_and_buck_startup_overlap_bounded": false,
+    "complete_feed_and_dynamic_startup_qualified": false,
+    "physical_tests_performed": 0
+  },
+  "feed_scenario": {
+    "minimum_delivered_inlet_v": 11.4,
+    "total_series_resistance_allocation_ohm": 0.36,
+    "aggregate_series_resistance_verified": false,
+    "known_VH_environmental_contact_bound_ohm": 0.08,
+    "rear_mandatory_fuse": "0451006.MRL6A; exact hot operating resistance must be selected/bounded",
+    "redundant_P03_fuse_present": false,
+    "protected_steady": {
+      "current_a": 2.8092058620108307,
+      "protected_voltage_v": 10.3886858896761
+    },
+    "protected_digital_start": {
+      "current_a": 3.7518041366331625,
+      "protected_voltage_v": 10.049350510812062
+    },
+    "staged_digital_start_power_w": 36.79875327096819,
+    "complete_input_feed_and_adapter_qualified": false
+  },
+  "board_routing_complete": false,
+  "physical_tests_performed": 0,
+  "thermal_qualified": false,
+  "startup_qualified": false,
+  "source_to_load_physically_qualified": false,
+  "fabrication_released": false,
+  "build_ready": false,
+  "source_sha256": {
+    "hardware/electronics/power_distribution/p03/power_p03.kicad_sch": "73285750168dc3184b37fd5442496006f6e7c265521d3c796bb31176337cd16d",
+    "hardware/electronics/power_distribution/p03/generated/netlist.xml": "8255a21b802a1460a9aee16d7774882b328a3587fb5a009a8e6660de56217963",
+    "hardware/electronics/power_distribution/p03/components.json": "2f318ddba4a70cc82915e5a995cb27fd27ead2f48e82eaeca58cc0a3d2f7e47c",
+    "hardware/electronics/power_distribution/p03/spec.py": "036a657eeeeff34ed2a6a32ee3d3d19c1d484408ba8232ec8daf7d9999f17042",
+    "hardware/electronics/power_distribution/p03/analysis.py": "e3bd80cf406e5397af921251008109778d297c35b0fbce06d285a1da83bb067e",
+    "hardware/electronics/power_distribution/p03/models.py": "70136f74be68d8e4076c2675cde7df659aab207b5ef01742f9485e9244f0406f",
+    "hardware/electronics/power_distribution/p03/buck_control.py": "085e77acbbe4014b4d128ede1247a90205088972731bf8df8c91621250d08a1c",
+    "hardware/electronics/power_distribution/p03/internal_pg.py": "a35b30d897caed3b8f60247b8e90a76958631b14519d5769eba604e7f287f2cd",
+    "hardware/electronics/power_distribution/p03/component-selections.json": "be4582b5c53cd300dc0fa8da17dacdd25296cccbed5b73744118d53d1f0a89ef",
+    "hardware/electronics/power_distribution/p03/check.py": "6384d4cd357d3000fc1151df8ef731af97b3e459c0449f807112a3219d8f90a9",
+    "hardware/electronics/power_distribution/p02/distribution.py": "aad5d2b0b4b3fce9ab2fb67fb6eb9b0b2e72a3b64426f6671e86401a38597f01"
+  }
+}

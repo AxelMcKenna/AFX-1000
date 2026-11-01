@@ -1,0 +1,15 @@
+# Private supported input-ear PCB
+
+This revision adds ONLY board-only H9 and its metal-contact copper keepout to the frozen `d55f9e48` ear proposal. All 85 original footprints, all original board objects, J13 pads/courtyard, original77 schematic parts and pin maps, filter traces, poses and outline remain exact. The schematic, component list and electrical BOM are unchanged. The parent ear and every earlier seal remain untouched.
+
+H9 uses the existing `RMX_Carrier:M2_Insert_Clearance` class at native (252,155.2), world (182,97.2): NPTH2.4mm, front head class5.6mm and back boss class7.2mm. The nominal bore-to-ear-top clearance is1.0mm. The declared J13 service bounding box starts X185.55 while H9's nominal head ends X184.8, leaving0.75mm before assembly allocations. These are package/geometry facts, not proof of strength, strain retention or process tolerances.
+
+The required all-layer metal exclusion radius is3.8mm. Its64-sided circumscribed rule area implements a3.801mm minimum radius: an additional1µm construction guard prevents integer contour rounding from affecting the independent full3.8mm audit. Tracks, vias and pours are forbidden on F/In1/In2/B.
+
+KiCad's pad-object prohibition also flags the empty H9 NPTH itself. The rule therefore permits pad objects, matching the existing mount convention, while `native_copper.py` independently checks ALL actual cached pad/track/via shapes and native filled copper on all four layers. It excludes only H9's empty NPTH (no net, size equals drill, no annulus). Each layer has exactly zero copper intersection with the full3.8mm disk; inside/outside boolean controls pass. There is no soldermask insulation credit. **Native DRC alone is insufficient after future pad edits: rerun this copper audit.** A real pad moved into the contact disk is rejected by the native fault-injection test.
+
+Fresh complete ERC/DRC/warnings/parity/opens are all zero. `generated/current-native.json` binds actual current source and proof; `generated/native.json` plus raw reports are the independent CLI results. `generated/package-review.json` proves exact parent preservation. Rejected strict-pad-rule and parser-stage evidence remains under `generated/history/`; it is not the current status.
+
+The support removes about35.845mm² of filled5V copper from EACH F/In2/B plane and35.579mm² from In1AGND. Area change does not establish resistance or ampacity; no parent PDN result is inherited. No full tensor extraction has started while wire/layout work remains active. The source remains J13.1B/J13.2B, with a2.4A shared target, known1A Seed and0.764A LED allocations, and0.636A of other branch/reserve terminals and returns still unassigned. Old J1 remains the unfitted service-wire proposal.
+
+Root owns the separate additive case boss at world (182,97.2), OD7.2mm, blind insert bore3.2mm, floor Z2.8 to PCB seat Z6.5. No frozen chassis is changed here. Native post/body/wire fit, actual material/insert engagement, clamp/support/strain strength, assembly tolerances, fabrication, ampacity/noise/thermal and physical qualification remain open. No physical or release gate passes from this package.

@@ -1,0 +1,62 @@
+{
+  "revision": "NF04R-READY-only-integration-proposal",
+  "boolean_permission": "N19_COMPLETE AND N19_OUTPUT_UV_GOOD AND N19_OUTPUT_OV_GOOD AND N12_COMPLETE AND N12_OUTPUT_UV_GOOD AND N12_OUTPUT_OV_GOOD",
+  "NF_export": {
+    "J1.30": "NF_OUTPUT_VALID",
+    "J1.2": "AGND"
+  },
+  "E28_proposal": {
+    "NEW_J12.1": "NF_OUTPUT_VALID_RAW",
+    "NEW_J12.2": "AGND",
+    "NEW_R_pulldown": "15k to AGND at receiver; complete +/-3% receiving",
+    "NEW_Schmitt_channel": "SN74LVC3G17DCUR third channel, exact pin binding by E28 owner",
+    "U27.3": "Rename driven net to E28_POS_OUTPUT_READY",
+    "U25.4": "E28_POS_OUTPUT_READY",
+    "U25.5": "conditioned NF_OUTPUT_VALID",
+    "U25.6": "E28_OUTPUT_READY",
+    "J9.3": "E28_OUTPUT_READY, existing external identity retained"
+  },
+  "upstream_MASTER_ARM_START_unchanged": true,
+  "connector_candidate": {
+    "E28_J12_header": "JST B2B-PH-K-S(LF)(SN)",
+    "mating_housing": "PHR-2",
+    "contacts": "SPH-002T-P0.5S",
+    "primary_url": "https://www.jst-mfg.com/product/pdf/eng/ePH.pdf",
+    "NF_J1_physical_connector_selected": false,
+    "complete_mated_harness_and_fit_qualified": false
+  },
+  "AUX_receiving_comparison": {
+    "supply_max_v": 2.652,
+    "pulldown_ohm": 15000,
+    "complete_resistance_fraction": 0.03,
+    "complete_receiver_plus_PCB_leakage_a": 7e-06,
+    "open_input_worst_v": 0.10815,
+    "NF_new_U49_complete_Icc_requirement_a": 0.000101,
+    "Icc_is_receiving_requirement_NOT_guaranteed_AUX_temperature_table": true,
+    "output_high_current_requirement_a": 0.00018926804123711342,
+    "new_U49_total_static_requirement_a": 0.00029026804123711343,
+    "old_NF_AUX_static_requirement_a": 0.0038377720352508683,
+    "new_NF_AUX_static_requirement_a": 0.004128040076487982,
+    "new_requirement_times1p2_a": 0.004953648091785578,
+    "existing_NF_provision_a": 0.005,
+    "remaining_guarded_headroom_a": 4.63519082144221e-05,
+    "new_E28_logic_and_total_P03_AUX_pool_qualified": false,
+    "powered_off_source_Ioff_extra_a": 6e-07,
+    "powered_off_connected_default_input_max_v": 0.11742000000000001,
+    "Ioff_range_applies_only_at_VCC_0_or_0_to_0p2_rows": true,
+    "unqualified_partial_power_0p2_to_functional_supply_v": true
+  },
+  "holds": [
+    "Actual AUP and HCS thresholds/loaded output levels over continuous AUX2.548..2.652V and installed temperature. Discrete voltage rows are not invented continuous guarantees.",
+    "AUP primary electrical table still labels -40..85C despite 125C ordering/header changes; hot transfer requires confirmation/test.",
+    "Actual E28 Schmitt thresholds/edge load, open-wire leakage, partial power, default-low and output loading.",
+    "JST minimum dry-circuit contact suitability, exact lands, drill tolerances, mating height, crimp/wire retention and cable bend/slack.",
+    "Native E28 schematic/PCB adoption, new NF233-part PCB placement/routing and all shared-reference/return/current budgets.",
+    "Startup/reset/rail-collapse timing, combinational hazards, measured loaded cutoff and fault energy."
+  ],
+  "electrical_interface_qualified": false,
+  "E28_native_adopted": false,
+  "NF_PCB_adopted": false,
+  "physical_qualified": false,
+  "fabrication_released": false
+}

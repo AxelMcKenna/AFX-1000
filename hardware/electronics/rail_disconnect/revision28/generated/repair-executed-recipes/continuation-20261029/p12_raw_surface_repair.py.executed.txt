@@ -1,0 +1,24 @@
+"""Join the actual P12 OC input to its real source component without new holes."""
+import hashlib,json,math,shutil,uuid
+from pathlib import Path
+from ...common.sexpr import a,children,first,read_sexpr,sexpr
+from .repair import Router
+from .receiver_surface_path import connect
+ROOT=Path(__file__).resolve().parent
+SOURCE=ROOT/'generated/strict-centering-clear-work'
+WORK=ROOT/'generated/p12-raw-surface-repair-work'
+
+def main():
+ assert not WORK.exists();path=SOURCE/'rail_disconnect.kicad_pcb';blob=path.read_bytes();t=read_sexpr(blob.decode());rt=Router(t);gp=SOURCE/'generated/residual-components.json';graph=json.loads(gp.read_text());assert next(h for p,h in graph['source_sha256'].items() if Path(p).resolve()==path.resolve())==hashlib.sha256(blob).hexdigest();p=next(p for p in rt.by_ref['U36'] if p['pin']=='6');assert p['net']=='P12_OV_OK';groups=graph['inventory'][p['net']]['components'];own=next(g for g in groups if any(n.get('ref')=='U36' and n.get('pin')=='6' for n in g));other=next(g for g in groups if g is not own and any(n['kind']=='PAD' for n in g));targets=[]
+ for n in other:
+  if 5 not in n['layers']:continue
+  for xy in [n['position_mm']]+([n['end_mm']] if n['kind']=='PCB_TRACK' else []):targets.append(dict(xy=xy,uuid=n['uuid'],kind=n['kind'],ref=n.get('ref'),pin=n.get('pin')))
+ targets=sorted(targets,key=lambda n:math.dist(n['xy'],p['xy']))[:80];got,reason=connect(rt,p,targets,radius=18,step=.025,budget=1200000);print('P12 actualBsurface',bool(got),reason,flush=True)
+ for i,n in enumerate(t):
+  if isinstance(n,list) and n and n[0] in ('segment','via') and not children(n,'uuid'):n.append([a('uuid'),a(str(uuid.uuid5(uuid.NAMESPACE_URL,f'rmx:E28:P12rawB:{hashlib.sha256(blob).hexdigest()}:{i}:{sexpr(n)}')))])
+ WORK.mkdir();(WORK/'generated').mkdir()
+ for f in SOURCE.iterdir():
+  if f.is_file() and (f.suffix in ('.kicad_pcb','.kicad_sch','.kicad_pro','.kicad_sym') or f.name in ('components.json','fp-lib-table','sym-lib-table')):shutil.copy2(f,WORK/f.name)
+  elif f.suffix=='.pretty':shutil.copytree(f,WORK/f.name)
+ (WORK/'rail_disconnect.kicad_pcb').write_text(sexpr(t)+'\n');(WORK/'generated/P12-raw-surface.json').write_text(json.dumps(dict(source_pcb_sha256=hashlib.sha256(blob).hexdigest(),native_graph_sha256=hashlib.sha256(gp.read_bytes()).hexdigest(),recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),surface_recipe_sha256=hashlib.sha256((ROOT/'receiver_surface_path.py').read_bytes()).hexdigest(),net=p['net'],route=got,reason=reason,all_existing_tracks_vias_footprints_and_dimensional_rules_preserved=True,no_new_holes=True,actual_filled_plane_withdrawal_and_all_PDN_must_be_renewed=True,physical_qualified=False),indent=2)+'\n')
+if __name__=='__main__':main()

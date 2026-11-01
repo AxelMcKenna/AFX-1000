@@ -1,0 +1,95 @@
+{
+  "revision": "NF03C-prototype-receiving-conditions-not-measurements",
+  "all_conditions_accepted": false,
+  "physical_tests_performed": 0,
+  "build_ready": false,
+  "loaded_cutoff": {
+    "whole_gate_node_Q_above1V_upper_c": 1e-06,
+    "maximum_initial_VGS_requirement_v": 13,
+    "opposing_PV_Miller_current_upper_a": 0.001,
+    "PhotoMOS_hot_RON_upper_requirement_ohm": 2,
+    "sensor_ISO_logic_harness_delay_requirement_s": 0.0015,
+    "PhotoMOS_close_time_upper_requirement_s": 0.005,
+    "threshold_to_actual_all_VGS_below1V_enclosure_s": 0.01,
+    "source_peak_and_total_fault_energy_upper_j": null,
+    "body_diode_reverse_discharge_qualified": false,
+    "uncertainty_rule": "Measured upper+expandedU<=limit; lower-expandedU>=minimum. Whole bank node includes BOTH MOS gates, actualCG, relay/wire capacitance."
+  },
+  "bias_and_logic": {
+    "delivered_module_V_requirement": [
+      21.6,
+      26.4
+    ],
+    "minimum_efficiency_requirement": 0.6,
+    "feed_load_model_transfer_accepted": false,
+    "normal_INT_requirement_v": [
+      4.75,
+      5.25
+    ],
+    "maximum_internal_INT_UVLO_guaranteed_v": null,
+    "HCS_continuous_AUX_VT_enclosure_primary_guaranteed": false,
+    "normal_HCS_output_loading_requirement_a": 2e-05,
+    "AUP_FF_clock_recovery_pulsewidth_and_brownout_proved": false,
+    "AUX_current_provision_inside_existing90ma_a": 0.005,
+    "module_input_fault_branch_protection_and_harness_selected": false
+  },
+  "caps": {
+    "CR_array_full_temperature_lifetime_effective_fraction_requirement": 0.1,
+    "CF_two_2p2uF_full_temperature_lifetime_effective_fraction_requirement": 0.1,
+    "CF_hot_IR_bound": null,
+    "native_INT_effective_bypass_and_startup_stability_qualified": false,
+    "complete_protected_network_max_F_verified": false,
+    "source_capacitor_and_inductor_total_energy_upper_j": null
+  },
+  "state_matrix_required": [
+    "biasVIN collapse withINTcap charged",
+    "INTVCC collapse withVINhealthy",
+    "isolator powered on onlyone side",
+    "sourcecollapse beforeARM/duringRAMP/afterCOMPLETE",
+    "protectedoutputshort duringRAMP/afterCOMPLETE",
+    "ARM asserted beforeBIASvalid",
+    "START heldHIGH while source recovers",
+    "watchdog timeout independent of passcontroller reset",
+    "sourceUV orOV beforePGlatch and afterCOMPLETE",
+    "openE28fault-return withpulldownOFF",
+    "DIG/AUX loss separately and jointly",
+    "retainedB2B reverse-discharge withchargedprotectedbulk"
+  ],
+  "packaging": {
+    "PCB_authored": false,
+    "proposed_vertical_mm": [
+      200,
+      28
+    ],
+    "proposal_plane_y_world_mm": 184.5,
+    "front_wall_backside_solder_THT_datum_resolved": false,
+    "mounts_force_quiet_returns_and_strain_relief_implemented": false,
+    "keep_floor_air_inlets_world_mm": [
+      [
+        38,
+        164,
+        110,
+        183
+      ],
+      [
+        231.5,
+        154,
+        276.5,
+        183
+      ]
+    ],
+    "TMR_and_CF_deep_body_x_world_requirement_mm": [
+      160,
+      220
+    ]
+  },
+  "remaining_selected_MPN_gaps": [
+    "shunts with totalhot/life error and Kelvinlands",
+    "watchdog timingcap exactMPNs",
+    "input/modulefilter effectiveC/inrush/maxheight",
+    "supervisorCT exactMPN",
+    "all precisiondivider lifetimeerror and orderableMPNs",
+    "hot pass/bankresistance at guaranteed actualVGS",
+    "actual positive12V/DIG operatingbranches and returns; noTESTJ3"
+  ]
+}

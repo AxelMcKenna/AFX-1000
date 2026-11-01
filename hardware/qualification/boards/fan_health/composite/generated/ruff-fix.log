@@ -1,0 +1,14 @@
+E731 Do not assign a `lambda` expression, use a `def`
+   --> hardware/qualification/boards/fan_health/composite/route_io.py:111:5
+    |
+109 |     assert poses(board) == oldposes, "Native coordinate restoration failed"
+110 |     # SES may rewrite UUIDs; compare physical/net geometry of locked local paths.
+111 |     geom = lambda ts: {t[1:] for t in ts}
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+112 |     missing = geom(before) - geom(tracks(board))
+113 |     pcbnew.ZONE_FILLER(board).Fill(board.Zones())
+    |
+help: Rewrite `geom` as a `def`
+
+Found 20 errors (19 fixed, 1 remaining).
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

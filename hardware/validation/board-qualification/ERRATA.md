@@ -1,0 +1,11 @@
+# Corrections to the first three-board review
+
+These corrections supersede the affected interpretations in the preserved E27 development report and the immutable `board-qualification-hold-review-20261025T110805Z.zip` snapshot. They do not change the original PCB sources or qualify any board.
+
+1. **CSD18510Q5B source/gate land dimensions.** TI's section 7.2, page 9, shows **1.372 × 0.710 mm** source/gate lands. The **1.100 mm** horizontal dimension is the gap from the compound drain land to the source/gate lands. E27's `device_review.py` and README incorrectly treated that gap as the land width. The original generic 0.700 × 0.700 mm lands still differ from the recommended pattern, but the E27 value must not guide a replacement footprint. The full drain, terminal numbering/orientation, solder mask and stencil need coordinated review. E28 implements that review as a separate revision.
+
+2. **E27 copper diagnostic terminal definition.** `Mesh.pads` in the preserved E27 `copper.py` assigns a single entry per `(reference, logical pin number)`. A Q5B package has several physical lands sharing a logical source or drain number, so later lands overwrite earlier electrode entries. The copper raster includes the lands, but the terminal excitation uses only the last one. The published approximately 3.169 / 3.140 mΩ analog values are therefore **superseded diagnostics**, not a valid complete-terminal budget result or proof that the corrected design fails 3 mΩ. E28 must union all physical lands for each logical terminal, verify current injection and repeat extraction with its actual geometry and declared stackup. Its own convergence and boundary limitations must remain visible.
+
+The original decision remains: qualification is withheld. Native opens, unreviewed assembly patterns and missing operating/physical evidence independently prevent qualification. Source hashes in [errata.json](errata.json) identify the reviewed inputs; the archive is retained unchanged so its history is auditable.
+
+Primary dimensional source: [TI CSD18510Q5B datasheet](https://www.ti.com/lit/ds/symlink/csd18510q5b.pdf), section 7.2. The drawing was visually reviewed at enlarged scale; text extraction alone does not establish dimension-arrow meaning.

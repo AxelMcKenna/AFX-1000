@@ -1,0 +1,60 @@
+def masks(self, net, width):
+    blocked = np.zeros((6, self.nx, self.ny), dtype=bool)
+    border = (self.xx < 0.75) | (self.xx > 155.25) | (self.yy < 0.75) | (self.yy > 53.75)
+    border |= (self.xx < 5.75) & (self.yy > 34.25)
+    border |= (self.xx > 153.75) & (self.yy > 34.5)
+    blocked[:] = border
+    via_block = np.array(border, copy=True)
+    for shape in self.geometry:
+        same = shape["net"] == net
+        # Conventional vias stay clear of SMD lands of their own net too;
+        # no via-in-pad/capped process is assumed.
+        for extra, destination in (
+            (CLEARANCE + width / 2 + 0.02, blocked),
+            (CLEARANCE + 0.3 + 0.02, via_block),
+        ):
+            if same and (destination is blocked or shape["kind"] == "line" or shape.get("through")):
+                continue
+            if same and destination is via_block:
+                # A conventional 0.3mm drill stays >=0.26mm from its own
+                # SMD land and other same-net drill edges. Same-net copper
+                # needs no electrical-clearance separation.
+                extra = 0.41 if shape["kind"] == "rect" else 0.26
+            if shape["kind"] == "line":
+                a, b = shape["start"], shape["end"]
+                radius = shape["width"] / 2 + extra
+                x0, x1 = min(a[0], b[0]) - radius, max(a[0], b[0]) + radius
+                y0, y1 = min(a[1], b[1]) - radius, max(a[1], b[1]) + radius
+            else:
+                wx, wy = (
+                    (v / 2 for v in shape["size"])
+                    if shape["kind"] == "rect"
+                    else (shape["radius"], shape["radius"])
+                )
+                x0, x1 = shape["xy"][0] - wx - extra, shape["xy"][0] + wx + extra
+                y0, y1 = shape["xy"][1] - wy - extra, shape["xy"][1] + wy + extra
+            ix0, ix1 = max(0, math.floor(x0 / STEP)), min(self.nx, math.ceil(x1 / STEP) + 1)
+            iy0, iy1 = max(0, math.floor(y0 / STEP)), min(self.ny, math.ceil(y1 / STEP) + 1)
+            x, y = self.xx[ix0:ix1], self.yy[:, iy0:iy1]
+            if shape["kind"] == "line":
+                dx, dy = b[0] - a[0], b[1] - a[1]
+                t = np.clip(((x - a[0]) * dx + (y - a[1]) * dy) / (dx * dx + dy * dy), 0, 1)
+                hit = (x - a[0] - t * dx) ** 2 + (y - a[1] - t * dy) ** 2 <= radius * radius
+            elif shape["kind"] == "via":
+                hit = (x - shape["xy"][0]) ** 2 + (y - shape["xy"][1]) ** 2 <= (
+                    shape["radius"] + extra
+                ) ** 2
+            else:
+                hit = (x >= x0) & (x <= x1) & (y >= y0) & (y <= y1)
+            if destination is blocked:
+                for layer in shape["layers"]:
+                    blocked[layer, ix0:ix1, iy0:iy1] |= hit
+            else:
+                via_block[ix0:ix1, iy0:iy1] |= hit
+    for shape in self.geometry:
+        if shape["kind"] == "via" and shape["net"] == net:
+            ix, iy = (round(v / STEP) for v in shape["xy"])
+            if math.dist((ix * STEP, iy * STEP), shape["xy"]) < 1e-7:
+                via_block[ix, iy] = False
+    return blocked, via_block
+

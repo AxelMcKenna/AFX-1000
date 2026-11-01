@@ -1,0 +1,87 @@
+"""Move only new C79 away from the U36 signal escape channel; rebuild local bypass arms."""
+
+import hashlib
+import json
+import shutil
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/schmitt-receiver-joint-surface-work"
+PROTECTED = ROOT / "generated/schmitt-all-oc-reconnect1-work"
+WORK = ROOT / "generated/schmitt-receiver-bypass-repair-work"
+
+
+def main():
+    assert not WORK.exists()
+    blob = (SOURCE / "rail_disconnect.kicad_pcb").read_bytes()
+    t = read_sexpr(blob.decode())
+    base = read_sexpr((PROTECTED / "rail_disconnect.kicad_pcb").read_text())
+    oldids = {str(first(n, "uuid")[1]) for k in ("segment", "via") for n in children(base, k)}
+    names = {str(n[1]): str(n[2]).lstrip("/") for n in children(t, "net")}
+    removed = []
+    for n in list(t):
+        if (
+            not isinstance(n, list)
+            or not n
+            or n[0] not in ("segment", "via")
+            or str(first(n, "uuid")[1]) in oldids
+        ):
+            continue
+        net = names[str(first(n, "net")[1])]
+        if net not in ("AGND", "V2V5_AUX"):
+            continue
+        pts = [
+            tuple(float(v) - 100 for v in first(n, k)[1:])
+            for k in (("at",) if n[0] == "via" else ("start", "end"))
+        ]
+        if not any(6 <= x <= 18 and 9 <= y <= 21 for x, y in pts):
+            continue
+        assert all(0 < x < 30 and 0 < y < 30 for x, y in pts), (net, pts)
+        removed.append(dict(net=net, literal=sexpr(n)))
+        t.remove(n)
+    fp = next(
+        f
+        for f in children(t, "footprint")
+        if any(p[1] == "Reference" and p[2] == "C79" for p in children(f, "property"))
+    )
+    before = sexpr(fp)
+    assert tuple(map(float, first(fp, "at")[1:3])) == (114.3, 113.75)
+    first(fp, "at")[2] = a("116.0")
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for p in SOURCE.iterdir():
+        if p.is_file() and (
+            p.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym")
+            or p.name in ("components.json", "fp-lib-table", "sym-lib-table")
+        ):
+            shutil.copy2(p, WORK / p.name)
+        elif p.suffix == ".pretty":
+            shutil.copytree(p, WORK / p.name)
+    (WORK / "rail_disconnect.kicad_pcb").write_text(sexpr(t) + "\n")
+    (WORK / "generated/bypass-repair.json").write_text(
+        json.dumps(
+            dict(
+                source_pcb_sha256=hashlib.sha256(blob).hexdigest(),
+                protected_reference_pcb_sha256=hashlib.sha256(
+                    (PROTECTED / "rail_disconnect.kicad_pcb").read_bytes()
+                ).hexdigest(),
+                recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                C79_before=before,
+                C79_after=sexpr(fp),
+                new_local_U36_C79_auxiliary_and_return_arms_removed_for_rebuild=removed,
+                all_44_checkpoint_original_ground_reference_force_and_terminal_Cu_preserved=True,
+                all_nets_values_and_U36_pose_unchanged=True,
+                native_clearance_fit_and_PDN_required=True,
+                physical_qualified=False,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+    print("C79 B14.3,16; removed", len(removed), "new local bypass-arm objects for explicit rebuild")
+
+
+if __name__ == "__main__":
+    main()

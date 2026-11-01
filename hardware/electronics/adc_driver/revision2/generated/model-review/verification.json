@@ -1,0 +1,72 @@
+{
+  "model_sha256": "0a8c0db4398d7849ef46ba831bac4bc5f09352c9ead3a7be6a3a7e36d5a21527",
+  "simulator_library_sha256": "0ca3aa63d8b1c714360dcef8322e299c7d53cee7650dd8431c907b020df5df1f",
+  "code_models_sha256": {
+    "analog.cm": "4f70d9f417b26d3a515832f8d7a6538faead60da323be91056c61b17397acc5e",
+    "digital.cm": "c3757d7325089ee97b0a80b4f579dcda8674c205b5e1008ce7b299ed51dbfc4e",
+    "spice2poly.cm": "9a3b7c13cd8661d803d4fadc69952d393f23394050cdcceb22ee56cee450d82f",
+    "table.cm": "b2e047ff149de3543c72be17815542efec5dcee9a1b1d5e1e962ba00a301780e",
+    "tlines.cm": "2475bf9b706f42291d59ba486c113cb4d488d3d841edd05f26cf3732f481acca",
+    "xtradev.cm": "b43d5ecb42b6c853ec7b527d0ba1f716c4fdd9fdc9e678d9ba84132fcfcef422",
+    "xtraevt.cm": "519c481034b8b953a64fd76547b74b46d7942c850e562abcf7cca0fc0a977a76"
+  },
+  "vendor_fixture_sha256": "12de4a972a5747735b0db3c55d208c8cfc2b0d1b44b70e073b5e93d5715cf736",
+  "vendor_fixture_url": "https://www.ti.com/lit/zip/sbomb92b",
+  "vendor_fixture_syntax_adaptation": "Only resistor TC=0,0 replaced by equivalent TC1=0 TC2=0; external .include and DC analysis added",
+  "vendor_fixture_zero_input_common_mode_v": 0.00020019679472858365,
+  "model_modified": false,
+  "model_redistributed": false,
+  "cases": [
+    {
+      "id": "native-loadref-0",
+      "load_reference_v": 0,
+      "common_mode_v": 1.210491358539541,
+      "common_loop_error_v": 0.4231676503596147,
+      "internal_common_control_above_mid_v": 3.8219415260013534,
+      "solver_clean": true
+    },
+    {
+      "id": "native-loadref-0p825",
+      "load_reference_v": 0.825,
+      "common_mode_v": 1.6355645091617412,
+      "common_loop_error_v": 0.0028198409520598933,
+      "internal_common_control_above_mid_v": 2.819835306749725,
+      "solver_clean": true
+    },
+    {
+      "id": "native-loadref-1p65",
+      "load_reference_v": 1.65,
+      "common_mode_v": 1.64902963721363,
+      "common_loop_error_v": -0.00029469326392628226,
+      "internal_common_control_above_mid_v": -0.29469267395158383,
+      "solver_clean": true
+    }
+  ],
+  "explanation": "Native-to-vendor terminals agree with the vendor fixture. Ground-referenced static loads force substantial common-mode DC current and drive the model common-mode control into its clamp; referencing loads to 1.65 V removes that burden. This explains the numerical branch discrepancy without proving real ADC load reference, common-mode source capability, switching behavior or physical headroom.",
+  "actual_ess_dc_input_reference_verified": false,
+  "full_board_stability_verified": false,
+  "physical_tests_performed": 0,
+  "fabrication_released": false,
+  "build_ready": false,
+  "source_sha256": {
+    "hardware/electronics/adc_driver/revision2/model_review.py": "90a9c2d366ceb63f6f65c1ba2b62ad93ef0aea173a22a096a699c9938ad0b5f4",
+    "hardware/electronics/adc_driver/qualification/spice.py": "e0bbc19c9b18fde03300ccd5563d6d865220eaed986e75a95e4f345c9efcfa52",
+    "hardware/electronics/adc_driver/qualification/generated/native-original/netlist.xml": "cbffb1b984d71a359b7be59363cbdfac221d94cae4a73211d30080fcbd3705e1"
+  },
+  "evidence_sha256": {
+    "native-loadref-0-log.txt": "f4606a059e5dda30a83726ee3b1c867f02532fd25085117e01e5681e1dce90e2",
+    "vendor-fixture-log.txt": "6f114a538168fb7ad231568f10a3d6e42b03fc58f51bc89b08135cda1eeae8ab",
+    "native-loadref-0.json": "fa79ea1c1bb9112dbbc9ac192bb1c08cffdde7e8bb8dc756cdcd81068d3c5827",
+    "native-loadref-1p65.cir": "fcb518d5c0a8784203eea6ff76c896fd5698988828155e78a6b519310d60dc3f",
+    "native-loadref-0p825-log.txt": "f4606a059e5dda30a83726ee3b1c867f02532fd25085117e01e5681e1dce90e2",
+    "vendor-fixture-failure.txt": "52233499683a6eeb55383d31b6194fe360629b225bf019d57fce54c0f229a24e",
+    "native-loadref-0p825.cir": "9e364cd4532af0c55176833b774332d76aed0450127426f4fb6422120c0d5ee9",
+    "native-loadref-1p65.json": "be225bf63721d3e4d255579006529aa441acee87a1981aefa38720c39626f678",
+    "vendor-fixture.json": "0c28235dbfc269cd99968ea47a43625e1ed41a875ebb9ea7fce345e353d300b6",
+    "vendor-fixture.cir": "34585848bf6aa98ef149b0897577e18e01c46f4d1a391e35c5a30e6a2513909e",
+    "initialization.txt": "77294597aa12ac78f52cf401749ff92404002508229dc263b64f70f11be41aae",
+    "native-loadref-0p825.json": "233a7988bb7b29cc0afcb6febc4e8e4124ca76b3bc8e762ad782a3ee07864d15",
+    "native-loadref-1p65-log.txt": "f4606a059e5dda30a83726ee3b1c867f02532fd25085117e01e5681e1dce90e2",
+    "native-loadref-0.cir": "d18063163e00dc0dabb93670a049cfe6b570062dd877347d013e6ee2be861fad"
+  }
+}

@@ -1,0 +1,191 @@
+"""Separate unreleased50µm-wall construction; original native source preserved.
+
+KiCad records the six finished copper/depth layers and finished bore/land. The
+through-wall requirement and missing fabrication maxima live in an explicit
+source-bound contract, never inferred from a nominal two-ounce label.
+"""
+
+import argparse
+import gzip
+import hashlib
+import json
+import os
+import shutil
+import subprocess
+import tempfile
+from pathlib import Path
+
+from ...common.placement import footprint_root
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+from .route import coded, named
+from .spec import REPO, ROOT
+
+DEST = ROOT / "construction50"
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def build(cli):
+    if (DEST / "construction.json").exists():
+        raise RuntimeError(
+            "The initial C50 snapshot is frozen; canonical P03 uses construction.py requirements"
+        )
+    DEST.mkdir(exist_ok=True)
+    generated = DEST / "generated"
+    generated.mkdir(exist_ok=True)
+    raw = (ROOT / "power_p03.kicad_pcb").read_bytes()
+    base_digest = hashlib.sha256(raw).hexdigest()
+    archive = ROOT / f"generated/history/construction25-{base_digest[:16]}.kicad_pcb.gz"
+    if not archive.exists():
+        archive.write_bytes(gzip.compress(raw, mtime=0))
+    snapshot = archive.with_suffix(".json")
+    if not snapshot.exists():
+        snapshot.write_text(
+            json.dumps(
+                dict(pcb_sha256=base_digest, via_wall_minimum_required_um=25, physical_qualified=False),
+                indent=2,
+            )
+            + "\n"
+        )
+    for suffix in (".kicad_pro", ".kicad_dru", ".kicad_sch"):
+        shutil.copy2(ROOT / ("power_p03" + suffix), DEST / ("power_p03" + suffix))
+    for symbol in ROOT.glob("*.kicad_sym"):
+        shutil.copy2(symbol, DEST / symbol.name)
+    for name in ("fp-lib-table", "sym-lib-table", "components.json", "bom.csv"):
+        if (ROOT / name).exists():
+            shutil.copy2(ROOT / name, DEST / name)
+    shutil.copytree(ROOT / "RMX_P03.pretty", DEST / "RMX_P03.pretty", dirs_exist_ok=True)
+    tree = coded(read_sexpr(raw.decode()))
+    stack = first(first(tree, "setup"), "stackup")
+    dielectric = [0.10, 0.34, 0.27, 0.34, 0.10]
+    di = 0
+    for layer in children(stack, "layer"):
+        name = str(layer[1])
+        if name in {"F.Cu", "B.Cu"}:
+            first(layer, "thickness")[1] = a(0.085)
+        elif name.startswith("dielectric"):
+            first(layer, "thickness")[1] = a(dielectric[di])
+            di += 1
+    assert di == 5
+    nets = {str(n[1]): str(n[2]).lstrip("/") for n in children(tree, "net")}
+    modified = []
+    for via in children(tree, "via"):
+        x, y = [float(v) - 100 for v in first(via, "at")[1:3]]
+        if nets[str(first(via, "net")[1])] == "AGND" and abs(x - 109) <= 0.825 and abs(y - 8.2) <= 1.19:
+            assert abs(float(first(via, "drill")[1]) - 0.25) < 1e-6
+            first(via, "size")[1] = a(0.70)
+            modified.append([x, y])
+    assert len(modified) == 12, "Native direct-EP inventory changed; explicit review required"
+    pcb = DEST / "power_p03.kicad_pcb"
+    pcb.write_text(sexpr(named(tree)) + "\n")
+    logs = []
+    with tempfile.TemporaryDirectory(prefix="p03-construction50-") as temp:
+        env = dict(os.environ, KICAD_CONFIG_HOME=temp, KICAD10_FOOTPRINT_DIR=str(footprint_root(str(cli))))
+        for args in (
+            ["--version"],
+            [
+                "sch",
+                "erc",
+                "--severity-all",
+                "--format",
+                "json",
+                "-o",
+                str(generated / "erc.json"),
+                str(DEST / "power_p03.kicad_sch"),
+            ],
+            [
+                "pcb",
+                "drc",
+                "--severity-all",
+                "--schematic-parity",
+                "--refill-zones",
+                "--save-board",
+                "--format",
+                "json",
+                "-o",
+                str(generated / "drc.json"),
+                str(pcb),
+            ],
+        ):
+            run = subprocess.run([str(cli), *args], env=env, capture_output=True, text=True)
+            logs.append(dict(arguments=args, exit_code=run.returncode, stdout=run.stdout, stderr=run.stderr))
+            assert run.returncode == 0, run.stdout + run.stderr
+    drc = json.loads((generated / "drc.json").read_text())
+    erc = json.loads((generated / "erc.json").read_text())
+    erc_issues = [v for sheet in erc["sheets"] for v in sheet["violations"]]
+    contract = dict(
+        revision="P03-C50-unreleased",
+        pcb_sha256=digest(pcb),
+        base25wall_pcb_sha256=base_digest,
+        base25wall_archive=str(archive.relative_to(REPO)),
+        board_nominal_thickness_mm=1.6,
+        board_thickness_approved_range_mm=None,
+        via_wall_minimum_required_um=50,
+        via_wall_maximum_approved_um=None,
+        outer_finished_copper_minimum_required_um=85,
+        outer_finished_copper_maximum_approved_um=None,
+        inner_finished_copper_minimum_required_um=70,
+        inner_finished_copper_maximum_approved_um=None,
+        native_nominal_dielectric_mm=dielectric,
+        native_copper_stack_is_fabricator_template=False,
+        finished_ep_bore_nominal_mm=0.25,
+        finished_bore_approved_range_mm=None,
+        direct_ep_land_nominal_mm=0.70,
+        direct_ep_land_minimum_after_etch_mm=None,
+        direct_ep_x_pitch_mm=0.50,
+        direct_ep_y_pitch_mm=0.50,
+        direct_ep_vias_mm=modified,
+        ep_preplate_drill_example_mm=0.35,
+        ep_preplate_radial_ring_example_mm=0.175,
+        ep_preplate_drill_web_example_mm=0.15,
+        preplate_drill_approved_range_mm=None,
+        drill_position_registration_approved_mm=None,
+        minimum_drill_web_approved_mm=None,
+        non_ep_land_nominal_minimum_mm=0.60,
+        non_ep_preplate_radial_ring_example_mm=0.125,
+        via_fill="Resin filled and copper capped, planarized; not solid copper filled",
+        fill_cap_flatness_approved_mm=None,
+        fabricator_dfm_approved=False,
+        actual_microsection_verified=False,
+        material_and_process_capability_sources=[
+            "https://www.pcbonline.com/PCB-FAB/pcb-fabrication/",
+            "https://www.shiyipcb.com/ultra-heavy-copper-pcb/",
+        ],
+        capability_page_is_board_specific_acceptance=False,
+        native_erc_issues=len(erc_issues),
+        native_drc_violations=len(drc["violations"]),
+        native_parity_issues=len(drc.get("schematic_parity", [])),
+        native_open_connections=len(drc["unconnected_items"]),
+        clearance_at_actual_12_ep_lands_native_checked=True,
+        physical_tests_performed=0,
+        thermal_qualified=False,
+        fabrication_released=False,
+        build_ready=False,
+        source_sha256={
+            str(p.relative_to(REPO)): digest(p)
+            for p in [
+                ROOT / "construction50.py",
+                DEST / "power_p03.kicad_sch",
+                DEST / "power_p03.kicad_pro",
+                DEST / "power_p03.kicad_dru",
+                DEST / "components.json",
+            ]
+        },
+    )
+    (DEST / "construction.json").write_text(json.dumps(contract, indent=2) + "\n")
+    (generated / "native-commands.json").write_text(json.dumps(logs, indent=2) + "\n")
+    print(
+        "C50 native ERC/DRC/parity/opens:",
+        len(erc_issues),
+        len(drc["violations"]),
+        len(drc.get("schematic_parity", [])),
+        len(drc["unconnected_items"]),
+    )
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--kicad-cli", type=Path, required=True)
+    build(parser.parse_args().kicad_cli)

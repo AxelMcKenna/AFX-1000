@@ -1,0 +1,16 @@
+"""Require explicit native check coverage as well as zero reported findings."""
+
+
+def summarize(drc, erc):
+    counts = {key: len(drc[key]) for key in ("violations", "unconnected_items", "schematic_parity")}
+    counts["erc"] = sum(len(sheet.get("violations", [])) for sheet in erc.get("sheets", []))
+    ignored = drc.get("ignored_checks")
+    coverage_explicit = isinstance(ignored, list)
+    all_checks_enabled = coverage_explicit and not ignored
+    return {
+        "counts": counts,
+        "ignored_checks": ignored,
+        "native_check_coverage_explicit": coverage_explicit,
+        "all_native_rule_checks_enabled": all_checks_enabled,
+        "native_closed": not any(counts.values()) and all_checks_enabled,
+    }

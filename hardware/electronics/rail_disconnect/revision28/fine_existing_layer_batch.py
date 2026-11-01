@@ -1,0 +1,123 @@
+"""Focused control joins through existing physical barrels, with no new drills."""
+
+import hashlib
+import itertools
+import json
+import math
+import shutil
+import uuid
+from pathlib import Path
+
+from ...common.sexpr import read_sexpr, sexpr
+from .filled_surface_path import path_between
+from .repair import Router
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/u28-negative-force-arms-work"
+WORK = ROOT / "generated/u28-fine-existing-control-work"
+
+
+def main():
+    assert not WORK.exists()
+    source = SOURCE / "rail_disconnect.kicad_pcb"
+    original = source.read_bytes()
+    digest = hashlib.sha256(original).hexdigest()
+    tree = read_sexpr(original.decode())
+    filled_path = SOURCE / "generated/filled-negative-force-arms1.kicad_pcb"
+    filled = read_sexpr(filled_path.read_text())
+    pad_path = SOURCE / "generated/native-pads.json"
+    pads = json.loads(pad_path.read_text())
+    assert pads["source_pcb_sha256"] == hashlib.sha256(filled_path.read_bytes()).hexdigest()
+    inventory_path = SOURCE / "generated/residual-components.json"
+    inventory = json.loads(inventory_path.read_text())
+    assert [v for p, v in inventory["source_sha256"].items() if Path(p).resolve() == source] == [digest]
+    plans = (("P03_SOURCES_READY", "J9", "2"), ("E28_FAULT", "J9", "4"), ("POWER_RUN", "J5", "3"))
+    added, results = [], []
+    for net, ref, pin in plans:
+        router = Router(tree)
+        data = inventory["inventory"][net]
+        target_group = next(
+            g for g in data["components"] if any(o.get("ref") == ref and o.get("pin") == pin for o in g)
+        )
+        target = next(o for o in target_group if o.get("ref") == ref and o.get("pin") == pin)
+        assert len(target["layers"]) == 6
+        other_groups = [
+            g for g in data["components"] if g is not target_group and any(o["kind"] == "PAD" for o in g)
+        ]
+        anchors = [
+            o for g in other_groups for o in g if len(o["layers"]) == 6 and o["kind"] in ("PCB_VIA", "PAD")
+        ]
+        anchors.sort(key=lambda o: math.dist(o["position_mm"], target["position_mm"]))
+        trials = []
+        done = False
+        for anchor, layer, step in itertools.product(anchors[:3], (1, 4), (0.05, 0.025)):
+            start, finish = anchor["position_mm"], target["position_mm"]
+            try:
+                points, visited = path_between(
+                    router, start, finish, layer, filled, pads, margin=4, step=step, net=net
+                )
+            except AssertionError as error:
+                trials.append(dict(anchor_uuid=anchor["uuid"], layer=layer, grid=step, failure=str(error)))
+                continue
+            objects = []
+            for index, (a, b) in enumerate(zip(points, points[1:])):
+                if math.dist(a, b) < 1e-8:
+                    continue
+                uid = uuid.uuid5(
+                    uuid.NAMESPACE_URL, f"rmx:E28:existingControl:{digest}:{net}:{index}:{a}:{b}"
+                )
+                name = ("F.Cu", "In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu", "B.Cu")[layer]
+                node = read_sexpr(
+                    f'(segment (start {100 + a[0]:.6f} {100 + a[1]:.6f}) (end {100 + b[0]:.6f} {100 + b[1]:.6f}) (width .2) (layer "{name}") (net {router.nets[net]}) (uuid {uid}))'
+                )
+                tree.append(node)
+                objects.append(sexpr(node))
+                added.append(sexpr(node))
+            trials.append(
+                dict(
+                    anchor_uuid=anchor["uuid"],
+                    anchor_xy_mm=start,
+                    target_ref=ref,
+                    target_pin=pin,
+                    target_xy_mm=finish,
+                    layer=layer,
+                    grid=step,
+                    route_points_mm=points,
+                    visited_cells=visited,
+                    actual_new_tracks=objects,
+                )
+            )
+            done = True
+            break
+        results.append(dict(net=net, connected_by_proposed_tracks=done, trials=trials))
+        print(net, done, flush=True)
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for p in SOURCE.iterdir():
+        if p.is_file() and (
+            p.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym")
+            or p.name in ("components.json", "fp-lib-table", "sym-lib-table")
+        ):
+            shutil.copy2(p, WORK / p.name)
+        elif p.suffix == ".pretty":
+            shutil.copytree(p, WORK / p.name)
+    (WORK / source.name).write_text(sexpr(tree) + "\n")
+    report = dict(
+        source_pcb_sha256=digest,
+        recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        native_inventory_sha256=hashlib.sha256(inventory_path.read_bytes()).hexdigest(),
+        native_pads_sha256=hashlib.sha256(pad_path.read_bytes()).hexdigest(),
+        attempts=results,
+        actual_added_copper=added,
+        no_original_objects_removed_or_modified=True,
+        no_new_drills_or_part_moves=True,
+        original_force_fills_are_search_obstacles=True,
+        AGND_refill_and_native_validation_pending=True,
+        physical_and_electrical_qualified=False,
+    )
+    (WORK / "generated/existing-barrel-joins.json").write_text(json.dumps(report, indent=2) + "\n")
+    assert source.read_bytes() == original
+
+
+if __name__ == "__main__":
+    main()

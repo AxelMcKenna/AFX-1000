@@ -1,0 +1,412 @@
+{
+  "revision": "E12-Q01-conditional-vendor-stage",
+  "checked_at_utc": "2026-10-25T11:00:14.562211+00:00",
+  "scope": "Native left THS4551 resistor/capacitor stage with ideal buffered source, fixed VOCM, explicit DC supplies and declared static load/parasitic scenarios",
+  "vendor_model": {
+    "url": "https://www.ti.com/lit/zip/sbomb92b",
+    "archive_sha256": "10922b527027603f0c047c1070c6ffd3504a9ecf8d9ce1127ade2965e3863602",
+    "path": "/private/tmp/afx-ths4551-sbomb92b/ths4551.lib",
+    "sha256": "0a8c0db4398d7849ef46ba831bac4bc5f09352c9ead3a7be6a3a7e36d5a21527",
+    "subcircuit_pin_order": [
+      "IN+",
+      "IN-",
+      "OUT+",
+      "OUT-",
+      "VOCM",
+      "VCC",
+      "VEE"
+    ],
+    "model_modified": false,
+    "redistributed": false
+  },
+  "simulator_library": {
+    "path": "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/PlugIns/sim/libngspice.0.dylib",
+    "sha256": "0ca3aa63d8b1c714360dcef8322e299c7d53cee7650dd8431c907b020df5df1f",
+    "initialization_log": "initialization.txt",
+    "code_models_sha256": {
+      "analog.cm": "4f70d9f417b26d3a515832f8d7a6538faead60da323be91056c61b17397acc5e",
+      "digital.cm": "c3757d7325089ee97b0a80b4f579dcda8674c205b5e1008ce7b299ed51dbfc4e",
+      "spice2poly.cm": "9a3b7c13cd8661d803d4fadc69952d393f23394050cdcceb22ee56cee450d82f",
+      "table.cm": "b2e047ff149de3543c72be17815542efec5dcee9a1b1d5e1e962ba00a301780e",
+      "tlines.cm": "2475bf9b706f42291d59ba486c113cb4d488d3d841edd05f26cf3732f481acca",
+      "xtradev.cm": "b43d5ecb42b6c853ec7b527d0ba1f716c4fdd9fdc9e678d9ba84132fcfcef422",
+      "xtraevt.cm": "519c481034b8b953a64fd76547b74b46d7942c850e562abcf7cca0fc0a977a76"
+    }
+  },
+  "independent_rc_smoke_passed": true,
+  "model_compatibility_passed": true,
+  "cases": [
+    {
+      "id": "nominal",
+      "parameters": {},
+      "analysis": "ac",
+      "points": 141,
+      "completed": true,
+      "convergence_clean": true,
+      "solver_comparison_eligible": true,
+      "solver_warnings": [],
+      "netlist_sha256": "64d4e02d8352195043f385ffc7de8303a6d19d89678a3cdea7cc63f5096db886",
+      "at_1khz": {
+        "frequency_hz": 999.9999999999968,
+        "differential_gain": 0.48594188769520513,
+        "differential_phase_deg": -0.0011086334822451027,
+        "transfer_real": 0.4859418876042379,
+        "transfer_imag": -9.402637535765947e-06
+      },
+      "maximum_swept_closed_loop_gain": 0.6527299367029266,
+      "closed_loop_phase_is_not_loop_phase_margin": true
+    },
+    {
+      "id": "low_resistance",
+      "parameters": {
+        "resistance": 221
+      },
+      "analysis": "ac",
+      "points": 141,
+      "completed": true,
+      "convergence_clean": true,
+      "solver_comparison_eligible": true,
+      "solver_warnings": [],
+      "netlist_sha256": "2c1ab9090206950c6ce0c0e4a0e704ad9ad9741d1b0976dbcc380cb33530b2c9",
+      "at_1khz": {
+        "frequency_hz": 999.9999999999968,
+        "differential_gain": 0.485941776086048,
+        "differential_phase_deg": -0.0011126145506228687,
+        "transfer_real": 0.4859417759944263,
+        "transfer_imag": -9.436399947598708e-06
+      },
+      "maximum_swept_closed_loop_gain": 0.6633053822629786,
+      "closed_loop_phase_is_not_loop_phase_margin": true
+    },
+    {
+      "id": "high_resistance",
+      "parameters": {
+        "resistance": 299
+      },
+      "analysis": "ac",
+      "points": 141,
+      "completed": true,
+      "convergence_clean": true,
+      "solver_comparison_eligible": true,
+      "solver_warnings": [],
+      "netlist_sha256": "8eacfc2166309e04904a7da8a46244d968aec24d27b87bbd8cfff525eb7ecc17",
+      "at_1khz": {
+        "frequency_hz": 999.9999999999968,
+        "differential_gain": 0.48594196820095487,
+        "differential_phase_deg": -0.0011056916173469513,
+        "transfer_real": 0.48594196811046975,
+        "transfer_imag": -9.377688292046764e-06
+      },
+      "maximum_swept_closed_loop_gain": 0.6451274562926782,
+      "closed_loop_phase_is_not_loop_phase_margin": true
+    },
+    {
+      "id": "differential_load",
+      "parameters": {
+        "load": "differential"
+      },
+      "analysis": "ac",
+      "points": 141,
+      "completed": true,
+      "convergence_clean": true,
+      "solver_comparison_eligible": true,
+      "solver_warnings": [],
+      "netlist_sha256": "0339d4222565ec1b1977516d6e997db158837fb61aa303fe3ec1779d93ba3f1d",
+      "at_1khz": {
+        "frequency_hz": 999.9999999999968,
+        "differential_gain": 0.4859412677103773,
+        "differential_phase_deg": -0.0011311924449170462,
+        "transfer_real": 0.48594126761567047,
+        "transfer_imag": -9.593954307684544e-06
+      },
+      "maximum_swept_closed_loop_gain": 0.7175514596825355,
+      "closed_loop_phase_is_not_loop_phase_margin": true
+    },
+    {
+      "id": "extra_0p5pf_input",
+      "parameters": {
+        "extra_input_pf": 0.5
+      },
+      "analysis": "ac",
+      "points": 141,
+      "completed": true,
+      "convergence_clean": true,
+      "solver_comparison_eligible": true,
+      "solver_warnings": [],
+      "netlist_sha256": "20cb220cc727da2beed4b883f5c8c2e700ce20985626e404ad4fcee89b57968f",
+      "at_1khz": {
+        "frequency_hz": 999.9999999999968,
+        "differential_gain": 0.4859418877094264,
+        "differential_phase_deg": -0.0011086338810149111,
+        "transfer_real": 0.4859418876184591,
+        "transfer_imag": -9.402640918121878e-06
+      },
+      "maximum_swept_closed_loop_gain": 0.6676654881701796,
+      "closed_loop_phase_is_not_loop_phase_margin": true
+    },
+    {
+      "id": "extra_0p5pf_input_22pf_output",
+      "parameters": {
+        "extra_input_pf": 0.5,
+        "extra_output_pf": 22
+      },
+      "analysis": "ac",
+      "points": 141,
+      "completed": true,
+      "convergence_clean": true,
+      "solver_comparison_eligible": true,
+      "solver_warnings": [],
+      "netlist_sha256": "4a136d64c969aade2321e770df2aff954eb2afead32f57b5cc0bad09b8849b7b",
+      "at_1khz": {
+        "frequency_hz": 999.9999999999968,
+        "differential_gain": 0.485941887716305,
+        "differential_phase_deg": -0.0011086365501825862,
+        "transfer_real": 0.4859418876253372,
+        "transfer_imag": -9.402663556229173e-06
+      },
+      "maximum_swept_closed_loop_gain": 0.6515250499644857,
+      "closed_loop_phase_is_not_loop_phase_margin": true
+    },
+    {
+      "id": "dc_nominal",
+      "parameters": {
+        "analysis": "dc"
+      },
+      "analysis": "dc",
+      "points": 49,
+      "completed": true,
+      "convergence_clean": false,
+      "solver_comparison_eligible": false,
+      "solver_warnings": [
+        "stderr Note: Starting dynamic gmin stepping",
+        "stderr Warning: Dynamic gmin stepping failed",
+        "stderr Note: Starting true gmin stepping",
+        "stderr Warning: True gmin stepping failed"
+      ],
+      "netlist_sha256": "ddaadaa684fb105c4dcb63ed494bbc55cf0ea05914b1ad1ea03eeca959a9eb16",
+      "raw_pin_voltage_span_v": [
+        -0.13885319138112195,
+        2.827678202995628
+      ],
+      "sweep_axis_v": [
+        -6.0,
+        6.0
+      ],
+      "zero_input_common_mode_v": 1.2104911432863743,
+      "ideal_static_common_mode_estimate_v": 1.6291964150083547,
+      "common_mode_residual_v": -0.41870527172198035,
+      "dc_hardware_headroom_interpretation_accepted": false
+    },
+    {
+      "id": "dc_low_supply",
+      "parameters": {
+        "analysis": "dc",
+        "positive_v": 4.9,
+        "negative_v": -0.1838
+      },
+      "analysis": "dc",
+      "points": 49,
+      "completed": true,
+      "convergence_clean": false,
+      "solver_comparison_eligible": false,
+      "solver_warnings": [
+        "stderr Note: Starting dynamic gmin stepping",
+        "stderr Note: Dynamic gmin stepping completed"
+      ],
+      "netlist_sha256": "f21abb2df5813e6ade1a3b68dd3b8ffdb706535afbe8b4fb7daca3e5f9a8a9cf",
+      "raw_pin_voltage_span_v": [
+        2.032112158820471,
+        2.5933516626205453
+      ],
+      "sweep_axis_v": [
+        -6.0,
+        6.0
+      ],
+      "zero_input_common_mode_v": 2.313134479633442,
+      "ideal_static_common_mode_estimate_v": 1.6291964150083547,
+      "common_mode_residual_v": 0.6839380646250874,
+      "dc_hardware_headroom_interpretation_accepted": false
+    },
+    {
+      "id": "dc_differential_low_load",
+      "parameters": {
+        "analysis": "dc",
+        "load": "differential",
+        "resistance": 221
+      },
+      "analysis": "dc",
+      "points": 49,
+      "completed": true,
+      "convergence_clean": true,
+      "solver_comparison_eligible": true,
+      "solver_warnings": [],
+      "netlist_sha256": "3e26af3a3908059fd4079d18fba847ada53a4fc576132c24f05f527fb80648ab",
+      "raw_pin_voltage_span_v": [
+        0.187713552292916,
+        3.1103556749103194
+      ],
+      "sweep_axis_v": [
+        -6.0,
+        6.0
+      ],
+      "zero_input_common_mode_v": 1.6490135368034542,
+      "ideal_static_common_mode_estimate_v": 1.65,
+      "common_mode_residual_v": -0.0009864631965457171,
+      "dc_hardware_headroom_interpretation_accepted": false
+    },
+    {
+      "id": "dc_zero_forward",
+      "parameters": {
+        "analysis": "dc",
+        "dc_start": 0,
+        "dc_stop": 6
+      },
+      "analysis": "dc",
+      "points": 25,
+      "completed": true,
+      "convergence_clean": true,
+      "solver_comparison_eligible": true,
+      "solver_warnings": [],
+      "netlist_sha256": "bf9806b583f17eb1fc8b8038de579badf2ee86a44a0377522fae16fe875a9552",
+      "raw_pin_voltage_span_v": [
+        -0.08801588471576194,
+        2.827678358177583
+      ],
+      "sweep_axis_v": [
+        0.0,
+        6.0
+      ],
+      "zero_input_common_mode_v": 1.2104913585401278,
+      "ideal_static_common_mode_estimate_v": 1.6291964150083547,
+      "common_mode_residual_v": -0.41870505646822687,
+      "dc_hardware_headroom_interpretation_accepted": false
+    },
+    {
+      "id": "dc_zero_reverse",
+      "parameters": {
+        "analysis": "dc",
+        "dc_start": 0,
+        "dc_stop": -6,
+        "dc_step": -0.25
+      },
+      "analysis": "dc",
+      "points": 25,
+      "completed": true,
+      "convergence_clean": true,
+      "solver_comparison_eligible": true,
+      "solver_warnings": [],
+      "netlist_sha256": "3b616e0ba4098ef325ed69445c74e232e7bd4debd1903a577cc28b9148ab5178",
+      "raw_pin_voltage_span_v": [
+        -0.13885527732811936,
+        2.776752610662555
+      ],
+      "sweep_axis_v": [
+        0.0,
+        -6.0
+      ],
+      "zero_input_common_mode_v": 1.2104913585401278,
+      "ideal_static_common_mode_estimate_v": 1.6291964150083547,
+      "common_mode_residual_v": -0.41870505646822687,
+      "dc_hardware_headroom_interpretation_accepted": false
+    },
+    {
+      "id": "dc_zero_forward_low_supply",
+      "parameters": {
+        "analysis": "dc",
+        "positive_v": 4.9,
+        "negative_v": -0.1838,
+        "dc_start": 0,
+        "dc_stop": 6
+      },
+      "analysis": "dc",
+      "points": 25,
+      "completed": true,
+      "convergence_clean": true,
+      "solver_comparison_eligible": true,
+      "solver_warnings": [],
+      "netlist_sha256": "689e54d1bb425d6bdb0984a500d3f74c3bc2c1f7a8acc6b002150467c5cfbc74",
+      "raw_pin_voltage_span_v": [
+        -0.062705175740189,
+        2.8529895349306744
+      ],
+      "sweep_axis_v": [
+        0.0,
+        6.0
+      ],
+      "zero_input_common_mode_v": 1.205352528084978,
+      "ideal_static_common_mode_estimate_v": 1.6291964150083547,
+      "common_mode_residual_v": -0.4238438869233767,
+      "dc_hardware_headroom_interpretation_accepted": false
+    }
+  ],
+  "clean_cases": 10,
+  "rejected_solver_cases": [
+    "dc_nominal",
+    "dc_low_supply"
+  ],
+  "actual_codec_input_switching_model_present": false,
+  "full_board_analog_stability_verified": false,
+  "phase_margin_verified": false,
+  "servo_reference_buffer_and_pumps_simulated": false,
+  "power_down_pin_modeled": false,
+  "temperature_c": 27,
+  "dc_common_mode_load_discrepancy_resolved": false,
+  "physical_tests_performed": 0,
+  "fabrication_released": false,
+  "build_ready": false,
+  "limitations": [
+    "Static loads and additional parasitics are illustrative hypotheses, not measured/extracted codec or PCB models",
+    "Ideal fixed VOCM excludes the actual slow servo and its correction of output-resistor DC drops",
+    "Only the left FDA stage is simulated; buffer/reference/pump/supervision and partial power are omitted",
+    "Closed-loop AC phase/gain is not a return-ratio or phase-margin measurement",
+    "DC sweep does not establish physical clipping/THD, switching kickback, enable timing or thermal limits",
+    "Solver-warning DC branches are retained and rejected; finite vectors alone do not prove valid operating points",
+    "Even clean ground-load DC runs show unexpected zero-input common mode near 1.21 V versus ideal static estimate near 1.629 V; model/load compatibility remains unresolved and DC headroom interpretation is rejected"
+  ],
+  "source_sha256": {
+    "hardware/electronics/adc_driver/qualification/spice.py": "e0bbc19c9b18fde03300ccd5563d6d865220eaed986e75a95e4f345c9efcfa52",
+    "hardware/electronics/adc_driver/verify.py": "ad20906ec29203e19e98821f445197c2f3f5dc0d01ef7ba69fdd47ddf3fb5f0e",
+    "hardware/electronics/adc_driver/analyze.py": "2b860fbe9b0b432b6695edcb9b4cce4eb0c03e77c509aa87f7be52681f8302a4",
+    "hardware/electronics/adc_driver/qualification/generated/native-original/netlist.xml": "cbffb1b984d71a359b7be59363cbdfac221d94cae4a73211d30080fcbd3705e1"
+  },
+  "evidence_sha256": {
+    "differential_load.json": "bcb42e16c448fa08de592ffc57c2cd03ef4ee7d8d010462b4fe1bb58365926a3",
+    "extra_0p5pf_input-log.txt": "66f09dd94e8fe95598a801ae6db30cb55f7400212826fd9f883fecf5177fdeb2",
+    "extra_0p5pf_input_22pf_output-log.txt": "66f09dd94e8fe95598a801ae6db30cb55f7400212826fd9f883fecf5177fdeb2",
+    "extra_0p5pf_input.json": "99e10273da7c7a2a1034cedfe7ce483ae66c27c8f987783f5aed88f12bfbb2bd",
+    "dc_nominal.json": "1896f5a4948746ac65e8eaec7c6f07f927a8e7db573c978db3c2d9ebbda5bb14",
+    "extra_0p5pf_input_22pf_output.cir": "4a136d64c969aade2321e770df2aff954eb2afead32f57b5cc0bad09b8849b7b",
+    "dc_zero_forward.json": "0d7332ce702854dc22a95acba36b1b10b24e1015e80bd52df7a326bcf6106bc3",
+    "dc_zero_forward_low_supply.cir": "689e54d1bb425d6bdb0984a500d3f74c3bc2c1f7a8acc6b002150467c5cfbc74",
+    "extra_0p5pf_input_22pf_output.json": "1c41bac9982a4875e60e705bfe47ae9fde98afed689d7821f2a5e9260f22e5c4",
+    "dc_differential_low_load.json": "1ea62cb1f7c6c5128b4f9e05e4341202208e65df446eaf5af8a623a95d456fd4",
+    "extra_0p5pf_input.cir": "20cb220cc727da2beed4b883f5c8c2e700ce20985626e404ad4fcee89b57968f",
+    "dc_zero_forward_low_supply.json": "3c72da2b537d6203243f8160ec1178fef98a855df3d5656d5e35f61aafc32cbd",
+    "nominal-log.txt": "66f09dd94e8fe95598a801ae6db30cb55f7400212826fd9f883fecf5177fdeb2",
+    "dc_low_supply-log.txt": "e9fac0a4a6dd69137b7edab72540108c65b8e43bf5c7c16edda2fd894b53ccab",
+    "high_resistance.cir": "8eacfc2166309e04904a7da8a46244d968aec24d27b87bbd8cfff525eb7ecc17",
+    "dc_zero_forward-log.txt": "ef22699eebb8031dab03d2933f8e8ecfb853948b93dd7d1fa063b5a0789f9293",
+    "low_resistance.json": "8888061424e08506af55fc2c2f28110a9bf10a6a555fb0f8f709525359bd0970",
+    "dc_nominal.cir": "ddaadaa684fb105c4dcb63ed494bbc55cf0ea05914b1ad1ea03eeca959a9eb16",
+    "high_resistance.json": "4d3d3feda2513badaa2ebf8e044e7a2c90f4301c5d7974a608ea9f50484a3c74",
+    "low_resistance.cir": "2c1ab9090206950c6ce0c0e4a0e704ad9ad9741d1b0976dbcc380cb33530b2c9",
+    "differential_load.cir": "0339d4222565ec1b1977516d6e997db158837fb61aa303fe3ec1779d93ba3f1d",
+    "low_resistance-log.txt": "66f09dd94e8fe95598a801ae6db30cb55f7400212826fd9f883fecf5177fdeb2",
+    "rc-smoke.json": "0af566fec71e1874c0fbe987fc8292c3652239cd113a69e66bf9cd1dda79ea04",
+    "dc_low_supply.cir": "f21abb2df5813e6ade1a3b68dd3b8ffdb706535afbe8b4fb7daca3e5f9a8a9cf",
+    "differential_load-log.txt": "66f09dd94e8fe95598a801ae6db30cb55f7400212826fd9f883fecf5177fdeb2",
+    "dc_low_supply.json": "39f2300182b3294971b26e7832c7fc8a4ab45b6b2d874d35c2809a20d8218d3d",
+    "high_resistance-log.txt": "66f09dd94e8fe95598a801ae6db30cb55f7400212826fd9f883fecf5177fdeb2",
+    "initialization.txt": "77294597aa12ac78f52cf401749ff92404002508229dc263b64f70f11be41aae",
+    "nominal.json": "57ba8d3896bce352dcfdf859cb915185d4801e64cd4246394cb328cc16a644e3",
+    "dc_zero_reverse-log.txt": "ef22699eebb8031dab03d2933f8e8ecfb853948b93dd7d1fa063b5a0789f9293",
+    "nominal.cir": "64d4e02d8352195043f385ffc7de8303a6d19d89678a3cdea7cc63f5096db886",
+    "dc_zero_forward.cir": "bf9806b583f17eb1fc8b8038de579badf2ee86a44a0377522fae16fe875a9552",
+    "dc_zero_forward_low_supply-log.txt": "ef22699eebb8031dab03d2933f8e8ecfb853948b93dd7d1fa063b5a0789f9293",
+    "dc_nominal-log.txt": "7a6080ccc35beaea09e2bf6a3141b23264549f5fec7f2bdbd23a1c898f1c4f62",
+    "dc_differential_low_load.cir": "3e26af3a3908059fd4079d18fba847ada53a4fc576132c24f05f527fb80648ab",
+    "dc_zero_reverse.cir": "3b616e0ba4098ef325ed69445c74e232e7bd4debd1903a577cc28b9148ab5178",
+    "dc_differential_low_load-log.txt": "207ec3fb0fb48a06018adbddf03f3cf12d4aa857561674cee1daa5665b32414e",
+    "dc_zero_reverse.json": "d5fbbedb4382579d8ecfff5a6a4abb2837fc03fbc3dc731ae5290b2b10d88cb7"
+  }
+}

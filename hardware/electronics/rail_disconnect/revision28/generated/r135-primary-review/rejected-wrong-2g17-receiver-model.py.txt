@@ -1,0 +1,86 @@
+"""Conditional, primary-row-bound U19 RESET to U31 Schmitt receiving screen.
+
+The actual intermediate supply/input operating point, board leakage, lifetime
+resistance and node capacitance remain receiving requirements, not guarantees.
+"""
+
+import math
+
+from ...common.sexpr import children, first
+
+PART = "10k 0.1% 25ppm Panasonic ERA6AEB103V"
+MPN = "ERA6AEB103V"
+FOOTPRINT = "RMX_E28:Resistor_SMD_Panasonic_ERA6A_2012"
+MODEL_URL = "https://industrial.panasonic.com/ww/products/pt/high-precision-chip-resistors/models/ERA6AEB103V"
+
+
+def screen(resistance_ohm=10000, receiver_leak_a=5e-6, node_cap_requirement_f=500e-12):
+    assert resistance_ohm > 0 and receiver_leak_a >= 0 and node_cap_requirement_f >= 0
+    frac = 0.02
+    aux_low, aux_high = 2.50, 2.70
+    off_leak, board_leak = 250e-9, 2e-6
+    leak = receiver_leak_a + off_leak + board_leak
+    rmin, rmax = resistance_ohm * (1 - frac), resistance_ohm * (1 + frac)
+    high = aux_low - leak * rmax
+    threshold, vol, low_threshold = 2.0, 0.25, 0.4
+    current = aux_high / rmin
+    rise = -rmax * node_cap_requirement_f * math.log(1 - threshold / high) if high > threshold else None
+    return dict(
+        resistance_ohm=resistance_ohm,
+        total_assembled_lifetime_resistance_fraction_requirement=frac,
+        receiver_aux_requirement_v=[aux_low, aux_high],
+        receiver_input_leakage_requirement_a=receiver_leak_a,
+        supervisor_off_leakage_row_a=off_leak,
+        additional_board_leakage_requirement_a=board_leak,
+        received_HIGH_min_v=high,
+        VT_positive_receiving_enclosure_v=threshold,
+        functional_high_margin_v=high - threshold,
+        twenty_percent_high_guard_margin_v=high - 1.2 * threshold,
+        RESET_LOW_sink_allocation_a=current + leak,
+        TPS3890_LOW_test_current_a=0.0004,
+        TPS3890_LOW_VDD_min_v=1.5,
+        received_LOW_row_v=vol,
+        VT_negative_receiving_floor_v=low_threshold,
+        LOW_interconnect_and_reference_offset_allowance_ceiling_v=low_threshold - vol,
+        resistor_LOW_aux_current_max_a=current,
+        resistor_LOW_power_max_w=aux_high**2 / rmin,
+        LOW_aux_current_delta_vs100k_same_corner_a=current - aux_high / (100000 * (1 - frac)),
+        reset_node_capacitance_requirement_f=node_cap_requirement_f,
+        calculated_RC_rise_to_VT_positive_s=rise,
+        native_CT_C60_unchanged=True,
+        primary_row_conditions=dict(
+            LVC2G17="SCES381N p5: VT+max1.7V@VCC2.3V,2.0V@3.0V; II±5uA atVI5.5V/GND;85/125C columns",
+            TPS3890="SLVSD65A p5: VOL<=.25V at.4mA,VDD>=1.5V; offleak250nA atSENSE=RESET5.5V",
+        ),
+        continuous_VCC_threshold_and_intermediate_VI_leakage_transfer_accepted=False,
+        board_leakage_resistance_lifetime_and_capacitance_accepted=False,
+        output_cap_delay_transients_reset_propagation_and_partial_power_qualified=False,
+        AUX_complete_load_and_copper_PDN_qualified=False,
+        physical_and_fabrication_qualified=False,
+    )
+
+
+def validate_footprint(fp):
+    """Independent rectangle contract from reviewed Panasonic a/b/c drawing."""
+    assert str(fp[1]).split(":")[-1] == FOOTPRINT.split(":")[-1]
+    pads = children(fp, "pad")
+    assert len(pads) == 2 and {str(p[1]) for p in pads} == {"1", "2"}
+    side = str(first(fp, "layer")[1])[0]
+    for p in pads:
+        assert p[2:4] == ["smd", "rect"]
+        expected_x = -1.15 if str(p[1]) == "1" else 1.15
+        assert list(map(float, first(p, "at")[1:3])) == [expected_x, 0]
+        assert list(map(float, first(p, "size")[1:])) == [1.1, 1.25]
+        assert set(map(str, first(p, "layers")[1:])) == {side + ".Cu", side + ".Mask", side + ".Paste"}
+        assert not children(p, "roundrect_rratio")
+    # Selected geometry: a=2*1.15-1.1=1.2; b=2*1.15+1.1=3.4;
+    # c=1.25. All three are within the PRIMARY2012(0805) table intervals.
+    assert 1.0 <= 2 * 1.15 - 1.1 <= 1.4
+    assert 3.2 <= 2 * 1.15 + 1.1 <= 3.8
+    assert 0.9 <= 1.25 <= 1.4
+    court = [q for q in children(fp, "fp_rect") if first(q, "layer")[1] == side + ".CrtYd"]
+    assert len(court) == 1
+    points = [list(map(float, first(court[0], tag)[1:])) for tag in ("start", "end")]
+    assert sorted(p[0] for p in points) == [-1.95, 1.95]
+    assert sorted(p[1] for p in points) == [-0.925, 0.925]
+    return True

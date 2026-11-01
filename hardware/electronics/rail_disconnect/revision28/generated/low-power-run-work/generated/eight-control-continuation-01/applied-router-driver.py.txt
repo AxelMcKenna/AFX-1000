@@ -1,0 +1,85 @@
+"""One bounded Java routing trial; no Mac CAD executable and no GUI/network."""
+
+import argparse
+import json
+import os
+import re
+import signal
+import subprocess
+import time
+from pathlib import Path
+
+from .route_e28 import WORK, sha
+
+JAVA=Path("/private/tmp/afx-temurin25-runtime/jdk-25.0.5+8-jre/Contents/Home/bin/java")
+JAR=Path("/private/tmp/afx-freerouting-2.5.0/freerouting-2.5.0.jar")
+
+
+def run():
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--folder",default="eight-control-reroute")
+    args=parser.parse_args()
+    assert args.folder.startswith("eight-control-") and all(c.isalnum() or c=="-" for c in args.folder)
+    work=WORK/"generated"/args.folder
+    record=work/"router-command.json"
+    assert not record.exists()
+    dsn=work/"native-input.dsn"
+    receipt=json.loads((work/"dsn-export.json").read_text())
+    assert receipt["dsn_sha256"]==sha(dsn)
+    text=dsn.read_text()
+    assert text.count("(width 250)")==2
+    text=text.replace("(width 250)","(width 200)")
+    assert text.count("(clearance 50 (type smd_smd))")==1
+    text=text.replace("(clearance 50 (type smd_smd))","(clearance 200 (type smd_smd))")
+    # This planner class is only a routing preference. The actual PCB stackup,
+    # native clearances and all inherited power/return geometry are untouched.
+    text,n=re.subn(r"(\(layer In4.Cu\s*\(type )power(\))",r"\1signal\2",text)
+    assert n==1
+    routing=work/"routing-view.dsn"
+    routing.write_text(text)
+    config=work/"router-config"
+    config.mkdir(exist_ok=False)
+    repo=Path(__file__).resolve().parents[4]
+    template=repo/"hardware/qualification/boards/startup_negative_circuit/physical_layout/routing/receiving-continuation-01/router-input-profile.json"
+    profile=json.loads(template.read_text())
+    profile["router"]["layers"]=[dict(routable=i not in (1,6),preferred_direction_horizontal=i%2==0) for i in range(8)]
+    profile["router"]["job_timeout"]="00:04:00"
+    profile["logging"]["file"]["location"]=str(work/"router.log")
+    (config/"freerouting.json").write_text(json.dumps(profile,indent=2)+"\n")
+    args=[str(JAVA),"-Xmx1536m","-XX:ActiveProcessorCount=2","-Djava.awt.headless=true",
+          "-Djava.util.prefs.userRoot="+str(work/"java-prefs"),"-jar",str(JAR),
+          "-de",str(routing),"-do",str(work/"routed.ses"),"--user_data_path="+str(config),"-da",
+          "--gui.enabled=false","--api_server.enabled=false","--router.autorouter.enabled=true",
+          "--router.autorouter.max_passes=12","--router.autorouter.max_items=20000",
+          "--router.fanout.enabled=false","--router.optimizer.enabled=false",
+          "--router.automatic_neckdown=false","--router.neck_width_um=0",
+          "--router.copper_to_edge_clearance_um=500","--router.hole_clearance_um=250",
+          "--router.strict_drc=true","--router.plane_as_obstacle=false",
+          "--router.result_json="+str(work/"router-result.json")]
+    result=dict(command=args,source_DSN_sha256=sha(dsn),routing_DSN_sha256=sha(routing),
+                jar_sha256=sha(JAR),recipe_sha256=sha(Path(__file__)),source_pcb_sha256=receipt["source_sha256"],
+                started_unix=time.time(),native_acceptance_pending=True,power_pour_preservation_not_assumed=True,
+                all_native_checks_required=True,physical_qualified=False,fabrication_released=False)
+    with (work/"router-console.log").open("w") as log:
+        child=subprocess.Popen(args,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+        result["pid"]=child.pid
+        record.write_text(json.dumps(result,indent=2)+"\n")
+        try:
+            code=child.wait(timeout=280)
+        except subprocess.TimeoutExpired:
+            result["bounded_timeout_reached"]=True
+            os.killpg(child.pid,signal.SIGINT)
+            try:
+                code=child.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                os.killpg(child.pid,signal.SIGTERM)
+                code=child.wait(timeout=15)
+    result.update(returncode=code,finished_unix=time.time(),session_exists=(work/"routed.ses").exists())
+    if result["session_exists"]:
+        result["session_sha256"]=sha(work/"routed.ses")
+    record.write_text(json.dumps(result,indent=2)+"\n")
+    print("Bounded routing trial",code,"session",result["session_exists"],flush=True)
+
+
+if __name__=="__main__":
+    run()

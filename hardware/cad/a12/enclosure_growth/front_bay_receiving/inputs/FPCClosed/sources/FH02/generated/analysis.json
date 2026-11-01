@@ -1,0 +1,331 @@
+{
+  "revision": "FH02-native-receiving-design-not-qualification",
+  "topology_checks": {
+    "exact_MCU_firmware_pin_contract": true,
+    "latch_independent_RAW5_power": true,
+    "latch_D_high_and_PRE_inactive": true,
+    "latch_clear_ONLY_raw_supervisor": true,
+    "WD_AND_ENOUT_and_LDO_PG_override": true,
+    "WD_enabled_and_NOT_MCU_defeatable": true,
+    "WD_raw_clock_power_isolation": true,
+    "WD_slow_open_drain_Schmitt_first": true,
+    "heartbeat_loaded_buffer": true,
+    "startup_WD_does_NOT_create_MCU_EXTRF": true,
+    "permission_has_two_actual_AND_gates": true,
+    "NOFAULT_conditioned_not_backdriving_MCU": true,
+    "LED_raw_feed_shunt_Ioff_sink": true,
+    "LED_permission_loaded_OFF_pulldown": true,
+    "ONLY_correct_leaf_contact_exact_TLP_pins": true,
+    "no_MASTER_ENABLE_drive": true,
+    "exact_FP01_tach_interface": true,
+    "fixed_LDO_DNC_and_NC_are_open": true,
+    "fixed_LDO_explicit_minimum_load": true,
+    "sensor_series_filter_contract": true
+  },
+  "topology_all_pass": true,
+  "voltage_receiving": {
+    "RAW5_v": [
+      4.8,
+      5.2
+    ],
+    "V3V3_v": [
+      3.234,
+      3.3659999999999997
+    ],
+    "RAW5_operating_harness_proven": false,
+    "LDO_actual_load_ground_current_guaranteed": false,
+    "headroom_at_minimum_input_to_maximum_output_v": 1.4340000000000002,
+    "manufacturer_accuracy_condition_headroom_v": 0.5,
+    "minimum_load_bleed_receiving_min_a": 3.139805825242719e-05,
+    "manufacturer_accuracy_minimum_load_a": 1e-05,
+    "LDO_effective_CIN_COUT_receiving_f": [
+      3e-06,
+      1.4e-05
+    ],
+    "effective_C_and_ESR_qualified": false
+  },
+  "LED": {
+    "min_current_under_receiving_VF_VOL_a": 0.0024078670803723344,
+    "minimum_recommended_current_a": 0.002,
+    "has20pct_current_headroom": true,
+    "maximum_raw_branch_current_under_receiving_VF_a": 0.004329896907216495,
+    "shunt_is_included_once": true,
+    "VF_receiving_v": [
+      1.0,
+      1.6
+    ],
+    "VOL_receiving_max_v": 0.55,
+    "off_sink_Ioff_10ua_shunt_voltage_v": 0.10300000000000001,
+    "hot_LED_off_current_receiving_max_a": 1e-06,
+    "hot_off_current_proven": false,
+    "permission_Ioff10ua_plus_input5ua_pulldown_voltage_v": 0.1545,
+    "TLP_recommended_ambient_c": [
+      -40,
+      65
+    ],
+    "TLP_VF_RON_IFC_switch_times_tables_at25c_only": true,
+    "OFF_and_falling_rail_behavior_qualified": false
+  },
+  "watchdog": {
+    "actual_CWD_f": 2.7e-09,
+    "complete_CWD_receiving_tolerance": 0.1,
+    "nominal_timeout_ms": 263.98,
+    "timeout_interval_given_receiving_C_ms": [
+      219.98921,
+      311.94141
+    ],
+    "first_falling_heartbeat_after_WD_supply_valid_receiving_max_ms": 160,
+    "startup_clock_POR_BOD_supply_ramp_all_inside160ms_receiving": true,
+    "first_heartbeat_has20pct_timeout_headroom": true,
+    "firmware_falling_edge_period_ms": 20,
+    "reset_pulse_table_ms": [
+      170,
+      230
+    ],
+    "first_heartbeat_and_full_ramps_measured": false,
+    "MCU_RESET_internal_pullup_min_receiving_ohm": 20000,
+    "watchdog_only_sink_receiving_requirement_a": 7.583198069752137e-05,
+    "external_watchdog_resets_MCU": false,
+    "cold_POR_external_reset_flag_conflict_avoided_by_separate_RESET_net": true,
+    "WDO_low_voltage_transferred_from5V3mA_row_qualified": false,
+    "automatic_retry_reclosure_in_ideal_state_model": false,
+    "independent_latch_required": true,
+    "MCU_permission_stuck_HIGH_covered_in_logic_model": true
+  },
+  "raw_latch": {
+    "raw_clear_nominal_v": 1.7963,
+    "raw_clear_given_receiving_R_bias_interval_v": [
+      1.7599907603960394,
+      1.8331263313131312
+    ],
+    "clear_release_nominal_ms": 10.725000000000001,
+    "translator_off_B_given2ua_plus5ua_v": 0.49028,
+    "latch_off_Q_N_given10ua_plus5ua_v": 0.60255,
+    "reference_G14_VTminus_at4p5_v": 1.41,
+    "reference_G17_VTminus_at3_v": 0.89,
+    "complete_intermediate_supply_threshold_enclosure_qualified": false,
+    "first_clock_clear_recovery_partial_power_ramps_qualified": false,
+    "raw_latch_retention_and_powercycle_reset_threshold_measured": false
+  },
+  "loaded_levels": {
+    "MCU_VOH_receiving_min_v": 2.5,
+    "MCU_VOL_receiving_max_v": 0.5,
+    "LVC08_and_LVC34_3to3p6_VIH_min_v": 2.0,
+    "LVC08_and_LVC34_VIL_max_v": 0.8,
+    "heartbeat_buffer_VOH_at100ua_min_v": 3.134,
+    "watchdog_VIH_enclosing_v": 2.6928,
+    "heartbeat_high_receiving_margin_v": 0.4411999999999998,
+    "WD_OK_Schmitt_output_load_receiving_max_a": 2e-05,
+    "translator_RAW5_VOH_receiving_min_v": 3.8,
+    "RAW5_G14_VTplus_receiving_max_v": 3.33,
+    "MCU_table3V5mA_to_actual_supply_transfer_guaranteed": false,
+    "RAW5_discrete_threshold_output_table_enclosure_guaranteed": false,
+    "all_loaded_levels_and_transition_times_qualified": false
+  },
+  "tach": {
+    "source_pullups_in_FP01_ohm": [
+      9900,
+      10100
+    ],
+    "actual_receiver_pulldown_ohm": 47000.0,
+    "source_switched_voltage_receiving_v": [
+      4.8,
+      5.2
+    ],
+    "receiver_input_leak_receiving_a": 5e-06,
+    "resulting_HIGH_receiving_min_v": 3.8881254264679472,
+    "fan_LOW_receiving_max_v": 0.4,
+    "input_voltage_and_edge_noise_partial_power_qualified": false
+  },
+  "leaf": {
+    "exact_source": "P03.J106.3 POWER_RUN leaf only",
+    "exact_destination": "E28.J5.3",
+    "source_loaded_receiving_interval_v": [
+      2.533479,
+      2.656441
+    ],
+    "existing_receiver_R93_ohm": [
+      9800,
+      10200
+    ],
+    "receiver_input_plus_board_leak_receiving_max_a": 2.2e-05,
+    "contact_hot_RON_receiving_max_ohm": 100,
+    "complete_loop_receiving_max_ohm": 250,
+    "resulting_HIGH_min_v": 2.465093950248756,
+    "required_receiver_HIGH_v": 2.0,
+    "has20pct_HIGH_headroom": true,
+    "contact_hot_OFF_leak_receiving_max_a": 1e-05,
+    "resulting_OFF_max_v": 0.32639999999999997,
+    "required_receiver_LOW_max_v": 0.4,
+    "has20pct_LOW_headroom": true,
+    "source_loaded_voltage_and_current_verified": false,
+    "contact_and_complete_harness_qualified": false,
+    "complete_turnoff_and_capacitor_discharge_bound_s": null
+  },
+  "sensors": {
+    "remote_assembly_parts": [
+      "SEMITEC203AT-2",
+      "SEMITEC203AT-2"
+    ],
+    "R25_ohm": [
+      19800,
+      20200
+    ],
+    "B25_85_K": [
+      3972.87,
+      4053.13
+    ],
+    "pullup_complete_receiving_tolerance": 0.005,
+    "series_complete_receiving_tolerance": 0.03,
+    "ADC_complete_error_receiving_LSB": 3,
+    "input_and_cap_leak_receiving_a": 1.1e-06,
+    "max_filter_tau_receiving_s": 0.00023242999999999997,
+    "firmware_settle_s": 0.02,
+    "firmware_ADC_short_max": 8,
+    "firmware_ADC_open_min": 1000,
+    "firmware_ADC_hot_max": 186,
+    "manufacturer_beta_model_discrepancy_and_R_T_curve_bound": null,
+    "dissipation_typical_w_per_k": 0.002,
+    "free_air_tau_typical_s": 15,
+    "local_sensor_attachment_and_hot_lag_qualified": false
+  },
+  "crystal": {
+    "part": "ABLS-4.000MHZ-12-D4Y-T",
+    "frequency_hz": 4000000.0,
+    "actual_external_cap_each_f": 1.5e-11,
+    "nominal_external_series_load_f": 7.5e-12,
+    "manufacturer_load_f": 1.2e-11,
+    "implied_effective_stray_f": 4.500000000000001e-12,
+    "initial_and_temperature_catalog_ppm": [
+      30,
+      30
+    ],
+    "first_year_aging_catalog_ppm": 5,
+    "ESR_max_ohm": 180,
+    "C0_max_f": 7e-12,
+    "drive_max_w": 0.001,
+    "complete_clock_error_receiving_fraction": 0.001,
+    "complete_period_capture_error_receiving_engine_ticks": 20,
+    "catalog_terms_are_NOT_complete_clock_bound": true,
+    "actual_drive_startup_pulling_aging_and_loaded_frequency_qualified": false
+  },
+  "budget": {
+    "ICC_or_complete_MCU_receiving_a": {
+      "U1_MCU_complete_VCC_receiving": 0.003,
+      "U2_LDO_ground_receiving_at_actual_load": 5e-05,
+      "U3_LVC2G17_ICC": 1e-05,
+      "U4_TPS3431_IDD": 1.9e-05,
+      "U5_AUP17_ICC": 9e-07,
+      "U6_1T45_sum_ICC": 4e-06,
+      "U7_LVC14_ICC": 1e-05,
+      "U8_LVC74_ICC": 1e-05,
+      "U9_TPS3890_supply_receiving": 6.5e-06,
+      "U10_LVC17_ICC": 1e-05,
+      "U11_LVC17_ICC": 1e-05,
+      "U12_LVC08_ICC": 1e-05,
+      "U13_LVC08_ICC": 1e-05,
+      "U14_LVC06_ICC": 1e-05,
+      "U16_LVC34_ICC": 1e-05
+    },
+    "extra_nonrail_input_receiving_a": {
+      "U3": 0.001,
+      "U7": 0.0005,
+      "U8": 0.001,
+      "U10": 0.0005,
+      "U11": 0.0005,
+      "U12": 0.001,
+      "U13": 0.001,
+      "U14": 0.0005,
+      "U16": 0.0005,
+      "U5": 5e-05,
+      "U6": 0.0001
+    },
+    "LVC_input_count": 13,
+    "extra_nonrail_rows_AUP50ua_LVC500ua_translator100ua_are_receiving_not_full_interval_guarantees": true,
+    "independent_pullup_enclosing_a": {
+      "WD_and_ISP_external_pullups_low_enclosure": 0.0004208422899758719,
+      "RAW_POR_external_low": 0.0005360824742268041,
+      "RAW_POR_divider": 3.3626922231275626e-05,
+      "translator_B_high": 7.883565797453002e-05,
+      "latch_Q_N_high": 0.00013745704467353953,
+      "permission_output_high_pulldown": 0.00034701030927835046,
+      "WD_EN_pullup_zeroV_input_leak_receiving": 2e-06,
+      "LDO_minimum_load_bleed": 3.4701030927835046e-05
+    },
+    "sensors_both_shorted_a": 0.00033829145728643214,
+    "LED_raw_branch_max_a": 0.004329896907216495,
+    "dynamic_complete_addition_receiving_a": 0.0002,
+    "complete_enclosing_current_receiving_a": 0.016279144093791133,
+    "with20pct_a": 0.01953497291254936,
+    "prior_FH_remaining_a": 0.009622978608462666,
+    "fits_prior_2p4A_allocation": false,
+    "proposed_new_DIG_total_a": 2.42,
+    "proposed_new_FH_pool_a": 0.029622978608462525,
+    "fits_new_pool": true,
+    "known_other_partitions_a": 2.3903770213915374,
+    "full_allocated_total_with_FH_guard_a": 2.4099119943040868,
+    "new_pool_unallocated_remainder_a": 0.010088005695913164,
+    "MCU_R3_R4_pin_sourced_currents_inside3ma_not_added_twice": true,
+    "MCU_internal_RESET_pullup_current_inside3ma_not_added_twice": true,
+    "tach_input_pulldown_current_inside_FP01_tach_pullup_partition": true,
+    "mutually_exclusive_state_maxima_deliberately_enclosed": true,
+    "complete_hot_and_dynamic_current_bound_verified": false,
+    "proposed_DIG_revision_adopted": false
+  },
+  "source_delta": {
+    "proposed_DIG_increment_a": 0.02,
+    "assumed_complete_conversion_efficiency": 0.85,
+    "new_protected_power_increment_planning_w": 0.12000000000000009,
+    "old_normal_feed_point": {
+      "current_a": 2.840483147344027,
+      "board_v": 10.37742606695615,
+      "plug_power_w": 32.38150787972191,
+      "feed_loss_w": 2.9046040237243544,
+      "board_received_power_w": 29.476903855997556
+    },
+    "new_normal_feed_point_given_same_conditions": {
+      "current_a": 2.853272713936275,
+      "board_v": 10.372821822982942,
+      "plug_power_w": 32.52730893887354,
+      "feed_loss_w": 2.9308194648335792,
+      "board_received_power_w": 29.59648947403996
+    },
+    "incremental_inlet_current_a": 0.012789566592247947,
+    "incremental_feed_heat_w": 0.026215441109224802,
+    "NF03_capacity_heat_w": 37.28570585792509,
+    "proposed_capacity_heat_w": 37.405705857925085,
+    "capacity_screen_retains_separate4A_feed_partition": true,
+    "do_NOT_add_normal_feed_loss_again_to_capacity_heat": true,
+    "FH_complete_board_RAW5_heat_enclosure_w": 0.0846515492877139,
+    "heat_is_inside_DIG_capacity_NOT_added_again": true,
+    "new_source_current_voltage_connector_guard_startup_PDN_qualification": false
+  },
+  "assembly": {
+    "native_PCB_implemented": false,
+    "proposed_board_size_mm": [
+      58,
+      25
+    ],
+    "actual_placement_and_fit_qualified": false,
+    "remote_NTCs_are_NOT_board_mounted": true,
+    "programmer_target_power_injection_allowed": false,
+    "firmware_and_fuse_readback_measured": false,
+    "TLP_land_pattern_is_own_unapproved_receiving_pattern": true,
+    "ABLS_manufacturer_land_pattern_used": true
+  },
+  "physical_qualified": false,
+  "fabrication_released": false,
+  "production_released": false,
+  "holds": [
+    "The 3mA MCU VCC provision includes the actual4MHz crystal/ADC/timers/WDT/I/O; the primary2mA row is a different3V external-clock/PRRff condition and cannot certify this load.",
+    "Normal logic voltage intervals and non-rail ICC provisions are explicit receiving requirements; primary discrete rows and delta-ICC test points are not whole-interval/transition guarantees.",
+    "TLP175A recommendedambient ends65C. Its quoted VF/returncurrent/RON/switchtime rows are25C; hot complete OFF/ON, LED current and discharge must be measured.",
+    "RAW5 latch startup, supervisor delay/retention crossover, slow ramps, source collapse, isolated3.3V resets and watchdog retry require actual waveform fault injection.",
+    "The watchdog latch prevents reclosure AFTER a capturedtimeout. A HEALTHpin physicallystuckHIGH before the first timeout can permit an initial startupwindow; no hardware RPM/first-heartbeat qualification or arbitrary single-fault coverage is claimed.",
+    "ISP is target-self-powered only; an external3.3V source could phantom-feed LDO/PG/raw-latch state and is not approved.",
+    "RAW5 collapse while3.3V output capacitance remains charged requires LDO reverse-current/backfeed and latch-state characterization; no reverse-isolation guarantee is inferred.",
+    "No PCB placement/routing, pad manufacture, thermal map, return/current path, fan-supply branch, connector/joint/strain or EMI acceptance is present.",
+    "Sensors' typical15s free-air lag and2mW/K dissipation are not installed thermal limits; pot50C and relay65C operating windows require local temperatures.",
+    "New2.42A DIG allocation is proposed only and needs full source/guard/PDN/contact/input/startup/heat reconciliation. Old NF03/FP01 seals are unchanged."
+  ]
+}

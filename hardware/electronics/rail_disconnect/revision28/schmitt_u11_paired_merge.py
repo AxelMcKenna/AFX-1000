@@ -1,0 +1,169 @@
+"""Coherent same-AND2 receiving repair, applied as a verified source delta."""
+
+import copy
+import hashlib
+import json
+import shutil
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+from .. import generate as sg
+from . import control
+from .schmitt_u11_coherent_merge import STRICT_KEYS, ident, objects
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/schmitt-u37-short-reconnect-work"
+BASE = ROOT / "generated/schmitt-u37-backbone-clear-work"
+ROUTE_BASE = ROOT / "generated/schmitt-u37-short-barrels-work"
+PROPOSAL = ROOT / "generated/schmitt-u11-paired-proposal"
+WORK = ROOT / "generated/schmitt-u11-paired-merge-work"
+
+
+def main():
+    assert not WORK.exists()
+    blob = (SOURCE / "rail_disconnect.kicad_pcb").read_bytes()
+    t = read_sexpr(blob.decode())
+    sch = read_sexpr((SOURCE / "rail_disconnect.kicad_sch").read_text())
+    parts = json.loads((SOURCE / "components.json").read_text())
+    before = copy.deepcopy(parts)
+    proof_path = PROPOSAL / "final-delta-proof.json"
+    proof = json.loads(proof_path.read_text())
+    handoff = PROPOSAL / "handoff.json"
+    assert (
+        hashlib.sha256(handoff.read_bytes()).hexdigest()
+        == "bcead63e2b9b76e38fcbf019fd5c08941933ae8030cfeccbd9bb02f17ad27042"
+    )
+    for p, h in json.loads(handoff.read_text())["files_sha256"].items():
+        assert hashlib.sha256((PROPOSAL / p).read_bytes()).hexdigest() == h, p
+    assert (
+        hashlib.sha256((BASE / "rail_disconnect.kicad_pcb").read_bytes()).hexdigest()
+        == proof["source_pcb_sha256"]
+    )
+    base = objects(read_sexpr((BASE / "rail_disconnect.kicad_pcb").read_text()))
+    current = objects(t)
+    names = {str(n[1]): str(n[2]).lstrip("/") for n in children(t, "net")}
+    codes = {n: k for k, n in names.items()}
+    removed = []
+    for row in proof["removed_source_segments"]:
+        uid = row["uuid"]
+        assert uid in current and sexpr(current[uid]) == sexpr(base[uid]) == row["source_object"], uid
+        t.remove(current[uid])
+        removed.append(row)
+    assert len(removed) == 40
+    # The current source introduced a new OK19 path after the receiving study's
+    # capture. Replace that actual ordinary route rather than inheriting its pass.
+    route_base = objects(read_sexpr((ROUTE_BASE / "rail_disconnect.kicad_pcb").read_text()))
+    ok19 = []
+    for n in list(t):
+        if (
+            isinstance(n, list)
+            and n
+            and n[0] in ("segment", "via")
+            and names[str(first(n, "net")[1])] == "OK_19"
+            and ident(n) not in route_base
+        ):
+            ok19.append(sexpr(n))
+            t.remove(n)
+    assert ok19
+    added = []
+    for row in proof["added_final_segments"] + proof["added_final_vias"]:
+        n = read_sexpr(row["source_object"])
+        assert ident(n) not in current
+        net = str(first(n, "net")[1]).lstrip("/")
+        assert net in {"N19_OV_OK", "P19_OV_OK_SCHMITT", "P12_OV_OK_SCHMITT", "N12_OV_OK_SCHMITT"}
+        first(n, "net")[1] = a(codes[net])
+        t.append(n)
+        added.append(sexpr(n))
+    assert len(added) == 18
+    fp = next(
+        f
+        for f in children(t, "footprint")
+        if any(p[1] == "Reference" and p[2] == "U11" for p in children(f, "property"))
+    )
+    u11 = next(c for c in parts if c["ref"] == "U11")
+    pin_delta = []
+    for number, net in [("4", "N12_OV_OK_SCHMITT"), ("5", "P12_OV_OK_SCHMITT")]:
+        pin = next(p for p in u11["pins"] if p["number"] == number)
+        pin_delta.append(dict(pin=number, old_net=pin["net"], new_net=net))
+        pin["net"] = net
+        label = next(
+            l for l in children(sch, "label") if str(first(l, "uuid")[1]) == sg.uid("labelU11." + number)
+        )
+        label[1] = net
+        pad = next(p for p in children(fp, "pad") if str(p[1]) == number)
+        first(pad, "net")[:] = [a("net"), a(codes[net]), "/" + net]
+    cases = []
+    raws = [
+        "P19_OV_OK",
+        "N19_OV_OK",
+        "P12_OV_OK",
+        "N12_OV_OK",
+        "V5_REG_OV_OK",
+        "5V_DIG_OV_OK",
+        "REF_LOW_OK",
+        "REF_HIGH_OK",
+    ]
+    for bits in range(256):
+        inputs = control.safe_inputs(before)
+        inputs.update(
+            POWER_RUN=1,
+            P03_SOURCES_READY=1,
+            ANA_SOURCE_OK=1,
+            DIG_SOURCE_OK=1,
+            ANA_OUTPUT_OK=1,
+            DIG_OUTPUT_OK=1,
+            NF_OUTPUT_VALID_RAW=1,
+            **{n: (bits >> i) & 1 for i, n in enumerate(raws)},
+        )
+        old = control.StaticLogic(before).settle(**inputs)
+        new = control.StaticLogic(parts).settle(**inputs)
+        outputs = ["OK_19", "OK_12", "OK_5", "OK_REF", "E28_MASTER_ENABLE", "E28_FAULT", "E28_OUTPUT_READY"]
+        assert {n: old[n] for n in outputs} == {n: new[n] for n in outputs}, bits
+        cases.append(dict(bits=bits, outputs={n: new[n] for n in outputs}))
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for p in SOURCE.iterdir():
+        if p.is_file() and (
+            p.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym")
+            or p.name in ("components.json", "fp-lib-table", "sym-lib-table")
+        ):
+            shutil.copy2(p, WORK / p.name)
+        elif p.suffix == ".pretty":
+            shutil.copytree(p, WORK / p.name)
+    (WORK / "rail_disconnect.kicad_pcb").write_text(sexpr(t) + "\n")
+    (WORK / "rail_disconnect.kicad_sch").write_text(sexpr(sch) + "\n")
+    (WORK / "components.json").write_text(json.dumps(parts, indent=2) + "\n")
+    project = WORK / "rail_disconnect.kicad_pro"
+    pro = json.loads(project.read_text())
+    pro["board"]["design_settings"].setdefault("rule_severities", {}).update(
+        {k: "error" for k in STRICT_KEYS}
+    )
+    project.write_text(json.dumps(pro, indent=2) + "\n")
+    report = dict(
+        source_pcb_sha256=hashlib.sha256(blob).hexdigest(),
+        independent_base_sha256=proof["source_pcb_sha256"],
+        independent_handoff_sha256=hashlib.sha256(handoff.read_bytes()).hexdigest(),
+        independent_delta_sha256=hashlib.sha256(proof_path.read_bytes()).hexdigest(),
+        recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        removed_independent_control_objects=removed,
+        added_independent_objects=added,
+        newly_routed_OK19_objects_replaced=ok19,
+        actual_same_AND2_pin_delta=pin_delta,
+        actual_OV_cases_equal=cases,
+        all_existing_force_quiet_ground_copper_and_all_component_poses_preserved=True,
+        all5previously_default_ignored_checks_explicitly_errors=list(STRICT_KEYS),
+        no_native_PDN_MCAD_or_physical_pass_inherited=True,
+        via_filling_capping_process_acceptance=False,
+        complete_routing=False,
+        physical_qualified=False,
+    )
+    (WORK / "generated/paired-merge.json").write_text(json.dumps(report, indent=2) + "\n")
+    print(
+        "Actual sameAND2+pairedcopperdelta applied; removed",
+        len(ok19),
+        "newOK19objects forsafe replacement;256OVcases equal",
+    )
+
+
+if __name__ == "__main__":
+    main()

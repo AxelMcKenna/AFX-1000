@@ -1,0 +1,52 @@
+"""Datum arithmetic; all unlabeled dimensional bounds are receiving requirements."""
+
+
+def report():
+    return dict(
+        revision="HT01", candidate="Alps RK09L1140A5L", adopted=False,
+        primary_product_url="https://tech.alpsalpine.com/e/products/detail/RK09L1140A5L/",
+        source_facts=dict(temperature_c=[-10,70], resistance_ohm=10000, resistance_tolerance_percent=20,
+            taper="1B", detent=False, travel_degree=[295,305], rated_power_w=.05, max_dc_v=10,
+            length_L1=15, bushing_LB=5, flat_length=7, shaft_diameter=[5.9,6.0], flat_dimension=[4.4,4.5],
+            shoulder_to_substrate=10, shoulder_to_rear_body=7.45, rear_lead_projection=3.5,
+            front_width=12.1, front_extent_above_axis=4.85, below_axis=6.5,
+            bushing_thread="M9x0.75", nut_AF=11, nut_thickness=2, washer_OD=14, washer_ID=9.1, washer_thickness=.5,
+            antirotation_lug_projection=[.6,.8], antirotation_lug_width=[1.9,2.1], lug_radial_centre=[5.8,6.2], lug_radial_thickness=[.6,1.0],
+            substrate_signal_bores=[1.0,1.1], outer_signal_span=5, support_lug_span=11.3,
+            support_slots_width=[1.8,2.0], support_slots_height=[1.1,1.2], drawing_common_mount_tolerance=.1,
+            all_metal_lugs_must_be_soldered_into_substrate=True,
+            dc_application_requires_manufacturer_consultation=True,
+            product_page_requires_formal_delivery_specification=True),
+        receiving_requirements_not_manufacturer_guarantees=dict(
+            shoulder_z=[43.5,43.7], shaft_L1=[14.8,15.2], flat_length=[6.8,7.2], bushing_length=[4.8,5.2],
+            bushing_diameter_max=9.1, independent_xy_each=.1, geometry_radial_reserve=.005,
+            knob_base_z=[49.1,49.3], grub_axis_local=5, grub_axis_error=.05, grub_axial_gauge_diameter=3.1,
+            axial_flat_reserve=.25, blind_bore_depth=10.8, knob_smallest_height=13,
+            nut_AF_max=11.2, nut_thickness_max=2.2, washer_OD_max=14.2, washer_ID_min=9.2, washer_thickness_max=.6,
+            panel_thickness_max=2.1, receiving_substrate=[16,16,1.6], substrate_top_z=33.6,
+            tail_and_solder_low_z=29.4, terminal_clearance_and_material_dimensions_unbounded=True,
+            blind_lug_pocket_width=2.4, blind_lug_pocket_radial_y=[5.1,6.9], pocket_z=[43.59998,44.7]),
+        derived=dict(
+            nominal_shoulder_z=43.6, nominal_substrate_top_z=33.6, nominal_body_rear_z=36.15,
+            nominal_rear_lead_end_z=30.1, nominal_shaft_tip_z=58.6, nominal_flat_start_z=51.6,
+            allocated_shaft_tip_z=[58.3,58.9], allocated_flat_start_max_z=52.1,
+            usable_flat_end_min_z=57.5, new_grub_gauge_z=[52.5,55.9],
+            flat_lower_reserve_beyond_required=.15, flat_upper_reserve_beyond_required=1.35,
+            old_grub_gauge_z=[50.5,53.9], old_blind_bore_roof_min_z=59.1,
+            new_blind_bore_roof_min_z=59.9, new_tip_axial_clearance_min=1.0,
+            smallest_nominal_knob_roof=2.2, blind_pocket_nominal_panel_roof=.9,
+            bushing_top_max_z=48.9, hardware_top_max_z=48.6, knob_hardware_nominal_sweep_gap_min=.2,
+            minimum_thread_above_panel_and_washer=2.1,
+            complete_max_nut_thread_engagement_not_established=True,
+            panel_hole_unchanged=9.5, minimum_plain_panel_lug_collision=True),
+        open_holds=[
+            "Unlabeled supplier dimensional tolerances and formal delivery drawing approval",
+            "Supplied washer nominal9.1ID does not establish the9.2 minimum receiving requirement",
+            "Nut lead/chamfer, minimum usable thread engagement and nut torque require actual supplier limits",
+            "Substrate lands, lug capture, harness termination, antirotation torque and support strength are not designed/qualified",
+            "10k1B/300degree/endstop/shaft-flat orientation and firmware calibration need actual control-interface approval",
+            "DC bias, wiper load and tuning/noise require vendor consultation and actual circuit validation",
+            "70C ambient rating does not establish actual installed pot temperature or self-heating margin",
+        ],
+        physical_qualified=False, thermal_qualified=False, electrical_qualified=False, fabrication_released=False,
+    )

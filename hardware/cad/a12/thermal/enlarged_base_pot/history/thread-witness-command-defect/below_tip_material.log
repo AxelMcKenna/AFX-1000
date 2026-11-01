@@ -1,0 +1,101 @@
+the required argument for option '--D' is missing
+
+Usage: OpenSCAD [options] file.scad
+Allowed options:
+  --export-format arg               overrides format of exported scad file when
+                                    using option '-o', arg can be any of its 
+                                    supported file extensions.  For ASCII stl 
+                                    export, specify 'asciistl', and for binary 
+                                    stl export, specify 'binstl'.  ASCII export
+                                    is the current stl default, but binary stl 
+                                    is planned as the future default so 
+                                    asciistl should be explicitly specified in 
+                                    scripts when needed.
+                                    
+  -o [ --o ] arg                    output specified file instead of running 
+                                    the GUI. The file extension specifies the 
+                                    type: stl, off, wrl, 3mf, csg, dxf, svg, 
+                                    pdf, png, echo, ast, term, nef3, nefdbg, 
+                                    param, pov. May be used multiple times for 
+                                    different exports. Use '-' for stdout.
+                                    
+  -O [ --O ] arg                    pass settings value to the file export 
+                                    using the format section/key=value, e.g 
+                                    export-pdf/paper-size=a3. Use --help-export
+                                    to list all available settings.
+  -D [ --D ] arg                    var=val -pre-define variables
+  -p [ --p ] arg                    customizer parameter file
+  -P [ --P ] arg                    customizer parameter set
+  --enable arg                      enable experimental features (specify 'all'
+                                    for enabling all available features): roof 
+                                    | input-driver-dbus | lazy-union | 
+                                    vertex-object-renderers-indexing | 
+                                    import-function | object-function | 
+                                    predictible-output | vector-swizzle | 
+                                    discretization-by-error | ai-features | 
+                                    unicode-identifiers
+                                    
+  -h [ --help ]                     print this help message and exit
+  --help-export                     print list of export parameters and values 
+                                    that can be set via -O
+  -v [ --version ]                  print the version
+  --info                            print information about the build process
+                                    
+  --camera arg                      camera parameters when exporting png: 
+                                    =translate_x,y,z,rot_x,y,z,dist or 
+                                    =eye_x,y,z,center_x,y,z
+  --autocenter                      adjust camera to look at object's center
+  --viewall                         adjust camera to fit object
+  --backend arg                     3D rendering backend to use: 'CGAL' 
+                                    (old/slow) or 'Manifold' (new/fast) 
+                                    [default]
+  --imgsize arg                     =width,height of exported png
+  --render arg                      for full geometry evaluation when exporting
+                                    png
+  --preview arg                     [=throwntogether] -for ThrownTogether 
+                                    preview png
+  --animate arg                     export N animated frames
+  --animate_sharding arg            Parameter <shard>/<num_shards> - Divide 
+                                    work into <num_shards> and only output 
+                                    frames for <shard>. E.g. 2/5 only outputs 
+                                    the second 1/5 of frames. Use to 
+                                    parallelize work on multiple cores or 
+                                    machines.
+  --view arg                        =view options: axes | crosshairs | edges | 
+                                    scales
+  --projection arg                  =(o)rtho or (p)erspective when exporting 
+                                    png
+  --csglimit arg                    =n -stop rendering at n CSG elements when 
+                                    exporting png
+  --summary arg                     enable additional render summary and 
+                                    statistics: all | cache | time | camera | 
+                                    geometry | bounding-box | area
+  --summary-file arg                output summary information in JSON format 
+                                    to the given file, using '-' outputs to 
+                                    stdout
+  --colorscheme arg                 =colorscheme: *Cornfield | Metallic | 
+                                    Sunset | Starnight | BeforeDawn | Nature | 
+                                    Daylight Gem | Nocturnal Gem | DeepOcean | 
+                                    Solarized | Tomorrow | Tomorrow Night | 
+                                    Nord Dark | ClearSky | Nord Light | 
+                                    Monotone
+                                    
+  -d [ --d ] arg                    deps_file -generate a dependency file for 
+                                    make
+  -m [ --m ] arg                    make_cmd -runs make_cmd file if file is 
+                                    missing
+  -q [ --quiet ]                    quiet mode (don't print anything *except* 
+                                    errors)
+  --reset-window-settings           Reset GUI settings for window placement and
+                                    fonts.
+  --hardwarnings                    Stop on the first warning
+  --trace-depth arg                 =n, maximum number of trace messages
+  --trace-usermodule-parameters arg =true/false, configure the output of user 
+                                    module parameters in a trace
+  --check-parameters arg            =true/false, configure the parameter check 
+                                    for user modules and functions
+  --check-parameter-ranges arg      =true/false, configure the parameter range 
+                                    check for builtin modules
+  --debug arg                       special debug info - specify 'all' or a set
+                                    of source file names
+

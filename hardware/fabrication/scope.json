@@ -1,0 +1,206 @@
+{
+  "profile": "full 12 V higher-headroom standalone AFX-1000; excludes B1",
+  "proposed_release_tier": "first prototype",
+  "production_release_requires_post_fabrication_qualification": true,
+  "physical_board_partition_complete": false,
+  "roles": [
+    {
+      "role": "power_supply",
+      "source": "hardware/electronics/power_distribution/p03/candidates/ax03-run-transmitter/generated/native-closed-transmitter/power_p03.kicad_pro",
+      "native_review": "hardware/electronics/power_distribution/p03/candidates/ax03-run-transmitter/generated/native-closed-transmitter/review.json",
+      "selection": "development_candidate",
+      "holds": [
+        "C50 stack/process approval including five new SMD drill overlaps",
+        "fresh installed PDN/thermal/fault analysis",
+        "complete harness"
+      ]
+    },
+    {
+      "role": "input_protection",
+      "source": "hardware/fabrication/staging/input-protection-native-01/rear_inlet.kicad_pro",
+      "selection": "development_candidate",
+      "holds": [
+        "fuse/jack/guard fault coordination",
+        "mating and harness receiving"
+      ],
+      "previous_source": "hardware/electronics/input_protection/inlet_revision2/rear_inlet.kicad_pro",
+      "native_review": "hardware/fabrication/staging/input-protection-native-01/review.json"
+    },
+    {
+      "role": "rail_disconnect",
+      "source": "hardware/fabrication/staging/e28-covered-stubs-native/rail_disconnect.kicad_pro",
+      "native_review": "hardware/fabrication/staging/e28-covered-stubs-native/review.json",
+      "selection": "development_candidate",
+      "holds": [
+        "49 native warnings (30 track tips, 19 via stubs)",
+        "eight-layer mixed-copper stack and single smaller filled/capped via acceptance",
+        "fresh power/return and fault analysis"
+      ],
+      "previous_source": "hardware/electronics/rail_disconnect/revision28/generated/low-power-run-work/generated/native-signal-stub-cleanup-06/rail_disconnect.kicad_pro"
+    },
+    {
+      "role": "rail_monitor",
+      "source": "hardware/fabrication/staging/rail-monitor-dogbone-native-01/rail_monitor.kicad_pro",
+      "selection": "partially_routed_development_candidate",
+      "holds": [
+        "13 missing connections; supply escapes require local routing/placement revision",
+        "final functions and interfaces must be reconciled with P03/E28/NF",
+        "exact precision/passive MPNs, error budgets and process acceptance",
+        "80 x 70 mm proposed allocation, mounting, connector/harness and installed fit",
+        "local bypass, sense routing and integrated noise/fault qualification",
+        "mask-web/stencil acceptance for conventional via escapes; all drilled holes screened outside SMD copper"
+      ],
+      "previous_source": "hardware/electronics/rail_monitor/rail_monitor.kicad_sch",
+      "native_review": "hardware/fabrication/staging/rail-monitor-dogbone-native-01/review.json",
+      "handoff": "hardware/fabrication/staging/rail-monitor-dogbone-native-01/handoff.json"
+    },
+    {
+      "role": "processor_carrier",
+      "source": "hardware/fabrication/staging/processor-carrier-native-01/processor_carrier.kicad_pro",
+      "selection": "development_candidate",
+      "holds": [
+        "source-to-Seed voltage interval",
+        "final sockets/harness/stack and parts acceptance"
+      ],
+      "previous_source": "hardware/cad/a12/harness/proposals/processor-awg18-ear-fanout-j29-central-r1/processor_carrier.kicad_pro",
+      "native_review": "hardware/fabrication/staging/processor-carrier-native-01/review.json"
+    },
+    {
+      "role": "control_inputs",
+      "source": "hardware/fabrication/staging/control-inputs-native-01/control_inputs.kicad_pro",
+      "selection": "baseline_needs_reconciliation",
+      "holds": [
+        "final panel/sensor/SD interfaces",
+        "whole-unit receiving and functional-interface review"
+      ],
+      "previous_source": "hardware/electronics/control_inputs/control_inputs.kicad_pro",
+      "native_review": "hardware/fabrication/staging/control-inputs-native-01/review.json"
+    },
+    {
+      "role": "led_driver",
+      "source": "hardware/fabrication/staging/led-driver-native-01/led_driver.kicad_pro",
+      "selection": "baseline_needs_reconciliation",
+      "holds": [
+        "production LED/anode assembly and load distribution",
+        "whole-unit receiving and functional-interface review"
+      ],
+      "previous_source": "hardware/electronics/led_driver/led_driver.kicad_pro",
+      "native_review": "hardware/fabrication/staging/led-driver-native-01/review.json"
+    },
+    {
+      "role": "converter",
+      "source": "hardware/electronics/converter/converter.kicad_sch",
+      "selection": "missing_manufacturer_inputs",
+      "holds": [
+        "revisioned ESS ES9292QPRO package/land/stencil drawing or approval",
+        "actual ADC/DAC interface data and final co-located audio partition",
+        "no PCB"
+      ]
+    },
+    {
+      "role": "input_range",
+      "source": "hardware/fabrication/staging/input-range-native-01/input_range.kicad_pro",
+      "selection": "baseline_needs_reconciliation",
+      "holds": [
+        "final audio/converter interfaces and assembly datum",
+        "parts/process review"
+      ],
+      "previous_source": "hardware/electronics/input_range/pcb/input_range.kicad_pro",
+      "native_review": "hardware/fabrication/staging/input-range-native-01/review.json",
+      "source_inputs_before_staging": {
+        "schematic": "hardware/electronics/input_range/input_range.kicad_sch",
+        "symbol_table": "hardware/electronics/input_range/sym-lib-table",
+        "PCB_project": "hardware/electronics/input_range/pcb/input_range.kicad_pro"
+      }
+    },
+    {
+      "role": "adc_driver",
+      "source": "hardware/fabrication/staging/adc-driver-native-01/adc_driver.kicad_pro",
+      "selection": "characterization_reference_not_final_converter_board",
+      "holds": [
+        "final driver/ESS co-location or force/sense interface",
+        "actual ADC loading and partial-power circuit requirements"
+      ],
+      "previous_source": "hardware/electronics/adc_driver/revision2/adc_driver.kicad_pro",
+      "native_review": "hardware/fabrication/staging/adc-driver-native-01/review.json"
+    },
+    {
+      "role": "dac_receiver",
+      "source": "hardware/electronics/dac_receiver/dac_receiver.kicad_sch",
+      "selection": "architecture_unresolved",
+      "holds": [
+        "actual ESS output interface/normalization",
+        "final audio partition",
+        "no PCB"
+      ]
+    },
+    {
+      "role": "output_stage",
+      "source": "hardware/fabrication/staging/output-stage-native-01/output_stage.kicad_pro",
+      "selection": "baseline_needs_reconciliation",
+      "holds": [
+        "actual converter/receiver interface",
+        "parts and assembly review"
+      ],
+      "previous_source": "hardware/electronics/output_stage/output_stage.kicad_pro",
+      "native_review": "hardware/fabrication/staging/output-stage-native-01/review.json"
+    },
+    {
+      "role": "sequenced_bypass",
+      "source": "hardware/fabrication/staging/bypass-closed-native-03/sequenced_bypass.kicad_pro",
+      "selection": "routed_development_candidate",
+      "holds": [
+        "exact passive MPNs and production connector/harness selection",
+        "110 x 55 mm installed allocation, mounting and whole-unit receiving",
+        "four-layer stack, mask/stencil and assembly acceptance",
+        "coil/return, timing and fault/noise review for the integrated unit",
+        "final fabrication and assembly output inspection"
+      ],
+      "previous_source": "hardware/electronics/sequenced_bypass/sequenced_bypass.kicad_sch",
+      "native_review": "hardware/fabrication/staging/bypass-closed-native-03/review.json",
+      "handoff": "hardware/fabrication/staging/bypass-closed-native-03/handoff.json"
+    },
+    {
+      "role": "negative_startup_protection",
+      "source": "hardware/fabrication/staging/nf-arm-only-native-01/negative_startup_physical.kicad_pro",
+      "selection": "development_candidate",
+      "holds": [
+        "176 missing connections",
+        "two isolated-domain ground warnings",
+        "1.2 mm six-layer process, shim/connector/mount receiving",
+        "final E28 fault and negative-force integration",
+        "New through-via plane clearances require refreshed PDN/noise analysis",
+        "DRB central-land stencil/thermal-via process and updated receiving acceptance"
+      ],
+      "previous_source": "hardware/qualification/boards/thin_aux_boards/generated/NF/negative_startup_physical.kicad_pro",
+      "native_review": "hardware/fabrication/staging/nf-arm-only-native-01/review.json",
+      "superseded_source_before_package_correction": "hardware/fabrication/staging/nf-layer-logic-native-03/negative_startup_physical.kicad_pro",
+      "package_correction_review": "hardware/fabrication/staging/nf-watchdog-land-native-01/package-correction-review.json",
+      "superseded_source_before_single_net_routing": "hardware/fabrication/staging/nf-watchdog-land-native-01/negative_startup_physical.kicad_pro",
+      "handoff": "hardware/fabrication/staging/nf-arm-only-native-01/single-net-audit.json"
+    },
+    {
+      "role": "fan_health_protection",
+      "source": "hardware/fabrication/staging/fan-watchdog-land-native-01/fan_power_health.kicad_pro",
+      "selection": "development_candidate",
+      "holds": [
+        "1.2 mm four-layer process and mounting/shim acceptance",
+        "actual NF/fan power and return harness",
+        "installed airflow/thermal design",
+        "DRB central-land stencil/thermal-via process and updated receiving acceptance"
+      ],
+      "previous_source": "hardware/qualification/boards/thin_aux_boards/generated/FPC/fan_power_health.kicad_pro",
+      "native_review": "hardware/fabrication/staging/fan-watchdog-land-native-01/review.json",
+      "superseded_source_before_package_correction": "hardware/fabrication/staging/fan-health-native-01/fan_power_health.kicad_pro",
+      "package_correction_review": "hardware/fabrication/staging/fan-watchdog-land-native-01/package-correction-review.json"
+    }
+  ],
+  "assembly_holds": [
+    "Select one coherent set of current board, panel, housing, link, return and harness sources",
+    "Reconcile mechanical receiving with thin NF/FPC and current E28/P03 rather than inherit older assembly passes",
+    "Resolve exact parts, fasteners, connector keying and manufacturing tolerances",
+    "Produce and independently inspect Gerber, drill, stack, BOM, placement and fabrication/assembly drawings for each selected physical board",
+    "Create the bounded first-article inspection and isolated bring-up package before complete-unit power-up"
+  ],
+  "fabrication_released": false
+}

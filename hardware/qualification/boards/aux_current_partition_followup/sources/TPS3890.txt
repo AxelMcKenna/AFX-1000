@@ -1,0 +1,1540 @@
+                                              Product               Sample &                  Technical                       Tools &           Support &
+                                              Folder                Buy                       Documents                       Software          Community
+
+
+
+                                                                                                                                                                            TPS3890
+                                                                                                                                          SLVSD65A – MARCH 2016 – REVISED MAY 2016
+
+                                                  TPS3890
+                    Low Quiescent Current, 1% Accurate Supervisor with Programmable Delay
+1 Features                                                                                          3 Description
+1•    Power-On-Reset (POR) Generator with Adjustable                                                The TPS3890 is a precision voltage supervisor with
+      Delay Time: 40 μs to 30 s                                                                     low-quiescent current that monitors system voltages
+                                                                                                    as low as 1.15 V, asserting an open-drain RESET
+•     Very Low Quiescent Current: 2.1 μA (Typical)                                                  signal when the SENSE voltage drops below a preset
+•     High Threshold Accuracy: 1% (max)                                                             threshold or when the manual reset (MR) pin drops to
+•     Precision Hysteresis                                                                          a logic low. The RESET output remains low for the
+                                                                                                    user-adjustable delay time after the SENSE voltage
+•     Fixed and Adjustable Threshold Voltages:
+                                                                                                    and manual reset (MR) return above the respective
+      – Fixed Thresholds for Standard Rails:                                                        thresholds. The TPS3890 family uses a precision
+         1.2 V to 3.3 V                                                                             reference to achieve 1% threshold accuracy. The
+      – Adjustable Down to 1.15 V                                                                   reset delay time can be user-adjusted between 40 μs
+                                                                                                    and 30 s by connecting the CT pin to an external
+•     Manual Reset (MR) Input
+                                                                                                    capacitor. The TPS3890 has a very low quiescent
+•     Open-Drain RESET Output                                                                       current of 2.1 μA and is available in a small 1.5-mm ×
+•     Temperature Range: –40°C to +125°C                                                            1.5-mm package, making the device well-suited for
+•     Package: 1.5-mm × 1.5-mm WSON                                                                 battery-powered and space-constrained applications.
+                                                                                                    The device is fully specified over a temperature range
+                                                                                                    of –40°C to +125°C (TJ).
+2 Applications
+•     DSPs or Microcontrollers                                                                                                           Device Information(1)
+•     FPGAs, ASICs                                                                                              PART NUMBER                    PACKAGE            BODY SIZE (NOM)
+•     Notebooks, Desktop Computers                                                                   TPS3890                              WSON (6)                1.50 mm × 1.50 mm
+
+•     Smartphones, Hand-Held Products                                                                (1) For all available packages, see the orderable addendum at
+                                                                                                         the end of the data sheet.
+•     Portable, Battery-Powered Products
+•     Solid-State Drives
+•     Set-Top Boxes
+•     Industrial Control Systems
+
+
+                          Typical Application Circuit                                                                          VITN Accuracy vs Temperature
+     1.8 V                                                                                                          0.75
+     1.2 V
+                                                                                                                                                     Unit 1       Unit 3     Unit 5
+                                                                                                                                                     Unit 2       Unit 4     Avg
+                                                                                                                     0.5
+
+                    VDD           SENSE                             VCORE            VI/O
+                                                                                                                    0.25
+
+
+
+                                                                                                     Accuracy (%)
+               MR
+                          TPS389012                                      Microcontroller                               0
+                                      RESET                      RESET
+               CT
+
+                            GND                                              GND                                    -0.25
+
+
+                                                                                                                     -0.5
+                                                 Copyright © 2016, Texas Instruments Incorporated
+
+                                                                                                                    -0.75
+                                                                                                                        -50      -25       0     25      50        75      100    125
+                                                                                                                                               Temperature (qC)                       D001
+
+
+
+
+1
+
+
+
+
+             An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+             intellectual property matters and other important disclaimers. PRODUCTION DATA.
+TPS3890
+SLVSD65A – MARCH 2016 – REVISED MAY 2016                                                                                                                                    www.ti.com
+
+
+                                                                           Table of Contents
+    1   Features .................................................................. 1                     8.3 Feature Description................................................. 11
+    2   Applications ........................................................... 1                        8.4 Device Functional Modes........................................ 14
+    3   Description ............................................................. 1                9     Application and Implementation ........................ 15
+    4   Revision History..................................................... 2                           9.1 Application Information............................................ 15
+                                                                                                          9.2 Typical Application ................................................. 15
+    5   Device Comparison Table..................................... 3
+    6   Pin Configuration and Functions ......................... 3                                10 Power Supply Recommendations ..................... 16
+    7   Specifications......................................................... 4                  11 Layout................................................................... 17
+                                                                                                          11.1 Layout Guidelines ................................................. 17
+         7.1    Absolute Maximum Ratings ...................................... 4
+                                                                                                          11.2 Layout Example .................................................... 17
+         7.2    ESD Ratings ............................................................ 4
+         7.3    Recommended Operating Conditions....................... 4                          12 Device and Documentation Support ................. 18
+         7.4    Thermal Information .................................................. 4                  12.1    Documentation Support ....................................... 18
+         7.5    Electrical Characteristics........................................... 5                   12.2    Community Resources.......................................... 18
+         7.6    Timing Requirements ................................................ 5                    12.3    Trademarks ........................................................... 18
+         7.7    Typical Characteristics .............................................. 7                  12.4    Electrostatic Discharge Caution ............................ 18
+                                                                                                          12.5    Glossary ................................................................ 18
+    8   Detailed Description ............................................ 11
+         8.1 Overview ................................................................. 11         13 Mechanical, Packaging, and Orderable
+         8.2 Functional Block Diagram ....................................... 11
+                                                                                                      Information ........................................................... 18
+
+
+
+4 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+
+Changes from Original (March 2016) to Revision A                                                                                                                                     Page
+
+•   Released to production........................................................................................................................................................... 1
+
+
+
+
+2        Submit Documentation Feedback                                                                                       Copyright © 2016, Texas Instruments Incorporated
+
+                                                                         Product Folder Links: TPS3890
+                                                                                                                                     TPS3890
+www.ti.com                                                                                          SLVSD65A – MARCH 2016 – REVISED MAY 2016
+
+
+5 Device Comparison Table
+
+          PART NUMBER                   NOMINAL SUPPLY VOLTAGE             NEGATIVE THRESHOLD (VITN)           POSITIVE THRESHOLD (VITP)
+            TPS389001                              Adjustable                            1.15 V                            1.157 V
+            TPS389012                                1.2 V                               1.15 V                            1.157 V
+            TPS389015                                1.5 V                               1.44 V                            1.449 V
+            TPS389018                                1.8 V                               1.73 V                            1.740 V
+            TPS389020                                2.0 V                               1.90 V                            1.911 V
+            TPS389025                                2.5 V                               2.40 V                            2.414 V
+            TPS389030                                3.0 V                               2.89 V                            2.907 V
+            TPS389033                                3.3 V                               3.17 V                            3.189 V
+
+
+
+6 Pin Configuration and Functions
+
+                                                                    DSE Package
+                                                                    6-Pin WSON
+                                                                      Top View
+
+
+                                                      SENSE     1                  6     RESET
+
+
+
+                                                        GND     2                  5     CT
+
+
+
+                                                         MR     3                  4     VDD
+
+
+                                                                          Not to scale
+
+
+                                                                Pin Functions
+          PIN
+                            I/O                                                    DESCRIPTION
+NO.             NAME
+                                     The CT pin offers a user-adjustable delay time. Connecting this pin to a ground-referenced capacitor sets
+5                CT          —       the RESET delay time to deassert.
+                                     tPD(r) (sec) = CCT (µF) × 1.07 + 25 µs (nom).
+2               GND          —       Ground
+3               MR           I       Driving the manual reset pin (MR) low causes RESET to go low (assert).
+                                     RESET is an open-drain output that is driven to a low-impedance state when either the MR pin is driven to
+                                     a logic low or the monitored voltage on the SENSE pin is lower than the negative threshold voltage (VITN).
+6             RESET          O
+                                     RESET remains low (asserted) for the delay time period after both MR is set to a logic high and the
+                                     SENSE input is above VITP. A pullup resistor from 10 kΩ to 1 MΩ can be used on this pin.
+                                     This pin is connected to the voltage to be monitored. When the voltage on SENSE falls below the
+1             SENSE          I       negative threshold voltage VITN, RESET goes low (asserts). When the voltage on SENSE rises above the
+                                     positive threshold voltage VITP, RESET goes high (deasserts).
+4               VDD          I       Supply voltage pin. Good analog design practice is to place a 0.1-µF ceramic capacitor close to this pin.
+
+
+
+
+Copyright © 2016, Texas Instruments Incorporated                                                       Submit Documentation Feedback             3
+                                                         Product Folder Links: TPS3890
+TPS3890
+SLVSD65A – MARCH 2016 – REVISED MAY 2016                                                                                            www.ti.com
+
+
+7 Specifications
+7.1 Absolute Maximum Ratings
+over operating junction temperature range (unless otherwise noted) (1)
+                                                                                                     MIN              MAX            UNIT
+                                                   VDD                                               –0.3              7
+                                                   SENSE                                             –0.3              7
+Voltage                                            RESET                                             –0.3              7              V
+                                                   MR                                                –0.3              7
+                                                   VCT                                               –0.3              7
+Current                                            RESET                                             –20               20             mA
+                                                   Operating junction temperature, TJ                –40              125
+Temperature                                                                                                                           °C
+                                                   Storage temperature, Tstg                         –65              150
+
+(1)   Stresses beyond those listed under Absolute Maximum Ratings may cause permanent damage to the device. These are stress ratings
+      only, which do not imply functional operation of the device at these or any other conditions beyond those indicated under Recommended
+      Operating Conditions. Exposure to absolute-maximum-rated conditions for extended periods may affect device reliability.
+
+7.2 ESD Ratings
+                                                                                                                            VALUE      UNIT
+                                                                                                      (1)
+                                              Human-body model (HBM), per ANSI/ESDA/JEDEC JS-001                            ±1000
+V(ESD)       Electrostatic discharge                                                                                                       V
+                                              Charged-device model (CDM), per JEDEC specification JESD22-C101 (2)           ±750
+
+(1)   JEDEC document JEP155 states that 500-V HBM allows safe manufacturing with a standard ESD control process. Manufacturing with
+      less than 500-V HBM is possible with the necessary precautions.
+(2)   JEDEC document JEP157 states that 250-V CDM allows safe manufacturing with a standard ESD control process. Manufacturing with
+      less than 250-V CDM is possible with the necessary precautions.
+
+7.3 Recommended Operating Conditions
+over operating free-air temperature range (unless otherwise noted)
+                                                                                            MIN             NOM             MAX      UNIT
+VDD              Power-supply voltage                                                        1.5                             5.5       V
+VSENSE           SENSE voltage                                                                 0                             5.5       V
+VRESET           RESET pin voltage                                                             0                             5.5       V
+IRESET           RESET pin current                                                            –5                               5      mA
+CIN              Input capacitor, VDD pin                                                      0             0.1                      µF
+CCT              Reset timeout capacitor, CT pin                                               0                              22      µF
+RPU              Pullup resistor, RESET pin                                                    1                            1000      kΩ
+TJ               Junction temperature (free-air temperature)                                 –40             25              125       ℃
+
+
+7.4 Thermal Information
+                                                                                                             TPS3890
+                                         THERMAL METRIC (1)                                                 DSE (WSON)              UNIT
+                                                                                                              6 PINS
+RθJA              Junction-to-ambient thermal resistance                                                       321.3                °C/W
+RθJC(top)         Junction-to-case (top) thermal resistance                                                    207.9                °C/W
+RθJB              Junction-to-board thermal resistance                                                         281.5                °C/W
+ψJT               Junction-to-top characterization parameter                                                   42.4                 °C/W
+ψJB               Junction-to-board characterization parameter                                                 284.8                °C/W
+RθJC(bot)         Junction-to-case (bottom) thermal resistance                                                 142.3                °C/W
+
+(1)   For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+      report, SPRA953.
+
+
+
+4         Submit Documentation Feedback                                                        Copyright © 2016, Texas Instruments Incorporated
+
+                                                         Product Folder Links: TPS3890
+                                                                                                                               TPS3890
+www.ti.com                                                                                      SLVSD65A – MARCH 2016 – REVISED MAY 2016
+
+
+7.5 Electrical Characteristics
+over the operating junction temperature range of –40°C to +125°C, 1.5 V ≤ VDD ≤ 5.5 V, and MR = VDD (unless otherwise
+noted); typical values are at VDD = 5.5 V and TJ = 25°C
+                    PARAMETER                                TEST CONDITIONS                     MIN       TYP         MAX      UNIT
+VDD           Input supply voltage                                                                1.5                    5.5      V
+VPOR          Power-on reset voltage                VOL(max) = 0.2 V, IRESET = 15 µA                                     0.8      V
+                                                    VDD = 3.3 V, IRESET = 0 mA,
+                                                                                                           2.09         3.72
+                                                    –40°C < TJ < 85°C
+                                                    VDD = 3.3 V, IRESET = 0 mA,
+                                                                                                                         4.5
+                                                    –40°C < TJ < 105°C
+                                                    VDD= 3.3 V, IRESET = 0 mA                                            5.8
+IDD           Supply current (into VDD pin)                                                                                       µA
+                                                    VDD = 5.5 V, IRESET = 0 mA,
+                                                                                                           2.29           4
+                                                    –40°C < TJ < 85°C
+                                                    VDD = 5.5 V, IRESET = 0 mA,
+                                                                                                                         5.2
+                                                    –40°C < TJ < 105°C
+                                                    VDD = 5.5 V, IRESET = 0 mA                                           6.5
+              SENSE input threshold voltage
+VITN, VITP                                                                                      –1%       ±0.5%          1%
+              accuracy
+                           (1)
+VHYST         Hysteresis                                                                     0.325%     0.575%       0.825%
+                                                    VSENSE = 5 V                                                          8       µA
+ISENSE        Input current                         VSENSE = 5 V, TPS389001,
+                                                                                                             10         100       nA
+                                                    TPS389012
+ICT           CT pin charge current                                                             0.90       1.15         1.35      µA
+VCT           CT pin comparator threshold voltage                                               1.17       1.23         1.29      V
+RCT           CT pin pulldown resistance            When RESET is deasserted                                200                   Ω
+VIL           Low-level input voltage (MR pin)                                                                    0.25 × VDD      V
+VIH           High-level output voltage                                                     0.7 x VDD                             V
+                                                    VDD ≥ 1.5 V, IRESET = 0.4 mA                                        0.25
+VOL           Low-level output voltage              VDD ≥ 2.7 V, IRESET = 2 mA                                          0.25      V
+                                                    VDD ≥ 4.5 V, IRESET = 3 mA                                           0.3
+                                                    High impedance,
+ILKG(OD)      Open-drain output leakage                                                                                 250       nA
+                                                    VSENSE = VRESET = 5.5 V
+
+(1)   VHYST = [(VITP – VITN) / VITN] × 100%.
+
+7.6 Timing Requirements
+over the operating junction temperature range of –40°C to +125°C, 1.5 V ≤ VDD ≤ 5.5 V, MR = VDD, and 5% input overdrive (1)
+(unless otherwise noted); typical values are at VDD = 5.5 V and TJ = 25°C
+                                                                                                 MIN       NOM         MAX      UNIT
+                                                                   CT = open, VDD = 3.3 V                    18
+tPD(f)          SENSE (falling) to RESET propagation delay                                                                        µs
+                                                                   CT = open, VDD = 5.5 V                     8
+tPD(r)          SENSE (rising) to RESET propagation delay          CT = open, VDD = 3.3 V                    25                   µs
+tGI(SENSE)      SENSE pin glitch immunity                          VDD = 5.5 V                                9                   µs
+tGI(MR)         MR pin glitch immunity                             VDD = 5.5 V                              100                   ns
+tMRW            MR pin pulse duration to assert RESET                                               1                             µs
+td(MR)          MR pin low to out delay                                                                     250                   ns
+tSTRT           Startup delay                                                                               325                   µs
+
+(1)   Overdrive = | (VIN / VTHRESH – 1) × 100% |.
+
+
+
+
+Copyright © 2016, Texas Instruments Incorporated                                                  Submit Documentation Feedback        5
+                                                        Product Folder Links: TPS3890
+TPS3890
+SLVSD65A – MARCH 2016 – REVISED MAY 2016                                                                                 www.ti.com
+
+
+
+                   VDD
+
+
+
+    0.8 V
+
+
+
+                             RESET
+                                                                                              tPD(f) =SENSE Falling Propagation Delay
+                                                                                              tPD(r) =SENSE Rising Propagation Delay
+                         tPD(r)                                              tPD(r)               = Undefined State
+                                            tPD(f)                  td(MR)
+
+
+
+                                  SENSE
+     VITP
+     VITN
+
+
+
+                  MR
+ 0.7 VDD
+
+ 0.3 VDD
+
+
+
+                                                       Time
+
+                                                     Figure 1. Timing Diagram
+
+
+
+
+6           Submit Documentation Feedback                                             Copyright © 2016, Texas Instruments Incorporated
+
+                                                      Product Folder Links: TPS3890
+                                                                                                                                                                                                       TPS3890
+www.ti.com                                                                                                                                                      SLVSD65A – MARCH 2016 – REVISED MAY 2016
+
+
+7.7 Typical Characteristics
+over the operating junction temperature range of –40°C to +125°C, 1.5 V ≤ VDD ≤ 5.5 V, and MR = VDD (unless otherwise
+noted)
+
+                              0.75                                                                                                     0.75
+                                                               Unit 1        Unit 3       Unit 5                                                                           Unit 1       Unit 3       Unit 5
+                                                               Unit 2        Unit 4       Avg                                                                              Unit 2       Unit 4       Avg
+                               0.5                                                                                                      0.5
+
+
+                              0.25                                                                                                     0.25
+
+
+
+   Accuracy (%)                                                                                           Accuracy (%)
+                                0                                                                                                         0
+
+
+                         -0.25                                                                                                    -0.25
+
+
+                              -0.5                                                                                                     -0.5
+
+
+                         -0.75                                                                                                    -0.75
+                             -50         -25        0     25      50          75      100      125                                    -50         -25           0      25      50        75      100      125
+                                                        Temperature (qC)                           D001
+                                                                                                                                                                     Temperature (qC)                         D002
+
+
+
+
+                                         Figure 2. VITN Accuracy vs Temperature                                                                   Figure 3. VITP Accuracy vs Temperature
+                               12                                                                                                       12
+
+
+                               10                                                                                                       10
+
+
+                                8                                                                                                        8
+
+
+
+              Frequency (%)                                                                                            Frequency (%)
+                                6                                                                                                        6
+
+
+                                4                                                                                                        4
+
+
+                                2                                                                                                        2
+
+
+                                0                                                                                                        0
+                                 -0.25      -0.15        -0.05       0.05          0.15        0.25                                       -0.25         -0.15        -0.05       0.05         0.15        0.25
+                                                        VITN Accuracy (%)                                                                                           VITP Accuracy (%)
+                  Tested at VDD = 1.5 V and VDD = 5.5 V, total tests = 136,348                                           Tested at VDD = 1.5 V and VDD = 5.5 V, total tests = 136,348
+
+                                           Figure 4. VITN Accuracy Histogram                                                                        Figure 5. VITP Accuracy Histogram
+                               15                                                                                                       1.2
+                                                                                                                                                  1.5 V
+                                                                                                                                                  5.5 V
+                               12
+                                                                                                                                       1.15
+
+
+
+
+              Frequency (%)                                                                                 CT Current (PA)
+                                9
+                                                                                                                                        1.1
+                                6
+
+                                                                                                                                       1.05
+                                3
+
+
+                                0                                                                                                        1
+                                 0.47       0.51         0.55         0.59         0.63        0.67                                      -50      -25           0      25      50       75       100      125
+                                                          Hysteresis (%)                                                                                             Temperature (qC)                         D005
+                  Tested at VDD = 1.5 V and VDD = 5.5 V, total tests = 136,348
+
+                                               Figure 6. Hysteresis Histogram                                                                      Figure 7. CT Current vs Temperature
+
+
+
+
+Copyright © 2016, Texas Instruments Incorporated                                                                                                                    Submit Documentation Feedback                    7
+                                                                                      Product Folder Links: TPS3890
+TPS3890
+SLVSD65A – MARCH 2016 – REVISED MAY 2016                                                                                                                                                                                               www.ti.com
+
+
+Typical Characteristics (continued)
+over the operating junction temperature range of –40°C to +125°C, 1.5 V ≤ VDD ≤ 5.5 V, and MR = VDD (unless otherwise
+noted)
+                                                  6                                                                                                         6
+                                                                -40qC         25qC       105qC                                                                              -40qC         25qC          105qC
+                                                                0qC           85qC       125q                                                                               0qC           85qC          125qC
+                                                  5                                                                                                         5
+
+
+
+
+                           Supply Current (PA)                                                                                        Supply Current (PA)
+                                                  4                                                                                                         4
+
+
+                                                  3                                                                                                         3
+
+
+                                                  2                                                                                                         2
+
+
+                                                  1                                                                                                         1
+
+
+                                                  0                                                                                                         0
+                                                      0   0.5     1     1.5    2     2.5  3    3.5   4    4.5     5   5.5                                       0     0.5      1    1.5       2    2.5  3      3.5    4     4.5    5     5.5
+                                                                                     VDD (V)                            D003
+                                                                                                                                                                                                   VDD (V)                                D004
+                                                                                MR = VDD                                                                                                          MR = 0 V
+
+                                                       Figure 8. Supply Current vs Power-Supply Voltage                                                             Figure 9. Supply Current vs Power-Supply Voltage
+                                                  1                                                                                                              3
+                                                                VIL      VIH                                                                                                  VIL         VIH
+                                                                                                                                                            2.75
+
+                                     0.75                                                                                                                    2.5
+
+
+
+
+    MR Threshold (V)                                                                                                           MR Threshold (V)
+                                                                                                                                                            2.25
+
+                                                 0.5                                                                                                             2
+
+                                                                                                                                                            1.75
+
+                                     0.25                                                                                                                    1.5
+
+                                                                                                                                                            1.25
+
+                                                  0                                                                                                              1
+                                                  -50           -25       0       25      50         75     100       125                                        -50          -25         0         25      50        75          100      125
+                                                                                Temperature (qC)                        D006
+                                                                                                                                                                                                  Temperature (qC)
+                                                                               VDD = 1.5 V                                                                                                      VDD = 5.5 V
+
+                                                            Figure 10. MR Threshold vs Temperature                                                                       Figure 11. MR Threshold vs Temperature
+                                        600                                                                                                                 34
+                                                                                                          VCC = 1.5 V                                                                                  -40qC         25qC         125qC
+                                                                                                          VCC = 3.3 V                                                                                  0qC           85qC
+                                        500                                                               VCC = 5.5 V                                       33
+
+
+
+
+                                                                                                                                Propagation Delay (Ps)
+      Startup Delay (Ps)
+                                        400
+                                                                                                                                                            32
+                                        300
+                                                                                                                                                            31
+                                        200
+
+                                                                                                                                                            30
+                                        100
+
+
+                                                  0                                                                                                         29
+                                                  -50           -25      0        25      50         75     100       125                                        1                                     10                                100
+                                                                                Temperature (qC)                        D008
+                                                                                                                                                                                                  Overdrive (%)                           D009
+                                                                                                                                                                                                VDD = 5.5 V
+
+                                                            Figure 12. Startup Delay vs Temperature                                                                  Figure 13. Propagation Delay (tPD(r)) vs Overdrive
+
+
+
+
+8                                                Submit Documentation Feedback                                                                                                            Copyright © 2016, Texas Instruments Incorporated
+
+                                                                                                            Product Folder Links: TPS3890
+                                                                                                                                                                                                        TPS3890
+www.ti.com                                                                                                                                                       SLVSD65A – MARCH 2016 – REVISED MAY 2016
+
+
+Typical Characteristics (continued)
+over the operating junction temperature range of –40°C to +125°C, 1.5 V ≤ VDD ≤ 5.5 V, and MR = VDD (unless otherwise
+noted)
+                                  34                                                                                                    34
+                                                                   -40qC         25qC     125qC                                                                             -40qC        25qC       125qC
+                                                                   0qC           85qC                                                   30                                  0qC          85qC
+                                  33
+
+
+
+
+    Propagation Delay (Ps)                                                                                  Propagation Delay (Ps)
+                                                                                                                                        26
+
+                                  32                                                                                                    22
+
+                                                                                                                                        18
+                                  31                                                                                                    14
+
+                                                                                                                                        10
+                                  30
+                                                                                                                                         6
+
+                                  29                                                                                                     2
+                                       1                           10                          100                                           1                              10                           100
+                                                              Overdrive (%)                       D010
+                                                                                                                                                                       Overdrive (%)                        D011
+                                                             VDD = 1.5 V                                                                                             VDD = 5.5 V
+
+                                           Figure 14. Propagation Delay (tPD(r)) vs Overdrive                                                    Figure 15. Propagation Delay (tPD(f)) vs Overdrive
+                                  34                                                                                                     32
+                                                                   -40qC         25qC     125qC                                                                                               Overdrive=3%
+                                  30                               0qC           85qC                                                                                                         Overdrive=5%
+                                                                                                                                        31.5                                                  Overdrive=10%
+
+
+
+
+    Propagation Delay (Ps)                                                                                 SENSE Glitch Immunity (Ps)
+                                  26
+                                                                                                                                         31
+                                  22
+
+                                  18                                                                                                    30.5
+
+                                  14
+                                                                                                                                         30
+                                  10
+                                                                                                                                        29.5
+                                   6
+
+                                   2                                                                                                     29
+                                       1                           10                          100                                         -50         -25       0      25      50        75      100       125
+                                                              Overdrive (%)                                                                                           Temperature (qC)
+                                                                                                  D012
+                                                             VDD = 1.5 V                                                                                             VDD = 5.5 V
+
+                                           Figure 16. Propagation Delay (tPD(f)) vs Overdrive                                           Figure 17. Low-to-High Glitch Immunity vs Temperature
+                                   32                                                                                                   20
+                                                                                    Overdrive=3%                                                                                           Overdrive=3%
+                                                                                    Overdrive=5%                                        18                                                 Overdrive=5%
+                                  31.5                                              Overdrive=10%                                                                                          Overdrive=10%
+
+
+
+
+     SENSE Glitch Immunity (Ps)                                                                           SENSE Glitch Immunity (Ps)
+                                                                                                                                        16
+                                                                                                                                        14
+                                   31
+                                                                                                                                        12
+                                  30.5                                                                                                  10
+                                                                                                                                         8
+                                   30
+                                                                                                                                         6
+                                                                                                                                         4
+                                  29.5
+                                                                                                                                         2
+                                   29                                                                                                    0
+                                     -50         -25     0      25      50        75    100       125                                    -50         -25     0         25      50        75      100     125
+                                                              Temperature (qC)                                                                                       Temperature (qC)                       D017
+                                                             VDD = 1.5 V                                                                                             VDD = 5.5 V
+                                  Figure 18. Low-to-High Glitch Immunity vs Temperature                                                 Figure 19. High-to-Low Glitch Immunity vs Temperature
+
+
+
+
+Copyright © 2016, Texas Instruments Incorporated                                                                                                                     Submit Documentation Feedback                 9
+                                                                                        Product Folder Links: TPS3890
+TPS3890
+SLVSD65A – MARCH 2016 – REVISED MAY 2016                                                                                                                                           www.ti.com
+
+
+Typical Characteristics (continued)
+over the operating junction temperature range of –40°C to +125°C, 1.5 V ≤ VDD ≤ 5.5 V, and MR = VDD (unless otherwise
+noted)
+                                  20                                                                                         1.6
+                                                                                     Overdrive=3%                                      -40qC     25qC       105qC
+                                  18                                                 Overdrive=5%                            1.4       0qC       85qC       125qC
+                                                                                     Overdrive=10%
+
+
+
+
+     SENSE Glitch Immunity (Ps)
+                                  16
+                                                                                                                             1.2
+                                  14
+                                  12                                                                                          1
+
+                                  10                                                                               VOL (V)   0.8
+                                  8                                                                                          0.6
+                                  6
+                                                                                                                             0.4
+                                  4
+                                  2                                                                                          0.2
+
+                                  0                                                                                           0
+                                  -50    -25     0     25      50                75      100       125                             0        1         2          3          4           5
+                                                     Temperature (qC)                                D018
+                                                                                                                                                       IRESET (mA)                      D015
+                                                     VDD = 1.5 V                                                                                   VDD = 5.5 V
+
+                                  Figure 20. High-to-Low Glitch Immunity vs Temperature                                       Figure 21. Low-Level Output Voltage vs RESET Current
+                                                                           1.6
+                                                                                         -40qC        25qC        105qC
+                                                                           1.4           0qC          85qC        125qC
+
+                                                                           1.2
+
+                                                                            1
+
+                                                                 VOL (V)   0.8
+
+                                                                           0.6
+
+                                                                           0.4
+
+                                                                           0.2
+
+                                                                            0
+                                                                                 0             1            2           3               4         5
+                                                                                                             IRESET (mA)
+                                                                                                       VDD = 1.5 V
+
+                                                                           Figure 22. Low-Level Output Voltage vs RESET Current
+
+
+
+
+10                                Submit Documentation Feedback                                                                                 Copyright © 2016, Texas Instruments Incorporated
+
+                                                                                          Product Folder Links: TPS3890
+                                                                                                                                      TPS3890
+www.ti.com                                                                                              SLVSD65A – MARCH 2016 – REVISED MAY 2016
+
+
+8 Detailed Description
+
+8.1 Overview
+The TPS3890 supervisory product family is designed to assert a RESET signal when either the SENSE pin
+voltage drops below VITN or the manual reset (MR) is driven low. The RESET output remains asserted for a user-
+adjustable time after both the manual reset (MR) and SENSE voltages return above their respective thresholds.
+
+8.2 Functional Block Diagram
+
+                                                                                                               VDD
+                                       VDD
+
+                                  TPS389001
+                               Adjustable Version
+
+                                                                                                                                 RESET
+                                                                RESET           MR
+             MR
+                                                                            SENSE
+                                                                                                                Reset
+                                       Reset                                                                    Logic
+                                       Logic                                            R1                      Timer
+                                       Timer
+
+         SENSE                                                                                                                   CT
+                                                                CT
+                                                                                        R2
+                                                                                                       1.15 V
+                                  1.15 V
+                                                                                                        VREF
+                                   VREF
+
+
+                                      GND
+                                                                                                               GND
+
+                          Adjustable Voltage Version                                              Fixed Voltage Version
+                                                    Copyright © 2016, Texas Instruments Incorporated
+
+
+8.3 Feature Description
+The combination of user-adjustable reset delay time with a broad range of threshold voltages allow these devices
+to be used in a wide array of applications. Fixed negative threshold voltages (VITN) can be factory set from 1.15 V
+to 3.17 V (see the Device Comparison Table for available options), and the adjustable device can be used to
+customize the threshold voltage for other application needs by using an external resistor divider. The CT pin
+allows the reset delay to be set between 25 μs and 30 s with the use of an external capacitor.
+
+8.3.1 User-Configurable RESET Delay Time
+The rising RESET delay time (tPD(r)) can be configured by installing a capacitor connected to the CT pin. The
+TPS3890 uses a CT pin charging current (ICT) of 1.15 µA to help counter the effect of capacitor and board-level
+leakage currents that can be substantial in certain applications. The rising RESET delay time can be set to any
+value between 25 µs (no CCT installed) and 30 s (CCT = 26 µF).
+The capacitor value needed for a given delay time can be calculated using Equation 1:
+       tPD(r) (sec) = CCT × VCT ÷ ICT+ tPD(r)(nom)                                                                                           (1)
+The slope of Equation 1 is determined by the time that the CT charging current (ICT) takes to charge the external
+capacitor up to the CT comparator threshold voltage (VCT). When RESET is asserted, the capacitor is discharged
+through the internal CT pulldown resistor (RCT). When the RESET conditions are cleared, the internal precision
+current source is enabled and begins to charge the external capacitor and when the voltage on this capacitor
+reaches 1.22 V, RESET is deasserted. Note that in order to minimize the difference between the calculated
+RESET delay time and the actual RESET delay time, use a low-leakage type capacitor (such as a ceramic
+capacitor) and minimize parasitic board capacitance around this pin.
+
+
+
+
+Copyright © 2016, Texas Instruments Incorporated                                                          Submit Documentation Feedback      11
+                                                           Product Folder Links: TPS3890
+TPS3890
+SLVSD65A – MARCH 2016 – REVISED MAY 2016                                                                                               www.ti.com
+
+
+Feature Description (continued)
+8.3.2 Manual Reset (MR) Input
+The manual reset (MR) input allows a processor or other logic circuits to initiate a reset. A logic low on MR
+causes RESET to assert. After MR returns to a logic high and SENSE is above VITP, RESET is deasserted after
+the user-defined reset delay. If MR is not controlled externally, then MR must be connected to VDD. Note that if
+the logic signal driving MR is not greater than or equal to VDD, then some additional current flows into VDD and
+out of MR and the difference is apparent when comparing Figure 8 and Figure 9.
+Figure 23 shows how MR can be used to monitor multiple system voltages when only a single CT capacitor is
+needed to set the RESET delay time.
+                              1.2 V                          3.3 V
+
+
+
+
+                                      SENSE       VDD                SENSE VDD                     V I/O   V CORE
+                              3.3 V
+                                       TPS389012                     TPS389033                        DSP
+
+                                      MR      RESET                  MR
+                                                                            RESET                 GPIO
+                                       CT                            CT
+                                            GND                           GND                         GND
+
+
+
+
+                                                                Copyright © 2016, Texas Instruments Incorporated
+
+                             Figure 23. Using MR to Monitor Multiple System Voltages
+
+8.3.3 RESET Output
+RESET remains high (deasserted) as long as SENSE is above the positive threshold (VITP) and the manual reset
+signal (MR) is logic high. If SENSE falls below the negative threshold (VITN) or if MR is driven low, then RESET is
+asserted, driving the RESET pin to a low impedance.
+When MR is again logic high and SENSE is above VITP, a delay circuit is enabled that holds RESET low for a
+specified reset delay period (tPD(r)). When the reset delay has elapsed, the RESET pin goes to a high-impedance
+state and uses a pullup resistor to hold RESET high. Connect the pullup resistor to the proper voltage rail to
+enable the outputs to be connected to other devices at the correct interface voltage level. RESET can be pulled
+up to any voltage up to 5.5 V, independent of the device supply voltage. To ensure proper voltage levels, give
+some consideration when choosing the pullup resistor values. The pullup resistor value is determined by VOL, the
+output capacitive loading, and the output leakage current (ILKG(OD)).
+
+8.3.4 SENSE Input
+The SENSE input can vary from ground to 5.5 V (7.0 V, absolute maximum), regardless of the device supply
+voltage used. The SENSE pin is used to monitor the critical voltage rail. If the voltage on this pin drops below
+VITN, then RESET is asserted. When the voltage on the SENSE pin exceeds the positive threshold voltage,
+RESET deasserts after the user-defined RESET delay time.
+The internal comparator has built-in hysteresis to ensure well-defined RESET assertions and deassertions even
+when there are small changes on the voltage rail being monitored.
+The TPS3890 device is relatively immune to short transients on the SENSE pin. Glitch immunity is dependent on
+threshold overdrive, as illustrated in Figure 19 for VITN and Figure 18 for VITP. Although not required in most
+cases, for noisy applications good analog design practice is to place a 1-nF to 10-nF bypass capacitor at the
+SENSE input to reduce sensitivity to transient voltages on the monitored signal.
+
+
+
+
+12     Submit Documentation Feedback                                                                Copyright © 2016, Texas Instruments Incorporated
+
+                                                        Product Folder Links: TPS3890
+                                                                                                                                   TPS3890
+www.ti.com                                                                                            SLVSD65A – MARCH 2016 – REVISED MAY 2016
+
+
+Feature Description (continued)
+The adjustable version (TPS389001) can be used to monitor any voltage rail down to 1.15 V using the circuit
+shown in Figure 24.
+                                                                          VIN
+
+
+                                                        VMON
+
+                                                                         VDD
+                                                                    MR
+                                                               R1
+                                                                     TPS389001               RPU
+
+                                                                    SENSE
+
+                                                                            RESET
+                                                               R2
+                                                                         GND
+
+
+
+                                                   Copyright © 2016, Texas Instruments Incorporated
+
+                    Figure 24. Using the TPS389001 to Monitor a User-Defined Threshold Voltage
+
+The target threshold voltage for the monitored supply (VITx(MON)) and the resistor divider values can be calculated
+by using Equation 2 and Equation 3, respectively:
+       VITx(MON)= VITx × (1 + R1 ÷ R2)                                                                                                     (2)
+Equation 3 can be used to calculate either the negative threshold or the positive threshold by replacing VITx with
+either VITN or VITP, respectively.
+       RTOTAL = R1 + R2                                                                                                                    (3)
+Resistors with high values minimize current consumption; however, the input bias current of the device degrades
+accuracy if the current through the resistors is too low. Therefore, choosing an RTOTAL value so that the current
+through the resistor divider is at least 100 times larger than the SENSE input current is simplest. See application
+report Optimizing Resistor Dividers at a Comparator Input (SLVA450) for more details on sizing input resistors.
+
+8.3.4.1 Immunity to SENSE Pin Voltage Transients
+The TPS3702 is immune to short voltage transient spikes on the input pins. Sensitivity to transients depends on
+both transient duration and overdrive (amplitude) of the transient. Overdrive is defined by how much VSENSE
+exceeds the specified threshold, and is important to know because the smaller the overdrive, the slower the
+response of the outputs (that is, undervoltage and overvoltage). Threshold overdrive is calculated as a percent of
+the threshold in question, as shown in Equation 4.
+       Overdrive = | (VSENSE / VITx – 1) × 100% |                                                                                          (4)
+Figure 17 to Figure 20 illustrate the glitch immunity that the TPS3890 has versus temperature with three different
+overdrive voltages. The propagation delay versus overdrive curves (Figure 13 to Figure 16) can be used to
+determine how sensitive the TPS3890 family of devices are across an even wider range of overdrive voltages.
+
+
+
+
+Copyright © 2016, Texas Instruments Incorporated                                                       Submit Documentation Feedback       13
+                                                         Product Folder Links: TPS3890
+TPS3890
+SLVSD65A – MARCH 2016 – REVISED MAY 2016                                                                                           www.ti.com
+
+
+8.4 Device Functional Modes
+Table 1 summarizes the various functional modes of the device.
+
+                                                           Table 1. Truth Table
+                VDD                                MR                              SENSE                                RESET
+            VDD < VPOR                             —                                    —                              Undefined
+      VPOR < VDD < VDD(MIN) (1)                    —                                    —                                   L
+           VDD ≥ VDD(MIN)                           L                                   —                                   L
+           VDD ≥ VDD(MIN)                           H                           VSENSE < VITN                               L
+           VDD ≥ VDD(MIN)                           H                           VSENSE > VITP                               H
+
+(1)   When VDD falls below VDD(MIN), undervoltage-lockout (UVLO) takes effect and RESET is held low until VDD falls below VPOR.
+
+8.4.1 Normal Operation (VDD > VDD(min))
+When VDD is greater than VDD(min), the RESET signal is determined by the voltage on the SENSE pin and the
+logic state of MR.
+• MR high: when the voltage on VDD is greater than 1.5 V, the RESET signal corresponds to the voltage on
+    the SENSE pin relative to the threshold voltage.
+• MR low: in this mode, RESET is held low regardless of the voltage on the SENSE pin.
+
+8.4.2     Above Power-On-Reset But Less Than VDD(min) (VPOR < VDD < VDD(min))
+When the voltage on VDD is less than the VDD(min) voltage, and greater than the power-on-reset voltage (VPOR),
+the RESET signal is asserted regardless of the voltage on the SENSE pin.
+
+8.4.3 Below Power-On-Reset (VDD < VPOR)
+When the voltage on VDD is lower thanVPOR, the device does not have enough voltage to internally pull the
+asserted output low and RESET is undefined and must not be relied upon for proper device function.
+
+
+
+
+14       Submit Documentation Feedback                                                          Copyright © 2016, Texas Instruments Incorporated
+
+                                                        Product Folder Links: TPS3890
+                                                                                                                                        TPS3890
+www.ti.com                                                                                               SLVSD65A – MARCH 2016 – REVISED MAY 2016
+
+
+9 Application and Implementation
+
+                                                           NOTE
+               Information in the following applications sections is not part of the TI component
+               specification, and TI does not warrant its accuracy or completeness. TI’s customers are
+               responsible for determining suitability of components for their purposes. Customers should
+               validate and test their design implementation to confirm system functionality.
+
+
+9.1 Application Information
+The following sections describe in detail how to properly use this device, depending on the requirements of the
+final application.
+
+9.2 Typical Application
+A typical application for the TPS389018 is shown in Figure 25. The TPS389018 can be used to monitor the 1.8-V
+VDD rail required by the TI Delfino™ microprocessor family. The open-drain RESET output of the TPS389018 is
+connected to the XRS input of the microprocessor. A reset event is initiated when the VDD voltage is less than
+VITN or when MR is driven low by an external source.
+
+                                                   1.8 V
+
+                                                                            3.3 V
+                                                            SENSE VDD                     VDD
+
+                                                             TPS389018                     Delfino MCU
+                                                                                 1 MW
+                                             External
+                                                            MR
+                                             Reset                RESET                  XRS
+                                                            CT
+                                                                 GND                            GND
+                                             1.5 nF
+
+
+
+                                                           Copyright © 2016, Texas Instruments Incorporated
+
+                  Figure 25. TPS3890 Monitoring the Supply Voltage for a Delfino Microprocessor
+
+9.2.1 Design Requirements
+The TPS3890 RESET output can be used to drive the reset (XRS) input of a microprocessor. The RESET pin of
+the TPS3890 is pulled high with a 1-MΩ resistor; the reset delay time is controlled by the CT capacitor and is set
+depending on the reset requirement times of the microprocessor. During power-up, XRS must remain low for at
+least 1 ms after VDD reaches 1.5 V for the C2000™ Delfino family of microprocessors. For 100-MHz operation,
+the Delfino TMS320F2833x microcontroller uses a supply voltage of 1.8 V that must be monitored by the
+TPS3890.
+
+9.2.2 Detailed Design Procedure
+The primary constraint for this application is choosing the correct device to monitor the supply voltage of the
+microprocessor. The TPS389018 has a negative threshold of 1.73 V and a positive threshold of 1.74 V, making
+the device suitable for monitoring a 1.8-V rail. The secondary constraint for this application is the reset delay time
+that must be at least 1 ms to allow the Delfino microprocessor enough time to startup up correctly. Because a
+minimum time is required, the worst-case scenario is a supervisor with a high CT charging current (ICT) and a low
+CT comparator threshold (VCT). For applications with ambient temperatures ranging from –40°C to +125°C, CCT
+can be calculated using ICT(Max), VCT(MIN), and solving for CCT in Equation 1 such that the minimum capacitance
+required at the CT pin is 1.149 nF. If standard capacitors with ±20% tolerances are used, then the CT capacitor
+must be 1.5 nF or larger to ensure that the 1-ms delay time is met.
+A 0.1-µF decoupling capacitor is connected to the VDD pin as a good analog design practice and a 1-MΩ
+resistor is used as the RESET pullup resistor to minimize the current consumption when RESET is asserted. The
+MR pin can be connected to an external signal if desired or connected to VDD if not used.
+
+
+
+Copyright © 2016, Texas Instruments Incorporated                                                              Submit Documentation Feedback   15
+                                                           Product Folder Links: TPS3890
+TPS3890
+SLVSD65A – MARCH 2016 – REVISED MAY 2016                                                                                                     www.ti.com
+
+
+Typical Application (continued)
+9.2.3 Application Curve
+                                                        600
+                                                                                                  VCC = 1.5 V
+                                                                                                  VCC = 3.3 V
+                                                        500                                       VCC = 5.5 V
+
+
+
+
+                                   Startup Delay (Ps)
+                                                        400
+
+
+                                                        300
+
+
+                                                        200
+
+
+                                                        100
+
+
+                                                         0
+                                                         -50   -25    0     25      50       75     100     125
+                                                                          Temperature (qC)                      D008
+
+
+
+                                                         Figure 26. Startup Delay vs Temperature
+
+10 Power Supply Recommendations
+These devices are designed to operate from an input supply with a voltage range between 1.5 V and 5.5 V. An
+input supply capacitor is not required for this device; however, if the input supply is noisy, then good analog
+practice is to place a 0.1-µF capacitor between the VDD pin and the GND pin. This device has a 7-V absolute
+maximum rating on the VDD pin. If the voltage supply providing power to VDD is susceptible to any large voltage
+transient that can exceed 7 V, additional precautions must be taken.
+
+
+
+
+16     Submit Documentation Feedback                                                                      Copyright © 2016, Texas Instruments Incorporated
+
+                                                                 Product Folder Links: TPS3890
+                                                                                                                                              TPS3890
+www.ti.com                                                                                                     SLVSD65A – MARCH 2016 – REVISED MAY 2016
+
+
+11 Layout
+
+11.1 Layout Guidelines
+Make sure that the connection to the VDD pin is low impedance. Good analog design practice is to place a 0.1-
+µF ceramic capacitor near the VDD pin. If a capacitor is not connected to the CT pin, then minimize parasitic
+capacitance on this pin so the RESET delay time is not adversely affected.
+
+11.2 Layout Example
+The layout example in shows how the TPS3890 is laid out on a printed circuit board (PCB) with a user-defined
+delay.
+
+
+                                                                                                                    RPU
+
+
+                                                       SENSE                                 RESET
+
+
+                                                                                                                      CCT
+
+
+                                                        GND                                    CT
+
+
+
+
+                                                         MR                                   VDD
+
+
+
+
+                                                                                                                      CIN
+
+
+
+
+                                                                               GND
+
+
+
+
+                                                   Vias used to connect pins for application-specific connections
+
+                                                      Figure 27. Recommended Layout
+
+
+
+
+Copyright © 2016, Texas Instruments Incorporated                                                                    Submit Documentation Feedback   17
+                                                              Product Folder Links: TPS3890
+TPS3890
+SLVSD65A – MARCH 2016 – REVISED MAY 2016                                                                                       www.ti.com
+
+
+12 Device and Documentation Support
+
+12.1 Documentation Support
+12.1.1 Related Documentation
+The following related documents are available for download at www.ti.com:
+• Optimizing Resistor Dividers at a Comparator Input, SLVA450
+• Sensitivity Analysis for Power Supply Design, SLVA481
+• Getting Started With TMS320C28x Digital Signal Controllers, SPRAAM0
+• TPS3890EVM-775 Evaluation Module User Guide, SBVU030
+• C2000 Delfino Family of Microprocessors
+• TMS320F2833x microcontroller, SPRS439
+
+12.2 Community Resources
+The following links connect to TI community resources. Linked contents are provided "AS IS" by the respective
+contributors. They do not constitute TI specifications and do not necessarily reflect TI's views; see TI's Terms of
+Use.
+TI E2E™ Online Community TI's Engineer-to-Engineer (E2E) Community. Created to foster collaboration
+           among engineers. At e2e.ti.com, you can ask questions, share knowledge, explore ideas and help
+           solve problems with fellow engineers.
+Design Support TI's Design Support Quickly find helpful E2E forums along with design support tools and
+           contact information for technical support.
+
+12.3 Trademarks
+Delfino, C2000, E2E are trademarks of Texas Instruments.
+All other trademarks are the property of their respective owners.
+12.4 Electrostatic Discharge Caution
+         This integrated circuit can be damaged by ESD. Texas Instruments recommends that all integrated circuits be handled with
+         appropriate precautions. Failure to observe proper handling and installation procedures can cause damage.
+         ESD damage can range from subtle performance degradation to complete device failure. Precision integrated circuits may be more
+         susceptible to damage because very small parametric changes could cause the device not to meet its published specifications.
+
+12.5 Glossary
+SLYZ022 — TI Glossary.
+   This glossary lists and explains terms, acronyms, and definitions.
+
+13 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical, packaging, and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+18     Submit Documentation Feedback                                                        Copyright © 2016, Texas Instruments Incorporated
+
+                                                    Product Folder Links: TPS3890
+                                                                                                                              PACKAGE OPTION ADDENDUM
+
+  www.ti.com                                                                                                                                                10-Nov-2025
+
+
+
+
+PACKAGING INFORMATION
+
+ Orderable part number   Status   Material type   Package | Pins   Package qty | Carrier   RoHS      Lead finish/       MSL rating/       Op temp (°C)   Part marking
+                           (1)         (2)                                                  (3)      Ball material      Peak reflow                           (6)
+                                                                                                          (4)                (5)
+
+    TPS389001DSER        Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2V
+   TPS389001DSER.B       Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2V
+     TPS389001DSET       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2V
+   TPS389001DSET.B       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2V
+    TPS389012DSER        Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2W
+   TPS389012DSER.B       Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2W
+     TPS389012DSET       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2W
+   TPS389012DSET.B       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2W
+    TPS389015DSER        Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2X
+   TPS389015DSER.B       Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2X
+     TPS389015DSET       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2X
+   TPS389015DSET.B       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2X
+    TPS389018DSER        Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Y
+   TPS389018DSER.B       Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Y
+     TPS389018DSET       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Y
+   TPS389018DSET.B       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Y
+    TPS389020DSER        Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Y
+   TPS389020DSER.B       Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Y
+     TPS389020DSET       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Y
+   TPS389020DSET.B       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Y
+    TPS389025DSER        Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Z
+   TPS389025DSER.B       Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Z
+     TPS389025DSET       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Z
+   TPS389025DSET.B       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        2Z
+    TPS389030DSER        Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        3A
+   TPS389030DSER.B       Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        3A
+     TPS389030DSET       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        3A
+   TPS389030DSET.B       Active    Production     WSON (DSE) | 6     250 | SMALL T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        3A
+    TPS389033DSER        Active    Production     WSON (DSE) | 6    3000 | LARGE T&R        Yes      NIPDAUAG        Level-1-260C-UNLIM    -40 to 125        3B
+
+
+                                                                                   Addendum-Page 1
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                   10-Nov-2025
+
+
+
+
+       Orderable part number          Status     Material type      Package | Pins      Package qty | Carrier        RoHS             Lead finish/              MSL rating/               Op temp (°C)          Part marking
+                                        (1)            (2)                                                             (3)            Ball material             Peak reflow                                           (6)
+                                                                                                                                            (4)                      (5)
+
+         TPS389033DSER.B              Active      Production       WSON (DSE) | 6        3000 | LARGE T&R             Yes              NIPDAUAG            Level-1-260C-UNLIM              -40 to 125                 3B
+          TPS389033DSET               Active      Production       WSON (DSE) | 6         250 | SMALL T&R             Yes              NIPDAUAG            Level-1-260C-UNLIM              -40 to 125                 3B
+         TPS389033DSET.B              Active      Production       WSON (DSE) | 6         250 | SMALL T&R             Yes              NIPDAUAG            Level-1-260C-UNLIM              -40 to 125                 3B
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+OTHER QUALIFIED VERSIONS OF TPS3890 :
+
+• Automotive : TPS3890-Q1
+
+
+
+                                                                                                          Addendum-Page 2
+                                                                                                                          PACKAGE OPTION ADDENDUM
+
+   www.ti.com                                                                                                                               10-Nov-2025
+
+
+
+
+NOTE: Qualified Version Definitions:
+
+       • Automotive - Q100 devices qualified for high-reliability automotive applications targeting zero defects
+
+
+
+
+                                                                                                        Addendum-Page 3
+                                                                   PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                               15-Feb-2018
+
+
+
+TAPE AND REEL INFORMATION
+
+
+
+
+*All dimensions are nominal
+             Device           Package Package Pins   SPQ       Reel   Reel   A0            B0     K0     P1     W     Pin1
+                               Type Drawing                  Diameter Width (mm)          (mm)   (mm)   (mm)   (mm) Quadrant
+                                                               (mm) W1 (mm)
+    TPS389001DSER             WSON     DSE     6     3000      180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389001DSET             WSON     DSE     6     250       180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389012DSER             WSON     DSE     6     3000      180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389012DSET             WSON     DSE     6     250       180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389015DSER             WSON     DSE     6     3000      180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389015DSET             WSON     DSE     6     250       180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389018DSER             WSON     DSE     6     3000      180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389018DSET             WSON     DSE     6     250       180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389020DSER             WSON     DSE     6     3000      180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389020DSET             WSON     DSE     6     250       180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389025DSER             WSON     DSE     6     3000      180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389025DSET             WSON     DSE     6     250       180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389030DSER             WSON     DSE     6     3000      180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389030DSET             WSON     DSE     6     250       180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389033DSER             WSON     DSE     6     3000      180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+    TPS389033DSET             WSON     DSE     6     250       180.0      8.4      1.83   1.83   0.89   4.0    8.0     Q2
+
+
+
+
+                                                           Pack Materials-Page 1
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                           15-Feb-2018
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins     SPQ     Length (mm)   Width (mm)   Height (mm)
+     TPS389001DSER               WSON             DSE           6       3000       183.0        183.0         20.0
+     TPS389001DSET               WSON             DSE           6       250        183.0        183.0         20.0
+     TPS389012DSER               WSON             DSE           6       3000       183.0        183.0         20.0
+     TPS389012DSET               WSON             DSE           6       250        183.0        183.0         20.0
+     TPS389015DSER               WSON             DSE           6       3000       183.0        183.0         20.0
+     TPS389015DSET               WSON             DSE           6       250        183.0        183.0         20.0
+     TPS389018DSER               WSON             DSE           6       3000       183.0        183.0         20.0
+     TPS389018DSET               WSON             DSE           6       250        183.0        183.0         20.0
+     TPS389020DSER               WSON             DSE           6       3000       183.0        183.0         20.0
+     TPS389020DSET               WSON             DSE           6       250        183.0        183.0         20.0
+     TPS389025DSER               WSON             DSE           6       3000       183.0        183.0         20.0
+     TPS389025DSET               WSON             DSE           6       250        183.0        183.0         20.0
+     TPS389030DSER               WSON             DSE           6       3000       183.0        183.0         20.0
+     TPS389030DSET               WSON             DSE           6       250        183.0        183.0         20.0
+     TPS389033DSER               WSON             DSE           6       3000       183.0        183.0         20.0
+     TPS389033DSET               WSON             DSE           6       250        183.0        183.0         20.0
+
+
+
+
+                                                        Pack Materials-Page 2
+                                                                                                                  PACKAGE OUTLINE
+DSE0006A                                                               SCALE 6.000
+                                                                                                              WSON - 0.8 mm max height
+                                                                                                                   PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                1.55                                  A
+                              B
+                                                1.45
+
+
+
+
+                                                                                     1.55
+           PIN 1 INDEX AREA                                                          1.45
+
+
+
+
+                          0.8 MAX
+                                                                                             C
+
+                                                                                                     SEATING PLANE
+
+                                                                                                    0.08 C
+
+                                                                                                                                 (0.2) TYP
+                           0.6                                                                                    0.05
+                        5X                                                                                        0.00
+                           0.4
+
+                                    3
+                                                                   4
+
+
+
+                   2X 1
+
+                          4X 0.5
+
+                                                                   6
+                                    1
+
+                                                                                                 0.3
+                                        0.7                                                 6X
+                                                                                                 0.2
+                                        0.5             PIN 1 ID                                   0.1    C A B
+                                                                                                   0.05    C
+
+
+                                                                                                                                  4220552/B 01/2024
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+
+
+
+
+                                                                   www.ti.com
+                                                                                   EXAMPLE BOARD LAYOUT
+DSE0006A                                                                                    WSON - 0.8 mm max height
+                                                                                                     PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                    (0.8)             PKG              5X (0.7)
+
+                                        1
+
+                            6X (0.25)                                                                    6
+
+
+
+
+                                                                                                             SYMM
+
+
+
+                              4X 0.5
+
+
+                                                                                                         4
+                                        3
+
+                        (R0.05) TYP
+                                                                      (1.2)
+
+
+                                                      LAND PATTERN EXAMPLE
+                                                                  SCALE:40X
+
+
+
+
+                                            0.05 MAX                                                 0.05 MIN
+                                            ALL AROUND                                               ALL AROUND
+
+
+
+
+                     SOLDER MASK                       METAL                  METAL UNDER                      SOLDER MASK
+                     OPENING                                                  SOLDER MASK                      OPENING
+                                      PADS 4-6                                                  PADS 1-3
+                                  NON SOLDER MASK                                             SOLDER MASK
+                                      DEFINED                                                   DEFINED
+
+
+                                                            SOLDER MASK DETAILS
+
+
+                                                                                                                    4220552/B 01/2024
+
+NOTES: (continued)
+
+3. For more information, see Texas Instruments literature number SLUA271 (www.ti.com/lit/slua271).
+
+
+
+
+                                                                   www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+DSE0006A                                                                                 WSON - 0.8 mm max height
+                                                                                               PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                                   PKG
+                                                   (0.8)                            5X (0.7)
+                        6X (0.25)
+                                        1
+
+                                                                                                    6
+
+
+
+
+                                                                                                        SYMM
+
+
+
+                             4X (0.5)
+
+
+
+                                        3                                                          4
+
+
+                      (R0.05) TYP
+                                                                   (1.2)
+
+
+                                                     SOLDER PASTE EXAMPLE
+                                                   BASED ON 0.125 mm THICK STENCIL
+                                                              SCALE:40X
+
+
+
+
+NOTES: (continued)
+
+4. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+
+
+
+
+                                                                 www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2025, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

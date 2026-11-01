@@ -1,0 +1,41 @@
+"""Export one source-bound DSN in isolated Linux, with a strongly owned project."""
+
+import hashlib
+import json
+from pathlib import Path
+
+import pcbnew
+
+WORK=Path(__file__).resolve().parents[4]/"hardware/electronics/rail_disconnect/revision28/generated/low-power-run-work/generated/eight-control-reroute"
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def run():
+    source=WORK/"rail_disconnect.kicad_pcb"
+    project_path=WORK/"rail_disconnect.kicad_pro"
+    output=WORK/"native-input.dsn"
+    assert not output.exists()
+    digest=sha(source)
+    manager=pcbnew.GetSettingsManager()
+    assert manager.LoadProject(str(project_path)),"Do not attach an unloaded project"
+    project=manager.GetProject(str(project_path))
+    assert project is not None and bool(project),"Do not attach a null native project"
+    board=pcbnew.LoadBoard(str(source))
+    assert board is not None and len(list(board.GetFootprints()))==275
+    assert board.GetCopperLayerCount()==8
+    board.SetProject(project)
+    assert board.GetProject() is not None
+    assert pcbnew.ExportSpecctraDSN(board,str(output))
+    assert sha(source)==digest
+    (WORK/"dsn-export.json").write_text(json.dumps(dict(source_sha256=digest,dsn_sha256=sha(output),
+        recipe_sha256=sha(Path(__file__)),native_version=pcbnew.GetBuildVersion(),
+        project_strongly_owned_through_export=True,native_Mac_apps_launched=0,
+        source_unchanged=True,physical_qualified=False,fabrication_released=False),indent=2)+"\n")
+    print("Exported eight-layer control-routing DSN")
+
+
+if __name__=="__main__":
+    run()

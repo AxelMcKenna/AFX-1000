@@ -1,0 +1,9 @@
+# Pinned Linux Manifold runner
+
+The official `openscad/openscad` ARM64 image is pinned by digest `sha256:ad0426f9f16f73211765c0ad2a269af8603bcb5954e35564c126ed1555140dc2`. Its measured version is **2026.10.26** and `/usr/local/bin/openscad` SHA256 is `a5f91c5933e684729e68b99ad10f6764f1ca3e74c23a8d45f952c2594dc56436`. Official sources: [image](https://hub.docker.com/r/openscad/openscad), [usage](https://github.com/openscad/docker-openscad/blob/main/DockerHub.md).
+
+`openscad.py` is an executable CLI wrapper. It preserves the existing absolute source paths inside the container. It uses no network, no capabilities, no new privileges, a read-only root filesystem, the host's non-root UID/GID, a bounded `/tmp` filesystem and a read-only repository mount. An explicitly requested fresh output directory is writable; every pre-existing file beneath it is rebound read-only. Existing output files are refused. Images are never implicitly pulled. Docker Desktop was started normally; no settings, quarantine or signing policy changed.
+
+`generated/verification.json` records fresh commands, image inspection, actual runtime version/binary hash, raw logs and independent STL checks. The real Boolean solid has volume 1.5 mm³, the witness 0.008 mm³; both require Manifold `NoError`, closed oriented boundaries and no degenerate triangles. The empty Boolean must return 1 with the exact empty-object text and no output file. This proves the runner's applicable receipt semantics, not physical design qualification. The first primitive-only fixture correctly failed the strict Manifold-log requirement because OpenSCAD exported it as a PolySet; its original evidence remains under `history/primitive-is-polyset/`.
+
+Old macOS receipts are not inherited. Every design check must capture this wrapper/image identity and produce fresh artifacts.

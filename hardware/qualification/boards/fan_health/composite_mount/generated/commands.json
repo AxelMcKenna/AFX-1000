@@ -1,0 +1,69 @@
+[
+  {
+    "command": [
+      "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "--version"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "sch",
+      "export",
+      "netlist",
+      "--format",
+      "kicadxml",
+      "--output",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_mount/generated/netlist.xml",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_mount/fan_power_health.kicad_sch"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "sch",
+      "erc",
+      "--format",
+      "json",
+      "--output",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_mount/generated/erc.json",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_mount/fan_power_health.kicad_sch"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+      "pcb",
+      "drc",
+      "--format",
+      "json",
+      "--all-track-errors",
+      "--schematic-parity",
+      "--severity-all",
+      "--refill-zones",
+      "--exit-code-violations",
+      "--output",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_mount/generated/drc.json",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_mount/fan_power_health.kicad_pcb"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/Users/axelmckrnna/dev/rmx-publish/.venv/bin/python",
+      "-m",
+      "hardware.qualification.boards.fan_health.composite_mount.test_mount"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/bin/python3.9",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_health/composite_mount/native_measure.py"
+    ],
+    "returncode": 0
+  }
+]

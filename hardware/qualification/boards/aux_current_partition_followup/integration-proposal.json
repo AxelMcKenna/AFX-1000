@@ -1,0 +1,270 @@
+{
+  "revision": "AX02-proposed-integrated-P03-leaf-diff",
+  "status": "PROPOSAL_ONLY_NOT_INTEGRATED",
+  "parent_PCB_sha256": "db83a26f98e3638d7b1a723be5d54f71c4e3aaa5418021e5b9003afea810283d",
+  "unchanged_original_nets": [
+    "POWER_RUN",
+    "SWITCH_SUPPLY",
+    "VIN_IC",
+    "V2V5_AUX",
+    "P03_ALL_SOURCES_READY"
+  ],
+  "original_U102_pin_roles_preserved": {
+    "3": "POWER_RUN",
+    "5": "VIN_IC"
+  },
+  "original_R113_preserved_ohm": 3300,
+  "changed_existing_pin": {
+    "J106.3": {
+      "old_net": "POWER_RUN",
+      "new_net": "POWER_RUN_E28_LEAF"
+    }
+  },
+  "required_copper_change": "Disconnect onlyJ106.3 from internalPOWER_RUN. U104SENSE remainsinternalRUN; U105VIN=V2V5_AUX; U105VOUT->R319->J106.3; U105ON=U104RESET with100kPU/1MPD. Keep originalPG/SHDN/Q103/R112internal paths.",
+  "required_new_parts": [
+    {
+      "cell_ref": "U1",
+      "proposed_P03_ref": "U104",
+      "part": "TPS389001DSET",
+      "assigned_FP": "Package_SON:WSON-6_1.5x1.5mm_P0.5mm",
+      "pins": [
+        {
+          "number": "1",
+          "name": "SENSE",
+          "net": "POWER_RUN_INTERNAL",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "net": "AGND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "MR",
+          "net": "AUX",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "4",
+          "name": "VDD",
+          "net": "AUX",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "5",
+          "name": "CT",
+          "net": "RUN_CT",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "RESET_N",
+          "net": "RUN_GATE_COMMAND",
+          "kind": "open_collector",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "cell_ref": "U2",
+      "proposed_P03_ref": "U105",
+      "part": "TPS22913CYZVR",
+      "assigned_FP": "RMX_AX02:YZV_4_Receiving",
+      "pins": [
+        {
+          "number": "A1",
+          "name": "VOUT",
+          "net": "SWITCHED_AUX",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "A2",
+          "name": "VIN",
+          "net": "AUX",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "B1",
+          "name": "GND",
+          "net": "AGND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "B2",
+          "name": "ON",
+          "net": "RUN_GATE_COMMAND",
+          "kind": "input",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "cell_ref": "R1",
+      "proposed_P03_ref": "R317",
+      "part": "100k ohm TNPW0805100KBEEA",
+      "assigned_FP": "Resistor_SMD:R_0805_2012Metric",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "AUX",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "RUN_GATE_COMMAND",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "cell_ref": "R2",
+      "proposed_P03_ref": "R318",
+      "part": "1M ohm TNPW08051M00BEEA",
+      "assigned_FP": "Resistor_SMD:R_0805_2012Metric",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "RUN_GATE_COMMAND",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "AGND",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "cell_ref": "R4",
+      "proposed_P03_ref": "R319",
+      "part": "100 ohm TNPW1206100RBEEA",
+      "assigned_FP": "Resistor_SMD:R_1206_3216Metric",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "SWITCHED_AUX",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "POWER_RUN_E28_LEAF",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "cell_ref": "C1",
+      "proposed_P03_ref": "C303",
+      "part": "10uF 25V X7R C3225X7R1E106K250AC",
+      "assigned_FP": "Capacitor_SMD:C_1210_3225Metric",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "AUX",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "AGND",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "cell_ref": "C2",
+      "proposed_P03_ref": "C304",
+      "part": "100nF 50V X7R C0603C104K5RACTU",
+      "assigned_FP": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "AUX",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "AGND",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    },
+    {
+      "cell_ref": "C3",
+      "proposed_P03_ref": "C305",
+      "part": "10nF 50V C0G C0603C103J5GACTU",
+      "assigned_FP": "Capacitor_SMD:C_0603_1608Metric",
+      "pins": [
+        {
+          "number": "1",
+          "name": "1",
+          "net": "RUN_CT",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "2",
+          "net": "AGND",
+          "kind": "passive",
+          "side": "L"
+        }
+      ]
+    }
+  ],
+  "bench_headers_omitted": [
+    "J1",
+    "J2"
+  ],
+  "local_net_mapping": {
+    "AUX": "V2V5_AUX",
+    "AGND": "AGND",
+    "POWER_RUN_INTERNAL": "POWER_RUN",
+    "RUN_GATE_COMMAND": "P03_RUN_GATE_COMMAND",
+    "SWITCHED_AUX": "P03_RUN_SWITCHED_AUX",
+    "RUN_CT": "P03_RUN_CT",
+    "POWER_RUN_E28_LEAF": "POWER_RUN_E28_LEAF"
+  },
+  "external_harness": "J106.3 -> existingFHnormally-open contact -> E28J5.3; never drive internalMASTER_ENABLE.",
+  "original_complete_FP_poses_preserved_intent": true,
+  "PCB_source_written": false,
+  "placement_area_height_and_mated_fit_qualified": false,
+  "bootstrap_partial_power_reverse_and_loaded_cutoff_qualified": false,
+  "source_LDO_short_transient_and_thermal_qualified": false,
+  "physical_qualified": false,
+  "adopted": false,
+  "replaces_AX01_discrete_proposal_only": true,
+  "physical_ref_count_delta": 8,
+  "integrated_switch": "TPS22913CYZVR",
+  "MCU_or_RAW5_regulator_added": false,
+  "original_P03_proof_not_inherited_to_new_cell": true
+}

@@ -1,0 +1,51 @@
+mesh metal_geometry 28668 0 0
+mesh standalone_metal_geometry 28668 0 0
+mesh feet_geometry 3056 0 0
+mesh feet_assembly_geometry 4080 0 0
+mesh carrier_geometry 33662 0 0
+mesh attachment_geometry 8548 0 0
+mesh interface_geometry 3684 0 0
+mesh front_material_positive_control 12 0 0
+mesh new_bolt_material_positive_control 12 0 0
+mesh foot_screw_positive_control 12 0 0
+mesh interface_positive_control 12 0 0
+mesh missing_new_bore_positive_control 468 0 0
+mesh unrelieved_carrier_positive_control 12 0 0
+mesh undersized_foot_countersink_positive_control 512 0 0
+mesh retained_controls_review 174408 3665 243
+mesh retained_electronics_review 155736 0 0
+mesh retained_wire_review 116522 20 10
+mesh retained_power_review 135170 735 1395
+mesh lid_rear_review 38444 0 0
+{
+  "file_count": 440,
+  "all_file_hashes_match": true,
+  "native_roles": {
+    "production-part": 7,
+    "empty-collision": 23,
+    "positive-control": 7,
+    "retained-review-only-group": 5
+  },
+  "all_source_triangles_and_global_poses_preserved_exactly": true,
+  "findings": [
+    {
+      "id": "EB-I01",
+      "severity": "description/abstraction mismatch",
+      "observed": "Feet assembly removes diameter3.02 for10mm (Z-16.2..-6.19998), versus actual5.8mm screw engagement (tipZ-12).",
+      "consequence": "README/intended-contact wording only engaged interval is inaccurate; manufacturing STEP remains2.5mm pilot. No concealed external collision established.",
+      "extra_removed_volume_below_actual_tip_per_foot_mm3": 9.468508930507351
+    },
+    {
+      "id": "EB-I02",
+      "severity": "replay usage/reproducibility defect",
+      "observed": "Documented first replay command stage.py reads LIVE EI/thermal sources and overwrites sealed capture/context/design. It does not replay EB01 sources.",
+      "consequence": "Captured verify/artifact checks can be used without stage. Portable relocation also requires explicit absolute-path rebinding. Current sealed native results are not disproved."
+    },
+    {
+      "id": "EB-I03",
+      "severity": "assembly-role advisory",
+      "observed": "3MF feet_assembly_geometry is labelled new_manufacturing_part=true although it contains the3.02mm thread fit abstraction; interface object also combines pads/shims.",
+      "consequence": "Use exact independent FOOT STEP for fabrication; review groups are not a fabrication bill of separate parts. Overall fabrication release remains false."
+    }
+  ]
+}

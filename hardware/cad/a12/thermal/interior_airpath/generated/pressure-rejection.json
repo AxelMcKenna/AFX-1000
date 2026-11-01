@@ -1,0 +1,45 @@
+{
+  "revision": "AP02-pressure-rejection",
+  "source_sha256": {
+    "pressure_rejection.py": "2726112f076b23b0685d9d3ab6efbde47d383464ba8b2f990cb538417b7d1c9e",
+    "polygon_contract.py": "ab121a5d349ceae5c8bbb467bdfb05098a9ce0ff8c6e99f20d7346cf95eb4434",
+    "generated/analysis.json": "20bc30986075a4272e6f9a23bdffcda989e5ca265b0d3d606fa399049c2adff8"
+  },
+  "inputs": {
+    "ambient_C": 40,
+    "pressure_Pa": 101325,
+    "air_gas_constant": 287.05,
+    "density_kg_m3": 1.127214703641126,
+    "discharge_coefficient": 0.6,
+    "base_target_m3_h": 1.2,
+    "total_target_m3_h": 10,
+    "each_fan_target_m3_h": 5,
+    "planning_fan_speed_rpm": 5300,
+    "parent_model_fan_pressure_Pa": 9.046,
+    "parent_latest_heat_provision_W": 37.28570586,
+    "fan_pressure_and_heat_are_provisional_not_measurements": true
+  },
+  "guard_area_each_mm2": 868.2001863714704,
+  "common_guard_loss_Pa": 4.006539293927288,
+  "remaining_after_guard_before_base_pins_turns_outlet_Pa": 5.0394607060727115,
+  "meter_loss_Pa_by_total_area_mm2": {
+    "125": 11.132984727319764,
+    "200": 4.348822159109283,
+    "250": 2.783246181829941,
+    "300": 1.9328098484930145
+  },
+  "meter125_excess_before_other_base_losses_Pa": 6.0935240212470525,
+  "nominal125_base_target_rejected": true,
+  "source_scopes": "New parent heat/control planning is cited as a scenario; not adopted electrical hardware.",
+  "limitations": [
+    "A discharge coefficient is an unverified planning scenario.",
+    "Parent fan pressure is a curve sensitivity, not guaranteed installed performance.",
+    "Additional base pin, turn, outlet and approach losses are omitted and are nonnegative.",
+    "No base or interior flow allocation follows from gross aperture area.",
+    "C3 shadows 335.2663 mm2 of floor projection; actual lateral flow needs a channel model.",
+    "Pressure result does not invalidate the scoped CAD fits; it rejects their nominal125 meter allocation."
+  ],
+  "airflow_target_met": false,
+  "physical_qualified": false,
+  "thermal_qualified": false
+}

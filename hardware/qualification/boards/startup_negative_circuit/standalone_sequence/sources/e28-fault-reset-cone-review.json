@@ -1,0 +1,141 @@
+{
+  "source_sha256": {
+    "hardware/electronics/rail_disconnect/revision28/generated/reset-triple-remaining-batch1-work/components.json": "79f4a1b7de1b5b7ed8d68a8a15bcc7ddd1f606377a50a4e393668730f7aacf5a",
+    "hardware/electronics/rail_disconnect/revision28/generated/reset-triple-remaining-batch1-work/rail_disconnect.kicad_sch": "82eee3011947beeb67daa05ee788fdaa3ed61e712c0118b4eb6d2a01c29fad33",
+    "hardware/electronics/rail_disconnect/revision28/control.py": "ec85820e688f8860a203d116683c8778235d243521a5a8f48dc3a202da879644"
+  },
+  "actual_reset_cone": "U28.2=NOT(POWER_RUN), U28.4=NOT(E28_AUX_VALID); U23.3=OR(U28.2,U28.4); reset drivesU21.5/.11",
+  "cases": [
+    {
+      "case": "running",
+      "values": {
+        "POWER_RUN": 1,
+        "E28_AUX_RESET_RAW": 1,
+        "E28_AUX_VALID": 1,
+        "E28_RESET": 0,
+        "E28_ARMED": 1,
+        "E28_FAULT": 0,
+        "E28_NOT_FAULT": 1,
+        "ALL_RAILS_ALLOW": 1,
+        "E28_MASTER_ENABLE": 1
+      }
+    },
+    {
+      "case": "source_fault",
+      "values": {
+        "POWER_RUN": 1,
+        "E28_AUX_RESET_RAW": 1,
+        "E28_AUX_VALID": 1,
+        "E28_RESET": 0,
+        "E28_ARMED": 1,
+        "E28_FAULT": 1,
+        "E28_NOT_FAULT": 0,
+        "ALL_RAILS_ALLOW": 0,
+        "E28_MASTER_ENABLE": 0
+      }
+    },
+    {
+      "case": "source_recovers_fault_retained",
+      "values": {
+        "POWER_RUN": 1,
+        "E28_AUX_RESET_RAW": 1,
+        "E28_AUX_VALID": 1,
+        "E28_RESET": 0,
+        "E28_ARMED": 1,
+        "E28_FAULT": 1,
+        "E28_NOT_FAULT": 0,
+        "ALL_RAILS_ALLOW": 0,
+        "E28_MASTER_ENABLE": 0
+      }
+    },
+    {
+      "case": "user_OFF",
+      "values": {
+        "POWER_RUN": 0,
+        "E28_AUX_RESET_RAW": 1,
+        "E28_AUX_VALID": 1,
+        "E28_RESET": 1,
+        "E28_ARMED": 0,
+        "E28_FAULT": 0,
+        "E28_NOT_FAULT": 1,
+        "ALL_RAILS_ALLOW": 0,
+        "E28_MASTER_ENABLE": 0
+      }
+    },
+    {
+      "case": "user_ON",
+      "values": {
+        "POWER_RUN": 1,
+        "E28_AUX_RESET_RAW": 1,
+        "E28_AUX_VALID": 1,
+        "E28_RESET": 0,
+        "E28_ARMED": 1,
+        "E28_FAULT": 0,
+        "E28_NOT_FAULT": 1,
+        "ALL_RAILS_ALLOW": 1,
+        "E28_MASTER_ENABLE": 1
+      }
+    },
+    {
+      "case": "second_source_fault",
+      "values": {
+        "POWER_RUN": 1,
+        "E28_AUX_RESET_RAW": 1,
+        "E28_AUX_VALID": 1,
+        "E28_RESET": 0,
+        "E28_ARMED": 1,
+        "E28_FAULT": 1,
+        "E28_NOT_FAULT": 0,
+        "ALL_RAILS_ALLOW": 0,
+        "E28_MASTER_ENABLE": 0
+      }
+    },
+    {
+      "case": "second_source_recovers_fault_retained",
+      "values": {
+        "POWER_RUN": 1,
+        "E28_AUX_RESET_RAW": 1,
+        "E28_AUX_VALID": 1,
+        "E28_RESET": 0,
+        "E28_ARMED": 1,
+        "E28_FAULT": 1,
+        "E28_NOT_FAULT": 0,
+        "ALL_RAILS_ALLOW": 0,
+        "E28_MASTER_ENABLE": 0
+      }
+    },
+    {
+      "case": "AUX_supervisor_asserts_RUN_stays_HIGH",
+      "values": {
+        "POWER_RUN": 1,
+        "E28_AUX_RESET_RAW": 0,
+        "E28_AUX_VALID": 0,
+        "E28_RESET": 1,
+        "E28_ARMED": 0,
+        "E28_FAULT": 0,
+        "E28_NOT_FAULT": 1,
+        "ALL_RAILS_ALLOW": 0,
+        "E28_MASTER_ENABLE": 0
+      }
+    },
+    {
+      "case": "AUX_recovers_RUN_still_HIGH",
+      "values": {
+        "POWER_RUN": 1,
+        "E28_AUX_RESET_RAW": 1,
+        "E28_AUX_VALID": 1,
+        "E28_RESET": 0,
+        "E28_ARMED": 1,
+        "E28_FAULT": 0,
+        "E28_NOT_FAULT": 1,
+        "ALL_RAILS_ALLOW": 1,
+        "E28_MASTER_ENABLE": 1
+      }
+    }
+  ],
+  "independent_external_fault_reset_input": false,
+  "AUX_recovery_can_rearm_without_POWER_RUN_edge": true,
+  "settled_ALL_RAILS_ALLOW_LOW_during_actual_reset": true,
+  "Boolean_only_not_minimum_global_OFF_time_or_partial_power_proof": true,
+  "qualified": false
+}

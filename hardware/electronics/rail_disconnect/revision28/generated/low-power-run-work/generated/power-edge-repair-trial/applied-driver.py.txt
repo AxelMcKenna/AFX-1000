@@ -1,0 +1,70 @@
+"""Reroute only the trial's new V5 source link with width-aware edge clearance."""
+
+import json
+import uuid
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.electronics.rail_disconnect.revision28.band_router import BandRouter
+from hardware.electronics.rail_disconnect.revision28.component_routes import connect_components
+
+from .route_e28 import WORK, sha
+
+
+class WidthAwareRouter(BandRouter):
+    def physical_masks(self,net,width):
+        blocked,via = super().physical_masks(net,width)
+        margin = width/2+.52
+        border = ((self.xx<margin)|(self.xx>156-margin)|(self.yy<margin)|(self.yy>54.5-margin)
+                  |((self.xx<5+margin)&(self.yy>35-margin))
+                  |((self.xx>154.5-margin)&(self.yy>35.25-margin)))
+        blocked |= border
+        return blocked,via
+
+
+def run():
+    source = WORK / "generated/power-link-half-mm-trial/rail_disconnect.kicad_pcb"
+    pre_repair = WORK / "generated/logic-pour-trial/rail_disconnect.kicad_pcb"
+    graph = WORK / "generated/logic-pour-followup/components.json"
+    filled = WORK / "generated/native-logic-pour-trial/rail_disconnect.kicad_pcb"
+    out = WORK / "generated/power-edge-repair-trial"
+    out.mkdir(exist_ok=False)
+    tree = read_sexpr(source.read_text())
+    parent = read_sexpr(pre_repair.read_text())
+    old_ids = {str(first(n,"uuid")[1]) for kind in ("segment","via") for n in children(parent,kind)}
+    names = {str(n[1]):str(n[2]).lstrip("/") for n in children(tree,"net")}
+    removed=[]
+    for node in tree[:]:
+        if not isinstance(node,list) or not node or node[0] not in ("segment","via"):
+            continue
+        if names[str(first(node,"net")[1])]=="V5_REG_SRC" and str(first(node,"uuid")[1]) not in old_ids:
+            removed.append(sexpr(node))
+            tree.remove(node)
+    assert removed
+    count,frozen=len(tree),sexpr(tree)
+    pads=json.loads((WORK/"generated/routing-inputs/pads.json").read_text())
+    rt=WidthAwareRouter(tree,read_sexpr(filled.read_text()),pads,step=.1)
+    inventory=json.loads(graph.read_text())
+    groups=[]
+    for group in inventory["inventory"]["V5_REG_SRC"]["components"]:
+        points=[]
+        for obj in group:
+            for xy in [obj["position_mm"]]+([obj["end_mm"]] if obj["kind"]=="PCB_TRACK" else []):
+                points.append(dict(xy=xy,layers=obj["layers"],kind=obj["kind"],uuid=obj["uuid"],ref=obj.get("ref")))
+        groups.append(points)
+    result=connect_components(rt,dict(net="V5_REG_SRC",components=groups),width=1.,budget=900000)
+    print("V5_REG_SRC width-aware edge",result.get("connected"),result.get("visited"),flush=True)
+    assert sexpr(tree[:count])==frozen
+    for index,node in enumerate(tree):
+        if isinstance(node,list) and node and node[0] in ("segment","via") and not children(node,"uuid"):
+            node.append([a("uuid"),a(str(uuid.uuid5(uuid.NAMESPACE_URL,f"rmx:AX03:edge:{sha(source)}:{index}:{sexpr(node)}")))])
+    pcb=out/source.name
+    pcb.write_text(sexpr(tree)+"\n")
+    (out/"routes.json").write_text(json.dumps(dict(source_sha256=sha(source),candidate_sha256=sha(pcb),
+        recipe_sha256=sha(Path(__file__)),removed_only_previous_trial_V5_link=removed,result=result,routes=rt.routes,
+        minimum_planned_edge_clearance_mm=.52,original_parent_copper_and_footprints_preserved=True,
+        all_native_and_current_qualification_pending=True,fabrication_released=False),indent=2)+"\n")
+
+
+if __name__=="__main__":
+    run()

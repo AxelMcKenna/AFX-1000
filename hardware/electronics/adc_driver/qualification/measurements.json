@@ -1,0 +1,168 @@
+[
+  {
+    "id": "ADC-POWER",
+    "metric": "Actual board power-pin voltage, all operating and load/temperature corners",
+    "limits": {
+      "V5_REG_v": [
+        4.9,
+        5.1
+      ],
+      "P12_v": [
+        11.88,
+        12.12
+      ],
+      "N12_v": [
+        -12.12,
+        -11.88
+      ]
+    },
+    "limit_basis": "Project source/interface allocations, not manufacturer transient guarantees",
+    "required_conditions": [
+      "minimum and maximum input supply",
+      "all actual selected load states",
+      "selected operating-temperature range"
+    ],
+    "instruments": [
+      "DMM",
+      "oscilloscope",
+      "current measurement"
+    ],
+    "state": "not_run"
+  },
+  {
+    "id": "ADC-NBIAS",
+    "metric": "Both filtered negative bias rails and total FDA supply span",
+    "limits": {
+      "THS4551_total_supply_v": [
+        2.7,
+        5.4
+      ],
+      "THS_supply_slew_stress_max_v_per_us": 1
+    },
+    "limit_basis": "THS4551 recommended total supply range and absolute stress slew check. The old negative-bias health window is rejected as insufficient for the existing project headroom allocation; no replacement threshold is approved.",
+    "required_conditions": [
+      "zero and actual peak load",
+      "startup and shutdown",
+      "each missing/failed bias domain",
+      "enable and disable transitions"
+    ],
+    "instruments": [
+      "oscilloscope with differential probes",
+      "DMM"
+    ],
+    "state": "blocked",
+    "reason": "Both hardware bias monitors remain unimplemented; old -0.16V upper threshold fails the existing 0.30V headroom allocation. Final threshold tolerance, transient and fault fixtures are unresolved.",
+    "rejected_original_health_window_v": {
+      "NBIAS_L_v": [
+        -0.27,
+        -0.16
+      ],
+      "NBIAS_R_v": [
+        -0.27,
+        -0.16
+      ]
+    },
+    "required_upper_bias_screen_bound_before_tolerances_v": -0.1661204459375143
+  },
+  {
+    "id": "ADC-STABILITY",
+    "metric": "FDA differential/common-mode loop gain, phase, overshoot, settling and recovery with final codec load",
+    "limits": null,
+    "limit_basis": "Unassigned physical acceptance limits; existing finite two-pole model is not a loop-stability proof",
+    "required_conditions": [
+      "actual ADC switching modes",
+      "minimum/maximum allowed reference and supply",
+      "selected load and harness parasitics",
+      "small/large input steps",
+      "positive/negative overdrive recovery"
+    ],
+    "instruments": [
+      "network or frequency-response analyzer",
+      "oscilloscope",
+      "signal source"
+    ],
+    "state": "blocked",
+    "reason": "Actual stackup, parasitics, codec input model, final force/sense topology and approved phase/transient requirements are missing"
+  },
+  {
+    "id": "ADC-SCALE",
+    "metric": "Differential gain, clipping onset and common-mode error at actual codec pins",
+    "limits": null,
+    "limit_basis": "Nominal gain 1.21k/2.49k and typical 2Vrms full scale are models, not an independently specified minimum codec range",
+    "required_conditions": [
+      "both channels",
+      "all frequency endpoints",
+      "minimum reference",
+      "temperature extremes",
+      "maximum preamplifier output"
+    ],
+    "instruments": [
+      "audio analyzer",
+      "oscilloscope",
+      "DMM"
+    ],
+    "state": "blocked",
+    "reason": "Final calibration method and allowed gain/clipping/common-mode-error requirements need selection"
+  },
+  {
+    "id": "ADC-NOISE",
+    "metric": "Complete-chain SNR, THD, frequency response, channel crosstalk and pump/clock spurs",
+    "limits": {
+      "system_master_snr_db_min": 98,
+      "system_send_return_snr_db_min": 102,
+      "system_thd_percent_max": 0.005
+    },
+    "limit_basis": "Whole-unit project targets; these are not standalone E12 stage allocations",
+    "required_conditions": [
+      "declared reference level, weighting and bandwidth",
+      "analyzer residual quantified",
+      "pump loaded and unloaded",
+      "codec clocks on",
+      "both channels and cross-channel aggressor"
+    ],
+    "instruments": [
+      "audio analyzer",
+      "spectrum/FFT measurement"
+    ],
+    "state": "blocked",
+    "reason": "Full reference path and standalone stage budgets/response tolerance remain unassigned"
+  },
+  {
+    "id": "ADC-LEAKAGE",
+    "metric": "Hot/humid common-mode and reference drift, board insulation and capacitor leakage",
+    "limits": null,
+    "limit_basis": "Reference Thevenin resistance is 500kOhm; examples quantify sensitivity but create no pass threshold",
+    "required_conditions": [
+      "cleaned assembly baseline",
+      "selected high temperature and humidity",
+      "both reference channels",
+      "pump active",
+      "production coating/cleaning process"
+    ],
+    "instruments": [
+      "electrometer or suitable high-impedance measurement",
+      "DMM",
+      "temperature/humidity monitoring"
+    ],
+    "state": "blocked",
+    "reason": "Actual capacitor/resistor MPNs, process contamination limits and leakage allocation are unqualified"
+  },
+  {
+    "id": "ADC-THERMAL-EMI",
+    "metric": "Enclosed temperatures, switching coupling and emissions/immunity",
+    "limits": null,
+    "limit_basis": "Actual system environment, selected test method and derating policy required",
+    "required_conditions": [
+      "final enclosure and stackup",
+      "maximum real load",
+      "neighboring supplies active",
+      "long-duration operation"
+    ],
+    "instruments": [
+      "temperature measurement",
+      "EMI/spectrum equipment"
+    ],
+    "state": "blocked",
+    "reason": "Final assembly, environment and limits remain undefined"
+  }
+]

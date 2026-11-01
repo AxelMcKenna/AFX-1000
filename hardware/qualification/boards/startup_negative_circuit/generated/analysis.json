@@ -1,0 +1,344 @@
+{
+  "revision": "NF03-component-and-power-state-candidate",
+  "monitors": {
+    "N19": {
+      "uv_trip_interval_v": [
+        17.99271509090728,
+        18.810364256589764
+      ],
+      "ov_trip_interval_v": [
+        19.1660925617348,
+        20.037262548224675
+      ],
+      "fault_delay_maximum_applies_only_at5mv_pin_overdrive_s": 0.0005,
+      "precision_final_endpoint_acceptance": false,
+      "sensor_receiving_error_accepted": false
+    },
+    "N12": {
+      "uv_trip_interval_v": [
+        11.245794633649055,
+        11.755699079689066
+      ],
+      "ov_trip_interval_v": [
+        12.223609192671985,
+        12.778114322718151
+      ],
+      "fault_delay_maximum_applies_only_at5mv_pin_overdrive_s": 0.0005,
+      "precision_final_endpoint_acceptance": false,
+      "sensor_receiving_error_accepted": false
+    }
+  },
+  "floating_bias": {
+    "module": "TMR 1-1213",
+    "normal_controller_feed_interval_a": [
+      0.0072815533980582475,
+      0.02212199312714777
+    ],
+    "controller_load_requirement_a": 0.0056,
+    "twenty_percent_feed_headroom": true,
+    "normal_feed_within5to25ma": true,
+    "local5_current_requirement_a": 0.009400000000000002,
+    "module_output_current_requirement_a": 0.03162199312714778,
+    "module_load_between10and90percent": true,
+    "module_output_power_requirement_w": 0.4996274914089349,
+    "input_power_given60pct_efficiency_requirement_w": 0.8327124856815582,
+    "primary_minimum_efficiency_guaranteed": false,
+    "isolated_bias_return_has_no_galvanic_positive_source_feed": true,
+    "source_collapse_capacitive_and_clamp_paths_qualified": false
+  },
+  "gate_clamp": {
+    "source_gate_current_minimum_given_receiving_requirements_a": 0.003286964129483814,
+    "above1v_gate_charge_requirement_c": 5e-07,
+    "conditional_charge_discharge_time_s": 0.00015211605003992548,
+    "conditional_complete_cutoff_s": 0.006652116050039926,
+    "required_cutoff_enclosure_s": 0.008,
+    "twenty_percent_time_headroom": true,
+    "initial_clamp_current_upper_at13v_a": 0.06091846298031865,
+    "led_current_lower_given25c_vf_and_receiving_driver_a": 0.0036404638848592996,
+    "input_branch_current_upper_given25c_vf_a": 0.0078059809964738484,
+    "full_temperature_trigger_receiving_requirement_a": 0.003,
+    "trigger_20percent_scenario": true,
+    "driver_off_leakage_string_voltage_upper_v": 0.10300000000000001,
+    "off_string_voltage_20percent_below_two25c_min_vf": true,
+    "complete_loaded_cutoff_guaranteed": false,
+    "gate_charge_miller_plateau_drain_slew_hot_ron_led_and_temperature_measured": false,
+    "primary25c_close_2ms_not_35us100pf_Si8751_transfer": true
+  },
+  "digital_reserve": {
+    "total_target_a": 2.4,
+    "pool_a": 0.416,
+    "fan_planning_a": 0.3768,
+    "remaining_a": 0.03919999999999996,
+    "nf_digital_requirement_a": 0.026011961992947696,
+    "nf_with20pct_guard_a": 0.031214354391537233,
+    "fan_health_remaining_after_nf20pct_a": 0.007985645608462724,
+    "fan_health_actual_bound_a": null,
+    "does_not_add_fan_or_nf_again_on_top_of2p4a": true,
+    "physical_branch_or_input_current_qualified": false
+  },
+  "steady_inlet_scenario": {
+    "current_a": 2.8205957587600152,
+    "protected_voltage_v": 10.384585526846394,
+    "protected_power_w": 28.3561051960874,
+    "direct_aux_current_a": 0.09,
+    "board_boundary_power_w": 29.290717893503576,
+    "complete_feed_power_w": 2.864073756360595,
+    "plug_boundary_power_w": 32.15479164986417,
+    "source_power_scenario_guaranteed": false
+  },
+  "negative_ramp_inlet_scenarios": [
+    {
+      "rail": "N19",
+      "current_a": 3.05423413762667,
+      "protected_voltage_v": 10.300475710454398,
+      "twenty_percent_input_current_margin": true,
+      "raw_switch25c_peak_a": 0.6592197770602319,
+      "source_and_inlet_qualified": false
+    },
+    {
+      "rail": "N12",
+      "current_a": 2.8487761218689145,
+      "protected_voltage_v": 10.37444059612719,
+      "twenty_percent_input_current_margin": true,
+      "raw_switch25c_peak_a": 0.682028704568003,
+      "source_and_inlet_qualified": false
+    }
+  ],
+  "stored_source_energy_inventory": [
+    {
+      "rail": "N19",
+      "actual_direct_capacitors": [
+        {
+          "ref": "C10",
+          "net": "RAW_N22",
+          "actual_value": "100nF 50V X7R",
+          "nominal_f": 1.0000000000000001e-07,
+          "initial20pct_times_X7R15pct_scenario_f": 1.3800000000000002e-07,
+          "stored_energy_scenario_j": 3.5531961083753315e-05,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C51",
+          "net": "RAW_N22",
+          "actual_value": "10uF 50V X7R",
+          "nominal_f": 9.999999999999999e-06,
+          "initial20pct_times_X7R15pct_scenario_f": 1.3799999999999997e-05,
+          "stored_energy_scenario_j": 0.00355319610837533,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C52",
+          "net": "N19_SRC",
+          "actual_value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+          "nominal_f": 2.2e-05,
+          "initial20pct_times_X7R15pct_scenario_f": 3.0359999999999994e-05,
+          "stored_energy_scenario_j": 0.005544576107550318,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C53",
+          "net": "N19_SRC",
+          "actual_value": "100nF 50V X7R",
+          "nominal_f": 1.0000000000000001e-07,
+          "initial20pct_times_X7R15pct_scenario_f": 1.3800000000000002e-07,
+          "stored_energy_scenario_j": 2.5202618670683274e-05,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C61",
+          "net": "RAW_N22",
+          "actual_value": "100nF 50V X7R",
+          "nominal_f": 1.0000000000000001e-07,
+          "initial20pct_times_X7R15pct_scenario_f": 1.3800000000000002e-07,
+          "stored_energy_scenario_j": 3.5531961083753315e-05,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C62",
+          "net": "RAW_N22",
+          "actual_value": "1uF 50V X7R",
+          "nominal_f": 1e-06,
+          "initial20pct_times_X7R15pct_scenario_f": 1.38e-06,
+          "stored_energy_scenario_j": 0.0003553196108375331,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C8",
+          "net": "RAW_N22",
+          "actual_value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+          "nominal_f": 2.2e-05,
+          "initial20pct_times_X7R15pct_scenario_f": 3.0359999999999994e-05,
+          "stored_energy_scenario_j": 0.007817031438425727,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C9",
+          "net": "RAW_N22",
+          "actual_value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+          "nominal_f": 2.2e-05,
+          "initial20pct_times_X7R15pct_scenario_f": 3.0359999999999994e-05,
+          "stored_energy_scenario_j": 0.007817031438425727,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        }
+      ],
+      "direct_cap_energy_subtotal_scenario_j": 0.025183421244452824,
+      "complete_discharge_path_and_energy_upper_bound_j": null,
+      "missing": [
+        "cross-coupled capacitors/inductors and transformer/module storage",
+        "LT3090 reverse discharge and startup-foldback behavior",
+        "actual source current transient and bank/pass FET body diodes",
+        "original protected1.5mF/220uF possible backfeed through pass body diode",
+        "external wiring/PCB and converter switching energy"
+      ]
+    },
+    {
+      "rail": "N12",
+      "actual_direct_capacitors": [
+        {
+          "ref": "C56",
+          "net": "RAW_N17",
+          "actual_value": "10uF 50V X7R",
+          "nominal_f": 9.999999999999999e-06,
+          "initial20pct_times_X7R15pct_scenario_f": 1.3799999999999997e-05,
+          "stored_energy_scenario_j": 0.0014427408806491101,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C57",
+          "net": "N12_SRC",
+          "actual_value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+          "nominal_f": 2.2e-05,
+          "initial20pct_times_X7R15pct_scenario_f": 3.0359999999999994e-05,
+          "stored_energy_scenario_j": 0.002211751170547674,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C58",
+          "net": "N12_SRC",
+          "actual_value": "100nF 50V X7R",
+          "nominal_f": 1.0000000000000001e-07,
+          "initial20pct_times_X7R15pct_scenario_f": 1.3800000000000002e-07,
+          "stored_energy_scenario_j": 1.005341441158034e-05,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C67",
+          "net": "RAW_N17",
+          "actual_value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+          "nominal_f": 2.2e-05,
+          "initial20pct_times_X7R15pct_scenario_f": 3.0359999999999994e-05,
+          "stored_energy_scenario_j": 0.003174029937428043,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C68",
+          "net": "RAW_N17",
+          "actual_value": "22uF 50V X7R 20% TDK C3225X7R1H226M250AC",
+          "nominal_f": 2.2e-05,
+          "initial20pct_times_X7R15pct_scenario_f": 3.0359999999999994e-05,
+          "stored_energy_scenario_j": 0.003174029937428043,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        },
+        {
+          "ref": "C69",
+          "net": "RAW_N17",
+          "actual_value": "100nF 50V X7R",
+          "nominal_f": 1.0000000000000001e-07,
+          "initial20pct_times_X7R15pct_scenario_f": 1.3800000000000002e-07,
+          "stored_energy_scenario_j": 1.442740880649111e-05,
+          "generic_initial_tolerance_and_hot_effective_max_accepted": false
+        }
+      ],
+      "direct_cap_energy_subtotal_scenario_j": 0.010027032749270942,
+      "complete_discharge_path_and_energy_upper_bound_j": null,
+      "missing": [
+        "cross-coupled capacitors/inductors and transformer/module storage",
+        "LT3090 reverse discharge and startup-foldback behavior",
+        "actual source current transient and bank/pass FET body diodes",
+        "original protected1.5mF/220uF possible backfeed through pass body diode",
+        "external wiring/PCB and converter switching energy"
+      ]
+    }
+  ],
+  "actual_e28_voltage_budget_gap": {
+    "N19": {
+      "actual_e28_copper_only_diagnostic_ohm": 0.20743888677443678,
+      "bank_current_after_removing_galvanic_bias_a": 0.02998948083887331,
+      "allowable_bank_mos_contacts_and_copper_with20pct_ohm": 1.433818464915194,
+      "illustrative_bank_pair10mohm_contacts5mohm_copper_allowance_ohm": 1.418818464915194,
+      "actual_copper_alone_exceeds_complete20pct_bank_resistance_requirement": false,
+      "physical_routing_repair_required_for_this_NF03_region": false,
+      "actual_diagnostic_is_accepted_upper_bound": false
+    },
+    "N12": {
+      "actual_e28_copper_only_diagnostic_ohm": 0.06848269832688544,
+      "bank_current_after_removing_galvanic_bias_a": 0.15410916773112154,
+      "allowable_bank_mos_contacts_and_copper_with20pct_ohm": 0.04222776487399214,
+      "illustrative_bank_pair10mohm_contacts5mohm_copper_allowance_ohm": 0.027227764873992137,
+      "actual_copper_alone_exceeds_complete20pct_bank_resistance_requirement": true,
+      "physical_routing_repair_required_for_this_NF03_region": true,
+      "actual_diagnostic_is_accepted_upper_bound": false
+    }
+  },
+  "whole_unit_capacity_screen_comparison": {
+    "old_WU89row_internal_heat_w": 35.43154587633119,
+    "retained_raw_current_rows": [
+      {
+        "net": "RAW_P22",
+        "old_retained_a": 0.05,
+        "new_required_scenario_a": 0.05,
+        "new_capacity_enclosing_a": 0.05,
+        "voltage_magnitude_v": 22.68608645495495
+      },
+      {
+        "net": "RAW_N22",
+        "old_retained_a": 0.05770900705346039,
+        "new_required_scenario_a": 0.05815428571541086,
+        "new_capacity_enclosing_a": 0.05815428571541086,
+        "voltage_magnitude_v": 22.69264104804805
+      },
+      {
+        "net": "RAW_P17",
+        "old_retained_a": 0.2,
+        "new_required_scenario_a": 0.2,
+        "new_capacity_enclosing_a": 0.2,
+        "voltage_magnitude_v": 17.54071348948949
+      },
+      {
+        "net": "RAW_N17",
+        "old_retained_a": 0.2,
+        "new_required_scenario_a": 0.17896084751965155,
+        "new_capacity_enclosing_a": 0.2,
+        "voltage_magnitude_v": 14.460044303303302
+      }
+    ],
+    "raw_input_capacity_delta_w": 0.013472731789329647,
+    "two_isolated_bias_input_power_increment_w": 1.6654249713631164,
+    "new_capacity_internal_heat_scenario_w": 37.110443579483636,
+    "planning1p2_heat_stress_w": 44.53253229538036,
+    "full_digital2p4a_preserved": true,
+    "fan_nf_and_return_losses_not_added_twice": true,
+    "feed_heat_basis": "Existing WU4A*.36Ohm=5.76W capacity screen retained; not the separate constant-power operating point",
+    "module_efficiency_input_overhead_and_AUX_partition_accepted": false,
+    "exterior_heat_credit_w": 0,
+    "actual_heat_upper_bound_w": null
+  },
+  "native_schematic_authored": false,
+  "pcb_implemented": false,
+  "hardware_state_logic_native_complete": false,
+  "physical_tests_performed": 0,
+  "source_current_upper_guaranteed_a": null,
+  "maximum_fault_energy_guaranteed_j": null,
+  "startup_qualified": false,
+  "physical_qualified": false,
+  "fabrication_released": false,
+  "build_ready": false,
+  "source_sha256": {
+    "hardware/qualification/boards/startup_negative_circuit/design.json": "e391231afef17e8ea7e827fcc257917357647697c1b6f6c6389ce3d6b03042b8",
+    "hardware/qualification/boards/startup_negative_circuit/analyze.py": "aeefe0f57a0d1aa37948747d0227bef07b7d0ca67607805ad30c93ae69fc7be9",
+    "hardware/qualification/boards/startup_negative_protection/handoff.json": "cbeb9de262c52f19726c4b497027a24680723ae2b4d8c8738139865a8fcc71a1",
+    "hardware/qualification/boards/startup_negative_protection/generated/analysis.json": "3dca0ae0d84f1e6430836a3a5ceccd28a0a27b9b09dc0f8c305bd68e3d54f22b",
+    "hardware/cad/a12/thermal/whole_unit/generated/ledger.json": "2e5d333b0fe7d4122d22ea0b7106494c694103484c9701c3edc8174870039055",
+    "hardware/qualification/boards/startup_negative_circuit/sources/negative-after-diagnostic.json": "acdd473ea8a3062d5c2c7a08bce7e0c280980f672c570c7666e6a646f7465f0c"
+  }
+}

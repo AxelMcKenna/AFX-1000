@@ -1,0 +1,52 @@
+"""Screen a receiving-adjacent U39 pose without moving fixed copper or vias."""
+import hashlib,json,math
+from pathlib import Path
+from shapely.geometry import Point,LineString,box
+from ...common.sexpr import read_sexpr,children,first
+from ...output_stage.check_placement import courtyard
+from .repair import Router
+from .ordinary_joint_ripup7 import ORDINARY
+from .schmitt_cone_candidate import GROUPS
+from .schmitt_receiver_joint_surface import geometry,key
+ROOT=Path(__file__).resolve().parent
+SOURCE=ROOT/'generated/schmitt-u37-short-reconnect-work'
+
+def main():
+ path=SOURCE/'rail_disconnect.kicad_pcb';t=read_sexpr(path.read_text());rt=Router(t);ordinary=set(ORDINARY)|{n for g in GROUPS for n in g if n}|{n+'_SCHMITT' for g in GROUPS for n in g if n}|{'OK_19','P19_ALLOW','N19_ALLOW','P12_ALLOW','N12_ALLOW'};obs=[];courts=[]
+ for g in rt.geometry:
+  if 0 not in g['layers'] or g.get('ref') in ('U39','C82'):continue
+  if g['kind']=='line':q=LineString([g['start'],g['end']]).buffer(g['width']/2)
+  elif g['kind']=='via':q=Point(*g['xy']).buffer(g['radius'])
+  else:q=box(g['xy'][0]-g['size'][0]/2,g['xy'][1]-g['size'][1]/2,g['xy'][0]+g['size'][0]/2,g['xy'][1]+g['size'][1]/2)
+  if q.intersects(box(48,43,67,53)):obs.append((g,q,g['kind']=='line' and g['net'] in ordinary))
+ for f in children(t,'footprint'):
+  ref=next(p[2] for p in children(f,'property') if p[1]=='Reference')
+  if ref in ('U39','C82') or first(f,'layer')[1]!='F.Cu':continue
+  try:courts.append(box(*courtyard(f,'F.CrtYd')))
+  except(IndexError,ValueError):pass
+ def blockers(ref,xy,oldxy):
+  soft={};bad=False
+  for p in rt.by_ref[ref]:
+   xx,yy=[p['xy'][k]+xy[k]-oldxy[k] for k in (0,1)];w,h=p['size'];pad=box(xx-w/2,yy-h/2,xx+w/2,yy+h/2)
+   for g,z,allowed in obs:
+    if g['net']==p['net'] or pad.distance(z)>=.205:continue
+    if not allowed:return None
+    soft[key(g)]=g
+  return soft
+ rows=[]
+ for yi in range(181,200):
+  for xi in range(204,237):
+   x,y=xi*.25,yi*.25;u=box(x-2.225,y-1.45,x+2.225,y+1.45)
+   if any(u.intersects(c) for c in courts):continue
+   soft=blockers('U39',(x,y),(111.25,52.25))
+   if soft is None:continue
+   for cx,cy in [(x+4.8,y),(x-4.8,y),(x-.7,y-3.2)]:
+    c=box(cx-1.55,cy-.75,cx+1.55,cy+.75)
+    if c.intersects(u) or any(c.intersects(z) for z in courts):continue
+    cs=blockers('C82',(cx,cy),(115.05,52.25))
+    if cs is not None:
+     union={**soft,**cs};rows.append(dict(U39=[x,y],C82=[cx,cy],ordinary_track_blockers=list(union.values()),score=math.dist((x,y),(55.5,48))+.03*len(union)))
+ rows.sort(key=lambda r:r['score']);names={str(n[1]):str(n[2]).lstrip('/') for n in children(t,'net')};by={key(geometry(n,names)):n for n in children(t,'segment')}
+ for row in rows[:30]:row['ordinary_track_objects']=[dict(uuid=str(first(by[key(g)],'uuid')[1]),literal=__import__('hardware.electronics.common.sexpr',fromlist=['sexpr']).sexpr(by[key(g)])) for g in row['ordinary_track_blockers']]
+ out=ROOT/'generated/schmitt-cone-proposal/u39-joint-placement-screen.json';out.write_text(json.dumps(dict(source_pcb_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),rows=rows[:30],candidate_count=len(rows),every_actual_via_pad_force_quiet_and_ground_primitive_hard=True,only_explicit_ordinary_tracks_allowed_for_declared_reroute=True,new_native_clearance_MCAD_and_PDN_required=True,physical_qualified=False),indent=2)+'\n');print('Receiving-adjacent candidates',len(rows),[(r['U39'],r['C82'],len(r['ordinary_track_blockers'])) for r in rows[:6]],flush=True)
+if __name__=='__main__':main()

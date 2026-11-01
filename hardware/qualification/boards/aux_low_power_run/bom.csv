@@ -1,0 +1,11 @@
+Reference,Part_or_value,Footprint,Source,Note
+U1,TPS389001DSET,Package_SON:WSON-6_1.5x1.5mm_P0.5mm,https://www.ti.com/lit/ds/symlink/tps3890.pdf,Physical TPS3890 pin4 VDD and pin6 RESET_N. Adjustable1.15V option directly senses internal RUN.
+U2,SN74AUP1G17DCKR,RMX_AX03:TI_DCK0005A,https://www.ti.com/lit/ds/symlink/sn74aup1g17.pdf,"Actual DCK5:1NC,2A,3GND,4Y,5VCC; Schmitt input and specifiedIoff. Completeactual-band thresholds/current remain receiving requirements."
+R1,100k ohm TNPW0805100KBEEA,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,
+R2,10M 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Explicit RESET pulldown; complete3% receiving. 10M plus100k pullup keeps source Schmitt HIGH margin under actual input leakage.
+R4,1k 1% CRCW12061K00FKEA,Resistor_SMD:R_1206_3216Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Complete3% receiving; 1k series limits line faults. Voh qualification only at normal<=20uA; pin absolute current separately checked.
+C1,100nF 50V X7R C0603C104K5RACTU,Capacitor_SMD:C_0603_1608Metric,https://product.tdk.com/en/search/capacitor/ceramic/mlcc/info?part_no=C3225X7R1E106K250AC,Source Schmitt local bypass; replaces10uF load-switch input cap. EffectiveC/PDN/process still require validation.
+C2,100nF 50V X7R C0603C104K5RACTU,Capacitor_SMD:C_0603_1608Metric,https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf,
+C3,10nF 50V C0G C0603C103J5GACTU,Capacitor_SMD:C_0603_1608Metric,https://content.kemet.com/datasheets/KEM_C1003_C0G_SMD.pdf,
+J1,BENCH INPUT AUX/AGND/INTERNAL_RUN,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,,"Bench-only logical header, no physical interface selected. Omit on integrated P03."
+J2,BENCH OUTPUT LEAF/AGND,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,,"Bench-only logical header, no physical interface selected. Omit on integrated P03."

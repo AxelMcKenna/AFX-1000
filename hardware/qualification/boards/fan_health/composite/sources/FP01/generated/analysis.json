@@ -1,0 +1,123 @@
+{
+  "revision": "FP01-native-protection-section-draft",
+  "exact_switch": "TPS2553DBVR-1",
+  "current_limit_interval_a": [
+    0.23202070109058534,
+    0.3058108863010809
+  ],
+  "normal_motor_current_with20pct_a": 0.18839999999999998,
+  "steady_switch_drop_at135mohm_v": 0.025434,
+  "steady_switch_heat_at135mohm_w": 0.004791765599999999,
+  "minimum_input_decoupling_receiving_f": 1.88e-07,
+  "digital_reserve_partition": {
+    "original_a": 0.416,
+    "motor_pair_provision_a": 0.37679999999999997,
+    "new_switch_tach_bleed_provision_a": 0.0017226666666666668,
+    "NF03_control_interface_provision_a": 0.0313,
+    "remaining_for_health_logic_and_LED_a": 0.006177333333333347,
+    "allocation_is_not_a_hot_dynamic_current_bound": true
+  },
+  "source_port_correction": {
+    "old_FV01_J3_suggestion_usable": false,
+    "native_J3_note": "Engineering interface only; current-rated keyed production connector/harness not selected P03:5V pins are TEST ONLY; no operating5V harness may bypass J23/J24 power-stud links. Bipolar header remains separately specified.",
+    "source_stud": "P03.J23",
+    "return_stud": "P03.J21",
+    "new_branch_tap_connector_joint_and_return_implemented": false,
+    "operating_force_links_may_not_be_bypassed": true
+  },
+  "conditional_voltage_screen": {
+    "source_low_v": 4.992227729652826,
+    "dynamic_and_spread_v": 0.022,
+    "shared_feed_complete_loop_receiving_ohm": 0.15,
+    "each_branch_complete_loop_receiving_ohm": 0.35,
+    "calculated_fan_low_v": 4.841887729652825,
+    "twenty_percent_25c_start_target_v": 4.2,
+    "receiving_resistances_physical_upper_bounds_proven": false,
+    "true_complete_fan_voltage_interval_v": null
+  },
+  "current_limit_two_fault_diagnostic_a": 0.6116217726021618,
+  "maximum_fault_energy_j": null,
+  "holds": [
+    "Actual Sunon installed/hot startup and locked-rotor current and internal capacitance are unknown; current-limit threshold does not prove successful starting.",
+    "TI short-circuit response2us is typical. The5..10ms deglitch and3ms turnoff test load do not bound actual fan/inductive/charged-capacitor cutoff energy.",
+    "Supply-current140uA row is atRILIM20k/6.5V; use at100k is a receiving allocation pending characterization, not an exact applicable bound.",
+    "TPS2553-1 latches overcurrent/reverse faults but ambient thermal shutdown can cycle. This is not an unconditional no-autoretry or thermal-interlock guarantee.",
+    "FAULT outputs are open-drain without on-board pullups. Host may pull up only to its valid supply and must tolerate off states.",
+    "Tach pullups follow fan power. Future receiver must tolerate switched5V with power-off protection; no direct3V3-MCU connection is approved.",
+    "No fan-health pulse qualification, watchdog, temperature sensing or fail-off E28 enable contact is implemented by this protection-section draft.",
+    "Fan5V feed requires a NEW operating force-path branch with fresh copper/contact/return solve and CAD. ExistingJ3 test header is rejected.",
+    "Steady voltage uses unaccepted full-loop resistance allocations, source interval and dynamic allowances. Actual signed ground/contact/transient terms remain unresolved.",
+    "No nativePCB, MCAD, crimp/strain/clamp, thermal, acoustic, ESD, source-collapse or physical test qualification is inherited."
+  ],
+  "physical_qualified": false,
+  "health_interlock_implemented": false,
+  "PCB_implemented": false,
+  "fabrication_released": false,
+  "source_sha256": {
+    "hardware/qualification/boards/fan_protection/design.py": "ac6eef28169b88f469bf6f05a38883375773ce22654437233f8f6966e69d6fc1",
+    "hardware/electronics/common/flat_schematic.py": "9ccd0b089c129f977f27fbf77196c8a3e57f5dbd4d76acacb34a7d29ec453016",
+    "hardware/electronics/common/netlists.py": "1fed0ffc2a6943a5d550fd23342fb5924319864021f0348dd51f931941645339",
+    "hardware/electronics/common/symbols.py": "c268cca7f853442681bc20acf806c0157f5a6a19764bfb332e06a0357c74c408",
+    "hardware/electronics/power_distribution/p03/candidates/aux-u10-combined/components.json": "067092b341a4503ba9bd0867922a51402996918a642a1a30042d280a2d8a7ad4",
+    "hardware/electronics/power_distribution/p03/candidates/aux-u10-combined/generated/netlist.xml": "ac95a921159b9bd25ca7714a9e8d5f32c79b23a9de9339620602150519c2b05f",
+    "hardware/electronics/power_distribution/p03/candidates/aux-u10-combined/power_p03.kicad_pcb": "db83a26f98e3638d7b1a723be5d54f71c4e3aaa5418021e5b9003afea810283d",
+    "hardware/cad/a12/thermal/forced_air_sunon/analysis.json": "d07910299756169afc59974ceb02631ad3dc59566e8b4f9f26e152248d4b6a26",
+    "hardware/cad/a12/thermal/forced_air_sunon/handoff.json": "336aadfe015a79dc5947c79a0f3fead2b1af63fdc787423d383142b595d98d65"
+  },
+  "components": 18,
+  "native_pin_maps_match": true,
+  "native_ERC_findings": 0,
+  "native_commands": [
+    {
+      "command": [
+        "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "export",
+        "netlist",
+        "--format",
+        "kicadxml",
+        "--output",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_protection/generated/netlist.xml",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_protection/fan_protection.kicad_sch"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "export",
+        "svg",
+        "--output",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_protection/generated/schematic-svg",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_protection/fan_protection.kicad_sch"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/private/tmp/rmx-kicad/KiCad/KiCad.app/Contents/MacOS/kicad-cli",
+        "sch",
+        "erc",
+        "--format",
+        "json",
+        "--output",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_protection/generated/erc.json",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/fan_protection/fan_protection.kicad_sch"
+      ],
+      "returncode": 0
+    }
+  ],
+  "TI_primary_pdf_sha256": "413aec7178e722bdeacd701a7d4d4f20e5aa09bee0c60ab2176751b6f1ae6da5",
+  "source_capture_sha256": {
+    "sources/hardware/electronics/common/flat_schematic.py": "9ccd0b089c129f977f27fbf77196c8a3e57f5dbd4d76acacb34a7d29ec453016",
+    "sources/hardware/electronics/common/symbols.py": "c268cca7f853442681bc20acf806c0157f5a6a19764bfb332e06a0357c74c408",
+    "sources/hardware/electronics/common/netlists.py": "1fed0ffc2a6943a5d550fd23342fb5924319864021f0348dd51f931941645339",
+    "sources/hardware/electronics/power_distribution/p03/candidates/aux-u10-combined/power_p03.kicad_pcb": "db83a26f98e3638d7b1a723be5d54f71c4e3aaa5418021e5b9003afea810283d",
+    "sources/hardware/electronics/power_distribution/p03/candidates/aux-u10-combined/components.json": "067092b341a4503ba9bd0867922a51402996918a642a1a30042d280a2d8a7ad4",
+    "sources/hardware/electronics/power_distribution/p03/candidates/aux-u10-combined/generated/netlist.xml": "ac95a921159b9bd25ca7714a9e8d5f32c79b23a9de9339620602150519c2b05f",
+    "sources/hardware/cad/a12/thermal/forced_air_sunon/handoff.json": "336aadfe015a79dc5947c79a0f3fead2b1af63fdc787423d383142b595d98d65",
+    "sources/hardware/cad/a12/thermal/forced_air_sunon/analysis.json": "d07910299756169afc59974ceb02631ad3dc59566e8b4f9f26e152248d4b6a26",
+    "sources/hardware/qualification/boards/fan_protection/design.py": "ac6eef28169b88f469bf6f05a38883375773ce22654437233f8f6966e69d6fc1"
+  }
+}

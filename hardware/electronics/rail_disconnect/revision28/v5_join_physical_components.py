@@ -1,0 +1,152 @@
+"""Join every actual V5 monitor component; real copper stubs are not fake sources."""
+
+import hashlib
+import json
+import math
+import shutil
+import uuid
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+from .band_router import BandRouter
+from .component_routes import connect_components
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/v5-p12-coherent-merge-work"
+WORK = ROOT / "generated/v5-actual-components-joined-work"
+
+
+def main():
+    assert not WORK.exists()
+    path = SOURCE / "rail_disconnect.kicad_pcb"
+    blob = path.read_bytes()
+    t = read_sexpr(blob.decode())
+    gp = SOURCE / "generated/residual-components.json"
+    graph = json.loads(gp.read_text())
+    assert (
+        next(h for p, h in graph["source_sha256"].items() if Path(p).resolve() == path.resolve())
+        == hashlib.sha256(blob).hexdigest()
+    )
+    fp = SOURCE / "generated/filled-v5-p12-coherent-merge.kicad_pcb"
+    pp = SOURCE / "generated/native-pads.json"
+    pads = json.loads(pp.read_text())
+    assert pads["source_pcb_sha256"] == hashlib.sha256(fp.read_bytes()).hexdigest()
+    names = {str(n[1]): str(n[2]).lstrip("/") for n in children(t, "net")}
+    by = {str(first(n, "uuid")[1]): n for k in ("segment", "via") for n in children(t, k)}
+    tasks = []
+    removed = []
+    for net in ("V5_REG_OV_OK", "V5_REG_OV_OK_SCHMITT"):
+        row = graph["inventory"].get(net)
+        if row is None:
+            continue
+        groups = []
+        for group in row["components"]:
+            if not any(x["kind"] in ("PAD", "PCB_VIA") for x in group):
+                for x in group:
+                    assert x["kind"] == "PCB_TRACK"
+                    n = by[x["uuid"]]
+                    assert names[str(first(n, "net")[1])] == net
+                    t.remove(n)
+                    removed.append(
+                        dict(net=net, literal=sexpr(n), native_component_has_no_actual_pad_or_barrel=True)
+                    )
+                continue
+            anchors = []
+            for x in group:
+                assert x["kind"] == "PAD" or names[str(first(by[x["uuid"]], "net")[1])] == net
+                for xy in [x["position_mm"]] + ([x["end_mm"]] if x["kind"] == "PCB_TRACK" else []):
+                    anchors.append(
+                        dict(
+                            xy=xy,
+                            layers=x["layers"],
+                            uuid=x["uuid"],
+                            kind=x["kind"],
+                            ref=x.get("ref"),
+                            pin=x.get("pin"),
+                        )
+                    )
+            groups.append(anchors)
+        index = max(
+            range(len(groups)), key=lambda i: (sum(x["kind"] == "PAD" for x in groups[i]), len(groups[i]))
+        )
+        tasks.append((net, groups[index], [g for i, g in enumerate(groups) if i != index]))
+    rt = BandRouter(t, read_sexpr(fp.read_text()), pads, step=0.05)
+    results = []
+    for net, one, others in tasks:
+        generation = 0
+        failed = set()
+        while others:
+            choices = [i for i, g in enumerate(others) if (id(g), generation) not in failed]
+            if not choices:
+                break
+            i = min(choices, key=lambda i: min(math.dist(x["xy"], y["xy"]) for x in one for y in others[i]))
+            two = others[i]
+            rt.cached = {}
+            before = len(rt.routes)
+            result = connect_components(rt, dict(net=net, components=[one, two]), width=0.2, budget=1200000)
+            results.append(dict(net=net, actual_connectivity_generation=generation, **result))
+            print(net, result.get("connected"), result.get("visited"), result.get("reason"), flush=True)
+            if result.get("connected"):
+                one += two
+                others.pop(i)
+                generation += 1
+                for route in rt.routes[before:]:
+                    z = ("F.Cu", "In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu", "B.Cu").index(route["layer"])
+                    one.extend(
+                        dict(xy=xy, layers=[z], kind="NEW_ACTUAL_ROUTE", route_index=before)
+                        for xy in route["points_relative_mm"]
+                    )
+            else:
+                failed.add((id(two), generation))
+    for i, n in enumerate(t):
+        if isinstance(n, list) and n and n[0] in ("segment", "via") and not children(n, "uuid"):
+            n.append(
+                [
+                    a("uuid"),
+                    a(
+                        str(
+                            uuid.uuid5(
+                                uuid.NAMESPACE_URL,
+                                f"rmx:E28:V5actualjoins:{hashlib.sha256(blob).hexdigest()}:{i}:{sexpr(n)}",
+                            )
+                        )
+                    ),
+                ]
+            )
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for f in SOURCE.iterdir():
+        if f.is_file() and (
+            f.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym")
+            or f.name in ("components.json", "fp-lib-table", "sym-lib-table")
+        ):
+            shutil.copy2(f, WORK / f.name)
+        elif f.suffix == ".pretty":
+            shutil.copytree(f, WORK / f.name)
+    (WORK / "rail_disconnect.kicad_pcb").write_text(sexpr(t) + "\n")
+    (WORK / "generated/V5-actual-joins.json").write_text(
+        json.dumps(
+            dict(
+                source_pcb_sha256=hashlib.sha256(blob).hexdigest(),
+                source_native_graph_sha256=hashlib.sha256(gp.read_bytes()).hexdigest(),
+                source_filled_geometry_sha256=hashlib.sha256(fp.read_bytes()).hexdigest(),
+                source_pad_geometry_sha256=hashlib.sha256(pp.read_bytes()).hexdigest(),
+                recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                attempts=results,
+                routes=rt.routes,
+                pruned_actual_PAD_and_VIA_free_control_fragments=removed,
+                all_actual_via_and_PAD_containing_components_retained_for_full_connection=True,
+                an_upstream_copper_stub_is_not_assumed_to_be_a_powered_source=True,
+                actual_filled_force_pours_guarded_during_search=True,
+                all_existing_ports_parts_vias_force_sense_timing_ground_primitives_and_rules_preserved=True,
+                full_native_and_current_source_PDN_noise_validation_required=True,
+                physical_qualified=False,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,101 @@
+"""Source-bound append-only joint route trial for actual residual components."""
+
+import argparse
+import hashlib
+import itertools
+import json
+import math
+import shutil
+import uuid
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+from .band_router import BandRouter
+from .component_routes import connect_components
+
+ROOT = Path(__file__).resolve().parent
+
+
+def run(source, work, label, step, budget, exclude):
+    source, work = Path(source).resolve(), Path(work).resolve()
+    assert source.is_relative_to(ROOT / "generated") and work.is_relative_to(ROOT / "generated")
+    assert not work.exists()
+    pcb = source / "rail_disconnect.kicad_pcb"
+    blob = pcb.read_bytes()
+    digest = hashlib.sha256(blob).hexdigest()
+    tree = read_sexpr(blob.decode())
+    graph_path = source / "generated/residual-components.json"
+    graph = json.loads(graph_path.read_text())
+    assert graph["source_sha256"][str(pcb)] == digest
+    fill = source / ("generated/filled-" + label + ".kicad_pcb")
+    pads_path = source / "generated/native-pads.json"
+    pads = json.loads(pads_path.read_text())
+    assert pads["source_pcb_sha256"] == hashlib.sha256(fill.read_bytes()).hexdigest()
+    names = {str(n[1]): str(n[2]).lstrip("/") for n in children(tree, "net")}
+    objects = {str(first(n, "uuid")[1]): n for k in ("segment", "via") for n in children(tree, k)}
+    tasks = []
+    for net, row in graph["inventory"].items():
+        if net in exclude:
+            continue
+        groups = []
+        for component in row["components"]:
+            anchors = []
+            for item in component:
+                assert item["kind"] == "PAD" or names[str(first(objects[item["uuid"]], "net")[1])] == net
+                for xy in [item["position_mm"]] + ([item["end_mm"]] if item["kind"] == "PCB_TRACK" else []):
+                    anchors.append(dict(xy=xy, layers=item["layers"], uuid=item["uuid"], kind=item["kind"], ref=item.get("ref"), pin=item.get("pin")))
+            groups.append(anchors)
+        if len(groups) > 1:
+            tasks.append((net, groups))
+    router = BandRouter(tree, read_sexpr(fill.read_text()), pads, step=step)
+    attempts = []
+    for net, groups in sorted(tasks, key=lambda x: min(math.dist(a["xy"], b["xy"]) for g, h in itertools.combinations(x[1], 2) for a in g for b in h)):
+        generation, failed = 0, set()
+        while len(groups) > 1:
+            pairs = [p for p in itertools.combinations(range(len(groups)), 2) if (id(groups[p[0]]), id(groups[p[1]]), generation) not in failed]
+            if not pairs:
+                break
+            i, j = min(pairs, key=lambda p: min(math.dist(a["xy"], b["xy"]) for a in groups[p[0]] for b in groups[p[1]]))
+            one, two = groups[i], groups[j]
+            if len(one) > len(two):
+                one, two = two, one
+            router.cached = {}
+            before = len(router.routes)
+            result = connect_components(router, dict(net=net, components=[one, two]), width=0.2, budget=budget)
+            attempts.append(dict(net=net, generation=generation, **result))
+            print(net, result.get("connected"), result.get("visited"), result.get("reason"), flush=True)
+            if not result.get("connected"):
+                failed.add((id(groups[i]), id(groups[j]), generation))
+                continue
+            merged = one + two
+            for route in router.routes[before:]:
+                layer = ("F.Cu", "In1.Cu", "In2.Cu", "In3.Cu", "In4.Cu", "B.Cu").index(route["layer"])
+                merged.extend(dict(xy=xy, layers=[layer], kind="NEW_ACTUAL_ROUTE") for xy in route["points_relative_mm"])
+            groups = [g for k, g in enumerate(groups) if k not in (i, j)] + [merged]
+            generation += 1
+    for index, node in enumerate(tree):
+        if isinstance(node, list) and node and node[0] in ("segment", "via") and not children(node, "uuid"):
+            node.append([a("uuid"), a(str(uuid.uuid5(uuid.NAMESPACE_URL, f"rmx:E28:residualJoint:{digest}:{index}:{sexpr(node)}")))])
+    work.mkdir()
+    (work / "generated").mkdir()
+    for path in source.iterdir():
+        if path.is_file() and (path.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym") or path.name in ("components.json", "fp-lib-table", "sym-lib-table")):
+            shutil.copy2(path, work / path.name)
+        elif path.suffix == ".pretty":
+            shutil.copytree(path, work / path.name)
+    (work / pcb.name).write_text(sexpr(tree) + "\n")
+    report = dict(source_pcb_sha256=digest, native_graph_sha256=hashlib.sha256(graph_path.read_bytes()).hexdigest(), filled_sha256=hashlib.sha256(fill.read_bytes()).hexdigest(), native_pads_sha256=hashlib.sha256(pads_path.read_bytes()).hexdigest(), recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), command_configuration=dict(label=label, step=step, budget=budget, excluded_nets=sorted(exclude)), attempts=attempts, routes=router.routes, original_copper_parts_rules_unchanged=True, actual_filled_force_polygons_guarded_in_search=True, full_native_and_finite_copper_verification_required=True, physical_qualified=False)
+    (work / "generated/residual-joint-route.json").write_text(json.dumps(report, indent=2) + "\n")
+    assert pcb.read_bytes() == blob
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("source", type=Path)
+    parser.add_argument("work", type=Path)
+    parser.add_argument("label")
+    parser.add_argument("--step", type=float, default=0.05)
+    parser.add_argument("--budget", type=int, default=900000)
+    parser.add_argument("--exclude", default="ANA_PG1")
+    args = parser.parse_args()
+    run(args.source, args.work, args.label, args.step, args.budget, set(args.exclude.split(",")))

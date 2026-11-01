@@ -37,6 +37,10 @@ Electrosmith's supplied Seed footprint source and its MIT notice remain in `hard
 
 Manufacturer datasheets, package drawings and reference-unit documentation belong to their respective rights holders. Links, hashes, measurements and references do not transfer ownership or grant permission to redistribute those documents. Historical source and review archives retain their original contents and notices; the new project notice does not revoke previously valid grants or rewrite their history.
 
+## Optional circuit-simulation tools and models
+
+Board qualification can use an externally installed ngspice shared library, including the version supplied with KiCad. Those tools retain their own licenses and are not linked into the AFX-1000 app or firmware by this review. TI's separately downloaded THS4551 macro-model retains its manufacturer copyright and terms; the model is not copied into this repository or review packages. Saved simulation results record external model/simulator hashes and declared assumptions. A hash or simulation result grants no redistribution rights to the underlying vendor model.
+
 ## Reference names
 
 Pioneer DJ, RMX-1000, rekordbox, Ableton, AU and VST3 identify reference products or interoperability targets. No affiliation or endorsement is asserted. Reference recordings are separate user-supplied measurement assets, not factory samples shipped by this project.

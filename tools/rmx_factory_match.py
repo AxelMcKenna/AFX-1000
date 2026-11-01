@@ -8,14 +8,13 @@ sample rates are outside this measurement's scope.
 import argparse
 import json
 import math
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 import numpy as np
 
 from tools.fidelity import calibrate, compare, stereo
 from tools.reference_audio import check_output_storage, read_wav, save_json, sha256, write_wav
-
 
 IDENTITY = {'name': 'RMX-1000 Plug-in', 'manufacturer': 'Pioneer Corporation', 'version': '2.2.0'}
 RATE = 48000

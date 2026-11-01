@@ -1,0 +1,25 @@
+"""Keep actual U36 repair intact while reusing the three U37 signal backbones."""
+import hashlib,json,shutil
+from pathlib import Path
+from ...common.sexpr import a,children,first,read_sexpr,sexpr
+ROOT=Path(__file__).resolve().parent
+SOURCE=ROOT/'generated/schmitt-u37-near-backbone-work'
+BASE=ROOT/'generated/schmitt-receiver-debt-reconnect-work'
+WORK=ROOT/'generated/schmitt-u37-backbone-clear-work'
+RESTORED={'53734f74-10aa-5d69-b343-fd6d1682aa96','59c51422-3134-5f2d-bfa4-6a9629a4cdbc'}
+
+def main():
+ assert not WORK.exists();blob=(SOURCE/'rail_disconnect.kicad_pcb').read_bytes();t=read_sexpr(blob.decode());base=read_sexpr((BASE/'rail_disconnect.kicad_pcb').read_text());ids={str(first(n,'uuid')[1]) for k in ('segment','via') for n in children(base,k)};assert not RESTORED&ids
+ removed=[]
+ for n in list(t):
+  if isinstance(n,list) and n and n[0] in ('segment','via') and str(first(n,'uuid')[1]) in RESTORED:removed.append(sexpr(n));t.remove(n)
+ assert len(removed)==2
+ moves=[]
+ for ref,xy in [('U37',(119.,108.)),('C80',(122.8,108.))]:
+  f=next(f for f in children(t,'footprint') if any(p[1]=='Reference' and p[2]==ref for p in children(f,'property')));before=sexpr(f);first(f,'at')[1:3]=[a(str(v)) for v in xy];moves.append(dict(ref=ref,before=before,after=sexpr(f)))
+ WORK.mkdir();(WORK/'generated').mkdir()
+ for p in SOURCE.iterdir():
+  if p.is_file() and (p.suffix in ('.kicad_pcb','.kicad_sch','.kicad_pro','.kicad_sym') or p.name in ('components.json','fp-lib-table','sym-lib-table')):shutil.copy2(p,WORK/p.name)
+  elif p.suffix=='.pretty':shutil.copytree(p,WORK/p.name)
+ (WORK/'rail_disconnect.kicad_pcb').write_text(sexpr(t)+'\n');(WORK/'generated/backbone-clear.json').write_text(json.dumps(dict(source_pcb_sha256=hashlib.sha256(blob).hexdigest(),actual_clean_U36_source_sha256=hashlib.sha256((BASE/'rail_disconnect.kicad_pcb').read_bytes()).hexdigest(),recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),obsolete_two_item_receiver_leaf_restoration_reversed=removed,neither_removed_item_existed_in_actual_U36_source=True,moves=moves,all_current_U36_tracks_and_barrels_unchanged=True,force_quiet_and_ground_Cu_unchanged=True,complete_new_native_MCAD_and_PDN_required=True,physical_qualified=False),indent=2)+'\n')
+if __name__=='__main__':main()

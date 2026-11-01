@@ -7,7 +7,12 @@ import unittest
 from unittest.mock import patch
 
 from hardware.electronics.common.netlists import netlist
-from hardware.electronics.power_distribution.p02.analysis import analyze, legacy_domains, source_corners
+from hardware.electronics.power_distribution.p02.analysis import (
+    analyze,
+    legacy_domains,
+    retained_capacitance_inventory,
+    source_corners,
+)
 from hardware.electronics.power_distribution.p02.check import contract
 from hardware.electronics.power_distribution.p02.distribution import (
     GROUND,
@@ -115,6 +120,32 @@ class P02(unittest.TestCase):
         self.assertFalse(startup["measured_startup_stability"])
         self.assertFalse(startup["initial_set_floor_inrush_qualified"])
         self.assertGreater(startup["initial_set_floor_digital_cap_current_demand_a"], 4)
+        self.assertGreater(startup["initial_set_floor_analog_cap_current_demand_a"], 2.8)
+        self.assertFalse(startup["complete_network_capacitance_bound_verified"])
+        self.assertFalse(startup["complete_preconnected_startup_proof"])
+
+    def test_retained_bulk_capacitance_is_derived_from_native_values_and_tolerance(self):
+        inventory = retained_capacitance_inventory()
+        self.assertAlmostEqual(inventory["ANA"]["nominal_bulk_f"], 0.0015)
+        self.assertAlmostEqual(inventory["ANA"]["known_retained_bulk_maximum_f"], 0.0018)
+        self.assertAlmostEqual(inventory["ANA"]["scenario_capacitance_f"], 0.0022)
+        self.assertAlmostEqual(inventory["DIG"]["known_retained_bulk_maximum_f"], 0.00564)
+        self.assertAlmostEqual(inventory["DIG"]["scenario_capacitance_f"], 0.0071)
+        for row in inventory.values():
+            self.assertIsNone(row["complete_network_upper_bound_f"])
+            self.assertFalse(row["other_board_module_cable_and_local_source_inventory_complete"])
+            self.assertFalse(row["additional_reserve_is_guaranteed"])
+
+    def test_wrong_bulk_domain_or_missing_tolerance_is_not_silently_accepted(self):
+        parts, pins = netlist(ROOT / "generated/disconnect-netlist.xml")
+        bad = copy.deepcopy(pins)
+        bad["C20"]["1"] = "5V_DIG"
+        with self.assertRaises(AssertionError):
+            retained_capacitance_inventory(parts, bad)
+        broken = copy.deepcopy(parts)
+        broken["C20"].find("value").text = "1500uF 16V electrolytic EEUFR1C152"
+        with self.assertRaises(AssertionError):
+            retained_capacitance_inventory(broken, pins)
 
     def test_native_erc_is_zero_and_release_flags_stay_false(self):
         erc = json.loads((ROOT / "generated/erc.json").read_text())

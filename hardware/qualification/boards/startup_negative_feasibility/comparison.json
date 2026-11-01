@@ -1,0 +1,418 @@
+{
+  "revision": "NF01-feasibility-only",
+  "rails": {
+    "N19": {
+      "voltage_max_from_frozen_ledger_v": 19.111654639339335,
+      "minimum_normal_input_allocation_v": 18.9,
+      "local_bulk_plus_initial20pct_f": 0.0018,
+      "frozen_external_live_plus_bleed_a": 0.026419207164714614,
+      "additional_unverified_load_screen_a": 0.00055,
+      "constant_load_screen_a": 0.026969207164714612,
+      "provisional_normal_start_ceiling_a": 0.15,
+      "ceiling_is_user_approved_hard_limit": false,
+      "ideal_charge_at_ceiling": {
+        "can_charge": true,
+        "charge_time_s": 0.2796127502556788,
+        "capacitor_energy_j": 0.32872980874804264,
+        "constant_load_pass_energy_j": 0.07205986492513537,
+        "mosfet_pass_energy_j": 0.4007896736731781,
+        "initial_pass_power_w": 2.8667481959009002,
+        "model": "Full declared CONSTANT current load from zero, no load gating. Linear cap charge/current limit; no parasitic, nonlinear controller or source sag model."
+      },
+      "ltc_fixed_shunt_window": {
+        "nominal_min_for_acl_ceiling_ohm": 0.5270833333333333,
+        "nominal_max_for_no_steady_cb_trip_ohm": 1.6043938742790491,
+        "nonempty": true,
+        "minimum_acl_ceiling_before_controller_overhead_a": 0.04927873464708131,
+        "shunt_total_tolerance_scenario": 0.04,
+        "warning": "A nonempty interval is only an algebraic screen. Thermal/TCR/lifetime/Kelvin/pulse errors need actual selected resistor bounds; no guarantee from this4% allocation."
+      },
+      "ltc_fixed_shunt_window_zero_tolerance": {
+        "nominal_min_for_acl_ceiling_ohm": 0.506,
+        "nominal_max_for_no_steady_cb_trip_ohm": 1.6685696292502112,
+        "nonempty": true,
+        "minimum_acl_ceiling_before_controller_overhead_a": 0.04548806275115198,
+        "shunt_total_tolerance_scenario": 0,
+        "warning": "A nonempty interval is only an algebraic screen. Thermal/TCR/lifetime/Kelvin/pulse errors need actual selected resistor bounds; no guarantee from this4% allocation."
+      },
+      "ltc_app_text_66mv_window": {
+        "nominal_min_for_acl_ceiling_ohm": 0.45833333333333337,
+        "nominal_max_for_no_steady_cb_trip_ohm": 1.6043938742790491,
+        "nonempty": true,
+        "minimum_acl_ceiling_before_controller_overhead_a": 0.04285107360615766,
+        "shunt_total_tolerance_scenario": 0.04,
+        "warning": "A nonempty interval is only an algebraic screen. Thermal/TCR/lifetime/Kelvin/pulse errors need actual selected resistor bounds; no guarantee from this4% allocation."
+      },
+      "ltc_app_text_66mv_window_zero_tolerance": {
+        "nominal_min_for_acl_ceiling_ohm": 0.44000000000000006,
+        "nominal_max_for_no_steady_cb_trip_ohm": 1.6685696292502112,
+        "nonempty": true,
+        "minimum_acl_ceiling_before_controller_overhead_a": 0.039554837174914766,
+        "shunt_total_tolerance_scenario": 0,
+        "warning": "A nonempty interval is only an algebraic screen. Thermal/TCR/lifetime/Kelvin/pulse errors need actual selected resistor bounds; no guarantee from this4% allocation."
+      },
+      "ltc_fixed_shunt_candidate": {
+        "nominal_shunt_ohm": 0.56,
+        "shunt_interval_ohm": [
+          0.5376000000000001,
+          0.5824
+        ],
+        "cb_current_table_screen_a": [
+          0.0772664835164835,
+          0.1023065476190476
+        ],
+        "acl_conservative_ratio_table_screen_a": [
+          0.0811298076923077,
+          0.1411830357142857
+        ],
+        "fcl_threshold_table_screen_a": [
+          0.25755494505494503,
+          0.5580357142857142
+        ],
+        "steady_cb_margin_a": 0.050297276351768894,
+        "charge": {
+          "can_charge": true,
+          "charge_time_s": 0.6351661173565573,
+          "capacitor_energy_j": 0.32872980874804264,
+          "constant_load_pass_energy_j": 0.16369062061684947,
+          "mosfet_pass_energy_j": 0.4924204293648921,
+          "initial_pass_power_w": 1.5505248655714003,
+          "model": "Full declared CONSTANT current load from zero, no load gating. Linear cap charge/current limit; no parasitic, nonlinear controller or source sag model."
+        },
+        "timer": {
+          "typical_base_timer_charge_c": 0.00014608820699200817,
+          "typical_drain_acceleration_charge_c": 2.2854094989489783e-05,
+          "exact_linear_scenario_min_ct_f": 4.223557549537449e-05,
+          "exact_linear_scenario_initial_delay_s": 29.127983100258266,
+          "datasheet_half_max_acceleration_ct_f": 4.48501305173913e-05,
+          "rd_ohm": 1000000.0,
+          "typical_drain_clamp_v": 6,
+          "guaranteed_fault_window_s": null,
+          "guaranteed_initial_delay_s": null,
+          "multiplier_tolerance": null,
+          "timer_charge_current_bounds_a": null,
+          "note": "All timing/threshold/acceleration rows are typical-only. This integration is a sensitivity, NOT a guaranteed capacitance selection. Datasheet1.5 design multiplier is not a guaranteed error budget."
+        },
+        "guaranteed_peak_current_a": null,
+        "source_hotcapacity_verified": false,
+        "guaranteed_full_startup_s": null,
+        "physical_qualified": false
+      },
+      "ltc_native_ss_180mohm_comparison": {
+        "nominal_shunt_ohm": 0.18,
+        "initial_constant_load_a": 0.026969207164714612,
+        "typical_ss_steady_v": 1.4,
+        "typical_gain_v_per_v": 0.05,
+        "typical_offset_v": 0.01,
+        "typical_rss_ohm": 50000,
+        "typical_tau_required_s": 1.0036025340371955,
+        "minimum_css_typical_coefficients_f": 2.007205068074391e-05,
+        "typical_full_load_current_reached_s": 0.23937859479635393,
+        "typical_output_complete_s": 0.7546967417977303,
+        "typical_current_at_completion_a": 0.15,
+        "typical_cb_activation_into_short_s": 1.9529203566006095,
+        "typical_pass_energy_into_short_before_cb_j": 6.12769910542542,
+        "typical_initial_delay_with_330nf_s": 0.22758620689655173,
+        "typical_total_with_330nf_initial_s": 0.982282948694282,
+        "selected_css_f": null,
+        "guaranteed_ss_gain_bounds": null,
+        "guaranteed_ss_current_bounds_a": null,
+        "guaranteed_ss_rss_bounds_ohm": null,
+        "guaranteed_ss_offset_bounds_v": null,
+        "normal_start_current_qualified": false,
+        "complete_startup_s": null,
+        "note": "This separates normal-start current from larger eventual faultACL, using the actual manufacturer's SS pin instead of drainMillerfeedback. NativeSS avoids large gateC. Nominal CSS arithmetic does not establish a production ramp: RSS,ISS,gain,VOS are typical-only. Do not select or author another circuit from this result alone."
+      },
+      "capacitor_only_energy_j": 0.32872980874804264,
+      "full_downstream_capacitance_bound_f": null,
+      "load_vs_voltage_bound_verified": false
+    },
+    "N12": {
+      "voltage_max_from_frozen_ledger_v": 12.070694186286284,
+      "minimum_normal_input_allocation_v": 11.9,
+      "local_bulk_plus_initial20pct_f": 0.00026399999999999997,
+      "frozen_external_live_plus_bleed_a": 0.15126476626861782,
+      "additional_unverified_load_screen_a": 0.00055,
+      "constant_load_screen_a": 0.1518147662686178,
+      "provisional_normal_start_ceiling_a": 0.22,
+      "ceiling_is_user_approved_hard_limit": false,
+      "ideal_charge_at_ceiling": {
+        "can_charge": true,
+        "charge_time_s": 0.04673538669286573,
+        "capacitor_energy_j": 0.019232618874327603,
+        "constant_load_pass_energy_j": 0.04282152277488812,
+        "mosfet_pass_energy_j": 0.06205414164921572,
+        "initial_pass_power_w": 2.6555527209829823,
+        "model": "Full declared CONSTANT current load from zero, no load gating. Linear cap charge/current limit; no parasitic, nonlinear controller or source sag model."
+      },
+      "ltc_fixed_shunt_window": {
+        "nominal_min_for_acl_ceiling_ohm": 0.359375,
+        "nominal_max_for_no_steady_cb_trip_ohm": 0.2850133213831855,
+        "nonempty": false,
+        "minimum_acl_ceiling_before_controller_overhead_a": 0.27739931458749106,
+        "shunt_total_tolerance_scenario": 0.04,
+        "warning": "A nonempty interval is only an algebraic screen. Thermal/TCR/lifetime/Kelvin/pulse errors need actual selected resistor bounds; no guarantee from this4% allocation."
+      },
+      "ltc_fixed_shunt_window_zero_tolerance": {
+        "nominal_min_for_acl_ceiling_ohm": 0.345,
+        "nominal_max_for_no_steady_cb_trip_ohm": 0.29641385423851296,
+        "nonempty": false,
+        "minimum_acl_ceiling_before_controller_overhead_a": 0.25606090577306867,
+        "shunt_total_tolerance_scenario": 0,
+        "warning": "A nonempty interval is only an algebraic screen. Thermal/TCR/lifetime/Kelvin/pulse errors need actual selected resistor bounds; no guarantee from this4% allocation."
+      },
+      "ltc_app_text_66mv_window": {
+        "nominal_min_for_acl_ceiling_ohm": 0.3125,
+        "nominal_max_for_no_steady_cb_trip_ohm": 0.2850133213831855,
+        "nonempty": false,
+        "minimum_acl_ceiling_before_controller_overhead_a": 0.2412167952934706,
+        "shunt_total_tolerance_scenario": 0.04,
+        "warning": "A nonempty interval is only an algebraic screen. Thermal/TCR/lifetime/Kelvin/pulse errors need actual selected resistor bounds; no guarantee from this4% allocation."
+      },
+      "ltc_app_text_66mv_window_zero_tolerance": {
+        "nominal_min_for_acl_ceiling_ohm": 0.3,
+        "nominal_max_for_no_steady_cb_trip_ohm": 0.29641385423851296,
+        "nonempty": false,
+        "minimum_acl_ceiling_before_controller_overhead_a": 0.22266165719397282,
+        "shunt_total_tolerance_scenario": 0,
+        "warning": "A nonempty interval is only an algebraic screen. Thermal/TCR/lifetime/Kelvin/pulse errors need actual selected resistor bounds; no guarantee from this4% allocation."
+      },
+      "ltc_fixed_shunt_candidate": {
+        "nominal_shunt_ohm": 0.274,
+        "shunt_interval_ohm": [
+          0.26304,
+          0.28496000000000005
+        ],
+        "cb_current_table_screen_a": [
+          0.1579169006176305,
+          0.20909367396593675
+        ],
+        "acl_conservative_ratio_table_screen_a": [
+          0.16581274564851203,
+          0.2885492700729927
+        ],
+        "fcl_threshold_table_screen_a": [
+          0.526389668725435,
+          1.1405109489051095
+        ],
+        "steady_cb_margin_a": 0.006102134349012689,
+        "charge": {
+          "can_charge": true,
+          "charge_time_s": 0.2276516616217261,
+          "capacitor_energy_j": 0.019232618874327603,
+          "constant_load_pass_energy_j": 0.2085869295773685,
+          "mosfet_pass_energy_j": 0.2278195484516961,
+          "initial_pass_power_w": 2.0014749449116604,
+          "model": "Full declared CONSTANT current load from zero, no load gating. Linear cap charge/current limit; no parasitic, nonlinear controller or source sag model."
+        },
+        "timer": {
+          "typical_base_timer_charge_c": 5.2359882172997004e-05,
+          "typical_drain_acceleration_charge_c": 2.7801951417287432e-06,
+          "exact_linear_scenario_min_ct_f": 1.3785019328681436e-05,
+          "exact_linear_scenario_initial_delay_s": 9.506909881849266,
+          "datasheet_half_max_acceleration_ct_f": 1.4471974161954675e-05,
+          "rd_ohm": 1000000.0,
+          "typical_drain_clamp_v": 6,
+          "guaranteed_fault_window_s": null,
+          "guaranteed_initial_delay_s": null,
+          "multiplier_tolerance": null,
+          "timer_charge_current_bounds_a": null,
+          "note": "All timing/threshold/acceleration rows are typical-only. This integration is a sensitivity, NOT a guaranteed capacitance selection. Datasheet1.5 design multiplier is not a guaranteed error budget."
+        },
+        "guaranteed_peak_current_a": null,
+        "source_hotcapacity_verified": false,
+        "guaranteed_full_startup_s": null,
+        "physical_qualified": false
+      },
+      "ltc_native_ss_180mohm_comparison": {
+        "nominal_shunt_ohm": 0.18,
+        "initial_constant_load_a": 0.1518147662686178,
+        "typical_ss_steady_v": 1.4,
+        "typical_gain_v_per_v": 0.05,
+        "typical_offset_v": 0.01,
+        "typical_rss_ohm": 50000,
+        "typical_tau_required_s": 0.1840461445336899,
+        "minimum_css_typical_coefficients_f": 3.6809228906737978e-06,
+        "typical_full_load_current_reached_s": 0.14023133234626248,
+        "typical_output_complete_s": 0.22692159716065344,
+        "typical_current_at_completion_a": 0.22,
+        "typical_cb_activation_into_short_s": 0.3581372605426083,
+        "typical_pass_energy_into_short_before_cb_j": 0.709735232258952,
+        "typical_initial_delay_with_330nf_s": 0.22758620689655173,
+        "typical_total_with_330nf_initial_s": 0.45450780405720514,
+        "selected_css_f": null,
+        "guaranteed_ss_gain_bounds": null,
+        "guaranteed_ss_current_bounds_a": null,
+        "guaranteed_ss_rss_bounds_ohm": null,
+        "guaranteed_ss_offset_bounds_v": null,
+        "normal_start_current_qualified": false,
+        "complete_startup_s": null,
+        "note": "This separates normal-start current from larger eventual faultACL, using the actual manufacturer's SS pin instead of drainMillerfeedback. NativeSS avoids large gateC. Nominal CSS arithmetic does not establish a production ramp: RSS,ISS,gain,VOS are typical-only. Do not select or author another circuit from this result alone."
+      },
+      "capacitor_only_energy_j": 0.019232618874327603,
+      "full_downstream_capacitance_bound_f": null,
+      "load_vs_voltage_bound_verified": false
+    }
+  },
+  "lt4250": {
+    "local_supply_min_v": 18,
+    "n12_local_supply_supported": false,
+    "n19_local_supply_margin_at18p9_v": 0.9,
+    "normal_supply_current_max_a": 0.005,
+    "current_threshold_v": [
+      0.04,
+      0.06
+    ],
+    "normal_gate_current_a": [
+      3e-05,
+      6e-05
+    ],
+    "fault_timer_typical_s": 0.0005,
+    "guaranteed_fault_timer_s": null,
+    "pull_down_25c_testpoint_a": [
+      0.024,
+      0.07
+    ],
+    "guaranteed_hot_hard_off_s": null,
+    "n19_shunt_nominal_ohm": 0.43,
+    "n19_shunt_interval_ohm": [
+      0.4128,
+      0.4472
+    ],
+    "currentlimit_screen_a": [
+      0.08944543828264759,
+      0.14534883720930233
+    ],
+    "native_recommended_margin_start_total_a": 0.07155635062611806,
+    "minimum_cdv_nominal_for_native_margin_f": 2.6913587793278833e-06,
+    "native_miller_trial_cdv_f": 3.3e-06,
+    "native_anti_injection_trial_cgs_f": 3.9e-05,
+    "charge_time_if_used_as_fixed_currentlim": {
+      "can_charge": true,
+      "charge_time_s": 0.5506250574858453,
+      "capacitor_energy_j": 0.32872980874804264,
+      "constant_load_pass_energy_j": 0.1419032831319146,
+      "mosfet_pass_energy_j": 0.4706330918799573,
+      "initial_pass_power_w": 1.709450325522302,
+      "model": "Full declared CONSTANT current load from zero, no load gating. Linear cap charge/current limit; no parasitic, nonlinear controller or source sag model."
+    },
+    "full_external_cap_charge_to10v_at30ua_s": 17.82251021136006,
+    "anti_injection_min_cgs_normal_25c_f": 2.9406354310349898e-05,
+    "anti_injection_min_cgs_at38p9_step_25c_f": 6.361249752380953e-05,
+    "manufacturer_hard_shunt_maximum_found_ohm": null,
+    "shunt_basis": "4250lhfa p9 gives inrush margin .8*40mV/RS - ILOAD. No numeric hardmaximum shunt found; that does not constitute unrestricted manufacturer approval.",
+    "status": "REJECT for a common N19/N12 local-powered solution: N12 out-of-range. N19 native Miller path still has gate-charge/insertion-state/fast-off drawbacks; no validated circuit chosen."
+  },
+  "primary_sources": {
+    "LTC4252A": {
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/425212fe.pdf",
+      "revision": "425212fe June2013",
+      "locations": [
+        "p3 full-temperature table: VCB45..55mV,VACL/VCB1.05..1.38,VLKO9..10V,IINmax2mA atVIN=VZ-.3,gate40..80uA",
+        "p4 TIMER currents/thresholds/acceleration and sink currents lack guaranteed min/max",
+        "p14 VIN shunt regulator,up to30mA within thermal limits,13V external transient clamp",
+        "p16 UV reset/re-insertion and TIMER4V/5.8uA,230uA+8IDRN",
+        "p18 built-in gate anti-injection; small >=10nF compensation, not giant Miller cap",
+        "p19 Eq8 shunt fromVCBmin/ILmax; application textVACL54..66mV differs from conservative p3 ratio-product enclosure",
+        "p20 Eq13 approximate timer/inrush;1.5 multiplier is design margin,not bounded spec",
+        "p21 input transient clamp and Kelvin sense; p28-29 SS early SOA/timeout caveats"
+      ],
+      "retrieved_via": "Official primary web parsed PDF; direct curl timed out, no invented PDF hash",
+      "local_pdf_sha256": null
+    },
+    "LT4250": {
+      "url": "https://www.analog.com/media/en/technical-documentation/data-sheets/4250lhfa.pdf",
+      "revision": "4250lhfa",
+      "locations": [
+        "p3 operating18..80V,currentlimit40..60mV,gate30..60uA;500us only typical",
+        "p5 pin functions:UVLO prevents local12V operation",
+        "p8 Fig6a native Millerfeedback/anti-injection network,p9 inrush margin and input-step behavior"
+      ],
+      "retrieved_via": "Official primary web parsed PDF; no redistributed model/PDF",
+      "local_pdf_sha256": null
+    },
+    "LM5067": {
+      "url": "https://www.ti.com/lit/ds/symlink/lm5067.pdf",
+      "locations": [
+        "RevD p5 recommendedICC>=2mA,p20 RS<=100mOhm,p6-7 tables"
+      ],
+      "local_pdf_sha256": "22ff73cee2c83f169155ded519adb19202d87c2b525d62cc6412df10d8377bc1"
+    },
+    "CSD19536KTT": {
+      "url": "https://www.ti.com/lit/ds/symlink/csd19536ktt.pdf",
+      "locations": [
+        "RevC Table4.1 gateVthmin2.1V at25C/250uA,gatecharge and Crss testpoints;Fig4-10 SOA"
+      ],
+      "local_pdf_sha256": "19e1a9660fac8577743f40acc2cdc791539afd5232bbc1fc350e15fec735d78d"
+    },
+    "TLP170GM": {
+      "url": "https://toshiba.semicon-storage.com/info/TLP170GM_datasheet_en_20230522.pdf?did=69102&prodName=TLP170GM",
+      "locations": [
+        "Rev3.0.A p3 DC25C; p4 turnoffmax1ms atIF2mA,VDD20V,RL200Ohm,25C; not a guaranteed hot logic/fault-isolator delay"
+      ],
+      "local_pdf_sha256": "3aa39c0e05e1323c1e050cfae29d1361cc52141d39981e82d6aa0558021cc41f"
+    }
+  },
+  "ltc_ratio_product_acl_enclosure_v": [
+    0.04725,
+    0.0759
+  ],
+  "ltc_application_text_acl_interval_v": [
+    0.054,
+    0.066
+  ],
+  "ltc_numeric_hard_max_shunt_found_ohm": null,
+  "ltc_shunt_basis": "ManufacturerEq8 supports selectingRS fromload; noLM5067<=.1Ohm rule imported. No numeric upper restriction found is NOT unlimited DFM/device approval.",
+  "lm5067_fixed_limit_dead_end": {
+    "manufacturer_rs_max_ohm": 0.1,
+    "minimum_currentlimit_at_max_legal_rs_a": 0.43999999999999995,
+    "rs_min_for_150ma_max_limit_ohm": 0.37333333333333335,
+    "rs_min_for_220ma_max_limit_ohm": 0.2545454545454546,
+    "larger_shunts_supported": false,
+    "source": "LM5067RevD\u00a79.2.2.2 explicitlyRS<=100mOhm. Separate normal-ramp control needed; do not waive this selection rule."
+  },
+  "ltc_180mohm_fault_screen": {
+    "shunt_interval_scenario_ohm": [
+      0.17279999999999998,
+      0.1872
+    ],
+    "minimum_cb_a": 0.24038461538461536,
+    "maximum_acl_a": 0.4392361111111111,
+    "maximum_fcl_threshold_a": 1.7361111111111112,
+    "controller_actual_peak_current_a": null,
+    "source_fault_capacity_verified": false,
+    "note": "MinimumCB~240mA exceeds both normal planning ceilings, allowing nativeSS to finish charging beforeCB is reached in the nominal SS calculation. EventualACL~439mA and FCLthreshold~1.736A exceed normal budgets and require a distinct fault/source/SOA proof."
+  },
+  "ltc_n12_headroom_screen": {
+    "rin_candidate_ohm": 499,
+    "rin_total_tolerance": 0.01,
+    "assumed_ic_load_a": 0.002,
+    "supply_after_feed_11p9_v": 10.89202,
+    "comparator_vlko_max_v": 10,
+    "input_zener_min_at2ma_v": 11.5,
+    "steady_if_low_zener_at12p071_source_a": 0.0011552280040612209,
+    "input_tvs_25c_catalogue_step_v": 24.4,
+    "if_low_zener_at24p4_step_a": 0.026112831724054167,
+    "min_rin_at_24p4_for30ma_if11p5_zener_ohm": 429.99999999999994,
+    "prescribed_continuous_vin_current_max_a": 0.03,
+    "gate_drive_min10v_test_condition_iin_a": 0.002,
+    "actual_low_voltage_max_supply_current_bound_a": null,
+    "low_voltage_gate_drive_guarantee_v": null,
+    "status": "Plausible POR headroom, not a guaranteed12V operating/gate-drive supply.2mA current max is specified atVIN=VZ-.3; gate-drive minimum specified atIIN2mA. At highVZ a12Vlocalfeed is unregulated. Obtainvendor confirmation or qualify separate bounded bias supply; no phantomfeed added."
+  },
+  "best_next_architecture": "LTC4252A-1 using nativeSS and~180mOhm fault shunt on both rails, separating normal-start ceilings from higher faultACL, with no external drainMillerfeedback. Nominal full-live-load ramp is plausible below5s. Need actual lowVin operating/gate guarantees, SS bounds, faulttimer/sink bounds and complete source/SOA/thermal envelope before selectingCSS or drafting another circuit. FixedACL N12 at220mA remains rejected unless source ceiling changes.",
+  "viable_with_all_current_contracts_verified": false,
+  "provisional5s_is_hard_user_requirement": false,
+  "five_second_guarantee_s": null,
+  "canonical_boards_modified": false,
+  "new_schematic_authored": false,
+  "pcb_implemented": false,
+  "physical_tests_performed": 0,
+  "startup_qualified": false,
+  "soa_qualified": false,
+  "source_sha256": {
+    "hardware/qualification/boards/startup_negative_feasibility/sources/bipolar-planning.json": "aab809ccd8772bcdcad7ac7e0d94b2cbb39c9f12f869924a7bde376433e91b71",
+    "hardware/qualification/boards/startup_negative_feasibility/compare.py": "a608ba5e0396d37f7658c596a0137f16e90e3984c1debf9f220c9cc190a02d27",
+    "hardware/qualification/boards/startup_negative_feasibility/sources/sc02-verification.json": "00e602d99215ff092f7fa629a5cfce538530fd7e4150d0be93aa08829967c9b9"
+  }
+}

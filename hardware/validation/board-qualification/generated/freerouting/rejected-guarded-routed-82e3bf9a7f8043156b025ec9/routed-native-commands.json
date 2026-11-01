@@ -1,0 +1,41 @@
+{
+  "pre_pcb_sha256": "3272a0ddee598a9d845f867692018ec43aed9f0b13242a925a4ad48adb4efbf0",
+  "post_refill_pcb_sha256": "3272a0ddee598a9d845f867692018ec43aed9f0b13242a925a4ad48adb4efbf0",
+  "commands": [
+    {
+      "args": [
+        "sch",
+        "erc",
+        "--severity-all",
+        "--format",
+        "json",
+        "-o",
+        "/private/tmp/afx-e28-force-guard-router-v3/routed-erc.json",
+        "/private/tmp/afx-e28-force-guard-router-v3/candidate/rail_disconnect.kicad_sch"
+      ],
+      "returncode": 0,
+      "stdout": "Found 0 violations\nSaved ERC Report to /private/tmp/afx-e28-force-guard-router-v3/routed-erc.json\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "pcb",
+        "drc",
+        "--all-track-errors",
+        "--schematic-parity",
+        "--severity-all",
+        "--refill-zones",
+        "--save-board",
+        "--format",
+        "json",
+        "-o",
+        "/private/tmp/afx-e28-force-guard-router-v3/routed-drc.json",
+        "/private/tmp/afx-e28-force-guard-router-v3/candidate/rail_disconnect.kicad_pcb"
+      ],
+      "returncode": 0,
+      "stdout": "Found 70 violations\nFound 48 unconnected items\nFound 0 schematic parity issues\nSaved DRC Report to /private/tmp/afx-e28-force-guard-router-v3/routed-drc.json\nSaved board\n",
+      "stderr": "03:47:28\u202fPM: Error: Failed to remove lock file '/var/folders/0g/mh1jz03x7tj_7qpt3_v6b4zc0000gn/T/org.kicad.kicad/instances/kicad-cli-10.0' (error 2: No such file or directory)\n"
+    }
+  ],
+  "import_confirmed_terminal_before_run": true
+}

@@ -1,0 +1,61 @@
+Reference,Part_or_value,Footprint,Source,Note
+U1,LM5067MM-1/NOPB,Package_SO:TSSOP-10_3x3mm_P0.5mm,https://www.ti.com/lit/ds/symlink/lm5067.pdf,"All internal thresholds relative to VEE, NOT AGND. -1 latch-off. Table ICC2mA/OUT48V above VEE conditions not established at -12/-19V."
+R1,91m 1% WSL2512R0910FTA,Resistor_SMD:R_2512_6332Metric,https://www.vishay.com/docs/30100/wsl.pdf,Kelvin shunt. Negative-rail current enters SENSE and exits VEE.
+Q1,CSD19536KTT,Package_TO_SOT_SMD:TO-263-2,https://www.ti.com/lit/ds/symlink/csd19536ktt.pdf,Body diode SENSE -> PROTECTED; charged output can reverse-discharge into a collapsed bank. No reverse blocking.
+R2,10 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Gate stopper; external RC interoperability with LM5067 unverified.
+R3,82 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,"Experimental drain-feedback RC inferred from LT4250 Fig6a, NOT a TI LM5067 reference/guarantee."
+C1,1.5uF bipolar film >=100V effective +/-10% REQUIREMENT,StartupDraft:UNSELECTED_BIPOLAR_FILM_CDV,https://www.analog.com/media/en/technical-documentation/data-sheets/4250lhfa.pdf,Bipolar: voltage reverses from -VSYS to +VGS. MPN/leakage/temp/aging and loop compatibility unselected.
+C2,22uF film >=25V effective +/-10% REQUIREMENT,StartupDraft:UNSELECTED_FILM_CGS,https://www.analog.com/media/en/technical-documentation/data-sheets/4250lhfa.pdf,Anti-injection trial capacitor; hot minimum Vth and initial-state proof missing. Large added gate charge delays ON and OFF.
+C3,470nF film >=16V effective +/-10% REQUIREMENT,StartupDraft:UNSELECTED_FILM_CTIMER,https://www.ti.com/lit/ds/symlink/lm5067.pdf,Timer relative to VEE. Zero-start scenarios only; reset must actually bring TIMER <0.3V.
+R4,68100 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,LM5067 equation RPWR=1.42e5*RS*PFET. Transfer corners specified at24V/75k; actual selected values unbounded.
+R5,2000 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,"Input feed resistor, NOT a bleed. N12 cannot establish2mA shunt regulation with VSYS<13.65V; vendor/measurement hold."
+C4,100nF 50V X7R REQUIREMENT,Capacitor_SMD:C_1206_3216Metric,https://www.ti.com/lit/ds/symlink/lm5067.pdf,Small VCC bypass; exact MPN/effective capacitance open. No upstream protected reservoir.
+C5,1500uF 35V 20% EEUFR1V152S,Capacitor_THT:CP_Radial_D16.0mm_P7.50mm,https://industrial.panasonic.com/ww/products/pt/aluminum-cap-lead/models,Retained E28C8 is electrically AFTER limiter; polarity positive to AGND. Canonical E28 unchanged.
+R6,47k 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,"Retained bleed, not a proven reset/discharge timer."
+R7,49900 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Normally-open relay joins UV upper divider to AGND.
+R8,10k 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Passive default UV pull to VEE. Hot leakage/dynamic OFF not proven.
+U2,"TLP170GM(TPL,E",StartupDraft:TLP170GM_11-4M1S_UNREVIEWED,https://toshiba.semicon-storage.com/info/TLP170GM_datasheet_en_20230522.pdf?did=69102&prodName=TLP170GM,Normally-open1FormA pins1/3/4/6. LED host-powered. Hot trigger/leakage/RON and exact footprint remain open.
+R9,75000 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,
+R10,10k 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,
+R11,680 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,"Host3.0..3.6V supplies LED, NEVER AUX or negative rail. Explicit digital-current budget required."
+R12,10k 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,LED leakage shunt; actual hot defaultOFF not proven.
+Q2,"BSS138BK,215",Package_TO_SOT_SMD:SOT-23,https://assets.nexperia.com/documents/data-sheet/BSS138BK.pdf,Gate-source logic referenced to AGND; no direct negative-domain logic connection. Hot drive/leakage unverified.
+R13,100 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Same3.0..3.6VHIGH/0..0.1VLOW requirement asSC01. E28J9 2.5V is incompatible.
+R14,10k 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Missing host/high-Z requests OFF; receiver leakage/partialpower must be bounded.
+R15,100k 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,"PG_RAW ranges VEE..AGND, NEVER GPIO. PGD is high with VCC-VEE<2V; not a voltage-health proof."
+D1,STPS1H100A,Diode_SMD:D_SMA,https://www.st.com/resource/en/datasheet/stps1h100.pdf,Clamp positive output excursion at interruption; inductive energy/current/negative-source overshoot still unbounded.
+D2,SMAJ24A,Diode_SMD:D_SMA,https://www.littelfuse.com/assetdocs/littelfuse_tvs_diode_smaj_datasheet?assetguid=13c2a823-03b8-4d1f-9ddc-9b44670aed9d,"Input TVS negative polarity. Pulse/source/thermal coordination open, not a sustained fault clamp."
+J1,AFTER_B2B_NEGATIVE / AGND,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,https://www.ti.com/lit/ds/symlink/lm5067.pdf,"Engineering net port only; production connector, receiver, sequencing and power domain validation unselected."
+J2,PROTECTED_NEGATIVE_BULK_LOAD / AGND,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,https://www.ti.com/lit/ds/symlink/lm5067.pdf,"Engineering net port only; production connector, receiver, sequencing and power domain validation unselected."
+J3,HOST3V3 / ENABLE3V3 / AGND,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,https://www.ti.com/lit/ds/symlink/lm5067.pdf,"Engineering net port only; production connector, receiver, sequencing and power domain validation unselected."
+J4,PG_RAW_NEGATIVE / VEE / AGND - NOT LOGIC,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,https://www.ti.com/lit/ds/symlink/lm5067.pdf,"Engineering net port only; production connector, receiver, sequencing and power domain validation unselected."
+U101,LM5067MM-1/NOPB,Package_SO:TSSOP-10_3x3mm_P0.5mm,https://www.ti.com/lit/ds/symlink/lm5067.pdf,"All internal thresholds relative to VEE, NOT AGND. -1 latch-off. Table ICC2mA/OUT48V above VEE conditions not established at -12/-19V."
+R101,91m 1% WSL2512R0910FTA,Resistor_SMD:R_2512_6332Metric,https://www.vishay.com/docs/30100/wsl.pdf,Kelvin shunt. Negative-rail current enters SENSE and exits VEE.
+Q101,CSD19536KTT,Package_TO_SOT_SMD:TO-263-2,https://www.ti.com/lit/ds/symlink/csd19536ktt.pdf,Body diode SENSE -> PROTECTED; charged output can reverse-discharge into a collapsed bank. No reverse blocking.
+R102,10 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Gate stopper; external RC interoperability with LM5067 unverified.
+R103,100 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,"Experimental drain-feedback RC inferred from LT4250 Fig6a, NOT a TI LM5067 reference/guarantee."
+C101,1uF bipolar film >=100V effective +/-10% REQUIREMENT,StartupDraft:UNSELECTED_BIPOLAR_FILM_CDV,https://www.analog.com/media/en/technical-documentation/data-sheets/4250lhfa.pdf,Bipolar: voltage reverses from -VSYS to +VGS. MPN/leakage/temp/aging and loop compatibility unselected.
+C102,10uF film >=25V effective +/-10% REQUIREMENT,StartupDraft:UNSELECTED_FILM_CGS,https://www.analog.com/media/en/technical-documentation/data-sheets/4250lhfa.pdf,Anti-injection trial capacitor; hot minimum Vth and initial-state proof missing. Large added gate charge delays ON and OFF.
+C103,470nF film >=16V effective +/-10% REQUIREMENT,StartupDraft:UNSELECTED_FILM_CTIMER,https://www.ti.com/lit/ds/symlink/lm5067.pdf,Timer relative to VEE. Zero-start scenarios only; reset must actually bring TIMER <0.3V.
+R104,49900 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,LM5067 equation RPWR=1.42e5*RS*PFET. Transfer corners specified at24V/75k; actual selected values unbounded.
+R105,330 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,"Input feed resistor, NOT a bleed. N12 cannot establish2mA shunt regulation with VSYS<13.65V; vendor/measurement hold."
+C104,100nF 50V X7R REQUIREMENT,Capacitor_SMD:C_1206_3216Metric,https://www.ti.com/lit/ds/symlink/lm5067.pdf,Small VCC bypass; exact MPN/effective capacitance open. No upstream protected reservoir.
+C105,220uF 35V 20% EEUFR1V221,Capacitor_THT:CP_Radial_D8.0mm_P3.50mm,https://industrial.panasonic.com/ww/products/pt/aluminum-cap-lead/models,Retained E28C16 is electrically AFTER limiter; polarity positive to AGND. Canonical E28 unchanged.
+R106,47k 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,"Retained bleed, not a proven reset/discharge timer."
+R107,30100 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Normally-open relay joins UV upper divider to AGND.
+R108,10k 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Passive default UV pull to VEE. Hot leakage/dynamic OFF not proven.
+U102,"TLP170GM(TPL,E",StartupDraft:TLP170GM_11-4M1S_UNREVIEWED,https://toshiba.semicon-storage.com/info/TLP170GM_datasheet_en_20230522.pdf?did=69102&prodName=TLP170GM,Normally-open1FormA pins1/3/4/6. LED host-powered. Hot trigger/leakage/RON and exact footprint remain open.
+R109,43200 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,
+R110,10k 0.1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,
+R111,680 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,"Host3.0..3.6V supplies LED, NEVER AUX or negative rail. Explicit digital-current budget required."
+R112,10k 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,LED leakage shunt; actual hot defaultOFF not proven.
+Q102,"BSS138BK,215",Package_TO_SOT_SMD:SOT-23,https://assets.nexperia.com/documents/data-sheet/BSS138BK.pdf,Gate-source logic referenced to AGND; no direct negative-domain logic connection. Hot drive/leakage unverified.
+R113,100 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Same3.0..3.6VHIGH/0..0.1VLOW requirement asSC01. E28J9 2.5V is incompatible.
+R114,10k 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,Missing host/high-Z requests OFF; receiver leakage/partialpower must be bounded.
+R115,100k 1%,Resistor_SMD:R_0805_2012Metric,https://www.vishay.com/docs/28758/tnpw_e3.pdf,"PG_RAW ranges VEE..AGND, NEVER GPIO. PGD is high with VCC-VEE<2V; not a voltage-health proof."
+D101,STPS1H100A,Diode_SMD:D_SMA,https://www.st.com/resource/en/datasheet/stps1h100.pdf,Clamp positive output excursion at interruption; inductive energy/current/negative-source overshoot still unbounded.
+D102,SMAJ15A,Diode_SMD:D_SMA,https://www.littelfuse.com/assetdocs/littelfuse_tvs_diode_smaj_datasheet?assetguid=13c2a823-03b8-4d1f-9ddc-9b44670aed9d,"Input TVS negative polarity. Pulse/source/thermal coordination open, not a sustained fault clamp."
+J101,AFTER_B2B_NEGATIVE / AGND,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,https://www.ti.com/lit/ds/symlink/lm5067.pdf,"Engineering net port only; production connector, receiver, sequencing and power domain validation unselected."
+J102,PROTECTED_NEGATIVE_BULK_LOAD / AGND,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,https://www.ti.com/lit/ds/symlink/lm5067.pdf,"Engineering net port only; production connector, receiver, sequencing and power domain validation unselected."
+J103,HOST3V3 / ENABLE3V3 / AGND,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,https://www.ti.com/lit/ds/symlink/lm5067.pdf,"Engineering net port only; production connector, receiver, sequencing and power domain validation unselected."
+J104,PG_RAW_NEGATIVE / VEE / AGND - NOT LOGIC,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical,https://www.ti.com/lit/ds/symlink/lm5067.pdf,"Engineering net port only; production connector, receiver, sequencing and power domain validation unselected."

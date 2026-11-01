@@ -1,0 +1,31 @@
+"""Combine the explicit P12 receiver delta with the current real V5-wire rebuild."""
+import hashlib,json,shutil
+from pathlib import Path
+from ...common.sexpr import a,children,first,read_sexpr,sexpr
+from .p12_layerhop_merge import ERC_KEYS
+ROOT=Path(__file__).resolve().parent
+SOURCE=ROOT/'generated/v5-stub-rebuild-work'
+PROPOSAL=ROOT/'generated/p12-layerhop-independent-proposal'
+RECUT=ROOT/'generated/v5-backbone-recut-work/generated/V5-physical-recut.json'
+WORK=ROOT/'generated/v5-p12-coherent-merge-work'
+
+def ident(n):return str(first(n,'uuid')[1])
+def main():
+ assert not WORK.exists();pcb=SOURCE/'rail_disconnect.kicad_pcb';blob=pcb.read_bytes();t=read_sexpr(blob.decode());current={ident(n):n for k in ('segment','via') for n in children(t,k)};names={str(n[1]):str(n[2]).lstrip('/') for n in children(t,'net')};codes={n:k for k,n in names.items()};h=PROPOSAL/'handoff.json';assert hashlib.sha256(h.read_bytes()).hexdigest()=='eddf8d742b541fee901c7ef0197bca4bb5810572be047f7bfd610a4ca6639573';proofp=PROPOSAL/'final-delta-proof.json';proof=json.loads(proofp.read_text());previous={ident(read_sexpr(s)):s for s in json.loads(RECUT.read_text())['previous_output_join_replaced']};removed=[];already=[]
+ for p,d in json.loads(h.read_text())['files_sha256'].items():assert hashlib.sha256((PROPOSAL/p).read_bytes()).hexdigest()==d,p
+ for row in proof['removed_source_segments']:
+  uid=row['uuid']
+  if uid in current:
+   assert sexpr(current[uid])==row['source_object'],uid;removed.append(row);t.remove(current[uid])
+  else:
+   assert previous.get(uid)==row['source_object'],uid;already.append(dict(uuid=uid,exact_object_already_removed_by_source_bound_V5_route_replacement=True))
+ added=[]
+ for row in proof['added_segments']+proof['added_vias']:
+  n=read_sexpr(row['source_object']);assert ident(n) not in current;net=str(first(n,'net')[1]).lstrip('/');assert net in {'P12_OV_OK','E28_MASTER_ENABLE'};first(n,'net')[1]=a(codes[net]);t.append(n);added.append(sexpr(n))
+ assert len(removed)+len(already)==10 and len(added)==17
+ WORK.mkdir();(WORK/'generated').mkdir()
+ for f in SOURCE.iterdir():
+  if f.is_file() and (f.suffix in ('.kicad_pcb','.kicad_sch','.kicad_pro','.kicad_sym') or f.name in ('components.json','fp-lib-table','sym-lib-table')):shutil.copy2(f,WORK/f.name)
+  elif f.suffix=='.pretty':shutil.copytree(f,WORK/f.name)
+ (WORK/'rail_disconnect.kicad_pcb').write_text(sexpr(t)+'\n');pro=WORK/'rail_disconnect.kicad_pro';project=json.loads(pro.read_text());project.setdefault('erc',{}).setdefault('rule_severities',{}).update({k:'error' for k in ERC_KEYS});pro.write_text(json.dumps(project,indent=2)+'\n');(WORK/'generated/P12-current-V5-merge.json').write_text(json.dumps(dict(source_pcb_sha256=hashlib.sha256(blob).hexdigest(),independent_handoff_sha256=hashlib.sha256(h.read_bytes()).hexdigest(),independent_delta_sha256=hashlib.sha256(proofp.read_bytes()).hexdigest(),prior_V5_route_replacement_sha256=hashlib.sha256(RECUT.read_bytes()).hexdigest(),recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),removed_objects=removed,exact_previously_removed_objects=already,added_objects=added,all_other_current_Cu_parts_values_ports_and_constraints_unchanged=True,all9previous_default_ignored_DRC_and_ERC_checks_enabled=True,no_source_specific_passes_inherited=True,new_filled_force_return_current_and_noise_evidence_required=True,physical_qualified=False),indent=2)+'\n')
+if __name__=='__main__':main()

@@ -1,0 +1,140 @@
+{
+  "scope": "Focused extraction from two macOS native crash reports, not complete personal diagnostic reports",
+  "crashed_job": "NEW fan_health/composite_nf_branch/build.py",
+  "new_candidate_PCB_saved_before_crash": false,
+  "application_reopened": false,
+  "raw_reports_copied_to_repository": false,
+  "crashes": [
+    {
+      "original_report_basename": "Python-2026-10-29-174713.ips",
+      "original_report_sha256": "67e2ca53e15b0debfbfb6310f7c55bf01178ab2b6c4e931a666413bbb0e325e8",
+      "capture_time": "2026-10-29 17:47:12.0995 +1300",
+      "PID": 69855,
+      "process_path": "/private/tmp/*/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python",
+      "parent_process": "codex",
+      "exception": {
+        "codes": "0x0000000000000001, 0x000000000008f570",
+        "rawCodes": [
+          1,
+          587120
+        ],
+        "type": "EXC_BAD_ACCESS",
+        "signal": "SIGSEGV",
+        "subtype": "KERN_INVALID_ADDRESS at 0x000000000008f570"
+      },
+      "termination": {
+        "flags": 0,
+        "code": 11,
+        "namespace": "SIGNAL",
+        "indicator": "Segmentation fault: 11",
+        "byProc": "exc handler",
+        "byPid": 69855
+      },
+      "focused_faulting_stack": [
+        {
+          "image": "_pcbnew.so",
+          "symbol": "BOARD::FlipLayer(PCB_LAYER_ID) const",
+          "symbol_offset": 8
+        },
+        {
+          "image": "_pcbnew.so",
+          "symbol": "PCB_TEXT::Flip(VECTOR2<int> const&, FLIP_DIRECTION)",
+          "symbol_offset": 176
+        },
+        {
+          "image": "_pcbnew.so",
+          "symbol": "FOOTPRINT::Flip(VECTOR2<int> const&, FLIP_DIRECTION)",
+          "symbol_offset": 412
+        },
+        {
+          "image": "_pcbnew.so",
+          "symbol": "_wrap_BOARD_ITEM_Flip(_object*, _object*)",
+          "symbol_offset": 560
+        },
+        {
+          "image": "Python",
+          "symbol": "cfunction_call",
+          "symbol_offset": 172
+        },
+        {
+          "image": "Python",
+          "symbol": "_PyObject_MakeTpCall",
+          "symbol_offset": 360
+        }
+      ]
+    },
+    {
+      "original_report_basename": "Python-2026-10-29-174736.ips",
+      "original_report_sha256": "3b6ccf92940d212b09d9cfba67bfe64816e823dac9c0d557045bae5d94038a80",
+      "capture_time": "2026-10-29 17:47:35.8038 +1300",
+      "PID": 69866,
+      "process_path": "/private/tmp/*/KiCad.app/Contents/Frameworks/Python.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python",
+      "parent_process": "codex",
+      "exception": {
+        "codes": "0x0000000000000001, 0x00000000000000a0",
+        "rawCodes": [
+          1,
+          160
+        ],
+        "type": "EXC_BAD_ACCESS",
+        "signal": "SIGSEGV",
+        "subtype": "KERN_INVALID_ADDRESS at 0x00000000000000a0"
+      },
+      "termination": {
+        "flags": 0,
+        "code": 11,
+        "namespace": "SIGNAL",
+        "indicator": "Segmentation fault: 11",
+        "byProc": "exc handler",
+        "byPid": 69866
+      },
+      "focused_faulting_stack": [
+        {
+          "image": "_pcbnew.so",
+          "symbol": "BOARD::SetProject(PROJECT*, bool)",
+          "symbol_offset": 52
+        },
+        {
+          "image": "_pcbnew.so",
+          "symbol": "_wrap_BOARD_SetProject(_object*, _object*)",
+          "symbol_offset": 544
+        },
+        {
+          "image": "Python",
+          "symbol": "cfunction_call",
+          "symbol_offset": 172
+        },
+        {
+          "image": "Python",
+          "symbol": "_PyObject_MakeTpCall",
+          "symbol_offset": 360
+        },
+        {
+          "image": "Python",
+          "symbol": "call_function",
+          "symbol_offset": 512
+        },
+        {
+          "image": "Python",
+          "symbol": "_PyEval_EvalFrameDefault",
+          "symbol_offset": 23108
+        }
+      ]
+    }
+  ],
+  "parent_seals_checked_after_crash": {
+    "composite_mount": {
+      "handoff_sha256": "c3c9722af0684b4201e342245ee37756b68c673e1ad71a35e1499c8692c0224d",
+      "all_bound_files_verified": 90,
+      "PCB_sha256": "6a5b0709d868bfc93f1628a3cb42f062fc53e2459b644be400c7ab9ba20e6a00"
+    },
+    "composite": {
+      "handoff_sha256": "3fdbf2455c488844ea82ec316c42399271942ae163473edcb176bc6a1e0612ed",
+      "all_bound_files_verified": 340,
+      "PCB_sha256": "86e07ac447103ea9974a1b92a50dbe14063d4debb93058931cf83557ba3a548d"
+    }
+  },
+  "repair": "Attach footprint to its live parent BOARD before Flip; avoid the failing SetProject path and let CLI load the project/rules",
+  "repaired_candidate_success_yet_confirmed": false,
+  "physical_qualified": false
+}

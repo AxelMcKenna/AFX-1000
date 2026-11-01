@@ -1,0 +1,1654 @@
+[
+  {
+    "ref": "U1",
+    "part": "LM5069MM-1/NOPB",
+    "footprint": "Package_SO:TSSOP-10_3x3mm_P0.5mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "SENSE",
+        "net": "P19_SENSE",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "VIN",
+        "net": "P19_BANK_OUT",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "UVLO_EN",
+        "net": "P19_UV",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "OVLO",
+        "net": "P19_OV",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "5",
+        "name": "GND",
+        "net": "AGND",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "6",
+        "name": "TIMER",
+        "net": "P19_TIMER",
+        "kind": "bidirectional",
+        "side": "R"
+      },
+      {
+        "number": "7",
+        "name": "PWR",
+        "net": "P19_PWR",
+        "kind": "input",
+        "side": "R"
+      },
+      {
+        "number": "8",
+        "name": "PGD",
+        "net": "P19_PG_RAW",
+        "kind": "open_collector",
+        "side": "R"
+      },
+      {
+        "number": "9",
+        "name": "OUT",
+        "net": "P19_PROTECTED",
+        "kind": "input",
+        "side": "R"
+      },
+      {
+        "number": "10",
+        "name": "GATE",
+        "net": "P19_GATE",
+        "kind": "output",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Latch-off variant. Limits mostly at VIN48V; 12/19V trajectory not bounded. Kelvin shunt/OUT paths required.",
+    "rail": "P19",
+    "x": 85.09,
+    "y": 74.93
+  },
+  {
+    "ref": "R1",
+    "part": "91m 1% WSL2512R0910FTA",
+    "footprint": "Resistor_SMD:R_2512_6332Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P19_SENSE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/30100/wsl.pdf",
+    "note": "Kelvin sense; all-in tolerance includes TCR and separate life/assembly allowances, not just1%.",
+    "rail": "P19",
+    "x": 245.11,
+    "y": 74.93
+  },
+  {
+    "ref": "Q1",
+    "part": "CSD19536KTT",
+    "footprint": "Package_TO_SOT_SMD:TO-263-2",
+    "pins": [
+      {
+        "number": "1",
+        "name": "G",
+        "net": "P19_GATE",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "D_TAB",
+        "net": "P19_SENSE",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "S",
+        "net": "P19_PROTECTED",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/csd19536ktt.pdf",
+    "note": "Body diode conducts PROTECTED\u2192SENSE. Charged-load reverse/partial-power behavior unresolved; not reverse blocking.",
+    "rail": "P19",
+    "x": 405.13,
+    "y": 74.93
+  },
+  {
+    "ref": "Q2",
+    "part": "MMBT5401LT1G",
+    "footprint": "Package_TO_SOT_SMD:SOT-23",
+    "pins": [
+      {
+        "number": "1",
+        "name": "B",
+        "net": "P19_RAMP_BASE",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "E",
+        "net": "P19_RAMP_CAP",
+        "kind": "passive",
+        "side": "R"
+      },
+      {
+        "number": "3",
+        "name": "C",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.onsemi.com/download/data-sheet/pdf/mmbt5401lt1-d.pdf",
+    "note": "Exact PNP topology from TIDA-010070Figure13. Low-current beta/leakage effects remain unresolved.",
+    "rail": "P19",
+    "x": 565.15,
+    "y": 74.93
+  },
+  {
+    "ref": "D2",
+    "part": "1N4148W-7-F",
+    "footprint": "Diode_SMD:D_SOD-123",
+    "pins": [
+      {
+        "number": "1",
+        "name": "K",
+        "net": "P19_RAMP_CAP",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "A",
+        "net": "P19_GATE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.diodes.com/datasheet/download/1N4148W.pdf",
+    "note": "Gate\u2192Cdv charging diode; Q2 discharges capacitor when GATE falls.",
+    "rail": "P19",
+    "x": 85.09,
+    "y": 129.54
+  },
+  {
+    "ref": "R2",
+    "part": "1.02k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_GATE",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P19_RAMP_BASE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "TIDA reference1.02k base resistor.",
+    "rail": "P19",
+    "x": 245.11,
+    "y": 129.54
+  },
+  {
+    "ref": "C1",
+    "part": "4.7uF film >=100V effective +/-10% REQUIREMENT",
+    "footprint": "StartupDraft:UNSELECTED_FILM_CDV",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "net": "P19_RAMP_CAP",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Exact film MPN, hot/aged effectiveC and leakage not selected; do not procure from this draft.",
+    "rail": "P19",
+    "x": 405.13,
+    "y": 129.54
+  },
+  {
+    "ref": "C2",
+    "part": "470nF >=16V film effective +/-10%",
+    "footprint": "StartupDraft:UNSELECTED_FILM_CTIMER",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "net": "P19_TIMER",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Exact timing-cap MPN/leakage unresolved; initial\u00b110%scenario only.",
+    "rail": "P19",
+    "x": 565.15,
+    "y": 129.54
+  },
+  {
+    "ref": "R3",
+    "part": "20000 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_PWR",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Power limit uses typical equation; full12/19V lower/upper transfer accuracy not specified.",
+    "rail": "P19",
+    "x": 85.09,
+    "y": 182.88
+  },
+  {
+    "ref": "C3",
+    "part": "100nF 100V X7R",
+    "footprint": "Capacitor_SMD:C_1206_3216Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "net": "P19_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "",
+    "note": "Small controller bypass only; ALL protected reservoir bulk stays after Q1. Exact MPN/effectiveC open.",
+    "rail": "P19",
+    "x": 245.11,
+    "y": 182.88
+  },
+  {
+    "ref": "C4",
+    "part": "1500uF 35V 20% EEUFR1V152S",
+    "footprint": "Capacitor_THT:CP_Radial_D16.0mm_P7.50mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "net": "P19_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://industrial.panasonic.com/ww/products/pt/aluminum-cap-lead/models",
+    "note": "Represents retained E28C4 relocated electrically after new limiter; canonical board is unchanged.",
+    "rail": "P19",
+    "x": 405.13,
+    "y": 182.88
+  },
+  {
+    "ref": "R4",
+    "part": "47k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Retained rail bleed; no guaranteed rapid discharge or safe precharge detector.",
+    "rail": "P19",
+    "x": 565.15,
+    "y": 182.88
+  },
+  {
+    "ref": "R5",
+    "part": "49900 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P19_UV_SW_IN",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Upper UV-divider branch is normally disconnected by U2.",
+    "rail": "P19",
+    "x": 85.09,
+    "y": 237.49
+  },
+  {
+    "ref": "R6",
+    "part": "10k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_UV",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Default pull-down remains connected when U2 is open.",
+    "rail": "P19",
+    "x": 245.11,
+    "y": 237.49
+  },
+  {
+    "ref": "U2",
+    "part": "TLP170GM(TPL,E",
+    "footprint": "StartupDraft:TLP170GM_11-4M1S_UNREVIEWED",
+    "pins": [
+      {
+        "number": "1",
+        "name": "LED_A",
+        "net": "P19_LED_A",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "LED_K",
+        "net": "P19_LED_K",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "SW",
+        "net": "P19_UV_SW_IN",
+        "kind": "passive",
+        "side": "R"
+      },
+      {
+        "number": "6",
+        "name": "SW",
+        "net": "P19_UV",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://toshiba.semicon-storage.com/info/TLP170GM_datasheet_en_20230522.pdf?did=69102&prodName=TLP170GM",
+    "note": "Normally-open1FormA, current manufacturerRev3.0.A; pins1/3/4/6. Footprint not reviewed. Offleak/onres/trigger table25C; full-temp proof open.",
+    "rail": "P19",
+    "x": 405.13,
+    "y": 237.49
+  },
+  {
+    "ref": "R7",
+    "part": "75000 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P19_OV",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "",
+    "rail": "P19",
+    "x": 565.15,
+    "y": 237.49
+  },
+  {
+    "ref": "R8",
+    "part": "10k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_OV",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "",
+    "rail": "P19",
+    "x": 85.09,
+    "y": 290.83
+  },
+  {
+    "ref": "R9",
+    "part": "7500 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P19_LED_A",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "LED power comes from local after-bank rail, never V2V5_AUX. Add this source current to P03 budget.",
+    "rail": "P19",
+    "x": 245.11,
+    "y": 290.83
+  },
+  {
+    "ref": "R10",
+    "part": "10k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_LED_A",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P19_LED_K",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Diverts small driver off-state leakage around LED; hot defaultOFF still unverified.",
+    "rail": "P19",
+    "x": 405.13,
+    "y": 290.83
+  },
+  {
+    "ref": "Q3",
+    "part": "BSS138BK,215",
+    "footprint": "Package_TO_SOT_SMD:SOT-23",
+    "pins": [
+      {
+        "number": "1",
+        "name": "G",
+        "net": "P19_ENABLE_GATE",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "S",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "D",
+        "net": "P19_LED_K",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://assets.nexperia.com/documents/data-sheet/BSS138BK.pdf",
+    "note": "60V selected driver. 6.5Ohm at2.5V/10mA specified25C; full-temp drive and leakage still open.",
+    "rail": "P19",
+    "x": 565.15,
+    "y": 290.83
+  },
+  {
+    "ref": "R11",
+    "part": "100 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_ENABLE_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P19_ENABLE_GATE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "External source3.0..3.6V high;0..0.1V low requirement. Not an AUX net.",
+    "rail": "P19",
+    "x": 85.09,
+    "y": 345.44
+  },
+  {
+    "ref": "R12",
+    "part": "10k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_ENABLE_GATE",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Passive defaultOFF request; external unpowered/fault leakage must be bounded.",
+    "rail": "P19",
+    "x": 245.11,
+    "y": 345.44
+  },
+  {
+    "ref": "R13",
+    "part": "100k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P19_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P19_PG_RAW",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "PG_RAW is positive-rail voltage, NOT GPIO. Independent receiver/absolute-voltage-valid check missing.",
+    "rail": "P19",
+    "x": 405.13,
+    "y": 345.44
+  },
+  {
+    "ref": "D1",
+    "part": "STPS1H100A",
+    "footprint": "Diode_SMD:D_SMA",
+    "pins": [
+      {
+        "number": "1",
+        "name": "K",
+        "net": "P19_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "A",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.st.com/resource/en/datasheet/stps1h100.pdf",
+    "note": "Exact waveform/negative clamp and inductive energy coordination unresolved.",
+    "rail": "P19",
+    "x": 565.15,
+    "y": 345.44
+  },
+  {
+    "ref": "D3",
+    "part": "SMAJ24A",
+    "footprint": "Diode_SMD:D_SMA",
+    "pins": [
+      {
+        "number": "1",
+        "name": "K",
+        "net": "P19_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "A",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.littelfuse.com/assetdocs/littelfuse_tvs_diode_smaj_datasheet?assetguid=13c2a823-03b8-4d1f-9ddc-9b44670aed9d",
+    "note": "Candidate input TVS only; exact pulse/source coordination and primary current drawing required.",
+    "rail": "P19",
+    "x": 85.09,
+    "y": 398.78000000000003
+  },
+  {
+    "ref": "J1",
+    "part": "AFTER_RETAINED_B2B_BANK input / AGND",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "BANK_OUT",
+        "net": "P19_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "GND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Engineering net port only, operating connector unspecified. Do not put retained bulk ahead of Q1.",
+    "rail": "P19",
+    "x": 245.11,
+    "y": 398.78000000000003
+  },
+  {
+    "ref": "J2",
+    "part": "PROTECTED_BULK_AND_LOAD / AGND",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "PROTECTED",
+        "net": "P19_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "GND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Additional downstream capacitance remains unbounded; canonical net rewiring has not been performed.",
+    "rail": "P19",
+    "x": 405.13,
+    "y": 398.78000000000003
+  },
+  {
+    "ref": "J3",
+    "part": "ENABLE3V3 / AGND / PG_RAW",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "ENABLE",
+        "net": "P19_ENABLE_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "GND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "HIGH_VOLTAGE_PG",
+        "net": "P19_PG_RAW",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Engineering port only. PG is not logic-level safe; no receiver or ready state-machine implemented.",
+    "rail": "P19",
+    "x": 565.15,
+    "y": 398.78000000000003
+  },
+  {
+    "ref": "U101",
+    "part": "LM5069MM-1/NOPB",
+    "footprint": "Package_SO:TSSOP-10_3x3mm_P0.5mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "SENSE",
+        "net": "P12_SENSE",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "VIN",
+        "net": "P12_BANK_OUT",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "UVLO_EN",
+        "net": "P12_UV",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "OVLO",
+        "net": "P12_OV",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "5",
+        "name": "GND",
+        "net": "AGND",
+        "kind": "power_in",
+        "side": "L"
+      },
+      {
+        "number": "6",
+        "name": "TIMER",
+        "net": "P12_TIMER",
+        "kind": "bidirectional",
+        "side": "R"
+      },
+      {
+        "number": "7",
+        "name": "PWR",
+        "net": "P12_PWR",
+        "kind": "input",
+        "side": "R"
+      },
+      {
+        "number": "8",
+        "name": "PGD",
+        "net": "P12_PG_RAW",
+        "kind": "open_collector",
+        "side": "R"
+      },
+      {
+        "number": "9",
+        "name": "OUT",
+        "net": "P12_PROTECTED",
+        "kind": "input",
+        "side": "R"
+      },
+      {
+        "number": "10",
+        "name": "GATE",
+        "net": "P12_GATE",
+        "kind": "output",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Latch-off variant. Limits mostly at VIN48V; 12/19V trajectory not bounded. Kelvin shunt/OUT paths required.",
+    "rail": "P12",
+    "x": 85.09,
+    "y": 515.62
+  },
+  {
+    "ref": "R101",
+    "part": "91m 1% WSL2512R0910FTA",
+    "footprint": "Resistor_SMD:R_2512_6332Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P12_SENSE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/30100/wsl.pdf",
+    "note": "Kelvin sense; all-in tolerance includes TCR and separate life/assembly allowances, not just1%.",
+    "rail": "P12",
+    "x": 245.11,
+    "y": 515.62
+  },
+  {
+    "ref": "Q101",
+    "part": "CSD19536KTT",
+    "footprint": "Package_TO_SOT_SMD:TO-263-2",
+    "pins": [
+      {
+        "number": "1",
+        "name": "G",
+        "net": "P12_GATE",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "D_TAB",
+        "net": "P12_SENSE",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "S",
+        "net": "P12_PROTECTED",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/csd19536ktt.pdf",
+    "note": "Body diode conducts PROTECTED\u2192SENSE. Charged-load reverse/partial-power behavior unresolved; not reverse blocking.",
+    "rail": "P12",
+    "x": 405.13,
+    "y": 515.62
+  },
+  {
+    "ref": "Q102",
+    "part": "MMBT5401LT1G",
+    "footprint": "Package_TO_SOT_SMD:SOT-23",
+    "pins": [
+      {
+        "number": "1",
+        "name": "B",
+        "net": "P12_RAMP_BASE",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "E",
+        "net": "P12_RAMP_CAP",
+        "kind": "passive",
+        "side": "R"
+      },
+      {
+        "number": "3",
+        "name": "C",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.onsemi.com/download/data-sheet/pdf/mmbt5401lt1-d.pdf",
+    "note": "Exact PNP topology from TIDA-010070Figure13. Low-current beta/leakage effects remain unresolved.",
+    "rail": "P12",
+    "x": 565.15,
+    "y": 515.62
+  },
+  {
+    "ref": "D102",
+    "part": "1N4148W-7-F",
+    "footprint": "Diode_SMD:D_SOD-123",
+    "pins": [
+      {
+        "number": "1",
+        "name": "K",
+        "net": "P12_RAMP_CAP",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "A",
+        "net": "P12_GATE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.diodes.com/datasheet/download/1N4148W.pdf",
+    "note": "Gate\u2192Cdv charging diode; Q2 discharges capacitor when GATE falls.",
+    "rail": "P12",
+    "x": 85.09,
+    "y": 568.96
+  },
+  {
+    "ref": "R102",
+    "part": "1.02k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_GATE",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P12_RAMP_BASE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "TIDA reference1.02k base resistor.",
+    "rail": "P12",
+    "x": 245.11,
+    "y": 568.96
+  },
+  {
+    "ref": "C101",
+    "part": "680nF film >=100V effective +/-10% REQUIREMENT",
+    "footprint": "StartupDraft:UNSELECTED_FILM_CDV",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "net": "P12_RAMP_CAP",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Exact film MPN, hot/aged effectiveC and leakage not selected; do not procure from this draft.",
+    "rail": "P12",
+    "x": 405.13,
+    "y": 568.96
+  },
+  {
+    "ref": "C102",
+    "part": "470nF >=16V film effective +/-10%",
+    "footprint": "StartupDraft:UNSELECTED_FILM_CTIMER",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "net": "P12_TIMER",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Exact timing-cap MPN/leakage unresolved; initial\u00b110%scenario only.",
+    "rail": "P12",
+    "x": 565.15,
+    "y": 568.96
+  },
+  {
+    "ref": "R103",
+    "part": "39200 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_PWR",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Power limit uses typical equation; full12/19V lower/upper transfer accuracy not specified.",
+    "rail": "P12",
+    "x": 85.09,
+    "y": 623.57
+  },
+  {
+    "ref": "C103",
+    "part": "100nF 100V X7R",
+    "footprint": "Capacitor_SMD:C_1206_3216Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "net": "P12_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "",
+    "note": "Small controller bypass only; ALL protected reservoir bulk stays after Q1. Exact MPN/effectiveC open.",
+    "rail": "P12",
+    "x": 245.11,
+    "y": 623.57
+  },
+  {
+    "ref": "C104",
+    "part": "220uF 35V 20% EEUFR1V221",
+    "footprint": "Capacitor_THT:CP_Radial_D8.0mm_P3.50mm",
+    "pins": [
+      {
+        "number": "1",
+        "name": "+",
+        "net": "P12_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "-",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://industrial.panasonic.com/ww/products/pt/aluminum-cap-lead/models",
+    "note": "Represents retained E28C12 relocated electrically after new limiter; canonical board is unchanged.",
+    "rail": "P12",
+    "x": 405.13,
+    "y": 623.57
+  },
+  {
+    "ref": "R104",
+    "part": "47k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Retained rail bleed; no guaranteed rapid discharge or safe precharge detector.",
+    "rail": "P12",
+    "x": 565.15,
+    "y": 623.57
+  },
+  {
+    "ref": "R105",
+    "part": "30100 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P12_UV_SW_IN",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Upper UV-divider branch is normally disconnected by U2.",
+    "rail": "P12",
+    "x": 85.09,
+    "y": 676.91
+  },
+  {
+    "ref": "R106",
+    "part": "10k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_UV",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Default pull-down remains connected when U2 is open.",
+    "rail": "P12",
+    "x": 245.11,
+    "y": 676.91
+  },
+  {
+    "ref": "U102",
+    "part": "TLP170GM(TPL,E",
+    "footprint": "StartupDraft:TLP170GM_11-4M1S_UNREVIEWED",
+    "pins": [
+      {
+        "number": "1",
+        "name": "LED_A",
+        "net": "P12_LED_A",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "LED_K",
+        "net": "P12_LED_K",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "4",
+        "name": "SW",
+        "net": "P12_UV_SW_IN",
+        "kind": "passive",
+        "side": "R"
+      },
+      {
+        "number": "6",
+        "name": "SW",
+        "net": "P12_UV",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://toshiba.semicon-storage.com/info/TLP170GM_datasheet_en_20230522.pdf?did=69102&prodName=TLP170GM",
+    "note": "Normally-open1FormA, current manufacturerRev3.0.A; pins1/3/4/6. Footprint not reviewed. Offleak/onres/trigger table25C; full-temp proof open.",
+    "rail": "P12",
+    "x": 405.13,
+    "y": 676.91
+  },
+  {
+    "ref": "R107",
+    "part": "43200 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P12_OV",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "",
+    "rail": "P12",
+    "x": 565.15,
+    "y": 676.91
+  },
+  {
+    "ref": "R108",
+    "part": "10k 0.1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_OV",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "",
+    "rail": "P12",
+    "x": 85.09,
+    "y": 731.52
+  },
+  {
+    "ref": "R109",
+    "part": "4700 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P12_LED_A",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "LED power comes from local after-bank rail, never V2V5_AUX. Add this source current to P03 budget.",
+    "rail": "P12",
+    "x": 245.11,
+    "y": 731.52
+  },
+  {
+    "ref": "R110",
+    "part": "10k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_LED_A",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P12_LED_K",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Diverts small driver off-state leakage around LED; hot defaultOFF still unverified.",
+    "rail": "P12",
+    "x": 405.13,
+    "y": 731.52
+  },
+  {
+    "ref": "Q103",
+    "part": "BSS138BK,215",
+    "footprint": "Package_TO_SOT_SMD:SOT-23",
+    "pins": [
+      {
+        "number": "1",
+        "name": "G",
+        "net": "P12_ENABLE_GATE",
+        "kind": "input",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "S",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "D",
+        "net": "P12_LED_K",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://assets.nexperia.com/documents/data-sheet/BSS138BK.pdf",
+    "note": "60V selected driver. 6.5Ohm at2.5V/10mA specified25C; full-temp drive and leakage still open.",
+    "rail": "P12",
+    "x": 565.15,
+    "y": 731.52
+  },
+  {
+    "ref": "R111",
+    "part": "100 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_ENABLE_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P12_ENABLE_GATE",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "External source3.0..3.6V high;0..0.1V low requirement. Not an AUX net.",
+    "rail": "P12",
+    "x": 85.09,
+    "y": 784.86
+  },
+  {
+    "ref": "R112",
+    "part": "10k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_ENABLE_GATE",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "Passive defaultOFF request; external unpowered/fault leakage must be bounded.",
+    "rail": "P12",
+    "x": 245.11,
+    "y": 784.86
+  },
+  {
+    "ref": "R113",
+    "part": "100k 1%",
+    "footprint": "Resistor_SMD:R_0805_2012Metric",
+    "pins": [
+      {
+        "number": "1",
+        "name": "1",
+        "net": "P12_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "2",
+        "net": "P12_PG_RAW",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+    "note": "PG_RAW is positive-rail voltage, NOT GPIO. Independent receiver/absolute-voltage-valid check missing.",
+    "rail": "P12",
+    "x": 405.13,
+    "y": 784.86
+  },
+  {
+    "ref": "D101",
+    "part": "STPS1H100A",
+    "footprint": "Diode_SMD:D_SMA",
+    "pins": [
+      {
+        "number": "1",
+        "name": "K",
+        "net": "P12_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "A",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.st.com/resource/en/datasheet/stps1h100.pdf",
+    "note": "Exact waveform/negative clamp and inductive energy coordination unresolved.",
+    "rail": "P12",
+    "x": 565.15,
+    "y": 784.86
+  },
+  {
+    "ref": "D103",
+    "part": "SMAJ15A",
+    "footprint": "Diode_SMD:D_SMA",
+    "pins": [
+      {
+        "number": "1",
+        "name": "K",
+        "net": "P12_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "A",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "R"
+      }
+    ],
+    "source": "https://www.littelfuse.com/assetdocs/littelfuse_tvs_diode_smaj_datasheet?assetguid=13c2a823-03b8-4d1f-9ddc-9b44670aed9d",
+    "note": "Candidate input TVS only; exact pulse/source coordination and primary current drawing required.",
+    "rail": "P12",
+    "x": 85.09,
+    "y": 839.47
+  },
+  {
+    "ref": "J101",
+    "part": "AFTER_RETAINED_B2B_BANK input / AGND",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "BANK_OUT",
+        "net": "P12_BANK_OUT",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "GND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Engineering net port only, operating connector unspecified. Do not put retained bulk ahead of Q1.",
+    "rail": "P12",
+    "x": 245.11,
+    "y": 839.47
+  },
+  {
+    "ref": "J102",
+    "part": "PROTECTED_BULK_AND_LOAD / AGND",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "PROTECTED",
+        "net": "P12_PROTECTED",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "GND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Additional downstream capacitance remains unbounded; canonical net rewiring has not been performed.",
+    "rail": "P12",
+    "x": 405.13,
+    "y": 839.47
+  },
+  {
+    "ref": "J103",
+    "part": "ENABLE3V3 / AGND / PG_RAW",
+    "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+    "pins": [
+      {
+        "number": "1",
+        "name": "ENABLE",
+        "net": "P12_ENABLE_3V3",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "2",
+        "name": "GND",
+        "net": "AGND",
+        "kind": "passive",
+        "side": "L"
+      },
+      {
+        "number": "3",
+        "name": "HIGH_VOLTAGE_PG",
+        "net": "P12_PG_RAW",
+        "kind": "passive",
+        "side": "L"
+      }
+    ],
+    "source": "https://www.ti.com/lit/ds/symlink/lm5069.pdf",
+    "note": "Engineering port only. PG is not logic-level safe; no receiver or ready state-machine implemented.",
+    "rail": "P12",
+    "x": 565.15,
+    "y": 839.47
+  }
+]

@@ -1,0 +1,150 @@
+"""Two explicit receiving barrels; move only proved ordinary-control blockers."""
+
+import hashlib
+import json
+import math
+import shutil
+import uuid
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr, sexpr
+from ..revision26 import router as aid
+from ..routing.check import point_segment, segment_distance
+from .focused import legal_line
+from .ordinary_joint_ripup7 import ORDINARY
+from .repair import Router
+from .schmitt_cone_candidate import GROUPS
+from .schmitt_receiver_joint_surface import geometry, key
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/schmitt-receiver-pair-assignment-work"
+WORK = ROOT / "generated/schmitt-receiver-two-drill-work"
+
+
+def main():
+    assert not WORK.exists()
+    aid.STEP = 0.025
+    blob = (SOURCE / "rail_disconnect.kicad_pcb").read_bytes()
+    t = read_sexpr(blob.decode())
+    parts = json.loads((SOURCE / "components.json").read_text())
+    names = {str(n[1]): str(n[2]).lstrip("/") for n in children(t, "net")}
+    rt = Router(t)
+    roles = [(c["ref"], p["number"], p["kind"]) for c in parts for p in c["pins"] if p["net"] == "OK_19"]
+    assert len(roles) == 2 and all(
+        next(c["part"] for c in parts if c["ref"] == r).startswith("SN74LVC08A") and k in ("input", "output")
+        for r, n, k in roles
+    )
+    ordinary = (
+        set(ORDINARY)
+        | {n for g in GROUPS for n in g if n}
+        | {n + "_SCHMITT" for g in GROUPS for n in g if n}
+        | {"OK_19", "P19_ALLOW", "N19_ALLOW", "P12_ALLOW", "N12_ALLOW"}
+    )
+    requests = [
+        dict(net="P19_OV_OK", point=(10.0, 14.6), stems=[(5, (8.95, 14.5), (10.0, 14.6))]),
+        dict(
+            net="P12_OV_OK_SCHMITT",
+            point=(6.75, 14.6),
+            stems=[(0, (7.325, 14.0), (6.75, 14.6)), (5, (7.325, 14.0), (6.75, 14.6))],
+        ),
+    ]
+    rows = []
+    removed = []
+    for req in requests:
+        net = req["net"]
+        p = req["point"]
+        hard = []
+        soft = []
+        for g in rt.geometry:
+            if g["net"] == net:
+                if g["kind"] == "via":
+                    assert math.dist(p, g["xy"]) >= 0.56
+                continue
+            if g["kind"] == "line":
+                distance = point_segment(p, g["start"], g["end"]) - g["width"] / 2
+            elif g["kind"] == "via":
+                distance = math.dist(p, g["xy"]) - g["radius"]
+            else:
+                distance = math.hypot(*(max(abs(p[k] - g["xy"][k]) - g["size"][k] / 2, 0) for k in (0, 1)))
+            hit = distance < 0.520001
+            for layer, x, y in req["stems"]:
+                if layer not in g["layers"]:
+                    continue
+                if g["kind"] == "line":
+                    hit |= segment_distance(x, y, g["start"], g["end"]) - g["width"] / 2 < 0.300001
+                elif g["kind"] == "via":
+                    hit |= point_segment(g["xy"], x, y) - g["radius"] < 0.300001
+            if hit:
+                (soft if g["net"] in ordinary and g["kind"] in ("line", "via") else hard).append(g)
+        assert not hard, (req, hard)
+        softkeys = {key(g) for g in soft}
+        this_removed = []
+        for kind in ("segment", "via"):
+            for n in list(children(t, kind)):
+                if key(geometry(n, names)) in softkeys:
+                    this_removed.append(dict(net=names[str(first(n, "net")[1])], literal=sexpr(n)))
+                    removed.append(this_removed[-1])
+                    t.remove(n)
+        rt = Router(t)
+        assert all(legal_line(rt, net, z, x, y, 0.2) for z, x, y in req["stems"])
+        for z, x, y in req["stems"]:
+            rt.path(net, z, [x, y], 0.2)
+        rt.via(net, p)
+        rows.append(
+            dict(
+                **req,
+                all_fixed_pads_force_quiet_ground_Cu_hard_clear=True,
+                ordinary_control_objects_removed=this_removed,
+            )
+        )
+        print(net, p, "removed", len(this_removed), "ordinary objects", flush=True)
+    for i, n in enumerate(t):
+        if isinstance(n, list) and n and n[0] in ("segment", "via") and not children(n, "uuid"):
+            n.append(
+                [
+                    a("uuid"),
+                    a(
+                        str(
+                            uuid.uuid5(
+                                uuid.NAMESPACE_URL,
+                                f"rmx:E28:receiver-two-barrels:{hashlib.sha256(blob).hexdigest()}:{i}:{sexpr(n)}",
+                            )
+                        )
+                    ),
+                ]
+            )
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for p in SOURCE.iterdir():
+        if p.is_file() and (
+            p.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym")
+            or p.name in ("components.json", "fp-lib-table", "sym-lib-table")
+        ):
+            shutil.copy2(p, WORK / p.name)
+        elif p.suffix == ".pretty":
+            shutil.copytree(p, WORK / p.name)
+    (WORK / "rail_disconnect.kicad_pcb").write_text(sexpr(t) + "\n")
+    (WORK / "generated/two-drill-trial.json").write_text(
+        json.dumps(
+            dict(
+                source_pcb_sha256=hashlib.sha256(blob).hexdigest(),
+                recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                OK_19_actual_logic_only_endpoint_contract=roles,
+                operations=rows,
+                all_removed_objects=removed,
+                ordinary_nets_requiring_native_reconnect=sorted({r["net"] for r in removed}),
+                via_copper_diameter_mm=0.6,
+                drill_diameter_mm=0.3,
+                force_pads_tracks_quiet_reference_and_original_ground_geometry_preserved=True,
+                filled_force_geometry_not_preserved_or_accepted=True,
+                native_all_severity_and_contact_correct_PDN_required=True,
+                physical_qualified=False,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

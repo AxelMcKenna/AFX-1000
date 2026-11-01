@@ -1,0 +1,20 @@
+{
+  "python": "3.12.13 (main, Jun 23 2026, 15:44:24) [Clang 22.1.3 ]",
+  "executable": "/private/tmp/afx-thermal-cad-env/bin/python",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "numpy": "2.5.4",
+  "scipy": "1.18.1",
+  "linear_solver": "scipy.sparse.linalg.spsolve; SuperLU",
+  "native_executable": "/private/tmp/rmx-openscad-mounted/OpenSCAD.app/Contents/MacOS/OpenSCAD",
+  "native_version_raw": "OpenSCAD version 2026.10.15\n",
+  "rerun_sequence": [
+    "python -m hardware.cad.a12.thermal.fanless_feasibility.geometry",
+    "OpenSCAD --backend Manifold -o bottom.stl prototype.scad",
+    "OpenSCAD --backend Manifold -D part=lid -o lid.stl prototype.scad",
+    "python -m hardware.cad.a12.thermal.fanless_feasibility.native_geometry",
+    "python -m hardware.cad.a12.thermal.fanless_feasibility.analyze",
+    "python -m hardware.cad.a12.thermal.fanless_feasibility.draw",
+    "python -m hardware.cad.a12.thermal.fanless_feasibility.validate"
+  ],
+  "physical_simulation_or_measurement_performed": false
+}

@@ -1,0 +1,1837 @@
+{
+  "revision": "NC265-exact-identity-review",
+  "NF261_to_NF265": {
+    "added": {
+      "C100": {
+        "ref": "C100",
+        "part": "100nF50V X7R10% C0603C104K5RACTU - LOCAL_BYPASS_EFFECTIVE_HOLD",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "source": "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf",
+        "note": "Actual local bypass for U58; pose/effective capacitance/PDN unaccepted.",
+        "x": 510.54,
+        "y": 4272.28,
+        "pins": [
+          {
+            "number": "1",
+            "name": "1",
+            "net": "AUX2V6",
+            "kind": "passive",
+            "side": "L"
+          },
+          {
+            "number": "2",
+            "name": "2",
+            "net": "AGND",
+            "kind": "passive",
+            "side": "L"
+          }
+        ]
+      },
+      "R98": {
+        "ref": "R98",
+        "part": "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE3% RECEIVING",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+        "note": "Individual second-LED shunt. MID is now resistively connected; this is not an inferred hot optical turn-ON bound.",
+        "x": 726.44,
+        "y": 4272.28,
+        "pins": [
+          {
+            "number": "1",
+            "name": "1",
+            "net": "N19_CLAMP_LED_MID",
+            "kind": "passive",
+            "side": "L"
+          },
+          {
+            "number": "2",
+            "name": "2",
+            "net": "N19_CLAMP_LED_K",
+            "kind": "passive",
+            "side": "L"
+          }
+        ]
+      },
+      "R99": {
+        "ref": "R99",
+        "part": "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE3% RECEIVING",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+        "note": "Individual second-LED shunt. MID is now resistively connected; this is not an inferred hot optical turn-ON bound.",
+        "x": 78.74,
+        "y": 4272.28,
+        "pins": [
+          {
+            "number": "1",
+            "name": "1",
+            "net": "N12_CLAMP_LED_MID",
+            "kind": "passive",
+            "side": "L"
+          },
+          {
+            "number": "2",
+            "name": "2",
+            "net": "N12_CLAMP_LED_K",
+            "kind": "passive",
+            "side": "L"
+          }
+        ]
+      },
+      "U58": {
+        "ref": "U58",
+        "part": "SN74LVC1G14DCKR",
+        "footprint": "NF05R_Manufacturer:TI_DCK0005A",
+        "source": "https://www.ti.com/lit/ds/symlink/sn74lvc1g14.pdf",
+        "note": "5.5V-tolerant Schmitt input accepts the RAW5 open-drain supervisor. AUX output enters existing retained-ARM source-fault cone; no SAFE-derived ARM reset.",
+        "x": 294.64,
+        "y": 4272.28,
+        "pins": [
+          {
+            "number": "1",
+            "name": "NC",
+            "net": null,
+            "kind": "no_connect",
+            "side": "L"
+          },
+          {
+            "number": "2",
+            "name": "A",
+            "net": "CLAMP_SUPPLY_ENABLE",
+            "kind": "input",
+            "side": "L"
+          },
+          {
+            "number": "3",
+            "name": "GND",
+            "net": "AGND",
+            "kind": "power_in",
+            "side": "L"
+          },
+          {
+            "number": "4",
+            "name": "Y",
+            "net": "ABS_AUX_FAULT",
+            "kind": "output",
+            "side": "R"
+          },
+          {
+            "number": "5",
+            "name": "VCC",
+            "net": "AUX2V6",
+            "kind": "power_in",
+            "side": "L"
+          }
+        ]
+      }
+    },
+    "removed": [],
+    "changed": {
+      "C99": {
+        "part": [
+          "47nF50V C0G5% C1206C473J5GACTU - COMPLETE6% CT / TOTAL0.22uF LEDRAIL RECEIVING",
+          "100nF25V C0G5% C1206C104J3GACTU - COMPLETE6% UVRECOVERY RECEIVING"
+        ]
+      },
+      "J1": {
+        "pins": [
+          [
+            {
+              "number": "1",
+              "name": "AUX2V6",
+              "net": "AUX2V6",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "AGND",
+              "net": "AGND",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "3",
+              "name": "DIG5_FORCE",
+              "net": "DIG5_FORCE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "4",
+              "name": "FORMER_MODULE_FORCE_PIN_NC",
+              "net": null,
+              "kind": "no_connect",
+              "side": "L"
+            },
+            {
+              "number": "5",
+              "name": "AUX_VALID",
+              "net": "AUX_VALID",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "6",
+              "name": "GLOBAL_MASTER",
+              "net": "GLOBAL_MASTER",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "7",
+              "name": "RESET_REQUEST",
+              "net": "RESET_REQUEST",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "8",
+              "name": "PROTECT_REF",
+              "net": "PROTECT_REF",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "9",
+              "name": "N19_OV_OK",
+              "net": "N19_OV_OK",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "10",
+              "name": "N12_OV_OK",
+              "net": "N12_OV_OK",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "11",
+              "name": "N19_OV_SENSE",
+              "net": "N19_OV_SENSE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "12",
+              "name": "N12_OV_SENSE",
+              "net": "N12_OV_SENSE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "13",
+              "name": "E28_NATIVE_FAULT_REQUEST",
+              "net": "E28_NATIVE_FAULT_REQUEST",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "14",
+              "name": "E28_COMBINED_FAULT_REQUEST",
+              "net": "E28_COMBINED_FAULT_REQUEST",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "15",
+              "name": "E28_NOT_FAULT",
+              "net": "E28_NOT_FAULT",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "16",
+              "name": "N19_BIAS_VALID",
+              "net": "N19_BIAS_VALID",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "17",
+              "name": "N12_BIAS_VALID",
+              "net": "N12_BIAS_VALID",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "18",
+              "name": "N19_ARM_MONITOR_OUTPUT_ONLY",
+              "net": "N19_ARM_CONDITIONED",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "19",
+              "name": "N19_START_MONITOR_OUTPUT_ONLY",
+              "net": "N19_START",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "20",
+              "name": "N19_FAULT_REQUEST",
+              "net": "N19_FAULT_REQUEST",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "21",
+              "name": "N19_COMPLETE",
+              "net": "N19_COMPLETE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "22",
+              "name": "N19_CLAMPS_RELEASE",
+              "net": "N19_CLAMPS_RELEASE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "23",
+              "name": "N19_PROTECTED",
+              "net": "N19_PROTECTED",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "24",
+              "name": "N12_ARM_MONITOR_OUTPUT_ONLY",
+              "net": "N12_ARM_CONDITIONED",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "25",
+              "name": "N12_START_MONITOR_OUTPUT_ONLY",
+              "net": "N12_START",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "26",
+              "name": "N12_FAULT_REQUEST",
+              "net": "N12_FAULT_REQUEST",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "27",
+              "name": "N12_COMPLETE",
+              "net": "N12_COMPLETE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "28",
+              "name": "N12_CLAMPS_RELEASE",
+              "net": "N12_CLAMPS_RELEASE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "29",
+              "name": "N12_PROTECTED",
+              "net": "N12_PROTECTED",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "30",
+              "name": "NF_OUTPUT_VALID",
+              "net": "NF_OUTPUT_VALID",
+              "kind": "passive",
+              "side": "L"
+            }
+          ],
+          [
+            {
+              "number": "1",
+              "name": "AUX2V6",
+              "net": "AUX2V6",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "AGND",
+              "net": "AGND",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "3",
+              "name": "DIG5_FORCE",
+              "net": "DIG5_FORCE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "4",
+              "name": "FORMER_MODULE_FORCE_PIN_NC",
+              "net": null,
+              "kind": "no_connect",
+              "side": "L"
+            },
+            {
+              "number": "5",
+              "name": "AUX_VALID",
+              "net": "AUX_VALID",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "6",
+              "name": "GLOBAL_MASTER",
+              "net": "GLOBAL_MASTER",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "7",
+              "name": "ABS_AUX_FAULT_MONITOR_OUTPUT_ONLY",
+              "net": "ABS_AUX_FAULT",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "8",
+              "name": "PROTECT_REF",
+              "net": "PROTECT_REF",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "9",
+              "name": "N19_OV_OK",
+              "net": "N19_OV_OK",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "10",
+              "name": "N12_OV_OK",
+              "net": "N12_OV_OK",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "11",
+              "name": "N19_OV_SENSE",
+              "net": "N19_OV_SENSE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "12",
+              "name": "N12_OV_SENSE",
+              "net": "N12_OV_SENSE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "13",
+              "name": "E28_NATIVE_FAULT_REQUEST",
+              "net": "E28_NATIVE_FAULT_REQUEST",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "14",
+              "name": "E28_COMBINED_FAULT_REQUEST",
+              "net": "E28_COMBINED_FAULT_REQUEST",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "15",
+              "name": "E28_NOT_FAULT",
+              "net": "E28_NOT_FAULT",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "16",
+              "name": "N19_BIAS_VALID",
+              "net": "N19_BIAS_VALID",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "17",
+              "name": "N12_BIAS_VALID",
+              "net": "N12_BIAS_VALID",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "18",
+              "name": "N19_ARM_MONITOR_OUTPUT_ONLY",
+              "net": "N19_ARM_CONDITIONED",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "19",
+              "name": "N19_START_MONITOR_OUTPUT_ONLY",
+              "net": "N19_START",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "20",
+              "name": "N19_FAULT_REQUEST",
+              "net": "N19_FAULT_REQUEST",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "21",
+              "name": "N19_COMPLETE",
+              "net": "N19_COMPLETE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "22",
+              "name": "N19_CLAMPS_RELEASE",
+              "net": "N19_CLAMPS_RELEASE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "23",
+              "name": "N19_PROTECTED",
+              "net": "N19_PROTECTED",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "24",
+              "name": "N12_ARM_MONITOR_OUTPUT_ONLY",
+              "net": "N12_ARM_CONDITIONED",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "25",
+              "name": "N12_START_MONITOR_OUTPUT_ONLY",
+              "net": "N12_START",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "26",
+              "name": "N12_FAULT_REQUEST",
+              "net": "N12_FAULT_REQUEST",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "27",
+              "name": "N12_COMPLETE",
+              "net": "N12_COMPLETE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "28",
+              "name": "N12_CLAMPS_RELEASE",
+              "net": "N12_CLAMPS_RELEASE",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "29",
+              "name": "N12_PROTECTED",
+              "net": "N12_PROTECTED",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "30",
+              "name": "NF_OUTPUT_VALID",
+              "net": "NF_OUTPUT_VALID",
+              "kind": "passive",
+              "side": "L"
+            }
+          ]
+        ]
+      },
+      "R11": {
+        "part": [
+          "402ohm 0.1% TNPW0805402RBEEA - COMPLETE3% RECEIVING",
+          "499ohm 0.1% TNPW0805499RBEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "R12": {
+        "part": [
+          "10k COMPLETE +/-3% RECEIVING",
+          "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE3% RECEIVING"
+        ],
+        "pins": [
+          [
+            {
+              "number": "1",
+              "name": "1",
+              "net": "N12_CLAMP_LED_A",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "2",
+              "net": "N12_CLAMP_LED_K",
+              "kind": "passive",
+              "side": "L"
+            }
+          ],
+          [
+            {
+              "number": "1",
+              "name": "1",
+              "net": "N12_CLAMP_LED_A",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "2",
+              "net": "N12_CLAMP_LED_MID",
+              "kind": "passive",
+              "side": "L"
+            }
+          ]
+        ]
+      },
+      "R17": {
+        "pins": [
+          [
+            {
+              "number": "1",
+              "name": "1",
+              "net": "RESET_REQUEST",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "2",
+              "net": "AGND",
+              "kind": "passive",
+              "side": "L"
+            }
+          ],
+          [
+            {
+              "number": "1",
+              "name": "1",
+              "net": "ABS_AUX_FAULT",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "2",
+              "net": "AGND",
+              "kind": "passive",
+              "side": "L"
+            }
+          ]
+        ]
+      },
+      "R4": {
+        "part": [
+          "402ohm 0.1% TNPW0805402RBEEA - COMPLETE3% RECEIVING",
+          "499ohm 0.1% TNPW0805499RBEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "R5": {
+        "part": [
+          "10k COMPLETE +/-3% RECEIVING",
+          "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE3% RECEIVING"
+        ],
+        "pins": [
+          [
+            {
+              "number": "1",
+              "name": "1",
+              "net": "N19_CLAMP_LED_A",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "2",
+              "net": "N19_CLAMP_LED_K",
+              "kind": "passive",
+              "side": "L"
+            }
+          ],
+          [
+            {
+              "number": "1",
+              "name": "1",
+              "net": "N19_CLAMP_LED_A",
+              "kind": "passive",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "2",
+              "net": "N19_CLAMP_LED_MID",
+              "kind": "passive",
+              "side": "L"
+            }
+          ]
+        ]
+      },
+      "R97": {
+        "part": [
+          "240ohm 0.1% TNPW1206240RBEEA - COMPLETE3% RECEIVING",
+          "680ohm 0.1% TNPW1206680RBEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "U1": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCU0008A",
+          "NF05R_Manufacturer:TI_DCU0008A"
+        ]
+      },
+      "U16": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCU0008A",
+          "NF05R_Manufacturer:TI_DCU0008A"
+        ]
+      },
+      "U2": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCU0008A",
+          "NF05R_Manufacturer:TI_DCU0008A"
+        ]
+      },
+      "U27": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCU0008A",
+          "NF05R_Manufacturer:TI_DCU0008A"
+        ]
+      },
+      "U28": {
+        "footprint": [
+          "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+          "NF05R_Manufacturer:TI_DCK0005A"
+        ]
+      },
+      "U29": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCK0006A",
+          "NF05R_Manufacturer:TI_DCK0006A"
+        ]
+      },
+      "U30": {
+        "footprint": [
+          "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+          "NF05R_Manufacturer:TI_DCK0005A"
+        ]
+      },
+      "U31": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCK0006A",
+          "NF05R_Manufacturer:TI_DCK0006A"
+        ]
+      },
+      "U32": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCK0006A",
+          "NF05R_Manufacturer:TI_DCK0006A"
+        ]
+      },
+      "U33": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCK0006A",
+          "NF05R_Manufacturer:TI_DCK0006A"
+        ]
+      },
+      "U34": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCK0006A",
+          "NF05R_Manufacturer:TI_DCK0006A"
+        ]
+      },
+      "U42": {
+        "pins": [
+          [
+            {
+              "number": "7",
+              "name": "GND",
+              "net": "AGND",
+              "kind": "power_in",
+              "side": "L"
+            },
+            {
+              "number": "14",
+              "name": "VCC",
+              "net": "AUX2V6",
+              "kind": "power_in",
+              "side": "L"
+            },
+            {
+              "number": "1",
+              "name": "1A",
+              "net": "N12_PCLR0",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "1B",
+              "net": "NF_NO_FAULT",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "3",
+              "name": "1Y",
+              "net": "N12_CLAMPS_RELEASE_HCS",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "4",
+              "name": "2A",
+              "net": "N19_SOURCE_UV_GOOD",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "5",
+              "name": "2B",
+              "net": "N19_OV_OK",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "6",
+              "name": "2Y",
+              "net": "N19_SOURCE_SAFE0",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "9",
+              "name": "3A",
+              "net": "N19_SOURCE_SAFE0",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "10",
+              "name": "3B",
+              "net": "N19_OUTPUT_OV_GOOD",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "8",
+              "name": "3Y",
+              "net": "N19_SOURCE_SAFE1",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "12",
+              "name": "4A",
+              "net": "N19_SOURCE_SAFE1",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "13",
+              "name": "4B",
+              "net": "N19_BIAS_VALID",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "11",
+              "name": "4Y",
+              "net": "N19_SAFE",
+              "kind": "output",
+              "side": "R"
+            }
+          ],
+          [
+            {
+              "number": "7",
+              "name": "GND",
+              "net": "AGND",
+              "kind": "power_in",
+              "side": "L"
+            },
+            {
+              "number": "14",
+              "name": "VCC",
+              "net": "AUX2V6",
+              "kind": "power_in",
+              "side": "L"
+            },
+            {
+              "number": "1",
+              "name": "1A",
+              "net": "N12_PCLR0",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "1B",
+              "net": "NF_NO_FAULT",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "3",
+              "name": "1Y",
+              "net": "N12_CLAMPS_RELEASE_HCS",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "4",
+              "name": "2A",
+              "net": "N19_SOURCE_UV_GOOD",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "5",
+              "name": "2B",
+              "net": "N19_OV_OK",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "6",
+              "name": "2Y",
+              "net": "N19_SOURCE_SAFE0",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "9",
+              "name": "3A",
+              "net": "N19_SOURCE_SAFE0",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "10",
+              "name": "3B",
+              "net": "N19_OUTPUT_OV_GOOD",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "8",
+              "name": "3Y",
+              "net": "N19_SOURCE_SAFE1",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "12",
+              "name": "4A",
+              "net": "N19_SOURCE_SAFE1",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "13",
+              "name": "4B",
+              "net": "N19_BIAS_VALID",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "11",
+              "name": "4Y",
+              "net": "N19_SAFE_SOURCE",
+              "kind": "output",
+              "side": "R"
+            }
+          ]
+        ]
+      },
+      "U48": {
+        "pins": [
+          [
+            {
+              "number": "7",
+              "name": "GND",
+              "net": "AGND",
+              "kind": "power_in",
+              "side": "L"
+            },
+            {
+              "number": "14",
+              "name": "VCC",
+              "net": "AUX2V6",
+              "kind": "power_in",
+              "side": "L"
+            },
+            {
+              "number": "1",
+              "name": "1A",
+              "net": "NF_FAULT_REQUEST",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "1Y",
+              "net": "NOT_NF_FAULT_REQUEST",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "3",
+              "name": "2A",
+              "net": "N19_OUTPUT_QUALIFIED",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "4",
+              "name": "2Y",
+              "net": "NOT_N19_OUTPUT_QUALIFIED",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "5",
+              "name": "3A",
+              "net": "N12_OUTPUT_QUALIFIED",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "6",
+              "name": "3Y",
+              "net": "NOT_N12_OUTPUT_QUALIFIED",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "9",
+              "name": "4A",
+              "net": "NF_NOT_OUTPUT_VALID",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "8",
+              "name": "4Y",
+              "net": "NF_OUTPUT_VALID_HCS",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "11",
+              "name": "5A",
+              "net": "GLOBAL_VALID",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "10",
+              "name": "5Y",
+              "net": "NOT_GLOBAL_VALID",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "13",
+              "name": "6A",
+              "net": "AGND",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "12",
+              "name": "6Y",
+              "net": null,
+              "kind": "output",
+              "side": "R"
+            }
+          ],
+          [
+            {
+              "number": "7",
+              "name": "GND",
+              "net": "AGND",
+              "kind": "power_in",
+              "side": "L"
+            },
+            {
+              "number": "14",
+              "name": "VCC",
+              "net": "AUX2V6",
+              "kind": "power_in",
+              "side": "L"
+            },
+            {
+              "number": "1",
+              "name": "1A",
+              "net": "NF_FAULT_REQUEST",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "1Y",
+              "net": "NOT_NF_FAULT_REQUEST",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "3",
+              "name": "2A",
+              "net": "N19_OUTPUT_QUALIFIED",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "4",
+              "name": "2Y",
+              "net": "NOT_N19_OUTPUT_QUALIFIED",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "5",
+              "name": "3A",
+              "net": "N12_OUTPUT_QUALIFIED",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "6",
+              "name": "3Y",
+              "net": "NOT_N12_OUTPUT_QUALIFIED",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "9",
+              "name": "4A",
+              "net": "NF_NOT_OUTPUT_VALID",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "8",
+              "name": "4Y",
+              "net": "NF_OUTPUT_VALID_HCS",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "11",
+              "name": "5A",
+              "net": "GLOBAL_VALID",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "10",
+              "name": "5Y",
+              "net": "NOT_GLOBAL_VALID",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "13",
+              "name": "6A",
+              "net": "ABS_AUX_FAULT",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "12",
+              "name": "6Y",
+              "net": "ABS_AUX_READY",
+              "kind": "output",
+              "side": "R"
+            }
+          ]
+        ]
+      },
+      "U49": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCK0006A",
+          "NF05R_Manufacturer:TI_DCK0006A"
+        ]
+      },
+      "U51": {
+        "pins": [
+          [
+            {
+              "number": "1",
+              "name": "1A",
+              "net": "GLOBAL_VALID",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "1B",
+              "net": "N19_PERMIT_D",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "3",
+              "name": "1Y",
+              "net": "N19_ARM_SET",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "4",
+              "name": "2A",
+              "net": "GLOBAL_VALID",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "5",
+              "name": "2B",
+              "net": "N19_OUTPUT_QUALIFIED",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "6",
+              "name": "2Y",
+              "net": "N12_STAGE_ENABLED",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "7",
+              "name": "GND",
+              "net": "AGND",
+              "kind": "power_in",
+              "side": "L"
+            },
+            {
+              "number": "9",
+              "name": "3A",
+              "net": "N12_STAGE_ENABLED",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "10",
+              "name": "3B",
+              "net": "N12_PERMIT_D",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "8",
+              "name": "3Y",
+              "net": "N12_ARM_SET",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "12",
+              "name": "4A",
+              "net": "AGND",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "13",
+              "name": "4B",
+              "net": "AGND",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "11",
+              "name": "4Y",
+              "net": null,
+              "kind": "no_connect",
+              "side": "L"
+            },
+            {
+              "number": "14",
+              "name": "VCC",
+              "net": "AUX2V6",
+              "kind": "power_in",
+              "side": "L"
+            }
+          ],
+          [
+            {
+              "number": "1",
+              "name": "1A",
+              "net": "GLOBAL_VALID",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "2",
+              "name": "1B",
+              "net": "N19_PERMIT_D",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "3",
+              "name": "1Y",
+              "net": "N19_ARM_SET",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "4",
+              "name": "2A",
+              "net": "GLOBAL_VALID",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "5",
+              "name": "2B",
+              "net": "N19_OUTPUT_QUALIFIED",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "6",
+              "name": "2Y",
+              "net": "N12_STAGE_ENABLED",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "7",
+              "name": "GND",
+              "net": "AGND",
+              "kind": "power_in",
+              "side": "L"
+            },
+            {
+              "number": "9",
+              "name": "3A",
+              "net": "N12_STAGE_ENABLED",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "10",
+              "name": "3B",
+              "net": "N12_PERMIT_D",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "8",
+              "name": "3Y",
+              "net": "N12_ARM_SET",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "12",
+              "name": "4A",
+              "net": "N19_SAFE_SOURCE",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "13",
+              "name": "4B",
+              "net": "ABS_AUX_READY",
+              "kind": "input",
+              "side": "L"
+            },
+            {
+              "number": "11",
+              "name": "4Y",
+              "net": "N19_SAFE",
+              "kind": "output",
+              "side": "R"
+            },
+            {
+              "number": "14",
+              "name": "VCC",
+              "net": "AUX2V6",
+              "kind": "power_in",
+              "side": "L"
+            }
+          ]
+        ]
+      },
+      "U53": {
+        "footprint": [
+          "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+          "NF05R_Manufacturer:TI_DCK0005A"
+        ]
+      },
+      "U55": {
+        "footprint": [
+          "Package_TO_SOT_SMD:SOT-353_SC-70-5",
+          "NF05R_Manufacturer:TI_DCK0005A"
+        ]
+      },
+      "U57": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCK0006A",
+          "NF05R_Manufacturer:TI_DCK0006A"
+        ]
+      },
+      "U7": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCU0008A",
+          "NF05R_Manufacturer:TI_DCU0008A"
+        ]
+      },
+      "U8": {
+        "footprint": [
+          "NF05H_Manufacturer:TI_DCU0008A",
+          "NF05R_Manufacturer:TI_DCU0008A"
+        ]
+      }
+    }
+  },
+  "historical_NP01_to_current265_passive_identity_delta": {
+    "added": {
+      "C100": {
+        "ref": "C100",
+        "part": "100nF50V X7R10% C0603C104K5RACTU - LOCAL_BYPASS_EFFECTIVE_HOLD",
+        "footprint": "Capacitor_SMD:C_0603_1608Metric",
+        "source": "https://content.kemet.com/datasheets/KEM_C1002_X7R_SMD.pdf",
+        "note": "Actual local bypass for U58; pose/effective capacitance/PDN unaccepted.",
+        "x": 510.54,
+        "y": 4272.28,
+        "pins": [
+          {
+            "number": "1",
+            "name": "1",
+            "net": "AUX2V6",
+            "kind": "passive",
+            "side": "L"
+          },
+          {
+            "number": "2",
+            "name": "2",
+            "net": "AGND",
+            "kind": "passive",
+            "side": "L"
+          }
+        ]
+      },
+      "R98": {
+        "ref": "R98",
+        "part": "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE3% RECEIVING",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+        "note": "Individual second-LED shunt. MID is now resistively connected; this is not an inferred hot optical turn-ON bound.",
+        "x": 726.44,
+        "y": 4272.28,
+        "pins": [
+          {
+            "number": "1",
+            "name": "1",
+            "net": "N19_CLAMP_LED_MID",
+            "kind": "passive",
+            "side": "L"
+          },
+          {
+            "number": "2",
+            "name": "2",
+            "net": "N19_CLAMP_LED_K",
+            "kind": "passive",
+            "side": "L"
+          }
+        ]
+      },
+      "R99": {
+        "ref": "R99",
+        "part": "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE3% RECEIVING",
+        "footprint": "Resistor_SMD:R_0805_2012Metric",
+        "source": "https://www.vishay.com/docs/28758/tnpw_e3.pdf",
+        "note": "Individual second-LED shunt. MID is now resistively connected; this is not an inferred hot optical turn-ON bound.",
+        "x": 78.74,
+        "y": 4272.28,
+        "pins": [
+          {
+            "number": "1",
+            "name": "1",
+            "net": "N12_CLAMP_LED_MID",
+            "kind": "passive",
+            "side": "L"
+          },
+          {
+            "number": "2",
+            "name": "2",
+            "net": "N12_CLAMP_LED_K",
+            "kind": "passive",
+            "side": "L"
+          }
+        ]
+      }
+    },
+    "removed": [],
+    "changed": {
+      "C99": {
+        "part": [
+          "47nF50V C0G5% C1206C473J5GACTU - COMPLETE6% CT / TOTAL0.22uF LEDRAIL RECEIVING",
+          "100nF25V C0G5% C1206C104J3GACTU - COMPLETE6% UVRECOVERY RECEIVING"
+        ]
+      },
+      "R10": {
+        "part": [
+          "47k",
+          "205000ohm 0.1% TNPW0805205KBEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "R11": {
+        "part": [
+          "402ohm 0.1% TNPW0805402RBEEA - COMPLETE3% RECEIVING",
+          "499ohm 0.1% TNPW0805499RBEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "R12": {
+        "part": [
+          "10k COMPLETE +/-3% RECEIVING",
+          "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "R3": {
+        "part": [
+          "47k",
+          "205000ohm 0.1% TNPW0805205KBEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "R4": {
+        "part": [
+          "402ohm 0.1% TNPW0805402RBEEA - COMPLETE3% RECEIVING",
+          "499ohm 0.1% TNPW0805499RBEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "R5": {
+        "part": [
+          "10k COMPLETE +/-3% RECEIVING",
+          "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "R92": {
+        "part": [
+          "11300ohm 0.1% TNPW080511K3BEEA - COMPLETE0.5% UV /3% OTHER RECEIVING",
+          "11300ohm 0.02% 2ppm TNPU080511K3HWEN00 - COMPLETE0.35% RECEIVING"
+        ]
+      },
+      "R93": {
+        "part": [
+          "49.9ohm 0.1% TNPW080549R9BEEA - COMPLETE0.5% UV /3% OTHER RECEIVING",
+          "49.9ohm 0.1% TNPW080549R9BEEA - COMPLETE0.7% TRIM RECEIVING"
+        ]
+      },
+      "R94": {
+        "part": [
+          "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE0.5% UV /3% OTHER RECEIVING",
+          "10000ohm 0.02% 2ppm TNPU080510K0HWEN00 - COMPLETE0.35% RECEIVING"
+        ]
+      },
+      "R95": {
+        "part": [
+          "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE0.5% UV /3% OTHER RECEIVING",
+          "10000ohm 0.1% TNPW080510K0BEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "R96": {
+        "part": [
+          "47000ohm 0.1% TNPW080547K0BEEA - COMPLETE0.5% UV /3% OTHER RECEIVING",
+          "47000ohm 0.1% TNPW080547K0BEEA - COMPLETE3% RECEIVING"
+        ]
+      },
+      "R97": {
+        "part": [
+          "240ohm 0.1% TNPW1206240RBEEA - COMPLETE0.5% UV /3% OTHER RECEIVING",
+          "680ohm 0.1% TNPW1206680RBEEA - COMPLETE3% RECEIVING"
+        ]
+      }
+    }
+  },
+  "current265_passive_count": 199,
+  "current265_component_count": 265,
+  "current265_connectors": {
+    "J1": {
+      "part": "NEW NF03C CONTROL/KELVIN INTERFACE - physical connector unselected",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_2x15_P2.54mm_Vertical",
+      "pins": {
+        "1": {
+          "name": "AUX2V6",
+          "net": "AUX2V6"
+        },
+        "2": {
+          "name": "AGND",
+          "net": "AGND"
+        },
+        "3": {
+          "name": "DIG5_FORCE",
+          "net": "DIG5_FORCE"
+        },
+        "4": {
+          "name": "FORMER_MODULE_FORCE_PIN_NC",
+          "net": null
+        },
+        "5": {
+          "name": "AUX_VALID",
+          "net": "AUX_VALID"
+        },
+        "6": {
+          "name": "GLOBAL_MASTER",
+          "net": "GLOBAL_MASTER"
+        },
+        "7": {
+          "name": "ABS_AUX_FAULT_MONITOR_OUTPUT_ONLY",
+          "net": "ABS_AUX_FAULT"
+        },
+        "8": {
+          "name": "PROTECT_REF",
+          "net": "PROTECT_REF"
+        },
+        "9": {
+          "name": "N19_OV_OK",
+          "net": "N19_OV_OK"
+        },
+        "10": {
+          "name": "N12_OV_OK",
+          "net": "N12_OV_OK"
+        },
+        "11": {
+          "name": "N19_OV_SENSE",
+          "net": "N19_OV_SENSE"
+        },
+        "12": {
+          "name": "N12_OV_SENSE",
+          "net": "N12_OV_SENSE"
+        },
+        "13": {
+          "name": "E28_NATIVE_FAULT_REQUEST",
+          "net": "E28_NATIVE_FAULT_REQUEST"
+        },
+        "14": {
+          "name": "E28_COMBINED_FAULT_REQUEST",
+          "net": "E28_COMBINED_FAULT_REQUEST"
+        },
+        "15": {
+          "name": "E28_NOT_FAULT",
+          "net": "E28_NOT_FAULT"
+        },
+        "16": {
+          "name": "N19_BIAS_VALID",
+          "net": "N19_BIAS_VALID"
+        },
+        "17": {
+          "name": "N12_BIAS_VALID",
+          "net": "N12_BIAS_VALID"
+        },
+        "18": {
+          "name": "N19_ARM_MONITOR_OUTPUT_ONLY",
+          "net": "N19_ARM_CONDITIONED"
+        },
+        "19": {
+          "name": "N19_START_MONITOR_OUTPUT_ONLY",
+          "net": "N19_START"
+        },
+        "20": {
+          "name": "N19_FAULT_REQUEST",
+          "net": "N19_FAULT_REQUEST"
+        },
+        "21": {
+          "name": "N19_COMPLETE",
+          "net": "N19_COMPLETE"
+        },
+        "22": {
+          "name": "N19_CLAMPS_RELEASE",
+          "net": "N19_CLAMPS_RELEASE"
+        },
+        "23": {
+          "name": "N19_PROTECTED",
+          "net": "N19_PROTECTED"
+        },
+        "24": {
+          "name": "N12_ARM_MONITOR_OUTPUT_ONLY",
+          "net": "N12_ARM_CONDITIONED"
+        },
+        "25": {
+          "name": "N12_START_MONITOR_OUTPUT_ONLY",
+          "net": "N12_START"
+        },
+        "26": {
+          "name": "N12_FAULT_REQUEST",
+          "net": "N12_FAULT_REQUEST"
+        },
+        "27": {
+          "name": "N12_COMPLETE",
+          "net": "N12_COMPLETE"
+        },
+        "28": {
+          "name": "N12_CLAMPS_RELEASE",
+          "net": "N12_CLAMPS_RELEASE"
+        },
+        "29": {
+          "name": "N12_PROTECTED",
+          "net": "N12_PROTECTED"
+        },
+        "30": {
+          "name": "NF_OUTPUT_VALID",
+          "net": "NF_OUTPUT_VALID"
+        }
+      }
+    },
+    "J2": {
+      "part": "N19 NEW FORCE IN/OUT - connector and harness unselected",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "pins": {
+        "1": {
+          "name": "P03_SRC",
+          "net": "N19_P03_SRC"
+        },
+        "2": {
+          "name": "E28_SRC",
+          "net": "N19_E28_SRC"
+        }
+      }
+    },
+    "J3": {
+      "part": "N19 E28 BANK GATE/COMMON CLAMP - physical interface unselected",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "pins": {
+        "1": {
+          "name": "BANK_GATE",
+          "net": "N19_BANK_GATE"
+        },
+        "2": {
+          "name": "BANK_COMMON",
+          "net": "N19_BANK_COMMON"
+        }
+      }
+    },
+    "J4": {
+      "part": "N12 NEW FORCE IN/OUT - connector and harness unselected",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "pins": {
+        "1": {
+          "name": "P03_SRC",
+          "net": "N12_P03_SRC"
+        },
+        "2": {
+          "name": "E28_SRC",
+          "net": "N12_E28_SRC"
+        }
+      }
+    },
+    "J5": {
+      "part": "N12 E28 BANK GATE/COMMON CLAMP - physical interface unselected",
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+      "pins": {
+        "1": {
+          "name": "BANK_GATE",
+          "net": "N12_BANK_GATE"
+        },
+        "2": {
+          "name": "BANK_COMMON",
+          "net": "N12_BANK_COMMON"
+        }
+      }
+    },
+    "J6": {
+      "part": "NEW MODULE INPUT ONLY - keyed JST XH2 receiving candidate; hot/assembly UNACCEPTED",
+      "footprint": "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+      "pins": {
+        "1": {
+          "name": "GUARDED12",
+          "net": "GUARDED_12V_FORCE"
+        },
+        "2": {
+          "name": "MODULE_RETURN",
+          "net": "MODULE_INPUT_GND"
+        }
+      }
+    }
+  },
+  "new_exact_body_notes": {
+    "C99": {
+      "MPN": "C1206C104J3GACTU",
+      "bodymax_T_mm": 1.8,
+      "project_seat_mm": 0.1,
+      "projection_receiving_mm": 1.9,
+      "old47nF_not_inherited": true
+    },
+    "C100": {
+      "MPN": "C0603C104K5RACTU",
+      "bodymax_T_mm": 0.95,
+      "project_seat_mm": 0.1,
+      "projection_receiving_mm": 1.05,
+      "primary_exact_tables": "KEMET2026PDF5/9-CJ"
+    }
+  },
+  "R92_R94_HW_EN00": {
+    "initial_fraction": 0.0002,
+    "TCR_ppm_per_K": 2,
+    "range_ohm": [
+      500,
+      20000
+    ],
+    "complete0p35_receiving_NOT_unconditional_lifetime": true
+  },
+  "R93_complete0p7_is_separate_trim_receiving_not_supplier_guarantee": true,
+  "all_remaining_original_COMPLETE0p1_primitive_resistors_still_need_electrical_error_allocation_resolution": true,
+  "real_connector_parts": {
+    "J1": [
+      "B30B-PHDSS",
+      "PHDR-30VS",
+      "SPHD-002T-P0.5"
+    ],
+    "J3_J5": [
+      "B2B-PH-K-S",
+      "PHR-2",
+      "SPH-002T-P0.5S"
+    ],
+    "J6": [
+      "B2B-XH-A(LF)(SN)",
+      "XHP-2",
+      "SXH-001T-P0.6"
+    ],
+    "force_wire": "Alpha6715 BK005 proposal, four separately marked N19/N12 P03/E28 leads"
+  },
+  "connector_guarantees_NOT_closed": [
+    "Individual product drawing/mating tolerances and received maximum envelopes",
+    "1.76mm max board beyond PH1.6 applicable maximum and PHD/XH1.6 reference",
+    "Post-solder tail trim PLUS fillet<=1.5mm; nominal3.0/3.4 tails cannot be assumed to comply across1.44..1.76 board range",
+    "Exact crimp/strip/insulation support, wire temperature/ampacity and pull/retention/vibration/life",
+    "Low-level signal/dry-circuit behavior and shared RAW5/AUX ground coupling",
+    "Module input inrush/hot current, branch fault protection and contact life",
+    "Complete force wire length/hot resistance/four joint allocation and remote strain/terminations"
+  ],
+  "physical_qualified": false,
+  "electrical_qualified": false,
+  "fabrication_released": false,
+  "source_sha256": {
+    "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/nf_connector_receiving265/identity_review.py": "588fc621effed65dcd87368c623baf99fd28d30cafdb67088521360598abb802",
+    "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/nf_connector_receiving265/inputs/NF261/components.json": "57b0b87095d723a6760f26ff3f1f58933be58245c47282998a103a4e44055900",
+    "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/nf_connector_receiving265/inputs/NF265/components.json": "7d0370e8643261e19f76c49ed2391a943175edde85656cf83cc5c696f366f179",
+    "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/nf_connector_receiving265/inputs/references/NP01-selections.json": "b687153d6fb2992726cdbc3c9b4078fb95997291417b0d08a5b5c23467ef626d",
+    "/Users/axelmckrnna/dev/rmx-publish/hardware/qualification/boards/nf_connector_receiving265/inputs/NF265/integration-contract.json": "838592e2476614f2c05f96d785af7db3678d0bd89dff3350498a68cc5453d59b"
+  }
+}

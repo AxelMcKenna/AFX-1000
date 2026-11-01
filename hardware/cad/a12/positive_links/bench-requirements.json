@@ -1,0 +1,111 @@
+{
+  "revision": "A12-PB01-unreleased",
+  "evidence_type": "Requirements, no measurements",
+  "requirements": [
+    {
+      "id": "PBL01",
+      "quantity": "Complete positive link resistance, stud solder to stud solder including both contacts",
+      "limit_mohm": 2,
+      "limit_basis": "Unchanged whole-link project requirement",
+      "method": "Reversing four-wire DC; isolate parallel paths; measure both finished assemblies at relevant operating and temperature corners after conditioning",
+      "expanded_uncertainty_must_be_positive": true,
+      "guardband": "Measured resistance plus expanded uncertainty <=2mohm",
+      "instrument_roles": [
+        "calibrated current source",
+        "Kelvin voltmeter",
+        "temperature probe"
+      ],
+      "measured": false
+    },
+    {
+      "id": "PBL02",
+      "quantity": "Copper grade, conductivity, dimensions and net normal section",
+      "minimum_area_mm2": 6,
+      "minimum_conductivity_receiving_ms_per_m": 58,
+      "basis": "Project construction and calculation assumptions, not material certificate",
+      "method": "Actual C11000 temper certificate/conductivity traceability, CMM/bore/thickness metrology including machined risers and all internal radii; coating thickness cross-section/XRF; renew BREP analysis from as-built dimensions",
+      "supplier_internal_radius_and_tolerance_approval": false,
+      "measured": false
+    },
+    {
+      "id": "PBL03",
+      "quantity": "Stud heights, matched bar planes, fastener engagement and tip clearance",
+      "manufacturer_stud_maximum_torque_nm": 0.5,
+      "trial_m3_torque_nm": 0.4,
+      "trial_torque_is_approved_process": false,
+      "usable_thread_minimum_mm": null,
+      "method": "Actual W\u00fcrth drawing plus received-height/stencil/seating process review; gauge through thread and actual screw/washer length bounds, NPTH tip clearance and terminal bearing; torque with temporary holding fixture that keeps wrench load off SMT studs and thin support",
+      "force_bar_to_match_by_terminal_tightening_allowed": false,
+      "measured": false
+    },
+    {
+      "id": "PBL04",
+      "quantity": "Tape thickness/coverage, corner radius, cap fit, dielectric and abrasion",
+      "maximum_wrap_build_each_face_mm": 0.32,
+      "supplier_tape_nominal_mm": 0.07,
+      "supplier6000Vtest_is_assembly_limit": false,
+      "finished_assembly_dielectric_test_voltage_v": null,
+      "fault_voltage_environment_and_contamination_test_plan_approved": false,
+      "method": "Specify actual working/fault voltage and environment; qualify wrapping, deburring/radius, seams, contact masks, cap capture, fastener isolation and aging; inspect every received wrap and matched cavity against envelope",
+      "measured": false
+    },
+    {
+      "id": "PBL05",
+      "quantity": "Bond, cantilever, PEEK thread and fault retention strength",
+      "allowable_force_n": null,
+      "adhesive_substrate_process_approved": false,
+      "creep_fatigue_and_separation_limits_approved": false,
+      "method": "Identify actual retained-floor polymer/printing direction; prepare actual PEEK/floor coupons and DP460EG bondline/cure process. Test pull/shear/peel, vibration/drop/temperature creep and complete fault retention. Do not substitute generic datasheet lap shear or PEEK tensile strength for the actual joint",
+      "screw_length_range_mm_project": [
+        5.8,
+        6.2
+      ],
+      "matched_bearing_above_saddle_floor_mm": 3.5,
+      "thread_minimum_engagement_project_mm": 2,
+      "trial_m1p6_torque_nm": 0.01,
+      "trial_torque_is_allowable": false,
+      "measured": false,
+      "screw": "Accu SPK-M1.6-6-A2 countersunk",
+      "nominal_seating_recess_mm": 0.115,
+      "project_received_seating_range_mm": [
+        0,
+        0.3
+      ],
+      "actual_head_and_length_tolerances_reviewed": false,
+      "native_support_scope": "Nominal fit plus declared max-thickness/wrap endpoint envelopes, not a proof of all continuous matched support machining/receiving combinations. Regenerate and collision-check the actual measured configuration before acceptance.",
+      "complete_support_receiving_domain_physically_or_numerically_qualified": false
+    },
+    {
+      "id": "PBL06",
+      "quantity": "Thermal expansion and stud loading",
+      "source_materials_and_cte_bounds_approved": false,
+      "allowable_stud_force_n": null,
+      "method": "Use measured assembled board planes, actual carrier/base/PCB CTE and service temperature range. Validate the integral dogleg's3D compliance and PEEK saddle sliding/abrasion. Thermal cycle fully assembled joints, measure resistance/temperature/loosening and inspect SMT solder. Never equate a fully restrained straight-bar stress estimate to actual dogleg force",
+      "measured": false
+    },
+    {
+      "id": "PBL07",
+      "quantity": "Actual full assembly clearance",
+      "all_mate_heights_and_loose_wiring_declared": false,
+      "method": "Assemble both-face parts, all mated headers/control wiring, washer/head tolerances, wrap seams and caps. Gauge switch tails/solder and press every control through travel; repeat across measured board-height and tolerance extremes. A CAD screen is not a physical fit pass",
+      "measured": false
+    },
+    {
+      "id": "PBL08",
+      "quantity": "Current, hot contact temperature, faults and noise",
+      "operating_current_allocation_a": {
+        "DIG": 4,
+        "ANA": 0.251
+      },
+      "allocations_are_ampacity_qualification": false,
+      "temperature_acceptance_c": null,
+      "method": "Close actual simultaneous-current ledger and component/material temperature limits, measure thermal rise and joint resistance at operating/fault corners, qualify fusing/health gating, EMC/audio/noise and inductive coupling. DC resistance alone does not establish RF or audio performance",
+      "measured": false
+    }
+  ],
+  "physical_qualified": false,
+  "mechanical_lifetime_qualified": false,
+  "electrical_joint_qualified": false,
+  "fabrication_released": false,
+  "selected_for_production": false
+}

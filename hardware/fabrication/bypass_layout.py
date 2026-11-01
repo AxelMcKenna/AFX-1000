@@ -1,0 +1,160 @@
+"""First physical E11 candidate; explicit audio/coil/logic placement, no release."""
+
+import argparse
+import hashlib
+import json
+import shutil
+import uuid
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+from hardware.electronics.common.netlists import netlist
+from hardware.electronics.common.placement import placed_footprint
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.fabrication.package_lands import DCT, DRB, LIBRARY, footprint
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT.parents[1]/"hardware/electronics/sequenced_bypass"
+STOCK = ROOT/"staging/bypass-stock-library"
+OUT = ROOT/"staging/bypass-placement-01"
+SIZE = (110,55)
+POSES = {
+    "K1": (20,15), "K2": (20,35),
+    "J7": (4,32), "J8": (4,12), "J9": (38,12),
+    "J1": (102,10), "J2": (65,4,90), "J3": (87,4,90),
+    "J4": (45,5), "J5": (32,50,90), "J6": (92,50,90),
+    "Q1": (32,9), "Q3": (32,38), "Q2": (44,45),
+    "D1": (25,5.5), "D3": (25,43), "D2": (43,50),
+    "U1": (58,16), "U4": (64,16), "U5": (95,17),
+    "U2": (60,30), "U3": (72,28), "U6": (87,31),
+    "U7": (99,35), "U8": (72,42),
+    "C1": (54,16), "C2": (54.5,12), "C3": (66,24),
+    "C4": (76,25), "C5": (66.5,12), "C6": (99,18.5),
+    "C7": (60,8), "C8": (32,25), "C9": (64.5,42),
+    "C10": (93,26), "C11": (104,34), "C12": (78,37),
+    "R1": (69,16), "R2": (55,8), "R3": (73,11),
+    "R4": (84,9), "R5": (89,12), "R6": (93,9), "R7": (61,46),
+    "R8": (36,7.5), "R9": (34,14.5), "R10": (48,43), "R11": (48,46),
+    "R12": (36,36.5), "R13": (36,39.5), "R14": (97,39),
+    "R15": (64.5,39), "R16": (103,39), "R17": (103,42), "R18": (64,20),
+}
+MOUNTS = ((4,4),(106,4),(4,51),(106,51))
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def mount():
+    return read_sexpr('''(footprint "AFX_Package:M2_Clearance" (layer "F.Cu")
+      (attr board_only exclude_from_bom exclude_from_pos_files)
+      (property "Reference" "REF**" (at 0 -3.6) (layer "F.Fab") (effects (font (size .8 .8))))
+      (property "Value" "M2_CLEARANCE" (at 0 3.6) (layer "F.Fab") (effects (font (size .8 .8)) (hide yes)))
+      (fp_circle (center 0 0) (end 2.75 0) (stroke (width .05) (type default)) (fill none) (layer "F.CrtYd"))
+      (fp_circle (center 0 0) (end 2.75 0) (stroke (width .05) (type default)) (fill none) (layer "B.CrtYd"))
+      (pad "" np_thru_hole circle (at 0 0) (size 2.4 2.4) (drill 2.4) (layers "*.Cu" "*.Mask")))''')
+
+
+def run():
+    global OUT
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--label",default=OUT.name)
+    args = parser.parse_args()
+    assert args.label and all(c.isalnum() or c in "-_" for c in args.label)
+    OUT = OUT.parent/args.label
+    assert not OUT.exists()
+    components = json.loads((SOURCE/"components.json").read_text())
+    assert set(POSES) == {p["ref"] for p in components} and len(components) == 55
+    _, pins = netlist(SOURCE/"generated/netlist.xml")
+    OUT.mkdir()
+    shutil.copytree(STOCK,OUT/"libraries")
+    (OUT/"libraries/inventory.json").unlink()
+    local = OUT/"libraries"/(LIBRARY+".pretty")
+    local.mkdir()
+    for name in (DRB,DCT):
+        (local/(name+".kicad_mod")).write_text(sexpr(footprint(name))+"\n")
+    (local/"M2_Clearance.kicad_mod").write_text(sexpr(mount())+"\n")
+    fp_table = read_sexpr((SOURCE/"fp-lib-table").read_text())
+    for lib in children(fp_table,"lib"):
+        nickname = str(first(lib,"name")[1])
+        first(lib,"uri")[1] = "${KIPRJMOD}/libraries/"+nickname+".pretty"
+    fp_table.append([a("lib"),[a("name"),LIBRARY],[a("type"),"KiCad"],
+                     [a("uri"),"${KIPRJMOD}/libraries/"+local.name],[a("options"),""],[a("descr"),"Own package lands and mounting holes"]])
+    (OUT/"fp-lib-table").write_text(sexpr(fp_table)+"\n")
+    sym_table = read_sexpr((SOURCE/"sym-lib-table").read_text())
+    inputs = [SOURCE/p for p in ("components.json","sequenced_bypass.kicad_sch","generated/netlist.xml","fp-lib-table","sym-lib-table")]
+    for lib in children(sym_table,"lib"):
+        original = Path(str(first(lib,"uri")[1]).replace("${KIPRJMOD}",str(SOURCE)))
+        inputs.append(original)
+        shutil.copyfile(original,OUT/"libraries"/original.name)
+        first(lib,"uri")[1] = "${KIPRJMOD}/libraries/"+original.name
+    (OUT/"sym-lib-table").write_text(sexpr(sym_table)+"\n")
+    nets = {net:index+1 for index,net in enumerate(sorted({n for p in pins.values() for n in p.values()}))}
+    board = read_sexpr('''(kicad_pcb (version 20240108) (generator pcbnew)
+      (general (thickness 1.6)) (paper "A4")
+      (layers (0 "F.Cu" signal) (1 "In1.Cu" power) (2 "In2.Cu" power) (31 "B.Cu" signal)
+        (35 "F.Paste" user) (34 "B.Paste" user) (36 "B.SilkS" user) (37 "F.SilkS" user)
+        (38 "B.Mask" user) (39 "F.Mask" user) (44 "Edge.Cuts" user)
+        (46 "B.CrtYd" user) (47 "F.CrtYd" user) (48 "B.Fab" user) (49 "F.Fab" user))
+      (setup (pad_to_mask_clearance 0)) (net 0 ""))''')
+    board.extend([a("net"),code,net if net.startswith("unconnected-") else "/"+net] for net,code in nets.items())
+    changes = {"U1":LIBRARY+":"+DRB,"U3":LIBRARY+":"+DCT}
+    library_hashes = {}
+    for part in components:
+        ref = part["ref"]
+        part["footprint"] = changes.get(ref,part["footprint"])
+        lib,name = part["footprint"].split(":")
+        path = OUT/"libraries"/(lib+".pretty")/(name+".kicad_mod")
+        library_hashes[str(path.relative_to(OUT))] = sha(path)
+        actual = dict(part,value=part["part"],mpn=part["part"],source=part.get("source",""),nets=pins[ref])
+        pose = POSES[ref]
+        pose = (*pose[:2],pose[2] if len(pose) == 3 else 0,"F")
+        board.append(placed_footprint(actual,pose,path,nets,origin=(0,0),namespace="AFX:E11:PCB01:"))
+    for fp in children(board,"footprint"):
+        for pad in children(fp,"pad"):
+            if children(pad,"net") and str(first(pad,"net")[-1]).startswith("/unconnected-"):
+                first(pad,"net")[-1] = str(first(pad,"net")[-1])[1:]
+    for index,xy in enumerate(MOUNTS,1):
+        fp = mount()
+        fp.append([a("at"),*xy])
+        fp.append([a("uuid"),a(str(uuid.uuid5(uuid.NAMESPACE_URL,"AFX:E11:H"+str(index))))])
+        next(p for p in children(fp,"property") if p[1] == "Reference")[2] = "H"+str(index)
+        board.append(fp)
+    for start,end in (((0,0),(110,0)),((110,0),(110,55)),((110,55),(0,55)),((0,55),(0,0))):
+        board.append([a("gr_line"),[a("start"),*start],[a("end"),*end],
+                      [a("stroke"),[a("width"),.05],[a("type"),a("default")]],[a("layer"),"Edge.Cuts"]])
+    for layer,net,bounds in (("In1.Cu","AGND",(.5,.5,109.5,54.5)),("In2.Cu","5V",(.5,.5,49,54.5)),("In2.Cu","3V3",(50,.5,109.5,54.5))):
+        x,y,u,v = bounds
+        board.append(read_sexpr(f'''(zone (net {nets[net]}) (net_name "/{net}") (layer "{layer}")
+          (hatch edge .5) (connect_pads (clearance .2)) (min_thickness .2)
+          (fill yes (thermal_gap .25) (thermal_bridge_width .3))
+          (polygon (pts (xy {x} {y}) (xy {u} {y}) (xy {u} {v}) (xy {x} {v}))))'''))
+    (OUT/"sequenced_bypass.kicad_pcb").write_text(sexpr(board)+"\n")
+    sch = read_sexpr((SOURCE/"sequenced_bypass.kicad_sch").read_text())
+    for symbol in children(sch,"symbol"):
+        ref = next(p[2] for p in children(symbol,"property") if p[1] == "Reference")
+        if ref in changes:
+            next(p for p in children(symbol,"property") if p[1] == "Footprint")[2] = changes[ref]
+    (OUT/"sequenced_bypass.kicad_sch").write_text(sexpr(sch)+"\n")
+    baseline = ET.parse(SOURCE/"generated/netlist.xml")
+    for p in baseline.getroot().findall("./components/comp"):
+        if p.attrib["ref"] in changes:
+            p.find("footprint").text = changes[p.attrib["ref"]]
+    baseline.write(OUT/"netlist.xml",encoding="utf-8",xml_declaration=True)
+    profile = dict(meta=dict(filename="sequenced_bypass.kicad_pro",version=1),
+        board=dict(design_settings=dict(rules=dict(min_clearance=.2,min_track_width=.2,
+            min_copper_edge_clearance=.5,min_hole_clearance=.25,min_through_hole_diameter=.3,min_via_annular_width=.15))),
+        net_settings=dict(classes=[dict(name="Default",clearance=.2,track_width=.2,via_diameter=.65,via_drill=.3)]))
+    (OUT/"sequenced_bypass.kicad_pro").write_text(json.dumps(profile,indent=2)+"\n")
+    (OUT/"components.json").write_text(json.dumps(components,indent=2)+"\n")
+    (OUT/"construction.json").write_text(json.dumps(dict(source_sha256={str(p):sha(p) for p in inputs},
+        recipe_sha256=sha(Path(__file__)),land_recipe_sha256=sha(ROOT/"package_lands.py"),
+        captured_library_sha256=library_hashes,board_size_mm=[*SIZE,1.6],poses=POSES,mounts_mm=MOUNTS,
+        declared_footprint_changes=changes,exact55_original_parts_values_and_pin_nets=True,
+        routed=False,native_checks_pending=True,installed_fit_qualified=False,
+        assembly_process_accepted=False,fabrication_released=False),indent=2)+"\n")
+    print("E11 placed55 parts plus4 mounts on110x55mm; native geometry/circuit checks pending")
+
+
+if __name__ == "__main__":
+    run()

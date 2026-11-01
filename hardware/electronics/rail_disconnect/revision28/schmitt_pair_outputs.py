@@ -1,0 +1,122 @@
+"""Actual current0402 receiving-cell surface joins; no added drill or ignored obstacle."""
+
+import hashlib
+import json
+import math
+import shutil
+import uuid
+from pathlib import Path
+
+from ...common.sexpr import a, children, read_sexpr, sexpr
+from .receiver_surface_path import connect
+from .repair import Router
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/schmitt-receiver-two-drill-work"
+WORK = ROOT / "generated/schmitt-pair-outputs-work"
+
+
+def main():
+    assert not WORK.exists()
+    blob = (SOURCE / "rail_disconnect.kicad_pcb").read_bytes()
+    t = read_sexpr(blob.decode())
+    rt = Router(t)
+    gp = SOURCE / "generated/residual-components.json"
+    graph = json.loads(gp.read_text())
+    assert (
+        next(
+            h
+            for p, h in graph["source_sha256"].items()
+            if Path(p).resolve() == (SOURCE / "rail_disconnect.kicad_pcb").resolve()
+        )
+        == hashlib.sha256(blob).hexdigest()
+    )
+    results = []
+    tasks = [("U36", n) for n in ("7", "5")]
+    for ref, num in tasks:
+        p = next(p for p in rt.by_ref[ref] if p["pin"] == num)
+        if p["net"] not in graph["inventory"]:
+            continue
+        gs = graph["inventory"][p["net"]]["components"]
+        one = next(g for g in gs if any(n.get("ref") == ref and n.get("pin") == num for n in g))
+        others = [g for g in gs if g is not one and any(n["kind"] == "PAD" for n in g)]
+        if not others:
+            results.append(
+                dict(
+                    ref=ref,
+                    pin=num,
+                    net=p["net"],
+                    same_component_with_other_electrical_PADS=True,
+                    padfree_remnants_require_cleanup=True,
+                )
+            )
+            continue
+        if ref == "U36" and num == "8":
+            target = next(p for p in rt.by_ref["C79"] if p["pin"] == "1")
+            targets = [dict(xy=target["xy"], ref="C79", pin="1", kind="PAD")]
+        else:
+            other = max(others, key=lambda g: len(g))
+            targets = []
+            for n in other:
+                if 5 not in n["layers"]:
+                    continue
+                for xy in [n["position_mm"]] + ([n["end_mm"]] if n["kind"] == "PCB_TRACK" else []):
+                    targets.append(
+                        dict(xy=xy, uuid=n["uuid"], kind=n["kind"], ref=n.get("ref"), pin=n.get("pin"))
+                    )
+            targets = sorted(targets, key=lambda n: math.dist(n["xy"], p["xy"]))[:48]
+        got, reason = connect(rt, p, targets, radius=12, step=0.025, budget=500000)
+        results.append(dict(ref=ref, pin=num, net=p["net"], route=got, reason=reason))
+        print(ref, num, bool(got), reason, flush=True)
+    for i, n in enumerate(t):
+        if isinstance(n, list) and n and n[0] in ("segment", "via") and not children(n, "uuid"):
+            n.append(
+                [
+                    a("uuid"),
+                    a(
+                        str(
+                            uuid.uuid5(
+                                uuid.NAMESPACE_URL,
+                                f"rmx:E28:c79-surface:{hashlib.sha256(blob).hexdigest()}:{i}:{sexpr(n)}",
+                            )
+                        )
+                    ),
+                ]
+            )
+    WORK.mkdir()
+    (WORK / "generated").mkdir()
+    for p in SOURCE.iterdir():
+        if p.is_file() and (
+            p.suffix in (".kicad_pcb", ".kicad_sch", ".kicad_pro", ".kicad_sym")
+            or p.name in ("components.json", "fp-lib-table", "sym-lib-table")
+        ):
+            shutil.copy2(p, WORK / p.name)
+        elif p.suffix == ".pretty":
+            shutil.copytree(p, WORK / p.name)
+    (WORK / "rail_disconnect.kicad_pcb").write_text(sexpr(t) + "\n")
+    (WORK / "generated/surface-reconnect.json").write_text(
+        json.dumps(
+            dict(
+                source_pcb_sha256=hashlib.sha256(blob).hexdigest(),
+                native_graph_sha256=hashlib.sha256(gp.read_bytes()).hexdigest(),
+                recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                path_recipe_sha256=hashlib.sha256(
+                    (ROOT / "receiver_surface_path.py").read_bytes()
+                ).hexdigest(),
+                attempts=results,
+                all_existing_Cu_preserved=True,
+                new_drills=0,
+                physical_clearance_mm=0.2,
+                planner_extra_mm=0.02,
+                actual_force_fill_and_contact_correct_PDN_required=True,
+                native_connectivity_and_MCAD_pending=True,
+                physical_qualified=False,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

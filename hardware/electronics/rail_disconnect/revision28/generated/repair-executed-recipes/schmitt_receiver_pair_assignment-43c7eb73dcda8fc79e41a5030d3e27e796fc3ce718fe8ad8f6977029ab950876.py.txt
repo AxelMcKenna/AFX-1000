@@ -1,0 +1,44 @@
+"""Swap only two commutative U11 AND inputs and retain their physical backbones."""
+import copy,hashlib,json,shutil
+from pathlib import Path
+from ...common.sexpr import a,children,first,read_sexpr,sexpr
+from .. import generate as sg
+from . import control
+ROOT=Path(__file__).resolve().parent
+SOURCE=ROOT/'generated/schmitt-c79-input-first-work'
+ORIGINAL=ROOT/'generated/coherent-ground-repair-work'
+WORK=ROOT/'generated/schmitt-receiver-pair-assignment-work'
+
+
+def main():
+ assert not WORK.exists()
+ blob=(SOURCE/'rail_disconnect.kicad_pcb').read_bytes();t=read_sexpr(blob.decode());s=read_sexpr((SOURCE/'rail_disconnect.kicad_sch').read_text());parts=json.loads((SOURCE/'components.json').read_text());before=copy.deepcopy(parts);u11=next(c for c in parts if c['ref']=='U11');fp=next(f for f in children(t,'footprint') if any(p[1]=='Reference' and p[2]=='U11' for p in children(f,'property')));names={str(n[1]):str(n[2]).lstrip('/') for n in children(t,'net')};codes={n:k for k,n in names.items()}
+ changes=[]
+ for pin,net in [('1','N19_OV_OK_SCHMITT'),('2','P19_OV_OK_SCHMITT')]:
+  p=next(p for p in u11['pins'] if p['number']==pin);changes.append(dict(ref='U11',pin=pin,old_net=p['net'],new_net=net));p['net']=net;label=next(l for l in children(s,'label') if str(first(l,'uuid')[1])==sg.uid('labelU11.'+pin));label[1]=net;pad=next(p for p in children(fp,'pad') if p[1]==pin);first(pad,'net')[:]=[a('net'),a(codes[net]),'/'+net]
+ original=read_sexpr((ORIGINAL/'rail_disconnect.kicad_pcb').read_text());originalids={str(first(n,'uuid')[1]) for k in ('segment','via') for n in children(original,k)};removed=[]
+ for n in list(t):
+  if isinstance(n,list) and n and n[0] in ('segment','via') and str(first(n,'uuid')[1]) not in originalids and names[str(first(n,'net')[1])] in {'P19_OV_OK_SCHMITT','N19_OV_OK_SCHMITT'}:removed.append(sexpr(n));t.remove(n)
+ plans_path=ROOT/'generated/schmitt-cone-proposal/backbone-cut-plan.json';plans=json.loads(plans_path.read_text());rows=[]
+ for old,new in [('P19_OV_OK','N19_OV_OK_SCHMITT'),('N19_OV_OK','P19_OV_OK_SCHMITT')]:
+  ids=set(plans['rows'][old]['buffered_item_uuids']);changed=[]
+  for k in ('segment','via'):
+   for n in children(t,k):
+    if str(first(n,'uuid')[1]) in ids:
+     assert names[str(first(n,'net')[1])]==old+'_SCHMITT';old_literal=sexpr(n);first(n,'net')[1]=a(codes[new]);changed.append(dict(before=old_literal,after=sexpr(n)))
+  rows.append(dict(previous_backbone=old+'_SCHMITT',assigned_net=new,net_only_copper_changes=changed))
+ # U11 physical1/2 are the two inputs of the same manufacturer AND gate.
+ assert {next(p['net'] for p in u11['pins'] if p['number']==n) for n in ('1','2')}=={'P19_OV_OK_SCHMITT','N19_OV_OK_SCHMITT'}
+ cases=[];raw=['P19_OV_OK','N19_OV_OK','P12_OV_OK','N12_OV_OK','V5_REG_OV_OK','5V_DIG_OV_OK','REF_LOW_OK','REF_HIGH_OK']
+ for bits in range(256):
+  inputs=control.safe_inputs(before);inputs.update(POWER_RUN=1,P03_SOURCES_READY=1,ANA_SOURCE_OK=1,DIG_SOURCE_OK=1,ANA_OUTPUT_OK=1,DIG_OUTPUT_OK=1,NF_OUTPUT_VALID_RAW=1,**{n:(bits>>i)&1 for i,n in enumerate(raw)})
+  old=control.StaticLogic(before).settle(**inputs);new=control.StaticLogic(parts).settle(**inputs)
+  outputs=['OK_19','OK_12','OK_5V','OK_REF','E28_MASTER_ENABLE','E28_FAULT','E28_OUTPUT_READY']
+  outputs=[n for n in outputs if n in old];assert {n:old[n] for n in outputs}=={n:new[n] for n in outputs},bits;assert new['OK_19']==int(bool(inputs['P19_OV_OK'] and inputs['N19_OV_OK']))
+  cases.append(dict(bits=bits,outputs={n:new[n] for n in outputs}))
+ WORK.mkdir();(WORK/'generated').mkdir()
+ for p in SOURCE.iterdir():
+  if p.is_file() and (p.suffix in ('.kicad_pcb','.kicad_sch','.kicad_pro','.kicad_sym') or p.name in ('components.json','fp-lib-table','sym-lib-table')):shutil.copy2(p,WORK/p.name)
+  elif p.suffix=='.pretty':shutil.copytree(p,WORK/p.name)
+ (WORK/'rail_disconnect.kicad_pcb').write_text(sexpr(t)+'\n');(WORK/'rail_disconnect.kicad_sch').write_text(sexpr(s)+'\n');(WORK/'components.json').write_text(json.dumps(parts,indent=2)+'\n');report=dict(source_sha256={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in [SOURCE/'rail_disconnect.kicad_pcb',SOURCE/'rail_disconnect.kicad_sch',SOURCE/'components.json',plans_path,Path(__file__)]},commutative_same_gate_input_changes=changes,backbones=rows,new_buffer_output_routes_removed_for_reassignment=removed,raw_source_hysteresis_and_all_power_or_reference_terminals_unchanged=True,physical_backbone_geometry_preserved_net_only=True,static_OV_combinations=cases,native_parity_and_reconnection_pending=True,physical_qualified=False);(WORK/'generated/pair-assignment.json').write_text(json.dumps(report,indent=2)+'\n');print('256 actual OV combinations unchanged; U11same-AND1/2 reassignment draft written')
+if __name__=='__main__':main()

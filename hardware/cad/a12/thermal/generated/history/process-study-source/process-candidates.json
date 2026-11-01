@@ -1,0 +1,110 @@
+{
+  "revision": "A12-T01-U13-PROCESS-CANDIDATES",
+  "source_native_sha256": "ceed963a120145b6a6768c4e30188a5ada0b72a40aff8da56578a4424a370ee4",
+  "physical_tests_performed": 0,
+  "fabricator_dfm_approved": false,
+  "thermal_qualified": false,
+  "primary_sources": [
+    {
+      "url": "https://www.pcbonline.com/PCB-FAB/pcb-fabrication/",
+      "retrieved": "2026-10-26",
+      "download_sha256": "80f4e1aea4951afb4d014321d1ecfe5ebcdc49c19de1e60e9b4c1b724b79afd5",
+      "fact": "Manufacturer lists hole-wall thickness>=50um among custom rigid-PCB capabilities. This is not acceptance of this PCB, spacing, stack, drilling tolerances or simultaneous resin-filled/capped process."
+    },
+    {
+      "url": "https://www.shiyipcb.com/ultra-heavy-copper-pcb/",
+      "retrieved": "2026-10-26",
+      "fact": "Manufacturer search result states50..80um heavy-copper wall capability. Full-page fetch failed; no board-specific minimum or process quote obtained. Secondary candidate only."
+    },
+    {
+      "url": "https://www.we-online.com/files/pdf1/basic6_ml6_102_35_2v13.pdf",
+      "retrieved": "2026-10-26",
+      "fact": "Published6-layer template has35um copper and1.026mm total inclmask/finish,dielectrics.125/.200/.125/.200/.125. It does not approve6x70um in1mm."
+    },
+    {
+      "url": "https://www.we-online.com/files/pdf1/design-rules-copper-embedding-cbt-en.pdf",
+      "retrieved": "2026-10-26",
+      "fact": "Embedded profiles300/500/800um; standardminprofile10x10mm,advanced5x10; viasthroughthickcopper>=.55mm andspecialstackup. This is not a drop-in EP copper coin approval."
+    }
+  ],
+  "actual_direct_ep_array": {
+    "x_local_mm": [
+      108.5,
+      109,
+      109.5
+    ],
+    "y_local_mm": [
+      7.45,
+      7.95,
+      8.45,
+      8.95
+    ],
+    "count": 12,
+    "pitch_mm": 0.5,
+    "finished_bore_native_mm": 0.25,
+    "native_land_diameter_mm": 0.6,
+    "resin_fill_is_solid_copper": false
+  },
+  "preferred_process_trial": {
+    "pcb_total_nominal_mm": 1.6,
+    "inner_copper_minimum_proposal_um": 70,
+    "outer_base_foil_candidate_um": 35,
+    "through_wall_minimum_proposal_um": 50,
+    "outer_finished_copper_minimum_proposal_um": 85,
+    "dielectric_nominal_proposal_mm": [
+      0.1,
+      0.34,
+      0.27,
+      0.34,
+      0.1
+    ],
+    "same_bottom_and_top_terminal_datums": true,
+    "nominal_predrill_if_finished_bore_025_and_wall_050_mm": 0.35,
+    "nominal_original_land_predrill_annulus_mm": 0.125,
+    "nominal_predrill_web_at_actual_050_pitch_mm": 0.15,
+    "owner_proposed_larger_land_mm": 0.65,
+    "larger_land_predrill_annulus_nominal_mm": 0.15,
+    "larger_land_native_checked": false,
+    "construction_is_native": false
+  },
+  "joint_dimension_constraints": [
+    "Finished bore = actual preplated drill diameter -2*actual radial wall deposition; their tolerances are correlated. Do not independently combine minima as though they describe one physical hole.",
+    "Minimum dielectric drill web = minimum actual centre spacing -maximum actual preplated drill diameter. Include relative drill-position tolerance; nominal.15mm is not a guaranteed web.",
+    "Minimum preplate annulus = (minimum finished copper land diameter -maximum actual preplated drill diameter)/2 -maximum drill-to-pad registration displacement. Include etch compensation and all-layer registration.",
+    "For all12 actual EP positions verify native clearance to the selected TI side-pad geometry with maximum finished copper land and85um outer-etch process. Generic global enlargement is not approved.",
+    "Obtain board-specific FR4 six-layer85/70um fabrication quote, actual minimum/maximum copper wall, copper cap thickness/flatness, drilling diameter/position bounds, minimum web/annulus and line/space approval; microsection witness coupons must verify the received board.",
+    "Maintain electrically insulated TIM and bare-metal support keepouts. Resin/capping receives no solid-copper thermal-core credit."
+  ],
+  "inputs_still_missing": {
+    "maximum_wall_um": null,
+    "predrill_nominal_and_tolerance_mm": null,
+    "drill_relative_position_tolerance_mm": null,
+    "drill_to_pad_registration_mm": null,
+    "finished_land_minimum_and_maximum_mm": null,
+    "fabricator_approved_minimum_web_mm": null,
+    "fabricator_approved_minimum_preplate_annulus_mm": null,
+    "minimum_material_thermal_properties": null,
+    "maximum_assembly_contact_resistance": null
+  },
+  "lower_thickness_trial": {
+    "total_nominal_mm": 1.0,
+    "copper_all_six_um": 70,
+    "dielectric_proposal_mm": [
+      0.1,
+      0.12,
+      0.14,
+      0.12,
+      0.1
+    ],
+    "manufacturer_approved": false,
+    "if_bottom_remains_z6p5_terminal_top_delta_mm": -0.6,
+    "if_top_is_preserved_bottom_delta_mm": 0.6,
+    "requires_new_support_Tim_gap_connector_and_matched_bar_geometry": true,
+    "currently_selected": false
+  },
+  "physical_qualification_flags": {
+    "fabrication_released": false,
+    "thermal_qualified": false,
+    "build_ready": false
+  }
+}

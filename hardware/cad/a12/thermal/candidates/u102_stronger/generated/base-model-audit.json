@@ -1,0 +1,492 @@
+{
+  "revision": "T01-whole-base-assumption-audit",
+  "source_sha256": {
+    "hardware/cad/a12/thermal/candidates/u102_stronger/base_sensitivity.py": "c3cc7b23ccf85e5e451dd22654ea2b34fe981540dc50b555b45eedce17cf6e74",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/base_geometry.py": "e2a6cda681d1555bb2dfabb445eaacb99fdb7b01407bf24e180d5fa4c06be319",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/sources/base-model/P03-analysis.py": "e3bd80cf406e5397af921251008109778d297c35b0fbce06d285a1da83bb067e",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/sources/base-model/generate.py": "b5fa6a8ac18f1f6af42a356106fa6edadf7c83dd9ebaf84278cf7eab554a5508",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/sources/base-model/capture.json": "90ed672f0e0dff705b40cd1c65db4dc95f25c47430512145ee9c21788ac5d773",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/sources/base-model/design.json": "5b73d4772ccad6e34c21f9030c621a57fdbfd8231c80c8858b335bd7ce129090",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/sources/base-model/analyze.py": "f1aaaf06ac0680414bec68d8d7844bf5f23cc904586bc1bfba605d9fc2f6fd45",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/sources/base-model/source-facts.json": "8935f38f7700ce52c46ab76051315aaa821431470bc52aa053a6cd8c7971eb1a",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/sources/base-model/generated/analysis.json": "b131e10733aec26c6f9c9ab74de8d68caf56d98906300c880fc4ff3d62e803b5"
+  },
+  "scope": "Exact replay of historical supply-loss-only plate model; not a whole standalone unit temperature prediction",
+  "copied_equation_changes": [
+    "Native heat values supplied explicitly from captured report instead of live canonical reader",
+    "Added read-only local3x3mm source projection outputs; thermal equations unchanged"
+  ],
+  "reproduced_historical_cases": [
+    {
+      "h": 1,
+      "emissivity": 0.8,
+      "plate_max_change_c": 0.0
+    },
+    {
+      "h": 2,
+      "emissivity": 0.8,
+      "plate_max_change_c": 0.0
+    },
+    {
+      "h": 3,
+      "emissivity": 0.8,
+      "plate_max_change_c": 0.0
+    },
+    {
+      "h": 5,
+      "emissivity": 0.8,
+      "plate_max_change_c": 0.0
+    },
+    {
+      "h": 3,
+      "emissivity": 0.05,
+      "plate_max_change_c": 0.0
+    }
+  ],
+  "cases": [
+    {
+      "local_3x3mm_source_projections": {
+        "U22": {
+          "area_weighted_base_reference_c": 73.80274081286682,
+          "local_peak_in_3x3mm_projection_c": 73.85610655254659
+        },
+        "Q101": {
+          "area_weighted_base_reference_c": 72.29271353831783,
+          "local_peak_in_3x3mm_projection_c": 72.43476197266534
+        },
+        "U101": {
+          "area_weighted_base_reference_c": 73.14026222487287,
+          "local_peak_in_3x3mm_projection_c": 73.2140067963436
+        },
+        "U7": {
+          "area_weighted_base_reference_c": 74.21929401843238,
+          "local_peak_in_3x3mm_projection_c": 74.23165397424899
+        },
+        "U20": {
+          "area_weighted_base_reference_c": 73.95484203412411,
+          "local_peak_in_3x3mm_projection_c": 73.99849880066051
+        },
+        "U13": {
+          "area_weighted_base_reference_c": 74.575397527277,
+          "local_peak_in_3x3mm_projection_c": 74.575397527277
+        },
+        "U11": {
+          "area_weighted_base_reference_c": 74.7115259616761,
+          "local_peak_in_3x3mm_projection_c": 74.7115259616761
+        },
+        "U23": {
+          "area_weighted_base_reference_c": 74.47998507482112,
+          "local_peak_in_3x3mm_projection_c": 74.50026540890653
+        },
+        "U8": {
+          "area_weighted_base_reference_c": 74.8358317897157,
+          "local_peak_in_3x3mm_projection_c": 74.8358317897157
+        },
+        "U1": {
+          "area_weighted_base_reference_c": 74.24187475243318,
+          "local_peak_in_3x3mm_projection_c": 74.35368136131585
+        },
+        "U102": {
+          "area_weighted_base_reference_c": 73.17753495852249,
+          "local_peak_in_3x3mm_projection_c": 73.27508440615547
+        },
+        "U10": {
+          "area_weighted_base_reference_c": 74.66686174290138,
+          "local_peak_in_3x3mm_projection_c": 74.69512301424386
+        }
+      },
+      "h_assumed_w_per_m2k": 1,
+      "emissivity_assumed": 0.8,
+      "radiation_projected_view_factor_assumed": 0.5,
+      "nonlinear_iterations": 4,
+      "converged": true,
+      "aluminum_k_typical_w_per_mk": 167.0,
+      "grid": [
+        67,
+        32
+      ],
+      "pin_fin_efficiency_conditional": 0.9995675897588995,
+      "outside_convection_effective_area_m2": 0.17491850966798858,
+      "lower_projected_radiation_area_m2": 0.05141993481809703,
+      "heat_source_area_scope": "Four landed heat sources uniformly over exact metal lands; others idealized3x3mm sources with perfect transfer to plate. Neither models PCB thermal paths.",
+      "total_w": 10.557756677968534,
+      "plate_max_c": 74.8358317897157,
+      "plate_mean_c": 70.96804224118614,
+      "conditional_peak_base_rtheta_c_per_w": 3.299548649611294,
+      "conditional_60c_coldplate_allocation_satisfied": false,
+      "ambient_assumed_c": 40,
+      "convection_or_assembly_qualified": false
+    },
+    {
+      "local_3x3mm_source_projections": {
+        "U22": {
+          "area_weighted_base_reference_c": 63.57766773642872,
+          "local_peak_in_3x3mm_projection_c": 63.62977318560443
+        },
+        "Q101": {
+          "area_weighted_base_reference_c": 62.09114701844007,
+          "local_peak_in_3x3mm_projection_c": 62.231372919755216
+        },
+        "U101": {
+          "area_weighted_base_reference_c": 62.92945345039314,
+          "local_peak_in_3x3mm_projection_c": 63.000861660698135
+        },
+        "U7": {
+          "area_weighted_base_reference_c": 63.984987877734525,
+          "local_peak_in_3x3mm_projection_c": 63.997239226271894
+        },
+        "U20": {
+          "area_weighted_base_reference_c": 63.73078933623206,
+          "local_peak_in_3x3mm_projection_c": 63.77365815510541
+        },
+        "U13": {
+          "area_weighted_base_reference_c": 64.33331572839839,
+          "local_peak_in_3x3mm_projection_c": 64.33331572839839
+        },
+        "U11": {
+          "area_weighted_base_reference_c": 64.47286298650518,
+          "local_peak_in_3x3mm_projection_c": 64.47286298650518
+        },
+        "U23": {
+          "area_weighted_base_reference_c": 64.24398901150543,
+          "local_peak_in_3x3mm_projection_c": 64.2640562777842
+        },
+        "U8": {
+          "area_weighted_base_reference_c": 64.59673193772903,
+          "local_peak_in_3x3mm_projection_c": 64.59673193772903
+        },
+        "U1": {
+          "area_weighted_base_reference_c": 64.00270071737837,
+          "local_peak_in_3x3mm_projection_c": 64.11424115913177
+        },
+        "U102": {
+          "area_weighted_base_reference_c": 62.96668838064937,
+          "local_peak_in_3x3mm_projection_c": 63.06265287345181
+        },
+        "U10": {
+          "area_weighted_base_reference_c": 64.42853335992865,
+          "local_peak_in_3x3mm_projection_c": 64.45658494824887
+        }
+      },
+      "h_assumed_w_per_m2k": 2,
+      "emissivity_assumed": 0.8,
+      "radiation_projected_view_factor_assumed": 0.5,
+      "nonlinear_iterations": 4,
+      "converged": true,
+      "aluminum_k_typical_w_per_mk": 167.0,
+      "grid": [
+        67,
+        32
+      ],
+      "pin_fin_efficiency_conditional": 0.9991356280254365,
+      "outside_convection_effective_area_m2": 0.17486513993189576,
+      "lower_projected_radiation_area_m2": 0.05141993481809703,
+      "heat_source_area_scope": "Four landed heat sources uniformly over exact metal lands; others idealized3x3mm sources with perfect transfer to plate. Neither models PCB thermal paths.",
+      "total_w": 10.557756677958391,
+      "plate_max_c": 64.59673193772903,
+      "plate_mean_c": 60.78785201180843,
+      "conditional_peak_base_rtheta_c_per_w": 2.3297308971971336,
+      "conditional_60c_coldplate_allocation_satisfied": false,
+      "ambient_assumed_c": 40,
+      "convection_or_assembly_qualified": false
+    },
+    {
+      "local_3x3mm_source_projections": {
+        "U22": {
+          "area_weighted_base_reference_c": 58.30349915217745,
+          "local_peak_in_3x3mm_projection_c": 58.35410463151217
+        },
+        "Q101": {
+          "area_weighted_base_reference_c": 56.84459749080695,
+          "local_peak_in_3x3mm_projection_c": 56.98298345973741
+        },
+        "U101": {
+          "area_weighted_base_reference_c": 57.67301586094861,
+          "local_peak_in_3x3mm_projection_c": 57.74199227710341
+        },
+        "U7": {
+          "area_weighted_base_reference_c": 58.70034832625397,
+          "local_peak_in_3x3mm_projection_c": 58.712441519217265
+        },
+        "U20": {
+          "area_weighted_base_reference_c": 58.46036652528774,
+          "local_peak_in_3x3mm_projection_c": 58.50239381059133
+        },
+        "U13": {
+          "area_weighted_base_reference_c": 59.04010786030434,
+          "local_peak_in_3x3mm_projection_c": 59.04010786030434
+        },
+        "U11": {
+          "area_weighted_base_reference_c": 59.179080777960216,
+          "local_peak_in_3x3mm_projection_c": 59.179080777960216
+        },
+        "U23": {
+          "area_weighted_base_reference_c": 58.95105237819461,
+          "local_peak_in_3x3mm_projection_c": 58.97103110118462
+        },
+        "U8": {
+          "area_weighted_base_reference_c": 59.30412594411683,
+          "local_peak_in_3x3mm_projection_c": 59.30412594411683
+        },
+        "U1": {
+          "area_weighted_base_reference_c": 58.714448054140966,
+          "local_peak_in_3x3mm_projection_c": 58.82543357424314
+        },
+        "U102": {
+          "area_weighted_base_reference_c": 57.709581931366316,
+          "local_peak_in_3x3mm_projection_c": 57.80371452136522
+        },
+        "U10": {
+          "area_weighted_base_reference_c": 59.13880577346944,
+          "local_peak_in_3x3mm_projection_c": 59.16670121349199
+        }
+      },
+      "h_assumed_w_per_m2k": 3,
+      "emissivity_assumed": 0.8,
+      "radiation_projected_view_factor_assumed": 0.5,
+      "nonlinear_iterations": 4,
+      "converged": true,
+      "aluminum_k_typical_w_per_mk": 167.0,
+      "grid": [
+        67,
+        32
+      ],
+      "pin_fin_efficiency_conditional": 0.9987041140938663,
+      "outside_convection_effective_area_m2": 0.1748118255226224,
+      "lower_projected_radiation_area_m2": 0.05141993481809703,
+      "heat_source_area_scope": "Four landed heat sources uniformly over exact metal lands; others idealized3x3mm sources with perfect transfer to plate. Neither models PCB thermal paths.",
+      "total_w": 10.557756677957267,
+      "plate_max_c": 59.30412594411683,
+      "plate_mean_c": 55.55870152866729,
+      "conditional_peak_base_rtheta_c_per_w": 1.8284306536842656,
+      "conditional_60c_coldplate_allocation_satisfied": true,
+      "ambient_assumed_c": 40,
+      "convection_or_assembly_qualified": false
+    },
+    {
+      "local_3x3mm_source_projections": {
+        "U22": {
+          "area_weighted_base_reference_c": 52.975163177246884,
+          "local_peak_in_3x3mm_projection_c": 53.02273088770024
+        },
+        "Q101": {
+          "area_weighted_base_reference_c": 51.57222788481724,
+          "local_peak_in_3x3mm_projection_c": 51.70710922845076
+        },
+        "U101": {
+          "area_weighted_base_reference_c": 52.381322509692524,
+          "local_peak_in_3x3mm_projection_c": 52.44561510059896
+        },
+        "U7": {
+          "area_weighted_base_reference_c": 53.35120694665991,
+          "local_peak_in_3x3mm_projection_c": 53.36295969124691
+        },
+        "U20": {
+          "area_weighted_base_reference_c": 53.14159230841177,
+          "local_peak_in_3x3mm_projection_c": 53.181983787949704
+        },
+        "U13": {
+          "area_weighted_base_reference_c": 53.674401220506056,
+          "local_peak_in_3x3mm_projection_c": 53.674401220506056
+        },
+        "U11": {
+          "area_weighted_base_reference_c": 53.80874762698569,
+          "local_peak_in_3x3mm_projection_c": 53.80874762698569
+        },
+        "U23": {
+          "area_weighted_base_reference_c": 53.58081804607026,
+          "local_peak_in_3x3mm_projection_c": 53.60073345261516
+        },
+        "U8": {
+          "area_weighted_base_reference_c": 53.93729379057183,
+          "local_peak_in_3x3mm_projection_c": 53.93729379057183
+        },
+        "U1": {
+          "area_weighted_base_reference_c": 53.359749127073734,
+          "local_peak_in_3x3mm_projection_c": 53.46942261960149
+        },
+        "U102": {
+          "area_weighted_base_reference_c": 52.416018933363915,
+          "local_peak_in_3x3mm_projection_c": 52.50646015268341
+        },
+        "U10": {
+          "area_weighted_base_reference_c": 53.77918837319786,
+          "local_peak_in_3x3mm_projection_c": 53.80684127352441
+        }
+      },
+      "h_assumed_w_per_m2k": 5,
+      "emissivity_assumed": 0.8,
+      "radiation_projected_view_factor_assumed": 0.5,
+      "nonlinear_iterations": 4,
+      "converged": true,
+      "aluminum_k_typical_w_per_mk": 167.0,
+      "grid": [
+        67,
+        32
+      ],
+      "pin_fin_efficiency_conditional": 0.9978424268208274,
+      "outside_convection_effective_area_m2": 0.17470536233666387,
+      "lower_projected_radiation_area_m2": 0.05141993481809703,
+      "heat_source_area_scope": "Four landed heat sources uniformly over exact metal lands; others idealized3x3mm sources with perfect transfer to plate. Neither models PCB thermal paths.",
+      "total_w": 10.557756677950152,
+      "plate_max_c": 53.93729379057183,
+      "plate_mean_c": 50.31616792167453,
+      "conditional_peak_base_rtheta_c_per_w": 1.3200999242272584,
+      "conditional_60c_coldplate_allocation_satisfied": true,
+      "ambient_assumed_c": 40,
+      "convection_or_assembly_qualified": false
+    },
+    {
+      "local_3x3mm_source_projections": {
+        "U22": {
+          "area_weighted_base_reference_c": 62.56036707401352,
+          "local_peak_in_3x3mm_projection_c": 62.61323811732669
+        },
+        "Q101": {
+          "area_weighted_base_reference_c": 61.06170355870987,
+          "local_peak_in_3x3mm_projection_c": 61.20186393924381
+        },
+        "U101": {
+          "area_weighted_base_reference_c": 61.90148387822906,
+          "local_peak_in_3x3mm_projection_c": 61.97307370478137
+        },
+        "U7": {
+          "area_weighted_base_reference_c": 62.97147452395607,
+          "local_peak_in_3x3mm_projection_c": 62.98389166189849
+        },
+        "U20": {
+          "area_weighted_base_reference_c": 62.704536621352375,
+          "local_peak_in_3x3mm_projection_c": 62.74753832328903
+        },
+        "U13": {
+          "area_weighted_base_reference_c": 63.322235954557435,
+          "local_peak_in_3x3mm_projection_c": 63.322235954557435
+        },
+        "U11": {
+          "area_weighted_base_reference_c": 63.47573032553285,
+          "local_peak_in_3x3mm_projection_c": 63.47573032553285
+        },
+        "U23": {
+          "area_weighted_base_reference_c": 63.253442340004305,
+          "local_peak_in_3x3mm_projection_c": 63.27305808067969
+        },
+        "U8": {
+          "area_weighted_base_reference_c": 63.5939080217209,
+          "local_peak_in_3x3mm_projection_c": 63.5939080217209
+        },
+        "U1": {
+          "area_weighted_base_reference_c": 62.98475967863001,
+          "local_peak_in_3x3mm_projection_c": 63.097244502315235
+        },
+        "U102": {
+          "area_weighted_base_reference_c": 61.94066413765831,
+          "local_peak_in_3x3mm_projection_c": 62.03733847429859
+        },
+        "U10": {
+          "area_weighted_base_reference_c": 63.41846859288706,
+          "local_peak_in_3x3mm_projection_c": 63.44632587473208
+        }
+      },
+      "h_assumed_w_per_m2k": 3,
+      "emissivity_assumed": 0.05,
+      "radiation_projected_view_factor_assumed": 0.5,
+      "nonlinear_iterations": 3,
+      "converged": true,
+      "aluminum_k_typical_w_per_mk": 167.0,
+      "grid": [
+        67,
+        32
+      ],
+      "pin_fin_efficiency_conditional": 0.9987041140938663,
+      "outside_convection_effective_area_m2": 0.1748118255226224,
+      "lower_projected_radiation_area_m2": 0.05141993481809703,
+      "heat_source_area_scope": "Four landed heat sources uniformly over exact metal lands; others idealized3x3mm sources with perfect transfer to plate. Neither models PCB thermal paths.",
+      "total_w": 10.557756677960572,
+      "plate_max_c": 63.5939080217209,
+      "plate_mean_c": 59.77225400031637,
+      "conditional_peak_base_rtheta_c_per_w": 2.234746333089247,
+      "conditional_60c_coldplate_allocation_satisfied": false,
+      "ambient_assumed_c": 40,
+      "convection_or_assembly_qualified": false
+    }
+  ],
+  "conditional_h_thresholds": [
+    {
+      "target_base_c": 60,
+      "emissivity_assumed": 0.8,
+      "minimum_uniform_h_in_this_model_bracket_w_per_m2k": [
+        2.8330139160156245,
+        2.8336181640624996
+      ],
+      "installed_h_is_bounded": false,
+      "convection_qualified": false
+    },
+    {
+      "target_base_c": 60,
+      "emissivity_assumed": 0.05,
+      "minimum_uniform_h_in_this_model_bracket_w_per_m2k": [
+        3.6698974609375,
+        3.670501708984375
+      ],
+      "installed_h_is_bounded": false,
+      "convection_qualified": false
+    },
+    {
+      "target_base_c": 65,
+      "emissivity_assumed": 0.8,
+      "minimum_uniform_h_in_this_model_bracket_w_per_m2k": [
+        1.9429565429687499,
+        1.9435607910156247
+      ],
+      "installed_h_is_bounded": false,
+      "convection_qualified": false
+    },
+    {
+      "target_base_c": 65,
+      "emissivity_assumed": 0.05,
+      "minimum_uniform_h_in_this_model_bracket_w_per_m2k": [
+        2.7979675292968746,
+        2.7985717773437493
+      ],
+      "installed_h_is_bounded": false,
+      "convection_qualified": false
+    }
+  ],
+  "supply_loss_provision_w": 10.557756677906315,
+  "project_ambient_allocation_c": [
+    0,
+    40
+  ],
+  "ambient_measured": false,
+  "required_base_to_ambient_at_60c_if_all_other_inputs_bounded_k_per_w": 1.8943418199675874,
+  "required_base_to_ambient_at_65c_if_all_other_inputs_bounded_k_per_w": 2.3679272749594844,
+  "downstream_scope": {
+    "digital_protected_current_allocation_a": 2.4,
+    "nominal_digital_delivered_w": 12.0,
+    "analog_protected_current_allocation_a": 0.251,
+    "nominal_analog_delivered_w": 1.255,
+    "delivered_power_is_measured_internal_heat": false,
+    "includes_bipolar_loads_in_these_numbers": false,
+    "fraction_into_metal_base": null,
+    "whole_unit_heat_upper_w": null
+  },
+  "actual_base_upper_c": null,
+  "physical_tests_performed": 0,
+  "whole_base_qualified": false,
+  "unbounded_inputs": [
+    "Supply losses10.557757W are analysis allocations, not source-bound measured upper powers across all simultaneous loads/temperature/startup/fault states",
+    "Delivered5V/bipolar power dissipated in processor/LED/control/audio boards is absent from supply-loss ledger; emitted optical/signal power and fraction leaving through shell/air/base are unknown",
+    "Uniform h is assumed over base/pins; actual horizontal orientation, fin-channel airflow, desk clearance, loaded feet, dust and neighbouring surfaces are not characterized",
+    "Radiation uses assumed emissivity and0.5 view factor to a body at ambient; actual coating/ageing/desk temperature and enclosure surroundings are not bounded",
+    "Typical aluminum k167 has no received material/temperature minimum; holes/countersinks/contact changes and3D effects are not fully enclosed",
+    "Unlanded device heat is placed directly onto ideal3x3mm plate source; no package/PCB/interface path or internal-air temperature is solved",
+    "Only supply's own heat provision is assigned; all heat toplate is conservative only within that incomplete source set",
+    "Numerical convergence/mesh agreement does not calibrate h or prove ambient/material/source boundary conditions"
+  ],
+  "required_measurements": [
+    "Complete enclosure input/output power and delivered/emitted power ledger at worst real simultaneous modes and full ambient range",
+    "Actual local base temperatures under every hot-device contact, ambient air below fins and representative radiative surroundings with positive expanded uncertainty",
+    "Assembled finite-clearance airflow/orientation/loaded-foot/finish sensitivity and steady-state/transient thermal soak",
+    "Whole-path junction-to-local-base measurements and independent received TIM, copper-wall and package/interface bounds"
+  ]
+}

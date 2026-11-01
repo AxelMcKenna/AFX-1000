@@ -1,0 +1,372 @@
+"""Create blocked control-pin escapes by detouring nearby narrow tracks.
+
+Do not move footprints, existing drills, rule areas, outlines, wide tracks or
+force-rail copper. Each escape is transactional and bounded. Native pad polygons
+and all eight layer identities are retained. New drill cuts and any changed AUX,
+reference or ground traces require fresh receiving/PDN acceptance.
+"""
+
+import argparse
+import copy
+import heapq
+import itertools
+import json
+import math
+import uuid
+from collections import Counter, defaultdict
+from pathlib import Path
+
+import numpy as np
+from shapely import contains_xy
+from shapely.geometry import LineString, Point, Polygon, box
+from shapely.ops import polygonize, unary_union
+from shapely.prepared import prep
+from shapely.strtree import STRtree
+
+from hardware.electronics.common.sexpr import children, first, read_sexpr, sexpr
+from hardware.electronics.rail_disconnect.revision26.layout import POWER_NETS
+
+from .route_e28 import WORK, sha
+
+LAYERS=("F.Cu","In1.Cu","In2.Cu","In3.Cu","In4.Cu","In5.Cu","In6.Cu","B.Cu")
+STEP=.025
+DETOUR_CLEARANCE=.212
+TARGETS=[
+    ("U10","5",[(185.27,137.725),(185.27,138.1),(185.27,138.4)],None),
+    ("U10","9",[(186.54,132.775),(186.54,132.45),(186.54,131.3)],None),
+    ("R85","2",[(153.9125,129.5),(154.3,129.5),(154.7,129.5)],None),
+    ("U11","12",[(116.1,113.35),(116.4,113.35),(116.8,113.35)],None),
+    ("U11","13",[(116.1,112.25),(116.4,112.5),(116.8,112.7)],(115.6,112.7)),
+    ("U41","6",[(161.3,152.25),(161.6,152.25),(161.2,152.25)],None),
+    ("U22","11",[(219.,133.2),(219.,133.),(219.,132.8)],None),
+]
+
+
+def xy(node,tag):
+    return tuple(round(float(v),6) for v in first(node,tag)[1:3])
+
+
+def copper(tree,pads,names):
+    rows=[]
+    for kind in ("segment","via"):
+        for n in children(tree,kind):
+            shape=(LineString([xy(n,"start"),xy(n,"end")]).buffer(float(first(n,"width")[1])/2)
+                   if kind=="segment" else Point(xy(n,"at")).buffer(float(first(n,"size")[1])/2))
+            rows.append(dict(kind=kind,node=n,net=names[str(first(n,"net")[1])],shape=shape,
+                             layers=[first(n,"layer")[1]] if kind=="segment" else LAYERS))
+    rows+=pads
+    for z in children(tree,"zone"):
+        if not children(z,"keepout"):
+            continue
+        layers=first(z,"layers")[1:] if children(z,"layers") else first(z,"layer")[1:]
+        shape=Polygon([tuple(map(float,p[1:3])) for p in first(first(z,"polygon"),"pts")[1:]])
+        rows.append(dict(kind="keepout",node=z,net="__KEEPOUT",shape=shape,layers=LAYERS if "*.Cu" in layers else layers))
+    return rows
+
+
+def route(start,target,obstacles,outline,width):
+    margin=DETOUR_CLEARANCE+width/2
+    x0,y0,x1,y1=LineString([start,target]).bounds
+    x0,y0=math.floor((x0-2)/STEP)*STEP,math.floor((y0-2)/STEP)*STEP
+    x1,y1=x1+2,y1+2
+    xs=np.arange(round((x1-x0)/STEP)+1)*STEP+x0
+    ys=np.arange(round((y1-y0)/STEP)+1)*STEP+y0
+    if len(xs)*len(ys)>1800000:
+        return None,"local extent too large"
+    xx,yy=xs[:,None],ys[None,:]
+    blocked=~contains_xy(outline.buffer(-.52-width/2),xx,yy)
+    local=[p for p in obstacles if p.intersects(box(x0-margin,y0-margin,x1+margin,y1+margin))]
+    foreign=unary_union(local)
+    for poly in local:
+        grown=poly.buffer(margin)
+        a,b,c,d=grown.bounds
+        i0,i1=max(0,math.floor((a-x0)/STEP)),min(len(xs),math.ceil((c-x0)/STEP)+1)
+        j0,j1=max(0,math.floor((b-y0)/STEP)),min(len(ys),math.ceil((d-y0)/STEP)+1)
+        if i0<i1 and j0<j1:
+            blocked[i0:i1,j0:j1]|=contains_xy(grown,xx[i0:i1],yy[:,j0:j1])
+    origin=tuple(round((v-o)/STEP) for v,o in zip(start,(x0,y0)))
+    goal=tuple(round((v-o)/STEP) for v,o in zip(target,(x0,y0)))
+    # Existing anchors have already passed native clearance. Their exact final
+    # attachment segments are checked below, including off-grid coordinates.
+    blocked[origin]=blocked[goal]=False
+    serial=itertools.count()
+    queue=[(math.dist(origin,goal),next(serial),origin)]
+    previous,costs,visited={},{origin:0.},set()
+    found=False
+    while queue:
+        _,_,p=heapq.heappop(queue)
+        if p in visited:
+            continue
+        visited.add(p)
+        if len(visited)>150000:
+            break
+        if p==goal:
+            found=True
+            break
+        for dx,dy in ((1,0),(-1,0),(0,1),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1)):
+            q=(p[0]+dx,p[1]+dy)
+            if not (0<=q[0]<len(xs) and 0<=q[1]<len(ys)) or blocked[q]:
+                continue
+            cost=costs[p]+math.hypot(dx,dy)
+            if cost<costs.get(q,float("inf")):
+                costs[q]=cost
+                previous[q]=p
+                heapq.heappush(queue,(cost+1.8*math.dist(q,goal),next(serial),q))
+    if not found:
+        return None,"no local path within 150000-node budget"
+    nodes=[goal]
+    while nodes[-1]!=origin:
+        nodes.append(previous[nodes[-1]])
+    nodes.reverse()
+    points=[start]
+    direction=None
+    for p,q in zip(nodes,nodes[1:]):
+        delta=(q[0]-p[0],q[1]-p[1])
+        if delta!=direction:
+            points.append((float(xs[p[0]]),float(ys[p[1]])))
+            direction=delta
+    points.extend([(float(xs[goal[0]]),float(ys[goal[1]])),target])
+    points=[p for i,p in enumerate(points) if not i or p!=points[i-1]]
+    path=LineString(points)
+    clearance=path.distance(foreign)-width/2
+    if clearance<.199999 or not outline.covers(path.buffer(.5+width/2)):
+        return None,f"exact anchor/segment clearance fails ({clearance:.6f}mm)"
+    legal=prep(outline.buffer(-.5-width/2).difference(foreign.buffer(.199999+width/2)))
+    smooth=[points[0]]
+    i=0
+    while i<len(points)-1:
+        for j in range(len(points)-1,i,-1):
+            if legal.covers(LineString([points[i],points[j]])):
+                break
+        else:
+            # Preserve analytically checked anchors on exact 0.2mm boundaries.
+            j=i+1
+        smooth.append(points[j])
+        i=j
+    return smooth,None
+
+
+def adaptive_candidates(rows,spatial,net,face,start,outline,radius):
+    """Rank a bounded local grid without moving physical pads or old drills."""
+    immutable=[r for r in rows if r["net"]!=net and (r["kind"]!="segment" or
+        r["net"] in POWER_NETS or float(first(r["node"],"width")[1])>.400001)]
+    via_forbidden=unary_union([r["shape"] for r in immutable]).buffer(.512)
+    face_forbidden=unary_union([r["shape"] for r in immutable if face in r["layers"]]).buffer(.312)
+    free_face=prep(outline.buffer(-.62).difference(face_forbidden))
+    cells=round(radius/.2)
+    xs=np.arange(-cells,cells+1)*.2+start[0]
+    ys=np.arange(-cells,cells+1)*.2+start[1]
+    xx,yy=xs[:,None],ys[None,:]
+    permitted=~contains_xy(via_forbidden,xx,yy)&contains_xy(outline.buffer(-.82),xx,yy)
+    own_drills=[xy(r["node"],"at") for r in rows if r["kind"]=="via" and r["net"]==net]
+    ranked=[]
+    for ix,iy in np.argwhere(permitted):
+        goal=(round(float(xs[ix]),6),round(float(ys[iy]),6))
+        if any(math.dist(goal,p)<.550001 for p in own_drills):
+            continue
+        options=[[start,goal],[start,(goal[0],start[1]),goal],[start,(start[0],goal[1]),goal]]
+        for path in options:
+            path=[p for i,p in enumerate(path) if not i or p!=path[i-1]]
+            if len(path)<2 or not free_face.covers(LineString(path)):
+                continue
+            disk=Point(goal).buffer(.3)
+            shapes={layer:disk for layer in LAYERS}
+            shapes[face]=unary_union([disk,LineString(path).buffer(.1)])
+            selected={}
+            for layer,shape in shapes.items():
+                for idx in spatial.query(shape.buffer(.212),predicate="intersects"):
+                    row=rows[int(idx)]
+                    if row["kind"]=="segment" and row["net"]!=net and layer in row["layers"]:
+                        selected[str(first(row["node"],"uuid")[1])]=row
+            groups={(r["net"],r["layers"][0]) for r in selected.values()}
+            score=len(groups)*.8+len(selected)*.04+LineString(path).length
+            ranked.append((score,goal,path))
+    ranked.sort(key=lambda r:r[0])
+    result=[]
+    for score,goal,path in ranked:
+        if all(math.dist(goal,p[0])>=.6 for p in result):
+            result.append((goal,path))
+        if len(result)==3:
+            break
+    return result
+
+
+def run():
+    global DETOUR_CLEARANCE
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--label",default="local-control-escapes")
+    parser.add_argument("--adaptive",action="store_true")
+    parser.add_argument("--radius",type=float,choices=[4.,6.],default=4.)
+    parser.add_argument("--detour-clearance",type=float,choices=[.212,.2001],default=.212)
+    parser.add_argument("--defer-digital",action="store_true")
+    parser.add_argument("--reuse-ready-via",action="store_true")
+    args=parser.parse_args()
+    DETOUR_CLEARANCE=args.detour_clearance
+    assert args.label and all(c.isalnum() or c in "-_" for c in args.label)
+    source=WORK/"generated/control-wing-return-smoothed/rail_disconnect.kicad_pcb"
+    inputs=WORK/"generated/control-escape-inputs"
+    graph=json.loads((inputs/"components.json").read_text())
+    assert graph["source_sha256"][str(source)]==sha(source)
+    tree=read_sexpr(source.read_text())
+    frozen=copy.deepcopy(tree)
+    names={str(n[1]):str(n[2]).lstrip("/") for n in children(tree,"net")}
+    codes={v:k for k,v in names.items()}
+    pad_data=json.loads((inputs/"pads.json").read_text())
+    pads=[]
+    bypad={}
+    for row in pad_data["pad_polygons"]:
+        bypad[row["ref"],row["pin"]]=row
+        for layer,polys in row["layers"].items():
+            for poly in polys:
+                pads.append(dict(kind="pad",node=None,net=row["net"],layers=[layer],
+                    shape=Polygon(poly["outer"],poly["holes"]),ref=row["ref"],pin=row["pin"]))
+    outline=list(polygonize([LineString([xy(n,"start"),xy(n,"end")]) for n in children(tree,"gr_line") if first(n,"layer")[1]=="Edge.Cuts"]))
+    assert len(outline)==1
+    outline=outline[0]
+    out=WORK/"generated"/args.label
+    out.mkdir(exist_ok=False)
+    logs=[]
+    additions=[]
+    removals=[]
+
+    def append_segment(work,net,layer,points,width,label):
+        for i,(p,q) in enumerate(zip(points,points[1:])):
+            if math.dist(p,q)<1e-8:
+                continue
+            uid=uuid.uuid5(uuid.NAMESPACE_URL,f"AX03:local-escape:{sha(source)}:{label}:{i}")
+            work.append(read_sexpr(f'(segment (start {p[0]:.6f} {p[1]:.6f}) (end {q[0]:.6f} {q[1]:.6f}) (width {width}) (layer "{layer}") (net {codes[net]}) (uuid {uid}))'))
+
+    for ref,pin,choices,elbow in TARGETS:
+        pad=bypad[ref,pin]
+        net=pad["net"]
+        face=next(layer for layer in pad["layers"] if layer in ("F.Cu","B.Cu"))
+        start=tuple(pad["position_mm"])
+        assert outline.contains(Point(start))
+        attempts=[]
+        accepted=False
+        initial_rows=copper(tree,pads,names)
+        initial_spatial=STRtree([r["shape"] for r in initial_rows])
+        candidates=[]
+        for goal in choices:
+            path=[start]+([elbow] if elbow else [])+[goal]
+            candidates.append((goal,[p for i,p in enumerate(path) if not i or p!=path[i-1]],True))
+        if args.adaptive:
+            candidates+=[(goal,path,True) for goal,path in adaptive_candidates(initial_rows,initial_spatial,net,face,start,outline,args.radius)]
+        if ref=="U22" and args.reuse_ready_via:
+            immutable=[r["shape"] for r in initial_rows if face in r["layers"] and r["net"]!=net and
+                (r["kind"]!="segment" or r["net"] in POWER_NETS or float(first(r["node"],"width")[1])>.400001)]
+            vias=sorted([xy(r["node"],"at") for r in initial_rows if r["kind"]=="via" and r["net"]==net],key=lambda p:math.dist(p,start))
+            reusable=[]
+            for goal in vias[:3]:
+                path,reason=route(start,goal,immutable,outline,.2)
+                if path is not None:
+                    reusable.append((goal,path,False))
+            candidates=reusable+candidates
+        for goal,path,new_via in candidates:
+            work=copy.deepcopy(tree)
+            rows=copper(work,pads,names)
+            spatial=STRtree([r["shape"] for r in rows])
+            disk=Point(goal).buffer(.3)
+            shapes={layer:disk for layer in LAYERS} if new_via else {}
+            if len(path)>1:
+                shapes[face]=unary_union([disk,LineString(path).buffer(.1)]) if new_via else LineString(path).buffer(.1)
+            if not outline.covers(disk.buffer(.5)):
+                attempts.append(dict(via=goal,reason="edge margin"))
+                continue
+            bad=[]
+            selected={}
+            for layer,shape in shapes.items():
+                for idx in spatial.query(shape.buffer(.200001),predicate="intersects"):
+                    row=rows[int(idx)]
+                    if layer not in row["layers"] or row["net"]==net:
+                        continue
+                    if row["kind"]=="segment":
+                        node=row["node"]
+                        uid=str(first(node,"uuid")[1])
+                        width=float(first(node,"width")[1])
+                        if row["net"] in POWER_NETS or width>.400001:
+                            bad.append("protected force/wide copper")
+                        else:
+                            selected[uid]=row
+                    else:
+                        bad.append(row["kind"]+":"+str(row.get("ref",row["net"])))
+            for row in rows:
+                if new_via and row["kind"]=="via" and row["net"]==net and math.dist(goal,xy(row["node"],"at"))<.550001:
+                    bad.append("existing same-net drill spacing")
+            if bad:
+                attempts.append(dict(via=goal,reason="fixed copper or hole",obstacles=sorted(set(bad))))
+                continue
+            removed=[sexpr(r["node"]) for r in selected.values()]
+            groups=defaultdict(list)
+            for row in selected.values():
+                groups[row["layers"][0],row["net"]].append(row["node"])
+                work.remove(row["node"])
+            uid=uuid.uuid5(uuid.NAMESPACE_URL,f"AX03:local-escape:via:{sha(source)}:{ref}:{pin}:{goal}")
+            if new_via:
+                work.append(read_sexpr(f'(via (at {goal[0]} {goal[1]}) (size .6) (drill .3) (layers "F.Cu" "B.Cu") (net {codes[net]}) (uuid {uid}))'))
+            append_segment(work,net,face,path,.2,f"{ref}.{pin}:escape")
+            repaired=[]
+            failed=None
+            for (layer,other),nodes in sorted(groups.items()):
+                widths=[float(first(n,"width")[1]) for n in nodes]
+                width=max(widths)
+                ends=Counter(p for n in nodes for p in (xy(n,"start"),xy(n,"end")))
+                # Endpoints wholly within the new copper's exclusion are old
+                # dangling stubs: physical foreign pads/drills were ruled out.
+                terminals=[p for p,c in ends.items() if c%2 and shapes[layer].distance(Point(p))>=.2+width/2-1e-6]
+                clipped=[p for p,c in ends.items() if c%2 and p not in terminals]
+                joined=terminals[:1]
+                deferred=False
+                for terminal in terminals[1:]:
+                    anchor=min(joined,key=lambda p:math.dist(p,terminal))
+                    obstacles=[r["shape"] for r in copper(work,pads,names) if layer in r["layers"] and r["net"]!=other]
+                    points,reason=route(anchor,terminal,obstacles,outline,width)
+                    if points is None:
+                        if args.defer_digital and other=="P19_OV_OK_SCHMITT" and layer=="B.Cu":
+                            deferred=True
+                            break
+                        failed=f"{other} on {layer}: {reason}"
+                        break
+                    append_segment(work,other,layer,points,width,f"{ref}.{pin}:{other}:{len(repaired)}:{terminal}")
+                    joined.append(terminal)
+                if failed:
+                    break
+                repaired.append(dict(net=other,layer=layer,width_mm=width,removed_segments=len(nodes),
+                    retained_outer_endpoints=terminals,clipped_dangling_endpoints=clipped,
+                    deferred_to_inner_layer_routing=deferred))
+            if failed:
+                attempts.append(dict(via=goal,reason=failed))
+                continue
+            old_ids={str(first(n,"uuid")[1]) for kind in ("segment","via") for n in children(tree,kind)}
+            new=[sexpr(n) for kind in ("segment","via") for n in children(work,kind) if str(first(n,"uuid")[1]) not in old_ids]
+            attempts.append(dict(via=goal,existing_via_reused=not new_via,escape_path=path,accepted_for_native_review=True,detours=repaired))
+            tree=work
+            additions+=new
+            removals+=removed
+            accepted=True
+            break
+        logs.append(dict(ref=ref,pin=pin,net=net,escaped=accepted,attempts=attempts))
+        print(ref,pin,accepted,attempts[-1].get("reason","staged"),flush=True)
+    def protected(t):
+        return Counter(sexpr(n) for n in children(t,"segment") if names[str(first(n,"net")[1])] in POWER_NETS or float(first(n,"width")[1])>.400001)
+
+    assert protected(tree)==protected(frozen)
+
+    def untouched(t):
+        return [sexpr(n) for n in t if not (isinstance(n,list) and n and n[0] in ("segment","via"))]
+
+    assert untouched(tree)==untouched(frozen)
+    old_vias={sexpr(n) for n in children(frozen,"via")}
+    assert old_vias<={sexpr(n) for n in children(tree,"via")}
+    pcb=out/source.name
+    pcb.write_text(sexpr(tree)+"\n")
+    (out/"escapes.json").write_text(json.dumps(dict(source_sha256={str(p):sha(p) for p in (source,inputs/"pads.json",inputs/"components.json",Path(__file__))},
+        candidate_sha256=sha(pcb),results=logs,removed_control_segments=removals,added_objects=additions,
+        adaptive_radius_mm=args.radius,planning_detour_clearance_mm=DETOUR_CLEARANCE,
+        force_and_wide_tracks_exact=True,all_original_drills_and_footprint_poses_exact=True,
+        outline_holes_zones_and_rules_exact=True,changed_AUX_reference_ground_paths_need_fresh_review=True,
+        native_checks_pending=True,physical_qualified=False,fabrication_released=False),indent=2)+"\n")
+
+
+if __name__=="__main__":
+    run()

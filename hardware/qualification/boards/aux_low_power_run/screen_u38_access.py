@@ -1,0 +1,127 @@
+"""Read-only placement/fanout screen for the four blocked U38 reference pins."""
+
+import copy
+import json
+import math
+from collections import defaultdict
+from pathlib import Path
+
+from shapely import affinity
+from shapely.geometry import LineString, Point, box
+from shapely.ops import unary_union
+from shapely.prepared import prep
+
+from hardware.electronics.common.sexpr import children, first, read_sexpr
+from hardware.electronics.output_stage.check_placement import courtyard
+from hardware.electronics.rail_disconnect.revision28.repair import Router
+
+from .route_e28 import WORK, sha
+
+
+def shape(g):
+    if g["kind"]=="line":
+        return LineString([g["start"],g["end"]]).buffer(g["width"]/2)
+    if g["kind"]=="via":
+        return Point(g["xy"]).buffer(g["radius"])
+    x,y=g["xy"]
+    w,h=g["size"]
+    return box(x-w/2,y-h/2,x+w/2,y+h/2)
+
+
+def run():
+    source=WORK/"generated/eight-layer-followup/rail_disconnect.kicad_pcb"
+    out=WORK/"generated/u38-access-screen-calibrated.json"
+    assert not out.exists()
+    tree=read_sexpr(source.read_text())
+    virtual=copy.deepcopy(tree)
+    added=[n for n in children(virtual,"segment") if first(n,"layer")[1] in ("In3.Cu","In4.Cu")]
+    virtual[:]=[n for n in virtual if n not in added]
+    mapping={"In5.Cu":"In3.Cu","In6.Cu":"In4.Cu"}
+
+    def rename(node):
+        for i,value in enumerate(node):
+            if isinstance(value,list):
+                rename(value)
+            elif value in mapping:
+                node[i]=mapping[value]
+
+    rename(virtual)
+    rt=Router(virtual)
+    names={str(n[1]):str(n[2]).lstrip("/") for n in children(virtual,"net")}
+    for n in added:
+        rt.geometry.append(dict(kind="line",net=names[str(first(n,"net")[1])],layers=(99,),
+            start=tuple(float(v)-100 for v in first(n,"start")[1:3]),
+            end=tuple(float(v)-100 for v in first(n,"end")[1:3]),width=float(first(n,"width")[1])))
+    fp=next(f for f in children(tree,"footprint") if any(p[1]=="Reference" and p[2]=="U38" for p in children(f,"property")))
+    old=tuple(float(v)-100 for v in first(fp,"at")[1:3])
+    court=box(*[float(v)-100 for v in courtyard(fp,"F.CrtYd")])
+    other_courts=[]
+    for f in children(tree,"footprint"):
+        if f is fp or first(f,"layer")[1]!="F.Cu":
+            continue
+        try:
+            other_courts.append(box(*[float(v)-100 for v in courtyard(f,"F.CrtYd")]))
+        except AssertionError:
+            pass
+    # The source uses native courtyard non-overlap, including a 0.025mm gap
+    # to C81. Do not invent an additional0.2mm courtyard exclusion here.
+    reserved=prep(unary_union(other_courts))
+    grouped=defaultdict(list)
+    front=defaultdict(list)
+    for g in rt.geometry:
+        if g.get("ref")=="U38":
+            continue
+        poly=shape(g)
+        grouped[g["net"]].append(poly)
+        if 0 in g["layers"]:
+            front[g["net"]].append(poly)
+    grouped={n:unary_union(rows) for n,rows in grouped.items()}
+    front={n:unary_union(rows) for n,rows in front.items()}
+    pads=rt.by_ref["U38"]
+    foreign={p["net"]:prep(unary_union([s for n,s in grouped.items() if n!=p["net"]]).buffer(.512)) for p in pads}
+    foreign_front={p["net"]:prep(unary_union([s for n,s in front.items() if n!=p["net"]])) for p in pads}
+    placement=0
+    scored=[]
+    for ix in range(-24,25):
+        for iy in range(-20,4):
+            dx,dy=ix*.25,iy*.25
+            moved=affinity.translate(court,dx,dy)
+            if not box(.5,.5,155.5,54).contains(moved) or reserved.intersects(moved):
+                continue
+            newpads=[dict(p,xy=(p["xy"][0]+dx,p["xy"][1]+dy)) for p in pads]
+            if any(foreign_front[p["net"]].intersects(shape(p).buffer(.2-1e-7)) for p in newpads):
+                continue
+            placement+=1
+            choices={}
+            for p in newpads:
+                other=unary_union([shape(q) for q in newpads if q["net"]!=p["net"]])
+                side=-1 if p["xy"][0]<old[0]+dx else 1
+                options=[]
+                for length in (.7,1.,1.3,1.7,2.2,2.7):
+                    for offset in (0.,-.2,.2,-.4,.4):
+                        end=(p["xy"][0]+side*length,p["xy"][1]+offset)
+                        line=LineString([p["xy"],end])
+                        disk=Point(end)
+                        if not (.85<end[0]<155.15 and .85<end[1]<53.65):
+                            continue
+                        if foreign[p["net"]].intersects(disk) or other.buffer(.512).intersects(disk):
+                            continue
+                        if foreign_front[p["net"]].intersects(line.buffer(.312)) or other.buffer(.312).intersects(line):
+                            continue
+                        options.append(dict(xy=end,length_mm=line.length))
+                choices[p["pin"]]=options
+            signal_pins=[p["pin"] for p in newpads if p["net"] not in ("AGND","V2V5_AUX")]
+            count=sum(bool(choices[p]) for p in signal_pins)
+            scored.append(dict(at_mm=[old[0]+dx+100,old[1]+dy+100],shift_mm=[dx,dy],
+                signal_pins_with_direct_via_access=count,signal_pin_count=len(signal_pins),
+                all_pad_access_counts={p:len(v) for p,v in choices.items()},options=choices))
+    scored.sort(key=lambda r:(-r["signal_pins_with_direct_via_access"],math.hypot(*r["shift_mm"])))
+    out.write_text(json.dumps(dict(source_sha256=sha(source),recipe_sha256=sha(Path(__file__)),
+        clearance_mm=.2,via_diameter_mm=.6,drill_mm=.3,clear_placement_count=placement,best=scored[:5],
+        no_source_changes=True,individual_fanouts_not_a_joint_routing_or_native_pass=True,
+        physical_qualified=False,fabrication_released=False),indent=2)+"\n")
+    print("U38 clear placements",placement,"best",[(r["at_mm"],r["signal_pins_with_direct_via_access"]) for r in scored[:3]],flush=True)
+
+
+if __name__=="__main__":
+    run()

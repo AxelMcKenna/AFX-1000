@@ -1,0 +1,114 @@
+{
+  "revision": "c95-TPS7A16-local-cap-manufacturer-layout-FAIL",
+  "source_sha256": {
+    "hardware/cad/a12/thermal/candidates/u102_stronger/layout_failure.py": "d397407c1a7fec7c55904ad85e4d0e584e1f2f0317d33ab4c95b83befeff72bb",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/closed/power_p03.kicad_pcb": "c95bf1100a9119ef2e368bf0926148d35e1fdac5a905d2bff406c35277a0489f",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/closed/components.json": "2f318ddba4a70cc82915e5a995cb27fd27ead2f48e82eaeca58cc0a3d2f7e47c",
+    "hardware/cad/a12/thermal/candidates/u102_stronger/sources/TPS7A16-RevF.pdf": "4e05cfdef8f64684f9f24b7d1f86e83badb7784c09c96f2ddbcbdbc0a3b48f80",
+    "hardware/electronics/common/sexpr.py": "ececf6e46acc3260d2d0f1cc5a258675f93a70d7694d2941c65d3de5c7e777d6",
+    "hardware/electronics/common/netlists.py": "1fed0ffc2a6943a5d550fd23342fb5924319864021f0348dd51f931941645339"
+  },
+  "source_pcb_sha256": "c95bf1100a9119ef2e368bf0926148d35e1fdac5a905d2bff406c35277a0489f",
+  "actual_facts": {
+    "regulator_face": "F.Cu",
+    "actual_input_node": "VIN_IC",
+    "actual_input_caps": [
+      {
+        "ref": "C102",
+        "part": "2.2uF 100V X7R",
+        "face": "B.Cu",
+        "nominal_uf": 2.2,
+        "native_centre_mm": [
+          120.0,
+          111.5
+        ],
+        "effective_capacitance_lower_uf": null
+      }
+    ],
+    "nominal_front_input_total_uf": 0,
+    "minimum_effective_input_cap_uf": 0.1,
+    "output_caps": [
+      {
+        "ref": "C106",
+        "part": "10uF 16V X7R",
+        "face": "B.Cu",
+        "nominal_uf": 10.0,
+        "native_centre_mm": [
+          134.0,
+          122.0
+        ],
+        "effective_capacitance_lower_uf": null
+      },
+      {
+        "ref": "C107",
+        "part": "100nF 16V X7R",
+        "face": "F.Cu",
+        "nominal_uf": 0.1,
+        "native_centre_mm": [
+          129.0,
+          116.5
+        ],
+        "effective_capacitance_lower_uf": null
+      },
+      {
+        "ref": "C108",
+        "part": "100nF 16V X7R",
+        "face": "B.Cu",
+        "nominal_uf": 0.1,
+        "native_centre_mm": [
+          130.0,
+          108.0
+        ],
+        "effective_capacitance_lower_uf": null
+      },
+      {
+        "ref": "C301",
+        "part": "100nF 50V X7R",
+        "face": "B.Cu",
+        "nominal_uf": 0.1,
+        "native_centre_mm": [
+          253.5,
+          112.65
+        ],
+        "effective_capacitance_lower_uf": null
+      },
+      {
+        "ref": "C302",
+        "part": "100nF 50V X7R",
+        "face": "B.Cu",
+        "nominal_uf": 0.1,
+        "native_centre_mm": [
+          249.4,
+          114.25
+        ],
+        "effective_capacitance_lower_uf": null
+      }
+    ],
+    "intended_bulk_same_face": false,
+    "C107_front_nominal_uf": 0.1,
+    "minimum_effective_output_cap_uf": 2.2,
+    "C107_by_itself_can_meet_minimum_even_before_derating": false,
+    "actual_minimum_local_effective_capacitance_uf": null,
+    "locality_and_ground_path_qualified": false,
+    "regulator_stability_qualified": false
+  },
+  "manufacturer_source": {
+    "url": "https://www.ti.com/lit/ds/symlink/tps7a16.pdf",
+    "revision": "SBVS171F Oct2015",
+    "locations": [
+      "Printedp15 section8.2.1.2.1.3 minimum0.1uFinput/2.2uFoutput;10uFrecommended",
+      "Printedp19 section10.1 sameface/close/directOUTcapGND;viasandlongtracesdiscouraged"
+    ]
+  },
+  "status": "FAILED manufacturer layout recommendation: missing adequate local same-face input AND output capacitors",
+  "raw_native_zero_erc_drc_parity_opens_does_not_override_failure": true,
+  "explicit_missing_evidence": [
+    "Real selected sameface local input capacitor with effective>=0.1uF onVIN_IC and local output capacitor with effective>=2.2uF across actual bias/temp/tolerance/ageing envelope",
+    "Actual direct OUT-to-localCout-to-regulatorGND loop and appropriate input/ground layout",
+    "Renewed native body/thermal void extraction after actual part/pose/routing repair",
+    "Actual startup/load-step/PSRR/noise/temperature stability verification"
+  ],
+  "physical_tests_performed": 0,
+  "thermal_design_adopted": false,
+  "fabrication_released": false
+}

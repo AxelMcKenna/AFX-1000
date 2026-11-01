@@ -1,0 +1,44 @@
+"""Actual B-copper/land/courtyard screen near the unchanged eight OV receivers."""
+import hashlib,json,math
+from pathlib import Path
+from shapely.geometry import Point,LineString,Polygon,box
+from shapely.ops import unary_union
+from shapely.prepared import prep
+from ...common.sexpr import children,first,read_sexpr
+from ...output_stage.check_placement import courtyard
+ROOT=Path(__file__).resolve().parent;SOURCE=ROOT/'generated/coherent-ground-repair-work'
+
+def main():
+ t=read_sexpr((SOURCE/'rail_disconnect.kicad_pcb').read_text());pads=json.loads((SOURCE/'generated/native-pads.json').read_text())['pad_polygons'];obs=[];courts=[]
+ for p in pads:
+  for g in p['layers'].get('B.Cu',[]):obs.append(Polygon(g['outer'],g['holes']))
+ for k in ('segment','via'):
+  for n in children(t,k):
+   if k=='via':obs.append(Point(*map(float,first(n,'at')[1:])).buffer(float(first(n,'size')[1])/2))
+   elif first(n,'layer')[1]=='B.Cu':obs.append(LineString([list(map(float,first(n,q)[1:])) for q in ('start','end')]).buffer(float(first(n,'width')[1])/2))
+ for f in children(t,'footprint'):
+  if first(f,'layer')[1]=='B.Cu':
+   try:courts.append(box(*courtyard(f,'B.CrtYd')))
+   except (IndexError,ValueError):pass
+ # Mounting boss physical reserve, present regardless of courtyard face.
+ courts.extend(Point(100+x,100+y).buffer(3.05) for x,y in [(4,20)])
+ ob=prep(unary_union(obs).buffer(.205));cs=unary_union(courts);found=[]
+ for i,target in enumerate([(110,113),(116,113),(111,117)]):
+  choices=[]
+  for yi in range(34,102):
+   y=100+yi*.25
+   for xi in range(27,102):
+    x=100+xi*.25;u=box(x-2.225,y-1.45,x+2.225,y+1.45)
+    if u.intersects(cs):continue
+    up=[box(x+sx-.425,y+dy-.15,x+sx+.425,y+dy+.15) for sx in (-1.55,1.55) for dy in (-.75,-.25,.25,.75)]
+    if any(ob.intersects(p) for p in up):continue
+    for ox,oy in [(3.8,0),(-3.8,0),(-.7,3.2),(-.7,-3.2)]:
+     cx,cy=x+ox,y+oy;c=box(cx-1.55,cy-.75,cx+1.55,cy+.75)
+     if c.intersects(cs) or c.intersects(u):continue
+     cp=[box(cx+sx-.475,cy-.5,cx+sx+.475,cy+.5) for sx in (-.8,.8)]
+     if any(ob.intersects(p) for p in cp):continue
+     choices.append((math.dist((x,y),target),x,y,cx,cy,u,c))
+  if not choices:print('no legal local pair',i,flush=True);break
+  score,x,y,cx,cy,u,c=min(choices,key=lambda v:v[0]);cs=unary_union([cs,u.buffer(.05),c.buffer(.05)]);obs.extend([u,c]);ob=prep(unary_union(obs).buffer(.205));found.append(dict(ref=f'U{36+i}',local_mm=[x-100,y-100],cap_local_mm=[cx-100,cy-100],face='B',candidate_count=len(choices),score=score));print(found[-1],flush=True)
+ out=ROOT/'generated/schmitt-cone-proposal/near-receiver-search.json';out.write_text(json.dumps(dict(source_sha256=hashlib.sha256((SOURCE/'rail_disconnect.kicad_pcb').read_bytes()).hexdigest(),recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),rows=found,native_fit_and_force_cuts_not_proven=True),indent=2)+'\n')
+if __name__=='__main__':main()

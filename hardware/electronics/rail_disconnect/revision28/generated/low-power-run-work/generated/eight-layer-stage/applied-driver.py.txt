@@ -1,0 +1,68 @@
+"""Stage a balanced eight-layer alternative at the unchanged outline/thickness.
+
+The stack is a receiving proposal, not an accepted fabricator construction.
+Existing copper geometry is retained; old In3/In4 are renamed In5/In6. Two
+central layers provide logic routing and its return. All electrical/MCAD and
+manufacturing acceptance must be refreshed rather than inherited.
+"""
+
+import json
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+
+from .route_e28 import WORK, sha
+
+
+def run():
+    source=WORK/"generated/receiver-direct-routes/rail_disconnect.kicad_pcb"
+    out=WORK/"generated/eight-layer-stage"
+    out.mkdir(exist_ok=False)
+    tree=read_sexpr(source.read_text())
+    mapping={"In3.Cu":"In5.Cu","In4.Cu":"In6.Cu"}
+
+    def rename(node):
+        for i,value in enumerate(node):
+            if isinstance(value,list):
+                rename(value)
+            elif value in mapping:
+                node[i]=mapping[value]
+
+    rename(tree)
+    layers=first(tree,"layers")
+    for row in layers[1:]:
+        if row[1]=="In5.Cu":
+            row[0]=a(5)
+        elif row[1]=="In6.Cu":
+            row[0]=a(6)
+    at=next(i for i,row in enumerate(layers) if isinstance(row,list) and row[1]=="In5.Cu")
+    layers[at:at]=[[a(3),"In3.Cu",a("signal")],[a(4),"In4.Cu",a("power")]]
+    stack=first(first(tree,"setup"),"stackup")
+    old=sexpr(stack)
+    dielectric=(.10,.23,.10,.19,.10,.23,.10)
+    names=("F.Cu","In1.Cu","In2.Cu","In3.Cu","In4.Cu","In5.Cu","In6.Cu","B.Cu")
+    parts=[]
+    for i,name in enumerate(names):
+        thickness=.035 if name in ("In3.Cu","In4.Cu") else .08
+        parts.append(read_sexpr(f'(layer "{name}" (type "copper") (thickness {thickness}))'))
+        if i<7:
+            parts.append(read_sexpr(f'(layer "dielectric {i+1}" (type "prepreg") (thickness {dielectric[i]}) (material "FR4_RECEIVING_UNACCEPTED") (epsilon_r 4.5) (loss_tangent .02))'))
+    assert abs(sum(dielectric)+6*.08+2*.035-1.6)<1e-12
+    noncopper=[n for n in stack[1:] if not (isinstance(n,list) and n and n[0]=="layer" and
+               (str(n[1]).endswith(".Cu") or str(n[1]).startswith("dielectric ")))]
+    stack[:]=[a("stackup"),*parts,*noncopper]
+    assert float(first(first(tree,"general"),"thickness")[1])==1.62
+    pcb=out/source.name
+    pcb.write_text(sexpr(tree)+"\n")
+    (out/"construction.json").write_text(json.dumps(dict(source_sha256=sha(source),candidate_sha256=sha(pcb),
+        recipe_sha256=sha(Path(__file__)),copper_layer_mapping=mapping,old_stackup=old,
+        new_stackup=sexpr(stack),layer_count=8,nominal_thickness_mm=1.62,
+        copper_plus_dielectric_mm=1.6,solder_masks_total_nominal_mm=.02,
+        board_outline_and_all_existing_XY_geometry_unchanged=True,
+        existing_through_vias_span_new_layers=True,additional_drills=0,
+        manufacturer_stackup_accepted=False,old_electrical_bounds_inherited=False,
+        native_checks_pending=True,physical_qualified=False,fabrication_released=False),indent=2)+"\n")
+
+
+if __name__=="__main__":
+    run()

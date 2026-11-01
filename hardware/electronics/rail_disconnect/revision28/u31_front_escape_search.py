@@ -1,0 +1,53 @@
+"""Bounded exact-pad escape feasibility across previously copper-clear U31 sites."""
+
+import copy
+import hashlib
+import json
+from pathlib import Path
+
+from ...common.sexpr import a, children, first, read_sexpr
+from .band_local_escape import escape
+from .repair import Router
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "generated/u31-front-placement-work"
+OUT = ROOT / "generated/u31-front-escape-search"
+
+
+def main():
+    data = (SOURCE / "rail_disconnect.kicad_pcb").read_bytes()
+    source = read_sexpr(data.decode())
+    rows = []
+    for dx, dy in [(x / 10, 0) for x in range(0, 12)] + [(x / 10, 0.1) for x in range(0, 12)]:
+        t = copy.deepcopy(source)
+        for f in children(t, "footprint"):
+            ref = next(p[2] for p in children(f, "property") if p[1] == "Reference")
+            if ref in ("U31", "C76"):
+                at = first(f, "at")
+                at[1] = a(str(float(at[1]) + dx))
+                at[2] = a(str(float(at[2]) + dy))
+        r = Router(t)
+        p = next(p for p in r.by_ref["U31"] if p["pin"] == "7")
+        result, reason = escape(r, p, maxdistance=4, step=0.025)
+        rows.append(dict(offset=[dx, dy], actual_pin7_escape=result, reason=reason))
+        print(dx, dy, bool(result), reason, flush=True)
+    OUT.mkdir(exist_ok=True)
+    (OUT / "search.json").write_text(
+        json.dumps(
+            dict(
+                source_pcb_sha256=hashlib.sha256(data).hexdigest(),
+                recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                attempts=rows,
+                source_copper_unchanged=True,
+                no_source_geometry_written=True,
+                native_MCAD_pending=True,
+                qualified=False,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

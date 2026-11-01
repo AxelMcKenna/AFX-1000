@@ -1,0 +1,28 @@
+# Private P03 strict native-centering successor
+
+This NEW private candidate repairs previously unchecked via-centering geometry in the sealed `aux-u10-combined/db83` supply. It does **not** integrate AX02 or repair the original loaded POWER_RUN interface, and it does not qualify the board physically. Canonical42add and sealeddb83 remain untouched. No component, port, hole, mounting position, schematic net, source voltage, bulk capacitor, load or source/current allocation changes.
+
+The originaldb83 receipt is genuinely0ERC/DRC/parity/opens under its recorded profile, but its rawreport lists five stock ignored checks. Enabling all five as ERROR on an exact private clone exposes171track_not_centered_on_via errors; there are no shorts, electrical clearances, holes, opens or parity findings at that baseline. The uncapped native connectivity API independently returns0. The strict successor now passes fresh all-track-errors/all-severity/refill/schematic-parity checks with **0errors,0warnings,0opens,0parity,0ERC and `ignored_checks: []`**. Independent native API again reports0uncappedopens. All256actual exported native components/pins/values match the unchanged circuit.
+
+Every flagged endpoint was inside its existing same-net via pad; the largest displacement was0.316228mm. The declared source delta changes139source segments, removes32short centrelines wholly inside existing same-net via-pad outlines and adds two local dogleg segments. The entire copper body of21of those32segments was not necessarily contained inside the via pad; no claim of unchanged sheet copper is made. Every original complete footprint(266includingmounts), every via(1254), stackup, setup, board outline and geometry-rule value remains exact. Removed/changed/added full source objects and UUIDs are retained in `generated/source-delta.json`; `reproduce.py` replays that exact delta from the captured db83 source and checks it against actual resulting geometry.
+
+The first centering trial left four newly exposed second-endpoint associations and introduced four clearance findings. Those failed rawresults are preserved. Four endpoints were then centred; READY nearU23feedback and AGND nearU13feedback received same-width local doglegs with all feedback pads/vias fixed. Two0.333542mm P19_SRC In3 entries require an explicit **0.8→0.6mm local neck** so their centred endcaps clear the fixedP19_SET via. This is the only trace-width change. No other power width is reduced. At a conditional100°C copper resistivity2.2660256e-8Ωm and requiredminimum70µm inner copper, the two entire necks treated pessimistically in series and ×1.2 give0.431894mΩ, or86.38µV at diagnostic0.2A. That current is not adopted as a new rail load or guaranteed source maximum, and this screen is not a fabricator/tolerance/current/thermal bound. The complete new actual current/ground/thermal network still needs extraction.
+
+All16original buck VIN/PGND input/HF direct native links retain their original literal segments and widths. The frozen exact AUX-point checker correctly fails the alteredC106ground centreline; its failure is retained rather than suppressed. The new independent path inventory searches actual authored front-track centrelines inside the regulator cell at each prior minimum width. It inserts no zone, via-pad or vertical-layer bridge. All six actual cap/regulator pairs remain connected on F.Cu:
+
+| Connection | Minimum authored width | Old length | New length |
+|---|---:|---:|---:|
+| C106OUT→U102.1 | .25mm | 7.300mm | 7.300mm |
+| C113IN→U102.8 | .25mm | 4.608mm | 4.608mm |
+| C113GND→U102.4 | .25mm | 9.399mm | 9.399mm |
+| C110DELAY→U102.7 | .16mm | 4.450mm | 4.450mm |
+| C106GND→U102.4 | .50mm | 6.100mm | 6.311mm |
+| C110GND→U102.4 | .25mm | 8.450mm | 8.769mm |
+
+These explicit new paths do not establish effective capacitance, ESR, noise, stability, loop EM or physical drilling/annular-cap behavior. The oldexact literal contract is not claimed unchanged. Native no-open connectivity alone is not substituted for the front-path requirement.
+
+The source C50 requirements stay1.6mm nominal total /85µm minimum outer /70µm minimum inner /50µm minimum plated-hole wall, with all fabrication acceptance and actualmicrosection flags false. All existing thermal/EP/quiet-field vias remain exact. Native via metadata is still unspecified for1126vias and explicitly `filling no`/`capping no` for128vias; engineering filled/capped receiving notes do not make those manufacturing properties accepted. A separate explicit manufacturing-property/drawing reconciliation remains required. No metadata is silently flipped to fabricate a process pass.
+
+`generated/heatmap-input-contract.json` preserves the old per-device loss/load/node/pose scenario as an input only. It points to the historical heatmap, not a new thermal solution. No old junction, ground-transfer, endpoint-voltage, current, PDN, body/harness fit or whole-unit cooling result is inherited. All physical/fabrication/release flags remain false. The POWER_RUN HIGH/current conflict documented in AX01 remains in this unchanged schematic; AX02's proposed leaf is still separate and unintegrated. Startup/protection/SOA, AUX dynamic/short behavior, exact parts/lifetime/contact, physical validation and source-return interactions remain open.
+
+Eight cross-artifact tests check actual strict native reports (including missing/ignored-check negative controls), source/circuit/geometry identity, exact delta reproduction, all16buck links, the new sixfront paths and the explicit force/process limitations. Raw baseline, failed intermediate and finalnative reports are retained. This is a reviewable geometry successor, not a board release.
