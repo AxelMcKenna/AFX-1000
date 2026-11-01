@@ -26,8 +26,8 @@ def bindings():
 
 
 def recipe(stage):
-    if stage not in ['discovery','fresh','fresh2']:raise ValueError('Unknown stage')
-    seed={'discovery':0x50415448,'fresh':0x50415449,'fresh2':0x5041544a}[stage];rng=np.random.default_rng(seed);rows=[];effects=list(SCENE)
+    if stage not in ['discovery','fresh','fresh2','fresh3']:raise ValueError('Unknown stage')
+    seed={'discovery':0x50415448,'fresh':0x50415449,'fresh2':0x5041544a,'fresh3':0x5041544b}[stage];rng=np.random.default_rng(seed);rows=[];effects=list(SCENE)
     for family in ['scene','isolate','release','switch','tempo','route']:
         for i,effect in enumerate(effects):
             if stage=='discovery' and i not in [0,4,8]:continue
@@ -67,7 +67,7 @@ def control_case(c):
 
 def stimulus(c):
     if c['source']=='silent':return np.zeros((FRAMES,2),dtype='<f4')
-    t=np.arange(FRAMES)/48000;seed={'discovery':0x50494e50,'fresh':0x50494e51,'fresh2':0x50494e52}[c['stage']]
+    t=np.arange(FRAMES)/48000;seed={'discovery':0x50494e50,'fresh':0x50494e51,'fresh2':0x50494e52,'fresh3':0x50494e53}[c['stage']]
     x=np.random.default_rng(seed).normal(0,.003,(FRAMES,2));x+=np.column_stack((.006*np.sin(2*np.pi*(83*t+17*t*t)),.005*np.cos(2*np.pi*(1197*t+31*t*t))))
     x[144000:168000]=0;x[360000:]*=.25
     return x.astype('<f4')
@@ -186,7 +186,7 @@ def validate(a):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for k in ['renderer','sanitizer','host','plugin','output']:p.add_argument('--'+k,type=Path,required=True)
-    p.add_argument('--stage',choices=['discovery','fresh','fresh2'],default='discovery');p.add_argument('--family',action='append');p.add_argument('--case',action='append');a=p.parse_args();validate(a)
+    p.add_argument('--stage',choices=['discovery','fresh','fresh2','fresh3'],default='discovery');p.add_argument('--family',action='append');p.add_argument('--case',action='append');a=p.parse_args();validate(a)
 
 
 if __name__=='__main__':main()

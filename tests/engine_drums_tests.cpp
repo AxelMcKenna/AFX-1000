@@ -17,6 +17,14 @@ void* operator new(size_t n,std::align_val_t a){return allocate(n,static_cast<si
 void operator delete(void* p)noexcept{std::free(p);}void operator delete[](void* p)noexcept{std::free(p);}
 void operator delete(void* p,std::align_val_t)noexcept{std::free(p);}
 int main(){try{
+    {
+        rmx::FactoryDrumSequence pattern;pattern.enable(true);
+        pattern.record(1,{1,1,1,1},0);unsigned hits=0;
+        const auto play=[&](unsigned,float){++hits;};
+        pattern.advance(.02,true,play);pattern.advance(.07,true,play);
+        pattern.advance(4.035,true,play);
+        require(hits==1,"A skipped read slot suppressed the next loop's recorded hit");
+    }
     constexpr size_t bytes=64*1024*1024;auto memory=std::make_unique<std::byte[]>(bytes);rmx::FixedArena arena(memory.get(),bytes);
     auto* old=std::pmr::set_default_resource(&arena);struct Restore{std::pmr::memory_resource* p;~Restore(){std::pmr::set_default_resource(p);}}restore{old};
     {

@@ -13,7 +13,7 @@ public:
     void clear() noexcept {*this={};}
     void clearPattern() noexcept {const bool active=enabled;clear();enabled=active;}
     void enable(bool value) noexcept {if(enabled!=value){const auto previousMute=muted;clear();enabled=value;if(!value)muted=previousMute;}}
-    void quantize(bool value) noexcept {quantized=value;}
+    void quantize(bool value) noexcept {if(quantized!=value)unquantizedSkip=0;quantized=value;}
     void strip(unsigned division,bool touch) noexcept {
         if(!enabled)return;
         if(touch&&!writing)stripEdge=true;
@@ -58,14 +58,22 @@ public:
         if(pending){
             const unsigned index=quantized?static_cast<unsigned>(phase*4+.5)*8:static_cast<unsigned>(phase*32+.5);
             const unsigned slot=index<128?index:0;slots[slot]|=pending;
-            if(index>=128||slot/32.>phase)skip[slot]|=pending;
+            if(index>=128||slot/32.>phase){
+                if(quantized)skip[slot]|=pending;
+                else unquantizedSkip|=pending;
+            }
             for(unsigned pad=0;pad<4;++pad)if(pending&(1u<<pad))velocity[slot][pad]=pendingVelocity[pad];
         }
         uint8_t played=0;
         if(boundary){
             const unsigned slot=static_cast<unsigned>(phase*32+.5)%128;
-            const auto mask=static_cast<uint8_t>(slots[slot]&~pending&~skip[slot]);
-            skip[slot]=0;
+            // Auto-clock correction can skip a read slot. An unquantized
+            // write suppresses the next read, rather than that slot's next
+            // occurrence one loop later. Keep the established quantized
+            // look-ahead handling separate.
+            const auto suppressed=quantized?skip[slot]:unquantizedSkip;
+            const auto mask=static_cast<uint8_t>(slots[slot]&~pending&~suppressed);
+            if(quantized)skip[slot]=0;else unquantizedSkip=0;
             for(unsigned pad=0;pad<4;++pad)if(mask&(1u<<pad))play(pad,velocity[slot][pad]);
             played=mask;
             if(stripSlots[slot].edge){
@@ -103,6 +111,6 @@ private:
     std::array<float,4> pendingVelocity{};
     double offset{},previous{},previousPosition{};
     unsigned previousWriteRegion{};
-    uint8_t pending{},muted{},writeDivision{},rollPads{};bool enabled{},started{},quantized{},writing{},stripEdge{},stripWritten{};
+    uint8_t pending{},muted{},writeDivision{},rollPads{},unquantizedSkip{};bool enabled{},started{},quantized{},writing{},stripEdge{},stripWritten{};
 };
 }
