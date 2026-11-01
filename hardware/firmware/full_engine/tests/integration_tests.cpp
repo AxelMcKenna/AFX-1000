@@ -115,6 +115,12 @@ int main() {
         auto bank = rmx::makeFactoryBank(48000, false);
         engine.setBank(&bank);
         engine.prepare(48000, 128);
+        // Firmware requires a live callback before canDispatch accepts physical
+        // edges. Prime the shared drum clock before testing foreground gestures.
+        std::array<float, 128> left{}, right{};
+        engine.process(nullptr, nullptr, left.data(), right.data(), 128);
+        for (size_t i = 0; i < left.size(); ++i)
+            require(left[i] == 0 && right[i] == 0, "Audio startup emitted an unrequested pad");
         engine.params.set(Param::Quantize, 0);
         rmx::hardware::Controls controls(engine);
         auto click = [&](B b, uint32_t now) {
@@ -142,7 +148,6 @@ int main() {
         controls.button(B::Bank, false, 360);
         require(engine.params.get(Param::SampleSource) == 0, "Internal factory selection lost");
         click(B::Pad0, 400);
-        std::array<float, 128> left{}, right{};
         double energy = 0;
         for (int block = 0; block < 32; ++block) {
             engine.process(nullptr, nullptr, left.data(), right.data(), 128);

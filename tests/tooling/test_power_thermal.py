@@ -31,6 +31,7 @@ from hardware.cad.a12.thermal.generate import (
     sha,
 )
 from hardware.cad.a12.thermal.verify import binary_stl
+from hardware.fabrication.evidence_paths import recorded_path
 
 
 class PowerThermal(unittest.TestCase):
@@ -135,9 +136,7 @@ class PowerThermal(unittest.TestCase):
         self.assertEqual(sha(ledger), self.analysis["loss_ledger_sha256"])
         source = json.loads(ledger.read_text())
         for path, expected in source["source_sha256"].items():
-            dependency = Path(path)
-            if not dependency.is_absolute():
-                dependency = REPO / dependency
+            dependency = recorded_path(path)
             self.assertEqual(self.receipt["source_sha256"][str(dependency.relative_to(REPO))], expected)
         self.assertAlmostEqual(
             sum(row[2] for row in HEAT.values()), source["total_conservative_loss_allocation_w"]

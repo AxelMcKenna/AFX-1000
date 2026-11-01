@@ -19,6 +19,24 @@ void* allocate(size_t n,size_t alignment){
     else if(posix_memalign(&p,alignment,n?n:alignment)!=0)p=nullptr;
     if(!p)throw std::bad_alloc();return p;
 }
+// Keep the original eight-byte SDRAM accounting independent of the host's
+// max_align_t (eight on Apple ARM, sixteen on Linux). The real FixedArena
+// still enforces its full platform-aligned capacity and allocation count.
+class LogicalStorage final : public std::pmr::memory_resource {
+public:
+    explicit LogicalStorage(rmx::FixedArena& backing):arena(backing){}
+    size_t used()const noexcept{return logical;}
+private:
+    rmx::FixedArena& arena;size_t logical{};
+    static size_t rounded(size_t bytes)noexcept{return (std::max(size_t{1},bytes)+7)&~size_t{7};}
+    void* do_allocate(size_t bytes,size_t alignment)override{
+        void* pointer=arena.allocate(bytes,alignment);logical+=rounded(bytes);return pointer;
+    }
+    void do_deallocate(void* pointer,size_t bytes,size_t alignment)override{
+        arena.deallocate(pointer,bytes,alignment);logical-=rounded(bytes);
+    }
+    bool do_is_equal(const std::pmr::memory_resource& other)const noexcept override{return this==&other;}
+};
 }
 void* operator new(size_t n){return allocate(n,alignof(std::max_align_t));}
 void* operator new[](size_t n){return ::operator new(n);}
@@ -61,13 +79,14 @@ int main(){try{
 
     constexpr size_t bytes=60u*1024*1024;
     auto memory=std::make_unique<std::byte[]>(bytes);rmx::FixedArena arena(memory.get(),bytes);
-    auto* old=std::pmr::set_default_resource(&arena);
+    LogicalStorage storage(arena);
+    auto* old=std::pmr::set_default_resource(&storage);
     struct Restore{std::pmr::memory_resource* p;~Restore(){std::pmr::set_default_resource(p);}}restore{old};
     size_t preparedBytes=0;
     {
         rmx::Engine engine;engine.setOutputProtection(false);engine.params.set(rmx::Param::AutoTempo,0);
         engine.params.set(rmx::Param::Quantize,0);engine.params.set(rmx::Param::SceneOn,1);engine.prepare(48000,64);
-        preparedBytes=arena.used();require(preparedBytes==30100112,"Spiral introduced additional prepared audio buffers");
+        preparedBytes=arena.used();require(storage.used()==30100112,"Spiral introduced additional prepared audio buffers");
         std::array<float,509> left{},right{},l{},r{};const auto before=arena.allocations();tracking=true;
         constexpr unsigned types[]{3,8,1,4,9,2,0,5,6,7};
         for(unsigned block=0;block<500;++block){
@@ -87,7 +106,7 @@ int main(){try{
         }
         require(allocations==0&&arena.allocations()==before,"Live Spiral callback or ownership transition allocated");tracking=false;
     }
-    require(arena.used()==0,"Scene backing storage leaked");
+    require(arena.used()==0&&storage.used()==0,"Scene backing storage leaked");
     require(sizeof(rmx::Engine)<=65536,"Engine object exceeds internal-memory budget");
     std::cout<<"Spiral object: "<<sizeof(rmx::CalibratedSpiral)<<" bytes\nEngine object: "<<sizeof(rmx::Engine)
         <<" bytes\nPrepared engine buffers: "<<preparedBytes<<" bytes\nPASS: poisoned history, aliased/undersized rings, owner withdrawal, reset, finite fallback transitions and zero callback allocations\n";

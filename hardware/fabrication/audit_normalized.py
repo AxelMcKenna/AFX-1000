@@ -14,9 +14,6 @@ from pathlib import Path
 
 from hardware.electronics.common.sexpr import read_sexpr, sexpr
 
-if sys.platform == "linux":
-    import pcbnew
-
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[1]
 
@@ -42,6 +39,8 @@ def canonical(node):
 
 def run():
     assert sys.platform == "linux", "Mac CAD remains disabled"
+    import pcbnew
+
     parser = argparse.ArgumentParser()
     parser.add_argument("roles", nargs="+")
     args = parser.parse_args()
