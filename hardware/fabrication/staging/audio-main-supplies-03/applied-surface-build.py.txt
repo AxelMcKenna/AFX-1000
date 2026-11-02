@@ -1,0 +1,164 @@
+"""Join remaining audio supply islands while preserving prior routed copper."""
+
+import argparse
+import copy
+import json
+import math
+import shutil
+import uuid
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audio_main_power_routes import RAILS, InnerGrid, PowerSpace
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-supplies-02"
+OUT = ROOT / "staging/audio-main-supplies-03"
+
+
+def snapshot(label):
+    path = OUT / ("applied-"+label+".py.txt")
+    assert not path.exists()
+    shutil.copyfile(Path(__file__), path)
+    return path
+
+
+def capture():
+    from hardware.fabrication.audio_main_native_capture import capture as native_capture
+
+    assert not OUT.exists()
+    OUT.mkdir()
+    applied = snapshot("input-capture")
+    native_capture(SOURCE, OUT, 306, RAILS, applied)
+    assert sha(applied) == sha(Path(__file__))
+
+
+class RoutingSpace(PowerSpace):
+    def free_layer(self, net, layer, width):
+        from shapely.geometry import Point
+        from shapely.ops import unary_union
+
+        from hardware.fabrication.route_nf_surface import shape
+
+        margin = width/2+.21
+        obstacles = [g.buffer(margin) for o, face, g in self.copper if face == layer and o["net"] != net]
+        # Route around existing same-net via barrels; do not form off-centre
+        # joints on their annuli. Exact native geometry is still reviewed.
+        obstacles += [g.buffer(width/2+.01) for o, face, g in self.copper
+                      if face == layer and o["net"] == net and o["kind"] == "PCB_VIA"]
+        for o in self.capture["objects"]:
+            if o.get("npth"):
+                radius = math.hypot(*o["drill_mm"])/2+.001
+                obstacles.append(Point(o["position_mm"]).buffer(radius+width/2+.26))
+        obstacles += [shape(z["polygons"]).buffer(width/2+.01) for z in self.capture["zones"]
+                      if z["keepout"] and z["layer"] == layer and (z["prohibit_tracks"] or layer == "In2.Cu")]
+        obstacles += [g.buffer(margin) for other, face, g in self.added_shapes if face == layer and other != net]
+        outline = shape(self.capture["outline"]).buffer(-(.5+width/2+.01))
+        return outline.difference(unary_union(obstacles)).buffer(0)
+
+
+def surface_routes(captured):
+    import numpy as np
+    from shapely import contains_xy, prepare
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
+
+    from hardware.fabrication.route_nf_surface import shape
+
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    pads = {(o["ref"], o["pin"]): o for o in captured["objects"] if o["kind"] == "PAD" and o["pin"]}
+    membership = {ident: key for key, ids in captured["groups"].items() for ident in ids}
+    context = RoutingSpace(captured)
+    joined = {net: {membership[pads[root]["uuid"]]} for net, root in RAILS.items()}
+    routes = []
+    for width in (.6, .2):
+        for net in ("P19", "N19", "P12", "N12", "V5_REG", "5V_DIG", "V3V3_IO", "/CODEC/A3V3", "/CODEC/A4V5"):
+            groups = {key: ids for key, ids in captured["groups"].items() if objects[ids[0]]["net"] == net}
+            for layer in ("F.Cu", "B.Cu"):
+                free = context.free_layer(net, layer, width)
+                grid = InnerGrid(free)
+                xx, yy = np.meshgrid(np.arange(grid.width)*.2, np.arange(grid.height)*.2)
+                for key in sorted(groups, key=lambda k: min(math.dist(objects[i]["position_mm"], pads[RAILS[net]]["position_mm"]) for i in groups[k])):
+                    if key in joined[net]:
+                        continue
+                    root_objects = [objects[i] for g in joined[net] for i in groups[g]]
+                    root_shapes = [shape(o["layers"][layer]) for o in root_objects if o["layers"].get(layer)]
+                    root_shapes += [g for n, face, g in context.added_shapes if n == net and face == layer]
+                    root_copper = unary_union(root_shapes)
+                    prepare(root_copper)
+                    targets_y, targets_x = np.nonzero(contains_xy(root_copper, xx, yy) & grid.mask)
+                    targets = set(zip(targets_x.tolist(), targets_y.tolist()))
+                    if not targets:
+                        continue
+                    contacts = [objects[i] for i in groups[key] if objects[i]["kind"] == "PAD" and
+                                objects[i]["pin"] and layer in objects[i]["layers"]]
+                    contacts.sort(key=lambda o: (not o["ref"].startswith("C"), o["ref"], o["pin"]))
+                    accepted = None
+                    for pad in contacts:
+                        keys = grid.route(grid.anchors(pad["position_mm"]), targets)
+                        if keys:
+                            path = grid.simplify([pad["position_mm"], *[grid.xy(k) for k in keys]])
+                            length = sum(math.dist(p, q) for p, q in zip(path, path[1:]))
+                            if length > (3.5 if width == .2 else 200):
+                                continue
+                            assert free.covers(LineString(path))
+                            accepted = pad, path, length
+                            break
+                    if accepted is None:
+                        continue
+                    pad, path, length = accepted
+                    routes.append(dict(net=net, group=key, root_endpoint=list(RAILS[net]), layer=layer,
+                                       width_mm=width, endpoint=[pad["ref"], pad["pin"]],
+                                       path_mm=path, length_mm=length))
+                    joined[net].add(key)
+                    context.added_shapes.append((net, layer, LineString(path).buffer(width/2)))
+                    print("Routed", net, pad["ref"], pad["pin"], layer, width, round(length, 3), "mm", flush=True)
+    return routes, joined
+
+
+def build():
+    from hardware.fabrication.audit_audio_main_supplies import check
+
+    assert check() == json.loads((SOURCE / "routing-handoff.json").read_text())
+    assert not (OUT / "audio_core.kicad_pcb").exists()
+    applied = snapshot("surface-build")
+    captured = json.loads((OUT / "native-inputs.json").read_text())
+    verify_hashes(captured["source_sha256"])
+    routes, joined = surface_routes(captured)
+    assert routes
+    board = read_sexpr((SOURCE / "audio_core.kicad_pcb").read_text())
+    parent = copy.deepcopy(board)
+    nets = {str(n[2]): n[1] for n in children(board, "net")}
+    for row in routes:
+        identifiers = []
+        for start, end in zip(row["path_mm"], row["path_mm"][1:]):
+            ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:AC04:supply03:{row['net']}:{row['layer']}:{row['width_mm']}:{start}:{end}"))
+            assert ident not in identifiers
+            identifiers.append(ident)
+            board.append([a("segment"), [a("start"), *start], [a("end"), *end], [a("width"), row["width_mm"]],
+                          [a("layer"), row["layer"]], [a("net"), nets[row["net"]]], [a("uuid"), ident]])
+        row["segment_uuids"] = identifiers
+    assert board[:len(parent)] == parent
+    for p in SOURCE.iterdir():
+        if p.suffix in (".kicad_sch", ".kicad_pro", ".kicad_sym", ".kicad_dru") or p.name in ("plan.json", "fp-lib-table", "sym-lib-table"):
+            shutil.copyfile(p, OUT / p.name)
+    shutil.copytree(SOURCE / "libraries", OUT / "libraries")
+    dest = OUT / "audio_core.kicad_pcb"
+    dest.write_text(sexpr(board)+"\n")
+    report = dict(source_sha256=relative_hashes([applied, SOURCE / "audio_core.kicad_pcb", SOURCE / "routing-handoff.json",
+                  OUT / "native-inputs.json", ROOT / "audio_main_power_routes.py"]), candidate_PCB_sha256=sha(dest),
+                  routes=routes, joined_groups={net: sorted(ids) for net, ids in joined.items()},
+                  all_parent_objects_exact=True, no_added_vias=True, native_checks_pending=True,
+                  capacity_drop_coupling_fault_thermal_and_process_qualified=False, fabrication_released=False)
+    (OUT / "construction.json").write_text(json.dumps(report, indent=2)+"\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Built", len(routes), "surface supply joins; native checks pending")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("capture", "build"))
+    args = parser.parse_args()
+    {"capture": capture, "build": build}[args.action]()

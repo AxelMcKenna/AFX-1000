@@ -1438,3 +1438,34 @@ supply islands against native source witnesses. All 51 focused audio tests
 pass. Codec land/data, the 306 remaining routes and whole-unit manufacturing,
 parts/mating/harness/support/installed qualification remain unfinished. No
 native Mac CAD, supplier message, upload or order occurred.
+
+
+## AC04 placed supply/sense completion
+
+Selected `audio-main-supplies-06`: all 161 placed supply/sense terminals now
+reach their declared sources. Audio opens fall 306 -> 267. Native Linux
+KiCad 10.0.7 geometry/ERC are zero, missing U201 parity remains one, and no
+categories are ignored. The board has 1,729 tracks / 271 vias; all 138 explicit
+local pairs, seventeen control pairs and 200 input-ground pads remain connected.
+The intermediate outer routing adds 28 joins / 248 tracks; final bridges add
+eleven joins / 181 tracks / four conventional 0.60/0.30 mm vias. All parent
+lands, poses, old copper/drills and authored mount/sensitive/codec exclusions
+remain exact. Native refill is retained verbatim; reference area is
+8,124.161827 mm². Minimum drill-edge to actual SMD copper remains 0.170 mm.
+
+Fine-pitch exits and via-centre necks retain their 3.5 mm budgets. Reused
+powered vias are joined at their centres. The 9.736 mm / 0.20 mm R211 divider
+feed has a separate twelve-millimetre low-current construction assessment:
+27.7 kΩ / 10 kΩ, nominal 119 µA, with conservative declared rail/current/
+copper/temperature assumptions giving under 10 µV trace-only loss. Those
+assumptions, noise and installed sensing/fault behaviour remain unqualified.
+The long relay feed and its still-unrouted return require current/transient
+review. No prior feedback or local bypass length budget was relaxed.
+
+All 59 focused audio tests pass, including eight new mutations/replay tests;
+the final receipt was rechecked after cumulative supply-count metadata was
+corrected. Rejected generated bridge projects were removed after successful
+native checks; executed sources and compact diagnostics remain with the
+adopted candidate. Missing codec land/data, 267 remaining routes and complete
+installed power/return/noise/stability/thermal/fault, parts/process and assembly
+receiving remain open. No Mac CAD, supplier message, upload or order occurred.

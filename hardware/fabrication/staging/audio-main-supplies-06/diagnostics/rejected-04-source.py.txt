@@ -1,0 +1,255 @@
+"""Complete remaining placed supply islands with conventional plated bridges."""
+
+import argparse
+import copy
+import json
+import math
+import shutil
+import sys
+import uuid
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audio_main_power_routes import RAILS, InnerGrid
+from hardware.fabrication.audio_main_supply_completion import RoutingSpace
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-supplies-03"
+OUT = ROOT / "staging/audio-main-supplies-04"
+
+
+def snapshot(label):
+    path = OUT / ("applied-"+label+".py.txt")
+    assert not path.exists()
+    shutil.copyfile(Path(__file__), path)
+    return path
+
+
+def capture():
+    from hardware.fabrication.audio_main_native_capture import capture as native_capture
+
+    assert not OUT.exists()
+    OUT.mkdir()
+    applied = snapshot("input-capture")
+    native_capture(SOURCE, OUT, 278, RAILS, applied)
+    assert sha(applied) == sha(Path(__file__))
+
+
+def expanded_choices(context, objects, net):
+    from shapely.geometry import LineString
+
+    from hardware.fabrication.route_nf_surface import candidate_paths
+
+    results = context.choices(objects, net)
+    if results:
+        return results
+    for pad in [o for o in objects if o["kind"] == "PAD" and o["pin"]]:
+        layer = next(l for l in ("F.Cu", "B.Cu") if l in pad["layers"])
+        free = context.free_layer(net, layer, .2)
+        x, y = pad["position_mm"]
+        sites = [(round(x+i*.2, 6), round(y+j*.2, 6)) for i in range(-16, 17) for j in range(-16, 17)
+                 if .4 < math.hypot(i*.2, j*.2) < 3.3]
+        for xy in sorted(sites, key=lambda p: (math.dist((x, y), p), p)):
+            if not context.via_ok(net, xy):
+                continue
+            for points in candidate_paths((x, y), xy):
+                points = [p for i, p in enumerate(points) if not i or p != points[i-1]]
+                length = sum(math.dist(p, q) for p, q in zip(points, points[1:]))
+                if length <= 3.5 and free.covers(LineString(points)):
+                    results.append(dict(xy_mm=xy, endpoint_uuid=pad["uuid"], paths=[(layer, points)],
+                                        fanout_length_mm=length, added_via=True))
+        if results:
+            break
+    return sorted(results, key=lambda r: r["fanout_length_mm"])[:24]
+
+
+def plan(captured):
+    import numpy as np
+    from shapely import contains_xy, prepare
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+
+    from hardware.fabrication.route_nf_surface import shape
+
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    pads = {(o["ref"], o["pin"]): o for o in captured["objects"] if o["kind"] == "PAD" and o["pin"]}
+    membership = {ident: key for key, ids in captured["groups"].items() for ident in ids}
+    context = RoutingSpace(captured)
+    joined = {net: {membership[pads[root]["uuid"]]} for net, root in RAILS.items()}
+    roots_added, routes = [], []
+
+    def root_shapes(net, layer):
+        ids = [i for group in joined[net] for i in captured["groups"][group]]
+        geoms = [shape(objects[i]["layers"][layer]) for i in ids if objects[i]["layers"].get(layer)]
+        geoms += [g for other, face, g in context.added_shapes if other == net and face == layer]
+        copper = unary_union(geoms)
+        if context.new_vias:
+            copper = copper.difference(unary_union([Point(xy).buffer(.9) for xy in context.new_vias]))
+        return copper
+
+    def path_to_root(net, layer, start, width, forced=None):
+        free = context.free_layer(net, layer, width)
+        # Other new via centres remain clear. The forced root bridge is the
+        # only exception and its trace terminates at the exact plated centre.
+        blocks = [Point(xy).buffer(width/2+.31) for xy in context.new_vias
+                  if forced is None or math.dist(xy, forced) > 1e-8]
+        if blocks:
+            free = free.difference(unary_union(blocks))
+        grid = InnerGrid(free)
+        if forced is not None:
+            targets = set(grid.anchors(forced))
+        else:
+            copper = root_shapes(net, layer)
+            if copper.is_empty:
+                return None
+            prepare(copper)
+            xx, yy = np.meshgrid(np.arange(grid.width)*.2, np.arange(grid.height)*.2)
+            rows, columns = np.nonzero(contains_xy(copper, xx, yy) & grid.mask)
+            targets = set(zip(columns.tolist(), rows.tolist()))
+        keys = grid.route(grid.anchors(start), targets)
+        if not keys:
+            return None
+        points = [start, *[grid.xy(k) for k in keys]]
+        if forced is not None:
+            points.append(forced)
+        points = grid.simplify(points)
+        if len(points) < 2:
+            return None
+        length = sum(math.dist(p, q) for p, q in zip(points, points[1:]))
+        if length > (3.5 if width == .2 else 200):
+            return None
+        assert free.covers(LineString(points))
+        return dict(layer=layer, width_mm=width, path_mm=points, length_mm=length)
+
+    def join(net, ids, forced=None):
+        contacts = [objects[i] for i in ids if objects[i]["kind"] == "PAD" and objects[i]["pin"]]
+        contacts.sort(key=lambda o: (not o["ref"].startswith("C"), o["ref"], o["pin"]))
+        for width in (.6, .2):
+            for pad in contacts:
+                for layer in ("F.Cu", "B.Cu"):
+                    if layer in pad["layers"]:
+                        result = path_to_root(net, layer, pad["position_mm"], width, forced)
+                        if result:
+                            return dict(endpoint_uuid=pad["uuid"], added_via=False, paths=[], **result)
+        for escape in expanded_choices(context, [objects[i] for i in ids], net):
+            if not escape["added_via"] or forced is not None and math.dist(escape["xy_mm"], forced) < .811:
+                continue
+            face = escape["paths"][0][0]
+            other = "B.Cu" if face == "F.Cu" else "F.Cu"
+            result = path_to_root(net, other, escape["xy_mm"], .6, forced)
+            if result:
+                return dict(escape, **result)
+        return None
+
+    for iteration in range(3):
+        progress = 0
+        for net in ("/CODEC/A3V3", "/CODEC/A4V5", "5V_DIG", "V3V3_IO", "V5_REG"):
+            groups = {k: ids for k, ids in captured["groups"].items() if objects[ids[0]]["net"] == net}
+            for key in sorted(groups, key=lambda k: min(math.dist(objects[i]["position_mm"], pads[RAILS[net]]["position_mm"]) for i in groups[k])):
+                if key in joined[net]:
+                    continue
+                result = join(net, groups[key])
+                root_choice = None
+                if result is None and not any(objects[i]["layers"].get("B.Cu") for g in joined[net] for i in groups[g]):
+                    root_ids = [i for g in joined[net] for i in groups[g]]
+                    for candidate in expanded_choices(context, [objects[i] for i in root_ids], net):
+                        if not candidate["added_via"]:
+                            continue
+                        result = join(net, groups[key], candidate["xy_mm"])
+                        if result:
+                            root_choice = candidate
+                            break
+                if result is None:
+                    continue
+                if root_choice:
+                    context.accept(net, root_choice)
+                    roots_added.append(dict(net=net, **root_choice))
+                if result["added_via"] and not context.via_ok(net, result["xy_mm"]):
+                    raise AssertionError("Chosen bridge conflicts with a root drill")
+                context.accept(net, result)
+                context.added_shapes.append((net, result["layer"], LineString(result["path_mm"]).buffer(result["width_mm"]/2)))
+                routes.append(dict(net=net, group=key, **result))
+                joined[net].add(key)
+                progress += 1
+                print("Joined", net, [(objects[i].get("ref"), objects[i].get("pin")) for i in groups[key] if objects[i]["kind"] == "PAD"],
+                      result["layer"], "via", result["added_via"], round(result["length_mm"], 3), "mm", flush=True)
+        print("Pass", iteration+1, "joins", progress, flush=True)
+        if not progress:
+            break
+    return roots_added, routes, joined
+
+
+def build():
+    assert not (OUT / "distribution-input.kicad_pcb").exists()
+    applied = snapshot("bridge-build")
+    captured = json.loads((OUT / "native-inputs.json").read_text())
+    verify_hashes(captured["source_sha256"])
+    roots_added, routes, joined = plan(captured)
+    assert routes
+    board = read_sexpr((SOURCE / "audio_core.kicad_pcb").read_text())
+    parent = copy.deepcopy(board)
+    nets = {str(n[2]): n[1] for n in children(board, "net")}
+    segments, vias = [], []
+
+    def emit(net, layer, points, width):
+        for start, end in zip(points, points[1:]):
+            if math.dist(start, end) < 1e-8:
+                continue
+            ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:AC04:supply04:{net}:{layer}:{width}:{start}:{end}"))
+            assert not any(r["uuid"] == ident for r in segments)
+            segments.append(dict(uuid=ident, net=net, layer=layer, start_mm=start, end_mm=end, width_mm=width))
+            board.append([a("segment"), [a("start"), *start], [a("end"), *end], [a("width"), width],
+                          [a("layer"), layer], [a("net"), nets[net]], [a("uuid"), ident]])
+
+    for row in roots_added+routes:
+        net = row["net"]
+        if row["added_via"]:
+            xy = row["xy_mm"]
+            ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:AC04:supplyvia04:{net}:{xy}"))
+            vias.append(dict(uuid=ident, net=net, xy_mm=xy, diameter_mm=.6, drill_mm=.3))
+            board.append([a("via"), [a("at"), *xy], [a("size"), .6], [a("drill"), .3],
+                          [a("layers"), "F.Cu", "B.Cu"], [a("net"), nets[net]], [a("uuid"), ident]])
+        for layer, points in row["paths"]:
+            emit(net, layer, points, .2)
+    for row in routes:
+        emit(row["net"], row["layer"], row["path_mm"], row["width_mm"])
+    assert board[:len(parent)] == parent
+    for p in SOURCE.iterdir():
+        if p.suffix in (".kicad_sch", ".kicad_pro", ".kicad_sym", ".kicad_dru") or p.name in ("plan.json", "fp-lib-table", "sym-lib-table"):
+            shutil.copyfile(p, OUT / p.name)
+    shutil.copytree(SOURCE / "libraries", OUT / "libraries")
+    dest = OUT / "distribution-input.kicad_pcb"
+    dest.write_text(sexpr(board)+"\n")
+    inputs = [applied, SOURCE / "audio_core.kicad_pcb", SOURCE / "routing-handoff.json", OUT / "native-inputs.json",
+              ROOT / "audio_main_supply_completion.py", ROOT / "audio_main_power_routes.py"]
+    report = dict(source_sha256=relative_hashes(inputs), authored_PCB_sha256=sha(dest), roots_added=roots_added,
+                  routes=routes, joined_groups={net: sorted(ids) for net, ids in joined.items()},
+                  added_segments=segments, added_vias=vias, no_parent_geometry_changes=True,
+                  native_refill_and_checks_pending=True, fabrication_released=False)
+    (OUT / "distribution-construction.json").write_text(json.dumps(report, indent=2)+"\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Built", len(routes), "joins /", len(segments), "tracks /", len(vias), "vias")
+
+
+def native(action):
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    from hardware.fabrication import audio_main_power_routes as helper
+
+    applied = snapshot(action+"-entry")
+    helper.OUT = OUT
+    {"fill": helper.fill, "review": helper.review}[action]()
+    result = OUT / ("native-refill.json" if action == "fill" else "supply-connectivity-review.json")
+    report = dict(source_sha256=relative_hashes([applied, ROOT / "audio_main_power_routes.py", result]),
+                  selected_output=str(OUT.relative_to(ROOT)), helper_source_stays_controls_01_for_full_retained_pair_review=True,
+                  fabrication_released=False)
+    (OUT / (action+"-entry.json")).write_text(json.dumps(report, indent=2)+"\n")
+    assert sha(applied) == sha(Path(__file__))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("capture", "build", "fill", "review"))
+    args = parser.parse_args()
+    {"capture": capture, "build": build, "fill": lambda: native("fill"), "review": lambda: native("review")}[args.action]()

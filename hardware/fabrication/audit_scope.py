@@ -58,7 +58,7 @@ def render_readiness(report):
                     "clear native SMD copper by at least 0.170 mm at the drill edge; process acceptance remains open.",
                     "R319 common-mode feedback, C127 supply, thirteen local ground returns and global routing remain unfinished.",
                     "The existing direct high-frequency compensation capacitor tracks are unchanged."]
-            elif layout.get("routing_stage") in ("ground_02", "controls_01", "supplies_02"):
+            elif layout.get("routing_stage") in ("ground_02", "controls_01", "supplies_02", "supplies_06"):
                 lines += ["All 131 declared local signal/supply endpoints and all 20 declared local ground-return pairs are native-connected.",
                     "The In1 AGND plane connects every one of the 200 placed ground pads to the input ground.",
                     f"The candidate has {layout['tracks']} tracks and {layout['vias']} conventional 0.60/0.30 mm vias;",
@@ -76,6 +76,11 @@ def render_readiness(report):
                         "The 0.60 mm inner traces and short 0.20 mm surface branches preserve the earlier seventeen control pairs.",
                         "Native-refilled ground retains all 200 terminal connections. Distribution is incomplete and",
                         "current capacity, DC loss, return impedance, fault/thermal and process qualification remain open."]
+                elif layout.get("routing_stage") == "supplies_06":
+                    lines += ["All 161 placed supply/sense pads connect to their designated sources; all earlier local/control/ground pairs remain connected.",
+                        "Wide 0.60 mm outer-layer routes and short 0.20 mm necks complete the placed rail connections.",
+                        "The divider feed alone uses a 9.74 mm 0.20 mm global branch with a separate low-current construction assessment.",
+                        "Codec supply lands are still missing. Rail capacity/drop, return/noise, fault/thermal and process qualification remain open."]
         else:
             lines += ["The combined schematic project has no PCB layout."]
     digital = report.get("shared_digital_core")
@@ -220,7 +225,9 @@ def run():
             sources.update(interfaces["current_source_sha256"])
         layout=shared.get("layout_candidate")
         if layout:
-            if layout.get("routing_stage") == "supplies_02":
+            if layout.get("routing_stage") == "supplies_06":
+                from hardware.fabrication.audit_audio_main_supply_completion import check as check_audio_placement
+            elif layout.get("routing_stage") == "supplies_02":
                 from hardware.fabrication.audit_audio_main_supplies import check as check_audio_placement
             elif layout.get("routing_stage") == "controls_01":
                 from hardware.fabrication.audit_audio_main_controls import check as check_audio_placement
@@ -243,16 +250,16 @@ def run():
                 native_missing_codec_footprint_findings=1,uncapped_open_connections=placement["uncapped_open_connections"],
                 current_source_bound_placement_evidence_matches=True,routed=False,
                 mechanical_receiving_complete=False,ready_for_fabrication=False)
-            if layout.get("routing_stage") in ("local_cells_02", "ground_02", "controls_01", "supplies_02"):
+            if layout.get("routing_stage") in ("local_cells_02", "ground_02", "controls_01", "supplies_02", "supplies_06"):
                 for key in ("local_connected_pairs", "connected_signal_supply_endpoints", "tracks", "vias",
                             "minimum_screened_drill_edge_to_SMD_copper_mm"):
                     layout[key] = placement[key]
-            if layout.get("routing_stage") in ("ground_02", "controls_01", "supplies_02"):
+            if layout.get("routing_stage") in ("ground_02", "controls_01", "supplies_02", "supplies_06"):
                 for key in ("connected_ground_pads", "connected_declared_local_ground_returns", "ground_plane_area_mm2"):
                     layout[key] = placement[key]
-            if layout.get("routing_stage") in ("controls_01", "supplies_02"):
+            if layout.get("routing_stage") in ("controls_01", "supplies_02", "supplies_06"):
                 layout["added_control_pairs"] = placement["added_control_pairs"]
-            if layout.get("routing_stage") == "supplies_02":
+            if layout.get("routing_stage") in ("supplies_02", "supplies_06"):
                 for key in ("placed_supply_pads", "connected_supply_pads", "added_supply_tracks", "added_supply_vias"):
                     layout[key] = placement[key]
             shared["layout_candidate"]=layout

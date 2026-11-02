@@ -1,0 +1,36 @@
+"""Join remaining audio supply islands while preserving prior routed copper."""
+
+import argparse
+import shutil
+from pathlib import Path
+
+from hardware.fabrication.audio_main_power_routes import RAILS
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-supplies-02"
+OUT = ROOT / "staging/audio-main-supplies-03"
+
+
+def snapshot(label):
+    path = OUT / ("applied-"+label+".py.txt")
+    assert not path.exists()
+    shutil.copyfile(Path(__file__), path)
+    return path
+
+
+def capture():
+    from hardware.fabrication.audio_main_native_capture import capture as native_capture
+
+    assert not OUT.exists()
+    OUT.mkdir()
+    applied = snapshot("input-capture")
+    native_capture(SOURCE, OUT, 306, RAILS, applied)
+    assert sha(applied) == sha(Path(__file__))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("capture",))
+    args = parser.parse_args()
+    {"capture": capture}[args.action]()
