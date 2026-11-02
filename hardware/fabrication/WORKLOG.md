@@ -1411,3 +1411,30 @@ previews were inspected. Focused audio tests: 44 pass. The 15-role inventory
 replays with no missing sources. Timing/coupling/EMI/fault, the 376 remaining
 routes, ESS land data and whole-unit/process qualification remain open. No
 board release, order, upload, supplier message or Mac CAD launch occurred.
+
+
+## AC04 inner supply distribution
+
+Selected `audio-main-supplies-02` after isolated Linux KiCad 10.0.7 DRC/ERC,
+parity, native refill and complete retained-terminal review. Supply routing
+reduces uncapped audio opens 376 -> 306 using 825 new tracks and 68 conventional
+0.60/0.30 mm vias. The board now has 1,300 tracks / 267 vias; native geometry/ERC
+remain zero, missing U201 parity remains one, and no check is ignored.
+Native source connectivity is 110/161 placed supply pads; the other 51 remain
+explicitly open. All 138 explicit local pairs, seventeen control pairs and
+200 input-ground terminals remain connected. Original analog/control copper,
+poses, old drills and authored mounting/sensitive-node/codec exclusions are
+unchanged. Native refill changes only stored ground fill, now 8,127.327812 mm².
+New drill-edge-to-SMD gap minimum is 0.170 mm on both faces, same-net included.
+
+Distribution uses 0.60 mm on In2, 0.20 mm surface escapes within 3.5 mm and
+retained sensitive-node openings. These construction dimensions do not rate
+capacity/drop/return impedance or qualify noise/stability/fault/thermal/process.
+The first draft was rejected before native acceptance because simplified
+raster paths did not preserve all later tree targets. The corrected planner
+keeps targets on emitted centreline and excludes near-via branch joins. The
+independent replay checks every actual added segment/drill and all selected
+supply islands against native source witnesses. All 51 focused audio tests
+pass. Codec land/data, the 306 remaining routes and whole-unit manufacturing,
+parts/mating/harness/support/installed qualification remain unfinished. No
+native Mac CAD, supplier message, upload or order occurred.

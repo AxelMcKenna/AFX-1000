@@ -1,0 +1,5 @@
+(version 1)
+(rule "General copper clearance" (constraint clearance (min 0.20mm)))
+(rule "Inherited VSSOP adjacent stock lands"
+ (condition "A.Type == 'Pad' && B.Type == 'Pad' && ((A.memberOfFootprint('U101') && B.memberOfFootprint('U101')) || (A.memberOfFootprint('U102') && B.memberOfFootprint('U102')) || (A.memberOfFootprint('U105') && B.memberOfFootprint('U105')) || (A.memberOfFootprint('U106') && B.memberOfFootprint('U106')))")
+ (constraint clearance (min 0.15mm)))

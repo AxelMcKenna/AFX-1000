@@ -1,0 +1,445 @@
+"""Route explicit audio supply islands on In2; preserve all local analog copper.
+
+Native CAD is confined to the pinned offline Linux container. Width/current,
+return impedance and installed performance still require qualification.
+"""
+
+import argparse
+import copy
+import heapq
+import json
+import math
+import shutil
+import sys
+import uuid
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-controls-01"
+OUT = ROOT / "staging/audio-main-supplies-02"
+RAILS = {
+    "P19": ("J701", "1"), "N19": ("J701", "3"),
+    "P12": ("J701", "4"), "N12": ("J701", "5"),
+    "V5_REG": ("J701", "6"), "V3V3_IO": ("J402", "2"),
+    "5V_DIG": ("J702", "1"), "/CODEC/A3V3": ("U202", "5"),
+    "/CODEC/A4V5": ("U203", "5"),
+}
+STEP = .2
+TRUNK_WIDTH = .6
+
+
+def snapshot(label):
+    p = OUT / ("applied-" + label + ".py.txt")
+    assert not p.exists()
+    shutil.copyfile(Path(__file__), p)
+    return p
+
+
+def capture():
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    import pcbnew
+
+    from hardware.fabrication.capture_board import polygons
+
+    assert not OUT.exists()
+    inputs = [SOURCE / name for name in ("audio_core.kicad_pcb", "routing-handoff.json", "drc.json")]
+    before = relative_hashes(inputs)
+    report = json.loads((SOURCE / "drc.json").read_text())
+    assert report["violations"] == report["ignored_checks"] == []
+    assert len(report["schematic_parity"]) == 1
+    board = pcbnew.LoadBoard(str(SOURCE / "audio_core.kicad_pcb"))
+    board.BuildConnectivity()
+    conn = board.GetConnectivity()
+    conn.RecalculateRatsnest()
+    assert conn.GetUnconnectedCount(False) == len(report["unconnected_items"]) == 376
+    items = [p for f in board.GetFootprints() for p in f.Pads()] + list(board.GetTracks())
+    rows, groups, seen = [], {}, set()
+    for item in items:
+        ident = item.m_Uuid.AsString()
+        if item.GetNetname() in RAILS and ident not in seen:
+            members = {ident} | {v.m_Uuid.AsString() for v in conn.GetConnectedItems(item)}
+            # Zones have no control net and are never members of these groups.
+            assert all(v.GetNetname() == item.GetNetname() for v in conn.GetConnectedItems(item))
+            groups[min(members)] = sorted(members)
+            seen.update(members)
+        row = dict(uuid=ident, net=item.GetNetname(), kind=item.GetClass(),
+                   position_mm=[item.GetPosition().x / 1e6, item.GetPosition().y / 1e6], layers={})
+        for name in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"):
+            layer = board.GetLayerID(name)
+            if item.IsOnLayer(layer):
+                poly = pcbnew.SHAPE_POLY_SET()
+                item.TransformShapeToPolygon(poly, layer, 0, pcbnew.FromMM(.001), pcbnew.ERROR_OUTSIDE)
+                poly.Simplify()
+                row["layers"][name] = polygons(poly)
+        if row["kind"] == "PAD":
+            row.update(ref=item.GetParentFootprint().GetReference(), pin=item.GetNumber(),
+                       drill_mm=[item.GetDrillSize().x / 1e6, item.GetDrillSize().y / 1e6],
+                       npth=int(item.GetAttribute()) == int(pcbnew.PAD_ATTRIB_NPTH))
+        elif row["kind"] == "PCB_TRACK":
+            row["end_mm"] = [item.GetEnd().x / 1e6, item.GetEnd().y / 1e6]
+            row["width_mm"] = item.GetWidth() / 1e6
+        rows.append(row)
+    zones = []
+    for z in board.Zones():
+        for name in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"):
+            layer = board.GetLayerID(name)
+            if z.IsOnLayer(layer):
+                keep = z.GetIsRuleArea()
+                zones.append(dict(net=z.GetNetname(), layer=name, keepout=keep,
+                                  prohibit_tracks=bool(z.GetDoNotAllowTracks()) if keep else False,
+                                  prohibit_vias=bool(z.GetDoNotAllowVias()) if keep else False,
+                                  polygons=polygons(z.Outline() if keep else z.GetFilledPolysList(layer))))
+    outline = pcbnew.SHAPE_POLY_SET()
+    assert board.GetBoardPolygonOutlines(outline, False)
+    verify_hashes(before)
+    OUT.mkdir()
+    applied = snapshot("input-capture")
+    before.update(relative_hashes([applied, ROOT / "capture_board.py"]))
+    result = dict(source_sha256=before, native_version=pcbnew.GetBuildVersion(), objects=rows,
+                  groups=groups, zones=zones, outline=polygons(outline), native_uncapped_opens=376,
+                  fabrication_released=False)
+    (OUT / "native-inputs.json").write_text(json.dumps(result, separators=(",", ":")) + "\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Captured", len(rows), "objects and", len(groups), "native supply islands")
+
+
+class PowerSpace:
+    def __init__(self, captured):
+        from shapely.geometry import Point
+        from shapely.ops import unary_union
+        from shapely.strtree import STRtree
+
+        from hardware.fabrication.route_nf_surface import Screen, shape
+
+        self.capture = captured
+        self.surface = Screen(captured)
+        self.copper = [(o, layer, shape(ps)) for o in captured["objects"] for layer, ps in o["layers"].items() if ps]
+        self.index = STRtree([g for _, _, g in self.copper])
+        self.drills = [(o["position_mm"], max(o["drill_mm"])/2) for o in captured["objects"] if any(o.get("drill_mm", []))]
+        self.reference = unary_union([shape(z["polygons"]) for z in captured["zones"]
+                                     if z["layer"] == "In1.Cu" and not z["keepout"] and z["net"] == "AGND"])
+        self.via_keepouts = unary_union([shape(z["polygons"]) for z in captured["zones"] if z["keepout"] and z["prohibit_vias"]])
+        self.added_shapes = []
+        self.new_vias = []
+        self.Point = Point
+
+    def via_ok(self, net, xy):
+        point = self.Point(xy)
+        if not self.surface.outline.covers(point.buffer(.3)) or point.distance(self.via_keepouts) <= .31:
+            return False
+        # Keep each new anti-pad inside the existing reference. A fresh native
+        # refill and complete terminal witnesses still decide acceptance.
+        if not self.reference.covers(point.buffer(.51)):
+            return False
+        for i in self.index.query(point.buffer(.52)):
+            obj, _, copper = self.copper[int(i)]
+            distance = point.distance(copper)
+            if obj["net"] != net and distance <= .511:
+                return False
+            if obj["kind"] == "PAD" and not any(obj["drill_mm"]) and distance <= .301:
+                return False
+            if obj["kind"] in ("PCB_TRACK", "PCB_VIA") and distance <= .311:
+                return False
+        if any(math.dist(xy, p) < radius+.15+.261 for p, radius in self.drills):
+            return False
+        if any(math.dist(xy, p) < .811 for p in self.new_vias):
+            return False
+        return all(point.distance(g) > .511 for other, _, g in self.added_shapes if other != net)
+
+    def choices(self, objects, net):
+        from hardware.fabrication.route_nf_surface import candidate_paths, shape
+
+        direct = [dict(xy_mm=o["position_mm"], endpoint_uuid=o["uuid"], paths=[], added_via=False)
+                  for o in objects if "In2.Cu" in o["layers"] and
+                  (o["kind"] == "PCB_VIA" or o["kind"] == "PAD" and o["pin"])]
+        if direct:
+            return direct
+        pads = sorted([o for o in objects if o["kind"] == "PAD" and o["pin"]],
+                      key=lambda o: (not o["ref"].startswith("C"), o["ref"], o["pin"]))
+        result = []
+        for pad in pads[:6]:
+            layer = next(l for l in ("F.Cu", "B.Cu") if l in pad["layers"])
+            x, y = pad["position_mm"]
+            left, top, right, bottom = shape(pad["layers"][layer]).bounds
+            sites = set()
+            for offset in (0, .25, -.25, .5, -.5, .75, -.75, 1, -1):
+                for gap in (.32, .57, .82, 1.07):
+                    sites.update(((left-gap, y+offset), (right+gap, y+offset),
+                                  (x+offset, top-gap), (x+offset, bottom+gap)))
+            for xy in sorted(sites, key=lambda p: (math.dist((x, y), p), p)):
+                if math.dist((x, y), xy) > 3.5 or not self.via_ok(net, xy):
+                    continue
+                paths = []
+                for path in candidate_paths((x, y), xy):
+                    path = [p for i, p in enumerate(path) if not i or p != path[i-1]]
+                    length = sum(math.dist(p, q) for p, q in zip(path, path[1:]))
+                    if length <= 3.5 and self.surface.legal(net, layer, path):
+                        paths.append((length, path))
+                if paths:
+                    length, path = min(paths, key=lambda p: p[0])
+                    result.append(dict(xy_mm=xy, endpoint_uuid=pad["uuid"], paths=[(layer, path)],
+                                       fanout_length_mm=length, added_via=True))
+                    if len(result) >= 12:
+                        return result
+        return result
+
+    def free(self, net):
+        from shapely.ops import unary_union
+
+        from hardware.fabrication.route_nf_surface import shape
+
+        obstacles = [g.buffer(TRUNK_WIDTH/2+.21) for o, layer, g in self.copper if layer == "In2.Cu" and o["net"] != net]
+        # Retain the sensitive-node openings for distribution tracks as well as
+        # pours, although the native rule areas permit signal tracks there.
+        obstacles += [shape(z["polygons"]).buffer(TRUNK_WIDTH/2+.01) for z in self.capture["zones"]
+                      if z["keepout"] and z["layer"] == "In2.Cu"]
+        obstacles += [g.buffer(TRUNK_WIDTH/2+.21) for other, layer, g in self.added_shapes
+                      if layer == "In2.Cu" and other != net]
+        return self.surface.outline.buffer(-.2).difference(unary_union(obstacles)).buffer(0)
+
+    def accept(self, net, choice):
+        from shapely.geometry import LineString
+
+        if choice["added_via"]:
+            xy = choice["xy_mm"]
+            self.new_vias.append(xy)
+            for layer in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"):
+                self.added_shapes.append((net, layer, self.Point(xy).buffer(.3)))
+            for layer in ("F.Cu", "B.Cu"):
+                self.surface.added.append((net, layer, self.Point(xy).buffer(.2)))
+        for layer, points in choice["paths"]:
+            line = LineString(points)
+            self.added_shapes.append((net, layer, line.buffer(.1)))
+            self.surface.added.append((net, layer, line))
+
+
+class InnerGrid:
+    def __init__(self, free):
+        import numpy as np
+        from shapely import contains_xy, prepare
+
+        self.free = free
+        self.safe = free.buffer(-STEP/math.sqrt(2)-.001)
+        prepare(self.safe)
+        xs, ys = np.meshgrid(np.arange(0, 150+STEP/2, STEP), np.arange(0, 63+STEP/2, STEP))
+        self.mask = contains_xy(self.safe, xs, ys)
+        self.height, self.width = self.mask.shape
+
+    @staticmethod
+    def xy(key):
+        return [round(key[0]*STEP, 6), round(key[1]*STEP, 6)]
+
+    def anchors(self, xy):
+        from shapely.geometry import LineString, Point
+
+        center = tuple(round(v/STEP) for v in xy)
+        keys = [(center[0]+dx, center[1]+dy) for dx in range(-3, 4) for dy in range(-3, 4)]
+        result = []
+        for x, y in sorted(keys, key=lambda k: math.dist(xy, self.xy(k))):
+            if 0 <= x < self.width and 0 <= y < self.height and self.mask[y, x]:
+                point = self.xy((x, y))
+                bridge = Point(xy) if math.dist(xy, point) < 1e-8 else LineString([xy, point])
+                if self.free.covers(bridge):
+                    result.append((x, y))
+        return result[:4]
+
+    def route(self, starts, targets):
+        if not starts or not targets:
+            return None
+        left, right = min(k[0] for k in targets), max(k[0] for k in targets)
+        top, bottom = min(k[1] for k in targets), max(k[1] for k in targets)
+
+        def heuristic(key):
+            return math.hypot(max(left-key[0], key[0]-right, 0), max(top-key[1], key[1]-bottom, 0))
+
+        queue = [(heuristic(k), 0., k) for k in starts]
+        heapq.heapify(queue)
+        cost, parent = dict.fromkeys(starts, 0.), {}
+        visited = 0
+        while queue and visited < 240000:
+            _, distance, key = heapq.heappop(queue)
+            if distance > cost[key]+1e-9:
+                continue
+            visited += 1
+            if key in targets:
+                path = [key]
+                while key in parent:
+                    key = parent[key]
+                    path.append(key)
+                return list(reversed(path))
+            x, y = key
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)):
+                xx, yy = x+dx, y+dy
+                if not (0 <= xx < self.width and 0 <= yy < self.height and self.mask[yy, xx]):
+                    continue
+                neighbor = (xx, yy)
+                candidate = distance+math.hypot(dx, dy)
+                if candidate < cost.get(neighbor, math.inf)-1e-9:
+                    cost[neighbor] = candidate
+                    parent[neighbor] = key
+                    heapq.heappush(queue, (candidate+heuristic(neighbor), candidate, neighbor))
+        return None
+
+    def simplify(self, points):
+        from shapely.geometry import LineString
+
+        points = [p for i, p in enumerate(points) if not i or p != points[i-1]]
+        if len(points) == 1:
+            return points
+        # Remove grid stubs close to plated centres. Subsequent tree targets
+        # are retained only if they lie on the copper that is actually emitted.
+        for reverse in (False, True):
+            if reverse:
+                points.reverse()
+            for j in range(1, len(points)):
+                distance = math.dist(points[0], points[j])
+                if distance >= .9:
+                    if distance <= 1.5 and self.free.covers(LineString([points[0], points[j]])):
+                        points = [points[0], *points[j:]]
+                    break
+            if reverse:
+                points.reverse()
+        result = []
+        for point in points:
+            while len(result) >= 2:
+                a, b = result[-2:]
+                cross = (b[0]-a[0])*(point[1]-b[1])-(b[1]-a[1])*(point[0]-b[0])
+                dot = (b[0]-a[0])*(point[0]-b[0])+(b[1]-a[1])*(point[1]-b[1])
+                if abs(cross) > 1e-9 or dot <= 0:
+                    break
+                result.pop()
+            result.append(point)
+        assert self.free.covers(LineString(result))
+        return result
+
+
+def build():
+    from shapely.geometry import LineString, Point
+
+    from hardware.fabrication.audit_audio_main_controls import check
+
+    assert check() == json.loads((SOURCE / "routing-handoff.json").read_text())
+    assert not (OUT / "distribution-input.kicad_pcb").exists()
+    captured = json.loads((OUT / "native-inputs.json").read_text())
+    verify_hashes(captured["source_sha256"])
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    pads = {(o["ref"], o["pin"]): o for o in captured["objects"] if o["kind"] == "PAD" and o["pin"]}
+    membership = {ident: key for key, ids in captured["groups"].items() for ident in ids}
+    context = PowerSpace(captured)
+    selected, deferred = [], []
+    for net in ("P12", "N12", "P19", "N19", "V5_REG", "5V_DIG", "V3V3_IO", "/CODEC/A3V3", "/CODEC/A4V5"):
+        root = membership[pads[RAILS[net]]["uuid"]]
+        groups = {key: [objects[i] for i in ids] for key, ids in captured["groups"].items() if objects[ids[0]]["net"] == net}
+        grid = InnerGrid(context.free(net))
+        roots = [(c, grid.anchors(c["xy_mm"])) for c in context.choices(groups[root], net)]
+        roots = [(c, anchors) for c, anchors in roots if anchors]
+        if not roots:
+            deferred.append(dict(net=net, group=root, reason="No root escape/inner grid access"))
+            continue
+        root_choice, root_anchors = roots[0]
+        anchor = root_anchors[0]
+        tree = {anchor}
+        root_path = []
+        branches = []
+        for key in sorted(groups, key=lambda k: min(math.dist(o["position_mm"], root_choice["xy_mm"]) for o in groups[k])):
+            if key == root:
+                continue
+            candidates = context.choices(groups[key], net)
+            chosen = None
+            for choice in candidates:
+                keys = grid.route(grid.anchors(choice["xy_mm"]), tree)
+                if keys:
+                    points = [choice["xy_mm"], *[grid.xy(k) for k in keys]]
+                    if not branches:
+                        points.append(root_choice["xy_mm"])
+                    path = grid.simplify(points)
+                    chosen = choice, keys, path
+                    break
+            if chosen is None:
+                deferred.append(dict(net=net, group=key, reason="No bounded fanout/inner-layer path"))
+                continue
+            choice, keys, path = chosen
+            # Two independently chosen escapes on this net also need adequate
+            # drill separation. Root is reserved as soon as a branch is accepted.
+            if choice["added_via"] and not context.via_ok(net, choice["xy_mm"]):
+                deferred.append(dict(net=net, group=key, reason="Escape conflicts with a prior accepted drill"))
+                continue
+            if not branches and choice["added_via"] and root_choice["added_via"] and math.dist(choice["xy_mm"], root_choice["xy_mm"]) < .811:
+                deferred.append(dict(net=net, group=key, reason="Root and branch drills need separate escapes"))
+                continue
+            if not branches:
+                context.accept(net, root_choice)
+            context.accept(net, choice)
+            branches.append(dict(group=key, escape=choice, trunk_path_mm=path))
+            trunk = Point(path[0]) if len(path) == 1 else LineString(path)
+            if len(branches) == 1:
+                tree.clear()
+            tree.update(k for k in keys if trunk.distance(Point(grid.xy(k))) < 1e-8 and
+                        all(math.dist(grid.xy(k), via) >= .9 for via in context.new_vias))
+            context.added_shapes.append((net, "In2.Cu", trunk.buffer(TRUNK_WIDTH/2)))
+        if branches:
+            selected.append(dict(net=net, root_group=root, root_endpoint=list(RAILS[net]),
+                                 root_escape=root_choice, root_trunk_path_mm=root_path, branches=branches))
+        print(net, "joined islands", len(branches)+bool(branches), "/", len(groups), flush=True)
+    assert selected
+    board = read_sexpr((SOURCE / "audio_core.kicad_pcb").read_text())
+    original = copy.deepcopy(board)
+    nets = {str(n[2]): n[1] for n in children(board, "net")}
+    segments, vias = [], []
+
+    def emit_path(net, layer, points, width):
+        for start, end in zip(points, points[1:]):
+            if math.dist(start, end) < 1e-8:
+                continue
+            ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:AC04:supply01:{net}:{layer}:{start}:{end}:{width}"))
+            row = dict(uuid=ident, net=net, layer=layer, start_mm=start, end_mm=end, width_mm=width)
+            assert not any(r["uuid"] == ident for r in segments)
+            segments.append(row)
+            board.append([a("segment"), [a("start"), *start], [a("end"), *end], [a("width"), width],
+                          [a("layer"), layer], [a("net"), nets[net]], [a("uuid"), ident]])
+
+    for rail in selected:
+        net = rail["net"]
+        choices = [rail["root_escape"]]+[b["escape"] for b in rail["branches"]]
+        for choice in choices:
+            if choice["added_via"]:
+                xy = choice["xy_mm"]
+                ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:AC04:supplyvia01:{net}:{xy}"))
+                vias.append(dict(uuid=ident, net=net, xy_mm=xy, diameter_mm=.6, drill_mm=.3))
+                board.append([a("via"), [a("at"), *xy], [a("size"), .6], [a("drill"), .3],
+                              [a("layers"), "F.Cu", "B.Cu"], [a("net"), nets[net]], [a("uuid"), ident]])
+            for layer, path in choice["paths"]:
+                emit_path(net, layer, path, .2)
+        emit_path(net, "In2.Cu", rail["root_trunk_path_mm"], TRUNK_WIDTH)
+        for branch in rail["branches"]:
+            emit_path(net, "In2.Cu", branch["trunk_path_mm"], TRUNK_WIDTH)
+    assert board[:len(original)] == original
+    for p in SOURCE.iterdir():
+        if p.suffix in (".kicad_sch", ".kicad_pro", ".kicad_sym", ".kicad_dru") or p.name in ("fp-lib-table", "sym-lib-table", "plan.json"):
+            shutil.copyfile(p, OUT / p.name)
+    shutil.copytree(SOURCE / "libraries", OUT / "libraries")
+    dest = OUT / "distribution-input.kicad_pcb"
+    dest.write_text(sexpr(board)+"\n")
+    applied = snapshot("distribution-build")
+    result = dict(source_sha256=relative_hashes([applied, SOURCE / "audio_core.kicad_pcb", SOURCE / "routing-handoff.json", OUT / "native-inputs.json"]),
+                  authored_PCB_sha256=sha(dest), selected_rails=selected, deferred=deferred,
+                  added_segments=segments, added_vias=vias, trunk_layer="In2.Cu", trunk_width_mm=TRUNK_WIDTH,
+                  surface_branch_width_mm=.2, maximum_new_surface_escape_mm=3.5,
+                  all_parent_objects_exact_before_refill=True, native_refill_and_review_pending=True,
+                  current_capacity_voltage_drop_noise_stability_fault_and_process_qualified=False,
+                  fabrication_released=False)
+    (OUT / "distribution-construction.json").write_text(json.dumps(result, indent=2)+"\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Built", len(segments), "supply segments and", len(vias), "vias; native checks pending")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("capture", "build"))
+    args = parser.parse_args()
+    {"capture": capture, "build": build}[args.action]()
+
