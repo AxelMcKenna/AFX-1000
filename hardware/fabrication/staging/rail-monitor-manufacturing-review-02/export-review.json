@@ -1,0 +1,183 @@
+{
+  "status": "REVIEW_ONLY_UNRELEASED_CANDIDATE",
+  "source_sha256": {
+    "hardware/fabrication/staging/rail-monitor-r83-land-native-01/rail_monitor.kicad_pcb": "b5502f50885c7568adcddc5a3eed8e9aecf5f718acafa7a4ba0030adceb6493e",
+    "hardware/fabrication/staging/rail-monitor-r83-land-native-01/rail_monitor.kicad_pro": "09dd994cea27d4c9dd2834ca68655036413928536bc4319c152a4542fe753d42",
+    "hardware/fabrication/staging/rail-monitor-r83-land-native-01/rail_monitor.kicad_sch": "f969b460ca7cfdf1ede0aa51a36118a4f7e4269910551e9fb19e27c9053ccfbc",
+    "hardware/fabrication/staging/rail-monitor-r83-land-native-01/review.json": "723d1294cfdadd0d2eacb2226ec94ea2dd6dc4b5414809e389ea4aa3302453fd",
+    "hardware/fabrication/staging/rail-monitor-r83-land-native-01/netlist.xml": "f46789f3ccb8eb042b6976b5af57a901b379e81a6dddff28bed74c9b5d9e6358",
+    "hardware/fabrication/staging/rail-monitor-r83-land-native-01/r83-land-review.json": "86f483038432d795a91cd531de7c9f52e70b6d28c612b1a0e808bdd5dacabcb3",
+    "hardware/fabrication/export_rail_monitor_review.py": "5e0caf375a978a508df44c79852f723b54f2e9dddc8245c39a334746b8f711ae"
+  },
+  "source_native_status": {
+    "counts": {
+      "violations": 0,
+      "unconnected_items": 0,
+      "schematic_parity": 0,
+      "erc": 0
+    },
+    "ignored_checks": [],
+    "erc_ignored_checks": [],
+    "native_DRC_check_coverage_explicit": true,
+    "native_ERC_check_coverage_explicit": true,
+    "native_check_coverage_explicit": true,
+    "all_native_DRC_rule_checks_enabled": true,
+    "all_native_ERC_rule_checks_enabled": true,
+    "all_native_rule_checks_enabled": true,
+    "native_closed": true
+  },
+  "commands": [
+    {
+      "command": [
+        "kicad-cli",
+        "pcb",
+        "export",
+        "gerbers",
+        "--layers",
+        "F.Cu,In1.Cu,In2.Cu,B.Cu,F.Mask,B.Mask,F.Paste,B.Paste,F.SilkS,B.SilkS,Edge.Cuts",
+        "--precision",
+        "6",
+        "--no-protel-ext",
+        "--subtract-soldermask",
+        "--output",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-manufacturing-review-02/gerbers/",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-r83-land-native-01/rail_monitor.kicad_pcb"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "kicad-cli",
+        "pcb",
+        "export",
+        "drill",
+        "--format",
+        "excellon",
+        "--drill-origin",
+        "absolute",
+        "--excellon-units",
+        "mm",
+        "--excellon-zeros-format",
+        "decimal",
+        "--excellon-separate-th",
+        "--generate-map",
+        "--map-format",
+        "pdf",
+        "--generate-report",
+        "--report-path",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-manufacturing-review-02/drills/drill-report.txt",
+        "--output",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-manufacturing-review-02/drills/",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-r83-land-native-01/rail_monitor.kicad_pcb"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "kicad-cli",
+        "pcb",
+        "export",
+        "pos",
+        "--side",
+        "both",
+        "--format",
+        "csv",
+        "--units",
+        "mm",
+        "--exclude-dnp",
+        "--output",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-manufacturing-review-02/assembly/native-positions.csv",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-r83-land-native-01/rail_monitor.kicad_pcb"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "kicad-cli",
+        "pcb",
+        "export",
+        "pdf",
+        "--layers",
+        "F.Fab,F.CrtYd,Edge.Cuts",
+        "--mode-single",
+        "--sketch-pads-on-fab-layers",
+        "--output",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-manufacturing-review-02/assembly/front.pdf",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-r83-land-native-01/rail_monitor.kicad_pcb"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "kicad-cli",
+        "pcb",
+        "export",
+        "pdf",
+        "--layers",
+        "B.Fab,B.CrtYd,Edge.Cuts",
+        "--mode-single",
+        "--mirror",
+        "--sketch-pads-on-fab-layers",
+        "--output",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-manufacturing-review-02/assembly/back.pdf",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/rail-monitor-r83-land-native-01/rail_monitor.kicad_pcb"
+      ],
+      "returncode": 0
+    }
+  ],
+  "gerber_layers": [
+    "F.Cu",
+    "In1.Cu",
+    "In2.Cu",
+    "B.Cu",
+    "F.Mask",
+    "B.Mask",
+    "F.Paste",
+    "B.Paste",
+    "F.SilkS",
+    "B.SilkS",
+    "Edge.Cuts"
+  ],
+  "source_PCB_unchanged": true,
+  "zone_refill_requested": false,
+  "native_version": "10.0.7",
+  "absolute_origin_used": true,
+  "placement_units": "mm",
+  "drill_units": "mm",
+  "source_has_explicit_material_stackup": false,
+  "KiCad_generated_stackup_and_finish_are_unapproved": true,
+  "raw_job_metadata_separated_from_CAM_files": true,
+  "generated_file_sha256": {
+    "applied-exporter.py.txt": "5e0caf375a978a508df44c79852f723b54f2e9dddc8245c39a334746b8f711ae",
+    "assembly/back.pdf": "01e26e9f2f30d360f5104ac7f04b83cea6ce7f44f79ff6ffecedcea987bdf2bc",
+    "assembly/front.pdf": "cd98f2fab8e8defc293d2d57852653cca9c867db33bb476bd132b70a9550fc07",
+    "assembly/native-positions.csv": "93286cc5bd4acf518b030bf4cc942f6fcd802a583659209a753dd101bd650655",
+    "assembly-back.log": "4f39425595492a8ba42170a5ee13fa99a477b42fee7dc4e3a39580ee5ff04b10",
+    "assembly-front.log": "911adb0b2c2d4e66003b902b3f30952c9c76c84a5eadc8e71bdd2f70a184bf89",
+    "drills/drill-report.txt": "79b3d1478cda6c058d431c9b94c9b0e831aaaf744af1985d4013de0f2c2ac62b",
+    "drills/rail_monitor-NPTH-drl_map.pdf": "7b2653696220d9b8b8db9e05333fd8c9c4b263711f1d24458aad54869f6dc55a",
+    "drills/rail_monitor-NPTH.drl": "0e4de6e60b135b7e9ac27b65ba5d4a5d3c8880f7ca277b98cd5b677d10a41e9d",
+    "drills/rail_monitor-PTH-drl_map.pdf": "2b934a9c15199ef948bf0a781f7a40bad6411bb47d4c8a8a169a80b1bbfbb694",
+    "drills/rail_monitor-PTH.drl": "6f4d9a50d1c679091ef1dc64eb28efe5f919fe88f147ef98c370e93e0850ddca",
+    "drills.log": "0fc9ba8a149384d51b8bb4fbc0d0e3b505c7f32cf223de227da8dc09a1464dda",
+    "gerbers/rail_monitor-B_Cu.gbr": "e3b6226a37d4415b4d5be394fcc0e01cd626f73096bbf0c672ffc531fb69b8b6",
+    "gerbers/rail_monitor-B_Mask.gbr": "9e8fb998ddd4c6cca6b72cb9ebe3376e65b61337208e15e6e08d47eaca430866",
+    "gerbers/rail_monitor-B_Paste.gbr": "47940f08c539a7ecac047eca7b70efae193295be908c83c53288bfedf3d5f548",
+    "gerbers/rail_monitor-B_Silkscreen.gbr": "082f09fa2aa9d61564ffd4f5057a5bec49dd3322bb2a62d61a63ecb7e18fc6e9",
+    "gerbers/rail_monitor-Edge_Cuts.gbr": "03a0157d703bb369489b6eaf8b696937846bc10304efa1f2375a64a510d633c1",
+    "gerbers/rail_monitor-F_Cu.gbr": "2854a5d2d31bdb43f7f52ac492a181c7ed494037703071c379a8f7b7bfa5afe5",
+    "gerbers/rail_monitor-F_Mask.gbr": "06e53b6e48bf1161710a72a96995bf6d4e4f668aee075ecb66e99659ee942fc8",
+    "gerbers/rail_monitor-F_Paste.gbr": "e9170d1cd3cabc1b30ab5e34f4d6c84acf13aac5dfbfaca55f341895ecaf2b94",
+    "gerbers/rail_monitor-F_Silkscreen.gbr": "0f15c17efdede199b7411a03f7773ed9f8f662793ab26864a713ae6cfdfbb4e2",
+    "gerbers/rail_monitor-In1_Cu.gbr": "2b6163374c4d0db65ef729be5a510af2788a25b2e08af355695a23071c6c5013",
+    "gerbers/rail_monitor-In2_Cu.gbr": "1fb34b81b2801574dc69325ffd8ef49f4f10b1096e1e5b699dd90c46a70316b0",
+    "gerbers.log": "075342334b0e996fe33d1153ba698d447e7bfb10071a97a221445ea756854580",
+    "metadata/kicad-generated-job.UNAPPROVED.json": "76e0fcdbc896ce6045fb1c502812b1e9349b28b5b83e2558d74e80f357b09d2b",
+    "native-geometry.json": "0c5e88fbdf202bfcd55583c782a57f0c13f3fdafe5b265161770f88e7015f111",
+    "placement.log": "b7afa951d2de2c9ef545e38dd55878568c5d4c463cb2a04084145cef97bbff4c"
+  },
+  "BOM_and_CAM_independent_review_pending": true,
+  "stackup_finish_and_assembly_process_accepted": false,
+  "fabrication_approved": false,
+  "order_placed": false
+}

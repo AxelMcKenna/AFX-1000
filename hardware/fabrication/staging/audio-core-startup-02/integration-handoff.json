@@ -1,0 +1,88 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/audit_audio_startup.py": "44e8b964b96a90b403993b776b91543bc720172f7311b25a2884e8fbc1113481",
+    "hardware/fabrication/staging/audio-core-startup-02/construction.json": "ef7a0f24ac3190d567dc189038e78f967a7efe12b8edbdc08d84a15081067d52",
+    "hardware/fabrication/staging/audio-core-startup-02/native-review.json": "d22639b80104e6de987505716e9430138ef88736a9ebffc34f46b8b48ae9bd2f",
+    "hardware/fabrication/staging/audio-core-startup-02/expected-circuit.json": "d7f23ef7d37122b22db3397a1ad259f00243cc5fa7d5f128402e57644ae69614",
+    "hardware/fabrication/staging/audio-core-startup-02/netlist.xml": "f87c7fe7021bbd5eb816032a15a8669d335365c6d13feb84fd96c619c7915ff3",
+    "hardware/fabrication/staging/audio-core-startup-02/erc.json": "4a16024aced30ed3be83b00a10efae8aacfa2134adc8346048fbf921f3bf1b5c",
+    "hardware/fabrication/staging/audio-core-startup-02/primary-documents.json": "d7e4e0d9ca4f6c4e729f7b198700b865d467486751baf545c1643229ea9ec15f",
+    "hardware/fabrication/staging/audio-core-integration-01/netlist.xml": "43e38b1a06dfba1ace0e5a8146cad9441b053af3442098ae612fac2e38259405"
+  },
+  "electrical_parts": 216,
+  "exported_physical_terminals": 635,
+  "native_ERC_findings": 0,
+  "all_native_ERC_categories_enabled": true,
+  "original_210_parts_retained_with_exact_values_and_footprints": true,
+  "analog_ADC_stars_and_DAC_polarity_unchanged": true,
+  "added_parts": {
+    "U210": "SN74LVC2G17DCKR",
+    "U211": "SN74LVC1G17DCKR",
+    "U212": "SN74LVC1G08DCKR",
+    "C230": "100nF 16V X7R",
+    "C231": "100nF 16V X7R",
+    "C232": "100nF 16V X7R"
+  },
+  "logic": {
+    "powered_truth_cases": 128,
+    "stale_high_timer_fault_cases": 6,
+    "pulse_response_and_power_ramp_simulated": false
+  },
+  "request_DC_screen": {
+    "corner_cases": 4096,
+    "IO_rail_allocation_v": [
+      3.04,
+      3.55
+    ],
+    "buffered_high_min_v": 2.94,
+    "maximum_normal_source_current_a": 8.304533267654204e-05,
+    "minimum_enabled_PD_above_Vminus_v": 1.3915759557517307,
+    "maximum_disabled_PD_above_Vminus_v": 0.41828895926662624,
+    "full_resistor_error_allocation": 0.03,
+    "FDA_bias_current_each_a": 1e-07,
+    "reset_off_leakage_bound_a": 3e-07,
+    "fault_clamp_source_upper_bound_a": 0.00036617938144329894,
+    "normal_request_network_static_pass": true,
+    "abrupt_fault_or_partial_power_qualified": false
+  },
+  "settling_budget": {
+    "CT_effective_required_f": [
+      1.6e-06,
+      2.8e-06
+    ],
+    "total_CT_injection_limit_a": 1e-07,
+    "minimum_timer_s": 1.2910344827586204,
+    "ADC_supervisor_release_max_s": 0.028,
+    "logic_propagation_allocation_s": 1e-06,
+    "minimum_settling_after_driver_enable_s": 1.2630334827586205,
+    "required_ADC_settling_s": 1.2,
+    "passes": true,
+    "CT_part_and_complete_discharge_qualified": false,
+    "condition": "Stable qualified supplies/bias, bounded load and initially fully discharged CT; rapid fault/rearm needs separate discharge verification"
+  },
+  "original_HCS_direct_load_exceeds_20uA_condition": true,
+  "minimum_R209_load_at_2v7_a": 2.621359223300971e-05,
+  "HCS_repaired_output_load_bounds_a": {
+    "CHIP_REQUEST": 5e-06,
+    "SETTLE_ENABLE": 1e-05,
+    "SUPPLY_OK": 1e-06,
+    "CODEC_FLAGS": 1e-06
+  },
+  "permitted_codec_CHIP_EN_input_load_a": 6.240206185567011e-05,
+  "permitted_timer_MR_load_a": 9.5e-05,
+  "remaining_level_conditions": [
+    "Actual codec CHIP_EN input load must fit remaining100uA output allowance",
+    "Timer MR current must fit output allowance; Schmitt thresholds across actual IO rail and transient loads require review",
+    "R2 bias/V5 supervisor release/load timing and actual CT reset discharge must meet the stated model bounds"
+  ],
+  "driver_enable_reference_timing_qualified": false,
+  "actual_ADC_load_and_partial_power_limits_resolved": false,
+  "actual_DAC_output_scale_resolved": false,
+  "missing_footprint_refs": [
+    "U201"
+  ],
+  "physical_star_copper_checked": false,
+  "final_audio_PCB_routed": false,
+  "enclosure_fit_verified": false,
+  "fabrication_released": false
+}

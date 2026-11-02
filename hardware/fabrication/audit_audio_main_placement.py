@@ -1,0 +1,227 @@
+"""Replay the partial audio-main placement and its explicitly incomplete codec."""
+
+import argparse
+import copy
+import json
+import math
+import xml.etree.ElementTree as ET
+from collections import Counter
+from pathlib import Path
+
+from shapely.affinity import translate
+from shapely.geometry import LineString, Polygon, box
+from shapely.ops import polygonize
+
+from hardware.electronics.common.netlists import netlist
+from hardware.electronics.common.sexpr import children, first, read_sexpr
+from hardware.electronics.output_stage.check_placement import courtyard, transform
+from hardware.fabrication.audio_main_placement import BYPASS, FEEDBACK
+from hardware.fabrication.audit_audio_main import verify_export
+from hardware.fabrication.audit_candidate import sha
+
+REPO=Path(__file__).resolve().parents[2]
+OUT=REPO/"hardware/fabrication/staging/audio-main-placement-02"
+OLD=OUT.parent/"audio-main-placement-01"
+FILMS={"C107","C121","C321","C322","C401","C403",*[f"C{i}" for i in (501,502,503,504,513,514,515,516)]}
+TALL={f"C{i}" for i in (501,502,503,504,513,514,515,516)}
+MOUNTS=[(4,4),(146,4),(4,59),(146,59),(10,56),(82,56)]
+
+
+def footprints(tree):
+    return {next(p[2] for p in children(fp,"property") if p[1]=="Reference"):fp for fp in children(tree,"footprint")}
+
+
+def pad_extent(fp,pad,extra=.5):
+    x,y=map(float,first(pad,"at")[1:3])
+    pa=first(pad,"at")
+    angle=math.radians(float(pa[3]) if len(pa)>3 else 0)
+    dx,dy=[float(v)/2 for v in first(pad,"size")[1:3]]
+    points=[transform(fp,(x+u*math.cos(angle)+v*math.sin(angle),y-u*math.sin(angle)+v*math.cos(angle)))
+            for u in (-dx,dx) for v in (-dy,dy)]
+    return box(min(p[0] for p in points)-extra,min(p[1] for p in points)-extra,
+               max(p[0] for p in points)+extra,max(p[1] for p in points)+extra)
+
+
+def normalize_metadata(tree):
+    tree=copy.deepcopy(tree)
+    for fp in children(tree,"footprint"):
+        fp[:]=[n for n in fp if not isinstance(n,list) or not n or n[0]!="property"]
+        for attr in children(fp,"attr"):
+            attr[:]=[p for p in attr if p!="exclude_from_bom"]
+    return tree
+
+
+def verify_geometry(tree,plan,parts,pins):
+    fps=footprints(tree)
+    assert set(fps)==set(parts)-{"U201"}|{f"H{i}" for i in range(1,7)}, "Wrong placed footprint set"
+    assert not children(tree,"segment") and not children(tree,"via"), "This checkpoint is placed-only"
+    profile=list(polygonize([LineString([tuple(map(float,first(n,k)[1:3])) for k in ("start","end")])
+                            for n in children(tree,"gr_line") if first(n,"layer")[1]=="Edge.Cuts"]))
+    assert len(profile)==1 and profile[0].equals(box(0,0,150,63))
+    assert float(first(first(tree,"general"),"thickness")[1])==1.6
+    reserve=box(54,22,70,38)
+    regions=children(tree,"zone")
+    assert len(regions)==1 and set(first(regions[0],"layers")[1:])=={"F.Cu","B.Cu","In1.Cu","In2.Cu"}
+    assert Polygon([tuple(map(float,p[1:3])) for p in children(first(first(regions[0],"polygon"),"pts"),"xy")]).equals(reserve)
+    assert all(p[1]=="not_allowed" for p in first(regions[0],"keepout")[1:])
+    monitor_paths=[REPO/p for p in plan["source_sha256"] if p.endswith("/rail_monitor.kicad_pcb")]
+    assert len(monitor_paths)==1
+    monitor=read_sexpr(monitor_paths[0].read_text())
+    assert all(first(fp,"layer")[1]=="F.Cu" for fp in children(monitor,"footprint"))
+    upper_projection=box(6,-10,86,60)
+    tail_regions=[translate(pad_extent(fp,p),xoff=6,yoff=-10) for fp in children(monitor,"footprint")
+                  for p in children(fp,"pad") if p[2]=="thru_hole"]
+    upper_gaps,tail_gaps=[],[]
+    courts,sides,holes,heights={},{},{},{}
+    for ref,fp in fps.items():
+        side=str(first(fp,"layer")[1]).split(".")[0]
+        sides[ref]=side
+        bounds=courtyard(fp,side+".CrtYd")
+        extra=.5 if ref in FILMS or ref.startswith("J") else 0
+        shape=box(bounds[0]-extra,bounds[1]-extra,bounds[2]+extra,bounds[3]+extra)
+        courts[ref]=shape
+        assert profile[0].covers(shape), ("Outside profile",ref)
+        assert reserve.distance(shape)>=.5-1e-8, ("Missing-land reserve encroached",ref)
+        holes[ref]=[pad_extent(fp,p) for p in children(fp,"pad") if p[2] in ("thru_hole","np_thru_hole")]
+        if ref.startswith("H"):
+            continue
+        assert profile[0].boundary.distance(shape)>=.5-1e-8, ("Edge allocation",ref)
+        pose=first(fp,"at")
+        wanted=plan["poses"][ref]
+        assert all(abs(float(v)-w)<1e-8 for v,w in zip(pose[1:4],wanted[:3])) and side==wanted[3]
+        height=19.0 if ref in TALL else 14.5 if ref in FILMS else 13.5 if ref.startswith("J") else 5.6 if ref.startswith("K") else 3.0 if ref in ("C509","C510","C511","C512") else 2.5
+        assert plan["declared_receiving_height_mm"][ref]==height
+        heights[ref]=height
+        if side=="B":
+            assert height<=2.5 and 6.5-.2-height>=3.3, ("Floor receiving",ref)
+        else:
+            top=6.5+.2+1.76+height
+            assert top+.3<=29.1, ("Panel body height allocation",ref)
+            if shape.intersection(upper_projection).area>1e-10:
+                assert top+.3<=23.8,("Upper monitor PCB receiving allocation",ref)
+                upper_gaps.append(23.8-top)
+            for tail in tail_regions:
+                if shape.intersection(tail).area>1e-10:
+                    assert top+.3<=21.8,("Upper monitor THT receiving allocation",ref)
+                    tail_gaps.append(21.8-top)
+        for x,y in MOUNTS:
+            assert shape.distance(box(x-3.6,y-3.6,x+3.6,y+3.6))>=.15-1e-8, ("Support hardware keepout",ref,x,y)
+    refs=sorted(set(parts)-{"U201"})
+    for i,ref in enumerate(refs):
+        for other in refs[i+1:]:
+            if sides[ref]==sides[other]:
+                assert courts[ref].distance(courts[other])>=.3-1e-8, ("Body allocation",ref,other)
+            else:
+                assert not any(courts[ref].intersection(p).area>1e-10 for p in holes[other]), ("Opposite-face solder/body",other,ref)
+                assert not any(courts[other].intersection(p).area>1e-10 for p in holes[ref]), ("Opposite-face solder/body",ref,other)
+    cells={v["ref"]:v for v in plan["local_cells"]}
+    assert len(cells)==99 and len(FEEDBACK)==55 and len(BYPASS)==44
+    endpoints=0
+    for ref,owner,limit in FEEDBACK:
+        cell=cells[ref]
+        assert cell["owner"]==owner and cell["limit_mm"]==limit
+        assert sides[ref]==sides[owner], ("Feedback cell changed face",ref,owner)
+        pp={str(p[1]):p for p in children(fps[ref],"pad") if str(p[1])}
+        op={str(p[1]):p for p in children(fps[owner],"pad") if str(p[1])}
+        actual=[]
+        for pin,net in pins[ref].items():
+            if net=="AGND":
+                continue
+            match=[p for p,n in pins[owner].items() if n==net]
+            if match:
+                a=transform(fps[ref],first(pp[pin],"at")[1:3])
+                b=transform(fps[owner],first(op[match[0]],"at")[1:3])
+                distance=math.dist(a,b)
+                assert distance<=limit+1e-8,("Local feedback/pump/clock endpoint",ref,owner,distance,limit)
+                actual.append((pin,b,distance))
+        assert actual and len(actual)==len(cell["terminals"])
+        for (pin,position,distance),saved in zip(actual,cell["terminals"]):
+            assert pin==saved["part_pin"] and math.dist(position,saved["owner_position_mm"])<1e-8
+            assert abs(distance-saved["actual_displacement_mm"])<1e-8
+        endpoints+=len(actual)
+    for ref,owner,pin in BYPASS:
+        assert cells[ref]["owner"]==owner and cells[ref]["limit_mm"]==3.5 and sides[ref]==sides[owner]
+        cap=next(p for p in children(fps[ref],"pad") if p[1]=="1")
+        supply=next(p for p in children(fps[owner],"pad") if p[1]==pin)
+        assert pins[ref]["1"]==pins[owner][pin]
+        distance=math.dist(transform(fps[ref],first(cap,"at")[1:3]),transform(fps[owner],first(supply,"at")[1:3]))
+        assert distance<=3.5+1e-8, ("Local supply bypass",ref,owner,distance)
+        assert abs(distance-cells[ref]["terminals"][0]["actual_displacement_mm"])<1e-8
+        endpoints+=1
+    return dict(placed_footprints=334,placed_electrical_footprints=328,unplaced_refs=["U201"],
+                parts_by_face=dict(Counter(sides[r] for r in refs)),local_cells=99,local_terminal_checks=endpoints,
+                minimum_declared_upper_PCB_vertical_gap_mm=min(upper_gaps),
+                minimum_declared_upper_THT_vertical_gap_mm=min(tail_gaps),
+                upper_board_receiving_is_conditional_on_unapproved_height_and_tail_limits=True,
+                all_declared_local_cells_same_face_as_owner=True)
+
+
+def check():
+    native,construction,plan,rule=[json.loads((OUT/p).read_text()) for p in
+        ("placement-native-review.json","construction.json","plan.json","rule-bound-native-review.json")]
+    for record in (native,construction,plan):
+        assert all(sha(REPO/p)==h for p,h in record["source_sha256"].items()), "Changed source input"
+    assert all(sha(REPO/p)==h for p,h in rule["additional_input_sha256"].items())
+    assert sha(OUT/"placement-native-review.json")==rule["native_receipt_sha256"]
+    assert all(sha(OUT/p)==h for p,h in native["raw_report_sha256"].items())
+    drc,erc=[json.loads((OUT/p).read_text()) for p in ("drc.json","erc.json")]
+    assert drc["violations"]==[] and drc["ignored_checks"]==erc["ignored_checks"]==[]
+    assert len(drc["schematic_parity"])==1
+    missing=drc["schematic_parity"][0]
+    assert missing["type"]=="missing_footprint" and missing["description"]=="Missing footprint U201 (ES9292QPRO)"
+    assert not any(s["violations"] for s in erc["sheets"]) and len(erc["sheets"])==7
+    assert native["DRC_geometry_findings"]==0 and native["schematic_parity_findings"]==1 and native["ERC_findings"]==0
+    assert native["uncapped_open_connections"]==724 and len(drc["unconnected_items"])==499
+    assert all(c["returncode"]==0 for c in native["complete_native_commands"])
+    parts,pins=netlist(OUT/"native-netlist.xml")
+    verify_export(parts,pins)
+    board=read_sexpr((OUT/"audio_core.kicad_pcb").read_text())
+    old=read_sexpr((OLD/"audio_core.kicad_pcb").read_text())
+    assert normalize_metadata(board)==normalize_metadata(old), "Original lands, poses, nets or board geometry changed"
+    by_pin={(node.attrib["ref"],node.attrib["pin"]):net.attrib["name"] for net in ET.parse(OUT/"native-netlist.xml").findall("nets/net") for node in net.findall("node")}
+    for ref,fp in footprints(board).items():
+        if ref not in parts:
+            continue
+        assert fp[1]==parts[ref].findtext("footprint")
+        assert next(p[2] for p in children(fp,"property") if p[1]=="Value")==parts[ref].findtext("value")
+        actual={str(p[1]):str(first(p,"net")[-1]) for p in children(fp,"pad") if str(p[1])}
+        assert actual=={pin:net for (r,pin),net in by_pin.items() if r==ref},("Actual board terminal mismatch",ref)
+    geometry=verify_geometry(board,plan,parts,pins)
+    # Full process contract: 0.20 mm generally; inherited 0.15 mm only between
+    # pads of the same four specific stock VSSOP instances. No severity ignore.
+    dru=read_sexpr("("+(OUT/"audio_core.kicad_dru").read_text()+")")
+    rules=children(dru,"rule")
+    assert len(rules)==2
+    assert rules[0][2]==["constraint","clearance",["min","0.20mm"]]
+    pairs=" || ".join(f"(A.memberOfFootprint('{r}') && B.memberOfFootprint('{r}'))" for r in ("U101","U102","U105","U106"))
+    assert first(rules[1],"condition")[1]=="A.Type == 'Pad' && B.Type == 'Pad' && ("+pairs+")"
+    assert first(rules[1],"constraint")==["constraint","clearance",["min","0.15mm"]]
+    project=json.loads((OUT/"audio_core.kicad_pro").read_text())
+    assert project["board"]["design_settings"]["rules"]["min_clearance"]==.15
+    assert project["board"]["design_settings"]["rules"]["min_track_width"]==.2
+    assert project["net_settings"]["classes"][0]["clearance"]==.2
+    paths=[Path(__file__),OUT/"placement-native-review.json",OUT/"rule-bound-native-review.json",OUT/"construction.json",OUT/"plan.json",OUT/"audio_core.kicad_pcb",OUT/"audio_core.kicad_dru",OUT/"native-netlist.xml"]
+    return dict(source_sha256={str(p.relative_to(REPO)):sha(p) for p in paths},**geometry,
+        native_geometry_findings=0,native_ERC_findings=0,native_missing_codec_footprint_findings=1,
+        all_native_categories_enabled=True,uncapped_open_connections=native["uncapped_open_connections"],
+        original_placement_lands_and_pin_nets_preserved=True,schematic_instance_metadata_synchronized=True,
+        scoped_inherited_VSSOP_pad_clearance_mm=.15,general_copper_and_routing_clearance_mm=.2,
+        physical_codec_ADC_star_geometry_verified=False,codec_local_passives_finalized=False,
+        complete_mating_harness_support_and_case_receiving_qualified=False,
+        analog_PDN_thermal_stability_noise_and_manufacturing_qualified=False,
+        PCB_routed=False,fabrication_released=False)
+
+
+if __name__=="__main__":
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check",action="store_true")
+    args=parser.parse_args()
+    result=check()
+    path=OUT/"placement-handoff.json"
+    if args.check:
+        assert result==json.loads(path.read_text())
+    else:
+        with path.open("x") as f:
+            json.dump(result,f,indent=2)
+            f.write("\n")
+    print(f"Audio placement: 328 electrical footprints / six mounts / 99 local cells; geometry/ERC 0; missing codec 1; {result['uncapped_open_connections']} opens")

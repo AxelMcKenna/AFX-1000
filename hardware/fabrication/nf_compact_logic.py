@@ -1,0 +1,286 @@
+"""NF logic-routing trial with new conventional 0.60/0.30 mm vias.
+
+Existing components/copper/rules stay fixed. New vias may cut clearance holes
+in the two reserved planes; their final PDN review remains required.
+"""
+
+import argparse
+import hashlib
+import heapq
+import itertools
+import json
+import math
+import time
+import uuid
+from pathlib import Path
+
+from shapely.geometry import LineString, Point
+from shapely.strtree import STRtree
+
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.fabrication.route_nf_surface import SIGNAL_LAYERS, Screen, is_logic_net, shape
+
+ROOT = Path(__file__).resolve().parent
+CAPTURE = ROOT / "staging/nf-routing-inputs-201/capture.json"
+OUTPUT = ROOT / "staging/nf-layer-logic-01"
+DIAMETER, DRILL, WIDTH = .6, .3, .2
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+class LayerScreen(Screen):
+    def __init__(self, capture, signal_layers=SIGNAL_LAYERS):
+        super().__init__(capture)
+        self.signal_layers = tuple(signal_layers)
+        assert set(self.signal_layers) <= set(capture.get("copper_layers",SIGNAL_LAYERS))
+        self.via_geometry = []
+        self.vias = []
+        for obj in capture["objects"]:
+            # All actual pad/track/via layers participate, including planes.
+            copper = shape([p for layer in obj["layers"].values() for p in layer])
+            if not copper.is_empty:
+                self.via_geometry.append((obj["net"], copper, obj["kind"]))
+            if obj.get("npth"):
+                radius = math.hypot(*obj["drill_mm"])/2+.001
+                self.via_geometry.append((None, Point(obj["position_mm"]).buffer(radius/math.cos(math.pi/128), quad_segs=32), "HOLE"))
+            elif obj["kind"] == "PCB_VIA":
+                self.vias.append((obj["net"], tuple(obj["position_mm"])))
+        for zone in capture["zones"]:
+            if zone["keepout"] and zone["prohibit_vias"]:
+                self.via_geometry.append((None, shape(zone["polygons"]), "KEEPOUT"))
+        self.via_tree = STRtree([g for _, g, _ in self.via_geometry])
+        self.via_outline = shape(capture["outline"]).buffer(-(.5+DIAMETER/2+.01))
+        self.new_vias = []
+
+    def legal(self, net, layer, points):
+        if not super().legal(net, layer, points):
+            return False
+        line = LineString(points)
+        return all(other == net or line.distance(Point(xy)) > DIAMETER/2+WIDTH/2+.2+.01
+                   for other, xy in self.new_vias)
+
+    def via_legal(self, net, xy):
+        point = Point(xy)
+        if not self.via_outline.covers(point):
+            return False
+        for other, position in self.vias+self.new_vias:
+            if math.dist(position, xy) < 1e-7:
+                return other == net
+            if math.dist(position, xy) <= .65+.2+.01:
+                return False
+        for index in self.via_tree.query(point.buffer(.6)):
+            other, obstacle, kind = self.via_geometry[int(index)]
+            if kind == "HOLE":
+                clearance = DRILL/2+.25+.01
+            elif kind == "KEEPOUT":
+                clearance = DIAMETER/2+.01
+            elif other == net:
+                # Avoid creating a via in an SMD land or an off-centre joint
+                # on existing same-net copper. Existing centred vias are reused.
+                clearance = DIAMETER/2+.01
+            else:
+                clearance = DIAMETER/2+.2+.01
+            if point.distance(obstacle) <= clearance:
+                return False
+        for _, _, line in self.added:
+            if point.distance(line) <= DIAMETER/2+WIDTH/2+.2+.01:
+                return False
+        return True
+
+    def route(self, net, start_layer, start, end_layer, end, deadline, budget=45000):
+        step = .1
+        origin = (self.signal_layers.index(start_layer), *(round(v/step) for v in start))
+        goal = (self.signal_layers.index(end_layer), *(round(v/step) for v in end))
+
+        def xy(key):
+            return tuple(round(v*step, 6) for v in key[1:])
+
+        for layer, point, key in ((start_layer, start, origin), (end_layer, end, goal)):
+            if math.dist(point, xy(key)) > 1e-6 and not self.legal(net, layer, [point, xy(key)]):
+                return None
+        lower = tuple(min(u, v)-40 for u, v in zip(origin[1:], goal[1:]))
+        upper = tuple(max(u, v)+40 for u, v in zip(origin[1:], goal[1:]))
+
+        def heuristic(key):
+            return math.dist(key[1:], goal[1:])+(25 if key[0] != goal[0] else 0)
+
+        queue = [(heuristic(origin), 0., origin)]
+        cost, parent, valid, via_valid = {origin: 0.}, {}, {}, {}
+        visits = 0
+        while queue and visits < budget:
+            if visits % 128 == 0 and time.monotonic() >= deadline:
+                return None
+            _, distance, key = heapq.heappop(queue)
+            if distance > cost[key]+1e-9:
+                continue
+            visits += 1
+            if key == goal:
+                keys = [key]
+                while key in parent:
+                    key = parent[key]
+                    keys.append(key)
+                keys.reverse()
+                path = [(self.signal_layers[origin[0]], tuple(start))]
+                path += [(self.signal_layers[k[0]], xy(k)) for k in keys]
+                path.append((end_layer, tuple(end)))
+                return [p for i, p in enumerate(path) if i == 0 or p != path[i-1]]
+            neighbors = [(key[0], key[1]+dx, key[2]+dy) for dx, dy in itertools.product((-1, 0, 1), repeat=2) if dx or dy]
+            position = key[1:]
+            if position not in via_valid:
+                via_valid[position] = self.via_legal(net, xy(key))
+            if via_valid[position]:
+                neighbors += [(i, *position) for i in range(len(self.signal_layers)) if i != key[0]]
+            for neighbor in neighbors:
+                if not all(lo <= v <= hi for lo, v, hi in zip(lower, neighbor[1:], upper)):
+                    continue
+                hop = neighbor[0] != key[0]
+                candidate = distance+(25 if hop else math.dist(key[1:], neighbor[1:]))
+                if candidate >= cost.get(neighbor, math.inf)-1e-9:
+                    continue
+                if not hop:
+                    edge = tuple(sorted((key, neighbor)))
+                    if edge not in valid:
+                        valid[edge] = self.legal(net, self.signal_layers[key[0]], [xy(key), xy(neighbor)])
+                    if not valid[edge]:
+                        continue
+                cost[neighbor], parent[neighbor] = candidate, key
+                heapq.heappush(queue, (candidate+heuristic(neighbor), candidate, neighbor))
+        return None
+
+
+def simplify(screen, net, path):
+    runs, vias = [], []
+    for layer, point in path:
+        if not runs or runs[-1][0] != layer:
+            if runs:
+                assert runs[-1][1][-1] == point
+                vias.append(point)
+            runs.append((layer, [point]))
+        else:
+            runs[-1][1].append(point)
+    result = []
+    for layer, points in runs:
+        points = [p for i, p in enumerate(points) if i == 0 or p != points[i-1]]
+        if len(points) < 2:
+            continue
+        simple, index = [points[0]], 0
+        while index < len(points)-1:
+            target = index+1
+            for j in range(index+2, len(points)):
+                if screen.legal(net, layer, [points[index], points[j]]):
+                    target = j
+            simple.append(points[target])
+            index = target
+        assert screen.legal(net, layer, simple)
+        result.append((layer, simple))
+    return result, sorted(set(vias))
+
+
+def run():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--capture", type=Path, default=CAPTURE)
+    parser.add_argument("--label", default=OUTPUT.name)
+    parser.add_argument("--max-routes", type=int, default=12)
+    parser.add_argument("--seconds", type=int, default=180)
+    parser.add_argument("--prior-attempts", type=Path)
+    args = parser.parse_args()
+    assert args.capture.resolve().is_relative_to(ROOT / "staging")
+    assert args.label and all(c.isalnum() or c in "-_" for c in args.label)
+    assert 1 <= args.max_routes <= 32 and 30 <= args.seconds <= 240
+    output = OUTPUT.parent / args.label
+    assert not output.exists()
+    capture_path = args.capture
+    capture = json.loads(capture_path.read_text())
+    assert all(sha(Path(p)) == digest for p, digest in capture["source_sha256"].items())
+    source = next(Path(p) for p in capture["source_sha256"] if p.endswith(".kicad_pcb"))
+    board = read_sexpr(source.read_text())
+    assert all(float(first(v, "size")[1]) >= DIAMETER and float(first(v, "drill")[1]) == DRILL for v in children(board, "via"))
+    original, original_count = sexpr(board), len(board)
+    objects = {p["uuid"]: p for p in capture["objects"]}
+    nets, endpoints = {}, {}
+    for key, identifiers in capture["groups"].items():
+        net = objects[identifiers[0]]["net"]
+        if not is_logic_net(net):
+            continue
+        nets.setdefault(net, []).append(key)
+        contacts = set()
+        for uid in identifiers:
+            obj = objects[uid]
+            for layer in obj["layers"]:
+                if layer in SIGNAL_LAYERS:
+                    contacts.add((layer, tuple(obj["position_mm"])))
+                    if "end_mm" in obj:
+                        contacts.add((layer, tuple(obj["end_mm"])))
+        endpoints[key] = contacts
+    tasks = []
+    for net, keys in nets.items():
+        for left, right in itertools.combinations(keys, 2):
+            choices = sorted((math.dist(p, q)+(.25 if layer != other else 0), layer, p, other, q)
+                             for layer, p in endpoints[left] for other, q in endpoints[right])
+            if choices:
+                tasks.append((choices[0][0], net, left, right, choices[:4]))
+    screen = LayerScreen(capture)
+    parent = {k: k for k in endpoints}
+
+    def root(key):
+        while parent[key] != key:
+            parent[key] = parent[parent[key]]
+            key = parent[key]
+        return key
+
+    results, attempts = [], []
+    prior = set()
+    if args.prior_attempts:
+        assert args.prior_attempts.resolve().is_relative_to(ROOT / "staging")
+        previous = json.loads(args.prior_attempts.read_text())
+        prior = {tuple(sorted(row["groups"])) for row in previous["attempts"] if not row["path_found"]}
+    deadline = time.monotonic()+args.seconds
+    for _, net, left, right, choices in sorted(tasks, key=lambda row: (tuple(sorted(row[2:4])) in prior, row[0], row[1:4])):
+        if time.monotonic() >= deadline or len(results) >= args.max_routes:
+            break
+        if root(left) == root(right):
+            continue
+        path = None
+        for _, layer, start, other, end in choices:
+            path = screen.route(net, layer, start, other, end, min(deadline, time.monotonic()+12))
+            if path:
+                break
+        attempts.append(dict(net=net, groups=[left, right], path_found=path is not None))
+        if not path:
+            continue
+        runs, vias = simplify(screen, net, path)
+        new_vias = [p for p in vias if not any(n == net and math.dist(p, q) < 1e-7 for n, q in screen.vias+screen.new_vias)]
+        assert all(screen.via_legal(net, p) for p in new_vias)
+        for layer, points in runs:
+            screen.added.append((net, layer, LineString(points)))
+            for start, end in zip(points, points[1:]):
+                ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:NF:compact-layer:{sha(capture_path)}:{net}:{layer}:{start}:{end}"))
+                board.append([a("segment"), [a("start"), *start], [a("end"), *end], [a("width"), WIDTH],
+                              [a("layer"), layer], [a("net"), net], [a("uuid"), ident]])
+        for point in new_vias:
+            ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:NF:compact-via:{sha(capture_path)}:{net}:{point}"))
+            board.append([a("via"), [a("at"), *point], [a("size"), DIAMETER], [a("drill"), DRILL],
+                          [a("layers"), "F.Cu", "B.Cu"], [a("tenting"), [a("front"), a("yes")], [a("back"), a("yes")]],
+                          [a("net"), net], [a("uuid"), ident]])
+            screen.new_vias.append((net, point))
+        parent[root(right)] = root(left)
+        results.append(dict(net=net, groups=[left, right], runs=runs, new_vias_mm=new_vias))
+        print("Planned", net, len(runs), "layer runs,", len(new_vias), "new vias", flush=True)
+    assert sexpr(board[:original_count]) == original
+    output.mkdir()
+    pcb = output / source.name
+    pcb.write_text(sexpr(board)+"\n")
+    inputs = (source, capture_path, Path(__file__), ROOT / "route_nf_surface.py")
+    (output / "construction.json").write_text(json.dumps(dict(source_sha256={str(p): sha(p) for p in inputs},
+        candidate_PCB_sha256=sha(pcb), routes=results, attempts=attempts, route_count=len(results),
+        added_vias=len(screen.new_vias), new_via_diameter_mm=DIAMETER, new_via_drill_mm=DRILL, all_original_objects_exact=True, only_logic_nets=True,
+        reserved_planes_have_no_new_tracks=True, new_via_plane_clearance_changes_require_PDN_review=True,
+        bounded_host_search_seconds=args.seconds, native_checks_pending=True, physical_qualified=False,
+        fabrication_released=False), indent=2)+"\n")
+    print("Planned", len(results), "routes; independent native acceptance pending", flush=True)
+
+
+if __name__ == "__main__":
+    run()

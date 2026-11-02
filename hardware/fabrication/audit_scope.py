@@ -33,6 +33,56 @@ def render_readiness(report):
         else:
             numbers = "No PCB layout" if not row["layout_present"] else "No current source-bound native review in this inventory"
         lines.append(f"| {row['role'].replace('_',' ')} | [KiCad source]({link}) | {numbers} |")
+    shared = report.get("shared_audio_core")
+    if shared:
+        link = os.path.relpath(REPO/shared["source"],ROOT)
+        description = "input range, ADC driver, codec, DAC receiver, output stage and sequenced bypass" if shared.get("revision") == "AC04" else "ADC driver, codec and receiver"
+        lines += ["", f"The [shared audio integration candidate]({link}) combines {description}",
+            f"into {shared['electrical_parts']} parts/{shared['exported_physical_terminals']} terminals on one proposed PCB.",
+            "Its native schematic export has zero ERC findings. The codec land remains",
+            "unassigned; the source and interface audit does not adopt separate development-board copper."]
+        layout=shared.get("layout_candidate")
+        if layout:
+            board=os.path.relpath(REPO/layout["source"],ROOT)
+            lines += [f"The [partial main audio PCB]({board}) places 328 known electrical footprints",
+                "and six proposed mounts in the 150 × 63 mm allocation. Native geometry and ERC",
+                "are zero with all categories enabled. The missing ESS footprint remains an explicit",
+                f"parity finding; {layout['uncapped_open_connections']} connections remain unrouted.",
+                "Its 99 local feedback/bypass/pump/clock/servo cells meet their declared endpoint",
+                "limits. Full analog performance, codec placement, mating/harness fit and manufacturing remain open.",
+                "", "![Partial main audio PCB placement](staging/audio-main-placement-02/plots/top.png)"]
+        else:
+            lines += ["The combined schematic project has no PCB layout."]
+    digital = report.get("shared_digital_core")
+    if digital:
+        link = os.path.relpath(REPO/digital["source"],ROOT)
+        lines += ["", f"The [combined digital/control candidate]({link}) places the processor carrier,",
+            "control expanders and LED drivers on one proposed notched 114 × 60 mm PCB.",
+            f"It has {digital['electrical_parts']} electrical parts, zero native geometry/parity/ERC findings,",
+            f"and {digital['uncapped_open_connections']} unrouted connections. All native categories are enabled.",
+            "Five inter-board headers were removed. Placement does not establish routed",
+            "power/return performance, production connector acceptance or installed fit."]
+        if digital.get("revision") == "DC02":
+            lines += ["The DC02 candidate has 39 native-verified local filter, bypass and reference",
+                "connections. Its eight conventional vias are screened outside SMD copper.",
+                "Ground returns, board-wide power/thermal paths and remaining signals are unfinished."]
+        if digital.get("revision") == "DC03":
+            lines += ["The DC03 candidate connects all 201 pads on its five power/ground nets,",
+                "with an In1 ground plane, an In2 5 V plane and routed outer-layer supply branches.",
+                "The 39 earlier local connections remain intact. Each LED driver has 6–11",
+                "native-connected thermal vias. Of 136 vias, 115 clear SMD copper and 21",
+                "occupy mask-covered heat-spreader copper outside solder openings.",
+                "The mapped drill process still requires acceptance. Signal routing and",
+                "current/voltage/noise/thermal qualification remain unfinished."]
+    plan = report.get("assembly_layout_plan")
+    if plan:
+        arrangement = {"AP03":"assembly-layout-03","AP02":"assembly-layout-02"}.get(plan.get("revision"),"assembly-layout-01")
+        lines += ["", f"The [{plan.get('revision','AP01')} arrangement](staging/{arrangement}/README.md) fixes allocations for the next PCB work:",
+            "six audio roles on the left, combined digital on the right, an upper rail-monitor",
+            "board, and the existing touch-module front bay. Its eight functional PCB",
+            "allocations exclude additional panel/emitter boards and the touch module.",
+            "The full current assembly, supports, harness and thermal design remain unfinished.",
+            "", f"![Proposed board arrangement](staging/{arrangement}/arrangement.png)"]
     lines += ["", "DRC findings include warnings. A zero count does not approve the circuit,",
         "fabrication process, current capacity, thermal design, mechanical fit or assembly.",
         "All selected native reviews retain explicit rule coverage; no ignored category",
@@ -99,11 +149,100 @@ def run():
                         entry["additional_evidence_errors"].append(name)
         entry["ready_for_fabrication"] = False
         rows.append(entry)
+    shared = scope.get("shared_audio_core")
+    if shared:
+        if shared.get("revision") == "AC04":
+            from hardware.fabrication.audit_audio_main import check as check_audio_core
+        elif shared.get("revision") == "AC03":
+            from hardware.fabrication.audit_audio_ports import check as check_audio_core
+        elif shared.get("revision") == "AC02":
+            from hardware.fabrication.audit_audio_startup import check as check_audio_core
+        else:
+            from hardware.fabrication.audit_audio_core import check as check_audio_core
+        shared = dict(shared)
+        expected_roles = {"adc_driver","converter","dac_receiver"}
+        if shared.get("revision") == "AC04":
+            expected_roles |= {"input_range","output_stage","sequenced_bypass"}
+        assert set(shared["member_roles"]) == expected_roles
+        handoff = REPO/shared["handoff"]
+        evidence = check_audio_core()
+        assert json.loads(handoff.read_text()) == evidence
+        sources[shared["handoff"]] = hashlib.sha256(handoff.read_bytes()).hexdigest()
+        sources[shared["source"]] = hashlib.sha256((REPO/shared["source"]).read_bytes()).hexdigest()
+        sources.update(evidence["source_sha256"])
+        shared.update(electrical_parts=evidence["electrical_parts"],
+            exported_physical_terminals=evidence["exported_physical_terminals"],
+            native_ERC_findings=evidence["native_ERC_findings"],
+            current_source_bound_integration_evidence_matches=True,
+            layout_complete=False,physical_star_copper_checked=False,ready_for_fabrication=False)
+        if shared.get("revision")=="AC04":
+            from hardware.fabrication.audit_audio_main import current_interfaces
+
+            interfaces=current_interfaces()
+            shared["current_peer_interface_review"]=interfaces
+            sources.update(interfaces["current_source_sha256"])
+        layout=shared.get("layout_candidate")
+        if layout:
+            from hardware.fabrication.audit_audio_main_placement import check as check_audio_placement
+
+            layout=dict(layout)
+            placement=check_audio_placement()
+            path=REPO/layout["handoff"]
+            assert placement==json.loads(path.read_text())
+            sources[layout["handoff"]]=hashlib.sha256(path.read_bytes()).hexdigest()
+            sources.update(placement["source_sha256"])
+            sources[layout["source"]]=hashlib.sha256((REPO/layout["source"]).read_bytes()).hexdigest()
+            layout.update(placed_electrical_footprints=placement["placed_electrical_footprints"],
+                unplaced_refs=placement["unplaced_refs"],native_geometry_findings=0,native_ERC_findings=0,
+                native_missing_codec_footprint_findings=1,uncapped_open_connections=placement["uncapped_open_connections"],
+                current_source_bound_placement_evidence_matches=True,routed=False,
+                mechanical_receiving_complete=False,ready_for_fabrication=False)
+            shared["layout_candidate"]=layout
+    digital = scope.get("shared_digital_core")
+    if digital:
+        from hardware.fabrication.audit_digital_core import check as check_digital_integration
+        from hardware.fabrication.audit_digital_layout import check as check_digital_placement
+        if digital.get("revision") == "DC02":
+            from hardware.fabrication.audit_digital_cells import check as check_digital_placement
+        elif digital.get("revision") == "DC03":
+            from hardware.fabrication.audit_digital_distribution import check as check_digital_placement
+
+        digital = dict(digital)
+        assert set(digital["member_roles"]) == {"processor_carrier","control_inputs","led_driver"}
+        for field,check in (("integration_handoff",check_digital_integration),("handoff",check_digital_placement)):
+            evidence = check()
+            path = REPO/digital[field]
+            assert evidence == json.loads(path.read_text())
+            sources[digital[field]] = hashlib.sha256(path.read_bytes()).hexdigest()
+            sources.update(evidence["source_sha256"])
+        sources[digital["source"]] = hashlib.sha256((REPO/digital["source"]).read_bytes()).hexdigest()
+        digital.update(electrical_parts=evidence["electrical_parts"],uncapped_open_connections=evidence["uncapped_open_connections"],
+            native_geometry_findings=0,native_schematic_parity_findings=0,native_ERC_findings=0,
+            current_source_bound_integration_and_placement_evidence_matches=True,
+            routed=False,mechanical_receiving_complete=False,ready_for_fabrication=False)
+    plan = scope.get("assembly_layout_plan")
+    if plan:
+        if plan.get("revision") == "AP03":
+            from hardware.fabrication.assembly_layout_v3 import calculate
+        elif plan.get("revision") == "AP02":
+            from hardware.fabrication.assembly_layout_v2 import calculate
+        else:
+            from hardware.fabrication.assembly_layout import calculate
+
+        plan = dict(plan)
+        evidence = calculate()
+        path = REPO/plan["allocation"]
+        assert evidence == json.loads(path.read_text())
+        sources[plan["allocation"]] = hashlib.sha256(path.read_bytes()).hexdigest()
+        sources.update(evidence["source_sha256"])
+        plan.update(functional_PCB_allocations=evidence["functional_PCB_allocations"],
+            current_allocation_evidence_matches=True,complete_physical_partition_and_receiving=False)
     output = ROOT/"current-readiness.json"
     report = dict(profile=scope["profile"],release_tier=scope["proposed_release_tier"],
         baseline_functional_roles_preserved=sorted(BOARDS),role_count=len(rows),roles=rows,
         physical_board_partition_complete=False,missing_source_files=[r["source"] for r in rows if not r["source_present"]],
         unresolved_assembly_requirements=scope["assembly_holds"],source_sha256=sources,
+        shared_audio_core=shared,shared_digital_core=digital,assembly_layout_plan=plan,
         complete_fabrication_package=False,fabrication_released=False)
     output.write_text(json.dumps(report,indent=2)+"\n")
     render_readiness(report)

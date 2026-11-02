@@ -28,31 +28,35 @@
     },
     {
       "role": "rail_disconnect",
-      "source": "hardware/fabrication/staging/e28-covered-stubs-native/rail_disconnect.kicad_pro",
-      "native_review": "hardware/fabrication/staging/e28-covered-stubs-native/review.json",
-      "selection": "development_candidate",
+      "source": "hardware/fabrication/staging/e28-branch-cleanup-native-12/rail_disconnect.kicad_pro",
+      "native_review": "hardware/fabrication/staging/e28-branch-cleanup-native-12/review.json",
+      "selection": "native_clean_development_candidate",
       "holds": [
-        "49 native warnings (30 track tips, 19 via stubs)",
-        "eight-layer mixed-copper stack and single smaller filled/capped via acceptance",
-        "fresh power/return and fault analysis"
+        "311 retained via drills intersect SMD copper (310 at paste-target lands); native filling/capping fields are no despite historical filled/capped assumptions; resolve location-specific fabrication/stencil/assembly treatment",
+        "1.62 mm eight-layer mixed-copper stack, single 0.2 mm drill and full plating/registration/process acceptance",
+        "Fresh source-to-load power/return, fault and thermal analysis after cleanup",
+        "Current installed component, terminal, mounting and harness receiving",
+        "Inspected final fabrication/assembly outputs and bounded first-article plan"
       ],
-      "previous_source": "hardware/electronics/rail_disconnect/revision28/generated/low-power-run-work/generated/native-signal-stub-cleanup-06/rail_disconnect.kicad_pro"
+      "previous_source": "hardware/fabrication/staging/e28-covered-stubs-native/rail_disconnect.kicad_pro",
+      "handoff": "hardware/fabrication/staging/e28-branch-cleanup-native-12/handoff.json"
     },
     {
       "role": "rail_monitor",
-      "source": "hardware/fabrication/staging/rail-monitor-dogbone-native-01/rail_monitor.kicad_pro",
-      "selection": "partially_routed_development_candidate",
+      "source": "hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/rail_monitor.kicad_pro",
+      "selection": "routed_development_candidate",
       "holds": [
-        "13 missing connections; supply escapes require local routing/placement revision",
         "final functions and interfaces must be reconciled with P03/E28/NF",
         "exact precision/passive MPNs, error budgets and process acceptance",
         "80 x 70 mm proposed allocation, mounting, connector/harness and installed fit",
         "local bypass, sense routing and integrated noise/fault qualification",
-        "mask-web/stencil acceptance for conventional via escapes; all drilled holes screened outside SMD copper"
+        "mask-web/stencil acceptance for conventional via escapes; all drilled holes screened outside SMD copper",
+        "new In2 3.3 V branches and refilled 5 V copper require source-to-load resistance and return/noise review",
+        "0.110 mm screened drill-to-SMD gap requires mask-web/stencil and assembly acceptance"
       ],
-      "previous_source": "hardware/electronics/rail_monitor/rail_monitor.kicad_sch",
-      "native_review": "hardware/fabrication/staging/rail-monitor-dogbone-native-01/review.json",
-      "handoff": "hardware/fabrication/staging/rail-monitor-dogbone-native-01/handoff.json"
+      "previous_source": "hardware/fabrication/staging/rail-monitor-dogbone-native-01/rail_monitor.kicad_pro",
+      "native_review": "hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/review.json",
+      "handoff": "hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/handoff.json"
     },
     {
       "role": "processor_carrier",
@@ -126,13 +130,17 @@
     },
     {
       "role": "dac_receiver",
-      "source": "hardware/electronics/dac_receiver/dac_receiver.kicad_sch",
-      "selection": "architecture_unresolved",
+      "source": "hardware/fabrication/staging/dac-receiver-closed-native-01/dac_receiver.kicad_pro",
+      "selection": "routed_receiver_region_final_audio_partition_unresolved",
       "holds": [
-        "actual ESS output interface/normalization",
-        "final audio partition",
-        "no PCB"
-      ]
+        "actual ESS output interface/normalization and final gain/calibration range",
+        "final codec/ADC/receiver co-location; present J1 raw-DAC boundary is not an approved harness",
+        "final audio-board outline, housing receiving, supplies/returns and thermal review",
+        "exact passive/connector parts, film-capacitor mounting and manufacturing process review"
+      ],
+      "previous_source": "hardware/electronics/dac_receiver/dac_receiver.kicad_sch",
+      "native_review": "hardware/fabrication/staging/dac-receiver-closed-native-01/review.json",
+      "handoff": "hardware/fabrication/staging/dac-receiver-closed-native-01/layout-handoff.json"
     },
     {
       "role": "output_stage",
@@ -162,22 +170,46 @@
     },
     {
       "role": "negative_startup_protection",
-      "source": "hardware/fabrication/staging/nf-arm-only-native-01/negative_startup_physical.kicad_pro",
+      "source": "hardware/fabrication/staging/nf-logic-swap-clean-native-01/negative_startup_physical.kicad_pro",
       "selection": "development_candidate",
       "holds": [
-        "176 missing connections",
-        "two isolated-domain ground warnings",
-        "1.2 mm six-layer process, shim/connector/mount receiving",
-        "final E28 fault and negative-force integration",
-        "New through-via plane clearances require refreshed PDN/noise analysis",
-        "DRB central-land stencil/thermal-via process and updated receiving acceptance"
+        "138 missing connections",
+        "Two isolated-domain ground ERC warnings remain visible; do not join isolated references to AGND",
+        "1.2 mm six-layer process, shim/connector/mount receiving and complete current-board installed fit",
+        "Final E28 fault and negative-force integration",
+        "New through-via plane clearances and retained power/ground distribution require refreshed PDN/noise analysis",
+        "DRB central-land stencil/thermal-via process and updated receiving acceptance",
+        "Conventional 0.60/0.30 mm vias require 0.15 mm nominal annular-ring/process acceptance; full legacy and new mask/stencil/registration review remains open",
+        "119 rear circuit components; C1/C2/C8/C10/C35/C37/C53/C54 rear placement and proposed 1.9 mm complete-height envelopes require updated body/tail/wire receiving",
+        "C35/U26 and C37/U25 CT escapes remain open despite local placement; surrounding cells need further placement/routing work",
+        "Other CT/TMR/SS/RAMP cells need local placement review, including C92/U52 start-delay at 44.72 mm",
+        "Local timing/reference/SS routes and fault-status detours require return-impedance, noise and timing review",
+        "U44 ground escape and C83 return through the R22 ground via require local decoupling/return-impedance review",
+        "U38/U41 site swap and U39 watchdog/stage escape rework preserve prior pad connectivity, but local bypass/return and timing/noise qualification remain open",
+        "N12_READY restoration includes a 154.55 mm route; watchdog detour, control/clock paths and coupling need review",
+        "62 new/replaced 0.60/0.30 mm vias have minimum screened drill-edge-to-SMD gap 0.200 mm; full stack/mask/stencil and plane PDN acceptance remain open",
+        "Affected-net total track length increases from 1266.70 to 1877.89 mm while eleven connections are completed; no aggregate routing-length reduction or signal-integrity approval is claimed"
       ],
-      "previous_source": "hardware/qualification/boards/thin_aux_boards/generated/NF/negative_startup_physical.kicad_pro",
-      "native_review": "hardware/fabrication/staging/nf-arm-only-native-01/review.json",
+      "previous_source": "hardware/fabrication/staging/nf-u37-multilayer-native-02/negative_startup_physical.kicad_pro",
+      "native_review": "hardware/fabrication/staging/nf-logic-swap-clean-native-01/review.json",
       "superseded_source_before_package_correction": "hardware/fabrication/staging/nf-layer-logic-native-03/negative_startup_physical.kicad_pro",
       "package_correction_review": "hardware/fabrication/staging/nf-watchdog-land-native-01/package-correction-review.json",
       "superseded_source_before_single_net_routing": "hardware/fabrication/staging/nf-watchdog-land-native-01/negative_startup_physical.kicad_pro",
-      "handoff": "hardware/fabrication/staging/nf-arm-only-native-01/single-net-audit.json"
+      "handoff": "hardware/fabrication/staging/nf-logic-swap-clean-native-01/handoff.json",
+      "unselected_routing_trial": {
+        "source": "hardware/fabrication/staging/nf-eight-logic-native-01/negative_startup_physical.kicad_pro",
+        "native_review": "hardware/fabrication/staging/nf-eight-logic-native-01/review.json",
+        "audit": "hardware/fabrication/staging/nf-eight-combined-native-02/combined-cell-audit.json",
+        "handoff": "hardware/fabrication/staging/nf-eight-logic-native-01/handoff.json",
+        "layout_review": "hardware/fabrication/staging/nf-eight-logic-native-01/layout-review.json",
+        "opens": 160,
+        "native_geometry_findings": 0,
+        "schematic_parity_findings": 0,
+        "erc_findings": 2,
+        "copper_layers": 8,
+        "nominal_thickness_mm": 1.2,
+        "selection_reason": "Historical eight-layer alternative from the earlier 163-open SS/TMR source. It has not adopted the selected six-layer U44/U37 routing, U38/U41 site swap or U39 escape rework. Its 160-open count is not a like-for-like comparison with the selected 138-open revision; stack, return/noise and receiving work remain unresolved."
+      }
     },
     {
       "role": "fan_health_protection",
@@ -202,5 +234,73 @@
     "Produce and independently inspect Gerber, drill, stack, BOM, placement and fabrication/assembly drawings for each selected physical board",
     "Create the bounded first-article inspection and isolated bring-up package before complete-unit power-up"
   ],
-  "fabrication_released": false
+  "fabrication_released": false,
+  "shared_audio_core": {
+    "revision": "AC04",
+    "source": "hardware/fabrication/staging/audio-main-integration-04b/audio_core.kicad_pro",
+    "handoff": "hardware/fabrication/staging/audio-main-integration-04b/integration-handoff-03.json",
+    "member_roles": [
+      "input_range",
+      "adc_driver",
+      "converter",
+      "dac_receiver",
+      "output_stage",
+      "sequenced_bypass"
+    ],
+    "proposed_physical_board_count": 1,
+    "selection": "six_section_audio_main_schematic_joined_native_ERC_zero_layout_and_receiving_incomplete",
+    "connection_schedule": "hardware/fabrication/staging/audio-main-integration-04b/audio-leg-connections.csv",
+    "external_ADC_enable_header_removed": true,
+    "legacy_CHIP_EN_to_driver_harness_compatible": false,
+    "legacy_AC03_four_way_power_harness_compatible": false,
+    "protected_analog_and_digital_5V_separate": true,
+    "layout_complete": false,
+    "mechanical_receiving_complete": false,
+    "fabrication_released": false,
+    "previous_source": "hardware/fabrication/staging/audio-core-ports-03b/audio_core.kicad_pro",
+    "previous_handoff": "hardware/fabrication/staging/audio-core-ports-03b/integration-handoff.json",
+    "before_e28_cleanup_handoff": "hardware/fabrication/staging/audio-main-integration-04b/integration-handoff.json",
+    "before_frozen_peer_selection_handoff": "hardware/fabrication/staging/e28-cleanup-review-01/audio-integration-handoff-rebind.json",
+    "peer_interfaces_frozen_for_repeatable_audio_receipt": true,
+    "current_selected_peer_headers_checked_separately": true,
+    "layout_candidate": {
+      "source": "hardware/fabrication/staging/audio-main-placement-02/audio_core.kicad_pro",
+      "handoff": "hardware/fabrication/staging/audio-main-placement-02/placement-handoff.json",
+      "selection": "partial_328_footprint_main_audio_placement_codec_unassigned_and_unrouted",
+      "placed_electrical_footprints": 328,
+      "unplaced_refs": [
+        "U201"
+      ],
+      "routed": false,
+      "mechanical_receiving_complete": false,
+      "fabrication_released": false
+    }
+  },
+  "shared_digital_core": {
+    "revision": "DC03",
+    "source": "hardware/fabrication/staging/digital-distribution-native-02/digital_core.kicad_pro",
+    "handoff": "hardware/fabrication/staging/digital-distribution-native-02/handoff.json",
+    "integration_source": "hardware/fabrication/staging/digital-core-integration-01/digital_core.kicad_pro",
+    "integration_handoff": "hardware/fabrication/staging/digital-core-integration-01/integration-handoff.json",
+    "member_roles": [
+      "processor_carrier",
+      "control_inputs",
+      "led_driver"
+    ],
+    "proposed_physical_board_count": 1,
+    "selection": "power_ground_nets_connected_thermal_vias_mapped_signal_routing_and_qualification_unfinished",
+    "routed": false,
+    "mechanical_receiving_complete": false,
+    "fabrication_released": false,
+    "previous_source": "hardware/fabrication/staging/digital-local-cell-native-01/digital_core.kicad_pro",
+    "previous_handoff": "hardware/fabrication/staging/digital-local-cell-native-01/handoff.json"
+  },
+  "assembly_layout_plan": {
+    "revision": "AP03",
+    "allocation": "hardware/fabrication/staging/assembly-layout-03/allocation.json",
+    "selection": "current_digital_distribution_rechecked_against_conditional_receiving_full_assembly_pending",
+    "complete_physical_partition_and_receiving": false,
+    "fabrication_released": false,
+    "previous_allocation": "hardware/fabrication/staging/assembly-layout-02/allocation.json"
+  }
 }

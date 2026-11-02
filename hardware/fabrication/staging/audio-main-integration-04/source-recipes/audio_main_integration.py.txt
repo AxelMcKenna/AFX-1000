@@ -1,0 +1,207 @@
+"""AC04: consolidate six audio roles into the AP01 main-board schematic.
+
+No ESS land is invented. Retained circuits and explicitly joined interfaces
+are replayed against the source exports before this candidate can be selected.
+"""
+
+import argparse
+import copy
+import json
+import shutil
+from pathlib import Path
+
+from hardware.electronics.common.flat_schematic import generate
+from hardware.electronics.common.netlists import netlist
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.fabrication import audio_core_integration as common
+from hardware.fabrication.audio_core_ports import remove_header
+from hardware.fabrication.audio_core_startup import extra, global_label
+from hardware.fabrication.audit_audio_ports import check as check_parent
+from hardware.fabrication.audit_candidate import sha
+
+REPO = Path(__file__).resolve().parents[2]
+STAGING = REPO / "hardware/fabrication/staging"
+OLD = STAGING / "audio-core-ports-03b"
+OUT = STAGING / "audio-main-integration-04"
+PROJECT = "audio_core"
+CORE_REMOVE = {"ADC": {"J101", "J401"}, "DAC": {"J302"}, "CODEC": set()}
+CORE_MAP = {"ADC": {"PRE_OUT_L": "PRE_OUT_L", "PRE_OUT_R": "PRE_OUT_R"},
+            "DAC": {"RECV_L": "RECV_L", "RECV_R": "RECV_R"},
+            "CODEC": {"V3V3_IO": "V3V3_IO", "ANALOG_OK": "ANALOG_OK"}}
+SOURCES = {
+    "INPUT": ("input-range-native-01", "input_range", 400, {"J1", "J2", "J3", "J4"}),
+    "OUTPUT": ("output-stage-native-01", "output_stage", 500, {"J1", "J2", "J3", "J4"}),
+    "BYPASS": ("bypass-closed-native-03", "sequenced_bypass", 600, {"J1", "J4", "J5", "J9"}),
+}
+GLOBALS = {"AGND", "P19", "N19", "P12", "N12", "V5_REG", "5V_DIG", "V3V3_IO", "ANALOG_OK",
+           "PROC_IN_L", "PROC_IN_R", "PRE_OUT_L", "PRE_OUT_R", "RECV_L", "RECV_R", "PROC_OUT_L", "PROC_OUT_R", "GAIN_LOW"}
+MAPS = {domain: {n: n for n in GLOBALS} for domain in SOURCES}
+for mapping in MAPS.values():
+    mapping["5V"] = "5V_DIG"
+MAPS["BYPASS"]["3V3"] = "V3V3_IO"
+KEEP_FLAGS = {"INPUT": set(), "OUTPUT": {"#FLAG0", "#FLAG1"}, "BYPASS": {"#FLAG1"}}
+MOLEX = "https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/salesdrawingpdf/430/43045/430450600_sd.pdf"
+JST = "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf"
+PORTS = {
+    "OUTPUT": [extra("J701", "43045-0600", dict(zip(map(str, range(1,7)), ("P19","AGND","N19","P12","N12","V5_REG"))),
+                     {}, (650.24,680.72), "Connector_Molex:Molex_Micro-Fit_3.0_43045-0600_2x03_P3.00mm_Horizontal", MOLEX)],
+    "BYPASS": [extra("J702", "B2B-XH-A(LF)(SN)", {"1":"5V_DIG", "2":"AGND"}, {}, (650.24,680.72),
+                     "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical", JST)],
+}
+for group in PORTS.values():
+    for part in group:
+        part["note"] = "AC04 consolidated protected power; connector/mate/process and installed receiving unapproved"
+
+
+def promote_labels(tree, mapping):
+    for label in children(tree,"label") + children(tree,"global_label"):
+        old = str(label[1])
+        if old in mapping:
+            if label[0] == "label":
+                global_label(label,mapping[old])
+            else:
+                label[1] = mapping[old]
+
+
+def add_ports(tree,domain,root_id,sheet_id,sym_table,expected):
+    if domain not in PORTS:
+        return
+    folder = OUT / (domain.lower()+"-ports")
+    folder.mkdir()
+    generate(folder,"AC04_"+domain,PROJECT,PORTS[domain],[],(900,1100),[])
+    extra_tree = read_sexpr((folder/(PROJECT+".kicad_sch")).read_text())
+    first(tree,"lib_symbols").extend(copy.deepcopy(children(first(extra_tree,"lib_symbols"),"symbol")))
+    for symbol in children(extra_tree,"symbol"):
+        symbol = copy.deepcopy(symbol)
+        ref = common.prop(symbol,"Reference")[2]
+        first(symbol,"instances")[:] = read_sexpr(f'''(instances (project "{PROJECT}"
+          (path "/{root_id}/{sheet_id}" (reference "{ref}") (unit 1))))''')
+        tree.append(symbol)
+    for tag in ("wire","label","no_connect"):
+        for node in children(extra_tree,tag):
+            node = copy.deepcopy(node)
+            if tag == "label":
+                global_label(node,node[1])
+            tree.append(node)
+    sym_table.extend(copy.deepcopy(children(read_sexpr((folder/"sym-lib-table").read_text()),"lib")))
+    for lib in folder.glob("*.kicad_sym"):
+        shutil.copyfile(lib,OUT/lib.name)
+    for part in PORTS[domain]:
+        expected[part["ref"]] = dict(source_domain=domain,source_ref="AC04:"+part["ref"],value=part["part"],
+            footprint=part["footprint"],pins={p["number"]:p["net"] for p in part["pins"]})
+
+
+def build():
+    assert check_parent() == json.loads((OLD/"integration-handoff.json").read_text())
+    assert not OUT.exists(), "Preserve prior candidates"
+    OUT.mkdir()
+    for p in OLD.iterdir():
+        if p.suffix in (".kicad_pro",".kicad_sch",".kicad_sym") or p.name == "sym-lib-table":
+            shutil.copyfile(p,OUT/p.name)
+    root = read_sexpr((OUT/(PROJECT+".kicad_sch")).read_text())
+    root_id = str(first(root,"uuid")[1])
+    first(first(root,"title_block"),"rev")[1] = "AC04"
+    first(first(root,"title_block"),"title")[1] = "AFX-1000 six-section audio main"
+    root[:] = [n for n in root if not isinstance(n,list) or not n or n[0] != "text"]
+    expected = json.loads((OLD/"expected-circuit.json").read_text())
+    for domain,removed in CORE_REMOVE.items():
+        path = OUT/(domain.lower()+".kicad_sch")
+        tree = read_sexpr(path.read_text())
+        for symbol in list(children(tree,"symbol")):
+            if common.prop(symbol,"Reference")[2] in removed:
+                remove_header(tree,symbol)
+        promote_labels(tree,CORE_MAP[domain])
+        path.write_text(sexpr(tree)+"\n")
+        for ref in removed:
+            del expected[ref]
+    aliases = {domain+"/"+old:new for domain,mapping in CORE_MAP.items() for old,new in mapping.items()}
+    for part in expected.values():
+        part["pins"] = {p:aliases.get(n,n) for p,n in part["pins"].items()}
+    sym_table = read_sexpr((OUT/"sym-lib-table").read_text())
+    original_record = json.loads((OLD/"construction.json").read_text())
+    footprint_sources = copy.deepcopy(original_record["footprint_library_sources"])
+    paths = [Path(__file__),OLD/"construction.json",OLD/"native-review.json",OLD/"integration-handoff.json",
+             REPO/"hardware/fabrication/audio_core_ports.py",REPO/"hardware/fabrication/audio_core_startup.py"]
+    reference_map = copy.deepcopy(original_record["reference_map"])
+    for index,(domain,(folder_name,name,base,removed)) in enumerate(SOURCES.items(),5):
+        folder = STAGING/folder_name
+        paths.extend(folder/p for p in (name+".kicad_sch","netlist.xml","review.json","sym-lib-table","fp-lib-table"))
+        tree = read_sexpr((folder/(name+".kicad_sch")).read_text())
+        parts,pins = netlist(folder/"netlist.xml")
+        sheet_id = common.uid("AC04:sheet:"+domain)
+        reference_map[domain] = {r:common.renamed(r,domain,base) for r in parts}
+        for symbol in list(children(tree,"symbol")):
+            ref = common.prop(symbol,"Reference")[2]
+            if ref in removed or (ref.startswith("#") and ref not in KEEP_FLAGS[domain]):
+                remove_header(tree,symbol)
+        for symbol in children(tree,"symbol"):
+            ref = common.prop(symbol,"Reference")[2]
+            new = common.renamed(ref,domain,base)
+            common.prop(symbol,"Reference")[2] = new
+            unit = int(first(symbol,"unit")[1])
+            first(symbol,"instances")[:] = read_sexpr(f'''(instances (project "{PROJECT}"
+              (path "/{root_id}/{sheet_id}" (reference "{new}") (unit {unit}))))''')
+        promote_labels(tree,MAPS[domain])
+        for ref in parts.keys()-removed:
+            new = reference_map[domain][ref]
+            assert new not in expected, ("Reference collision",new)
+            expected[new] = dict(source_domain=domain,source_ref=ref,value=parts[ref].findtext("value"),
+                footprint=parts[ref].findtext("footprint") or "",
+                pins={p:None if n.startswith("unconnected-") else MAPS[domain].get(n,domain+"/"+n) for p,n in pins[ref].items()})
+        for library in children(read_sexpr((folder/"sym-lib-table").read_text()),"lib"):
+            library = copy.deepcopy(library)
+            source = Path(first(library,"uri")[1].replace("${KIPRJMOD}",str(folder)))
+            paths.append(source)
+            assert not (OUT/source.name).exists()
+            shutil.copyfile(source,OUT/source.name)
+            first(library,"uri")[1] = "${KIPRJMOD}/"+source.name
+            sym_table.append(library)
+        for lib in children(read_sexpr((folder/"fp-lib-table").read_text()),"lib"):
+            footprint_sources.setdefault(first(lib,"name")[1],[]).append(first(lib,"uri")[1].replace("${KIPRJMOD}",str(folder)))
+        add_ports(tree,domain,root_id,sheet_id,sym_table,expected)
+        target = OUT/(domain.lower()+".kicad_sch")
+        target.write_text(sexpr(tree)+"\n")
+        y = 35+43*(index-5)
+        root.append(read_sexpr(f'''(sheet (at 150 {y}) (size 72 24)
+          (stroke (width 0) (type default)) (fill (color 0 0 0 0)) (uuid {sheet_id})
+          (property "Sheetname" "{domain}" (at 150 {y-1.27} 0) (effects (font (size 1.27 1.27)) (justify left bottom)))
+          (property "Sheetfile" "{target.name}" (at 150 {y+25.27} 0) (effects (font (size 1.27 1.27)) (justify left top)))
+          (instances (project "{PROJECT}" (path "/{root_id}" (page "{index}")))))'''))
+    assert len(expected)==329
+    for i,note in enumerate([
+        "AC04: six audio roles, one proposed 150 x 63 mm main PCB. ESS land remains unassigned.",
+        "J701 protected +/-19, +/-12, V5_REG and AGND. J702 separate protected 5V_DIG/AGND for coils and bypass.",
+        "Fifteen old headers removed; raw ADC/DAC, preamp, receiver, gain-coil and bypass loops are internal.",
+        "J402/J403 and bypass/SAI ports remain; old AC03 four-way power harness is incompatible.",
+        "Source parity/ERC do not qualify coil return, timing, power, noise, physical fit or manufacturing.",
+    ]):
+        root.append(read_sexpr(f'(text {json.dumps(note)} (at 30 {165+7*i} 0) (effects (font (size 1 1)) (justify left)) (uuid {common.uid("AC04:note:"+str(i))}))'))
+    (OUT/(PROJECT+".kicad_sch")).write_text(sexpr(root)+"\n")
+    (OUT/"sym-lib-table").write_text(sexpr(sym_table)+"\n")
+    for nick in ("Connector_Molex","Connector_JST"):
+        footprint_sources.setdefault(nick,[]).append("${KICAD10_FOOTPRINT_DIR}/"+nick+".pretty")
+    (OUT/"expected-circuit.json").write_text(json.dumps(expected,indent=2,sort_keys=True)+"\n")
+    record = dict(revision="AC04",source_sha256={str(p.relative_to(REPO)):sha(p) for p in paths},
+        reference_map=reference_map,core_net_aliases=aliases,new_sheet_net_maps=MAPS,
+        removed_core_headers={d:sorted(v) for d,v in CORE_REMOVE.items()},
+        removed_new_section_headers={d:sorted(v[3]) for d,v in SOURCES.items()},
+        footprint_library_sources=footprint_sources,electrical_parts=329,
+        source_power_flags_retained={d:sorted(v) for d,v in KEEP_FLAGS.items()},
+        protected_analog_and_digital_5V_separate=True,codec_footprint_assigned=False,
+        physical_layout_complete=False,manufacturing_process_accepted=False,fabrication_released=False)
+    (OUT/"construction.json").write_text(json.dumps(record,indent=2)+"\n")
+    (OUT/"source-recipes").mkdir()
+    shutil.copyfile(Path(__file__),OUT/"source-recipes/audio_main_integration.py.txt")
+    print("AC04 built: six sections / 329 parts; fifteen old headers removed; native review pending")
+
+
+def review():
+    common.OUT,common.PROJECT = OUT,PROJECT
+    common.review()
+
+
+if __name__=="__main__":
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action",choices=("build","review"))
+    args=parser.parse_args()
+    (build if args.action=="build" else review)()

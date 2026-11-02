@@ -1,0 +1,119 @@
+"""Export an unreleased E13 manufacturing review using isolated Linux KiCad."""
+
+import argparse
+import json
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import children, first, read_sexpr
+from hardware.fabrication.audit_candidate import native_evidence_errors, sha
+from hardware.fabrication.capture_board import polygons
+
+REPO = Path(__file__).resolve().parents[2]
+SOURCE = REPO / "hardware/fabrication/staging/rail-monitor-r83-land-native-01"
+LAYERS = ["F.Cu", "In1.Cu", "In2.Cu", "B.Cu", "F.Mask", "B.Mask", "F.Paste", "B.Paste",
+          "F.SilkS", "B.SilkS", "Edge.Cuts"]
+
+
+def run():
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    import pcbnew
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--label", required=True)
+    args = parser.parse_args()
+    assert args.label and all(c.isalnum() or c in "-_" for c in args.label)
+    output = REPO / "hardware/fabrication/staging" / args.label
+    project = SOURCE / "rail_monitor.kicad_pro"
+    pcb = project.with_suffix(".kicad_pcb")
+    native = json.loads((SOURCE / "review.json").read_text())
+    assert not native_evidence_errors(project, native)
+    assert native["status"]["native_closed"] and native["status"]["all_native_rule_checks_enabled"]
+    inputs = [pcb, project, project.with_suffix(".kicad_sch"), SOURCE / "review.json", SOURCE / "netlist.xml",
+              SOURCE / "r83-land-review.json", Path(__file__)]
+    hashes = {str(p.relative_to(REPO)): sha(p) for p in inputs}
+    output.mkdir(exist_ok=False)
+    for name in ("gerbers", "drills", "assembly", "metadata"):
+        (output / name).mkdir()
+    shutil.copyfile(Path(__file__), output / "applied-exporter.py.txt")
+    commands = [
+        ("gerbers", ["pcb", "export", "gerbers", "--layers", ",".join(LAYERS), "--precision", "6",
+                     "--no-protel-ext", "--subtract-soldermask", "--output", str(output / "gerbers")+"/", str(pcb)]),
+        ("drills", ["pcb", "export", "drill", "--format", "excellon", "--drill-origin", "absolute",
+                    "--excellon-units", "mm", "--excellon-zeros-format", "decimal", "--excellon-separate-th",
+                    "--generate-map", "--map-format", "pdf", "--generate-report", "--report-path",
+                    str(output / "drills/drill-report.txt"), "--output", str(output / "drills")+"/", str(pcb)]),
+        ("placement", ["pcb", "export", "pos", "--side", "both", "--format", "csv", "--units", "mm",
+                       "--exclude-dnp", "--output", str(output / "assembly/native-positions.csv"), str(pcb)]),
+        ("assembly-front", ["pcb", "export", "pdf", "--layers", "F.Fab,F.CrtYd,Edge.Cuts", "--mode-single",
+                            "--sketch-pads-on-fab-layers", "--output", str(output / "assembly/front.pdf"), str(pcb)]),
+        ("assembly-back", ["pcb", "export", "pdf", "--layers", "B.Fab,B.CrtYd,Edge.Cuts", "--mode-single",
+                           "--mirror", "--sketch-pads-on-fab-layers", "--output", str(output / "assembly/back.pdf"), str(pcb)]),
+    ]
+    executed = []
+    for name, options in commands:
+        result = subprocess.run(["kicad-cli", *options], capture_output=True, text=True, timeout=120)
+        (output / (name+".log")).write_text(result.stdout+result.stderr)
+        assert result.returncode == 0, (name, result.stdout, result.stderr)
+        executed.append(dict(command=["kicad-cli", *options], returncode=result.returncode))
+    # KiCad synthesizes a material stack and finish when these are unassigned.
+    # Keep those bytes as evidence, with a non-CAM extension and clear status.
+    shutil.move(output / "gerbers/rail_monitor-job.gbrjob", output / "metadata/kicad-generated-job.UNAPPROVED.json")
+    board = pcbnew.LoadBoard(str(pcb))
+    assert board.GetCopperLayerCount() == 4
+    footprints, drills = [], []
+    for footprint in board.GetFootprints():
+        position = footprint.GetPosition()
+        footprints.append(dict(ref=footprint.GetReference(), value=footprint.GetValue(),
+                               footprint=str(footprint.GetFPID().GetLibItemName()),
+                               position_mm=[position.x/1e6, position.y/1e6],
+                               rotation_degrees=footprint.GetOrientation().AsDegrees(),
+                               layer=board.GetLayerName(footprint.GetLayer()), attributes=int(footprint.GetAttributes()),
+                               dnp=bool(footprint.GetAttributes() & pcbnew.FP_DNP),
+                               exclude_from_bom=bool(footprint.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM)))
+        for pad in footprint.Pads():
+            drill = pad.GetDrillSize()
+            if not drill.x and not drill.y:
+                continue
+            assert drill.x == drill.y, "Add explicit slot support before exporting a slotted board"
+            position = pad.GetPosition()
+            drills.append(dict(kind="NPTH" if pad.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH else "PTH",
+                               ref=footprint.GetReference(), pin=pad.GetNumber(), diameter_mm=drill.x/1e6,
+                               position_mm=[position.x/1e6, position.y/1e6]))
+    for track in board.GetTracks():
+        if track.GetClass() != "PCB_VIA":
+            continue
+        assert track.GetViaType() == pcbnew.VIATYPE_THROUGH
+        position = track.GetPosition()
+        drills.append(dict(kind="PTH", ref="VIA", pin=track.m_Uuid.AsString(), diameter_mm=track.GetDrillValue()/1e6,
+                           position_mm=[position.x/1e6, position.y/1e6]))
+    outline = pcbnew.SHAPE_POLY_SET()
+    assert board.GetBoardPolygonOutlines(outline, False)
+    (output / "native-geometry.json").write_text(json.dumps(dict(
+        board_copper_layers=4, native_version=pcbnew.GetBuildVersion(),
+        footprints=sorted(footprints, key=lambda f: f["ref"]), drills=drills, outline=polygons(outline),
+        pcb_coordinates="mm, origin as stored in PCB; +X right, +Y down",
+        fabrication_approved=False,
+    ), indent=2)+"\n")
+    assert all(sha(REPO / name) == digest for name, digest in hashes.items())
+    tree = read_sexpr(pcb.read_text())
+    explicit_stackup = bool(children(first(tree, "setup"), "stackup"))
+    (output / "export-review.json").write_text(json.dumps(dict(
+        status="REVIEW_ONLY_UNRELEASED_CANDIDATE", source_sha256=hashes,
+        source_native_status=native["status"], commands=executed, gerber_layers=LAYERS,
+        source_PCB_unchanged=True, zone_refill_requested=False, native_version=pcbnew.GetBuildVersion(),
+        absolute_origin_used=True, placement_units="mm", drill_units="mm",
+        source_has_explicit_material_stackup=explicit_stackup,
+        KiCad_generated_stackup_and_finish_are_unapproved=True,
+        raw_job_metadata_separated_from_CAM_files=True,
+        generated_file_sha256={str(p.relative_to(output)): sha(p) for p in sorted(output.rglob("*")) if p.is_file()},
+        BOM_and_CAM_independent_review_pending=True, stackup_finish_and_assembly_process_accepted=False,
+        fabrication_approved=False, order_placed=False,
+    ), indent=2)+"\n")
+    print("Exported unreleased review files;", len(footprints), "footprints;", len(drills), "round holes")
+
+
+if __name__ == "__main__":
+    run()

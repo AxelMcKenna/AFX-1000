@@ -1,9 +1,17 @@
 # E08 stereo DAC I/V and receiver
 
+The current fabrication inventory now includes a
+[routed receiver integration candidate](../../fabrication/staging/dac-receiver-closed-native-01/README.md)
+with zero native findings and opens. Its 84 × 64 mm envelope is not the final
+audio-board partition; codec co-location, ESS output scale, parts/process and
+housing receiving remain unresolved. The circuit analysis below retains the
+original E08 schematic scope; its historical verification record does not
+certify this later layout.
+
 E08 adds a native, unassembled **60-component circuit prototype** between the
 prospective ES9292QPRO DAC pins and the routed E07 output board. It does not
 contain the codec, its power/clock/configuration circuit, the ADC/input path or
-a PCB. These parts have **not been placed in the enclosure**; A03/E07 clearance
+the final integrated audio PCB. These parts have **not been placed in the enclosure**; A03/E07 clearance
 results still cover the existing output board and named reserves only.
 
 Open the [KiCad project](dac_receiver.kicad_pro),
@@ -137,8 +145,9 @@ noise/THD, thermal behavior and physical fit remain verification work.
 The generators/verifier use the Python standard library, project-owned E05
 symbol/analysis helpers and external KiCad libraries. Source/library hashes and
 [primary-document hashes](dependencies.json) are recorded. Generation replaces
-the schematic; persist circuit edits in generate.py. No PCB has been generated,
-ordered or assembled for E08.
+the schematic; persist circuit edits in generate.py. The later physical
+candidate has separate source-bound layout evidence linked above. No E08 PCB
+has been ordered or assembled.
 
 Primary sources: [ESS ES9292PRO](https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf),
 [TI OPA1612](https://www.ti.com/lit/ds/symlink/opa1612.pdf),

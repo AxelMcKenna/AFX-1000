@@ -47,6 +47,14 @@ See the [A11 editable CAD](hardware/cad/a11/README.md), [printer handoff](hardwa
 
 Native KiCad layouts from the standalone electronics work. These are engineering candidates; they have not been manufactured or electrically qualified. Click a layout for the full-resolution image.
 
+**Combined main audio placement · 150 × 63 mm · four-layer candidate**
+
+| Top placement | Bottom placement, viewed from below |
+| --- | --- |
+| [![Partial main audio PCB: actual top lands and courtyards](hardware/fabrication/staging/audio-main-placement-02/plots/top.png)](hardware/fabrication/staging/audio-main-placement-02/plots/top.png) | [![Partial main audio PCB: actual bottom lands and courtyards](hardware/fabrication/staging/audio-main-placement-02/plots/bottom.png)](hardware/fabrication/staging/audio-main-placement-02/plots/bottom.png) |
+
+The [six-section audio candidate](hardware/fabrication/staging/audio-main-placement-02/README.md) places **328 known electrical footprints**, including four bare test pads, plus six proposed mounts. Native geometry and ERC findings are zero with all categories enabled. **The ESS codec footprint is still missing and 724 connections remain unrouted.** The marked reserve is not a land pattern. These are placement views, not fabricated boards or an order-ready layout; full parts/process, analog and assembly verification remain unfinished.
+
 | E12 ADC driver · 110 × 78 mm | Main supply candidate · 90 × 44 mm |
 | --- | --- |
 | [![E12 ADC driver top copper and component outlines](docs/assets/hardware/e12-adc-layout.png)](docs/assets/hardware/e12-adc-layout.png) | [![Main supply candidate top copper and component outlines](docs/assets/hardware/main-power-layout.png)](docs/assets/hardware/main-power-layout.png) |
@@ -80,9 +88,9 @@ The new E11 layout contains 55 circuit parts and four mounts, with zero native D
 
 **Eight-window rail monitor candidate · 80 × 70 mm · four layers**
 
-[![E13 rail monitor: actual checked top copper and all 181 circuit parts](hardware/fabrication/staging/rail-monitor-dogbone-native-01/plots/top/top.svg)](hardware/fabrication/staging/rail-monitor-dogbone-native-01/plots/top/top.svg)
+[![E13 rail monitor: actual checked top copper and all 181 circuit parts](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/plots/top/top.svg)](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/plots/top/top.svg)
 
-The new E13 layout preserves the original 181-part circuit and adds four mounts. Routing has reduced 383 open connections to **13 remaining**, with zero native geometry, ERC or schematic-parity findings. The [bottom copper](hardware/fabrication/staging/rail-monitor-dogbone-native-01/plots/bottom/bottom.svg), [source-bound handoff](hardware/fabrication/staging/rail-monitor-dogbone-native-01/handoff.json) and [drill-to-SMD screen](hardware/fabrication/staging/rail-monitor-dogbone-native-01/smd-drill-review.json) are available for review. Routing, precision parts, installed fit and assembly/process qualification remain unfinished. This is a development layout, not a fabrication release.
+The selected E13 layout preserves the original 181-part circuit and four mounts, with **zero native DRC, ERC, schematic-parity or connectivity findings**. Reserving the supply escapes and adding 3.3 V branches on the inner supply layer closed routing while retaining the dedicated ground plane. The [bottom copper](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/plots/bottom/bottom.svg), [supply copper](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/plots/supply/supply.svg), [source-bound handoff](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/handoff.json) and [drill-to-SMD screen](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/smd-drill-review.json) are available for review. Precision parts, power/noise review, installed fit and assembly/process acceptance remain open. This is a development layout, not a fabrication release.
 
 <details>
 <summary>3D bare-board preview · E12 ADC driver</summary>

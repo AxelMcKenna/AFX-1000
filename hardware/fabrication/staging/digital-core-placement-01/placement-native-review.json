@@ -1,0 +1,98 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/staging/digital-core-placement-01/digital_core.kicad_pcb": "78a4d390f8e336cf2da1d1bc68060ae5e67c0b0895a2fd9e849209f8b4b9cc05",
+    "hardware/fabrication/staging/digital-core-placement-01/led.kicad_sch": "a31a4adfe2779b3eacc0d7e14fa6084420692356f04d268c1f1b181b951d359d",
+    "hardware/fabrication/staging/digital-core-placement-01/processor.kicad_sch": "d737e5914b0fe52e46313e4ade534569057e475882d79d4dc56a70acb7c10783",
+    "hardware/fabrication/staging/digital-core-placement-01/fp-lib-table": "abac98705fbd0480370f1fb09691d2ebafc26f4dc98205bf07628d5db120c2cb",
+    "hardware/fabrication/staging/digital-core-placement-01/RMX_E19.kicad_sym": "07bef69357f566bd9a5107a985e6ed72c177504ffe527c1bee8c1eeed832ccdb",
+    "hardware/fabrication/staging/digital-core-placement-01/controls.kicad_sch": "bfd2bb3bd4a4cb4837ed52bc623823818b86d64719acb1313ff3325d99d42786",
+    "hardware/fabrication/staging/digital-core-placement-01/digital_core.kicad_pro": "7d0a6438026fe5b3e6c46776771029b47fcec7b5090faad183547d252b47481d",
+    "hardware/fabrication/staging/digital-core-placement-01/digital_core.kicad_sch": "951a050717c681288308422c9a3f7f854e6400d0458ff742c157ffd8e529507d",
+    "hardware/fabrication/staging/digital-core-placement-01/construction.json": "e429118db03b96c22fbba67ec687abb7613f023d2f2c3385ef30dc77c03bbaed",
+    "hardware/fabrication/staging/digital-core-placement-01/RMX_E18.kicad_sym": "818c93d2cc26551d6bd8ca11b00598ba8818e284a4ef841774180800523a56ca",
+    "hardware/fabrication/staging/digital-core-placement-01/sym-lib-table": "1199652cb2692d7c1c004409681915b1b09d49243e85a37303e792a5188fb0ba",
+    "hardware/fabrication/staging/digital-core-placement-01/RMX_E20.kicad_sym": "87a8c7f15f58c4aeef582ab4317b58c795551b06ceb870ccfa230d3e5659a580"
+  },
+  "native_version": "10.0.7",
+  "complete_native_commands": [
+    {
+      "command": [
+        "kicad-cli",
+        "sch",
+        "export",
+        "netlist",
+        "--format",
+        "kicadxml",
+        "-o",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-core-placement-01/native-netlist.xml",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-core-placement-01/digital_core.kicad_sch"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "kicad-cli",
+        "sch",
+        "erc",
+        "--severity-all",
+        "--format",
+        "json",
+        "-o",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-core-placement-01/erc.json",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-core-placement-01/digital_core.kicad_sch"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "kicad-cli",
+        "pcb",
+        "drc",
+        "--all-track-errors",
+        "--schematic-parity",
+        "--severity-all",
+        "--format",
+        "json",
+        "-o",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-core-placement-01/drc.json",
+        "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-core-placement-01/digital_core.kicad_pcb"
+      ],
+      "returncode": 0
+    }
+  ],
+  "DRC_geometry_findings": 0,
+  "schematic_parity_findings": 199,
+  "uncapped_open_connections": 466,
+  "ERC_findings": 0,
+  "DRC_ignored_checks": [
+    {
+      "description": "Footprint has no courtyard defined",
+      "key": "missing_courtyard"
+    },
+    {
+      "description": "Track endpoint not centered on via",
+      "key": "track_not_centered_on_via"
+    },
+    {
+      "description": "Tuning profile track geometries",
+      "key": "tuning_profile_track_geometries"
+    },
+    {
+      "description": "Footprint doesn't match symbol's footprint filters",
+      "key": "footprint_filters_mismatch"
+    },
+    {
+      "description": "Footprint component type doesn't match footprint pads",
+      "key": "footprint_type_mismatch"
+    }
+  ],
+  "ERC_ignored_checks": [],
+  "raw_report_sha256": {
+    "drc.json": "bbca35f09449cadfc5958ae2ae6dc3dce7afaa665fc1b3683bc9c092509dae68",
+    "erc.json": "fdbc7c1581d0358a28115644803eb4c64286434fdcf094dce5c0a8ce719f69e9",
+    "native-netlist.xml": "9672c01ded0add6a1ebe9c9059829a924f7ea63e3f74ef2ef0589300ec3d2b9a"
+  },
+  "routed": false,
+  "physical_fit_qualified": false,
+  "fabrication_released": false
+}

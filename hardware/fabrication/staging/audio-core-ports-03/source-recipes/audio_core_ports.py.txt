@@ -1,0 +1,129 @@
+"""AC03: consolidate shared-core supplies and remove the obsolete enable lead."""
+
+import argparse
+import copy
+import json
+import shutil
+import sys
+from pathlib import Path
+
+from hardware.electronics.common.flat_schematic import generate
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.fabrication import audio_core_integration as native
+from hardware.fabrication.audio_core_startup import extra, global_label
+from hardware.fabrication.audit_audio_startup import check as check_parent
+from hardware.fabrication.audit_candidate import sha
+
+REPO = Path(__file__).resolve().parents[2]
+OLD = REPO / "hardware/fabrication/staging/audio-core-startup-02"
+OUT = OLD.parent / "audio-core-ports-03"
+REMOVED = {"ADC":{"J103","J104"},"CODEC":{"J204","J205"},"DAC":{"J303"}}
+MOLEX = "https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/salesdrawingpdf/430/43045/430450800_sd.pdf"
+JST = "https://www.jst-mfg.com/product/pdf/eng/eXH.pdf"
+GLOBAL = {"AGND","P12","N12","V5_REG","ADC_DRV_ENABLE","CHIP_EN"}
+PORTS = {
+    "ADC":[
+        extra("J401","43045-0400",{"1":"P12","2":"AGND","3":"N12","4":"V5_REG"},{},(800.1,680.72),
+              "Connector_Molex:Molex_Micro-Fit_3.0_43045-0400_2x02_P3.00mm_Horizontal",MOLEX),
+        extra("J403","B3B-XH-A(LF)(SN)",{"1":"AGND","2":"NBIAS_L","3":"NBIAS_R"},{},(800.1,749.3),
+              "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",JST),
+        *[extra(ref,"TEST_ONLY_"+net,{"1":net},{},(800.1,y),"TestPoint:TestPoint_Pad_D1.5mm","")
+          for ref,net,y in (("TP401","ADC_DRV_ENABLE",820.42),("TP403","PD_GATED",880.11),("TP404","AGND",939.8))],
+    ],
+    "CODEC":[
+        extra("J402","B10B-XH-A(LF)(SN)",dict(zip(map(str,range(1,11)),
+              ("AGND","V3V3_IO","SCL","SDA","CODEC_RUN","ANALOG_OK","AGND","PRE_ANALOG_OK","CODEC_PGOOD","ANALOG_OK"))),
+              {},(650.24,789.94),"Connector_JST:JST_XH_B10B-XH-A_1x10_P2.50mm_Vertical",JST),
+        extra("TP402","TEST_ONLY_CHIP_EN",{"1":"CHIP_EN"},{},(650.24,860.044),"TestPoint:TestPoint_Pad_D1.5mm","")
+    ]
+}
+for group in PORTS.values():
+    for part in group:
+        part["note"]="AC03 connector/test access; no original external enable wire; receiving/process qualification pending"
+
+
+def build():
+    assert check_parent() == json.loads((OLD/"integration-handoff.json").read_text())
+    assert not OUT.exists()
+    OUT.mkdir()
+    for path in OLD.iterdir():
+        if path.suffix in (".kicad_pro",".kicad_sch",".kicad_sym") or path.name == "sym-lib-table":
+            shutil.copyfile(path,OUT/path.name)
+    (OUT/"source-recipes").mkdir()
+    shutil.copyfile(Path(__file__),OUT/"source-recipes/audio_core_ports.py.txt")
+    expected=json.loads((OLD/"expected-circuit.json").read_text())
+    for domain,remove in REMOVED.items():
+        path=OUT/(domain.lower()+".kicad_sch")
+        tree=read_sexpr(path.read_text())
+        for symbol in list(children(tree,"symbol")):
+            if native.prop(symbol,"Reference")[2] in remove:
+                native.remove_instance(tree,symbol)
+        for ref in remove:
+            del expected[ref]
+        if domain in PORTS:
+            folder=OUT/(domain.lower()+"-ports")
+            folder.mkdir()
+            generate(folder,"AC03_"+domain,"audio_core",PORTS[domain],[],(900,1100),[])
+            additions=read_sexpr((folder/"audio_core.kicad_sch").read_text())
+            first(tree,"lib_symbols").extend(copy.deepcopy(children(first(additions,"lib_symbols"),"symbol")))
+            instance=first(first(children(tree,"symbol")[0],"instances"),"project")
+            for symbol in children(additions,"symbol"):
+                symbol=copy.deepcopy(symbol)
+                ref=native.prop(symbol,"Reference")[2]
+                first(symbol,"instances")[:] = [a("instances"),copy.deepcopy(instance)]
+                first(first(first(symbol,"instances"),"project"),"path")[2:] = [[a("reference"),ref],[a("unit"),1]]
+                tree.append(symbol)
+            for tag in ("wire","label","no_connect"):
+                for node in children(additions,tag):
+                    node=copy.deepcopy(node)
+                    if tag == "label" and node[1] in GLOBAL:
+                        global_label(node,node[1])
+                    tree.append(node)
+            table=read_sexpr((OUT/"sym-lib-table").read_text())
+            table.extend(copy.deepcopy(children(read_sexpr((folder/"sym-lib-table").read_text()),"lib")))
+            (OUT/"sym-lib-table").write_text(sexpr(table)+"\n")
+            for lib in folder.glob("*.kicad_sym"):
+                shutil.copyfile(lib,OUT/lib.name)
+            for part in PORTS[domain]:
+                expected[part["ref"]]=dict(source_domain=domain,source_ref="AC03:"+part["ref"],value=part["part"],footprint=part["footprint"],
+                    pins={p["number"]:(p["net"] if p["net"] in GLOBAL else domain+"/"+p["net"]) for p in part["pins"]})
+        path.write_text(sexpr(tree)+"\n")
+    assert len(expected)==218
+    (OUT/"expected-circuit.json").write_text(json.dumps(expected,indent=2,sort_keys=True)+"\n")
+    root=read_sexpr((OUT/"audio_core.kicad_sch").read_text())
+    first(first(root,"title_block"),"rev")[1]="AC03"
+    root.append(read_sexpr(f'(text "AC03: J401 analog power; J402 MCU/health; J403 bias sense. Enables are internal/test-only." (at 112 102 0) (effects (font (size 1 1)) (justify left)) (uuid {native.uid("ports-note")}))'))
+    (OUT/"audio_core.kicad_sch").write_text(sexpr(root)+"\n")
+    construction=json.loads((OLD/"construction.json").read_text())
+    paths=[Path(__file__),OLD/"construction.json",OLD/"native-review.json",OLD/"integration-handoff.json",
+           REPO/"hardware/fabrication/audio_core_startup.py",REPO/"hardware/electronics/common/flat_schematic.py"]
+    construction["source_sha256"].update({str(p.relative_to(REPO)):sha(p) for p in paths})
+    for nick in ("Connector_Molex","Connector_JST","TestPoint"):
+        construction["footprint_library_sources"][nick]=["${KICAD10_FOOTPRINT_DIR}/"+nick+".pretty"]
+    construction.update(electrical_parts=218,removed_AC02_headers={d:sorted(v) for d,v in REMOVED.items()},
+        AC03_ports_and_testpoints={d:[p["ref"] for p in parts] for d,parts in PORTS.items()},
+        original_nonconnector_values_pin_nets_and_footprints_preserved=True,
+        shared_power_headers_consolidated=True,external_enable_lead_removed=True,
+        connector_drawings=[MOLEX,JST],mated_clearance_and_process_accepted=False)
+    (OUT/"construction.json").write_text(json.dumps(construction,indent=2)+"\n")
+    (OUT/"connector-parts.json").write_text(json.dumps(dict(
+        board_parts={p["ref"]:dict(mpn=p["part"],footprint=p["footprint"],source=p["source"]) for group in PORTS.values() for p in group if p["ref"].startswith("J")},
+        harness_mating_parts={"J401":dict(housing="43025-0400",contacts="43030-0007",contact_quantity=4),
+                              "J402":dict(housing="XHP-10",contacts="SXH-001T-P0.6",contact_quantity=9,unpopulated_cavity="9 status/test"),
+                              "J403":dict(housing="XHP-3",contacts="SXH-001T-P0.6",contact_quantity=3)},
+        wire_gauge_candidate_AWG=22,maximum_insulation_OD_mm=1.85,
+        crimp_tooling_wire_part_temperature_and_process_qualified=False,
+        no_purchase_or_manufacturing_release=True),indent=2)+"\n")
+    print("Built AC03:218 parts; separate analog/control power; bias sense and four test pads; native export/ERC pending")
+
+
+if __name__ == "__main__":
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action",choices=("build","review"))
+    args=parser.parse_args()
+    if args.action == "build":
+        build()
+    else:
+        assert sys.platform == "linux"
+        native.OUT=OUT
+        native.review()

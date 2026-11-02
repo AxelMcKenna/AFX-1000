@@ -1,0 +1,42 @@
+import copy,json,math
+from pathlib import Path
+from shapely.geometry import LineString
+from hardware.fabrication.nf_connected_fanout_routes import fanouts
+from hardware.fabrication.nf_softstart_joint_screen import ExistingViaScreen
+import hardware.fabrication.route_nf_surface as surface
+surface.WIDTH=.16;surface.MARGIN=.001
+p=Path('hardware/fabrication/staging/nf-logic-swap-restored-groups-inputs-140/capture.json');c=json.loads(p.read_text())
+ids={'c6a7138f-7a88-4a67-9b1f-6ec62bac37cc','cf161cef-4c39-4c66-80c0-8b7e7c61e8db','f42cd874-ea29-4545-9d72-cdbbe432e17e','4846efb3-2dc7-4306-90c3-d1716ae6a8de','1fe05d4e-8605-44bf-a7eb-52c831b559c3'}
+ids.update(o['uuid'] for o in c['objects'] if o['net']=='/N12_WD_ARMED' and o['kind']=='PCB_TRACK' and any(math.dist(p,(12.2623,33.3587))<1e-5 for p in [o['position_mm'],o['end_mm']]))
+removed=[o for o in c['objects'] if o['uuid'] in ids];assert len(removed)==6 and all(o['net']=='/N12_WD_ARMED' for o in removed)
+c['objects']=[o for o in c['objects'] if o['uuid'] not in ids];screen=ExistingViaScreen(c);pads={(o['ref'],o['pin']):o for o in c['objects'] if o['kind']=='PAD'}
+stage=pads['U39','4'];pt=(12.2623,33.3587);path=[stage['position_mm'],pt]
+print('stage exact legality',screen.legal(stage['net'],'F.Cu',path),screen.via_legal(stage['net'],pt),flush=True)
+assert screen.legal(stage['net'],'F.Cu',path) and screen.via_legal(stage['net'],pt)
+screen.added.append((stage['net'],'F.Cu',LineString(path)));screen.new_vias.append((stage['net'],pt));wd=pads['U39','5'];choices=fanouts(screen,wd,32);print('wd choices',len(choices),flush=True)
+targets=[(next(iter(o['layers'])), tuple(o['end_mm'] if math.dist(o['position_mm'],pt)<1e-5 else o['position_mm'])) for o in removed if o['kind']=='PCB_TRACK' and next(iter(o['layers']))!='F.Cu']
+print('targets',targets,flush=True)
+for r in choices:
+ paths=[]
+ for layer,end in targets:
+  candidates=[path for path in surface.candidate_paths(r['point'],end) if screen.legal(wd['net'],layer,path)]
+  if not candidates:break
+  paths.append((layer,min(candidates,key=lambda p:LineString(p).length)))
+ if len(paths)==len(targets):
+  print('FOUND',json.dumps(dict(stage_via=pt,watchdog=r,inner=paths,removed_ids=sorted(ids))),flush=True);raise SystemExit(0)
+from hardware.fabrication.nf_multilayer_raster_guided import route_multi,LAYERS
+import time
+for r in choices:
+ added_count=len(screen.added);via_count=len(screen.new_vias)
+ screen.added.extend((wd['net'],l,LineString(p)) for l,p in r['runs']);screen.new_vias.extend((wd['net'],p) for p in r['vias'])
+ paths=[];fresh=[]
+ for layer,end in targets:
+  start=dict(point=r['point'],runs=[],vias=[],cost=0,group='wd',layers=list(LAYERS));goal=dict(point=end,runs=[],vias=[],cost=0,group='old')
+  found=route_multi(screen,wd['net'],[start],{layer:[goal]},time.monotonic()+25)
+  if not found:break
+  paths.extend(found['runs']);fresh.extend(found['vias'])
+  screen.added.extend((wd['net'],l,LineString(p)) for l,p in found['runs']);screen.new_vias.extend((wd['net'],p) for p in found['vias'])
+ if len(paths) and len(paths)>=len(targets) and end==targets[-1][1] and found:
+  result=dict(stage_via=pt,stage_path=[stage['position_mm'],pt],watchdog=r,inner=paths,extra_vias=fresh,removed_ids=sorted(ids));Path('/private/tmp/nf-stage-escape-plan.json').write_text(json.dumps(result));print('FOUND MULTI',json.dumps(result),flush=True);break
+ del screen.added[added_count:];del screen.new_vias[via_count:]
+else:print('No routed inner rejoin',flush=True)

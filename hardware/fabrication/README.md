@@ -14,19 +14,54 @@ records source hashes, saved native findings and unresolved requirements.
 | --- | --- | --- |
 | power supply | [KiCad source](../electronics/power_distribution/p03/candidates/ax03-run-transmitter/generated/native-closed-transmitter/power_p03.kicad_pro) | 0 / 0 / 0 |
 | input protection | [KiCad source](staging/input-protection-native-01/rear_inlet.kicad_pro) | 0 / 0 / 0 |
-| rail disconnect | [KiCad source](staging/e28-covered-stubs-native/rail_disconnect.kicad_pro) | 49 / 0 / 0 |
-| rail monitor | [KiCad source](staging/rail-monitor-dogbone-native-01/rail_monitor.kicad_pro) | 0 / 13 / 0 |
+| rail disconnect | [KiCad source](staging/e28-branch-cleanup-native-12/rail_disconnect.kicad_pro) | 0 / 0 / 0 |
+| rail monitor | [KiCad source](staging/rail-monitor-reserved-closed-native-02/rail_monitor.kicad_pro) | 0 / 0 / 0 |
 | processor carrier | [KiCad source](staging/processor-carrier-native-01/processor_carrier.kicad_pro) | 0 / 0 / 0 |
 | control inputs | [KiCad source](staging/control-inputs-native-01/control_inputs.kicad_pro) | 0 / 0 / 0 |
 | led driver | [KiCad source](staging/led-driver-native-01/led_driver.kicad_pro) | 0 / 0 / 0 |
 | converter | [KiCad source](../electronics/converter/converter.kicad_sch) | No PCB layout |
 | input range | [KiCad source](staging/input-range-native-01/input_range.kicad_pro) | 0 / 0 / 0 |
 | adc driver | [KiCad source](staging/adc-driver-native-01/adc_driver.kicad_pro) | 0 / 0 / 0 |
-| dac receiver | [KiCad source](../electronics/dac_receiver/dac_receiver.kicad_sch) | No PCB layout |
+| dac receiver | [KiCad source](staging/dac-receiver-closed-native-01/dac_receiver.kicad_pro) | 0 / 0 / 0 |
 | output stage | [KiCad source](staging/output-stage-native-01/output_stage.kicad_pro) | 0 / 0 / 0 |
 | sequenced bypass | [KiCad source](staging/bypass-closed-native-03/sequenced_bypass.kicad_pro) | 0 / 0 / 0 |
-| negative startup protection | [KiCad source](staging/nf-arm-only-native-01/negative_startup_physical.kicad_pro) | 0 / 176 / 2 |
+| negative startup protection | [KiCad source](staging/nf-logic-swap-clean-native-01/negative_startup_physical.kicad_pro) | 0 / 138 / 2 |
 | fan health protection | [KiCad source](staging/fan-watchdog-land-native-01/fan_power_health.kicad_pro) | 0 / 0 / 0 |
+
+The [shared audio integration candidate](staging/audio-main-integration-04b/audio_core.kicad_pro) combines input range, ADC driver, codec, DAC receiver, output stage and sequenced bypass
+into 329 parts/971 terminals on one proposed PCB.
+Its native schematic export has zero ERC findings. The codec land remains
+unassigned; the source and interface audit does not adopt separate development-board copper.
+The [partial main audio PCB](staging/audio-main-placement-02/audio_core.kicad_pro) places 328 known electrical footprints
+and six proposed mounts in the 150 × 63 mm allocation. Native geometry and ERC
+are zero with all categories enabled. The missing ESS footprint remains an explicit
+parity finding; 724 connections remain unrouted.
+Its 99 local feedback/bypass/pump/clock/servo cells meet their declared endpoint
+limits. Full analog performance, codec placement, mating/harness fit and manufacturing remain open.
+
+![Partial main audio PCB placement](staging/audio-main-placement-02/plots/top.png)
+
+The [combined digital/control candidate](staging/digital-distribution-native-02/digital_core.kicad_pro) places the processor carrier,
+control expanders and LED drivers on one proposed notched 114 × 60 mm PCB.
+It has 138 electrical parts, zero native geometry/parity/ERC findings,
+and 255 unrouted connections. All native categories are enabled.
+Five inter-board headers were removed. Placement does not establish routed
+power/return performance, production connector acceptance or installed fit.
+The DC03 candidate connects all 201 pads on its five power/ground nets,
+with an In1 ground plane, an In2 5 V plane and routed outer-layer supply branches.
+The 39 earlier local connections remain intact. Each LED driver has 6–11
+native-connected thermal vias. Of 136 vias, 115 clear SMD copper and 21
+occupy mask-covered heat-spreader copper outside solder openings.
+The mapped drill process still requires acceptance. Signal routing and
+current/voltage/noise/thermal qualification remain unfinished.
+
+The [AP03 arrangement](staging/assembly-layout-03/README.md) fixes allocations for the next PCB work:
+six audio roles on the left, combined digital on the right, an upper rail-monitor
+board, and the existing touch-module front bay. Its eight functional PCB
+allocations exclude additional panel/emitter boards and the touch module.
+The full current assembly, supports, harness and thermal design remain unfinished.
+
+![Proposed board arrangement](staging/assembly-layout-03/arrangement.png)
 
 DRC findings include warnings. A zero count does not approve the circuit,
 fabrication process, current capacity, thermal design, mechanical fit or assembly.
