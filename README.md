@@ -51,15 +51,15 @@ Native KiCad layouts from the standalone electronics work. These are engineering
 
 | Top local copper | Bottom local copper, viewed from below |
 | --- | --- |
-| [![Partial main audio PCB: actual top copper and lands](hardware/fabrication/staging/audio-main-controls-02/plots/top.png)](hardware/fabrication/staging/audio-main-controls-02/plots/top.png) | [![Partial main audio PCB: actual bottom copper and lands](hardware/fabrication/staging/audio-main-controls-02/plots/bottom.png)](hardware/fabrication/staging/audio-main-controls-02/plots/bottom.png) |
+| [![Partial main audio PCB: actual top copper and lands](hardware/fabrication/staging/audio-main-watchdog-repack-01/plots/top.png)](hardware/fabrication/staging/audio-main-watchdog-repack-01/plots/top.png) | [![Partial main audio PCB: actual bottom copper and lands](hardware/fabrication/staging/audio-main-watchdog-repack-01/plots/bottom.png)](hardware/fabrication/staging/audio-main-watchdog-repack-01/plots/bottom.png) |
 
-The [six-section audio candidate](hardware/fabrication/staging/audio-main-controls-02/README.md) retains **328 assigned electrical footprints**, including four bare test pads, and six proposed mounts. **All 131 declared local signal/supply endpoints and all 200 placed ground pads are native-connected.** Opens have fallen from 724 to **219**, including 48 newly verified low-speed control joins and 17 retained earlier control pairs. Its 2,274 tracks and 356 conventional vias preserve every amplifier placement and direct compensation capacitor track. Native geometry and ERC findings remain zero with all categories enabled. **The ESS codec footprint is missing and global routing is unfinished.** Full parts/process, analog, power/thermal and assembly verification remain open.
+The [six-section audio candidate](hardware/fabrication/staging/audio-main-watchdog-repack-01/README.md) retains **328 assigned electrical footprints**, including four bare test pads, and six proposed mounts. **All 131 declared local signal/supply endpoints and all 200 placed ground pads are native-connected.** Opens have fallen from 724 to **216**, including 50 verified low-speed control joins and 17 retained earlier control pairs. Its 2,291 tracks and 360 conventional vias preserve every amplifier placement and direct compensation capacitor track. The watchdog and its two capacitors were relocated with renewed receiving; its timing path and both control exits are now connected. Native geometry and ERC findings remain zero with all categories enabled. **The ESS codec footprint is missing and global routing is unfinished.** Full parts/process, analog, power/thermal and assembly verification remain open.
 
-[![Actual inner AGND reference copper, sensitive-node openings and mounting exclusions](hardware/fabrication/staging/audio-main-controls-02/plots/ground.png)](hardware/fabrication/staging/audio-main-controls-02/plots/ground.png)
+[![Actual inner AGND reference copper, sensitive-node openings and mounting exclusions](hardware/fabrication/staging/audio-main-watchdog-repack-01/plots/ground.png)](hardware/fabrication/staging/audio-main-watchdog-repack-01/plots/ground.png)
 
 All **161 placed supply/sense pads** now connect to their designated source through inner and outer copper. Native-refilled ground retains all 200 ground connections. Missing codec lands and complete capacity/drop/return qualification remain open.
 
-[![Actual partial In2 supply routing](hardware/fabrication/staging/audio-main-controls-02/plots/supplies.png)](hardware/fabrication/staging/audio-main-controls-02/plots/supplies.png)
+[![Actual partial In2 supply routing](hardware/fabrication/staging/audio-main-watchdog-repack-01/plots/supplies.png)](hardware/fabrication/staging/audio-main-watchdog-repack-01/plots/supplies.png)
 
 
 | E12 ADC driver · 110 × 78 mm | Main supply candidate · 90 × 44 mm |

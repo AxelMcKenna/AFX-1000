@@ -1,0 +1,86 @@
+"""Diagnose blocked audio control escapes from the verified 219-open board."""
+
+import argparse
+import json
+import shutil
+from pathlib import Path
+
+from hardware.fabrication.audio_main_control_routes import CONTROL_NETS
+from hardware.fabrication.audio_main_global_controls import LAYERS, SignalScreen, exact_fanouts
+from hardware.fabrication.audio_main_local_routes import relative_hashes
+from hardware.fabrication.audio_main_native_capture import capture as native_capture
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-controls-02"
+OUT = ROOT / "staging/audio-main-controls-03"
+
+
+def capture():
+    OUT.mkdir(exist_ok=False)
+    applied = OUT / "applied-input-capture.py.txt"
+    shutil.copyfile(Path(__file__), applied)
+    native_capture(SOURCE, OUT, 219, CONTROL_NETS, applied)
+
+
+def diagnose():
+    captured = json.loads((OUT / "native-inputs.json").read_text())
+    remaining = json.loads((SOURCE / "routing-handoff.json").read_text())["remaining_control_connections_by_net"]
+    screen = SignalScreen(captured)
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    rows = []
+    for key, ids in captured["groups"].items():
+        net = objects[ids[0]]["net"]
+        if net not in remaining:
+            continue
+        pads = []
+        for ident in ids:
+            o = objects[ident]
+            if o["kind"] != "PAD" or not o["pin"]:
+                continue
+            fanouts = exact_fanouts(screen, o, key)
+            direct = []
+            for layer in LAYERS:
+                if not o["layers"].get(layer):
+                    continue
+                x, y = o["position_mm"]
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    if screen.legal(net, layer, [(x, y), (x+dx, y+dy)]):
+                        direct.append(dict(layer=layer, direction=[dx, dy]))
+            pads.append(dict(ref=o["ref"], pin=o["pin"], xy_mm=o["position_mm"],
+                             direct_one_mm_exits=direct, short_fanout_portals=fanouts))
+        rows.append(dict(net=net, native_group=key, pads=pads, native_objects=len(ids)))
+    result = dict(source_sha256=relative_hashes([Path(__file__), OUT / "native-inputs.json", SOURCE / "routing-handoff.json"]),
+                  groups=rows, remaining_control_connections=remaining, fabrication_released=False)
+    (OUT / "escape-diagnosis.json").write_text(json.dumps(result, indent=2)+"\n")
+    for row in rows:
+        print(row["net"], [(p["ref"]+"."+p["pin"], p["xy_mm"], len(p["direct_one_mm_exits"]),
+                            len(p["short_fanout_portals"])) for p in row["pads"]])
+
+
+def local_escapes():
+    from hardware.fabrication import audio_main_local_control_escape
+
+    captured = json.loads((OUT / "native-inputs.json").read_text())
+    diagnosis = json.loads((OUT / "escape-diagnosis.json").read_text())
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    screen = SignalScreen(captured)
+    rows = []
+    for row in diagnosis["groups"]:
+        for p in row["pads"]:
+            if p["short_fanout_portals"]:
+                continue
+            pad = next(o for o in objects.values() if o.get("ref") == p["ref"] and o.get("pin") == p["pin"])
+            choices = audio_main_local_control_escape.portals(screen, pad, row["native_group"])
+            rows.append(dict(net=row["net"], native_group=row["native_group"], ref=p["ref"], pin=p["pin"], portals=choices))
+            print(p["ref"]+"."+p["pin"], row["net"], len(choices), "short exact-screened doglegs", flush=True)
+    result = dict(source_sha256=relative_hashes([Path(__file__), Path(audio_main_local_control_escape.__file__),
+                                                OUT / "native-inputs.json", OUT / "escape-diagnosis.json"]),
+                  rows=rows, fabrication_released=False)
+    (OUT / "local-escape-portals.json").write_text(json.dumps(result, indent=2)+"\n")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("capture", "diagnose", "local-escapes"))
+    args = parser.parse_args()
+    {"capture": capture, "diagnose": diagnose, "local-escapes": local_escapes}[args.action]()

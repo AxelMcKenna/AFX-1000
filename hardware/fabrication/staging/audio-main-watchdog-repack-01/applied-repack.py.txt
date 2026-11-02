@@ -1,0 +1,278 @@
+"""Relocate the private watchdog cell and reserve real control pin escapes."""
+
+import argparse
+import copy
+import json
+import math
+import shutil
+import sys
+import uuid
+from pathlib import Path
+
+from hardware.electronics.common.netlists import netlist
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.electronics.output_stage.check_placement import courtyard
+from hardware.fabrication.audio_main_global_controls import SignalScreen
+from hardware.fabrication.audio_main_local_repack import ReceivingSpace, footprints, poses, set_poses
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-controls-02"
+CAPTURE = ROOT / "staging/audio-main-controls-03/native-inputs.json"
+OUT = ROOT / "staging/audio-main-watchdog-repack-01"
+REFS = {"U601", "C601", "C602"}
+DELTA = (-35.5, 4.5)
+TRANSLATE = {
+    "454d801c-358b-5e13-b5a9-28b3ee11427c", "74783295-71bc-5087-9f68-497a210600b6",
+    "73022e0a-43a9-555f-9fff-55fb073532ae", "d978821a-e321-58bf-b5ef-42e9036447d9",
+    "c3ce335a-534a-53df-866b-10fc744d7643",
+}
+REMOVE = {
+    "51b2a192-7ac5-5f76-ae22-0c0cb63e4d75", "6ee82995-4a8c-576f-b572-afdcd9dabe6c",
+    "57273fb3-bee7-5322-9f49-ee6b0f4213cf", "605ace16-c406-5358-b577-9042f9661b31",
+    "b9dd63e9-fcfe-5479-b203-dbf484149f3e", "131bee6c-c2e1-5564-b09b-f79a3796dd2f",
+    "b39213a9-47ee-5cee-b17b-c5b4f0e0e8b7", "b8db1771-f46c-5c92-a4df-c85f094136f7",
+    "edae5e91-e915-5842-a19c-d1223388be00", "79c8faa3-9b8d-5d85-97bb-e4d2fb507b00",
+    "d8f867d9-ae38-58bd-abdd-93c2086a5d7c", "8c6e06c3-5945-5547-85b0-4cb25779fa7a",
+}
+
+
+def shifted(point):
+    return [round(float(v)+d, 8) for v, d in zip(point, DELTA)]
+
+
+def translate_object(obj):
+    obj["position_mm"] = shifted(obj["position_mm"])
+    if "end_mm" in obj:
+        obj["end_mm"] = shifted(obj["end_mm"])
+    for polygons in obj["layers"].values():
+        for polygon in polygons:
+            polygon["outer"] = [shifted(p) for p in polygon["outer"]]
+            polygon["holes"] = [[shifted(p) for p in ring] for ring in polygon["holes"]]
+
+
+def shape_polygons(geometry):
+    return [dict(outer=list(geometry.exterior.coords), holes=[])]
+
+
+def build():
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+
+    from hardware.fabrication.audio_main_power_routes import InnerGrid
+    from hardware.fabrication.audio_main_power_pruning import prune
+    from hardware.fabrication.audit_audio_main_global_controls import check as parent_check
+    from hardware.fabrication.audit_audio_main_placement import verify_geometry
+    from hardware.fabrication.route_nf_surface import candidate_paths
+
+    assert parent_check() == json.loads((SOURCE / "routing-handoff.json").read_text())
+    assert not OUT.exists()
+    board = read_sexpr((SOURCE / "audio_core.kicad_pcb").read_text())
+    old = poses(board)
+    updated = {r: (*shifted(old[r][:2]), old[r][2]) for r in REFS}
+    assert ReceivingSpace(board, REFS).accepts(updated)
+    set_poses(board, updated)
+    seen = set()
+    retained = []
+    for node in board:
+        if not isinstance(node, list) or not node or node[0] not in ("segment", "via"):
+            retained.append(node)
+            continue
+        ident = str(first(node, "uuid")[1])
+        if ident in TRANSLATE | REMOVE:
+            seen.add(ident)
+        if ident in REMOVE:
+            continue
+        if ident in TRANSLATE:
+            for key in (("at",) if node[0] == "via" else ("start", "end")):
+                first(node, key)[1:3] = shifted(first(node, key)[1:3])
+        retained.append(node)
+    assert seen == TRANSLATE | REMOVE
+    board = retained
+    captured = json.loads(CAPTURE.read_text())
+    verify_hashes(captured["source_sha256"])
+    captured["objects"] = [o for o in captured["objects"] if o["uuid"] not in REMOVE]
+    for obj in captured["objects"]:
+        if obj.get("ref") in REFS or obj["uuid"] in TRANSLATE:
+            translate_object(obj)
+    pruned = prune(captured)
+    board = [n for n in board if not isinstance(n, list) or not n or n[0] not in ("segment", "via") or
+             first(n, "uuid")[1] not in pruned]
+    nets = {str(n[2]): n[1] for n in children(board, "net")}
+    additions = []
+
+    def add_via(net, xy, purpose):
+        assert SignalScreen(captured).via_legal(net, xy), ("Via blocked", net, xy)
+        ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:watchdog-repack:{net}:{xy}"))
+        board.append([a("via"), [a("at"), *xy], [a("size"), .6], [a("drill"), .3],
+                      [a("layers"), "F.Cu", "B.Cu"], [a("net"), nets[net]], [a("uuid"), ident]])
+        polygons = shape_polygons(Point(xy).buffer(.3001, quad_segs=32))
+        captured["objects"].append(dict(uuid=ident, net=net, kind="PCB_VIA", position_mm=xy,
+                                        layers={layer: polygons for layer in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")}))
+        additions.append(dict(kind="via", uuid=ident, net=net, xy_mm=xy, diameter_mm=.6, drill_mm=.3, purpose=purpose))
+
+    def add_path(net, layer, points, purpose, width=.2):
+        if width == .2:
+            assert SignalScreen(captured).legal(net, layer, points), ("Trace blocked", net, layer, points)
+        for start, end in zip(points, points[1:]):
+            assert math.dist(start, end) > 1e-7
+            ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:watchdog-repack:{net}:{layer}:{start}:{end}"))
+            board.append([a("segment"), [a("start"), *start], [a("end"), *end], [a("width"), width],
+                          [a("layer"), layer], [a("net"), nets[net]], [a("uuid"), ident]])
+            polygons = shape_polygons(LineString([start, end]).buffer(width/2+.0001, quad_segs=32))
+            captured["objects"].append(dict(uuid=ident, net=net, kind="PCB_TRACK", position_mm=start,
+                                            end_mm=end, width_mm=width, layers={layer: polygons}))
+            additions.append(dict(kind="segment", uuid=ident, net=net, layer=layer, start_mm=start,
+                                  end_mm=end, width_mm=width, purpose=purpose))
+
+    # Reserve both GPIO exits before adding the replacement distribution.
+    escapes = [dict(ref="U601", pin="6", net="/BYPASS/HEARTBEAT", via=[13.025, 22.325],
+                    points=[[12.4, 22.325], [13.025, 22.325]]),
+               dict(ref="U601", pin="8", net="/BYPASS/LOCAL_OK", via=[12.95, 21.35],
+                    points=[[12.4, 21.025], [12.95, 21.35]])]
+    for row in escapes:
+        add_via(row["net"], row["via"], "reserved_control_escape")
+        add_path(row["net"], "F.Cu", row["points"], "reserved_control_escape")
+    add_via("/BYPASS/CWD", [8.775, 21.675], "private_watchdog_timing")
+    add_path("/BYPASS/CWD", "F.Cu", [[9.6, 21.675], [8.775, 21.675]], "private_watchdog_timing")
+    add_path("/BYPASS/CWD", "B.Cu", [[8.775, 21.675], [10.05, 22]], "private_watchdog_timing")
+    add_via("AGND", [11, 24], "watchdog_and_timing_ground")
+    add_path("AGND", "F.Cu", [[11, 22], [11, 24]], "watchdog_and_timing_ground")
+    add_path("AGND", "F.Cu", [[9.6, 22.975], [10.3, 23.7], [11, 24]], "watchdog_and_timing_ground")
+    add_path("AGND", "B.Cu", [[11.95, 22], [11, 24]], "watchdog_and_timing_ground")
+    power_vias = [[8.1, 22.8], [14, 24.2]]
+    add_via("V3V3_IO", power_vias[1], "watchdog_power_entry")
+    add_path("V3V3_IO", "F.Cu", [[9.6, 21.025], [8.1, 21.025], [8.1, 22.325], [8.1, 22.8]], "watchdog_power_entry")
+    add_path("V3V3_IO", "F.Cu", [[9.6, 22.325], [8.1, 22.325]], "watchdog_power_entry")
+    add_path("V3V3_IO", "F.Cu", [[14.25, 22.95], [14, 24.2]], "watchdog_power_entry")
+    root_via = [12.705, 35.45]
+    assert any(o["kind"] == "PCB_VIA" and o["net"] == "V3V3_IO" and o["position_mm"] == root_via for o in captured["objects"])
+    power_paths = []
+    for start, end in ((power_vias[1], root_via), (power_vias[0], power_vias[1])):
+        screen = SignalScreen(captured)
+        candidates = []
+        for layer in ("F.Cu", "B.Cu", "In2.Cu"):
+            obstacles = [g.buffer(d+.2) for other, g, d in screen.geometry[layer] if other != "V3V3_IO"]
+            # Keep wide branches centred on their two explicit plated terminals.
+            obstacles += [Point(p).buffer(.611) for net, p in screen.vias if net == "V3V3_IO" and
+                          all(math.dist(p, q) > 1e-7 for q in (start, end))]
+            free = screen.outline.buffer(-.2).difference(unary_union(obstacles))
+            paths = [p for p in candidate_paths(start, end) if free.covers(LineString(p))]
+            if not paths:
+                grid = InnerGrid(free)
+                chain = grid.route(grid.anchors(start), set(grid.anchors(end)))
+                if chain:
+                    paths.append(grid.simplify([start, *[grid.xy(k) for k in chain], end]))
+            for points in paths:
+                assert free.covers(LineString(points))
+                candidates.append((LineString(points).length, layer, points))
+        assert candidates, ("Replacement power branch blocked", start, end)
+        length, layer, points = min(candidates, key=lambda r: r[0])
+        assert length <= 30, ("Excessive replacement supply loop", length)
+        add_path("V3V3_IO", layer, points, "watchdog_wide_power_branch", width=.6)
+        power_paths.append(dict(layer=layer, points_mm=points, planar_length_mm=length))
+    # Use the reserved GPIO vias on a second face; no dangling placeholder via
+    # is accepted as a completed pin escape.
+    import time
+
+    import hardware.fabrication.nf_multilayer_raster_directed as search
+    import hardware.fabrication.nf_pin_escape_routes as raster
+    import hardware.fabrication.route_nf_surface as surface
+    from hardware.fabrication.audio_main_global_controls import LAYERS, via_mask
+
+    surface.WIDTH = raster.WIDTH = search.WIDTH = .2
+    surface.MARGIN = .01
+    search.LAYERS, search.via_mask = LAYERS, via_mask
+    original_capture = json.loads(CAPTURE.read_text())
+    original_objects = {o["uuid"]: o for o in original_capture["objects"]}
+    new_control_routes = []
+    for escape in escapes:
+        pad = next(o for o in original_objects.values() if o.get("ref") == escape["ref"] and o.get("pin") == escape["pin"])
+        origin_group = next(key for key, ids in original_capture["groups"].items() if pad["uuid"] in ids)
+        targets = {layer: [] for layer in LAYERS}
+        for key, ids in original_capture["groups"].items():
+            if key == origin_group or original_objects[ids[0]]["net"] != escape["net"]:
+                continue
+            for ident in ids:
+                obj = original_objects[ident]
+                for layer in LAYERS:
+                    if not obj["layers"].get(layer):
+                        continue
+                    for point in [obj["position_mm"]]+([obj["end_mm"]] if "end_mm" in obj else []):
+                        targets[layer].append(dict(point=point, layers=[layer], runs=[], vias=[], cost=0., group=key))
+        start = dict(point=escape["via"], layers=["B.Cu", "In2.Cu"], runs=[], vias=[], cost=0., group=origin_group)
+        result = search.route_multi(SignalScreen(captured), escape["net"], [start], targets,
+                                    time.monotonic()+30, max_visits=500000)
+        assert result, ("Reserved control exit did not join another native group", escape["net"])
+        fresh = [p for p in result["vias"] if not any(o["kind"] == "PCB_VIA" and o["net"] == escape["net"] and
+                 math.dist(p, o["position_mm"]) < 1e-7 for o in captured["objects"])]
+        assert len(fresh) <= 4
+        for xy in fresh:
+            add_via(escape["net"], xy, "completed_control_connection")
+        for layer, points in result["runs"]:
+            add_path(escape["net"], layer, points, "completed_control_connection")
+        result.update(net=escape["net"], source_groups=[[origin_group], [result["groups"][1]]], new_vias_mm=fresh)
+        new_control_routes.append(result)
+        print("Connected relocated", escape["net"], flush=True)
+    plan = json.loads((SOURCE / "plan.json").read_text())
+    for ref, pose in updated.items():
+        fp = footprints(board)[ref]
+        side = first(fp, "layer")[1][0]
+        plan["poses"][ref] = [*pose, side]
+        plan["expanded_receiving_bounds_mm"][ref] = courtyard(fp, side+".CrtYd")
+    for cell in plan["local_cells"]:
+        if cell["owner"] in REFS:
+            for terminal in cell["terminals"]:
+                terminal["owner_position_mm"] = shifted(terminal["owner_position_mm"])
+    geometry_board = [n for n in board if not isinstance(n, list) or not n or n[0] not in ("segment", "via", "zone")]
+    geometry_board += [copy.deepcopy(children(board, "zone")[0])]
+    parts, pins = netlist(SOURCE / "native-netlist.xml")
+    receiving = verify_geometry(geometry_board, plan, parts, pins)
+    OUT.mkdir()
+    applied = OUT / "applied-repack.py.txt"
+    shutil.copyfile(Path(__file__), applied)
+    for p in SOURCE.iterdir():
+        if p.suffix in (".kicad_sch", ".kicad_pro", ".kicad_sym", ".kicad_dru") or p.name in ("fp-lib-table", "sym-lib-table"):
+            shutil.copyfile(p, OUT / p.name)
+    shutil.copytree(SOURCE / "libraries", OUT / "libraries")
+    plan["source_sha256"].update(relative_hashes([applied, SOURCE / "plan.json"]))
+    (OUT / "plan.json").write_text(json.dumps(plan, indent=2)+"\n")
+    pcb = OUT / "distribution-input.kicad_pcb"
+    pcb.write_text(sexpr(board)+"\n")
+    captured["source_sha256"] = relative_hashes([applied, CAPTURE, SOURCE / "audio_core.kicad_pcb"])
+    (OUT / "planning-inputs.json").write_text(json.dumps(captured, separators=(",", ":"))+"\n")
+    inputs = [applied, CAPTURE, SOURCE / "routing-handoff.json", SOURCE / "audio_core.kicad_pcb", OUT / "plan.json",
+              ROOT / "audio_main_local_repack.py", ROOT / "audio_main_global_controls.py", ROOT / "audio_main_power_routes.py",
+              ROOT / "audio_main_power_pruning.py", ROOT / "nf_multilayer_raster_directed.py", ROOT / "nf_pin_escape_routes.py",
+              ROOT / "route_nf_surface.py"]
+    result = dict(source_sha256=relative_hashes(inputs), authored_PCB_sha256=sha(pcb), routes=new_control_routes,
+                  declared_pose_changes={r: dict(before=old[r], after=updated[r]) for r in sorted(REFS)},
+                  translated_copper_uuids=sorted(TRANSLATE), removed_copper_uuids=sorted(REMOVE),
+                  pruned_abandoned_power_copper_uuids=pruned,
+                  additions=additions, reserved_control_escapes=escapes, replacement_power_paths_mm=power_paths,
+                  receiving_geometry=receiving, native_checks_pending=True, fabrication_released=False)
+    (OUT / "distribution-construction.json").write_text(json.dumps(result, indent=2)+"\n")
+    print("Built private watchdog relocation; two real GPIO escapes and short timing route; native checks pending")
+
+
+def native(action):
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    assert sha(OUT / "applied-repack.py.txt") == sha(Path(__file__))
+    if action == "fill":
+        from hardware.fabrication import audio_main_power_routes
+
+        audio_main_power_routes.OUT = OUT
+        audio_main_power_routes.fill()
+    else:
+        from hardware.fabrication.audio_main_native_review import review
+
+        review(OUT, SOURCE / "terminal-connectivity-review.json", CAPTURE,
+               OUT / "distribution-construction.json", OUT / "applied-repack.py.txt")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("build", "fill", "review"))
+    args = parser.parse_args()
+    {"build": build, "fill": lambda: native("fill"), "review": lambda: native("review")}[args.action]()

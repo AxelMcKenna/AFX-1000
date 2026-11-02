@@ -1,0 +1,105 @@
+"""Find short, exact-screened doglegs from a crowded control solder land."""
+
+import heapq
+import math
+
+import numpy as np
+from shapely import contains_xy
+from shapely.geometry import Point
+from shapely.ops import unary_union
+
+from hardware.fabrication.audio_main_global_controls import LAYERS, via_mask
+
+STEP = .025
+MAX_LENGTH = 3.5
+
+
+def portals(screen, pad, group, limit=8):
+    """Bound local geometry only: 281² sites, at most 3.5 mm of real trace."""
+    net = pad["net"]
+    layer = next(face for face in ("F.Cu", "B.Cu") if pad["layers"].get(face))
+    start = tuple(pad["position_mm"])
+    steps = math.ceil(MAX_LENGTH/STEP)
+    xs = np.arange(-steps, steps+1)*STEP+start[0]
+    ys = np.arange(-steps, steps+1)*STEP+start[1]
+    xx, yy = np.meshgrid(xs, ys)
+    region = Point(start).buffer(MAX_LENGTH+.8)
+    rows = [screen.geometry[layer][int(i)] for i in screen.trees[layer].query(region)]
+    obstacles = [g.buffer(d+1e-6) for other, g, d in rows if other != net]
+    screen.dynamic_indexes()
+    for i in screen._added_tree.query(region):
+        other, face, g = screen.added[int(i)]
+        if face == layer and other != net:
+            obstacles.append(g.buffer(.410001))
+    for other, xy in screen.vias+screen.new_vias:
+        if Point(xy).distance(region) == 0:
+            # Existing native centres remain available to the main router.
+            # A new pad escape must avoid clipping a same-net annulus sideways.
+            obstacles.append(Point(xy).buffer(.400001 if other == net else .610001))
+    valid = contains_xy(screen.outline, xx, yy)
+    safe = contains_xy(screen.outline.buffer(-math.sqrt(2)*STEP), xx, yy)
+    if obstacles:
+        blocked = unary_union(obstacles)
+        valid &= ~contains_xy(blocked, xx, yy)
+        safe &= ~contains_xy(blocked.buffer(math.sqrt(2)*STEP), xx, yy)
+    via_valid = via_mask(screen, net, xs, ys)
+    size = len(xs)
+    origin = steps*size+steps
+    assert valid[steps, steps], (pad["ref"], pad["pin"], "Pad centre blocked")
+    flat, safe_flat = valid.ravel(), safe.ravel()
+    costs = {origin: 0.}
+    parents = {}
+    queue = [(0., origin)]
+    result = []
+
+    def point(key):
+        return (round(float(xs[key % size]), 8), round(float(ys[key // size]), 8))
+
+    while queue:
+        cost, key = heapq.heappop(queue)
+        if cost > costs[key]+1e-9:
+            continue
+        if cost > MAX_LENGTH:
+            break
+        x, y = key % size, key // size
+        xy = point(key)
+        if via_valid[y, x] and all(math.dist(xy, r["point"]) >= .55 for r in result) and screen.via_legal(net, xy):
+            chain = [key]
+            while chain[-1] in parents:
+                chain.append(parents[chain[-1]])
+            chain.reverse()
+            points = [point(k) for k in chain]
+            # Exact shortcuts retain every actual narrow exit and turn.
+            simplified = [points[0]]
+            i = 0
+            while i < len(points)-1:
+                target = i+1
+                for j in range(len(points)-1, i+1, -1):
+                    if screen.legal(net, layer, [points[i], points[j]]):
+                        target = j
+                        break
+                simplified.append(points[target])
+                i = target
+            length = sum(math.dist(a, b) for a, b in zip(simplified, simplified[1:]))
+            assert length <= MAX_LENGTH+1e-8 and screen.legal(net, layer, simplified)
+            result.append(dict(point=xy, layers=list(LAYERS), runs=[(layer, simplified)], vias=[xy],
+                               cost=length+2.5, group=group, pad=[pad["ref"], pad["pin"]],
+                               escape_length_mm=length))
+            if len(result) >= limit:
+                break
+        for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)):
+            a, b = x+dx, y+dy
+            if not (0 <= a < size and 0 <= b < size):
+                continue
+            other = b*size+a
+            if not flat[other]:
+                continue
+            new_cost = cost+STEP*(math.sqrt(2) if dx and dy else 1)
+            if new_cost > MAX_LENGTH or new_cost >= costs.get(other, math.inf)-1e-9:
+                continue
+            if not (safe_flat[key] and safe_flat[other]) and not screen.legal(net, layer, [xy, point(other)]):
+                continue
+            costs[other] = new_cost
+            parents[other] = key
+            heapq.heappush(queue, (new_cost, other))
+    return result
