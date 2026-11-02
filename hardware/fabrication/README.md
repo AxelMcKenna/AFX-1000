@@ -32,17 +32,17 @@ The [shared audio integration candidate](staging/audio-main-integration-04b/audi
 into 329 parts/971 terminals on one proposed PCB.
 Its native schematic export has zero ERC findings. The codec land remains
 unassigned; the source and interface audit does not adopt separate development-board copper.
-The [partial main audio PCB](staging/audio-main-supplies-06/audio_core.kicad_pro) places 328 known electrical footprints
+The [partial main audio PCB](staging/audio-main-controls-02/audio_core.kicad_pro) places 328 known electrical footprints
 and six proposed mounts in the 150 × 63 mm allocation. Native geometry and ERC
 are zero with all categories enabled. The missing ESS footprint remains an explicit
-parity finding; 267 connections remain unrouted.
+parity finding; 219 connections remain unrouted.
 Its 99 local feedback/bypass/pump/clock/servo cells meet their declared endpoint
 limits. Full analog performance, codec placement, mating/harness fit and manufacturing remain open.
 
-![Partial main audio PCB](staging/audio-main-supplies-06/plots/top.png)
+![Partial main audio PCB](staging/audio-main-controls-02/plots/top.png)
 All 131 declared local signal/supply endpoints and all 20 declared local ground-return pairs are native-connected.
 The In1 AGND plane connects every one of the 200 placed ground pads to the input ground.
-The candidate has 1729 tracks and 271 conventional 0.60/0.30 mm vias;
+The candidate has 2274 tracks and 356 conventional 0.60/0.30 mm vias;
 the minimum screened drill-edge-to-SMD gap is 0.170 mm. Twelve sensitive-node plane openings
 and six mounting-hardware copper exclusions remain protected. All amplifier placements and
 their direct compensation capacitor traces are retained. Four previously unrouted parts
@@ -52,6 +52,9 @@ All 161 placed supply/sense pads connect to their designated sources; all earlie
 Wide 0.60 mm outer-layer routes and short 0.20 mm necks complete the placed rail connections.
 The divider feed alone uses a 9.74 mm 0.20 mm global branch with a separate low-current construction assessment.
 Codec supply lands are still missing. Rail capacity/drop, return/noise, fault/thermal and process qualification remain open.
+A further 48 low-speed control joins retain the earlier seventeen control pairs;
+16 control connections remain open. Sensitive analog regions are protected on all routed layers.
+Timing, signal integrity, coupling, EMI and installed fault behaviour still require qualification.
 
 The [combined digital/control candidate](staging/digital-four-clean-native-03/digital_core.kicad_pro) places the processor carrier,
 control expanders and LED drivers on one proposed notched 114 × 60 mm PCB.

@@ -1469,3 +1469,8 @@ native checks; executed sources and compact diagnostics remain with the
 adopted candidate. Missing codec land/data, 267 remaining routes and complete
 installed power/return/noise/stability/thermal/fault, parts/process and assembly
 receiving remain open. No Mac CAD, supplier message, upload or order occurred.
+
+
+## AC04 global control routing checkpoint
+
+Native Linux KiCad 10.0.7 verifies 48 further control joins: 219 total opens, down from 267; 16 targeted control opens remain. Geometry/ERC findings remain zero, with one missing-U201 parity finding and no ignored categories. All 138 local pairs, seventeen earlier control pairs, 200 ground pads and 161 source-connected rail/sense pads remain connected. The new 545 tracks and 85 conventional vias retain all component positions, existing copper and authored keepouts. Exact added-copper replay and complete native pad witnesses pass. The minimum new drill-edge-to-SMD gap is 0.169980855 mm; refilled In1 area is 8056.273842 mm². Timing/coupling/EMI, power/return, codec data and whole-unit/process qualification remain open. Automatic search is giving diminishing returns; the remaining control escapes need placement/routing review. All four current copper-layer plots were inspected. The 92 relevant audio/fabrication checks and 23 CAD integration checks pass (115 total); the new Python sources also pass Ruff. No native Mac CAD application was launched and no order or supplier message was sent.
