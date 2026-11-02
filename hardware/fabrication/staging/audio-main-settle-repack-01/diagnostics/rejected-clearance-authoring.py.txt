@@ -1,0 +1,324 @@
+"""Relocate the private settling supervisor and complete its control/timing paths."""
+
+import argparse
+import copy
+import json
+import math
+import shutil
+import sys
+import uuid
+from pathlib import Path
+
+from hardware.electronics.common.netlists import netlist
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.electronics.output_stage.check_placement import courtyard
+from hardware.fabrication.audio_main_global_controls import SignalScreen
+from hardware.fabrication.audio_main_local_repack import ReceivingSpace, footprints, mapper, poses, set_poses
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-watchdog-repack-01"
+CAPTURE = ROOT / "staging/audio-main-settle-repack-01/native-inputs.json"
+OUT = ROOT / "staging/audio-main-settle-repack-01"
+REFS = {"U208", "C224", "C227", "R204"}
+DELTA = (-44.5, -6)
+TRANSLATE = {"ce0587ce-d5ab-5cf0-b16e-89920e6d4bea"}
+REMOVE = {
+    "3273276f-16c2-5e82-89db-726e2cc1eb2c", "7360dc53-5f8d-5204-aeed-fe12c0e9bb4d",
+    "8db5f03d-1534-5c3d-93d2-2879c9a7c060", "42cf1cda-779e-5ad7-8773-350912c6d124",
+    "1e3d4f4d-28e3-531d-a7fe-4c5e3ebb637c", "3c34343e-aab2-5694-bdb5-49a4ad3c72a4",
+    "17098211-341e-56db-9fdd-2baf9bbdbd28", "b989fdc5-4438-592f-aa56-b27706b01c10",
+    "cbdd49d8-3d6a-5592-b787-e4b50227512b", "abb55a63-512c-5f3e-9e87-e65bd178799c",
+}
+
+
+def shifted(point):
+    return [round(float(v)+d, 8) for v, d in zip(point, DELTA)]
+
+
+def translate_object(obj, move=shifted):
+    obj["position_mm"] = move(obj["position_mm"])
+    if "end_mm" in obj:
+        obj["end_mm"] = move(obj["end_mm"])
+    for polygons in obj["layers"].values():
+        for polygon in polygons:
+            polygon["outer"] = [move(p) for p in polygon["outer"]]
+            polygon["holes"] = [[move(p) for p in ring] for ring in polygon["holes"]]
+
+
+def shape_polygons(geometry):
+    return [dict(outer=list(geometry.exterior.coords), holes=[])]
+
+
+def build():
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+
+    from hardware.fabrication.audio_main_power_pruning import prune
+    from hardware.fabrication.audio_main_power_routes import InnerGrid
+    from hardware.fabrication.audit_audio_main_placement import verify_geometry
+    from hardware.fabrication.route_nf_surface import candidate_paths
+
+    # Planning uses the fresh immutable native snapshot. The independent
+    # handoff still replays the complete parent audit before accepting copper.
+    original_inputs = json.loads(CAPTURE.read_text())
+    verify_hashes(original_inputs["source_sha256"])
+    assert original_inputs["native_uncapped_opens"] == 216
+    assert OUT.is_dir() and not (OUT / "distribution-input.kicad_pcb").exists()
+    board = read_sexpr((SOURCE / "audio_core.kicad_pcb").read_text())
+    old = poses(board)
+    updated = {r: (*shifted(old[r][:2]), old[r][2]) for r in REFS if r != "R204"}
+    updated["R204"] = (48.4, 14, 0)
+    assert ReceivingSpace(board, REFS).accepts(updated)
+    set_poses(board, updated)
+    seen = set()
+    retained = []
+    for node in board:
+        if not isinstance(node, list) or not node or node[0] not in ("segment", "via"):
+            retained.append(node)
+            continue
+        ident = str(first(node, "uuid")[1])
+        if ident in TRANSLATE | REMOVE:
+            seen.add(ident)
+        if ident in REMOVE:
+            continue
+        if ident in TRANSLATE:
+            for key in (("at",) if node[0] == "via" else ("start", "end")):
+                first(node, key)[1:3] = shifted(first(node, key)[1:3])
+        retained.append(node)
+    assert seen == TRANSLATE | REMOVE
+    board = retained
+    captured = json.loads(CAPTURE.read_text())
+    verify_hashes(captured["source_sha256"])
+    captured["objects"] = [o for o in captured["objects"] if o["uuid"] not in REMOVE]
+    for obj in captured["objects"]:
+        if obj.get("ref") in REFS or obj["uuid"] in TRANSLATE:
+            translate_object(obj, mapper(old["R204"], updated["R204"]) if obj.get("ref") == "R204" else shifted)
+    nets = {str(n[2]): n[1] for n in children(board, "net")}
+    additions = []
+
+    def add_via(net, xy, purpose):
+        assert SignalScreen(captured).via_legal(net, xy), ("Via blocked", net, xy)
+        ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:settle-repack:{net}:{xy}"))
+        board.append([a("via"), [a("at"), *xy], [a("size"), .6], [a("drill"), .3],
+                      [a("layers"), "F.Cu", "B.Cu"], [a("net"), nets[net]], [a("uuid"), ident]])
+        polygons = shape_polygons(Point(xy).buffer(.3001, quad_segs=32))
+        captured["objects"].append(dict(uuid=ident, net=net, kind="PCB_VIA", position_mm=xy,
+                                        layers={layer: polygons for layer in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu")}))
+        additions.append(dict(kind="via", uuid=ident, net=net, xy_mm=xy, diameter_mm=.6, drill_mm=.3, purpose=purpose))
+
+    def add_path(net, layer, points, purpose, width=.2):
+        if width == .2:
+            assert SignalScreen(captured).legal(net, layer, points), ("Trace blocked", net, layer, points)
+        for start, end in zip(points, points[1:]):
+            assert math.dist(start, end) > 1e-7
+            ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:settle-repack:{net}:{layer}:{start}:{end}"))
+            board.append([a("segment"), [a("start"), *start], [a("end"), *end], [a("width"), width],
+                          [a("layer"), layer], [a("net"), nets[net]], [a("uuid"), ident]])
+            polygons = shape_polygons(LineString([start, end]).buffer(width/2+.0001, quad_segs=32))
+            captured["objects"].append(dict(uuid=ident, net=net, kind="PCB_TRACK", position_mm=start,
+                                            end_mm=end, width_mm=width, layers={layer: polygons}))
+            additions.append(dict(kind="segment", uuid=ident, net=net, layer=layer, start_mm=start,
+                                  end_mm=end, width_mm=width, purpose=purpose))
+
+    # The original decoupler trace also bridged two existing supply branches.
+    # Retain their connection explicitly before pruning private leaf stubs.
+    bridge = [[91.4, 23], [92.55, 23]]
+    screen = SignalScreen(captured)
+    assert all(LineString(bridge).distance(g) > d+.2 for other, g, d in screen.geometry["F.Cu"] if other != "V3V3_IO")
+    add_path("V3V3_IO", "F.Cu", bridge, "retained_supply_bridge", width=.6)
+    pruned = prune(captured)
+    assert not set(pruned) & {r["uuid"] for r in additions}
+    board = [n for n in board if not isinstance(n, list) or not n or n[0] not in ("segment", "via") or
+             first(n, "uuid")[1] not in pruned]
+    escapes = [dict(ref="U208", pin="3", net="/CODEC/DRIVER_SETTLE_READY", via=[48.195, 19.6],
+                    points=[[46.5, 18.1], [48.195, 19.6]]),
+               dict(ref="U208", pin="6", net="/CODEC/TIMER_OK", via=[45, 14],
+                    points=[[45.5, 16.9], [45, 14]])]
+    for row in escapes:
+        add_via(row["net"], row["via"], "reserved_control_escape")
+        add_path(row["net"], "F.Cu", row["points"], "reserved_control_escape")
+    add_via("/CODEC/CT_SETTLE", [46, 15.8], "private_settle_timing")
+    add_path("/CODEC/CT_SETTLE", "F.Cu", [[46, 16.9], [46, 15.8]], "private_settle_timing")
+    add_path("/CODEC/CT_SETTLE", "B.Cu", [[46, 15.8], [44.525, 17.5]], "private_settle_timing")
+    add_via("AGND", [46, 19], "settle_ground")
+    add_via("AGND", [50, 18.5], "settle_ground")
+    add_path("AGND", "F.Cu", [[46, 18.1], [46, 19]], "settle_ground")
+    add_path("AGND", "F.Cu", [[49.95, 17], [50, 18.5]], "settle_ground")
+    add_path("AGND", "B.Cu", [[47.475, 17.5], [49.8, 17.45], [50, 18.5]], "settle_ground")
+    add_via("V3V3_IO", [51, 13.8], "local_pullup_power")
+    add_path("V3V3_IO", "F.Cu", [[50, 14.7], [51, 13.8]], "local_pullup_power")
+    add_path("V3V3_IO", "B.Cu", [[49.3125, 14], [51, 13.8]], "local_pullup_power")
+    power_vias = [[44.5, 19.52], [49, 18.2]]
+    for xy in power_vias:
+        add_via("V3V3_IO", xy, "settle_power_entry")
+    add_path("V3V3_IO", "F.Cu", [[45.5, 18.1], [44.5, 19.52]], "settle_power_entry")
+    add_path("V3V3_IO", "F.Cu", [[48.05, 17], [49, 18.2]], "settle_power_entry")
+    add_path("V3V3_IO", "F.Cu", [[48.05, 17], [50, 14.7]], "settle_power_entry")
+    power_paths = []
+    for start, end in ((power_vias[0], power_vias[1]),):
+        screen = SignalScreen(captured)
+        candidates = []
+        # Both fresh power vias must join a second face.
+        for layer in ("B.Cu", "In2.Cu"):
+            # Pin 1 is SENSE; pin 4 and its decoupler retain their separate
+            # short supply entry. Keep this thin sensing branch isolated from
+            # every other V3V3 item except its two explicit plated endpoints.
+            obstacles = [g.buffer(d) for other, g, d in screen.geometry[layer] if other != "V3V3_IO"]
+            for obj in captured["objects"]:
+                if obj["net"] != "V3V3_IO" or not obj["layers"].get(layer):
+                    continue
+                if obj["kind"] == "PCB_VIA" and any(math.dist(obj["position_mm"], p) < 1e-7 for p in (start, end)):
+                    continue
+                from hardware.fabrication.route_nf_surface import shape
+
+                obstacles.append(shape(obj["layers"][layer]).buffer(.31))
+            obstacles += [Point(p).buffer(.611) for net, p in screen.vias if net == "V3V3_IO" and
+                          all(math.dist(p, q) > 1e-7 for q in (start, end))]
+            free = screen.outline.difference(unary_union(obstacles))
+            paths = [p for p in candidate_paths(start, end) if free.covers(LineString(p))]
+            if not paths:
+                grid = InnerGrid(free)
+                chain = grid.route(grid.anchors(start), set(grid.anchors(end)))
+                if chain:
+                    paths.append(grid.simplify([start, *[grid.xy(k) for k in chain], end]))
+            for points in paths:
+                assert free.covers(LineString(points))
+                candidates.append((LineString(points).length, layer, points))
+        assert candidates, ("Dedicated SENSE branch blocked", start, end)
+        length, layer, points = min(candidates, key=lambda r: r[0])
+        if length > 15:
+            (OUT / "power-routing-diagnostic.json").write_text(json.dumps(dict(
+                diagnostic_only=True, objects=captured["objects"], outline=captured["outline"], zones=captured["zones"],
+                candidates=candidates, fabrication_released=False), separators=(",", ":"))+"\n")
+        assert length+math.dist([45.5, 18.1], power_vias[0])+math.dist([48.05, 17], power_vias[1]) <= 12, "SENSE trace exceeds 12 mm"
+        add_path("V3V3_IO", layer, points, "settle_sense_branch", width=.2)
+        power_paths.append(dict(layer=layer, points_mm=points, planar_length_mm=length))
+    # Use the reserved GPIO vias on a second face; no dangling placeholder via
+    # is accepted as a completed pin escape.
+    import time
+
+    import hardware.fabrication.nf_multilayer_raster_directed as search
+    import hardware.fabrication.nf_pin_escape_routes as raster
+    import hardware.fabrication.route_nf_surface as surface
+    from hardware.fabrication.audio_main_global_controls import LAYERS, exact_fanouts, via_mask
+
+    surface.WIDTH = raster.WIDTH = search.WIDTH = .2
+    surface.MARGIN = .01
+    search.LAYERS, search.via_mask = LAYERS, via_mask
+    original_capture = json.loads(CAPTURE.read_text())
+    original_objects = {o["uuid"]: o for o in original_capture["objects"]}
+    current_objects = {o["uuid"]: o for o in captured["objects"]}
+    new_control_routes = []
+    for escape in escapes:
+        pad = next(o for o in original_objects.values() if o.get("ref") == escape["ref"] and o.get("pin") == escape["pin"])
+        origin_group = next(key for key, ids in original_capture["groups"].items() if pad["uuid"] in ids)
+        targets = {layer: [] for layer in LAYERS}
+        for key, ids in original_capture["groups"].items():
+            if key == origin_group or original_objects[ids[0]]["net"] != escape["net"]:
+                continue
+            if escape["net"] == "/CODEC/TIMER_OK" and not any(original_objects[i].get("ref") == "R204" and
+                    original_objects[i].get("pin") == "1" for i in ids):
+                # U209.2 is still boxed in. Join the accessible pull-up island
+                # first instead of steering the search into that closed pocket.
+                continue
+            for ident in ids:
+                obj = current_objects[ident]
+                if obj["kind"] == "PAD" and obj["pin"]:
+                    for fanout in exact_fanouts(SignalScreen(captured), obj, key):
+                        target = dict(fanout, runs=[(face, list(reversed(points))) for face, points in reversed(fanout["runs"])])
+                        for layer in LAYERS:
+                            targets[layer].append(target)
+                for layer in LAYERS:
+                    if not obj["layers"].get(layer):
+                        continue
+                    for point in [obj["position_mm"]]+([obj["end_mm"]] if "end_mm" in obj else []):
+                        targets[layer].append(dict(point=point, layers=[layer], runs=[], vias=[], cost=0., group=key))
+        start = dict(point=escape["via"], layers=["B.Cu", "In2.Cu"], runs=[], vias=[], cost=0., group=origin_group)
+        result = search.route_multi(SignalScreen(captured), escape["net"], [start], targets,
+                                    time.monotonic()+30, max_visits=500000)
+        if not result:
+            (OUT / "control-routing-diagnostic.json").write_text(json.dumps(dict(
+                diagnostic_only=True, objects=captured["objects"], outline=captured["outline"], zones=captured["zones"],
+                failed_net=escape["net"], start=start, targets=targets, fabrication_released=False), separators=(",", ":"))+"\n")
+        assert result, ("Reserved control exit did not join another native group", escape["net"])
+        existing_vias = [p for p in result["vias"] if any(o["kind"] == "PCB_VIA" and o["net"] == escape["net"] and
+                         math.dist(p, o["position_mm"]) < 1e-7 for o in captured["objects"])]
+        # An explicit end fanout may be reached on its own surface. Its
+        # proposed via then adds no layer connection and must not be emitted.
+        fresh = [p for p in result["vias"] if p not in existing_vias and len({layer for layer, points in result["runs"]
+                 if Point(p).distance(LineString(points)) < 1e-7}) >= 2]
+        result["vias"] = existing_vias+fresh
+        if len(fresh) > 4:
+            (OUT / "control-via-diagnostic.json").write_text(json.dumps(dict(diagnostic_only=True,
+                objects=captured["objects"], outline=captured["outline"], zones=captured["zones"],
+                result=result, fresh=fresh, fabrication_released=False), separators=(",", ":"))+"\n")
+        assert len(fresh) <= 4, ("Control via-count budget", len(fresh))
+        for xy in fresh:
+            add_via(escape["net"], xy, "completed_control_connection")
+        for layer, points in result["runs"]:
+            add_path(escape["net"], layer, points, "completed_control_connection")
+        result.update(net=escape["net"], source_groups=[[origin_group], [result["groups"][1]]], new_vias_mm=fresh)
+        new_control_routes.append(result)
+        print("Connected relocated", escape["net"], flush=True)
+    plan = json.loads((SOURCE / "plan.json").read_text())
+    for ref, pose in updated.items():
+        fp = footprints(board)[ref]
+        side = first(fp, "layer")[1][0]
+        plan["poses"][ref] = [*pose, side]
+        plan["expanded_receiving_bounds_mm"][ref] = courtyard(fp, side+".CrtYd")
+    for cell in plan["local_cells"]:
+        if cell["owner"] in REFS:
+            for terminal in cell["terminals"]:
+                terminal["owner_position_mm"] = shifted(terminal["owner_position_mm"])
+    geometry_board = [n for n in board if not isinstance(n, list) or not n or n[0] not in ("segment", "via", "zone")]
+    geometry_board += [copy.deepcopy(children(board, "zone")[0])]
+    parts, pins = netlist(SOURCE / "native-netlist.xml")
+    receiving = verify_geometry(geometry_board, plan, parts, pins)
+    applied = OUT / "applied-repack.py.txt"
+    shutil.copyfile(Path(__file__), applied)
+    for p in SOURCE.iterdir():
+        if p.suffix in (".kicad_sch", ".kicad_pro", ".kicad_sym", ".kicad_dru") or p.name in ("fp-lib-table", "sym-lib-table"):
+            shutil.copyfile(p, OUT / p.name)
+    shutil.copytree(SOURCE / "libraries", OUT / "libraries")
+    plan["source_sha256"].update(relative_hashes([applied, SOURCE / "plan.json"]))
+    (OUT / "plan.json").write_text(json.dumps(plan, indent=2)+"\n")
+    pcb = OUT / "distribution-input.kicad_pcb"
+    pcb.write_text(sexpr(board)+"\n")
+    captured["source_sha256"] = relative_hashes([applied, CAPTURE, SOURCE / "audio_core.kicad_pcb"])
+    (OUT / "planning-inputs.json").write_text(json.dumps(captured, separators=(",", ":"))+"\n")
+    inputs = [applied, CAPTURE, SOURCE / "routing-handoff.json", SOURCE / "audio_core.kicad_pcb", OUT / "plan.json",
+              ROOT / "audio_main_local_repack.py", ROOT / "audio_main_global_controls.py", ROOT / "audio_main_power_routes.py",
+              ROOT / "audio_main_power_pruning.py", ROOT / "nf_multilayer_raster_directed.py", ROOT / "nf_pin_escape_routes.py",
+              ROOT / "route_nf_surface.py"]
+    result = dict(source_sha256=relative_hashes(inputs), authored_PCB_sha256=sha(pcb), routes=new_control_routes,
+                  declared_pose_changes={r: dict(before=old[r], after=updated[r]) for r in sorted(REFS)},
+                  translated_copper_uuids=sorted(TRANSLATE), removed_copper_uuids=sorted(REMOVE),
+                  pruned_abandoned_power_copper_uuids=pruned,
+                  additions=additions, reserved_control_escapes=escapes, replacement_power_paths_mm=power_paths,
+                  receiving_geometry=receiving, native_checks_pending=True, fabrication_released=False)
+    (OUT / "distribution-construction.json").write_text(json.dumps(result, indent=2)+"\n")
+    print("Built private settling-supervisor relocation; two real GPIO escapes and short timing route; native checks pending")
+
+
+def native(action):
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    assert sha(OUT / "applied-repack.py.txt") == sha(Path(__file__))
+    if action == "fill":
+        from hardware.fabrication import audio_main_power_routes
+
+        audio_main_power_routes.OUT = OUT
+        audio_main_power_routes.fill()
+    else:
+        from hardware.fabrication.audio_main_native_review import review
+
+        review(OUT, SOURCE / "terminal-connectivity-review.json", CAPTURE,
+               OUT / "distribution-construction.json", OUT / "applied-repack.py.txt")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("build", "fill", "review"))
+    args = parser.parse_args()
+    {"build": build, "fill": lambda: native("fill"), "review": lambda: native("review")}[args.action]()

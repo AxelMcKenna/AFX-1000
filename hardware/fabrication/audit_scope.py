@@ -58,7 +58,7 @@ def render_readiness(report):
                     "clear native SMD copper by at least 0.170 mm at the drill edge; process acceptance remains open.",
                     "R319 common-mode feedback, C127 supply, thirteen local ground returns and global routing remain unfinished.",
                     "The existing direct high-frequency compensation capacitor tracks are unchanged."]
-            elif layout.get("routing_stage") in ("ground_02", "controls_01", "supplies_02", "supplies_06", "controls_02", "watchdog_repack_01"):
+            elif layout.get("routing_stage") in ("ground_02", "controls_01", "supplies_02", "supplies_06", "controls_02", "watchdog_repack_01", "settle_repack_01"):
                 lines += ["All 131 declared local signal/supply endpoints and all 20 declared local ground-return pairs are native-connected.",
                     "The In1 AGND plane connects every one of the 200 placed ground pads to the input ground.",
                     f"The candidate has {layout['tracks']} tracks and {layout['vias']} conventional 0.60/0.30 mm vias;",
@@ -76,12 +76,12 @@ def render_readiness(report):
                         "The 0.60 mm inner traces and short 0.20 mm surface branches preserve the earlier seventeen control pairs.",
                         "Native-refilled ground retains all 200 terminal connections. Distribution is incomplete and",
                         "current capacity, DC loss, return impedance, fault/thermal and process qualification remain open."]
-                elif layout.get("routing_stage") in ("supplies_06", "controls_02", "watchdog_repack_01"):
+                elif layout.get("routing_stage") in ("supplies_06", "controls_02", "watchdog_repack_01", "settle_repack_01"):
                     lines += ["All 161 placed supply/sense pads connect to their designated sources; all earlier local/control/ground pairs remain connected.",
                         "Wide 0.60 mm outer-layer routes and short 0.20 mm necks complete the placed rail connections.",
                         "The divider feed alone uses a 9.74 mm 0.20 mm global branch with a separate low-current construction assessment.",
                         "Codec supply lands are still missing. Rail capacity/drop, return/noise, fault/thermal and process qualification remain open."]
-                if layout.get("routing_stage") in ("controls_02", "watchdog_repack_01"):
+                if layout.get("routing_stage") in ("controls_02", "watchdog_repack_01", "settle_repack_01"):
                     lines += [f"A further {layout['added_global_control_pairs']} low-speed control joins retain the earlier seventeen control pairs;",
                         f"{layout['remaining_control_connections']} control connections remain open. Sensitive analog regions are protected on all routed layers.",
                         "Timing, signal integrity, coupling, EMI and installed fault behaviour still require qualification."]
@@ -89,6 +89,11 @@ def render_readiness(report):
                     lines += ["The watchdog and its two capacitors were relocated together, with renewed receiving inside the unchanged board allocation.",
                         "Two further control joins and the private timing-capacitor path are native-connected; all earlier connections remain intact.",
                         "Only the declared watchdog support copper and abandoned power leaves changed; amplifier positions and compensation copper remain exact."]
+                if layout.get("routing_stage") == "settle_repack_01":
+                    lines += ["The settling supervisor, two capacitors and local pull-up have renewed receiving in the unchanged board allocation.",
+                        "Two further control joins and its timing path are native-connected; the earlier watchdog timing pair remains intact.",
+                        "U208.1 uses a dedicated 10.073 mm, 0.20 mm SENSE branch; supply and pull-up feeds keep their separate short entries.",
+                        "The role/current/trace-drop assessment is conditional and does not establish installed noise, timing, fault or process acceptance."]
         else:
             lines += ["The combined schematic project has no PCB layout."]
     digital = report.get("shared_digital_core")
@@ -233,7 +238,9 @@ def run():
             sources.update(interfaces["current_source_sha256"])
         layout=shared.get("layout_candidate")
         if layout:
-            if layout.get("routing_stage") == "watchdog_repack_01":
+            if layout.get("routing_stage") == "settle_repack_01":
+                from hardware.fabrication.audit_audio_main_settle_repack import check as check_audio_placement
+            elif layout.get("routing_stage") == "watchdog_repack_01":
                 from hardware.fabrication.audit_audio_main_watchdog_repack import check as check_audio_placement
             elif layout.get("routing_stage") == "controls_02":
                 from hardware.fabrication.audit_audio_main_global_controls import check as check_audio_placement
@@ -262,19 +269,19 @@ def run():
                 native_missing_codec_footprint_findings=1,uncapped_open_connections=placement["uncapped_open_connections"],
                 current_source_bound_placement_evidence_matches=True,routed=False,
                 mechanical_receiving_complete=False,ready_for_fabrication=False)
-            if layout.get("routing_stage") in ("local_cells_02", "ground_02", "controls_01", "supplies_02", "supplies_06", "controls_02", "watchdog_repack_01"):
+            if layout.get("routing_stage") in ("local_cells_02", "ground_02", "controls_01", "supplies_02", "supplies_06", "controls_02", "watchdog_repack_01", "settle_repack_01"):
                 for key in ("local_connected_pairs", "connected_signal_supply_endpoints", "tracks", "vias",
                             "minimum_screened_drill_edge_to_SMD_copper_mm"):
                     layout[key] = placement[key]
-            if layout.get("routing_stage") in ("ground_02", "controls_01", "supplies_02", "supplies_06", "controls_02", "watchdog_repack_01"):
+            if layout.get("routing_stage") in ("ground_02", "controls_01", "supplies_02", "supplies_06", "controls_02", "watchdog_repack_01", "settle_repack_01"):
                 for key in ("connected_ground_pads", "connected_declared_local_ground_returns", "ground_plane_area_mm2"):
                     layout[key] = placement[key]
-            if layout.get("routing_stage") in ("controls_01", "supplies_02", "supplies_06", "controls_02", "watchdog_repack_01"):
+            if layout.get("routing_stage") in ("controls_01", "supplies_02", "supplies_06", "controls_02", "watchdog_repack_01", "settle_repack_01"):
                 layout["added_control_pairs"] = placement["added_control_pairs"]
-            if layout.get("routing_stage") in ("supplies_02", "supplies_06", "controls_02", "watchdog_repack_01"):
+            if layout.get("routing_stage") in ("supplies_02", "supplies_06", "controls_02", "watchdog_repack_01", "settle_repack_01"):
                 for key in ("placed_supply_pads", "connected_supply_pads", "added_supply_tracks", "added_supply_vias"):
                     layout[key] = placement[key]
-            if layout.get("routing_stage") in ("controls_02", "watchdog_repack_01"):
+            if layout.get("routing_stage") in ("controls_02", "watchdog_repack_01", "settle_repack_01"):
                 for key in ("added_global_control_pairs", "added_global_control_tracks", "added_global_control_vias",
                             "remaining_control_connections", "remaining_control_connections_by_net"):
                     layout[key] = placement[key]
