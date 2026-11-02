@@ -1,0 +1,264 @@
+"""Add surface control routes without changing audio lands, feedback or planes.
+
+Native operations run only in the isolated Linux KiCad image. Each action
+retains its executed source; historical source receipts are immutable.
+"""
+
+import argparse
+import itertools
+import json
+import math
+import shutil
+import sys
+import uuid
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-ground-02"
+OUT = ROOT / "staging/audio-main-controls-01"
+# Exact net names avoid accidentally treating coil, sense, timing-capacitor,
+# audio, reference, clock or supply nodes as digital control connections.
+CONTROL_NETS = frozenset(
+    "/BYPASS/" + name for name in (
+        "ARMED", "BYPASS_GATE", "BYPASS_SENSE", "CLEAR_N", "COIL_ENABLE",
+        "FINAL_ENABLE", "GAIN_EDGE", "GAIN_GATE", "GAIN_REQ", "GAIN_STABLE",
+        "HEARTBEAT", "INPUT_ENABLE", "INPUT_GATE", "INPUT_READY", "LOCAL_OK",
+        "MCU_PERMIT", "PERMIT_CLEAN", "PROCESS_HEALTH", "PROCESS_OK",
+        "TIMER_ENABLE", "TIMER_INPUT_OK",
+    )
+) | frozenset(
+    "/CODEC/" + name for name in (
+        "ADC_BIAS_IO", "CHIP_REQUEST", "CLK_VALID", "CODEC_FLAGS", "CODEC_PGOOD",
+        "CODEC_RUN", "DRIVER_SETTLE_READY", "PRE_ANALOG_OK", "RAMP_DONE",
+        "SETTLE_ENABLE", "SUPPLY_OK", "TIMER_OK",
+    )
+) | frozenset(("ANALOG_OK", "CHIP_EN", "ADC_DRV_ENABLE", "ADC_BIAS_WINDOW_OK"))
+MAX_ENDPOINT_DISTANCE = 12.0
+MAX_PATH_LENGTH = 16.0
+
+
+def snapshot(label):
+    path = OUT / ("applied-" + label + ".py.txt")
+    assert not path.exists()
+    shutil.copyfile(Path(__file__), path)
+    return path
+
+
+def capture():
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    import pcbnew
+
+    from hardware.fabrication.capture_board import polygons
+
+    assert not OUT.exists()
+    inputs = [SOURCE / name for name in ("audio_core.kicad_pcb", "routing-handoff.json", "drc.json")]
+    before = relative_hashes(inputs)
+    report = json.loads((SOURCE / "drc.json").read_text())
+    assert report["violations"] == report["ignored_checks"] == []
+    assert len(report["schematic_parity"]) == 1
+    board = pcbnew.LoadBoard(str(SOURCE / "audio_core.kicad_pcb"))
+    board.BuildConnectivity()
+    conn = board.GetConnectivity()
+    conn.RecalculateRatsnest()
+    assert conn.GetUnconnectedCount(False) == len(report["unconnected_items"]) == 393
+    items = [p for f in board.GetFootprints() for p in f.Pads()] + list(board.GetTracks())
+    rows, groups, seen = [], {}, set()
+    for item in items:
+        ident = item.m_Uuid.AsString()
+        if item.GetNetname() in CONTROL_NETS and ident not in seen:
+            members = {ident} | {v.m_Uuid.AsString() for v in conn.GetConnectedItems(item)}
+            # Zones have no control net and are never members of these groups.
+            assert all(v.GetNetname() == item.GetNetname() for v in conn.GetConnectedItems(item))
+            groups[min(members)] = sorted(members)
+            seen.update(members)
+        row = dict(uuid=ident, net=item.GetNetname(), kind=item.GetClass(),
+                   position_mm=[item.GetPosition().x / 1e6, item.GetPosition().y / 1e6], layers={})
+        for name in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"):
+            layer = board.GetLayerID(name)
+            if item.IsOnLayer(layer):
+                poly = pcbnew.SHAPE_POLY_SET()
+                item.TransformShapeToPolygon(poly, layer, 0, pcbnew.FromMM(.001), pcbnew.ERROR_OUTSIDE)
+                poly.Simplify()
+                row["layers"][name] = polygons(poly)
+        if row["kind"] == "PAD":
+            row.update(ref=item.GetParentFootprint().GetReference(), pin=item.GetNumber(),
+                       drill_mm=[item.GetDrillSize().x / 1e6, item.GetDrillSize().y / 1e6],
+                       npth=int(item.GetAttribute()) == int(pcbnew.PAD_ATTRIB_NPTH))
+        elif row["kind"] == "PCB_TRACK":
+            row["end_mm"] = [item.GetEnd().x / 1e6, item.GetEnd().y / 1e6]
+            row["width_mm"] = item.GetWidth() / 1e6
+        rows.append(row)
+    zones = []
+    for z in board.Zones():
+        for name in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"):
+            layer = board.GetLayerID(name)
+            if z.IsOnLayer(layer):
+                keep = z.GetIsRuleArea()
+                zones.append(dict(net=z.GetNetname(), layer=name, keepout=keep,
+                                  prohibit_tracks=bool(z.GetDoNotAllowTracks()) if keep else False,
+                                  prohibit_vias=bool(z.GetDoNotAllowVias()) if keep else False,
+                                  polygons=polygons(z.Outline() if keep else z.GetFilledPolysList(layer))))
+    outline = pcbnew.SHAPE_POLY_SET()
+    assert board.GetBoardPolygonOutlines(outline, False)
+    verify_hashes(before)
+    OUT.mkdir()
+    applied = snapshot("input-capture")
+    before.update(relative_hashes([applied, ROOT / "capture_board.py"]))
+    result = dict(source_sha256=before, native_version=pcbnew.GetBuildVersion(), objects=rows,
+                  groups=groups, zones=zones, outline=polygons(outline), native_uncapped_opens=393,
+                  fabrication_released=False)
+    (OUT / "native-inputs.json").write_text(json.dumps(result, separators=(",", ":")) + "\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Captured", len(rows), "objects and", len(groups), "native control-net islands")
+
+
+def plan_routes(captured):
+    from shapely.geometry import LineString
+
+    from hardware.fabrication.route_nf_surface import Screen, candidate_paths
+
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    ends, by_net = {}, {}
+    for key, ids in captured["groups"].items():
+        net = objects[ids[0]]["net"]
+        assert net in CONTROL_NETS
+        by_net.setdefault(net, []).append(key)
+        ends[key] = [(o, layer) for ident in ids if (o := objects[ident])["kind"] == "PAD" and o["pin"]
+                     for layer in ("F.Cu", "B.Cu") if layer in o["layers"]]
+    tasks = []
+    for net, keys in sorted(by_net.items()):
+        for left, right in itertools.combinations(keys, 2):
+            choices = sorted((math.dist(p["position_mm"], q["position_mm"]), layer, p["uuid"], q["uuid"])
+                             for p, layer in ends[left] for q, other in ends[right] if layer == other
+                             and math.dist(p["position_mm"], q["position_mm"]) <= MAX_ENDPOINT_DISTANCE)
+            if choices:
+                tasks.append((choices[0][0], net, left, right, choices))
+    screen = Screen(captured)
+    parent = {key: key for key in ends}
+
+    def root(key):
+        while parent[key] != key:
+            parent[key] = parent[parent[key]]
+            key = parent[key]
+        return key
+
+    routed = []
+    for _, net, left, right, choices in sorted(tasks):
+        if root(left) == root(right):
+            continue
+        accepted = []
+        for _, layer, p_id, q_id in choices:
+            p, q = objects[p_id], objects[q_id]
+            for points in candidate_paths(p["position_mm"], q["position_mm"]):
+                points = [xy for i, xy in enumerate(points) if not i or xy != points[i-1]]
+                length = sum(math.dist(p, q) for p, q in zip(points, points[1:]))
+                if 1e-6 < length <= MAX_PATH_LENGTH and screen.legal(net, layer, points):
+                    accepted.append((length, layer, p_id, q_id, points))
+        if not accepted:
+            continue
+        length, layer, p_id, q_id, points = min(accepted)
+        p, q = objects[p_id], objects[q_id]
+        routed.append(dict(net=net, layer=layer, points_mm=points, length_mm=length,
+                           source_groups=[left, right],
+                           endpoints=[[p["ref"], p["pin"]], [q["ref"], q["pin"]]]))
+        parent[root(right)] = root(left)
+        screen.added.append((net, layer, LineString(points)))
+    return routed
+
+
+def build():
+    from hardware.fabrication.audit_audio_main_ground import check
+
+    assert check() == json.loads((SOURCE / "routing-handoff.json").read_text())
+    assert not (OUT / "audio_core.kicad_pcb").exists()
+    captured = json.loads((OUT / "native-inputs.json").read_text())
+    verify_hashes(captured["source_sha256"])
+    routes = plan_routes(captured)
+    assert routes
+    board = read_sexpr((SOURCE / "audio_core.kicad_pcb").read_text())
+    original = sexpr(board)
+    count = len(board)
+    nets = {str(n[2]): n[1] for n in children(board, "net")}
+    for row in routes:
+        identifiers = []
+        for start, end in zip(row["points_mm"], row["points_mm"][1:]):
+            ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:AC04:controls01:{row['net']}:{row['layer']}:{start}:{end}"))
+            identifiers.append(ident)
+            board.append([a("segment"), [a("start"), *start], [a("end"), *end], [a("width"), .2],
+                          [a("layer"), row["layer"]], [a("net"), nets[row["net"]]], [a("uuid"), ident]])
+        row["segment_uuids"] = identifiers
+    assert sexpr(board[:count]) == original
+    for p in SOURCE.iterdir():
+        if p.suffix in (".kicad_sch", ".kicad_pro", ".kicad_sym", ".kicad_dru") or p.name in ("fp-lib-table", "sym-lib-table", "plan.json"):
+            shutil.copyfile(p, OUT / p.name)
+    shutil.copytree(SOURCE / "libraries", OUT / "libraries")
+    (OUT / "audio_core.kicad_pcb").write_text(sexpr(board) + "\n")
+    applied = snapshot("route-build")
+    inputs = [applied, ROOT / "route_nf_surface.py", SOURCE / "audio_core.kicad_pcb",
+              SOURCE / "routing-handoff.json", OUT / "native-inputs.json"]
+    result = dict(source_sha256=relative_hashes(inputs), routes=routes, added_segments=len(board)-count,
+                  candidate_PCB_sha256=sha(OUT / "audio_core.kicad_pcb"),
+                  allowed_control_nets=sorted(CONTROL_NETS), width_mm=.2, clearance_mm=.2,
+                  screen_margin_mm=.01, maximum_endpoint_distance_mm=MAX_ENDPOINT_DISTANCE,
+                  maximum_path_length_mm=MAX_PATH_LENGTH, no_added_vias=True,
+                  all_parent_objects_and_plane_fill_exact=True, native_checks_pending=True,
+                  installed_timing_coupling_EMI_and_fault_qualification=False, fabrication_released=False)
+    (OUT / "construction.json").write_text(json.dumps(result, indent=2) + "\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Added", len(routes), "control branches /", result["added_segments"], "segments; native checks pending")
+
+
+def review():
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    import pcbnew
+
+    from hardware.fabrication import audio_main_placement
+
+    assert not (OUT / "control-connectivity-review.json").exists()
+    construction = json.loads((OUT / "construction.json").read_text())
+    verify_hashes(construction["source_sha256"])
+    assert sha(OUT / "audio_core.kicad_pcb") == construction["candidate_PCB_sha256"]
+    applied = snapshot("native-review")
+    audio_main_placement.OUT = OUT
+    audio_main_placement.review()
+    board = pcbnew.LoadBoard(str(OUT / "audio_core.kicad_pcb"))
+    board.BuildConnectivity()
+    conn = board.GetConnectivity()
+    conn.RecalculateRatsnest()
+    pads = {(f.GetReference(), p.GetNumber()): p for f in board.GetFootprints() for p in f.Pads() if p.GetNumber()}
+
+    def connected(left, right):
+        p, q = pads[tuple(left)], pads[tuple(right)]
+        assert p.GetNetname() == q.GetNetname()
+        return p == q or q.m_Uuid.AsString() in {v.m_Uuid.AsString() for v in conn.GetConnectedItems(p)}
+
+    control_rows = [dict(endpoints=r["endpoints"], net=r["net"],
+                         native_connected=connected(*r["endpoints"])) for r in construction["routes"]]
+    prior = json.loads((SOURCE / "local-connectivity-review.json").read_text())["connections"]
+    local_rows = [dict(r, retained_native_connected=connected([r["ref"], r["pin"]], [r["owner"], r["owner_pin"]])) for r in prior]
+    ground_rows = [dict(ref=ref, pin=pin, native_connected_to_input_ground=connected([ref, pin], ["J701", "2"]))
+                   for (ref, pin), p in pads.items() if p.GetNetname() == "AGND"]
+    assert all(r["native_connected"] for r in control_rows)
+    assert all(r["retained_native_connected"] for r in local_rows)
+    assert len(ground_rows) == 200 and all(r["native_connected_to_input_ground"] for r in ground_rows)
+    result = dict(source_sha256=relative_hashes([applied, ROOT / "audio_main_placement.py",
+                  OUT / "audio_core.kicad_pcb", OUT / "construction.json", OUT / "placement-native-review.json"]),
+                  native_version=pcbnew.GetBuildVersion(), new_control_pairs=control_rows,
+                  retained_local_pairs=local_rows, ground_pads=ground_rows,
+                  uncapped_open_connections=conn.GetUnconnectedCount(False),
+                  tracks=sum(v.GetClass() == "PCB_TRACK" for v in board.GetTracks()),
+                  vias=sum(v.GetClass() == "PCB_VIA" for v in board.GetTracks()), fabrication_released=False)
+    (OUT / "control-connectivity-review.json").write_text(json.dumps(result, indent=2) + "\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Native connected", len(control_rows), "new control pairs; retained", len(local_rows), "local pairs and 200 grounds; opens", result["uncapped_open_connections"])
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("capture", "build", "review"))
+    args = parser.parse_args()
+    {"capture": capture, "build": build, "review": review}[args.action]()

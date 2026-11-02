@@ -1390,3 +1390,24 @@ at 143 opens and its explicit SD timing/process/assembly holds. The read-only
 performance observer's existing Scene/Release families are now exposed by its
 CLI, and help parsing confirms those choices. The complete unit remains
 unreleased; these verification results do not qualify assembled hardware.
+
+
+## AC04 additive control routing
+
+Selected `audio-main-controls-01` after isolated Linux KiCad 10.0.7 checks:
+17 additional control pairs / 27 surface segments reduce uncapped audio opens
+393 -> 376. Native geometry/ERC remain zero; the one missing U201 footprint
+parity finding remains explicit, with no ignored categories. The 475 tracks
+and 199 vias preserve every parent object, including all analog lands, feedback
+copper, mounts, sensitive-plane openings and filled In1 reference. Native
+connectivity rechecks all 138 explicit prior local pairs and all 200 ground
+pads against the new PCB. The remaining local ground pairs are covered by the
+complete ground-terminal witness. No vias or component moves were added.
+
+A fresh full native obstacle/island capture, exact copper/endpoint replay,
+seven mutation/replay tests, immutable executed-source snapshots and actual
+source-bound top/bottom/ground previews accompany the candidate. All three
+previews were inspected. Focused audio tests: 44 pass. The 15-role inventory
+replays with no missing sources. Timing/coupling/EMI/fault, the 376 remaining
+routes, ESS land data and whole-unit/process qualification remain open. No
+board release, order, upload, supplier message or Mac CAD launch occurred.

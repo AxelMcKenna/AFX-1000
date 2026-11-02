@@ -32,22 +32,25 @@ The [shared audio integration candidate](staging/audio-main-integration-04b/audi
 into 329 parts/971 terminals on one proposed PCB.
 Its native schematic export has zero ERC findings. The codec land remains
 unassigned; the source and interface audit does not adopt separate development-board copper.
-The [partial main audio PCB](staging/audio-main-ground-02/audio_core.kicad_pro) places 328 known electrical footprints
+The [partial main audio PCB](staging/audio-main-controls-01/audio_core.kicad_pro) places 328 known electrical footprints
 and six proposed mounts in the 150 × 63 mm allocation. Native geometry and ERC
 are zero with all categories enabled. The missing ESS footprint remains an explicit
-parity finding; 393 connections remain unrouted.
+parity finding; 376 connections remain unrouted.
 Its 99 local feedback/bypass/pump/clock/servo cells meet their declared endpoint
 limits. Full analog performance, codec placement, mating/harness fit and manufacturing remain open.
 
-![Partial main audio PCB](staging/audio-main-ground-02/plots/top.png)
+![Partial main audio PCB](staging/audio-main-controls-01/plots/top.png)
 All 131 declared local signal/supply endpoints and all 20 declared local ground-return pairs are native-connected.
 The In1 AGND plane connects every one of the 200 placed ground pads to the input ground.
-The candidate has 448 tracks and 199 conventional 0.60/0.30 mm vias;
+The candidate has 475 tracks and 199 conventional 0.60/0.30 mm vias;
 the minimum screened drill-edge-to-SMD gap is 0.170 mm. Twelve sensitive-node plane openings
 and six mounting-hardware copper exclusions remain protected. All amplifier placements and
 their direct compensation capacitor traces are retained. Four previously unrouted parts
 have renewed receiving after local changes. Full power/return, noise/stability, stack/process
 and whole-unit thermal/mating/harness qualification remain unfinished.
+An additional 17 low-speed control pairs are native-connected,
+using surface traces only. No parent analog copper, lands, drills or stored plane fill changes.
+Installed timing, coupling, EMI and fault behaviour still require qualification.
 
 The [combined digital/control candidate](staging/digital-four-clean-native-03/digital_core.kicad_pro) places the processor carrier,
 control expanders and LED drivers on one proposed notched 114 × 60 mm PCB.
