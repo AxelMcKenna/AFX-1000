@@ -1,9 +1,18 @@
 """Annotation normalization must not conceal an electrical or placement change."""
-import copy,unittest
-from hardware.fabrication.audit_digital_cell_native import normalize_annotation_half_turns
+import ast,copy,unittest
+from pathlib import Path
+from hardware.fabrication.source_audit_tools import normalize_annotation_half_turns
 from hardware.electronics.common.sexpr import first,children,read_sexpr
 
 class AnnotationBoundary(unittest.TestCase):
+    def test_pure_normalizer_is_the_exact_frozen_native_function(self):
+        root=Path(__file__).resolve().parents[2]/'hardware/fabrication'
+        functions=[]
+        for name in ('audit_digital_cell_native.py','source_audit_tools.py'):
+            tree=ast.parse((root/name).read_text())
+            fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='normalize_annotation_half_turns')
+            functions.append(ast.dump(fn,include_attributes=False))
+        self.assertEqual(*functions)
     def setUp(self):
         self.source=read_sexpr('(kicad_pcb (footprint "Lib:Part" (at 10 20 90) (layer "B.Cu") (property "Reference" "C1" (at 0 2 90) (layer "B.Fab")) (pad "1" smd rect (at -1 0 90) (size 1 2) (layers "B.Cu" "B.Mask" "B.Paste") (net "SUPPLY"))))')
     def test_annotation_half_turn_is_only_normalized_difference(self):

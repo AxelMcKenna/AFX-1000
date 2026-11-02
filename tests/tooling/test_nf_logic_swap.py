@@ -2,7 +2,8 @@
 import copy,json,unittest
 from pathlib import Path
 from hardware.electronics.common.sexpr import children,first,read_sexpr
-from hardware.fabrication.audit_nf_logic_swap import removed_nodes,verify_geometry,pad_review
+from hardware.fabrication.audit_nf_logic_swap import verify_geometry,pad_review
+from hardware.fabrication.source_audit_tools import removed_logic_swap_nodes as removed_nodes
 
 class SwapBoundary(unittest.TestCase):
     @classmethod

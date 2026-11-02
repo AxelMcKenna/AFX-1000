@@ -1,7 +1,8 @@
 """Require an explicit watchdog copper exception and preserve its pad connections."""
 import copy,json,unittest
 from pathlib import Path
-from hardware.fabrication.audit_nf_logic_swap_final import removed_nodes,verify_geometry,pad_review
+from hardware.fabrication.audit_nf_logic_swap_final import verify_geometry,pad_review
+from hardware.fabrication.source_audit_tools import removed_stage_repack_nodes as removed_nodes
 from hardware.electronics.common.sexpr import children,first,read_sexpr
 
 class StageRepackBoundary(unittest.TestCase):
