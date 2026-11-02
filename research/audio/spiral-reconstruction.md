@@ -1,5 +1,7 @@
 # Spiral reconstruction — updated 30 October 2026
 
+The later [2 November tempo checkpoint](tempo-transitions.md) extends the measured path to declared host-synchronized 120 → 137 → 91 BPM programs and enlarges borrowed return storage without adding prepared audio allocation. The dated results below describe the original manual-120 qualification.
+
 Spiral Up and Down now run in the playable Engine for Default settings at
 48 kHz and manual 120 BPM. The live Engine passes 1,709 held-control reference
 programs and 336 moving-control, startup and direction-switch programs.

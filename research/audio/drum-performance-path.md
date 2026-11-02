@@ -2,7 +2,7 @@
 
 The 1 November 2026 pass compares the actual shared engine with RMX-1000 Plug-in 2.2.0 at 48 kHz. It covers moving Scene controls, all three Isolator modes, Release, effect switching, host tempo changes and drums mixed with synthetic external input. It does **not** establish a whole-device percentage or physical RMX-1000 equivalence.
 
-The initial checkpoint and its source/binary bindings are in the [performance validation receipt](measurements/2026-11-01-performance-path-validation.json). The later [Scene-switch checkpoint](scene-switching.md) updates selection to 9/9 and the declared total to 43/54; its separate receipt binds the current model. These are ten-second programs with multiple pads, rolls or overdubs, varied callbacks, pitch and level. Each active program has a separately rendered control containing the same source and drum commands with the effects removed.
+The initial checkpoint and its source/binary bindings are in the [performance validation receipt](measurements/2026-11-01-performance-path-validation.json). The later [Scene-switch checkpoint](scene-switching.md) qualifies selection at 9/9. The [2 November tempo checkpoint](tempo-transitions.md) qualifies tempo at 9/9 and updates the declared total to 50/54; its separate receipt binds the current model. These are ten-second programs with multiple pads, rolls or overdubs, varied callbacks, pitch and level. Each active program has a separately rendered control containing the same source and drum commands with the effects removed.
 
 | Fresh family | Active programs passing every gate | Main remaining issue |
 | --- | --- | --- |
@@ -10,11 +10,11 @@ The initial checkpoint and its source/binary bindings are in the [performance va
 | Scene plus moving Isolator bands | 9/9 | Wider independent routes, profiles and tempos remain outside this fixture |
 | Release mid-pattern | 8/9 | Back Spin combined with Reverb Up |
 | Scene selection and enable/disable | 9/9 | Arbitrary pairs, interrupted switches, Noise and wider profiles/tempos remain outside this fixture |
-| Host tempo 120 → 137 → 91 BPM | 2/9 | Echo/filter delay geometry and Spiral outside manual 120 BPM |
+| Host tempo 120 → 137 → 91 BPM | 9/9 | Other tempo sequences, transport gestures, profiles and independent routes remain outside this fixture |
 | Source changes with external input | 9/9 | Wider material, levels and User settings |
-| **Declared active programs** | **43/54** | Coverage count, not device accuracy |
+| **Declared active programs** | **50/54** | Coverage count, not device accuracy |
 
-All 54 matched drum/source controls pass, using the final boundary regression for the tempo family and complete prediction-WAV identity for the other families. All nine additional fresh tempo controls also pass. Reverb Up and Down are the two qualifying active tempo cases. The full-output HPF motion windows pass, but its effect-difference windows still fail; it remains unqualified. Earlier failed and interrupted campaigns retain their original verdicts.
+All 54 matched drum/source controls pass, using the final boundary regression for the tempo family and complete prediction-WAV identity for the other families. All nine additional fresh tempo controls also pass. The initial checkpoint qualified Reverb Up and Down; the subsequent tempo checkpoint qualifies all nine declared active tempo cases, plus nine fresh timing holdouts. The full-output HPF motion windows pass, but its effect-difference windows still fail; it remains unqualified. Earlier failed and interrupted campaigns retain their original verdicts.
 
 ## What changed and how it was identified
 
@@ -50,7 +50,7 @@ The [retained-energy auditor](../../tools/rmx_performance_path_audit.py) indepen
 
 All 108 performance delivery comparisons and 14 additional asymmetric-input Noise comparisons are sample-identical to native output. Each format passes 363 runtime checks, including Release return without UI dispatch, real-time re-enable using separate off/on callbacks and offline re-enable after host feedback. The host explicitly sets and reads back the AUv2 OfflineRender property; JUCE's generic host flag alone did not forward it. Failed preflight captures remain in the provenance archive.
 
-The final checks pass 10 native suites, two ASAN/UBSAN suites, 11 Python tooling tests and all 16 firmware-host tests. The current firmware tree includes concurrent integration repairs; its former factory-silence failure no longer reproduces. Engine object size is 50,688 bytes, within the 65,536-byte limit, with unchanged 30,100,112-byte prepared audio-buffer storage. Allocation guards pass.
+The initial checkpoint passed 10 native suites, two ASAN/UBSAN suites, 11 Python tooling tests and all 16 firmware-host tests. The current tempo receipt records 12 native suites, three sanitizer suites, 11 tooling tests and 16 firmware-host tests. The current firmware tree includes concurrent integration repairs; its former factory-silence failure no longer reproduces. Engine object size is 50,688 bytes, within the 65,536-byte limit, with unchanged 30,100,112-byte prepared audio-buffer storage. Allocation guards pass.
 
 All capture workflows run serially, enforce a 512 MiB temporary-file budget and delete audio before proceeding. Retained artifacts contain numerical diagnostics, hashes, compact plans and verdicts only. No reference assembly or captured audio is distributed. The pause marker stays in place. Only the validated current playable preview is retained.
 
