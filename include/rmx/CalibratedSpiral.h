@@ -1,21 +1,24 @@
 #pragma once
 #include "rmx/Dsp.h"
+#include "rmx/DelayRetiming.h"
 #include <array>
 #include <cstdint>
 #include <span>
 
 namespace rmx {
-// Default48k/manual120 Spiral, on the shared32-frame source clock.
+// Default48k Spiral, on the shared32-frame source clock.
 // Long storage is borrowed from legacy Scene buffers; no callback allocation.
 class CalibratedSpiral {
 public:
     struct Controls {unsigned main{128},time{},pitch{};bool enabled{true};int direction{-1};};
     static constexpr size_t rawStorageFrames=32768;
-    static constexpr size_t storageFrames=32768+4096+4*24004;
+    static constexpr size_t returnStorageFrames=72004;
+    static constexpr size_t storageFrames=32768+4096+4*returnStorageFrames;
     bool prepare(std::span<Stereo> storage,std::span<Stereo> rawStorage) noexcept;
     void reset() noexcept;
     void setStorageState(bool active,bool rawAvailable) noexcept;
     void setControls(Controls target) noexcept;
+    void setTempo(double bpm) noexcept {echoes.beatFrames=static_cast<unsigned>(std::floor(60000/std::clamp(bpm,40.,240.)))*48;}
     void startSelected(bool direction) noexcept {
         restartPrivate(direction);first=false;lastDesired=static_cast<int>(direction);commonWet=1;commonStep=0;pendingRestart=-1;
     }
@@ -88,14 +91,16 @@ struct Pitch {
 struct Return {
     std::array<std::span<Stereo>,4> lines;
     std::array<float,4> weights{},targets{},steps{},readGain{};unsigned writer{},age{},blocks{},lastTime{};
+    std::array<DelayRetiming,4> retiming{};unsigned beatFrames{24000};
     float sendGate{1};bool enabled{true};
     float activation{},activationTarget{-1},activationStep{};unsigned activationBlocks{};
     void restart(){
         weights=targets=steps=readGain={};writer=age=blocks=lastTime=activationBlocks=0;
-        sendGate=1;enabled=true;activation=activationStep=0;activationTarget=-1;
+        sendGate=1;enabled=true;activation=activationStep=0;activationTarget=-1;retiming={};
     }
     void controls(unsigned time,unsigned main,bool active){
         enabled=active;
+        for(unsigned i=0;i<4;++i)retiming[i].beginBlock(beatFrames*(i+1)*.25);
         if(time!=lastTime){
             lastTime=time;targets={};const float position=std::clamp((static_cast<int>(time)-3)/62.25f,0.f,4.f);const auto upper=std::min(3u,static_cast<unsigned>(position));
             if(upper>0)targets[upper-1]=upper+1-position;targets[upper]=position-upper;if(position==4)targets[3]=1;
@@ -107,10 +112,13 @@ struct Return {
     Stereo process(Stereo input){
         Stereo sum{};activation+=activationStep;sendGate=std::clamp(sendGate+(enabled?.00625f:-.00625f),0.f,1.f);
         for(unsigned i=0;i<4;++i){
-            weights[i]+=steps[i];const unsigned delay=(i+1)*6000;readGain[i]=std::clamp(readGain[i]+((age/32*32)>=delay?.00625f:-.00625f),0.f,1.f);const auto tap=age>=delay?lines[i][(writer+24004-delay)%24004]*readGain[i]:Stereo{};
+            weights[i]+=steps[i];const auto delay=static_cast<unsigned>(retiming[i].read);
+            readGain[i]=std::clamp(readGain[i]+((age/32*32)>=beatFrames*(i+1)/4?.00625f:-.00625f),0.f,1.f);
+            auto tap=age>=delay?lines[i][(writer+returnStorageFrames-delay)%returnStorageFrames]*readGain[i]:Stereo{};
+            const float retimeGain=retiming[i].advance();if(retimeGain!=1)tap=tap*retimeGain;
             sum=sum+tap;const auto feed=(((input*weights[i])*activation)*sendGate)*.7079457640647888f;lines[i][writer]=feed+tap*.75f;
         }
-        writer=(writer+1)%24004;age=std::min(age+1,24032u);return sum*.7f;
+        writer=(writer+1)%returnStorageFrames;age=std::min(age+1,72032u);return sum*.7f;
     }
     void endBlock(){
         if(blocks&&!--blocks){weights=targets;steps={};}

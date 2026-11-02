@@ -27,6 +27,10 @@ def observe(frame,location,internal):
     row['modulation_edges']=[read(0xa610,'<f')[0],read(0xa650,'<f')[0]]
     row['return_weights']=read(0x9c40,'<12f');row['return_weight_blocks']=read(0x9c70,'<H')[0]
     row['echo_delay_words_a484']=read(0xa484,'<4I');row['echo_delay_words_a494']=read(0xa494,'<4I')
+    row['return_retime_gains']=read(0xa5d4,'<4f')
+    row['return_startup_read_gains']=read(0xbc24,'<4f')
+    if row['controls'][1] in [4,9]:
+        row['spiral']=dict(target_milliseconds=read(0x9302,'<H')[0],previous_beat_milliseconds=read(0x9300,'<H')[0],main=read(0x933e,'<H')[0],loop_delay=read(0xe578,'<d')[0],input_average=read(0xe580,'<f')[0],held_peak=read(0xe584,'<f')[0],averaging_count=read(0xe588,'<I')[0],delay_slew_limit=read(0xe52a,'<H')[0],feedback=read(0xa810,'<3f'),wet=read(0x98c8,'<3f'),input_gain=read(0xe854,'<f')[0])
     if row['controls'][1]==8:row['hold_clock']=dict(fraction=read(0xbbe0,'<f')[0],count=read(0xbbec,'<H')[0],choice=read(0xbbee,'<H')[0],modulation=read(0xa610,'<32f'))
     with OUTPUT.open('a') as stream:stream.write(json.dumps(row)+'\n')
     CURSOR+=1

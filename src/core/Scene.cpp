@@ -38,7 +38,7 @@ void SceneProcessor::reset() noexcept {
     filterMotion.reset();filterMotionValues={};filterMotionCursor=0;
     noiseRandomSource=nullptr;
     noiseSidechainDetector={};noiseSidechainThreshold=0;noiseSidechainAvailable=false;
-    previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;echoReadGain=0;selectedEchoGain=1;sharedStartup=false;
+    previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;echoReadGain=0;selectedEchoGain=1;sharedStartup=false;echoRetiming={};
 }
 void SceneProcessor::configure(const SceneSettings& next) noexcept {
     if(next==settings)return;
@@ -146,10 +146,14 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
     const double safeBpm=std::clamp(bpm,40.,240.);
     const double beatFrames=(type==1||measuredNoise)?rate*std::floor(60000/safeBpm)/1000:rate*60/safeBpm;
     const double delay=std::clamp(beatFrames*sceneDelayBeats[static_cast<size_t>(choice)],2.,rate*14);
-    auto delayed=echo.read(delay);
+    if(type==1&&sharedStartup&&(frame&31u)==0)echoRetiming.beginBlock(beatFrames);
+    const double readDelay=type==1&&sharedStartup?std::clamp(echoRetiming.read*sceneDelayBeats[static_cast<size_t>(choice)],2.,rate*14):delay;
+    auto delayed=echo.read(readDelay);
     if(type==1&&sharedStartup){
         if(frame>=32+static_cast<uint64_t>(std::ceil(delay/32)*32))echoReadGain=std::min(1.f,echoReadGain+.00625f);
         delayed=delayed*echoReadGain;
+        const float retimeGain=echoRetiming.advance();
+        if(retimeGain!=1)delayed=delayed*retimeGain;
     }
     sidechainEnvelope+=(sidechain-sidechainEnvelope)*(sidechain>sidechainEnvelope?sideAttack:sideRelease);
     float cutoff=sweep(macro);

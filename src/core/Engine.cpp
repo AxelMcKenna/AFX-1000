@@ -458,7 +458,7 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
             scenePending[i]=result;
         }
     }
-    factorySpiral.recordRaw(spiralSource);spiralControls.enabled=measuredSpiral&&routingCollected.back().sceneEnabled;factorySpiral.setControls(spiralControls);
+    factorySpiral.recordRaw(spiralSource);spiralControls.enabled=measuredSpiral&&routingCollected.back().sceneEnabled;factorySpiral.setControls(spiralControls);factorySpiral.setTempo(routingCollected.back().bpm);
     if(measuredSpiral)factorySpiral.process(spiralSource,scenePending);
     downControls.enabled=measuredDown&&routingCollected.back().sceneEnabled;reverbDown.setControls(downControls);
     upControls.enabled=measuredUp&&routingCollected.back().sceneEnabled;reverbUp.setControls(upControls);
@@ -576,7 +576,7 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         &&sceneSettings.reverbTime[0]==1&&sceneSettings.reverbFilter[0]==2&&sceneSettings.decay==.72f;
     auto factorySceneSettings=SceneSettings{};factorySceneSettings.type=sceneSettings.type;
     const bool measuredSpiral=sr==48000&&(sceneSettings.type==3||sceneSettings.type==8)&&sceneSettings==factorySceneSettings
-        &&get(Param::AutoTempo)<.5f&&get(Param::Tempo)==120;
+        &&48*std::floor(60000/std::clamp(bpm,40.,240.))<CalibratedSpiral::rawStorageFrames-2;
     const bool rawSpiral=sr==48000&&(get(Param::UserSettings)<.5f||sceneSettings==factorySceneSettings)&&((sceneSettings.type!=3&&sceneSettings.type!=8)||measuredSpiral);
     const bool coldSceneProfile=sceneSettings==factorySceneSettings&&(sceneSettings.type==0||sceneSettings.type==1
         ||sceneSettings.type==5||sceneSettings.type==6||sceneSettings.type==7)

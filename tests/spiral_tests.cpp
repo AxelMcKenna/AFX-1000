@@ -70,6 +70,20 @@ int main(){try{
             require(outA[i].l==outB[i].l&&outA[i].r==outB[i].r,"Spiral output depends on invalid backing-buffer contents");
         }
     }
+    // A slow-tempo return must survive complete wraps of the enlarged loaned
+    // rings, even when the backing storage initially contains NaNs.
+    a.reset();b.reset();std::fill(coreA.begin(),coreA.end(),poison);std::fill(coreB.begin(),coreB.end(),rmx::Stereo{});
+    std::fill(rawA.begin(),rawA.end(),poison);std::fill(rawB.begin(),rawB.end(),rmx::Stereo{});
+    a.setStorageState(true,true);b.setStorageState(true,true);a.setTempo(91);b.setTempo(91);
+    a.setControls({255,255,131,true,1});b.setControls({255,255,131,true,1});
+    for(unsigned block=0;block<5000;++block){
+        for(unsigned i=0;i<32;++i){const float phase=static_cast<float>(block*32+i);input[i]={.07f*std::sin(phase*.137f),.05f*std::cos(phase*.079f)};}
+        a.recordRaw(input);b.recordRaw(input);a.process(input,outA);b.process(input,outB);
+        for(unsigned i=0;i<32;++i){
+            require(std::isfinite(outA[i].l)&&std::isfinite(outA[i].r),"Slow Spiral return read unwritten storage");
+            require(outA[i].l==outB[i].l&&outA[i].r==outB[i].r,"Wrapped Spiral return depends on poisoned storage");
+        }
+    }
     // An invalid re-prepare must detach storage before any subsequent callback.
     require(!a.prepare(std::span(coreA).first(coreA.size()-1),rawA),"Undersized Spiral storage accepted");
     a.setStorageState(true,true);a.recordRaw(input);a.process(input,outA);
@@ -92,7 +106,7 @@ int main(){try{
         for(unsigned block=0;block<500;++block){
             engine.params.set(rmx::Param::SceneType,types[(block/5)%10]);
             engine.params.set(rmx::Param::UserSettings,block%23==0?1.f:0.f);
-            engine.params.set(rmx::Param::Tempo,block%29==0?137.f:120.f);
+            constexpr float tempos[]{40,88,91,120,137,240};engine.params.set(rmx::Param::Tempo,tempos[(block/29)%6]);
             engine.params.set(rmx::Param::SceneSource,block%31==0?1.f:0.f);
             engine.params.set(rmx::Param::SceneOn,block%17?1.f:0.f);
             engine.params.set(rmx::Param::SceneDepth,(block*17%256)/255.f);

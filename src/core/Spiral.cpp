@@ -7,7 +7,7 @@ bool CalibratedSpiral::prepare(std::span<Stereo> storage,std::span<Stereo> rawSt
     if(!invalid){const std::less<const Stereo*> less;invalid=less(storage.data(),rawStorage.data()+rawStorageFrames)&&less(rawStorage.data(),storage.data()+storageFrames);}
     if(invalid){history=rawHistory={};pitch.ring={};echoes.lines={};prepared=storageActive=rawActive=false;rawWriter=rawWritten=0;return false;}
     history=storage.first(32768);pitch.ring=storage.subspan(32768,4096);
-    for(unsigned i=0;i<4;++i)echoes.lines[i]=storage.subspan(32768+4096+i*24004,24004);
+    for(unsigned i=0;i<4;++i)echoes.lines[i]=storage.subspan(32768+4096+i*returnStorageFrames,returnStorageFrames);
     rawHistory=rawStorage.first(rawStorageFrames);prepared=true;reset();return true;
 }
 void CalibratedSpiral::configure() noexcept {
@@ -19,9 +19,9 @@ void CalibratedSpiral::configure() noexcept {
 }
 void CalibratedSpiral::resetState(bool preserveRaw) noexcept {
     const auto h=history,r=rawHistory,p=pitch.ring;const auto e=echoes.lines;const auto target=controls;
-    const auto write=rawWriter,written=rawWritten;const bool ready=prepared,active=storageActive,raw=rawActive;
+    const auto write=rawWriter,written=rawWritten,beatFrames=echoes.beatFrames;const bool ready=prepared,active=storageActive,raw=rawActive;
     *this=CalibratedSpiral{};history=h;rawHistory=r;pitch.ring=p;echoes.lines=e;controls=target;
-    prepared=ready;storageActive=active;rawActive=raw;if(preserveRaw){rawWriter=write;rawWritten=written;}configure();
+    prepared=ready;storageActive=active;rawActive=raw;echoes.beatFrames=beatFrames;if(preserveRaw){rawWriter=write;rawWritten=written;}configure();
 }
 void CalibratedSpiral::reset() noexcept {resetState(false);storageActive=rawActive=false;}
 void CalibratedSpiral::setStorageState(bool active,bool rawAvailable) noexcept {
@@ -41,7 +41,7 @@ void CalibratedSpiral::recordRaw(std::span<const Stereo,32> input) noexcept {
 }
 unsigned CalibratedSpiral::targetDelay(unsigned raw) const noexcept {
         const float p=raw<=3?0.f:(raw-3)*.003968254197388887f;
-        const auto ms=down?(raw<=3?10u:static_cast<unsigned>(p*490.f+10.f)):(raw<=3?100u:static_cast<unsigned>(((255-raw)*.003968254197388887f)*95.f+5.f));
+        const auto ms=down?(raw<=3?10u:static_cast<unsigned>(p*(static_cast<float>(echoes.beatFrames/48)-10.f)+10.f)):(raw<=3?100u:static_cast<unsigned>(((255-raw)*.003968254197388887f)*95.f+5.f));
         return ms*48;
     }
 float CalibratedSpiral::targetGain(float loopGain) const noexcept {
@@ -55,7 +55,7 @@ void CalibratedSpiral::restartPrivate(bool direction) noexcept {
         pitch.restart(direction);echoes.restart();lastDesired=-2;
     }
 void CalibratedSpiral::updateDelay(unsigned target) noexcept {
-        const int difference=static_cast<int>(target)-static_cast<int>(delay);constexpr int limit=24000;
+        const int difference=static_cast<int>(target)-static_cast<int>(delay);const int limit=static_cast<int>(echoes.beatFrames);
         if(difference>0){
             const int amount=std::max(difference,limit);const float z=1-(1.f/static_cast<float>(limit))*static_cast<float>(amount);
             targetVelocity=(1-(z*z)*z)*(down?.17001047730445862f:.10000000149011612f)+.009999999776482582f;
@@ -89,7 +89,8 @@ void CalibratedSpiral::process(std::span<const Stereo,32> input,std::span<Stereo
         float peak=0;Block wet{},delayed{};
         for(unsigned i=0;i<32;++i){peak=std::max(peak,std::abs((input[i].l+input[i].r)*.5f));inputGain+=inputStep;inputGate=std::clamp(inputGate+(active?.00625f:-.00625f),0.f,1.f);wet[i]=(input[i]*inputGate)*inputGain;}
         if(inputGain<std::abs(inputStep))inputGain=0;if(inputGain>1-std::abs(inputStep))inputGain=1;
-        const float weighted=average*186.f+peak;average=static_cast<float>(static_cast<double>(weighted)/187.);held=std::max(held,average);
+        const auto averaging=std::max(120u,static_cast<unsigned>((echoes.beatFrames/48)*.375f));
+        const float weighted=average*static_cast<float>(averaging-1)+peak;average=static_cast<float>(static_cast<double>(weighted)/averaging);held=std::max(held,average);
         inputFilter.process(wet,wet);const int previousInteger=static_cast<int>(delay);updateDelay(targetDelay(controls.main));
         std::array<int,32> integers{};std::array<float,32> fractions{};
         for(unsigned i=0;i<32;++i){

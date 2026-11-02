@@ -1,5 +1,6 @@
 #pragma once
 #include "Dsp.h"
+#include "DelayRetiming.h"
 #include <array>
 #include <cstdint>
 
@@ -18,12 +19,12 @@ public:
         for(auto& line:lines)line.reset();
         for(auto& channel:filters)for(auto& filter:channel)filter.reset();
         age=0;readGain={};lastTime=-1;dynamicWeights=false;weights=weightTargets=weightSteps=oldWeights={};weightRemaining=0;weightSwitchAge=0;
-        selectionGain=1;selectionWarm=false;
+        selectionGain=1;selectionWarm=false;retiming={};
     }
     // Constant-time transition: old delay contents are ignored until replaced.
     void restart(Profile next) noexcept {
         profile=next;age=0;readGain={};lastTime=-1;dynamicWeights=false;weights=weightTargets=weightSteps=oldWeights={};weightRemaining=0;weightSwitchAge=0;
-        selectionGain=1;selectionWarm=false;
+        selectionGain=1;selectionWarm=false;retiming={};
         for(auto& channel:filters)for(auto& filter:channel) {
             filter.configure(next==Profile::crush?60:283.99944,rate);filter.reset();
         }
@@ -58,12 +59,16 @@ public:
         const double send=profile==Profile::spiral?0.7079457843841379:1;
         Stereo returned{};
         for(size_t i=0;i<lines.size();++i) {
-            const double delay=beat*(i+1)*.25;
+            const double requestedDelay=beat*(i+1)*.25;
+            if(filterInput&&(age&31u)==0)retiming[i].beginBlock(requestedDelay);
+            const double delay=filterInput?retiming[i].read:requestedDelay;
             auto tap=age>=static_cast<uint64_t>(delay)?lines[i].read(delay):Stereo{};
             if(filterInput){
                 const auto firstRead=static_cast<uint64_t>(std::ceil(delay/32)*32);
                 if(age>=firstRead)readGain[i]=std::min(1.f,readGain[i]+.00625f);
                 tap=tap*readGain[i];
+                const float retimeGain=retiming[i].advance();
+                if(retimeGain!=1)tap=tap*retimeGain;
             }
             if(dynamicWeights){
                 // Static output weighting commutes with these linear loops.
@@ -101,6 +106,7 @@ private:
     std::array<FractionalDelay,4> lines;
     std::array<std::array<HighPass,2>,2> filters;
     std::array<float,4> readGain{};
+    std::array<DelayRetiming,4> retiming{};
     std::array<float,4> weights{},weightTargets{},weightSteps{},oldWeights{};
     float selectionGain{1};bool selectionWarm{};
     uint64_t weightSwitchAge{};unsigned weightRemaining{};int lastTime{-1};bool dynamicWeights{};
