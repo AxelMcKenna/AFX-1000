@@ -50,7 +50,14 @@ def render_readiness(report):
                 f"parity finding; {layout['uncapped_open_connections']} connections remain unrouted.",
                 "Its 99 local feedback/bypass/pump/clock/servo cells meet their declared endpoint",
                 "limits. Full analog performance, codec placement, mating/harness fit and manufacturing remain open.",
-                "", "![Partial main audio PCB placement](staging/audio-main-placement-02/plots/top.png)"]
+                "", f"![Partial main audio PCB]({layout.get('preview', 'staging/audio-main-placement-02/plots/top.png')})"]
+            if layout.get("routing_stage") == "local_cells_02":
+                lines += [f"Its {layout['local_connected_pairs']} native-confirmed local pairs include",
+                    f"{layout['connected_signal_supply_endpoints']} of 131 declared signal/supply endpoints and seven actual power-ground pairs.",
+                    "The 257 tracks retain 0.20 mm width. Sixteen conventional 0.60/0.30 mm vias",
+                    "clear native SMD copper by at least 0.170 mm at the drill edge; process acceptance remains open.",
+                    "R319 common-mode feedback, C127 supply, thirteen local ground returns and global routing remain unfinished.",
+                    "The existing direct high-frequency compensation capacitor tracks are unchanged."]
         else:
             lines += ["The combined schematic project has no PCB layout."]
     digital = report.get("shared_digital_core")
@@ -183,7 +190,10 @@ def run():
             sources.update(interfaces["current_source_sha256"])
         layout=shared.get("layout_candidate")
         if layout:
-            from hardware.fabrication.audit_audio_main_placement import check as check_audio_placement
+            if layout.get("routing_stage") == "local_cells_02":
+                from hardware.fabrication.audit_audio_main_routes import check as check_audio_placement
+            else:
+                from hardware.fabrication.audit_audio_main_placement import check as check_audio_placement
 
             layout=dict(layout)
             placement=check_audio_placement()
@@ -197,6 +207,10 @@ def run():
                 native_missing_codec_footprint_findings=1,uncapped_open_connections=placement["uncapped_open_connections"],
                 current_source_bound_placement_evidence_matches=True,routed=False,
                 mechanical_receiving_complete=False,ready_for_fabrication=False)
+            if layout.get("routing_stage") == "local_cells_02":
+                for key in ("local_connected_pairs", "connected_signal_supply_endpoints", "tracks", "vias",
+                            "minimum_screened_drill_edge_to_SMD_copper_mm"):
+                    layout[key] = placement[key]
             shared["layout_candidate"]=layout
     digital = scope.get("shared_digital_core")
     if digital:

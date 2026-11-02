@@ -32,14 +32,20 @@ The [shared audio integration candidate](staging/audio-main-integration-04b/audi
 into 329 parts/971 terminals on one proposed PCB.
 Its native schematic export has zero ERC findings. The codec land remains
 unassigned; the source and interface audit does not adopt separate development-board copper.
-The [partial main audio PCB](staging/audio-main-placement-02/audio_core.kicad_pro) places 328 known electrical footprints
+The [partial main audio PCB](staging/audio-main-local-routing-02/audio_core.kicad_pro) places 328 known electrical footprints
 and six proposed mounts in the 150 × 63 mm allocation. Native geometry and ERC
 are zero with all categories enabled. The missing ESS footprint remains an explicit
-parity finding; 724 connections remain unrouted.
+parity finding; 588 connections remain unrouted.
 Its 99 local feedback/bypass/pump/clock/servo cells meet their declared endpoint
 limits. Full analog performance, codec placement, mating/harness fit and manufacturing remain open.
 
-![Partial main audio PCB placement](staging/audio-main-placement-02/plots/top.png)
+![Partial main audio PCB](staging/audio-main-local-routing-02/plots/top.png)
+Its 136 native-confirmed local pairs include
+129 of 131 declared signal/supply endpoints and seven actual power-ground pairs.
+The 257 tracks retain 0.20 mm width. Sixteen conventional 0.60/0.30 mm vias
+clear native SMD copper by at least 0.170 mm at the drill edge; process acceptance remains open.
+R319 common-mode feedback, C127 supply, thirteen local ground returns and global routing remain unfinished.
+The existing direct high-frequency compensation capacitor tracks are unchanged.
 
 The [combined digital/control candidate](staging/digital-distribution-native-02/digital_core.kicad_pro) places the processor carrier,
 control expanders and LED drivers on one proposed notched 114 × 60 mm PCB.

@@ -1,0 +1,181 @@
+"""Replay actual AC04 local copper, conventional drills and native witnesses."""
+
+import argparse
+import json
+import math
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+from shapely.geometry import LineString, Point
+
+from hardware.electronics.common.sexpr import children, first, read_sexpr
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_audio_main_placement import check as check_placement
+from hardware.fabrication.audit_candidate import sha
+from hardware.fabrication.route_nf_surface import Screen, shape
+
+REPO = Path(__file__).resolve().parents[2]
+ROOT = REPO / "hardware/fabrication"
+OUT = ROOT / "staging/audio-main-local-routing-02"
+PLACEMENT = ROOT / "staging/audio-main-placement-02"
+FIRST = ROOT / "staging/audio-main-local-routing-01"
+
+
+def route_key(row):
+    return row["ref"], row["pin"], row["owner"], row["owner_pin"]
+
+
+def verify_copper(board, construction, captured):
+    baseline = read_sexpr((PLACEMENT / "audio_core.kicad_pcb").read_text())
+    authored = [n for n in board if not isinstance(n, list) or not n or n[0] not in ("segment", "via")]
+    assert authored == baseline, "Changed land, pose, pin net, codec reserve, profile or receiving geometry"
+    segments = {str(first(n, "uuid")[1]): n for n in children(board, "segment")}
+    vias = {str(first(n, "uuid")[1]): n for n in children(board, "via")}
+    assert len(segments) == len(children(board, "segment")) and len(vias) == len(children(board, "via"))
+    nets = {str(n[1]): str(n[2]) for n in children(board, "net")}
+    pads = {(p["ref"], p["pin"]): p for p in captured["objects"] if p["pin"]}
+    nodes = {(n.attrib["ref"], n.attrib["pin"]): n.attrib
+             for n in ET.parse(OUT / "native-netlist.xml").findall("nets/net/node")}
+    plan = json.loads((PLACEMENT / "plan.json").read_text())
+    expected = set()
+    for cell in plan["local_cells"]:
+        for terminal in cell["terminals"]:
+            p = pads[(cell["ref"], terminal["part_pin"])]
+            owner = [q for (ref, _), q in pads.items() if ref == cell["owner"] and q["net"] == p["net"]
+                     and math.dist(q["position_mm"], terminal["owner_position_mm"]) < 1e-7]
+            assert len(owner) == 1
+            expected.add((cell["ref"], p["pin"], cell["owner"], owner[0]["pin"]))
+    assert len(expected) == 131
+    request_keys = {route_key(r) for r in construction["requests"]}
+    signal_keys = {route_key(r) for r in construction["requests"] if r["kind"] != "local_ground_return"}
+    assert signal_keys == expected
+    for row in construction["requests"]:
+        p, q = pads[(row["ref"], row["pin"])], pads[(row["owner"], row["owner_pin"])]
+        assert row["net"] == p["net"] == q["net"]
+        assert row["layer"] in p["layers"] and row["layer"] in q["layers"]
+        if row["kind"] == "local_ground_return":
+            assert row["net"] == "AGND" and nodes[(row["owner"], row["owner_pin"])]["pintype"] == "power_in", \
+                "Bypass current must not terminate at a grounded signal input"
+        else:
+            cell = next(c for c in plan["local_cells"] if c["ref"] == row["ref"])
+            assert row["route_length_limit_mm"] == 1.6 * cell["limit_mm"]
+    routes, deferred = construction["routes"], construction["deferred"]
+    route_keys, deferred_keys = {route_key(r) for r in routes}, {route_key(r) for r in deferred}
+    assert len(route_keys) == len(routes) and len(request_keys) == len(construction["requests"])
+    assert route_keys.isdisjoint(deferred_keys) and route_keys | deferred_keys == request_keys
+    assert {(r["ref"], r["pin"]) for r in deferred if r["kind"] != "local_ground_return"} == {("R319", "1"), ("C127", "1")}
+    screen = Screen(captured)
+    claimed_segments, claimed_vias = set(), set()
+    for row in routes:
+        paths = row.get("paths", [(row["layer"], row["path_mm"])])
+        assert not row.get("inherited_trunk_segment_uuids"), "Undeclared partial-segment routing witness"
+        p, q = pads[(row["ref"], row["pin"])], pads[(row["owner"], row["owner_pin"])]
+        assert math.dist(paths[0][1][0], p["position_mm"]) < 1e-7
+        assert math.dist(paths[-1][1][-1], q["position_mm"]) < 1e-7
+        ids = iter(row["segment_uuids"])
+        length = 0.0
+        via_positions = []
+        for index, (layer, points) in enumerate(paths):
+            assert layer in ("F.Cu", "B.Cu")
+            assert screen.legal(row["net"], layer, points), "Copper clearance/keepout failure"
+            if index:
+                previous_layer, previous = paths[index - 1]
+                assert layer != previous_layer and math.dist(previous[-1], points[0]) < 1e-7
+                via_positions.append(points[0])
+            for start, end in zip(points, points[1:]):
+                ident = next(ids)
+                segment = segments[ident]
+                assert first(segment, "layer")[1] == layer and nets[str(first(segment, "net")[1])] == row["net"]
+                assert float(first(segment, "width")[1]) == .2
+                assert math.dist(list(map(float, first(segment, "start")[1:3])), start) < 1e-7
+                assert math.dist(list(map(float, first(segment, "end")[1:3])), end) < 1e-7
+                length += math.dist(start, end)
+                claimed_segments.add(ident)
+            screen.added.append((row["net"], layer, LineString(points)))
+        assert next(ids, None) is None
+        assert abs(length - row["actual_length_mm"]) < 1e-7 and length <= row["route_length_limit_mm"]
+        via_ids = row.get("via_uuids", [])
+        assert len(via_ids) == len(via_positions)
+        for ident, xy in zip(via_ids, via_positions):
+            via = vias[ident]
+            assert first(via, "layers")[1:] == ["F.Cu", "B.Cu"]
+            assert float(first(via, "size")[1]) == .6 and float(first(via, "drill")[1]) == .3
+            assert nets[str(first(via, "net")[1])] == row["net"]
+            assert math.dist(list(map(float, first(via, "at")[1:3])), xy) < 1e-7
+            claimed_vias.add(ident)
+    assert claimed_segments == segments.keys() and claimed_vias == vias.keys()
+    # Recompute every drill's distance to all captured native SMD copper. This
+    # applies even on the same net, independently of electrical DRC clearance.
+    smd = [shape(ps) for p in captured["objects"] if not any(p["drill_mm"])
+           for layer, ps in p["layers"].items() if layer in ("F.Cu", "B.Cu") and ps]
+    gaps = [Point(list(map(float, first(v, "at")[1:3]))).distance(g) - .15
+            for v in vias.values() for g in smd]
+    minimum = min(gaps)
+    assert minimum >= .15 - 1e-7, "Via drill overlaps or approaches a solder land"
+    # The eight FDA compensation terminals and sixteen I/V feedback-capacitor
+    # terminals retain exactly their earlier direct tracks, without via escapes.
+    old = {route_key(r): r for r in json.loads((FIRST / "construction.json").read_text())["routes"]}
+    direct_caps = {"C101", "C102", "C115", "C116", "C301", "C302", "C306", "C307", "C303", "C308", "C304", "C309"}
+    for row in routes:
+        if row["ref"] in direct_caps:
+            assert row == old[route_key(row)] and not row.get("via_uuids")
+    return dict(local_connected_pairs=len(routes), declared_signal_supply_endpoints=131,
+                connected_signal_supply_endpoints=len(route_keys & expected),
+                connected_actual_power_ground_pairs=len(route_keys - expected),
+                deferred_signal_supply_pairs=[list(k) for k in sorted(expected - route_keys)],
+                deferred_local_ground_pairs=len(deferred_keys - expected),
+                tracks=len(segments), vias=len(vias), minimum_screened_drill_edge_to_SMD_copper_mm=minimum,
+                high_frequency_compensation_capacitor_tracks_preserved=True,
+                bypass_ground_requests_end_only_at_power_input_pins=True)
+
+
+def check():
+    placement = check_placement()
+    reports = {name: json.loads((OUT / name).read_text()) for name in (
+        "construction.json", "placement-native-review.json", "local-connectivity-review.json")}
+    for report in reports.values():
+        verify_hashes(report["source_sha256"])
+    construction = reports["construction.json"]
+    assert construction["candidate_PCB_sha256"] == sha(OUT / "audio_core.kicad_pcb")
+    for name in ("audio_core.kicad_pro", "audio_core.kicad_dru"):
+        assert (OUT / name).read_bytes() == (PLACEMENT / name).read_bytes()
+    captured = json.loads((FIRST / "native-inputs.json").read_text())
+    verify_hashes(captured["source_sha256"])
+    native = reports["placement-native-review.json"]
+    assert all(sha(OUT / p) == h for p, h in native["raw_report_sha256"].items())
+    drc, erc = [json.loads((OUT / p).read_text()) for p in ("drc.json", "erc.json")]
+    assert drc["violations"] == [] and drc["ignored_checks"] == erc["ignored_checks"] == []
+    assert drc["schematic_parity"] == captured["retained_schematic_parity"]
+    assert not any(s["violations"] for s in erc["sheets"]) and len(erc["sheets"]) == 7
+    assert all(c["returncode"] == 0 for c in native["complete_native_commands"])
+    assert native["DRC_geometry_findings"] == native["ERC_findings"] == 0 and native["schematic_parity_findings"] == 1
+    proof = verify_copper(read_sexpr((OUT / "audio_core.kicad_pcb").read_text()), construction, captured)
+    connectivity = reports["local-connectivity-review.json"]
+    expected = [dict(ref=r["ref"], pin=r["pin"], owner=r["owner"], owner_pin=r["owner_pin"], native_connected=True)
+                for r in construction["routes"]]
+    assert connectivity["connections"] == expected and connectivity["native_via_count"] == proof["vias"]
+    assert native["uncapped_open_connections"] == connectivity["uncapped_open_connections"] == 724 - proof["local_connected_pairs"]
+    assert len(drc["unconnected_items"]) == min(499, native["uncapped_open_connections"])
+    paths = [Path(__file__), OUT / "local-connectivity-review.json", OUT / "placement-native-review.json",
+             OUT / "construction.json", FIRST / "native-inputs.json", PLACEMENT / "placement-handoff.json"]
+    result = dict(placement)
+    result.update(proof)
+    result.update(source_sha256=relative_hashes(paths), uncapped_open_connections=native["uncapped_open_connections"],
+                  PCB_routed=False, complete_ground_return_and_power_distribution=False,
+                  analog_stability_noise_thermal_and_process_qualified=False, fabrication_released=False)
+    return result
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true")
+    args = parser.parse_args()
+    result = check()
+    handoff = OUT / "routing-handoff.json"
+    if args.check:
+        assert result == json.loads(handoff.read_text())
+    else:
+        with handoff.open("x") as f:
+            json.dump(result, f, indent=2)
+            f.write("\n")
+    print("Audio local copper:", result["local_connected_pairs"], "pairs;", result["uncapped_open_connections"], "opens")

@@ -1232,3 +1232,51 @@ source-bound evidence. It does not close PCB routing, the missing ESS package
 inputs, installed receiving, electrical/thermal qualification or fabrication
 release. The README continues to state the 724 open audio connections and the
 unplaced codec. No supplier request, order or native Mac CAD launch was made.
+
+
+## AC04 — native-checked local main-audio copper
+
+The first local route pass added 234 tracks and closed 129 pad pairs, reducing
+724 native opens to 595. Its exact native pad/keepout polygons and complete-rule
+review remain preserved. Review of bypass return targets found that C612's
+nearest AGND terminal was grounded logic input U608.13, rather than power ground
+U608.7. The selected successor removes that trace, filters requested ground
+endpoints by the actual native schematic power-input type, and excludes the
+OPA1612 grounded input-reference terminals from bypass-ground requests.
+
+The direct same-face branch search did not find acceptable paths for the ten
+remaining signal/supply endpoints within the existing construction budgets.
+The successor closes eight using sixteen conventional 0.60/0.30 mm via escapes,
+while preserving every original component pose, land, pin net, profile, mount
+and codec reserve. The eight FDA compensation and sixteen I/V compensation
+capacitor terminal routes remain exactly their original direct same-face tracks.
+R319.1 to U303.6 and C127.1 to U102.3 still need local rework; thirteen requested
+local ground returns remain open. No length or clearance budget was relaxed.
+Per-layer copper lengths exclude separately recorded nominal via-barrel length;
+these are construction metrics, not analog performance qualification.
+
+Selected `audio-main-local-routing-02` has 257 tracks, sixteen vias and 136
+native-confirmed local pairs (129 of 131 declared signal/supply endpoints plus
+seven actual power-ground pairs). Isolated Linux KiCad 10.0.7 reports zero native
+geometry findings, zero ERC findings, one explicit missing ESS-footprint parity
+finding and 588 uncapped open connections. Every DRC/ERC category remains enabled.
+The independent replay checks actual tracks/layers/endpoints/widths, native
+connectivity witnesses, unchanged receiving geometry and the actual minimum
+screened drill-edge-to-SMD-copper gap of 0.170 mm, including same-net lands on
+both faces. No via hole intersects an SMD solder land. Stack, mask/tenting,
+stencil and assembly acceptance remain open.
+
+Seven new fault-injection tests pass; the full tooling run completes 823 tests
+with three skips, and all 23 CAD integration tests pass. The four new routing,
+audit and render modules and the new tests pass focused Ruff checks. Actual
+top/bottom copper PNGs were visually inspected. The first audit receipt and its
+source are preserved before correcting tuple/list JSON replay normalization;
+canonical handoff replay now passes. Source inventory selects this partial
+routing successor and still withholds fabrication release. The two staged
+folders total approximately 7.8 MB. No native Mac CAD application, bulk audio
+batch, supplier request or order was launched.
+
+The two local endpoints and thirteen returns, all other board routing, ESS
+package/interface data and physical ADC stars, complete parts/mating/harness/
+support/case receiving, PDN/noise/stability/thermal qualification, and inspected
+manufacturing/first-article outputs remain unfinished.
