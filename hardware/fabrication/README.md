@@ -32,42 +32,47 @@ The [shared audio integration candidate](staging/audio-main-integration-04b/audi
 into 329 parts/971 terminals on one proposed PCB.
 Its native schematic export has zero ERC findings. The codec land remains
 unassigned; the source and interface audit does not adopt separate development-board copper.
-The [partial main audio PCB](staging/audio-main-local-routing-02/audio_core.kicad_pro) places 328 known electrical footprints
+The [partial main audio PCB](staging/audio-main-ground-02/audio_core.kicad_pro) places 328 known electrical footprints
 and six proposed mounts in the 150 × 63 mm allocation. Native geometry and ERC
 are zero with all categories enabled. The missing ESS footprint remains an explicit
-parity finding; 588 connections remain unrouted.
+parity finding; 393 connections remain unrouted.
 Its 99 local feedback/bypass/pump/clock/servo cells meet their declared endpoint
 limits. Full analog performance, codec placement, mating/harness fit and manufacturing remain open.
 
-![Partial main audio PCB](staging/audio-main-local-routing-02/plots/top.png)
-Its 136 native-confirmed local pairs include
-129 of 131 declared signal/supply endpoints and seven actual power-ground pairs.
-The 257 tracks retain 0.20 mm width. Sixteen conventional 0.60/0.30 mm vias
-clear native SMD copper by at least 0.170 mm at the drill edge; process acceptance remains open.
-R319 common-mode feedback, C127 supply, thirteen local ground returns and global routing remain unfinished.
-The existing direct high-frequency compensation capacitor tracks are unchanged.
+![Partial main audio PCB](staging/audio-main-ground-02/plots/top.png)
+All 131 declared local signal/supply endpoints and all 20 declared local ground-return pairs are native-connected.
+The In1 AGND plane connects every one of the 200 placed ground pads to the input ground.
+The candidate has 448 tracks and 199 conventional 0.60/0.30 mm vias;
+the minimum screened drill-edge-to-SMD gap is 0.170 mm. Twelve sensitive-node plane openings
+and six mounting-hardware copper exclusions remain protected. All amplifier placements and
+their direct compensation capacitor traces are retained. Four previously unrouted parts
+have renewed receiving after local changes. Full power/return, noise/stability, stack/process
+and whole-unit thermal/mating/harness qualification remain unfinished.
 
-The [combined digital/control candidate](staging/digital-distribution-native-02/digital_core.kicad_pro) places the processor carrier,
+The [combined digital/control candidate](staging/digital-four-clean-native-03/digital_core.kicad_pro) places the processor carrier,
 control expanders and LED drivers on one proposed notched 114 × 60 mm PCB.
 It has 138 electrical parts, zero native geometry/parity/ERC findings,
-and 255 unrouted connections. All native categories are enabled.
+and 143 unrouted connections. All native categories are enabled.
 Five inter-board headers were removed. Placement does not establish routed
 power/return performance, production connector acceptance or installed fit.
-The DC03 candidate connects all 201 pads on its five power/ground nets,
-with an In1 ground plane, an In2 5 V plane and routed outer-layer supply branches.
-The 39 earlier local connections remain intact. Each LED driver has 6–11
-native-connected thermal vias. Of 136 vias, 115 clear SMD copper and 21
-occupy mask-covered heat-spreader copper outside solder openings.
-The mapped drill process still requires acceptance. Signal routing and
-current/voltage/noise/thermal qualification remain unfinished.
+The DC04 signal-routing checkpoint preserves all 201 connected power/ground pads,
+39 local connections and 33 thermal connections. The four-layer stack, component
+poses, mounts, outline and all DC03 copper remain unchanged. Both plane fills remain connected.
+Its 1,252 tracks and 243 vias include 107 new drills clearing SMD copper by at least 0.169 mm.
+The 21 earlier mask-covered heat-spreader vias retain their separate process hold.
+SD and audio data nets are connected, but SD carrier trace totals span 47.6–84.3 mm
+with unequal via counts. Timing, impedance, return paths and off-board interfaces remain unqualified.
+The 116 open nets include 76 LED outputs and 13 control nets. LED/control escapes
+and SD routing need rework before power/noise/thermal and manufacturing acceptance.
+See the [signal-routing review](staging/digital-four-clean-native-03/README.md).
 
-The [AP03 arrangement](staging/assembly-layout-03/README.md) fixes allocations for the next PCB work:
+The [AP04 arrangement](staging/assembly-layout-04/README.md) fixes allocations for the next PCB work:
 six audio roles on the left, combined digital on the right, an upper rail-monitor
 board, and the existing touch-module front bay. Its eight functional PCB
 allocations exclude additional panel/emitter boards and the touch module.
 The full current assembly, supports, harness and thermal design remain unfinished.
 
-![Proposed board arrangement](staging/assembly-layout-03/arrangement.png)
+![Proposed board arrangement](staging/assembly-layout-04/arrangement.png)
 
 DRC findings include warnings. A zero count does not approve the circuit,
 fabrication process, current capacity, thermal design, mechanical fit or assembly.

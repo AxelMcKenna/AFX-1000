@@ -1,0 +1,541 @@
+"""Construct/refill a reference plane, then escape actual disconnected grounds.
+
+Each action preserves its executed source as an immutable snapshot. Mac CAD
+remains disabled. The plane is a development reference, not a PDN/noise pass.
+"""
+
+import argparse
+import copy
+import json
+import math
+import shutil
+import sys
+import uuid
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-local-routing-03"
+OUT = ROOT / "staging/audio-main-ground-01"
+
+
+def snapshot(label):
+    path = OUT / ("applied-" + label + ".py.txt")
+    assert not path.exists()
+    shutil.copyfile(Path(__file__), path)
+    return path
+
+
+def uid(label):
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, "AFX:AC04:ground:" + label))
+
+
+def keepout(label, layers, ring, planes_only=False):
+    policy = "allowed" if planes_only else "not_allowed"
+    return [a("zone"), [a("net"), 0], [a("layers"), *layers], [a("uuid"), uid(label)],
+            [a("hatch"), a("edge"), .5],
+            [a("keepout"), [a("tracks"), a(policy)], [a("vias"), a(policy)], [a("pads"), a("allowed")],
+             [a("copperpour"), a("not_allowed")], [a("footprints"), a("allowed")]],
+            [a("polygon"), [a("pts"), *[[a("xy"), *p] for p in ring]]]]
+
+
+def build():
+    from shapely.geometry import LineString, box
+    from shapely.ops import unary_union
+
+    from hardware.fabrication.audit_audio_main_repack import check
+    from hardware.fabrication.route_nf_surface import shape
+
+    assert check() == json.loads((SOURCE / "routing-handoff.json").read_text())
+    assert not OUT.exists()
+    board = read_sexpr((SOURCE / "audio_core.kicad_pcb").read_text())
+    parent = copy.deepcopy(board)
+    capture = json.loads((SOURCE / "native-pad-capture.json").read_text())
+    verify_hashes(capture["source_sha256"])
+    pads = {(p["ref"], p["pin"]): p for p in capture["objects"] if p["pin"]}
+    sensitive = {pads[(ref, pin)]["net"] for ref in ("U101", "U102") for pin in ("1", "4", "5", "8")}
+    sensitive |= {pads[(ref, pin)]["net"] for ref in ("U301", "U302", "U303", "U304") for pin in ("2", "6")}
+    assert "AGND" not in sensitive
+    areas = [shape(ps).buffer(.5) for p in capture["objects"] if p["net"] in sensitive
+             for layer, ps in p["layers"].items() if layer in ("F.Cu", "B.Cu") and ps]
+    nets = {str(n[1]): str(n[2]) for n in children(board, "net")}
+    for track in children(board, "segment"):
+        if nets[str(first(track, "net")[1])] in sensitive:
+            line = LineString([list(map(float, first(track, key)[1:3])) for key in ("start", "end")])
+            areas.append(line.buffer(.6))
+    opening = unary_union(areas)
+    polygons = list(opening.geoms) if opening.geom_type == "MultiPolygon" else [opening]
+    for i, poly in enumerate(polygons):
+        board.append(keepout("sensitive-" + str(i), ["In1.Cu", "In2.Cu"], list(poly.exterior.coords)[:-1], True))
+    for i, (x, y) in enumerate(((4,4), (146,4), (4,59), (146,59), (10,56), (82,56))):
+        board.append(keepout("mount-" + str(i), ["F.Cu", "B.Cu", "In1.Cu", "In2.Cu"],
+                             list(box(x-3.6, y-3.6, x+3.6, y+3.6).exterior.coords)[:-1]))
+    agnd = next(n[1] for n in children(board, "net") if n[2] == "AGND")
+    board.append([a("zone"), [a("net"), agnd], [a("layer"), "In1.Cu"], [a("uuid"), uid("reference-plane")],
+                  [a("hatch"), a("edge"), .5], [a("connect_pads"), [a("clearance"), .2]],
+                  [a("min_thickness"), .25], [a("filled_areas_thickness"), a("no")],
+                  [a("fill"), a("yes"), [a("thermal_gap"), .25], [a("thermal_bridge_width"), .4], [a("island_removal_mode"), 0]],
+                  [a("polygon"), [a("pts"), *[[a("xy"), *xy] for xy in ((.5,.5), (149.5,.5), (149.5,62.5), (.5,62.5))]]]])
+    assert board[:len(parent)] == parent
+    OUT.mkdir()
+    for p in SOURCE.iterdir():
+        if p.suffix in (".kicad_sch", ".kicad_pro", ".kicad_sym", ".kicad_dru") or p.name in ("fp-lib-table", "sym-lib-table", "plan.json"):
+            shutil.copyfile(p, OUT / p.name)
+    shutil.copytree(SOURCE / "libraries", OUT / "libraries")
+    dest = OUT / "authored-input.kicad_pcb"
+    dest.write_text(sexpr(board) + "\n")
+    applied = snapshot("plane-build")
+    report = dict(source_sha256=relative_hashes([applied, SOURCE / "audio_core.kicad_pcb", SOURCE / "routing-handoff.json",
+                  SOURCE / "native-pad-capture.json"]), authored_PCB_sha256=sha(dest),
+                  plane_layer="In1.Cu", net="AGND", plane_void_layers=["In1.Cu", "In2.Cu"],
+                  sensitive_net_names=sorted(sensitive), sensitive_pad_opening_margin_mm=.5,
+                  sensitive_track_opening_margin_mm=.6, sensitive_plane_void_regions=len(polygons),
+                  full_layer_mount_hardware_exclusions=6, original_authored_geometry_exact=True,
+                  plane_void_dimensions_are_project_allocations_not_vendor_specifications=True,
+                  source_guidance=["https://www.ti.com/lit/gpn/ths4551", "https://www.ti.com/lit/ds/symlink/opa1612.pdf"],
+                  ground_return_current_noise_thermal_and_process_qualified=False, fabrication_released=False)
+    (OUT / "plane-construction.json").write_text(json.dumps(report, indent=2) + "\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Authored reference plane and", len(polygons), "sensitive-net plane openings")
+
+
+def nameplane():
+    source = OUT / "authored-input.kicad_pcb"
+    dest = OUT / "authored-netted-input.kicad_pcb"
+    assert not dest.exists()
+    board = read_sexpr(source.read_text())
+    zones = [z for z in children(board, "zone") if not children(z, "keepout")]
+    assert len(zones) == 1 and not children(zones[0], "net_name")
+    assert next(n[2] for n in children(board, "net") if n[1] == first(zones[0], "net")[1]) == "AGND"
+    zones[0].append([a("net_name"), "AGND"])
+    dest.write_text(sexpr(board) + "\n")
+    applied = snapshot("plane-net-assignment")
+    report = dict(source_sha256=relative_hashes([source, applied]), corrected_PCB_sha256=sha(dest),
+                  legacy_20240108_zone_requires_explicit_net_name=True, only_plane_net_name_added=True,
+                  original_unassigned_plane_and_capture_preserved=True, fabrication_released=False)
+    (OUT / "plane-net-assignment.json").write_text(json.dumps(report, indent=2) + "\n")
+
+
+def fill(label="plane"):
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    import pcbnew
+
+    source = OUT / {"plane": "authored-input.kicad_pcb", "netted-plane": "authored-netted-input.kicad_pcb", "final": "escape-input.kicad_pcb"}[label]
+    dest = OUT / {"plane": "plane-only.kicad_pcb", "netted-plane": "netted-plane-only.kicad_pcb", "final": "audio_core.kicad_pcb"}[label]
+    assert not dest.exists()
+    applied = snapshot(label + "-fill")
+    before = relative_hashes([source, applied])
+    board = pcbnew.LoadBoard(str(source))
+    assert pcbnew.ZONE_FILLER(board).Fill(board.Zones())
+    export = OUT / (label + "-native-export.kicad_pcb")
+    pcbnew.SaveBoard(str(export), board)
+    native = read_sexpr(export.read_text())
+    filled = {str(first(z, "uuid")[1]): z for z in children(native, "zone") if not children(z, "keepout")}
+    authored = read_sexpr(source.read_text())
+    count = 0
+    for z in children(authored, "zone"):
+        if children(z, "keepout"):
+            continue
+        z[:] = [n for n in z if not isinstance(n, list) or not n or n[0] != "filled_polygon"]
+        polygons = children(filled[str(first(z, "uuid")[1])], "filled_polygon")
+        assert polygons
+        z.extend(copy.deepcopy(polygons))
+        count += len(polygons)
+    dest.write_text(sexpr(authored) + "\n")
+    verify_hashes(before)
+    report = dict(source_sha256=before, native_export_sha256=sha(export), filled_PCB_sha256=sha(dest),
+                  native_version=pcbnew.GetBuildVersion(), filled_polygons=count,
+                  only_native_generated_zone_fill_copied_back=True, fabrication_released=False)
+    (OUT / (label + "-fill.json")).write_text(json.dumps(report, indent=2) + "\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Native filled", count, "polygons; original land/copper representations retained")
+
+
+def capture(label="plane"):
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    import pcbnew
+
+    from hardware.fabrication.capture_board import polygons
+
+    pcb = OUT / (label + "-only.kicad_pcb")
+    applied = snapshot(label + "-capture")
+    board = pcbnew.LoadBoard(str(pcb))
+    board.BuildConnectivity()
+    conn = board.GetConnectivity()
+    conn.RecalculateRatsnest()
+    items = [p for f in board.GetFootprints() for p in f.Pads()] + list(board.GetTracks())
+    rows = []
+    for item in items:
+        row = dict(uuid=item.m_Uuid.AsString(), kind=item.GetClass(), net=item.GetNetname(),
+                   position_mm=[item.GetPosition().x/1e6, item.GetPosition().y/1e6], layers={})
+        for name in ("F.Cu", "B.Cu", "In1.Cu", "In2.Cu"):
+            layer = board.GetLayerID(name)
+            if item.IsOnLayer(layer):
+                poly = pcbnew.SHAPE_POLY_SET()
+                item.TransformShapeToPolygon(poly, layer, 0, pcbnew.FromMM(.001), pcbnew.ERROR_OUTSIDE)
+                poly.Simplify()
+                row["layers"][name] = polygons(poly)
+        if row["kind"] == "PAD":
+            row.update(ref=item.GetParentFootprint().GetReference(), pin=item.GetNumber(),
+                       drill_mm=[item.GetDrillSize().x/1e6, item.GetDrillSize().y/1e6],
+                       npth=int(item.GetAttribute()) == int(pcbnew.PAD_ATTRIB_NPTH))
+        elif row["kind"] == "PCB_VIA":
+            row.update(drill_mm=[item.GetDrillValue()/1e6]*2, npth=False)
+        rows.append(row)
+    root = next(p for f in board.GetFootprints() if f.GetReference() == "J701" for p in f.Pads() if p.GetNumber() == "2")
+    root_ids = {root.m_Uuid.AsString()} | {p.m_Uuid.AsString() for p in conn.GetConnectedItems(root)}
+    grounds = [p for f in board.GetFootprints() for p in f.Pads() if p.GetNetname() == "AGND"]
+    groups, done = [], set()
+    for pad in grounds:
+        ident = pad.m_Uuid.AsString()
+        if ident in done:
+            continue
+        ids = {ident} | {p.m_Uuid.AsString() for p in conn.GetConnectedItems(pad)}
+        contacts = [p.m_Uuid.AsString() for p in grounds if p.m_Uuid.AsString() in ids]
+        done.update(contacts)
+        groups.append(dict(pad_uuids=contacts, native_connected_to_input_ground=bool(ids & root_ids)))
+    zones = []
+    for z in board.Zones():
+        for name in ("F.Cu", "B.Cu", "In1.Cu", "In2.Cu"):
+            layer = board.GetLayerID(name)
+            if z.IsOnLayer(layer):
+                keep = z.GetIsRuleArea()
+                poly = z.Outline() if keep else z.GetFilledPolysList(layer)
+                zones.append(dict(net=z.GetNetname(), layer=name, keepout=keep,
+                                  prohibit_tracks=bool(z.GetDoNotAllowTracks()) if keep else False,
+                                  prohibit_vias=bool(z.GetDoNotAllowVias()) if keep else False, polygons=polygons(poly)))
+    outline = pcbnew.SHAPE_POLY_SET()
+    assert board.GetBoardPolygonOutlines(outline, False)
+    report = dict(source_sha256=relative_hashes([pcb, applied, ROOT / "capture_board.py"]), objects=rows, zones=zones,
+                  groups=groups, outline=polygons(outline), native_uncapped_opens=conn.GetUnconnectedCount(False),
+                  native_version=pcbnew.GetBuildVersion(), ground_pad_count=len(grounds), fabrication_released=False)
+    dest = OUT / (label + "-capture.json")
+    assert not dest.exists()
+    dest.write_text(json.dumps(report, separators=(",", ":")) + "\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Plane connects", sum(len(g["pad_uuids"]) for g in groups if g["native_connected_to_input_ground"]), "of", len(grounds), "ground pads; opens", report["native_uncapped_opens"])
+
+
+def escapes():
+    from shapely.geometry import LineString, Point
+    from shapely.ops import unary_union
+    from shapely.strtree import STRtree
+
+    from hardware.fabrication.route_nf_surface import Screen, candidate_paths, shape
+
+    cp = OUT / "netted-plane-capture.json"
+    captured = json.loads(cp.read_text())
+    verify_hashes(captured["source_sha256"])
+    source, dest = OUT / "netted-plane-only.kicad_pcb", OUT / "escape-input.kicad_pcb"
+    assert not dest.exists()
+    board = read_sexpr(source.read_text())
+    original = copy.deepcopy(board)
+    agnd = next(n[1] for n in children(board, "net") if n[2] == "AGND")
+    plane = unary_union([shape(z["polygons"]) for z in captured["zones"]
+                         if not z["keepout"] and z["net"] == "AGND" and z["layer"] == "In1.Cu"]).buffer(0)
+    assert not plane.is_empty
+    screen = Screen(captured)
+    copper = [(o, layer, shape(ps)) for o in captured["objects"] for layer, ps in o["layers"].items() if ps]
+    index = STRtree([g for _, _, g in copper])
+    smd = [g for o, layer, g in copper if o["kind"] == "PAD" and not any(o["drill_mm"])
+           and layer in ("F.Cu", "B.Cu")]
+    smd_index = STRtree(smd)
+    drills = [(o["position_mm"], max(o["drill_mm"])/2) for o in captured["objects"] if any(o.get("drill_mm", []))]
+    prohibited = unary_union([shape(z["polygons"]) for z in captured["zones"] if z["keepout"] and z["prohibit_vias"]])
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    routes, vias, deferred = [], [], []
+
+    def via_ok(xy):
+        point = Point(xy)
+        if not plane.covers(point.buffer(.31)) or point.distance(prohibited) < .31:
+            return False
+        if not screen.outline.buffer(-.2).covers(point):
+            return False
+        for i in index.query(point.buffer(.52)):
+            o, _, g = copper[int(i)]
+            if o["net"] != "AGND" and point.distance(g) < .511:
+                return False
+        if any(point.distance(smd[int(i)]) < .301 for i in smd_index.query(point.buffer(.302))):
+            return False
+        if any(math.dist(xy, p) < radius+.15+.261 for p, radius in drills):
+            return False
+        return all(math.dist(xy, v["xy_mm"]) >= .561 for v in vias)
+
+    for group in captured["groups"]:
+        if group["native_connected_to_input_ground"]:
+            continue
+        contacts = [objects[k] for k in group["pad_uuids"]]
+        contacts.sort(key=lambda p: (not p["ref"].startswith("C"), p["ref"], p["pin"]))
+        choice = None
+        for pad in contacts:
+            layer = next(l for l in ("F.Cu", "B.Cu") if l in pad["layers"])
+            start = tuple(pad["position_mm"])
+            x, y = start
+            left, top, right, bottom = shape(pad["layers"][layer]).bounds
+            sites = set()
+            for offset in (0, .25, -.25, .5, -.5, .75, -.75, 1., -1.):
+                for gap in (.32, .57, .82, 1.07, 1.32):
+                    sites.update(((left-gap,y+offset), (right+gap,y+offset),
+                                  (x+offset,top-gap), (x+offset,bottom+gap)))
+            for xy in sorted(sites, key=lambda p: math.dist(start, p)):
+                if math.dist(start, xy) > 3.5 or not via_ok(xy):
+                    continue
+                paths = []
+                for path in candidate_paths(start, xy):
+                    path = [p for i, p in enumerate(path) if not i or p != path[i-1]]
+                    length = sum(math.dist(p, q) for p, q in zip(path, path[1:]))
+                    if length <= 3.5 and screen.legal("AGND", layer, path):
+                        paths.append((length, path))
+                if paths:
+                    length, path = min(paths, key=lambda p: p[0])
+                    choice = pad, layer, path, xy, length
+                    break
+            if choice:
+                break
+        if choice is None:
+            deferred.append(dict(contacts=[dict(ref=p["ref"], pin=p["pin"]) for p in contacts],
+                                 reason="No bounded ground escape satisfying copper, drill and sensitive-plane openings"))
+            continue
+        pad, layer, path, xy, length = choice
+        track_ids = []
+        for start, end in zip(path, path[1:]):
+            ident = uid(f"ground-track:{layer}:{start}:{end}")
+            track_ids.append(ident)
+            board.append([a("segment"), [a("start"), *start], [a("end"), *end], [a("width"), .2],
+                          [a("layer"), layer], [a("net"), agnd], [a("uuid"), ident]])
+        ident = uid(f"ground-via:{xy}")
+        board.append([a("via"), [a("at"), *xy], [a("size"), .6], [a("drill"), .3],
+                      [a("layers"), "F.Cu", "B.Cu"], [a("net"), agnd], [a("uuid"), ident]])
+        screen.added.append(("AGND", layer, LineString(path)))
+        vias.append(dict(uuid=ident, xy_mm=xy, diameter_mm=.6, drill_mm=.3))
+        routes.append(dict(ref=pad["ref"], pin=pad["pin"], net="AGND", layer=layer, path_mm=path,
+                           actual_length_mm=length, maximum_length_mm=3.5, width_mm=.2,
+                           via_uuid=ident, segment_uuids=track_ids,
+                           source_group_contacts=[dict(ref=p["ref"], pin=p["pin"]) for p in contacts]))
+    assert board[:len(original)] == original and routes
+    dest.write_text(sexpr(board) + "\n")
+    applied = snapshot("ground-escapes")
+    report = dict(source_sha256=relative_hashes([source, cp, applied, ROOT / "route_nf_surface.py"]),
+                  authored_PCB_sha256=sha(dest), ground_escapes=routes, added_vias=vias, deferred_ground_groups=deferred,
+                  all_previous_geometry_exact=True, planned_ground_groups_closed=len(routes),
+                  copper_width_mm=.2, via_diameter_mm=.6, drill_mm=.3,
+                  maximum_ground_escape_trace_mm=3.5, native_refill_and_connectivity_pending=True,
+                  electrical_noise_thermal_and_process_qualified=False, fabrication_released=False)
+    (OUT / "escape-construction.json").write_text(json.dumps(report, indent=2) + "\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Added", len(routes), "ground escapes;", len(deferred), "groups deferred")
+
+
+def final_fill():
+    fill("final")
+    applied = snapshot("final-construction")
+    escapes = json.loads((OUT / "escape-construction.json").read_text())
+    verify_hashes(escapes["source_sha256"])
+    parent = json.loads((SOURCE / "construction.json").read_text())
+    paths = [OUT / "audio_core.kicad_pcb", OUT / "escape-construction.json", OUT / "final-fill.json",
+             OUT / "plane-construction.json", OUT / "plane-net-assignment.json", SOURCE / "routing-handoff.json", applied]
+    data = dict(source_sha256=relative_hashes(paths), candidate_PCB_sha256=sha(OUT / "audio_core.kicad_pcb"),
+                routes=parent["routes"], requests=parent["requests"], ground_escapes=escapes["ground_escapes"],
+                deferred_ground_groups=escapes["deferred_ground_groups"], fabrication_released=False)
+    (OUT / "construction.json").write_text(json.dumps(data, indent=2) + "\n")
+
+
+def review():
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    import pcbnew
+
+    from hardware.fabrication import audio_main_local_branches
+
+    applied = snapshot("final-review")
+    audio_main_local_branches.OUT = OUT
+    audio_main_local_branches.review()
+    pcb = OUT / "audio_core.kicad_pcb"
+    board = pcbnew.LoadBoard(str(pcb))
+    board.BuildConnectivity()
+    conn = board.GetConnectivity()
+    conn.RecalculateRatsnest()
+    pads = {(f.GetReference(), p.GetNumber()): p for f in board.GetFootprints() for p in f.Pads() if p.GetNumber()}
+    root = pads[("J701", "2")]
+    connected = {root.m_Uuid.AsString()} | {p.m_Uuid.AsString() for p in conn.GetConnectedItems(root)}
+    ground_pads = [(key, p) for key, p in pads.items() if p.GetNetname() == "AGND"]
+    rows = [dict(ref=key[0], pin=key[1], native_connected_to_input_ground=p.m_Uuid.AsString() in connected)
+            for key, p in ground_pads]
+    construction = json.loads((OUT / "construction.json").read_text())
+    for row in construction["ground_escapes"]:
+        for key in row["source_group_contacts"]:
+            assert pads[(key["ref"],key["pin"])].m_Uuid.AsString() in connected
+    result = dict(source_sha256=relative_hashes([pcb, OUT / "placement-native-review.json", OUT / "construction.json", applied]),
+                  native_version=pcbnew.GetBuildVersion(), reference_terminal=["J701","2"], ground_pads=rows,
+                  ground_pad_count=len(rows), connected_ground_pads=sum(r["native_connected_to_input_ground"] for r in rows),
+                  uncapped_open_connections=conn.GetUnconnectedCount(False), fabrication_released=False)
+    (OUT / "ground-connectivity-review.json").write_text(json.dumps(result, indent=2) + "\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Native input-ground connected", result["connected_ground_pads"], "of", len(rows), "; opens", result["uncapped_open_connections"])
+
+
+def repair():
+    from shapely.geometry import Point
+
+    from hardware.electronics.common.netlists import netlist
+    from hardware.fabrication.audio_main_escape_router import EscapeScreen
+    from hardware.fabrication.audio_main_local_repack import ReceivingSpace, moved_inputs, poses, set_poses
+    from hardware.fabrication.audit_audio_main_placement import verify_geometry
+    from hardware.fabrication.route_nf_surface import candidate_paths
+
+    source_dir = ROOT / "staging/audio-main-ground-01"
+    dest_dir = ROOT / "staging/audio-main-ground-02"
+    assert not dest_dir.exists()
+    source = source_dir / "audio_core.kicad_pcb"
+    board = read_sexpr(source.read_text())
+    original = copy.deepcopy(board)
+    previous = json.loads((source_dir / "escape-construction.json").read_text())
+    bad = next(r for r in previous["ground_escapes"] if r["ref"] == "C227" and r["pin"] == "2")
+    removed = set(bad["segment_uuids"]) | {bad["via_uuid"]}
+    board = [n for n in board if not isinstance(n, list) or not n or n[0] not in ("segment", "via")
+             or first(n, "uuid")[1] not in removed]
+    oldposes = poses(board)
+    changes = {"C310": (94.5, 32, 270)}
+    assert ReceivingSpace(board, set(changes)).accepts(changes)
+    set_poses(board, changes)
+    pads = json.loads((SOURCE / "native-pad-capture.json").read_text())
+    pads = moved_inputs(pads, oldposes, changes)
+    captured = json.loads((source_dir / "netted-plane-capture.json").read_text())
+    captured["objects"] = pads["objects"]
+    agnd = next(n[1] for n in children(board, "net") if n[2] == "AGND")
+    ground_vias = [(first(v, "uuid")[1], list(map(float, first(v, "at")[1:3])))
+                   for v in children(board, "via") if first(v, "net")[1] == agnd]
+    ground_routes = [copy.deepcopy(r) for r in previous["ground_escapes"] if r is not bad]
+    repairs, new_vias = [], []
+    for key in (("C227", "2"), ("C104", "2"), ("C310", "2"), ("U205", "2")):
+        context = EscapeScreen(board, captured)
+        pad = context.pads[key]
+        layer = next(l for l in ("F.Cu", "B.Cu") if l in pad["layers"])
+        start = pad["position_mm"]
+        # The supervisor retains the original local-ground request's 5.6 mm
+        # construction allowance. Every other escape keeps the 3.5 mm budget.
+        limit = 5.6 if key == ("U205", "2") else 3.5
+        choices = []
+        for ident, xy in sorted(ground_vias, key=lambda v: math.dist(start, v[1]))[:24]:
+            if math.dist(start, xy) > limit:
+                continue
+            for path in candidate_paths(start, xy):
+                path = [p for i, p in enumerate(path) if not i or p != path[i-1]]
+                length = sum(math.dist(p, q) for p, q in zip(path, path[1:]))
+                if length <= limit and context.screen.legal("AGND", layer, path):
+                    choices.append((length, path, ident, xy, False))
+        if not choices and key == ("U205", "2"):
+            xy = (84.25, 27.6)
+            plane = next(z for z in captured["zones"] if not z["keepout"] and z["net"] == "AGND")
+            from hardware.fabrication.route_nf_surface import shape
+
+            assert shape(plane["polygons"]).buffer(0).covers(Point(xy).buffer(.31))
+            assert context.via_ok(xy, "AGND")
+            path = [start, (85.5, 24.85), (84.25, 24.85), xy]
+            length = sum(math.dist(p, q) for p, q in zip(path, path[1:]))
+            assert length <= limit and context.screen.legal("AGND", layer, path)
+            choices.append((length, path, uid("supervisor-ground-repair-via"), xy, True))
+        assert choices, ("Ground repair route unavailable", key)
+        length, path, via_id, xy, new_via = min(choices, key=lambda r: r[0])
+        track_ids = []
+        for p, q in zip(path, path[1:]):
+            ident = uid(f"repair-track:{key}:{layer}:{p}:{q}")
+            track_ids.append(ident)
+            board.append([a("segment"), [a("start"), *p], [a("end"), *q], [a("width"), .2],
+                          [a("layer"), layer], [a("net"), agnd], [a("uuid"), ident]])
+        if new_via:
+            board.append([a("via"), [a("at"), *xy], [a("size"), .6], [a("drill"), .3],
+                          [a("layers"), "F.Cu", "B.Cu"], [a("net"), agnd], [a("uuid"), via_id]])
+            ground_vias.append((via_id, xy))
+            new_vias.append(dict(uuid=via_id, xy_mm=xy, diameter_mm=.6, drill_mm=.3))
+        row = dict(ref=key[0], pin=key[1], net="AGND", layer=layer, path_mm=path,
+                   actual_length_mm=length, maximum_length_mm=limit, width_mm=.2, via_uuid=via_id,
+                   segment_uuids=track_ids, adds_new_via=new_via,
+                   source_group_contacts=[dict(ref=key[0], pin=key[1])])
+        ground_routes.append(row)
+        repairs.append(row)
+    assert len(ground_routes) == 182
+    plan = json.loads((SOURCE / "plan.json").read_text())
+    plan["poses"]["C310"] = [94.5, 32, 270, "B"]
+    parts, pins = netlist(SOURCE / "native-netlist.xml")
+    parent = read_sexpr((SOURCE / "audio_core.kicad_pcb").read_text())
+    original_zones = children(parent, "zone")
+    receiving_board = [n for n in board if not isinstance(n, list) or not n or n[0] not in ("segment", "via", "zone")
+                       or n[0] == "zone" and n in original_zones]
+    geometry = verify_geometry(receiving_board, plan, parts, pins)
+    dest_dir.mkdir()
+    for p in source_dir.iterdir():
+        if p.suffix in (".kicad_sch", ".kicad_pro", ".kicad_sym", ".kicad_dru") or p.name in (
+                "fp-lib-table", "sym-lib-table", "plane-construction.json", "plane-net-assignment.json"):
+            shutil.copyfile(p, dest_dir / p.name)
+    shutil.copytree(source_dir / "libraries", dest_dir / "libraries")
+    (dest_dir / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")
+    dest = dest_dir / "escape-input.kicad_pcb"
+    dest.write_text(sexpr(board) + "\n")
+    applied = dest_dir / "applied-ground-repair.py.txt"
+    shutil.copyfile(Path(__file__), applied)
+    source_paths = [source, source_dir / "escape-construction.json", source_dir / "ground-connectivity-review.json",
+                    SOURCE / "native-pad-capture.json", SOURCE / "plan.json", applied,
+                    ROOT / "audio_main_escape_router.py", ROOT / "audio_main_local_repack.py"]
+    data = dict(source_sha256=relative_hashes(source_paths), authored_PCB_sha256=sha(dest),
+                ground_escapes=ground_routes, repaired_ground_escapes=repairs,
+                removed_segment_uuids=bad["segment_uuids"], removed_via_uuid=bad["via_uuid"],
+                added_vias=new_vias, deferred_ground_groups=[], receiving_geometry=geometry,
+                declared_pose_changes={"C310": dict(before=oldposes["C310"], after=changes["C310"])},
+                prior_analog_compensation_copper_and_critical_poses_preserved=True,
+                maximum_normal_ground_escape_mm=3.5, supervisor_uses_original_local_ground_allowance_mm=5.6,
+                electrical_noise_thermal_and_process_qualified=False, fabrication_released=False)
+    (dest_dir / "escape-construction.json").write_text(json.dumps(data, indent=2) + "\n")
+    assert sha(applied) == sha(Path(__file__)) and original
+    print("Repaired four ground branches; C310 rotated in its existing courtyard; native checks pending")
+
+
+def capture_pads():
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    import pcbnew
+
+    from hardware.fabrication.capture_board import polygons
+
+    pcb = OUT / "audio_core.kicad_pcb"
+    applied = snapshot("final-pad-capture")
+    board = pcbnew.LoadBoard(str(pcb))
+    objects = []
+    for fp in board.GetFootprints():
+        for pad in fp.Pads():
+            row = dict(ref=fp.GetReference(), pin=pad.GetNumber(), net=pad.GetNetname(),
+                       position_mm=[pad.GetPosition().x/1e6,pad.GetPosition().y/1e6],
+                       drill_mm=[pad.GetDrillSize().x/1e6,pad.GetDrillSize().y/1e6], layers={})
+            for layer in ("F.Cu", "B.Cu", "In1.Cu", "In2.Cu"):
+                ident = board.GetLayerID(layer)
+                if pad.IsOnLayer(ident):
+                    poly = pcbnew.SHAPE_POLY_SET()
+                    pad.TransformShapeToPolygon(poly, ident, 0, pcbnew.FromMM(.001), pcbnew.ERROR_OUTSIDE)
+                    poly.Simplify()
+                    row["layers"][layer] = polygons(poly)
+            objects.append(row)
+    result = dict(source_sha256=relative_hashes([pcb, applied, ROOT / "capture_board.py"]),
+                  native_version=pcbnew.GetBuildVersion(), objects=objects, fabrication_released=False)
+    with (OUT / "native-pad-capture.json").open("x") as f:
+        json.dump(result,f,separators=(",", ":"))
+        f.write("\n")
+    assert sha(applied) == sha(Path(__file__))
+    print("Captured",len(objects),"current native pad geometries")
+
+
+def repaired_action(action):
+    global OUT
+    OUT = ROOT / "staging/audio-main-ground-02"
+    {"fill": final_fill, "review": review, "pads": capture_pads}[action]()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("build", "fillplane", "capture", "nameplane", "fillnetted", "capturenetted", "escapes", "finalfill", "review", "repair", "repairfill", "repairreview", "repairpads"))
+    args = parser.parse_args()
+    {"build": build, "fillplane": fill, "capture": capture, "nameplane": nameplane,
+     "fillnetted": lambda: fill("netted-plane"), "capturenetted": lambda: capture("netted-plane"),
+     "escapes": escapes, "finalfill": final_fill, "review": review, "repair": repair,
+     "repairfill": lambda: repaired_action("fill"), "repairreview": lambda: repaired_action("review"),
+     "repairpads": lambda: repaired_action("pads")}[args.action]()

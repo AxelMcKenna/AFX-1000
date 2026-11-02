@@ -12,7 +12,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--mode',choices=['selector','pattern','performance-selector'],required=True)
     for k in ['host','plugin','output']:p.add_argument('--'+k,type=Path,required=True)
     p.add_argument('--expected-output-sha256');p.add_argument('--effect-index',type=int,choices=range(9),default=0)
-    p.add_argument('--family',choices=['switch','tempo'],default='switch');p.add_argument('--stage',choices=['fresh','fresh2','fresh3'],default='fresh');a=p.parse_args()
+    p.add_argument('--family',choices=['switch','tempo','scene','release'],default='switch');p.add_argument('--stage',choices=['fresh','fresh2','fresh3'],default='fresh');a=p.parse_args()
     if a.output.exists():raise ValueError('Choose a new report')
     pattern=a.mode=='pattern';performance=a.mode=='performance-selector';observer=Path('research/audio/experiments')/('pattern_clock_observer.py' if pattern else 'scene_selector_observer.py' if performance else 'scene_motion_observer.py');observer=observer.resolve()
     c=path.control_case(next(c for c in path.recipe('fresh') if c['name']=='path-fresh-tempo-03')) if pattern else path.recipe('discovery')[0]|dict(effect=0,main=95,changes=[dict(frame=4096,type='N',value=1),dict(frame=8192,type='N',value=0)],block=128)
@@ -34,7 +34,7 @@ def main():
         if performance:
             blocks=set(range(16))
             for e in c['changes']:
-                if e['type'] in 'NEZ':
+                if e['type'] in 'NEZVBCe':
                     at=e['frame']//32;blocks.update(range(max(0,at-4),min(15000,at+60)));blocks.update(b for b in [at+128,at+256,at+512] if b<15000)
             save_json(root/'blocks.json',sorted(blocks));env += ['RMX_SCENE_SELECTOR_BLOCKS='+str(root/'blocks.json')]
         space.run(['env',*env,'lldb','--batch','-s',commands])

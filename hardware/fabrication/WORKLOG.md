@@ -1280,3 +1280,113 @@ The two local endpoints and thirteen returns, all other board routing, ESS
 package/interface data and physical ADC stars, complete parts/mating/harness/
 support/case receiving, PDN/noise/stability/thermal qualification, and inspected
 manufacturing/first-article outputs remain unfinished.
+
+
+## 2026-11-02 — DC04 partial signals and four/six-layer comparison
+
+Continued the combined digital routing from DC03's 255 open connections.
+Priority audio/SD routes, protected-copper router trials and polygon-screened
+routes produced a four-layer checkpoint with 143 opens. Native-reported unused
+vias and leaf branches were pruned in successive preserved variants. Selected
+`digital-four-clean-native-03` now has zero native geometry, schematic-parity or
+ERC findings with all categories enabled. It contains 1,252 tracks and 243 vias;
+all DC03 footprints, original tracks/vias, authored planes and root geometry are
+exact. All 201 power/ground pads, 39 local connections and 33 thermal connections
+remain native-connected. Both refilled planes retain one copper component;
+zero-area exported ring slits normalize without changing area materially.
+
+The independent DC04 handoff screens all 107 new via drills against actual SMD
+copper on both faces, including same-net lands: minimum gap 0.16998 mm. The 21
+older mask-covered heat-spreader vias retain their separate process hold. No
+new via hole overlaps an SMD land. Source-bound native witnesses, drill rows,
+open-net groups and per-net copper lengths are saved with the checkpoint.
+
+All SD and audio-data nets are connected. SD carrier copper totals nevertheless
+range from 47.571 to 84.274 mm, with 0–4 vias and unequal data via counts. This is
+an explicit timing/reference/impedance rework item, not a qualified interface.
+The totals exclude Seed/module/socket, component, barrel and off-board paths.
+The review cites ST AN4938 Rev 7 section 9.4.1. Seventy-six LED-output nets,
+thirteen control nets and twenty-seven other nets remain open (116 nets,
+143 connection gaps). Reserve local escapes and revisit SD placement before
+completing global routing; bounded searches do not prove unroutability.
+
+A separate six-layer trial adds an In3 signal layer and an In4 ground plane.
+After another bounded pass and native stub cleanup, `digital-six-clean-native-01`
+has 113 opens and zero geometry/parity/ERC findings. Its independent comparison
+checks original DC03 copper/poses, the declared layer/zone additions, preserved
+power/local/thermal connections and new drill clearances. It still has 72 open
+LED-output and thirteen open control nets. The trial is unselected; actual
+stack, impedance, process, cost and return-path acceptance remain open.
+
+Scope now selects DC04 and AP04. AP04 rechecks unchanged digital poses against
+conditional component/floor/context limits; the full assembly remains unfinished.
+The digital handoff, six-layer comparison and AP04 receipt replay exactly. All
+thirteen focused digital integration/annotation tests pass, and the complete
+15-role source audit passes with no missing sources. Native front/back/ground/
+power plots and the AP04 arrangement were visually inspected. Concurrent audio
+and runtime-tool work was preserved; selected audio remains local-routing-02.
+
+The saved DC04 README evaluates the unit: audio still has 588 opens and a missing
+ESS footprint, NF has 138 opens and two explicit ERC warnings, E28/P03 retain
+location-specific drill/process holds, and full PDN/noise/stability/thermal,
+mechanical/harness receiving and fabrication/first-article outputs remain open.
+No native Mac CAD, supplier request, order, commit or fabrication release occurred.
+
+
+## AC04 — complete local endpoints and placed-ground reference
+
+The six-section audio candidate now closes all 131 declared local signal/supply
+endpoints. D102 shifts 0.5 mm, C118 moves provisionally nearer the codec reserve,
+and R324 is reoriented to clear conventional escapes; no amplifier or direct
+compensation-capacitor copper moves. Fresh native pads independently match the
+planning transform. Native pad UUIDs are generated anew on load, so terminal
+identity is checked by reference, number and physical position. The additional
+D102.2 V5 clamp contact is independently confirmed. This intermediate has 585
+opens and zero native geometry/ERC findings, with the missing codec retained.
+
+A native-filled In1 AGND reference protects twelve sensitive-node openings on
+both inner layers and all six proposed mounting-hardware copper exclusions.
+The initial legacy-format input omitted the explicit zone net_name; native
+capture exposed the unassigned plane before escapes were attempted. Corrected
+net assignment and its source snapshots are retained. The first routed trial
+closed 197/200 grounds but native checks caught two off-centre track/via joins
+at a new C227 ground via. That trial remains unselected with its findings.
+
+The corrected successor removes that via and reuses a centred ground via,
+completes C104's return, rotates C310 in its unchanged courtyard and completes
+its return, and adds the supervisor ground escape. The latter is 4.75 mm within
+the original 5.6 mm local-ground request allowance; all normal ground escapes
+retain 3.5 mm, and all analog local length/clearance budgets remain unchanged.
+Native checks now confirm all 200 placed AGND terminals connected to J701.2,
+all 131 local signal/supply endpoints and all twenty declared local ground
+returns. Opens fall from the earlier 588 to 393. The candidate has 448 tracks
+and 199 conventional 0.60/0.30 mm vias, including 179 added ground vias.
+
+All native geometry/ERC categories remain enabled: geometry 0, ERC 0, one
+explicit missing-U201 footprint parity finding. Independent actual-drill checks
+retain a 0.170 mm minimum hole-edge-to-SMD gap across both faces, even on the
+same net. Actual reference fill area is 8,182.35 mm². Protected openings are
+checked against actual sensitive-node lands and retained copper; boundary
+comparison accounts only for one-nanometre coordinate serialization. Receiving
+is renewed after the four unrouted-part pose changes. Height, mate, hardware,
+stack, mask/tenting/stencil and full analog/PDN/thermal limits remain unapproved.
+
+Top, bottom and inner reference PNGs were visually inspected. Focused audio-main
+regression runs 37 tests successfully. Source selection and the README now
+reference the complete placed-ground candidate while withholding fabrication
+release. Global signals/supplies, actual ESS land/interfaces and ADC stars,
+parts/harness/support/case receiving, electrical/fault/noise/stability/thermal
+review and inspected manufacturing/first-article outputs remain unfinished.
+No native Mac CAD app, bulk-audio batch, supplier request or order was launched.
+
+
+Final combined-checkpoint verification: 835 tooling tests complete with three
+skips; all 23 CAD integration tests pass. All 43 newly added Python sources
+parse and have zero syntax/undefined-name diagnostics. Focused audio-module
+Ruff checks pass. The current 15-role inventory replays without missing selected
+sources. All three new audio PCB views match recorded source/image hashes.
+The shared DC04 checkpoint independently retains native-clean partial routing
+at 143 opens and its explicit SD timing/process/assembly holds. The read-only
+performance observer's existing Scene/Release families are now exposed by its
+CLI, and help parsing confirms those choices. The complete unit remains
+unreleased; these verification results do not qualify assembled hardware.

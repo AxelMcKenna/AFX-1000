@@ -58,6 +58,15 @@ def render_readiness(report):
                     "clear native SMD copper by at least 0.170 mm at the drill edge; process acceptance remains open.",
                     "R319 common-mode feedback, C127 supply, thirteen local ground returns and global routing remain unfinished.",
                     "The existing direct high-frequency compensation capacitor tracks are unchanged."]
+            elif layout.get("routing_stage") == "ground_02":
+                lines += ["All 131 declared local signal/supply endpoints and all 20 declared local ground-return pairs are native-connected.",
+                    "The In1 AGND plane connects every one of the 200 placed ground pads to the input ground.",
+                    f"The candidate has {layout['tracks']} tracks and {layout['vias']} conventional 0.60/0.30 mm vias;",
+                    "the minimum screened drill-edge-to-SMD gap is 0.170 mm. Twelve sensitive-node plane openings",
+                    "and six mounting-hardware copper exclusions remain protected. All amplifier placements and",
+                    "their direct compensation capacitor traces are retained. Four previously unrouted parts",
+                    "have renewed receiving after local changes. Full power/return, noise/stability, stack/process",
+                    "and whole-unit thermal/mating/harness qualification remain unfinished."]
         else:
             lines += ["The combined schematic project has no PCB layout."]
     digital = report.get("shared_digital_core")
@@ -81,9 +90,20 @@ def render_readiness(report):
                 "occupy mask-covered heat-spreader copper outside solder openings.",
                 "The mapped drill process still requires acceptance. Signal routing and",
                 "current/voltage/noise/thermal qualification remain unfinished."]
+        if digital.get("revision") == "DC04":
+            lines += ["The DC04 signal-routing checkpoint preserves all 201 connected power/ground pads,",
+                "39 local connections and 33 thermal connections. The four-layer stack, component",
+                "poses, mounts, outline and all DC03 copper remain unchanged. Both plane fills remain connected.",
+                "Its 1,252 tracks and 243 vias include 107 new drills clearing SMD copper by at least 0.169 mm.",
+                "The 21 earlier mask-covered heat-spreader vias retain their separate process hold.",
+                "SD and audio data nets are connected, but SD carrier trace totals span 47.6–84.3 mm",
+                "with unequal via counts. Timing, impedance, return paths and off-board interfaces remain unqualified.",
+                "The 116 open nets include 76 LED outputs and 13 control nets. LED/control escapes",
+                "and SD routing need rework before power/noise/thermal and manufacturing acceptance.",
+                "See the [signal-routing review](staging/digital-four-clean-native-03/README.md)."]
     plan = report.get("assembly_layout_plan")
     if plan:
-        arrangement = {"AP03":"assembly-layout-03","AP02":"assembly-layout-02"}.get(plan.get("revision"),"assembly-layout-01")
+        arrangement = {"AP04":"assembly-layout-04","AP03":"assembly-layout-03","AP02":"assembly-layout-02"}.get(plan.get("revision"),"assembly-layout-01")
         lines += ["", f"The [{plan.get('revision','AP01')} arrangement](staging/{arrangement}/README.md) fixes allocations for the next PCB work:",
             "six audio roles on the left, combined digital on the right, an upper rail-monitor",
             "board, and the existing touch-module front bay. Its eight functional PCB",
@@ -190,7 +210,9 @@ def run():
             sources.update(interfaces["current_source_sha256"])
         layout=shared.get("layout_candidate")
         if layout:
-            if layout.get("routing_stage") == "local_cells_02":
+            if layout.get("routing_stage") == "ground_02":
+                from hardware.fabrication.audit_audio_main_ground import check as check_audio_placement
+            elif layout.get("routing_stage") == "local_cells_02":
                 from hardware.fabrication.audit_audio_main_routes import check as check_audio_placement
             else:
                 from hardware.fabrication.audit_audio_main_placement import check as check_audio_placement
@@ -207,9 +229,12 @@ def run():
                 native_missing_codec_footprint_findings=1,uncapped_open_connections=placement["uncapped_open_connections"],
                 current_source_bound_placement_evidence_matches=True,routed=False,
                 mechanical_receiving_complete=False,ready_for_fabrication=False)
-            if layout.get("routing_stage") == "local_cells_02":
+            if layout.get("routing_stage") in ("local_cells_02", "ground_02"):
                 for key in ("local_connected_pairs", "connected_signal_supply_endpoints", "tracks", "vias",
                             "minimum_screened_drill_edge_to_SMD_copper_mm"):
+                    layout[key] = placement[key]
+            if layout.get("routing_stage") == "ground_02":
+                for key in ("connected_ground_pads", "connected_declared_local_ground_returns", "ground_plane_area_mm2"):
                     layout[key] = placement[key]
             shared["layout_candidate"]=layout
     digital = scope.get("shared_digital_core")
@@ -220,6 +245,8 @@ def run():
             from hardware.fabrication.audit_digital_cells import check as check_digital_placement
         elif digital.get("revision") == "DC03":
             from hardware.fabrication.audit_digital_distribution import check as check_digital_placement
+        elif digital.get("revision") == "DC04":
+            from hardware.fabrication.audit_digital_signals import check as check_digital_placement
 
         digital = dict(digital)
         assert set(digital["member_roles"]) == {"processor_carrier","control_inputs","led_driver"}
@@ -236,7 +263,9 @@ def run():
             routed=False,mechanical_receiving_complete=False,ready_for_fabrication=False)
     plan = scope.get("assembly_layout_plan")
     if plan:
-        if plan.get("revision") == "AP03":
+        if plan.get("revision") == "AP04":
+            from hardware.fabrication.assembly_layout_v4 import calculate
+        elif plan.get("revision") == "AP03":
             from hardware.fabrication.assembly_layout_v3 import calculate
         elif plan.get("revision") == "AP02":
             from hardware.fabrication.assembly_layout_v2 import calculate

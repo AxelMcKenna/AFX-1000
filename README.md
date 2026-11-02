@@ -47,13 +47,16 @@ See the [A11 editable CAD](hardware/cad/a11/README.md), [printer handoff](hardwa
 
 Native KiCad layouts from the standalone electronics work. These are engineering candidates; they have not been manufactured or electrically qualified. Click a layout for the full-resolution image.
 
-**Combined main audio local routing · 150 × 63 mm · four-layer candidate**
+**Combined main audio routing and reference plane · 150 × 63 mm · four-layer candidate**
 
 | Top local copper | Bottom local copper, viewed from below |
 | --- | --- |
-| [![Partial main audio PCB: actual top copper and lands](hardware/fabrication/staging/audio-main-local-routing-02/plots/top.png)](hardware/fabrication/staging/audio-main-local-routing-02/plots/top.png) | [![Partial main audio PCB: actual bottom copper and lands](hardware/fabrication/staging/audio-main-local-routing-02/plots/bottom.png)](hardware/fabrication/staging/audio-main-local-routing-02/plots/bottom.png) |
+| [![Partial main audio PCB: actual top copper and lands](hardware/fabrication/staging/audio-main-ground-02/plots/top.png)](hardware/fabrication/staging/audio-main-ground-02/plots/top.png) | [![Partial main audio PCB: actual bottom copper and lands](hardware/fabrication/staging/audio-main-ground-02/plots/bottom.png)](hardware/fabrication/staging/audio-main-ground-02/plots/bottom.png) |
 
-The [six-section audio candidate](hardware/fabrication/staging/audio-main-local-routing-02/README.md) retains **328 known electrical footprints**, including four bare test pads, and six proposed mounts. **136 local connections** are native-confirmed, reducing opens from 724 to **588**. Its 257 tracks and 16 conventional vias preserve the direct high-frequency compensation capacitor traces and all component poses. Native geometry and ERC findings remain zero with all categories enabled. **The ESS codec footprint is missing and routing is unfinished.** The marked reserve is not a land pattern; full parts/process, analog and assembly verification remain open.
+The [six-section audio candidate](hardware/fabrication/staging/audio-main-ground-02/README.md) retains **328 assigned electrical footprints**, including four bare test pads, and six proposed mounts. **All 131 declared local signal/supply endpoints and all 200 placed ground pads are native-connected.** Opens have fallen from 724 to **393**. Its 448 tracks and 199 conventional vias preserve every amplifier placement and direct compensation capacitor track. Native geometry and ERC findings remain zero with all categories enabled. **The ESS codec footprint is missing and global routing is unfinished.** Full parts/process, analog, power/thermal and assembly verification remain open.
+
+[![Actual inner AGND reference copper, sensitive-node openings and mounting exclusions](hardware/fabrication/staging/audio-main-ground-02/plots/ground.png)](hardware/fabrication/staging/audio-main-ground-02/plots/ground.png)
+
 
 | E12 ADC driver · 110 × 78 mm | Main supply candidate · 90 × 44 mm |
 | --- | --- |
