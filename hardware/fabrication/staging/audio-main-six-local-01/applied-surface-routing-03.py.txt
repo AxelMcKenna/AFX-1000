@@ -1,0 +1,185 @@
+"""Add short surface feedback and passive links; never move existing circuitry.
+
+This comparison starts from the native-reviewed six-layer control trial. All CAD
+operations run in offline Linux. A native rule/connectivity review remains
+mandatory; short routed links do not qualify the complete analogue circuit.
+"""
+
+import argparse
+import itertools
+import json
+import math
+import shutil
+import sys
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import read_sexpr, sexpr
+from hardware.fabrication.audio_main_bypass_repack import add_geometry
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-six-control-01"
+OUT = ROOT / "staging/audio-main-six-local-01"
+FEEDBACK = [("U103", "1", "2"), ("U103", "7", "6"),
+            ("U104", "1", "2"), ("U104", "8", "9"),
+            ("U305", "1", "2"), ("U305", "7", "6")]
+# Explicit local low-current nets. Balanced converter outputs, charge pumps,
+# negative bias, relay coils, long signal trunks and codec clock nets are absent.
+LOCAL_NETS = {
+    "/ADC/THRESH_LOWER", "/ADC/THRESH_UPPER", "/ADC/REF_DIV_L", "/ADC/REF_DIV_R",
+    "/DAC/CM_SUM_L", "/DAC/CM_SUM_R", "/DAC/RX_POS_L", "/DAC/RX_POS_R",
+    "/INPUT/ATTN_L", "/INPUT/ATTN_R", "/INPUT/BUF_IN_L", "/INPUT/BUF_IN_R",
+    "/DAC/HP_NODE_L", "/DAC/HP_NODE_R", "RECV_L", "RECV_R",
+    "/CODEC/SCL", "/CODEC/SDA",
+}
+
+
+def snapshot(label):
+    p = OUT / ("applied-" + label + ".py.txt")
+    number = 2
+    while p.exists():
+        p = OUT / ("applied-" + label + f"-{number:02}.py.txt")
+        number += 1
+    shutil.copyfile(Path(__file__), p)
+    return p
+
+
+def capture():
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    from hardware.fabrication.capture_audio_layer_trial import capture as native_capture
+
+    assert not OUT.exists()
+    drc = json.loads((SOURCE / "drc.json").read_text())
+    assert drc["violations"] == drc["ignored_checks"] == []
+    assert len(drc["unconnected_items"]) == 201
+    OUT.mkdir()
+    applied = snapshot("input-capture")
+    native_capture(OUT, SOURCE / "audio_core.kicad_pcb",
+                   SOURCE / "terminal-connectivity-review.json", "native-inputs.json", applied)
+
+
+def build():
+    from shapely.geometry import LineString
+
+    from hardware.fabrication.audio_main_continuous_path import route
+    from hardware.fabrication.route_nf_surface import Screen, candidate_paths
+
+    assert not (OUT / "distribution-input.kicad_pcb").exists()
+    applied = snapshot("surface-routing")
+    captured = json.loads((OUT / "native-inputs.json").read_text())
+    verify_hashes(captured["source_sha256"])
+    assert captured["native_uncapped_opens"] == 201 and captured["layer_count"] == 6
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    pads = {(o["ref"], o["pin"]): o for o in objects.values() if o["kind"] == "PAD" and o["pin"]}
+    membership = {uid: k for k, ids in captured["groups"].items() for uid in ids}
+    parent = {k: k for k in captured["groups"]}
+
+    def root(k):
+        while parent[k] != k:
+            parent[k] = parent[parent[k]]
+            k = parent[k]
+        return k
+
+    tasks = []
+    for ref, left, right in FEEDBACK:
+        p, q = pads[ref, left], pads[ref, right]
+        assert p["net"] == q["net"]
+        tasks.append((0, 1.27, p, q, 2.5, "local_buffer_feedback"))
+    for ref, left, right in [("U104", "2", "5"), ("U104", "9", "12")]:
+        p, q = pads[ref, left], pads[ref, right]
+        assert p["net"] == q["net"]
+        tasks.append((1, 3.81, p, q, 6.0, "local_reference_buffer_feed"))
+    for p, q in itertools.combinations(pads.values(), 2):
+        distance = math.dist(p["position_mm"], q["position_mm"])
+        if p["net"] not in LOCAL_NETS or p["net"] != q["net"] or distance > 6 or distance < 1e-7:
+            continue
+        if any(face in p["layers"] and face in q["layers"] for face in ("F.Cu", "B.Cu")):
+            tasks.append((2, distance, p, q, min(8, 1.6*distance+.5), "short_passive_signal_link"))
+    tasks.sort(key=lambda t: (t[0], t[1], t[2]["ref"], t[2]["pin"], t[3]["ref"], t[3]["pin"]))
+    screen = Screen(captured)
+    # The continuous planner also accepts surface-only screens. No vias are
+    # proposed or retired; existing via annuli are already native obstacles.
+    screen.vias, screen.new_vias = [], []
+    routes, deferred = [], []
+    for _, _, p, q, limit, purpose in tasks:
+        left, right = membership[p["uuid"]], membership[q["uuid"]]
+        if root(left) == root(right):
+            continue
+        net, start, end = p["net"], p["position_mm"], q["position_mm"]
+        selected = []
+        for face in ("F.Cu", "B.Cu"):
+            if not p["layers"].get(face) or not q["layers"].get(face):
+                continue
+            for raw in candidate_paths(start, end):
+                points = [xy for i, xy in enumerate(raw) if not i or xy != raw[i-1]]
+                length = LineString(points).length
+                if length <= limit and screen.legal(net, face, points):
+                    selected.append((length, face, points))
+            if not selected:
+                bounds = [min(start[0], end[0])-2, min(start[1], end[1])-2,
+                          max(start[0], end[0])+2, max(start[1], end[1])+2]
+                path = route(screen, net, face, start, end, bounds, seconds=3)
+                if path and path["length_mm"] <= limit:
+                    selected.append((path["length_mm"], face, path["points_mm"]))
+        if not selected:
+            deferred.append(dict(net=net, endpoints=[[p["ref"], p["pin"]], [q["ref"], q["pin"]]],
+                                 maximum_planar_length_mm=limit, purpose=purpose))
+            continue
+        length, face, points = min(selected, key=lambda choice: (choice[0], choice[1]))
+        lhs, rhs = root(left), root(right)
+        source_groups = [[k for k in parent if root(k) == r] for r in (lhs, rhs)]
+        parent[rhs] = lhs
+        routes.append(dict(net=net, source_groups=source_groups, runs=[(face, points)],
+                           terminal_points_mm=[start, end], new_vias_mm=[],
+                           planar_length_mm=length, maximum_planar_length_mm=limit,
+                           endpoints=[[p["ref"], p["pin"]], [q["ref"], q["pin"]]], purpose=purpose))
+        screen.added.append((net, face, LineString(points)))
+        print(net, p["ref"]+"."+p["pin"], q["ref"]+"."+q["pin"], round(length, 3), "mm", flush=True)
+    assert routes
+    source_pcb = SOURCE / "audio_core.kicad_pcb"
+    board = read_sexpr(source_pcb.read_text())
+    count, original = len(board), sexpr(board)
+    added = []
+    for r in routes:
+        for face, points in r["runs"]:
+            add_geometry(board, added, r["net"], face, points, .2, r["purpose"])
+    assert sexpr(board[:count]) == original and all(n[0] == "segment" for n in board[count:])
+    for p in SOURCE.iterdir():
+        if p.suffix in (".kicad_sch", ".kicad_pro", ".kicad_sym", ".kicad_dru") or p.name in ("plan.json", "fp-lib-table", "sym-lib-table"):
+            shutil.copyfile(p, OUT / p.name)
+    shutil.copytree(SOURCE / "libraries", OUT / "libraries")
+    dest = OUT / "distribution-input.kicad_pcb"
+    dest.write_text(sexpr(board)+"\n")
+    record = dict(source_sha256=relative_hashes([applied, OUT / "native-inputs.json", source_pcb,
+                   ROOT / "audio_main_continuous_path.py", ROOT / "route_nf_surface.py",
+                   ROOT / "audio_main_bypass_repack.py", SOURCE / "native-netlist.xml"]), authored_PCB_sha256=sha(dest),
+                  routes=routes, deferred_requests=deferred, added_segments=added, added_vias=[],
+                  trace_width_mm=.2, clearance_mm=.2, planning_margin_mm=.01,
+                  expected_native_opens=201-len(routes), no_existing_copper_component_or_stack_changes=True,
+                  native_checks_pending=True, fabrication_released=False)
+    (OUT / "distribution-construction.json").write_text(json.dumps(record, indent=2)+"\n")
+    print("Constructed", len(routes), "surface joins; expected opens", record["expected_native_opens"])
+
+
+def native(action):
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    applied = snapshot(action + "-entry")
+    if action == "fill":
+        from hardware.fabrication import audio_main_power_routes as helper
+        helper.OUT = OUT
+        helper.fill()
+    elif action == "review":
+        from hardware.fabrication.audio_main_native_review import review
+        review(OUT, SOURCE / "terminal-connectivity-review.json", OUT / "native-inputs.json",
+               OUT / "distribution-construction.json", applied)
+    else:
+        from hardware.fabrication.review_audio_layer_retention import review
+        review(SOURCE, OUT, 67, applied)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("capture", "build", "fill", "review", "retain"))
+    action = parser.parse_args().action
+    {"capture": capture, "build": build}.get(action, lambda: native(action))()
