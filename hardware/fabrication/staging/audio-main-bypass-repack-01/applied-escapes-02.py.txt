@@ -1,0 +1,423 @@
+"""Move the bypass supervisor into screened space and renew obstructed control exits."""
+
+import argparse
+import json
+import math
+import shutil
+import sys
+import time
+import uuid
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import a, children, first, read_sexpr, sexpr
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-controls-06"
+OUT = ROOT / "staging/audio-main-bypass-repack-01"
+DELTA = (32.5, -40)
+REFS = {"U605", "C606"}
+PRIVATE = {
+    "cc214893-89fe-51f3-9ab0-dffa88e844df", "78995919-a9ad-5c85-88e9-99c1fd71a7e1",
+    "ddc84dd6-8d93-55fe-98e6-a0b37cbff079", "049dbe51-db18-5966-81e9-ce7e94c1ec8a",
+    "04423b7f-39c8-5628-8e10-d68ccd302ec7", "5f7d4c1a-1a82-58dc-92ce-a27b69357d6f",
+}
+ENTRIES = {
+    "725132df-fc3d-511f-aeaa-2f7e178f5fac", "c5015426-9b2c-5fce-8c30-4c9bf7b0e109",
+    "f4851338-4a24-5ac9-8e47-80c0b47eb1f3", "a2605fbd-cb20-5bc0-b487-eef218346a38",
+}
+GPIO = {
+    "689bea6e-5162-541d-9514-d1e9ecc2b4e0", "1494d7dd-7715-5eb7-bda8-496faae018bf",
+    "92d5366d-6ace-5c76-8f25-6b1a8659cb16", "792f5697-a2fe-5192-8344-ae9440270735",
+    "508057c8-46fe-559a-bdc7-316ce0e9928c", "4f039948-602d-55e3-bdc1-e7c6e759167e",
+    "327f6fca-563b-59fe-bfcd-d9b9eeb0e9c0", "284ed614-46f5-55cf-aa0c-40fb6871b98b",
+    "04fd7b61-ed61-5539-a6a0-3597b0bbc26e", "0ed1257d-b9d9-54c3-9726-c4b1402b4361",
+}
+PORTS = (("U606", "3"), ("U606", "10"), ("U606", "11"), ("U606", "12"), ("U605", "1"))
+
+
+def shift(point):
+    return [round(float(v)+d, 8) for v, d in zip(point, DELTA)]
+
+
+def snapshot(label):
+    dest = OUT / ("applied-"+label+".py.txt")
+    number = 2
+    while dest.exists():
+        dest = OUT / ("applied-"+label+f"-{number:02}.py.txt")
+        number += 1
+    shutil.copyfile(Path(__file__), dest)
+    return dest
+
+
+def prepare():
+    from hardware.electronics.output_stage.check_placement import courtyard
+    from hardware.fabrication.audio_main_local_repack import ReceivingSpace, footprints, poses, set_poses
+    from hardware.fabrication.audio_main_power_pruning import prune
+    from hardware.fabrication.audio_main_settle_repack import translate_object
+
+    dest = OUT / "prepared-input.kicad_pcb"
+    assert not dest.exists()
+    applied = snapshot("prepare")
+    captured = json.loads((OUT / "native-inputs.json").read_text())
+    verify_hashes(captured["source_sha256"])
+    assert captured["native_uncapped_opens"] == 208
+    survey = json.loads((OUT / "supervisor-space-survey.json").read_text())
+    verify_hashes(survey["source_sha256"])
+    assert set(survey["proposed_private_copper_to_move"]) == PRIVATE
+    assert set(survey["old_source_entries_requiring_replacement"]) == ENTRIES
+    board = read_sexpr((SOURCE / "audio_core.kicad_pcb").read_text())
+    old = poses(board)
+    updated = {r: (*shift(old[r][:2]), old[r][2]) for r in REFS}
+    assert ReceivingSpace(board, REFS).accepts(updated)
+    set_poses(board, updated)
+    removed = ENTRIES | GPIO
+    seen = set()
+    result = []
+    for node in board:
+        if isinstance(node, list) and node and node[0] in ("segment", "via"):
+            ident = str(first(node, "uuid")[1])
+            if ident in PRIVATE | removed:
+                seen.add(ident)
+            if ident in removed:
+                continue
+            if ident in PRIVATE:
+                for key in (("at",) if node[0] == "via" else ("start", "end")):
+                    first(node, key)[1:3] = shift(first(node, key)[1:3])
+        result.append(node)
+    assert seen == PRIVATE | removed
+    captured["objects"] = [o for o in captured["objects"] if o["uuid"] not in removed]
+    for obj in captured["objects"]:
+        if obj.get("ref") in REFS or obj["uuid"] in PRIVATE:
+            translate_object(obj, shift)
+    pruned = {net: prune(captured, net) for net in ("V3V3_IO", "5V_DIG")}
+    retired = set(ident for rows in pruned.values() for ident in rows)
+    result = [n for n in result if not isinstance(n, list) or not n or n[0] not in ("segment", "via") or first(n, "uuid")[1] not in retired]
+    for p in SOURCE.iterdir():
+        if p.suffix in (".kicad_sch", ".kicad_pro", ".kicad_sym", ".kicad_dru") or p.name in ("fp-lib-table", "sym-lib-table"):
+            shutil.copyfile(p, OUT / p.name)
+    shutil.copytree(SOURCE / "libraries", OUT / "libraries")
+    plan = json.loads((SOURCE / "plan.json").read_text())
+    for ref in REFS:
+        plan["poses"][ref] = [*updated[ref], "F"]
+        plan["expanded_receiving_bounds_mm"][ref] = courtyard(footprints(result)[ref], "F.CrtYd")
+    for cell in plan["local_cells"]:
+        if cell["owner"] in REFS:
+            for terminal in cell["terminals"]:
+                terminal["owner_position_mm"] = shift(terminal["owner_position_mm"])
+    plan["source_sha256"].update(relative_hashes([applied, SOURCE / "plan.json"]))
+    (OUT / "plan.json").write_text(json.dumps(plan, indent=2)+"\n")
+    dest.write_text(sexpr(result)+"\n")
+    inputs = [applied, SOURCE / "audio_core.kicad_pcb", SOURCE / "plan.json", SOURCE / "routing-handoff.json",
+              OUT / "native-inputs.json", OUT / "supervisor-space-survey.json", ROOT / "audio_main_power_pruning.py"]
+    report = dict(source_sha256=relative_hashes(inputs), authored_PCB_sha256=sha(dest),
+                  declared_pose_changes={r: dict(before=old[r], after=updated[r]) for r in sorted(REFS)},
+                  translated_copper_uuids=sorted(PRIVATE), removed_copper_uuids=sorted(removed),
+                  pruned_abandoned_power_copper_uuids=pruned, native_checks_pending=True, fabrication_released=False)
+    (OUT / "preparation-record.json").write_text(json.dumps(report, indent=2)+"\n")
+    print("Prepared supervisor relocation; retired", len(removed), "declared objects and", len(retired), "power leaves")
+
+
+def add_geometry(board, additions, net, layer, points, width, purpose):
+    nets = {str(n[2]): n[1] for n in children(board, "net")}
+    for start, end in zip(points, points[1:]):
+        assert math.dist(start, end) > 1e-7
+        ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:bypass-repack:{net}:{layer}:{start}:{end}:{width}"))
+        node = [a("segment"), [a("start"), *start], [a("end"), *end], [a("width"), width],
+                [a("layer"), layer], [a("net"), nets[net]], [a("uuid"), ident]]
+        existing = [n for n in children(board, "segment") if str(first(n, "uuid")[1]) == ident]
+        if existing:
+            assert existing == [node], "Conflicting deterministic copper identity"
+            continue
+        board.append(node)
+        additions.append(dict(kind="segment", uuid=ident, net=net, layer=layer, start_mm=start,
+                              end_mm=end, width_mm=width, purpose=purpose))
+
+
+def add_via(board, additions, net, xy, purpose):
+    nets = {str(n[2]): n[1] for n in children(board, "net")}
+    ident = str(uuid.uuid5(uuid.NAMESPACE_URL, f"AFX:bypass-repack:via:{net}:{xy}"))
+    board.append([a("via"), [a("at"), *xy], [a("size"), .6], [a("drill"), .3],
+                  [a("layers"), "F.Cu", "B.Cu"], [a("net"), nets[net]], [a("uuid"), ident]])
+    additions.append(dict(kind="via", uuid=ident, net=net, xy_mm=xy, diameter_mm=.6, drill_mm=.3, purpose=purpose))
+
+
+def powers():
+    from shapely.geometry import LineString
+    from shapely.ops import unary_union
+
+    from hardware.fabrication.audio_main_global_controls import SignalScreen
+    from hardware.fabrication.audio_main_power_routes import RAILS, InnerGrid, PowerSpace
+
+    dest = OUT / "powered-input.kicad_pcb"
+    assert not dest.exists()
+    applied = snapshot("powers")
+    capture = OUT / "prepared-native-inputs.json"
+    captured = json.loads(capture.read_text())
+    verify_hashes(captured["source_sha256"])
+    board = read_sexpr((OUT / "prepared-input.kicad_pcb").read_text())
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    pads = {(o["ref"], o["pin"]): o for o in objects.values() if o["kind"] == "PAD" and o["pin"]}
+    membership = {ident: key for key, ids in captured["groups"].items() for ident in ids}
+    context = PowerSpace(captured)
+    screen = SignalScreen(captured)
+    additions, branches = [], []
+    old_vias = [o["position_mm"] for o in objects.values() if o["kind"] == "PCB_VIA"]
+    for terminal in (("U605", "5"), ("C606", "1"), ("U605", "3")):
+        pad = pads[terminal]
+        net = pad["net"]
+        root = membership[pads[RAILS[net]]["uuid"]]
+        group = membership[pad["uuid"]]
+        assert group != root
+        choices = context.choices([objects[i] for i in captured["groups"][group]], net)
+        choices = [c for c in choices if all(math.dist(c["xy_mm"], p) > .86 for p in old_vias+context.new_vias)]
+        chosen = None
+        endpoint_count = 0
+        for layer in ("In2.Cu", "B.Cu", "F.Cu"):
+            obstacles = [g.buffer(d+.2) for other, g, d in screen.geometry[layer] if other != net]
+            obstacles += [g.buffer(.51) for other, face, g in context.added_shapes if face == layer and other != net]
+            free = screen.outline.buffer(-.2).difference(unary_union(obstacles)).buffer(0)
+            grid = InnerGrid(free)
+            endpoints = {}
+            for ident in captured["groups"][root]:
+                obj = objects[ident]
+                if not obj["layers"].get(layer):
+                    continue
+                if obj["kind"] == "PCB_TRACK" and obj["width_mm"] < .6:
+                    continue
+                for point in [obj["position_mm"]]+([obj["end_mm"]] if "end_mm" in obj else []):
+                    target = dict(endpoint_uuid=ident, xy_mm=point, added_via=False)
+                    for key in grid.anchors(point):
+                        endpoints.setdefault(key, target)
+            endpoint_count += len(endpoints)
+            for choice in choices:
+                chain = grid.route(grid.anchors(choice["xy_mm"]), set(endpoints))
+                if chain:
+                    target = endpoints[chain[-1]]
+                    points = grid.simplify([choice["xy_mm"], *[grid.xy(k) for k in chain], target["xy_mm"]])
+                    chosen = choice, target, points, layer
+                    break
+            if chosen:
+                break
+        assert chosen, ("No bounded power route", terminal, len(choices), endpoint_count)
+        choice, target, points, trunk_layer = chosen
+        assert choice["added_via"] and context.via_ok(net, choice["xy_mm"])
+        context.accept(net, choice)
+        add_via(board, additions, net, choice["xy_mm"], "supervisor_power_entry")
+        for layer, path in choice["paths"]:
+            add_geometry(board, additions, net, layer, path, .2, "supervisor_power_entry")
+        add_geometry(board, additions, net, trunk_layer, points, .6, "supervisor_power_trunk")
+        context.added_shapes.append((net, trunk_layer, LineString(points).buffer(.3)))
+        if trunk_layer in ("F.Cu", "B.Cu"):
+            context.surface.added.append((net, trunk_layer, LineString(points).buffer(.2)))
+        branches.append(dict(terminal=terminal, net=net, root_terminal=RAILS[net], source_group=group,
+                             root_group=root, escape=choice, root_contact=target, trunk_layer=trunk_layer, trunk_path_mm=points))
+        print("Reconnected", terminal, net, round(LineString(points).length, 3), "mm", trunk_layer, "trunk", flush=True)
+    dest.write_text(sexpr(board)+"\n")
+    report = dict(source_sha256=relative_hashes([applied, capture, OUT / "prepared-input.kicad_pcb",
+                  ROOT / "audio_main_power_routes.py"]), authored_PCB_sha256=sha(dest), branches=branches,
+                  additions=additions, native_checks_pending=True, fabrication_released=False)
+    (OUT / "power-construction.json").write_text(json.dumps(report, indent=2)+"\n")
+
+
+def draft_capture(phase):
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    from hardware.fabrication.capture_audio_routing_draft import capture
+
+    applied = snapshot(phase+"-native-capture")
+    names = {"prepared": "preparation-record.json", "powered": "power-construction.json", "escaped": "escape-construction.json"}
+    capture(OUT, OUT / (phase+"-input.kicad_pcb"), OUT / names[phase], phase+"-native-inputs.json", applied)
+
+
+def escapes():
+    from shapely.geometry import LineString
+
+    from hardware.fabrication.audio_main_global_controls import SignalScreen
+    from hardware.fabrication.audio_main_joint_fanouts import choices as fanouts
+
+    dest = OUT / "escaped-input.kicad_pcb"
+    assert not dest.exists()
+    applied = snapshot("escapes")
+    capture = OUT / "powered-native-inputs.json"
+    captured = json.loads(capture.read_text())
+    verify_hashes(captured["source_sha256"])
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    pads = {(o["ref"], o["pin"]): o for o in objects.values() if o["kind"] == "PAD" and o["pin"]}
+    members = {i: key for key, ids in captured["groups"].items() for i in ids}
+    screen = SignalScreen(captured)
+    initial = {terminal: fanouts(screen, pads[terminal], members[pads[terminal]["uuid"]]) for terminal in PORTS}
+    order = sorted(PORTS, key=lambda terminal: (len(initial[terminal]), terminal))
+    deadline = time.monotonic()+120
+    visits = 0
+
+    def choose(index, selected):
+        nonlocal visits
+        visits += 1
+        if visits > 5000 or time.monotonic() > deadline:
+            return None
+        if index == len(order):
+            return selected
+        terminal = order[index]
+        pad = pads[terminal]
+        for row in initial[terminal]:
+            if not screen.via_legal(pad["net"], row["point"]) or not all(screen.legal(pad["net"], layer, points) for layer, points in row["runs"]):
+                continue
+            before = len(screen.added), len(screen.new_vias)
+            for layer, points in row["runs"]:
+                screen.added.append((pad["net"], layer, LineString(points)))
+            screen.new_vias.extend((pad["net"], p) for p in row["vias"])
+            result = choose(index+1, selected+[dict(row, ref=terminal[0], pin=terminal[1], net=pad["net"])])
+            if result:
+                return result
+            del screen.added[before[0]:]
+            del screen.new_vias[before[1]:]
+            screen._added_count = screen._via_count = -1
+        return None
+
+    selected = choose(0, [])
+    if not selected:
+        report = dict(source_sha256=relative_hashes([applied, capture]), initial_fanouts=initial,
+                      search_visits=visits, joint_escape_found=False, native_candidate_emitted=False,
+                      fabrication_released=False)
+        # JSON keys must retain the actual ref/pin tuple without conflation.
+        report["initial_fanouts"] = [{"terminal": terminal, "choices": rows} for terminal, rows in initial.items()]
+        (OUT / "joint-escape-diagnostic.json").write_text(json.dumps(report, indent=2)+"\n")
+        raise AssertionError("No joint pin-escape assignment within the existing budgets")
+    board = read_sexpr((OUT / "powered-input.kicad_pcb").read_text())
+    additions = []
+    for row in selected:
+        add_via(board, additions, row["net"], row["point"], "reserved_control_escape")
+        for layer, points in row["runs"]:
+            add_geometry(board, additions, row["net"], layer, points, .2, "reserved_control_escape")
+    dest.write_text(sexpr(board)+"\n")
+    report = dict(source_sha256=relative_hashes([applied, capture, OUT / "powered-input.kicad_pcb",
+                  ROOT / "audio_main_global_controls.py", ROOT / "audio_main_joint_fanouts.py"]), authored_PCB_sha256=sha(dest),
+                  escapes=selected, additions=additions, search_visits=visits,
+                  maximum_pad_escape_length_mm=3.5, native_checks_pending=True, fabrication_released=False)
+    (OUT / "escape-construction.json").write_text(json.dumps(report, indent=2)+"\n")
+    print("Reserved", len(selected), "joint pin escapes after", visits, "assignments")
+
+
+def controls():
+    from shapely.geometry import LineString
+
+    import hardware.fabrication.nf_multilayer_raster_directed as search
+    import hardware.fabrication.nf_pin_escape_routes as raster
+    from hardware.fabrication import audio_main_via_weighted_router as weighted
+    from hardware.fabrication.audio_main_control_routes import CONTROL_NETS
+    from hardware.fabrication.audio_main_global_controls import LAYERS, plan, via_mask
+
+    dest = OUT / "distribution-input.kicad_pcb"
+    assert not dest.exists()
+    applied = snapshot("controls")
+    capture = OUT / "escaped-native-inputs.json"
+    captured = json.loads(capture.read_text())
+    verify_hashes(captured["source_sha256"])
+    objects = {o["uuid"]: o for o in captured["objects"]}
+    members = {i: key for key, ids in captured["groups"].items() for i in ids}
+    escape_record = json.loads((OUT / "escape-construction.json").read_text())
+    verify_hashes(escape_record["source_sha256"])
+    reserved = {}
+    for row in escape_record["escapes"]:
+        pad = next(o for o in objects.values() if o.get("ref") == row["ref"] and o.get("pin") == row["pin"])
+        reserved[members[pad["uuid"]]] = row
+    selected = dict(captured)
+    target_nets = {row["net"] for row in reserved.values()}
+    assert target_nets <= CONTROL_NETS
+    selected["groups"] = {key: ids for key, ids in sorted(captured["groups"].items(), key=lambda row: (len(row[1]), row[0]))
+                          if objects[ids[0]]["net"] in target_nets}
+    raster.STEP = search.STEP = weighted.STEP = .2
+    raster.RASTER_MARGIN = math.sqrt(2)*.2/2+.002
+    weighted.LAYERS, weighted.WIDTH, weighted.via_mask = LAYERS, .2, via_mask
+
+    def force_reserved(rows, layer=None):
+        result = []
+        for row in rows:
+            port = reserved.get(row["group"])
+            if port:
+                if math.dist(row["point"], port["point"]) > 1e-7 or row["runs"] or row["vias"]:
+                    continue
+                pad_face = port["runs"][0][0]
+                if layer == pad_face:
+                    continue
+                row = dict(row, layers=[l for l in row["layers"] if l != pad_face])
+                if not row["layers"]:
+                    continue
+            result.append(row)
+        return result
+
+    def route(screen, net, starts, ends, deadline, **kwargs):
+        starts = force_reserved(starts)
+        ends = {layer: force_reserved(rows, layer) for layer, rows in ends.items()}
+        result = weighted.route_multi(screen, net, starts, ends, deadline, **kwargs)
+        if not result:
+            return None
+        ports = [reserved[k] for k in result["groups"] if k in reserved]
+        fresh = [p for p in result["vias"] if not any(n == net and math.dist(p, q) < 1e-7 for n, q in screen.vias+screen.new_vias)]
+        total = sum(LineString(points).length for _, points in result["runs"])
+        total += sum(LineString(points).length for port in ports for _, points in port["runs"])
+        endpoints = [result["runs"][0][1][0], result["runs"][-1][1][-1]]
+        for i, key in enumerate(result["groups"]):
+            if key in reserved:
+                endpoints[i] = reserved[key]["runs"][0][1][0]
+        if len(fresh)+len(ports) > 4 or total > min(180, 2.5*math.dist(*endpoints)+10):
+            return None
+        return result
+
+    search.route_multi = route
+    routes, attempts = plan(selected, seconds=240, per_route=30)
+    assert len(routes) == 5 and {r["net"] for r in routes} == target_nets, ("Not all repaired/new controls closed", attempts)
+    board = read_sexpr((OUT / "escaped-input.kicad_pcb").read_text())
+    additions = []
+    for row in routes:
+        for layer, points in row["runs"]:
+            add_geometry(board, additions, row["net"], layer, points, .2, "completed_control_connection")
+        for xy in row["new_vias_mm"]:
+            add_via(board, additions, row["net"], xy, "completed_control_connection")
+    dest.write_text(sexpr(board)+"\n")
+    powers_record = json.loads((OUT / "power-construction.json").read_text())
+    inputs = [applied, capture, OUT / "escaped-input.kicad_pcb", OUT / "preparation-record.json",
+              OUT / "power-construction.json", OUT / "escape-construction.json", ROOT / "audio_main_global_controls.py",
+              ROOT / "audio_main_via_weighted_router.py"]
+    report = dict(source_sha256=relative_hashes(inputs), authored_PCB_sha256=sha(dest), routes=routes,
+                  attempts=attempts, additions=powers_record["additions"]+escape_record["additions"]+additions,
+                  reserved_control_escapes=escape_record["escapes"], repaired_control_nets=["/BYPASS/INPUT_READY", "/BYPASS/INPUT_ENABLE"],
+                  native_checks_pending=True, fabrication_released=False)
+    (OUT / "distribution-construction.json").write_text(json.dumps(report, indent=2)+"\n")
+    print("Restored two existing control joins and completed three new ones")
+
+
+def native(action):
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    applied = snapshot(action+"-entry")
+    if action == "fill":
+        from hardware.fabrication import audio_main_power_routes as helper
+
+        helper.OUT = OUT
+        helper.fill()
+        result = OUT / "native-refill.json"
+    elif action == "review":
+        from hardware.fabrication.audio_main_native_review import review
+
+        review(OUT, SOURCE / "terminal-connectivity-review.json", OUT / "escaped-native-inputs.json",
+               OUT / "distribution-construction.json", applied)
+        result = OUT / "terminal-connectivity-review.json"
+    else:
+        from hardware.fabrication.review_audio_control_retention import review
+
+        review(SOURCE, OUT, 57, applied)
+        result = OUT / "additional-terminal-review.json"
+    (OUT / (action+"-entry.json")).write_text(json.dumps(dict(source_sha256=relative_hashes([applied, result]),
+        fabrication_released=False), indent=2)+"\n")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("prepare", "prepared-capture", "powers", "powered-capture", "escapes",
+                                            "escaped-capture", "controls", "fill", "review", "retain"))
+    args = parser.parse_args()
+    {"prepare": prepare, "prepared-capture": lambda: draft_capture("prepared"),
+     "powers": powers, "powered-capture": lambda: draft_capture("powered"), "escapes": escapes,
+     "escaped-capture": lambda: draft_capture("escaped"), "controls": controls,
+     "fill": lambda: native("fill"), "review": lambda: native("review"), "retain": lambda: native("retain")}[args.action]()

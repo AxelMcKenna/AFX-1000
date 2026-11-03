@@ -30,3 +30,10 @@ unfinished.** No surveyed position is an approved or selected relocation.
 The study does not establish heights, mating, harness paths, noise/timing,
 fault behaviour or manufacturing acceptance. No supplier message, upload
 or order was made, and native Mac CAD remains disabled.
+
+The subsequent distant-supervisor routing draft in this directory is an
+unselected experiment. It cannot close all five repaired/new controls within
+its original construction targets. Its input captures, applied sources and
+partial proposals are retained because the nearer-root comparison explicitly
+rechecks three of its routes against new native geometry. No final native-clean
+board is claimed here. See the [cleaned near-root comparison](../audio-main-bypass-repack-04/README.md).
