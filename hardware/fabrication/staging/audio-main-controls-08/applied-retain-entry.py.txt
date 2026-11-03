@@ -1,0 +1,191 @@
+"""Renew only the U205 SENSE entry to make its RESET output accessible."""
+import argparse
+import json
+import math
+import shutil
+import sys
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import children, first, read_sexpr, sexpr
+from hardware.fabrication.audio_main_bypass_repack import add_geometry, add_via
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / 'staging/audio-main-controls-07'
+OUT = ROOT / 'staging/audio-main-controls-08'
+NET = '/CODEC/A3V3'
+PG = '/CODEC/CODEC_PGOOD'
+RETIRED = {'99a1b50c-4e72-5b12-bc97-0a06ca84a952', 'ecefc565-a7d4-5a5c-b9bd-87ff4d9a257a',
+           '3e1729db-6aa8-58c6-a274-7579db99df44'}
+VIA = [84.3, 20.8]
+
+
+def snapshot(label):
+    p = OUT / ('applied-'+label+'.py.txt')
+    assert not p.exists()
+    shutil.copyfile(Path(__file__), p)
+    return p
+
+
+def prepare():
+    from shapely.geometry import LineString
+
+    from hardware.fabrication.audio_main_global_controls import SignalScreen
+    from hardware.fabrication.audio_main_power_routes import PowerSpace
+
+    assert not OUT.exists()
+    parent = json.loads((SOURCE / 'routing-handoff.json').read_text())
+    verify_hashes(parent['source_sha256'])
+    assert parent['uncapped_open_connections'] == 204 and not parent['fabrication_released']
+    refill = json.loads((SOURCE / 'native-refill.json').read_text())
+    verify_hashes(refill['source_sha256'])
+    assert sha(SOURCE / 'audio_core.kicad_pcb') == refill['filled_PCB_sha256']
+    board = read_sexpr((SOURCE / 'audio_core.kicad_pcb').read_text())
+    retired = [n for n in board if isinstance(n, list) and n and n[0] in ('segment', 'via') and str(first(n, 'uuid')[1]) in RETIRED]
+    assert len(retired) == 3
+    names = {n[1]: str(n[2]) for n in children(board, 'net')}
+    assert all(names[first(n, 'net')[1]] == NET for n in retired)
+    board = [n for n in board if n not in retired]
+    # The source capture precedes only the CHIP_EN bridge. Include those three
+    # extra objects in the actual prepared Linux capture before planning PG.
+    captured = json.loads((SOURCE / 'native-inputs.json').read_text())
+    verify_hashes(captured['source_sha256'])
+    captured['objects'] = [o for o in captured['objects'] if o['uuid'] not in RETIRED]
+    screen = SignalScreen(captured)
+    assert screen.via_legal(NET, VIA)
+    context = PowerSpace(captured)
+    front = [[85, 24.1], [84.3, 24.1], VIA]
+    back = [VIA, [84.6, 22.1], [83.8, 24.8]]
+    assert context.surface.legal(NET, 'F.Cu', front) and context.surface.legal(NET, 'B.Cu', back)
+    length = LineString(front).length+LineString(back).length
+    assert length <= 12
+    OUT.mkdir()
+    applied = snapshot('sense-entry-preparation')
+    additions = []
+    add_via(board, additions, NET, VIA, 'isolated_sense_entry')
+    add_geometry(board, additions, NET, 'F.Cu', [[84.3,24.1], VIA], .2, 'isolated_sense_entry')
+    add_geometry(board, additions, NET, 'B.Cu', [VIA,[84.6,22.1]], .2, 'isolated_sense_entry')
+    for p in SOURCE.iterdir():
+        if p.suffix in ('.kicad_sch','.kicad_pro','.kicad_sym','.kicad_dru') or p.name in ('plan.json','fp-lib-table','sym-lib-table'):
+            shutil.copyfile(p, OUT / p.name)
+    shutil.copytree(SOURCE / 'libraries', OUT / 'libraries')
+    dest = OUT / 'prepared-input.kicad_pcb'
+    dest.write_text(sexpr(board)+'\n')
+    rho = 1.724e-8*(1+.00393*(125-20))
+    resistance = rho*(12e-3)/(.16e-3*18e-6)
+    assessment = dict(terminal=['U205','1'], part='TPS389033DSET', net=NET,
+        source_trunk_contact_mm=[83.8,24.8], retained_source_trunk_width_mm=.6,
+        front_path_mm=front, back_path_mm=back, actual_leaf_length_mm=length,
+        maximum_leaf_length_mm=12, trace_width_mm=.2,
+        assumed_minimum_finished_width_mm=.16, assumed_minimum_copper_um=18,
+        assumed_copper_temperature_C=125, engineering_current_allowance_A=.001,
+        maximum_trace_only_resistance_ohm=resistance, maximum_trace_only_drop_V=resistance*.001,
+        primary_document_url='https://www.ti.com/lit/ds/symlink/tps3890.pdf',
+        primary_document_revision='SLVSD65A, May 2016',
+        datasheet_fixed_variant_ISENSE_entry_A_at_VSENSE_5V=8e-6,
+        current_allowance_is_not_a_datasheet_guarantee_at_3V3=True,
+        adjustable_variant_100nA_not_used=True, ordinary_VDD_and_MR_feeds_unchanged=True,
+        electrical_noise_accuracy_transients_and_installed_process_qualified=False)
+    inputs = [applied,SOURCE/'audio_core.kicad_pcb',SOURCE/'routing-handoff.json',SOURCE/'native-refill.json',
+              SOURCE/'native-inputs.json',ROOT/'audio_main_bypass_repack.py',ROOT/'audio_main_global_controls.py',
+              ROOT/'audio_main_power_routes.py']
+    record = dict(source_sha256=relative_hashes(inputs), authored_PCB_sha256=sha(dest),
+                  retired_copper_uuids=sorted(RETIRED), retired_nodes=retired, additions=additions,
+                  sense_branch_assessment=assessment, native_checks_pending=True, fabrication_released=False)
+    (OUT/'preparation-record.json').write_text(json.dumps(record,indent=2)+'\n')
+    print('Prepared isolated SENSE entry:',round(length,3),'mm; no supply trunk or component pose changed')
+
+
+def capture():
+    assert sys.platform == 'linux', 'Mac CAD remains disabled'
+    from hardware.fabrication.capture_audio_routing_draft import capture as actual_capture
+    applied = snapshot('prepared-native-capture')
+    actual_capture(OUT,OUT/'prepared-input.kicad_pcb',OUT/'preparation-record.json','prepared-native-inputs.json',applied)
+
+
+def controls():
+    from shapely.geometry import LineString
+
+    import hardware.fabrication.nf_multilayer_raster_directed as search
+    import hardware.fabrication.nf_pin_escape_routes as raster
+    from hardware.fabrication import audio_main_via_weighted_router as weighted
+    from hardware.fabrication.audio_main_global_controls import LAYERS, plan, via_mask
+    from hardware.fabrication.audio_main_joint_fanouts import choices
+
+    assert not (OUT/'distribution-input.kicad_pcb').exists()
+    applied = snapshot('pg-routing')
+    capture_path = OUT/'prepared-native-inputs.json'
+    captured = json.loads(capture_path.read_text())
+    verify_hashes(captured['source_sha256'])
+    assert captured['native_uncapped_opens'] == 204
+    objects = {o['uuid']:o for o in captured['objects']}
+    pad = next(o for o in objects.values() if o.get('ref')=='U205' and o.get('pin')=='6')
+    group = next(k for k,ids in captured['groups'].items() if pad['uuid'] in ids)
+    selected = dict(captured,groups={k:ids for k,ids in captured['groups'].items() if objects[ids[0]]['net']==PG})
+    raster.STEP = search.STEP = weighted.STEP = .2
+    raster.RASTER_MARGIN = math.sqrt(2)*.2/2+.002
+    weighted.LAYERS,weighted.WIDTH,weighted.via_mask = LAYERS,.2,via_mask
+    weighted.VIA_COST = 20
+    def route(screen,net,starts,ends,deadline,**kwargs):
+        extra = choices(screen,pad,group,limit=8)
+        if any(r['group']==group for r in starts):
+            starts += extra
+        else:
+            for layer in LAYERS:
+                ends[layer] += [dict(r,runs=[(face,list(reversed(ps))) for face,ps in reversed(r['runs'])]) for r in extra]
+        return weighted.route_multi(screen,net,starts,ends,deadline,**kwargs)
+    search.route_multi = route
+    routes,attempts = plan(selected,seconds=60,per_route=40)
+    inputs = [applied,capture_path,ROOT/'audio_main_global_controls.py',ROOT/'audio_main_via_weighted_router.py',ROOT/'audio_main_joint_fanouts.py']
+    proposal = dict(source_sha256=relative_hashes(inputs),routes=routes,attempts=attempts,
+                    proposal_only=True,native_checks_pending=True,fabrication_released=False)
+    proposal_path = OUT/'pg-routing-proposal.json'
+    proposal_path.write_text(json.dumps(proposal,indent=2)+'\n')
+    assert len(routes)==1 and routes[0]['net']==PG,'No complete PG route within ordinary control budgets'
+    board = read_sexpr((OUT/'prepared-input.kicad_pcb').read_text())
+    additions = []
+    for row in routes:
+        assert row['planar_length_mm'] <= row['maximum_planar_length_mm'] and len(row['new_vias_mm'])<=4
+        for layer,points in row['runs']:
+            add_geometry(board,additions,PG,layer,points,.2,'pg_control')
+        for point in row['new_vias_mm']:
+            add_via(board,additions,PG,point,'pg_control')
+        assert all(LineString(ps).length>0 for _,ps in row['runs'])
+    dest = OUT/'distribution-input.kicad_pcb'
+    dest.write_text(sexpr(board)+'\n')
+    preparation = json.loads((OUT/'preparation-record.json').read_text())
+    record = dict(source_sha256=relative_hashes([applied,proposal_path,OUT/'prepared-input.kicad_pcb',OUT/'preparation-record.json',
+                  ROOT/'audio_main_bypass_repack.py']),authored_PCB_sha256=sha(dest),routes=routes,attempts=attempts,
+                  added_segments=[r for r in additions if r['kind']=='segment'],added_vias=[r for r in additions if r['kind']=='via'],
+                  allowed_control_nets=[PG],signal_layers=LAYERS,trace_width_mm=.2,clearance_mm=.2,planning_margin_mm=.01,
+                  sense_branch_assessment=preparation['sense_branch_assessment'],native_checks_pending=True,fabrication_released=False)
+    (OUT/'distribution-construction.json').write_text(json.dumps(record,indent=2)+'\n')
+    print('Completed PG construction; native refill and checks pending')
+
+
+def native(action):
+    assert sys.platform == 'linux', 'Mac CAD remains disabled'
+    applied = snapshot(action+'-entry')
+    if action=='fill':
+        from hardware.fabrication import audio_main_power_routes as helper
+        helper.OUT=OUT
+        helper.fill()
+        result=OUT/'native-refill.json'
+    elif action=='review':
+        from hardware.fabrication.audio_main_native_review import review
+        review(OUT,SOURCE/'terminal-connectivity-review.json',OUT/'prepared-native-inputs.json',OUT/'distribution-construction.json',applied)
+        result=OUT/'terminal-connectivity-review.json'
+    else:
+        from hardware.fabrication.review_audio_control_retention import review
+        review(SOURCE,OUT,63,applied)
+        result=OUT/'additional-terminal-review.json'
+    (OUT/(action+'-entry.json')).write_text(json.dumps(dict(source_sha256=relative_hashes([applied,result]),fabrication_released=False),indent=2)+'\n')
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('action',choices=('prepare','capture','controls','fill','review','retain'))
+    args=parser.parse_args()
+    {'prepare':prepare,'capture':capture,'controls':controls,'fill':lambda:native('fill'),
+     'review':lambda:native('review'),'retain':lambda:native('retain')}[args.action]()
