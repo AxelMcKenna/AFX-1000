@@ -1,4 +1,6 @@
 import os
+import hashlib
+import struct
 from pathlib import Path
 import tempfile
 import unittest
@@ -10,9 +12,32 @@ from tools import noise_window_statistics as window
 from tools.noise_statistics import float_wav, stereo_correlation
 from tools.reference_audio import write_wav
 from tools.rmx_noise_sidechain_stream import analyze as original_analyze
+from tools import rmx_noise_window_stream as stream
+from tools import rmx_noise_user as noise
 
 
 class ContinuousWindows(unittest.TestCase):
+    def test_template_removed_after_snapshot(self):
+        body = b''.join(tag + struct.pack('<I', len(data)) + data
+                        for tag, data in [(b'para', bytes(208)), (b'sett', bytes(9)), (b'cstm', bytes(12))])
+        content = struct.pack('<I', len(body)) + body
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / 'input-template.bin'
+            source.write_bytes(content)
+            template, digest = stream.snapshot_template(source)
+            c = stream.cases()['sidechain-low'] | dict(frames=8 * 48000)
+            names = list(noise.drums.parameters(dict(level=128, pitch=128))) + ['SceneVolume', 'Sub1Volume', 'Sub2Volume']
+            inv = dict(parameters=[dict(name=name, index=i, id=str(i)) for i, name in enumerate(names)])
+            before = stream.prepare(root, c, template, inv, 0, c['frames'])
+            state = (root / (c['name'] + '.bin')).read_bytes()
+            source.unlink()
+            (root / 'plan.json').unlink()
+            after = stream.prepare(root, c, template, inv, 0, c['frames'])
+            self.assertEqual(digest, hashlib.sha256(content).hexdigest())
+            self.assertEqual(before, after)
+            self.assertEqual(state, (root / (c['name'] + '.bin')).read_bytes())
+
     def test_boundary_powers_and_stereo(self):
         self.compare(False)
 

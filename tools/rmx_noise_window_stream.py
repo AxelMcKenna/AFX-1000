@@ -3,6 +3,7 @@
 import argparse
 from contextlib import closing
 from datetime import datetime, timezone
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -27,6 +28,12 @@ EXTRA = ['tools/rmx_noise_window_stream.py', 'tools/noise_window_statistics.py',
 
 def sources():
     return bindings() | {n: sha256(Path(n)) for n in EXTRA}
+
+
+def snapshot_template(path):
+    data = path.read_bytes()
+    noise.loader.chunks(data)
+    return data, hashlib.sha256(data).hexdigest()
 
 
 def cases():
@@ -100,11 +107,12 @@ def main():
     if a.output.exists() or a.output.with_suffix('.plan.json').exists():
         raise ValueError('Choose a new output')
     a.output.parent.mkdir(parents=True, exist_ok=True)
+    template, template_digest = snapshot_template(a.template)
     bound = sources()
     binary = {key: sha256(getattr(a, key)) for key in ['renderer', 'sanitizer', 'probe', 'sanitizer_probe', 'host']}
     selected = [cases()[name] | dict(stimulus=name) for name in a.case or cases()]
     declared = dict(kind='fixed-horizon-continuous-noise-plan', cases=selected, stationary_seconds=a.seconds, window_seconds=a.window_seconds,
-        source_sha256=bound, binary_sha256=binary, template_sha256=sha256(a.template), created_utc=datetime.now(timezone.utc).isoformat(),
+        source_sha256=bound, binary_sha256=binary, template_sha256=template_digest, created_utc=datetime.now(timezone.utc).isoformat(),
         limits=dict(band_db=.5, level_db=.1, correlation=.02, confidence_multiplier=3, meaningful_floor_db=-40),
         scope='Fixed horizon, no early acceptance or repeated extensions. Six adjacent windows cover a single declared continuous trajectory. Earlier shorter captures are not pooled. Gates/estimands unchanged.')
     save_json(a.output.with_suffix('.plan.json'), declared)
@@ -120,7 +128,7 @@ def main():
             inventory = json.loads(space.run([a.host, 'inventory', a.plugin]))
             # Independent dry subtraction control with the same input repeat.
             dry = base | dict(amount=0, minimum=0, frames=8 * 48000)
-            dry_plan = prepare(root, dry, a.template.read_bytes(), inventory, 0, dry['frames'])
+            dry_plan = prepare(root, dry, template, inventory, 0, dry['frames'])
             space.run([a.renderer, root / 'silence.wav', root / 'native.wav', root / 'program.tsv'])
             candidate_dry = float(np.max(np.abs(residual(root / 'native.wav', pattern)[4 * 48000:])))
             (root / 'native.wav').unlink()
@@ -159,7 +167,7 @@ def main():
                 capture_start = start - prefix
                 frames = prefix + a.window_seconds * 48000
                 c = base | dict(frames=start + a.window_seconds * 48000)
-                plan = prepare(root, c, a.template.read_bytes(), inventory, capture_start, frames)
+                plan = prepare(root, c, template, inventory, capture_start, frames)
                 digest, frozen = predictions[index], prediction_times[index]
                 print('WINDOW', base['stimulus'], index, 'Original', flush=True)
                 space.run([a.host, 'render', a.plugin, root / 'silence.wav', root / 'plan.json', root / 'original', c['block'], '1800'])
