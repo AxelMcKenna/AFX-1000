@@ -32,7 +32,7 @@ public:
     void configure(const SceneSettings&) noexcept;
     void restartSelectedEffect() noexcept {
         echo.invalidate();echoFilter.reset();mainFilter.reset();calibratedFilters.startSelected();
-        echoReadGain=0;selectedEchoGain=0;echoRetiming={};frame=32;sharedStartup=true;
+        echoReadGain=0;selectedEchoGain=0;echoRetiming={};echoMainRaw=-1;frame=32;sharedStartup=true;
         previousCutoff=previousQ=previousEchoCutoff=-1;
         filterMotion.reset();filterMotionCursor=0;
     }
@@ -83,6 +83,7 @@ private:
     float noiseCutoff{90},noiseCutoffSlew{},noiseModGain{1},noiseModSlew{},noiseReturnAlpha{};
     float echoReadGain{},selectedEchoGain{1};bool sharedStartup{};
     DelayRetiming echoRetiming;
+    int echoMainRaw{-1};float echoAmount{},echoAmountTarget{},echoAmountStep{};unsigned echoAmountRemaining{};
     Stereo noiseReturn{};uint64_t noiseAge{};
     void updateRoom() noexcept;
     float noise() noexcept;

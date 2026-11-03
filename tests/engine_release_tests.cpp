@@ -66,6 +66,24 @@ int main(){try{
         }
         require(allocations==0&&arena.allocations()==before,"Release callback, reset or profile transition allocated");tracking=false;
     }
+    {
+        rmx::Engine returned,disabled;
+        for(auto* engine:{&returned,&disabled}){
+            engine->setOutputProtection(false);engine->params.set(rmx::Param::AutoTempo,0);engine->params.set(rmx::Param::Quantize,0);
+            engine->params.set(rmx::Param::SceneOn,0);engine->params.set(rmx::Param::Overdub,1);engine->params.set(rmx::Param::ReleaseType,0);engine->prepare(48000,1021);
+        }
+        std::array<float,1021> a{},b{},x{},y{};unsigned frame=0;
+        const auto advance=[&](unsigned stop){while(frame<stop){const auto count=std::min(1021u,stop-frame);returned.process(nullptr,nullptr,a.data(),b.data(),count);disabled.process(nullptr,nullptr,x.data(),y.data(),count);frame+=count;}};
+        advance(48079);for(auto* engine:{&returned,&disabled})engine->enqueue({rmx::EventType::Trigger,2,1});
+        advance(120000);for(auto* engine:{&returned,&disabled})engine->params.set(rmx::Param::ReleaseAmount,1);
+        advance(143500);
+        // Explicitly disabling recording before the callback is the control.
+        // Returning Release must stop the same recorded replay within it.
+        disabled.params.set(rmx::Param::Overdub,0);
+        for(auto* engine:{&returned,&disabled})engine->params.set(rmx::Param::ReleaseAmount,0);
+        returned.process(nullptr,nullptr,a.data(),b.data(),1021);disabled.process(nullptr,nullptr,x.data(),y.data(),1021);
+        for(unsigned i=0;i<1021;++i)require(a[i]==x[i]&&b[i]==y[i],"Release return deferred the factory recorder reset until the next callback");
+    }
     require(arena.used()==0,"Shared Release storage leaked");
     std::cout<<"PASS: three Release types, short/oversized callbacks, repeated reset, profile storage invalidation, zero callback allocations\n";
 }catch(const std::exception& e){tracking=false;std::cerr<<"FAIL: "<<e.what()<<'\n';return 1;}}

@@ -38,7 +38,7 @@ void SceneProcessor::reset() noexcept {
     filterMotion.reset();filterMotionValues={};filterMotionCursor=0;
     noiseRandomSource=nullptr;
     noiseSidechainDetector={};noiseSidechainThreshold=0;noiseSidechainAvailable=false;
-    previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;echoReadGain=0;selectedEchoGain=1;sharedStartup=false;echoRetiming={};
+    previousCutoff=previousQ=previousEchoCutoff=-1;sidechainEnvelope=0;roomSide=0;echoReadGain=0;selectedEchoGain=1;sharedStartup=false;echoRetiming={};echoMainRaw=-1;echoAmountRemaining=0;
 }
 void SceneProcessor::configure(const SceneSettings& next) noexcept {
     if(next==settings)return;
@@ -146,8 +146,8 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
     const double safeBpm=std::clamp(bpm,40.,240.);
     const double beatFrames=(type==1||measuredNoise)?rate*std::floor(60000/safeBpm)/1000:rate*60/safeBpm;
     const double delay=std::clamp(beatFrames*sceneDelayBeats[static_cast<size_t>(choice)],2.,rate*14);
-    if(type==1&&sharedStartup&&(frame&31u)==0)echoRetiming.beginBlock(beatFrames);
-    const double readDelay=type==1&&sharedStartup?std::clamp(echoRetiming.read*sceneDelayBeats[static_cast<size_t>(choice)],2.,rate*14):delay;
+    if(type==1&&sharedStartup&&(frame&31u)==0)echoRetiming.beginBlock(delay);
+    const double readDelay=type==1&&sharedStartup?echoRetiming.read:delay;
     auto delayed=echo.read(readDelay);
     if(type==1&&sharedStartup){
         if(frame>=32+static_cast<uint64_t>(std::ceil(delay/32)*32))echoReadGain=std::min(1.f,echoReadGain+.00625f);
@@ -275,7 +275,14 @@ Stereo SceneProcessor::process(Stereo input,float macro,float sub1,float sub2,fl
             const auto wetFiltered=echoFilter.process(delayed);
             const auto wet=settings.echoFilter==2?wetFiltered.high:settings.echoFilter==1?wetFiltered.band*(1/q):wetFiltered.low;
             const auto raw=std::clamp(static_cast<int>(std::floor(macro*255+1.e-4f)),0,255);
-            const float amount=std::clamp((raw-3)/189.f,0.f,1.f);
+            float amount=std::clamp((raw-3)/189.f,0.f,1.f);
+            if(sharedStartup){
+                if(echoMainRaw<0){echoMainRaw=raw;echoAmount=echoAmountTarget=amount;echoAmountStep=0;echoAmountRemaining=0;}
+                if(raw!=echoMainRaw){echoMainRaw=raw;echoAmountTarget=amount;echoAmountStep=(amount-echoAmount)*.00625f;echoAmountRemaining=160;}
+                echoAmount+=echoAmountStep;
+                if(echoAmountRemaining&&!--echoAmountRemaining){echoAmount=echoAmountTarget;echoAmountStep=0;}
+                amount=echoAmount;
+            }
             if(preFilterEnable)selectedEchoGain=std::min(1.f,selectedEchoGain+.00625f);
             result=input+wet*(amount*(preFilterEnable?selectedEchoGain:enabled));
         } else if(type==0)result=input+delayed*(macro*enabled*.8f*modGain);

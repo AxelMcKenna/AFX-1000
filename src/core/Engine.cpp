@@ -240,6 +240,10 @@ Engine::ReleaseFrame Engine::releaseControls() noexcept {
         if(get(Param::ReleaseKeepSampler)<.5f) {
             set(Param::XHold,0); set(Param::Overdub,0); rollPad=-1; sourceRoll=false; voices={}; sequence.clear();
             stopFactoryDrums();
+            // Consume the sampler reset on the shared command clock too;
+            // a long callback must not replay a recorded hit after the stop.
+            pendingDrumCue.control=static_cast<uint8_t>((pendingDrumCue.control|64u|16u|1u)&~32u);
+            factoryPreviousSequence=factoryPreviousHold=false;
         }
     }
     previousRelease=active;
@@ -435,8 +439,8 @@ void Engine::generateSharedBlock(int type,bool coldProfile,bool measuredDown,boo
             const bool first=cold&&frame<32;
             if(cold&&frame>=32&&frame<192)coldEffect=std::min(1.f,coldEffect+.00625f);
             if(frame>=192)coldEffect=1;
-            const bool filterMotion=coldProfile&&(type==0||type==5||type==6||type==7);
-            const auto steady=sceneProcessor.process(send,(type==0||type==5||type==6)&&filterMotion?routingCollected.back().depth:source.depth,
+            const bool filterMotion=coldProfile&&(type==0||type==1||type==5||type==6||type==7);
+            const auto steady=sceneProcessor.process(send,filterMotion?routingCollected.back().depth:source.depth,
                 filterMotion?routingCollected.back().time:source.time,source.resonance,transitioning?inputGains[i]:cold?1.f:source.sceneMix,
                 source.bpm,source.beat,source.sidechain,cold?coldEffect:1,first,transitioning,transitioning&&(selection.requested!=selection.selected||!source.sceneEnabled),selection.previousEnabled);
             auto result=steady;
@@ -687,8 +691,8 @@ void Engine::process(const float* left,const float* right,float* outL,float* out
         // when neither input is selected.
         sourceFrames[k]={raw,input,drums,raw*db(sm(Param::InputGain)),{sm(Param::Low),sm(Param::Mid),sm(Param::High)},
             isolateInputMix,isolatePadMix,isolateEnabled,sceneInputMix,scenePadMix,sceneMix,
-            coldSceneProfile&&(sceneSettings.type==0||sceneSettings.type==5||sceneSettings.type==6)?get(Param::SceneDepth):sm(Param::SceneDepth),
-            coldSceneProfile&&(sceneSettings.type==0||sceneSettings.type==5||sceneSettings.type==6||sceneSettings.type==7)?get(Param::SceneTime):sm(Param::SceneTime),
+            coldSceneProfile?get(Param::SceneDepth):sm(Param::SceneDepth),
+            coldSceneProfile?get(Param::SceneTime):sm(Param::SceneTime),
             sm(Param::SceneResonance),peak(rollInput),1-sm(Param::SamplerMute),bpm,beat+nudgeOffset,get(Param::SceneOn)>.5f};
         auto& output=outputFrames[k];
         output.release=releaseControls();output.wetOnly=get(Param::WetOnly)>.5f;

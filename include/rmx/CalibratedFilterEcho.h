@@ -6,9 +6,8 @@
 #include <array>
 
 namespace rmx {
-// Static 48 kHz factory Normal-width model identified from public I/O.
-// Moving controls, other profiles/rates and effect-to-effect tails remain
-// separate validation work. All delay storage is allocated in prepare().
+// Measured 48 kHz factory Normal-width paths. Wider profiles and rates need
+// separate qualification. All delay storage is allocated in prepare().
 class CalibratedFilterEcho {
 public:
     void prepare(double rate) {
@@ -17,7 +16,7 @@ public:
     }
     void reset() noexcept {
         echoReturn.reset();
-        clearFilters();age=0;lastType=lastRaw=lastMixRaw=motionRaw=-1;sharedStartup=selecting=false;selectedGain=1;
+        clearFilters();age=0;lastType=lastRaw=lastMixRaw=motionRaw=-1;sharedStartup=selecting=movingFeedback=false;selectedGain=1;
     }
     void invalidate() noexcept {lastType=-1;}
     void startSelected() noexcept {lastType=-1;selecting=true;selectedReturnGain=1;}
@@ -26,6 +25,7 @@ public:
         raw=std::clamp(raw,0,255);timeRaw=std::clamp(timeRaw,0,255);
         if(type!=lastType) {
             clearFilters();age=selecting?32:0;lastType=type;lastRaw=lastMixRaw=motionRaw=-1;
+            if(type==7)crushMixPosition=crushMixTarget=std::clamp((129-raw)/126.f,0.f,1.f);
             const auto profile=type==7?FactoryEchoReturn::Profile::crush:FactoryEchoReturn::Profile::filter;
             if(selecting){echoReturn.startSelected(profile);sharedStartup=true;selecting=false;selectedGain=0;}else{echoReturn.restart(profile);selectedGain=1;}
         }
@@ -35,6 +35,12 @@ public:
             raw=motionRaw;
         }
         const int mixRaw=raw;raw=std::clamp(raw+modulationOffset,0,255);
+        if(sharedStartup&&!preFilterEnable&&type==7&&mixRaw!=lastMixRaw){
+            const float target=std::clamp((129-mixRaw)/126.f,0.f,1.f);
+            if(lastMixRaw<0)crushMixPosition=target;
+            crushMixTarget=target;crushMixStep=(target-crushMixPosition)*.03125f;crushMixRemaining=32;
+        }
+        if(lastRaw>=0&&raw!=lastRaw)movingFeedback=true;
         if(raw!=lastRaw||mixRaw!=lastMixRaw) {configure(type,raw,mixRaw);lastRaw=raw;lastMixRaw=mixRaw;}
         if(priming){
             // The common source clock precedes this effect's first active
@@ -44,9 +50,15 @@ public:
         const auto filteredInput=preFilterEnable?input*enabled:input;
         if(preFilterEnable)selectedGain=std::min(1.f,selectedGain+.00625f);
         const double original[]{filteredInput.l,filteredInput.r};double direct[2]{},feed[2]{};
+        double mixGain=gain;
+        if(type==7&&sharedStartup&&!preFilterEnable){
+            crushMixPosition+=crushMixStep;
+            if(crushMixRemaining&&!--crushMixRemaining){crushMixPosition=crushMixTarget;crushMixStep=0;}
+            if(movingFeedback)mixGain=1-crushMixPosition*crushMixPosition;
+        }
         if(type==7) {
             const auto heldInput=sharedStartup?filteredInput*startup:filteredInput;
-            if(preFilterEnable){
+            if(preFilterEnable||sharedStartup){
                 const float period=NoiseModulator::crushPeriod(holdModulation,holdBase);
                 const float count=static_cast<float>(selectedHoldCount);
                 auto next=heldInput;
@@ -56,7 +68,8 @@ public:
                     if(selectedHoldFraction>=1){next=held;selectedHoldFraction-=1;selectedHoldCount=0;}
                 }
                 held=next;++selectedHoldCount;
-            }else{
+            }
+            else{
                 // The reference's settled hold clock starts 32 input frames into
                 // a new instance. Preserve its fractional period and strict test;
                 // rounding to integer intervals audibly changes the aliased signal.
@@ -87,13 +100,13 @@ public:
                 // through the complementary first-order section.
                 const bool high=type==5||type==7;
                 const double complementaryGain=(1+(high?-feedbackPole:feedbackPole))/2;
-                const double f=preFilterEnable?
+                const double f=preFilterEnable||movingFeedback?
                     std::sqrt(2.)*(complementaryGain*(y+(high?1:-1)*main[channel].y2))+feedbackPole*feedbackState[channel]:
                     feedbackGain*b+feedbackPoleState[channel];
                 feedbackPoleState[channel]=(type==5||type==7?-feedbackGain:feedbackGain)*b+feedbackPole*f;
                 previousFeedbackBand[channel]=b;
                 feedbackState[channel]=f;
-                direct[channel]=feed[channel]=x+(y-x)*gain;
+                direct[channel]=feed[channel]=x+(y-x)*mixGain;
             }
         }
         if(preFilterEnable&&selectedGain!=1){
@@ -195,7 +208,7 @@ private:
     }
     void clearFilters() noexcept {
         bandState={};feedbackState={};feedbackPoleState={};previousFeedbackBand={};held={};holdCounter=0;selectedHoldCount=1;selectedHoldFraction=0;
-        for(auto& f:main)f.reset();for(auto& f:feedbackBand)f.reset();
+        movingFeedback=false;crushMixPosition=crushMixTarget=crushMixStep=0;crushMixRemaining=0;for(auto& f:main)f.reset();for(auto& f:feedbackBand)f.reset();
     }
     FactoryEchoReturn echoReturn;
     std::array<Biquad,2> main,feedbackBand;
@@ -205,6 +218,7 @@ private:
     Stereo held{};double holdCounter{},holdPeriod{1};
     float selectedGain{1},selectedReturnGain{1};
     float holdBase{},selectedHoldFraction{};unsigned selectedHoldCount{1};
-    uint64_t age{};int lastType{-1},lastRaw{-1},lastMixRaw{-1},motionRaw{-1};bool sharedStartup{},selecting{};
+    float crushMixPosition{},crushMixTarget{},crushMixStep{};unsigned crushMixRemaining{};
+    uint64_t age{};int lastType{-1},lastRaw{-1},lastMixRaw{-1},motionRaw{-1};bool sharedStartup{},selecting{},movingFeedback{};
 };
 }
