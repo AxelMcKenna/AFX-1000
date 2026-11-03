@@ -24,7 +24,10 @@ Evidence: `preparation-record.json`, `distribution-construction.json`,
 `terminal-connectivity-review.json`, `additional-terminal-review.json`,
 `current-native-pads.json`, `drc.json` and `erc.json`.
 
-Independent preparation/retention audit, physical stack review, the missing codec
-land pattern, remaining routing and electrical/mechanical qualification are still
-required. These native results establish connectivity and reported rule findings;
+The independent `preparation-retention-review.json` now replays the conversion,
+all 19 keepout extensions, retained geometry, 930 native pad shapes and both
+native fill exports. Six mutation tests cover undeclared geometry, keepout,
+plane-clearance and annulus changes. Physical stack review, added control-route
+performance, the missing codec land pattern, remaining routing and
+electrical/mechanical qualification are still required. These native results establish connectivity and reported rule findings;
 they do not establish electrical performance or manufacturing readiness.
