@@ -1,6 +1,6 @@
 # RMX-1000 sound matching research
 
-- Updated: 2026-11-03
+- Updated: 2026-11-04
 - Status: active; scoped factory drums, nine deterministic Scene effects, three Isolator modes, Release and statistical Noise at 48 kHz; full-device validation incomplete
 - Question: what evidence, DSP work and validation would support a defensible claim of very close RMX-1000 sound matching?
 - Related implementation: [Scene](../../src/core/Scene.cpp), [Isolate](../../src/core/Isolator.cpp), [engine and Release](../../src/core/Engine.cpp), [drums](../../include/rmx/FactoryDrumSynth.h), [capture tools](../../tools/reference_audio.py).
@@ -16,7 +16,7 @@ There is substantial identification and validation left; a defensible overall pe
 | --- | --- | --- |
 | Kick, snare, clap, hi-hat | All224 static dry,44 pitch/level gesture and89 roll programs pass in their48k/default-profile scopes; roll rearming/held-position motion checked at120BPM; live combined routing and earlier wrappers checked | Other profiles/decays/envelopes, wider tempos, Hold/Quantize, roll wrapper automation and control/FX interactions |
 | Echo, BPF, HPF, LPF, Crush, Reverb Up/Down | Scoped original-reference waveform matches; all568 combined drum/input whole-output programs pass,567 satisfy every raw gate | Wider gestures, settings and combinations; one microscopic wet-window failure retained |
-| Noise | Static/resonant programs, nine Triangle/Saw/Square programs, two of three Random programs and one of three Sidechain programs qualify in their declared statistical scopes | Remaining Random/Sidechain cases, dynamic settings, rates/tempos, music and interactions |
+| Noise | Static/resonant programs, nine Triangle/Saw/Square programs and all three declared Random plus all three Sidechain programs qualify across their published statistical cohorts; the [continuous study](noise-continuous.md) clears the three previously inconclusive programs | Dynamic settings/mode switching, rates/tempos, music, independent routes and interactions |
 | Spiral Up/Down | Live Default/48k/manual120: 1,709 static and 336 dynamic/cold/direction-switch programs pass; two declared synchronized [tempo-transition programs](tempo-transitions.md) also pass with fresh timing holdouts; optimized/sanitized WAV identity | Other tempos/rates/User profiles, drum/Isolator/Release combinations and hardware |
 | Release Back Spin/Echo/Brake | Live Default/48k: all216 complete native renders have identical float32 sample bits to the original;88 unseen frozen programs;88 regressions per wrapper | Other tempos/rates/profiles, combined reset/source actions, active type switches and hardware |
 | Isolator | Live Cut/Add, Trans/Roll and Gate/Drive: 146 reference programs per mode, including band gestures and lifecycle changes | Wider tempos/profiles/routes, combined effects and hardware |

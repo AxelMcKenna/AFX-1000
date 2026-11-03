@@ -2,6 +2,8 @@
 
 1 November 2026. Noise Sidechain now drives the reconstructed moving filter from the shared low-frequency detector. Its preceding live path used an input envelope to modulate output amplitude. Random retains its preceding audio path. This is a scoped software-reference checkpoint, with no whole-device or perceptual accuracy percentage.
 
+The later [continuous study](noise-continuous.md), completed on 4 November, qualifies the previously inconclusive low-burst and asymmetric programs over 7,140 stationary seconds each. All three declared Sidechain presets now have scoped qualifications across the published cohorts; the earlier Wild/steps result retains its 600-second scope. The following historical results keep their original verdicts.
+
 The [validation receipt](measurements/2026-11-01-noise-sidechain-validation.json) links the complete-control audit, failed detector hypothesis, numerical powers, independent arithmetic, preserved outputs and signed-format delivery checks. The earlier [deterministic modulation checkpoint](noise-modulation.md) remains separate evidence.
 
 The subsequent [production-arithmetic correction](noise-control-fp.md) makes the live Engine and probes share contraction-disabled control functions. All three Sidechain600-second outputs remain byte-identical, preserving this checkpoint's one qualified and two inconclusive audio results. It also closes the preceding deterministic Wild/Saw discrepancy.

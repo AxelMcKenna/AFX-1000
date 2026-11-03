@@ -2,7 +2,9 @@
 
 1 November 2026. Random now moves the Noise filter cutoff using the measured target clock and ramp, replacing the previous amplitude approximation. The default modulation generator reproduces the Original plug-in's observed startup sequence. White-noise excitation remains independently generated.
 
-Two of the three declared audio programs qualify. The wide-filter program passes the whole-run spectrum/level, full conditional profile and late-section checks, but its early highest-control-bin right-channel level remains inconclusive. It stays unqualified. These are fixed User programs at48kHz/manual120BPM against RMX-1000 Plug-in2.2.0, not a hardware or whole-device accuracy percentage.
+The later [continuous study](noise-continuous.md), completed on 4 November, qualifies the remaining Wild/223 program over 7,140 stationary seconds with unchanged margins and 166,137 exact observed default targets. All three declared Random presets now have scoped qualifications across the two cohorts. The following 1 November result retains its original verdict.
+
+Two of the three declared audio programs qualified at this checkpoint. The wide-filter program passes the whole-run spectrum/level, full conditional profile and late-section checks, but its early highest-control-bin right-channel level remains inconclusive. It stays unqualified. These are fixed User programs at48kHz/manual120BPM against RMX-1000 Plug-in2.2.0, not a hardware or whole-device accuracy percentage.
 
 The [validation receipt](measurements/2026-11-01-noise-random-validation.json) connects the controls, numerical powers, independently recomputed statistics, preservation checks and signed-format delivery. Earlier [deterministic modulation](noise-control-fp.md) and [Sidechain](noise-sidechain.md) evidence retains its original verdicts.
 
