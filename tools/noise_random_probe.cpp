@@ -22,16 +22,16 @@ int main(int argc,char** argv){try{
     if(bins){start=std::stoi(argv[4]);step=std::stoi(argv[5]);count=std::stoi(argv[6]);}
 
     const int raw=std::stoi(argv[bins?2:1]);
-    if(bins&&(raw<4||start<0||step<1||step>4096||count<1||count>500000||static_cast<int64_t>(start)+static_cast<int64_t>(count)*step>1204*48000))throw std::runtime_error("Invalid Random bin request");
+    if(bins&&(raw<4||start<0||step<1||step>4096||count<1||count>500000||static_cast<int64_t>(start)+static_cast<int64_t>(count)*step>7204*48000))throw std::runtime_error("Invalid Random bin request");
     const int blocks=bins?static_cast<int>((static_cast<int64_t>(start)+(count-1)*static_cast<int64_t>(step))/32+1):std::stoi(argv[2]);
     const std::string mode=bins?"bins":argv[4];
-    if(raw<0||raw>255||blocks<1||blocks>1806000||(mode!="controls"&&mode!="targets"&&mode!="bins"))throw std::runtime_error("Invalid bounded Random request");
+    if(raw<0||raw>255||blocks<1||blocks>10806000||(mode!="controls"&&mode!="targets"&&mode!="bins"))throw std::runtime_error("Invalid bounded Random request");
     if(mode=="controls"&&blocks>15000)throw std::runtime_error("Full control output is limited to ten seconds");
     Draws draws;rmx::NoiseModulator::RandomSource source{Draws::next,&draws};
     const bool own=std::string(argv[3])=="own";
     if(!own){
         std::ifstream file(argv[3]);float value;
-        while(file>>value){if(!std::isfinite(value)||std::abs(value)>1||draws.values.size()>=40000)throw std::runtime_error("Invalid target stream");draws.values.push_back(value);}
+        while(file>>value){if(!std::isfinite(value)||std::abs(value)>1||draws.values.size()>=200000)throw std::runtime_error("Invalid target stream");draws.values.push_back(value);}
         if(!file.eof())throw std::runtime_error("Invalid target text");
     }
     rmx::NoiseModulator model;int emitted=0;

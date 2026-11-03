@@ -203,7 +203,22 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
         && reader->lengthInSamples <= reader->sampleRate * 1204, "Input must be a stereo audio file of at most 1204 seconds");
     const auto rate = reader->sampleRate;
     require(number(field(plan, "sample_rate"), "sample rate") == rate, "Plan/input rates differ; no implicit resampling");
-    const int64_t total = reader->lengthInSamples + static_cast<int64_t>(std::llround(rate * tail));
+    int64_t total = reader->lengthInSamples + static_cast<int64_t>(std::llround(rate * tail));
+    int64_t captureStart = 0, captureFrames = total;
+    bool repeatInput = false;
+    if (plan.hasProperty("render_window")) {
+        const auto window = field(plan, "render_window");
+        total = integer(field(window, "processing_frames"), "processing frames");
+        captureStart = integer(field(window, "start_frame"), "capture start frame");
+        captureFrames = integer(field(window, "frames"), "capture frames");
+        const auto repeat = field(window, "repeat_input");
+        require(repeat.isBool(), "Repeat input must be boolean");
+        repeatInput = static_cast<bool>(repeat);
+        require(tail == 0 && total > 0 && total <= rate * 7204
+            && captureStart >= 0 && captureFrames > 0 && captureFrames <= rate * 1204
+            && captureStart <= total - captureFrames,
+            "Render window must lie in a bounded 7204-second run, retain at most 1204 seconds and use zero tail");
+    }
     for (const auto& setting : *settings.getArray()) (void)selectParameter(plugin, setting);
     int64_t last = -1;
     for (const auto& event : *events.getArray()) {
@@ -315,8 +330,13 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
         if (eventIndex < events.size()) count = static_cast<int>(std::min<int64_t>(count, static_cast<int64_t>(events[eventIndex]["frame"]) - position));
         buffer.setSize(2, count, false, false, true);
         buffer.clear();
-        const auto available = static_cast<int>(std::max<int64_t>(0, std::min<int64_t>(count, reader->lengthInSamples - position)));
-        if (available > 0) require(reader->read(&buffer, 0, available, position, true, true), "Input read failed");
+        const auto available = repeatInput ? count : static_cast<int>(std::max<int64_t>(0, std::min<int64_t>(count, reader->lengthInSamples - position)));
+        for (int offset = 0; offset < available;) {
+            const auto source = repeatInput ? (position + offset) % reader->lengthInSamples : position + offset;
+            const auto length = static_cast<int>(std::min<int64_t>(available - offset, reader->lengthInSamples - source));
+            require(reader->read(&buffer, offset, length, source, true, true), "Input read failed");
+            offset += length;
+        }
         for (int channel = 0; channel < 2; ++channel) for (int i = 0; i < available; ++i)
             require(std::isfinite(buffer.getSample(channel, i)), "Input contains non-finite audio");
         if(!transportEvents)head.locate(static_cast<double>(position) / rate, rate, bpm, true);
@@ -332,7 +352,9 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
             require(std::isfinite(sample), "Plugin produced non-finite audio");
             maximum = std::max(maximum, std::abs(static_cast<double>(sample)));
         }
-        require(writer->writeFromAudioSampleBuffer(buffer, 0, count), "Capture audio write failed");
+        const auto first = std::max(position, captureStart);
+        const auto end = std::min(position + count, captureStart + captureFrames);
+        if (end > first) require(writer->writeFromAudioSampleBuffer(buffer, static_cast<int>(first - position), static_cast<int>(end - first)), "Capture audio write failed");
         position += count;
     }
     writer.reset();
@@ -368,12 +390,17 @@ void render(juce::AudioPluginInstance& plugin, const juce::PluginDescription& de
         {"final_state_sha256", juce::SHA256(destination.getChildFile("state-after.bin")).toHexString()},
         {"parameter_log_sha256", juce::SHA256(destination.getChildFile("parameter-log.json")).toHexString()},
         {"final_inventory_sha256", juce::SHA256(destination.getChildFile("inventory-after.json")).toHexString()},
-        {"sample_rate", rate}, {"frames", static_cast<juce::int64>(total)}, {"maximum_block_size", block},
+        {"sample_rate", rate}, {"frames", static_cast<juce::int64>(captureFrames)}, {"maximum_block_size", block},
         {"bpm", bpm}, {"transport_playing", true}, {"offline", true}, {"tail_seconds", tail},
         {"reported_latency_frames", plugin.getLatencySamples()}, {"reported_tail_seconds", plugin.getTailLengthSeconds()},
         {"post_render_message_pump_ms",messagePumpMs},
         {"audio_unit_offline_property_verified",nativeAUOffline},
         {"peak", maximum}});
+    if (plan.hasProperty("render_window")) {
+        receipt.getDynamicObject()->setProperty("processing_frames", static_cast<juce::int64>(total));
+        receipt.getDynamicObject()->setProperty("capture_start_frame", static_cast<juce::int64>(captureStart));
+        receipt.getDynamicObject()->setProperty("input_repeated", repeatInput);
+    }
     if(transportEvents){receipt.getDynamicObject()->setProperty("transport_log_sha256",juce::SHA256(destination.getChildFile("transport-log.json")).toHexString());receipt.getDynamicObject()->setProperty("explicit_transport",true);}
     saveJSON(destination.getChildFile("receipt.json"),receipt);
     std::cout << destination.getChildFile("receipt.json").getFullPathName() << '\n';
@@ -398,7 +425,7 @@ int main(int argc, char** argv) {
         require((command == "inventory" && argc == 3) || (command == "render" && argc >= 6 && argc <= 8), "Invalid command or argument count");
         const auto block = argc >= 7 ? std::stoi(argv[6]) : 128;
         const auto timeout = argc == 8 ? std::stoi(argv[7]) : 120;
-        require(block >= 8 && block <= 4096 && timeout >= 5 && timeout <= 600, "Invalid block size/watchdog timeout");
+        require(block >= 8 && block <= 4096 && timeout >= 5 && timeout <= 1800, "Invalid block size/watchdog timeout");
         Deadline deadline(timeout);
         juce::ScopedJuceInitialiser_GUI initialise;
         const auto bundle = juce::File::getCurrentWorkingDirectory().getChildFile(argv[2]);

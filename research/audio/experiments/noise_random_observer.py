@@ -27,13 +27,18 @@ def target(frame, location, internal):
     address = frame.FindRegister('rdi').GetValueAsUnsigned()
     phase, value, step = read(process, address, 0xa6c8, '<3f')[1]
     half = POINTS[frame.GetPC()]
+    if os.environ.get('RMX_RANDOM_COMPACT') == '1':
+        TARGETS.append(value)
+        if len(TARGETS) > 200000:
+            raise RuntimeError('Random target observation exceeded bound')
+        return False
     TARGETS.append(dict(event=len(TARGETS), half=half,
         control_frame=BLOCKS * 32 + half * 16 if os.environ.get('RMX_RANDOM_FULL') == '1' else None,
         previous=phase, target=value, step=step,
         counter=read(process, address, 0xa6c4, '<I')[1][0],
         period=read(process, address, 0xa69c, '<f')[1][0],
         depth=read(process, address, 0xa698, '<f')[1][0]))
-    if len(TARGETS) > 40000:
+    if len(TARGETS) > 200000:
         raise RuntimeError('Random target observation exceeded bound')
     return False
 
@@ -78,6 +83,10 @@ def enter_noise(frame, location, internal):
 def finish():
     if not TARGETS:
         raise RuntimeError('No Random targets observed')
+    if os.environ.get('RMX_RANDOM_COMPACT') == '1':
+        with Path(os.environ['RMX_RANDOM_TRACE']).open('xb') as file:
+            file.write(struct.pack('<' + str(len(TARGETS)) + 'f', *TARGETS))
+        return
     with Path(os.environ['RMX_RANDOM_TRACE']).open('x') as file:
         json.dump(dict(kind='bounded-original-random-controls', binary_sha256=BINARY,
             blocks=BLOCKS, full_control_sha256=CONTROL.hexdigest() if BLOCKS else None,
