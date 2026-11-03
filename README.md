@@ -225,7 +225,7 @@ Choose a new output directory each time. These clips use the current engine; the
 | Native Mac audio | Direct rekordbox capture and speaker output have worked in a live session. The latest saved-route/restart behavior still needs a live check. |
 | AU / VST3 | Build locally. Earlier universal artifacts include Apple Silicon and Intel slices; the latest sound review builds are arm64. Full DAW validation and Intel runtime checks remain open. |
 | Engine and firmware | F06 records 16 passing host groups and clean ARM builds for onboard and external-converter profiles. The source snapshot also records five focused sanitizer groups. Actual MCU timing and hardware operation remain unverified. |
-| Synchronization | AUTO, tap, host transport and MIDI clock are implemented. Optional Link needs its SDK; enabled builds and peer synchronization remain unverified. |
+| Synchronization | AUTO, tap, host transport and MIDI clock are implemented. Optional Link builds and controlled local peer tempo/phase checks pass; live rekordbox and audio-loopback alignment remain unverified. See [sync](docs/synchronization.md). |
 | Sound matching | Latest drum/Noise changes are ready for listening. No reference-unit comparison or claim of identical effects. |
 | Live use | Physical FLX4/FLX6 routing, cue separation, a live two-hour soak and measured round-trip latency remain open. |
 

@@ -200,6 +200,11 @@ AudioDeviceID audioDeviceForUID(NSString* uid,const std::vector<AudioDevice>& de
         midiMenu=popup({742,52,270,25},@selector(midiChanged:));
         linkButton=[NSButton checkboxWithTitle:AudioHost::linkAvailable()?@"Ableton Link":@"Ableton Link (SDK not included)" target:self action:@selector(linkChanged:)];
         linkButton.frame={505,13,320,25};linkButton.enabled=AudioHost::linkAvailable();[setupPanel.contentView addSubview:linkButton];
+        if(AudioHost::linkAvailable()) {
+            const bool enabled=[NSUserDefaults.standardUserDefaults boolForKey:@"RMXLinkEnabledV1"];
+            linkButton.state=enabled?NSControlStateValueOn:NSControlStateValueOff;
+            host->setLinkEnabled(enabled);
+        }
         startButton=[[NSButton alloc] initWithFrame:{1040,48,188,34}]; startButton.bezelStyle=NSBezelStyleRounded; startButton.title=@"START AUDIO"; startButton.target=self; startButton.action=@selector(startAudio:); [setupPanel.contentView addSubview:startButton];
         NSButton* refresh=[[NSButton alloc] initWithFrame:{1040,90,188,27}]; refresh.bezelStyle=NSBezelStyleRounded; refresh.title=@"Refresh devices"; refresh.target=self; refresh.action=@selector(refreshClicked:); [setupPanel.contentView addSubview:refresh];
         deviceStatus=[NSTextField labelWithString:@"Audio stopped"]; deviceStatus.frame={520,92,495,34}; deviceStatus.font=[NSFont monospacedSystemFontOfSize:10 weight:NSFontWeightRegular]; deviceStatus.textColor=muted(); [setupPanel.contentView addSubview:deviceStatus];
@@ -274,6 +279,7 @@ AudioDeviceID audioDeviceForUID(NSString* uid,const std::vector<AudioDevice>& de
 - (void)linkChanged:(id)sender {
     (void)sender;
     host->setLinkEnabled(linkButton.state==NSControlStateValueOn);
+    [NSUserDefaults.standardUserDefaults setBool:linkButton.state==NSControlStateValueOn forKey:@"RMXLinkEnabledV1"];
 }
 - (void)deviceChanged:(id)sender {
     (void)sender;

@@ -50,7 +50,42 @@ The CMake integration exposes `RMX_ENABLE_LINK` defaulting OFF and `RMX_LINK_PAT
 
 The adapter follows the session's tempo and four-beat phase. It does not publish tempo changes, start/stop commands or audio. It uses the [audio-thread session capture API](https://github.com/Ableton/link/blob/Link-3.1.5/include/ableton/Link.hpp). CoreAudio output host time, with output-device and selected-stream latency, is converted to the Link clock's microsecond domain. Ableton describes timestamp and output-latency requirements in its [integration documentation](https://github.com/Ableton/link#time-and-clocks).
 
-Link-enabled builds and peer discovery were not run in this environment because the SDK and its submodule were not available locally. A disabled adapter build is not proof of working Link synchronization. The [official Link test plan](https://github.com/Ableton/link/blob/Link-3.1.5/TEST-PLAN.md) and loopback timing checks remain required before calling the optional adapter release ready.
+The native Audio & MIDI panel remembers its Ableton Link checkbox using `RMXLinkEnabledV1`. Supported session tempo is 40–240 BPM; no peers, disabled Link or an unsupported tempo falls through to MIDI/AUTO/manual. Start/stop sync is disabled.
+
+### Local Link validation, 2026-11-04
+
+A Release arm64 native app was built with the SDK commit above and Asio submodule `231cb29bab30f82712fcd54faaea42424cc6e710`. A separate publisher process exercised the actual native `LinkSession` receiver over Link discovery/networking. Preflight detected zero existing peers; each comparison required exactly one peer and 20 consecutive matching samples.
+
+| Session tempo | Receiver result | Maximum four-beat phase error |
+| --- | --- | --- |
+| 137 BPM | Locked, 137.000063933 BPM | 0.001314 ms |
+| 91 BPM | Locked, 90.999952983 BPM | 0.001319 ms |
+| 30 BPM | Rejected; clock fallback available | Not applicable |
+| 120 BPM | Locked, 120 BPM | 0.001 ms |
+
+Phase was compared modulo four beats at two shared host timestamps 100 ms apart, with a 1 ms gate. These are session-timeline measurements, not audible latency measurements. Each new receiver joined the existing session without publishing its initial tempo. Disabled receivers left the supplied transport unchanged. The no-peer preflight did not lock.
+
+The first probe incorrectly required exact decimal BPM and failed at 137 BPM. Link [serializes tempo as rounded integer microseconds per beat](https://github.com/Ableton/link/blob/Link-3.1.5/include/ableton/link/Tempo.hpp). The corrected check compares beat periods within 2 microseconds; the largest observed difference was 0.341 microseconds. No runtime adapter or DSP behavior changed to make this check pass.
+
+Reproduce on an isolated Link session (the test publishes tempo changes):
+
+```sh
+cmake -S . -B build/link -DCMAKE_BUILD_TYPE=Release -DRMX_BUILD_TESTS=OFF \
+  -DRMX_ENABLE_LINK=ON -DRMX_LINK_PATH="$PWD/build/dependencies/AbletonLink-3.1.5"
+cmake --build build/link --target RMX rmx_link_probe -j4
+uv run python tools/check_link_peers.py build/link/rmx_link_probe \
+  --output build/link-validation.json
+```
+
+The driver refuses to start its publisher when the preflight sees existing peers, stops on unexpected extra peers and always cleans up its test process. Keep other Link apps disabled during this test. The compact local receipt is `build/link-validation-20261104.json` (ignored generated evidence).
+
+A live rekordbox session and physical audio-loopback alignment remain unverified. Computer control was unavailable during setup, and rekordbox did not advertise a peer during preflight. The [official Link test plan](https://github.com/Ableton/link/blob/Link-3.1.5/TEST-PLAN.md), real deck changes and output loopback checks remain necessary for full integration qualification.
+
+### Using it with rekordbox
+
+Open the installed Link-enabled RMX app and enable Ableton Link in its Audio & MIDI panel (`Cmd+,`). In rekordbox, enable the global **LINK** button and then **LINK** on the playing deck; rekordbox changes the deck's BEAT SYNC button to LINK. Verify RMX's panel reports a Link peer. Allow local-network access if macOS prompts.
+
+Link carries tempo and beat timing; RMX's saved rekordbox capture route supplies the audio separately. In rekordbox's Link mode, change session tempo in the Link subscreen: its documentation says the controller TEMPO slider does not change Link BPM. See the [official rekordbox Link FAQ](https://rekordbox.com/en/support/faq/ableton-link/).
 
 ## Checks run during this change
 

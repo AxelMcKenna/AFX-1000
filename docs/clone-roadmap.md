@@ -7,7 +7,7 @@ The objective is full functional and sonic replication, with a standalone hardwa
 - [x] Improve AUTO pulse-phase tracking, gradual clock correction, silence invalidation and tempo-change recovery. Synthetic fixtures pass; real-music and reference-unit validation remain open.
 - [x] Share MIDI clock handling across native and plugin adapters, including Start/Stop/Continue and Song Position Pointer. Plugin clock/transport events use sample offsets with DAW transport priority.
 - [x] Separate loop tempo from pitch using bounded, stereo-linked overlap-add. Neutral playback retains direct interpolation. Reference-unit sound and transient behavior remain unverified.
-- [x] Add an optional Ableton Link adapter and native setup control. The SDK-free build passes; Link remains disabled in packaged builds, and enabled compilation/live peers still need validation.
+- [x] Add an optional Ableton Link adapter and native setup control. SDK-free and enabled builds pass; controlled local peer tempo/phase checks pass. Link is opt-in for builds and its native checkbox is remembered.
 - [x] Replace the hardware photograph with original amber/teal panel artwork in native and plugin builds.
 - [x] Add reference-audio capture/comparison tools, a persistent offline stress tool, a VST3 runtime probe and universal Mac packaging with source/dependency archives, notices and hashes.
 
@@ -18,7 +18,8 @@ The offline stress run processed 7200 simulated seconds with no non-finite outpu
 - [ ] Compare against real RMX recordings and complete loudness-matched listening checks before claiming sonic parity.
 - [ ] Validate FLX4/FLX6 routing, actual DAW operation, device recovery and a real two-hour session.
 - [ ] Verify AU runtime. The component built, but process-local registration returned null during the probe; the cause is undetermined.
-- [ ] Build and exercise the Link-enabled configuration with the separately supplied SDK.
+- [x] Build and exercise the Link-enabled configuration with the separately supplied SDK; see the dated [local peer checks](synchronization.md#local-link-validation-2026-11-04).
+- [ ] Verify live rekordbox deck synchronization and physical audio-loopback alignment.
 - [ ] Flash and validate physical hardware, including audio, controls, storage and fault recovery.
 - [x] Add the proprietary project rights notice; retain third-party terms separately. Commercial permission for combined JUCE/Link distribution and legal review remain separate requirements.
 
