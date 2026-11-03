@@ -1,0 +1,64 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/audit_audio_main_gain_clearance.py": "87aa59504eadba021a91c42fbd1e228ad33d7ae169b6ad8c3c887254bbd25c49",
+    "hardware/fabrication/audio_main_noise_audit.py": "3a69929711a3275f9404caf861cb4f4515bdcbad941504c6240fea8402a05567",
+    "hardware/fabrication/staging/audio-main-six-monitor-01/native-inputs.json": "a39f841d2a2f2f4a7b57249f8f0b57054cd6b55d63a96a69c770e59b5e3bc30a",
+    "hardware/fabrication/staging/audio-main-six-monitor-01/distribution-construction.json": "aeff661c833241ffd8f26e2772a4fcef512e6c6a43ef4a99f891399da9b7b478",
+    "hardware/fabrication/staging/audio-main-six-monitor-01/audio_core.kicad_pcb": "d1351839cdf3bd9a1145d4d06d152ff4ccd4115a53ae2ba6daec0e4ea710032d",
+    "hardware/fabrication/staging/audio-main-six-local-01/audio_core.kicad_pcb": "1409dda093b91c78b26650ed7d95b1523da086628d9b70834f95d4d373e97aed",
+    "hardware/fabrication/audio_main_global_controls.py": "04f6c192cc2ef1a0d56a8d93b717aaa43d24f237711735a019c399e25c0f09fd",
+    "hardware/fabrication/audio_main_monitor_routes.py": "ee34eafc5a27f74edbb964208d744f5288908f1ef53b8e04f991e67c858398e1",
+    "hardware/fabrication/audit_audio_main_named_routes.py": "b6c40db718bf4256ed13dd0446b6b9f6b080da6f27f47a4ae202e9de7bf65272"
+  },
+  "superseded_spacing_review": "hardware/fabrication/staging/audio-main-six-monitor-01/named-route-review.json",
+  "defect": "Legacy legal() searched only .5 mm around a line while enforcing enlarged .71 mm clearances",
+  "consequence": "Four new segment/noisy-copper relationships violate the stated policy; native DRC and connection counts are unaffected",
+  "measurement": {
+    "trace_count": 34,
+    "same_layer_pairs_measured": 11116,
+    "centreline_limit_mm": 0.71,
+    "minimum_by_net_mm": {
+      "/ADC/BIAS_SHIFT_L": 0.825,
+      "/ADC/BIAS_SHIFT_R": 0.7,
+      "/ADC/THRESH_LOWER": 2.205971696,
+      "/ADC/THRESH_UPPER": 0.5399
+    },
+    "violations": [
+      {
+        "trace_uuid": "41ffa032-b4cb-598d-bbc8-4c9295397dcc",
+        "net": "/ADC/THRESH_UPPER",
+        "layer": "F.Cu",
+        "noisy_uuid": "e51a82c8-c126-5b42-a715-08d02f46911c",
+        "noisy_net": "/BYPASS/GAIN_REQ",
+        "centreline_to_copper_mm": 0.5398999999999959
+      },
+      {
+        "trace_uuid": "41ffa032-b4cb-598d-bbc8-4c9295397dcc",
+        "net": "/ADC/THRESH_UPPER",
+        "layer": "F.Cu",
+        "noisy_uuid": "e5e80630-a8b3-5197-8fb1-737bab566ada",
+        "noisy_net": "/BYPASS/GAIN_REQ",
+        "centreline_to_copper_mm": 0.5399999999999991
+      },
+      {
+        "trace_uuid": "9f404679-f99b-51d0-83ed-4d95dad0977c",
+        "net": "/ADC/THRESH_UPPER",
+        "layer": "F.Cu",
+        "noisy_uuid": "e51a82c8-c126-5b42-a715-08d02f46911c",
+        "noisy_net": "/BYPASS/GAIN_REQ",
+        "centreline_to_copper_mm": 0.7033444098132204
+      },
+      {
+        "trace_uuid": "8d6284a7-d2ee-5f47-93c9-2dc45560b876",
+        "net": "/ADC/BIAS_SHIFT_R",
+        "layer": "F.Cu",
+        "noisy_uuid": "35d5c09a-5e9a-5046-966b-f705bd446225",
+        "noisy_net": "/BYPASS/GAIN_REQ",
+        "centreline_to_copper_mm": 0.6999999999999993
+      }
+    ],
+    "method": "all same-layer trace/copper pairs; no broad-phase exclusion"
+  },
+  "electrical_noise_qualified": false,
+  "fabrication_released": false
+}

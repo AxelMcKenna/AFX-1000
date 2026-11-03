@@ -1,5 +1,13 @@
 # Unselected six-layer comparator-input routing trial
 
+**Spacing review superseded:** the original enlarged-clearance screen searched
+only 0.5 mm around a trace while enforcing a 0.71 mm limit. An exhaustive check
+found four violating trace/noisy-copper relationships. See the
+[measured erratum](../audio-main-six-monitor-03/previous-spacing-erratum.json) and
+[corrected 172-open rework](../audio-main-six-monitor-03/README.md). The native
+connection counts and ordinary DRC/ERC results below remain valid; this trial
+does not satisfy its original 0.71 mm spacing claim.
+
 **Not ready for fabrication.** This continues `audio-main-six-local-01` without
 replacing the selected four-layer readiness snapshot.
 
@@ -30,9 +38,10 @@ not return-impedance or signal-integrity qualification.
 Two comparator gaps remain: R136.2 on BIAS_SHIFT_R and U107.10 on THRESH_LOWER.
 The route limit is the smaller of 40 mm and twice the physical endpoint distance
 plus 6 mm, with at most two fresh vias and surface necks at most 3.5 mm. New signal
-centre-lines retain 0.71 mm from the enumerated digital copper on their routed
-layer. Additional drill, sensitive-region and both-ground-reference screens also
-apply. This spacing policy does not establish adequate noise immunity.
+centre-lines were intended to retain 0.71 mm from the enumerated digital copper
+on their routed layer. That particular spacing claim failed the later exhaustive
+review described above. Additional drill, sensitive-region and both-ground-reference
+screens also apply. None of these geometric checks establishes adequate noise immunity.
 
 The [TLV9024 datasheet](https://www.ti.com/lit/ds/symlink/tlv9024.pdf), revision H,
 tables 4-3 and section 7.4, confirms the SOIC input pin roles and calls for
