@@ -1,0 +1,73 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/staging/audio-main-six-monitor-04/applied-review-prepared-entry.py.txt": "0fb26e0d1f54f7212993f29a63cfbd091b916fe43ec04160483188cfe3a90c09",
+    "hardware/fabrication/staging/audio-main-six-monitor-04/prepared-refilled.kicad_pcb": "5f3dca2936570027b59629b90d8d2aff2556834b7e454bcda59fcdc7f8f82b89",
+    "hardware/fabrication/staging/audio-main-six-monitor-04/prepared-refilled.kicad_pro": "86fa1c59345b96d7f37013c3667fabb0fc92f8f939d86a04a10945390765ee1e",
+    "hardware/fabrication/staging/audio-main-six-monitor-04/prepared-refilled.kicad_dru": "eee408f5461184dc65135f73874410b95e62c208b25dd19c364e0e7971827d17",
+    "hardware/fabrication/staging/audio-main-six-monitor-04/prepared-drc.json": "8a8b7552bdd35140721dec2d1974dfd1fc04acd468c8658cfc0755a44e6fdd62"
+  },
+  "command": [
+    "kicad-cli",
+    "pcb",
+    "drc",
+    "--all-track-errors",
+    "--severity-all",
+    "--format",
+    "json",
+    "-o",
+    "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/audio-main-six-monitor-04/prepared-drc.json",
+    "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/audio-main-six-monitor-04/prepared-refilled.kicad_pcb"
+  ],
+  "native_non_dangling_findings": 0,
+  "expected_preparation_dangling_findings": [
+    {
+      "description": "Via is not connected or connected on only one layer",
+      "items": [
+        {
+          "description": "Via [V5_REG] on F.Cu - B.Cu",
+          "pos": {
+            "x": 27.0875,
+            "y": 49.02
+          },
+          "uuid": "9d8927bc-761b-56d9-b1d9-8800f778b537"
+        }
+      ],
+      "severity": "warning",
+      "type": "via_dangling"
+    },
+    {
+      "description": "Via is not connected or connected on only one layer",
+      "items": [
+        {
+          "description": "Via [/ADC/BIAS_SHIFT_R] on F.Cu - B.Cu",
+          "pos": {
+            "x": 30.3,
+            "y": 52.5
+          },
+          "uuid": "8377fae8-caa6-5ed1-98d8-922580f8a68c"
+        }
+      ],
+      "severity": "warning",
+      "type": "via_dangling"
+    },
+    {
+      "description": "Track has unconnected end",
+      "items": [
+        {
+          "description": "Track [/ADC/BIAS_SHIFT_L] on In3.Cu, length 5.2406 mm",
+          "pos": {
+            "x": 29.72655,
+            "y": 39.443132
+          },
+          "uuid": "2b413427-ea2b-5708-a1f4-91625134e0d4"
+        }
+      ],
+      "severity": "warning",
+      "type": "track_dangling"
+    }
+  ],
+  "prepared_geometry_only": true,
+  "schematic_parity_performed": false,
+  "final_zero_findings_required": true,
+  "fabrication_released": false
+}
