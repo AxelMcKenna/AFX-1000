@@ -1,0 +1,80 @@
+"""Repair the amplifier PD exits with native passive-side templates."""
+
+import argparse
+import json
+import shutil
+import sys
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import children, first, read_sexpr, sexpr
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "staging/audio-main-six-pd-01"
+OUT = ROOT / "staging/audio-main-six-pd-02"
+
+
+def snapshot(label):
+    path = OUT / ("applied-"+label+".py.txt")
+    assert not path.exists()
+    shutil.copyfile(Path(__file__), path)
+    return path
+
+
+def templates():
+    assert sys.platform == "linux", "Mac CAD remains disabled"
+    import pcbnew
+
+    from hardware.fabrication.capture_board import polygons
+
+    assert not OUT.exists()
+    parent = json.loads((SOURCE / "PD-routing-review.json").read_text())
+    verify_hashes(parent["source_sha256"])
+    assert parent["uncapped_open_connections"] == 165
+    OUT.mkdir()
+    applied = snapshot("native-F-side-templates")
+    dest = OUT / "templates"
+    dest.mkdir()
+    source = SOURCE / "audio_core.kicad_pcb"
+    source_tree = read_sexpr(source.read_text())
+    source_codes = {str(n[2]): n[1] for n in children(source_tree, "net")}
+    rows = []
+    for ref in ("R115", "R131"):
+        board = pcbnew.LoadBoard(str(source))
+        fp = next(f for f in board.GetFootprints() if f.GetReference() == ref)
+        assert fp.IsFlipped()
+        fp.Flip(fp.GetPosition(), False)
+        for angle in (0, 90, 180, 270):
+            fp.SetOrientationDegrees(angle)
+            fp.SetPosition(pcbnew.VECTOR2I(0, 0))
+            temporary = dest / "native-work.kicad_pcb"
+            assert pcbnew.SaveBoard(str(temporary), board)
+            tree = read_sexpr(temporary.read_text())
+            node = next(f for f in children(tree, "footprint") if any(p[1:3] == ["Reference", ref] for p in children(f, "property")))
+            native_nets = {p.GetNumber(): p.GetNetname() for p in fp.Pads()}
+            for pad in children(node, "pad"):
+                net = first(pad, "net")
+                net[1] = source_codes[native_nets[str(pad[1])]]
+                del net[2:]
+            target = dest / f"{ref}-F-{angle}.kicad_mod"
+            target.write_text(sexpr(node)+"\n")
+            pads = []
+            for pad in fp.Pads():
+                poly = pcbnew.SHAPE_POLY_SET()
+                pad.TransformShapeToPolygon(poly, pad.GetLayer(), 0, 1000, pcbnew.ERROR_OUTSIDE)
+                pads.append(dict(kind="PAD", ref=ref, pin=pad.GetNumber(), net=pad.GetNetname(),
+                    position_mm=[pad.GetPosition().x/1e6, pad.GetPosition().y/1e6],
+                    drill_mm=[0, 0], npth=False, layers={"F.Cu": polygons(poly)}))
+            rows.append(dict(ref=ref, side="F", angle=angle, file=target.name, sha256=sha(target), pads=pads))
+        temporary.unlink()
+    (dest / "templates.json").write_text(json.dumps(dict(source_sha256=relative_hashes([
+        applied, source, SOURCE / "PD-routing-review.json", ROOT / "capture_board.py"]), native_version=pcbnew.GetBuildVersion(),
+        templates=rows, fabrication_released=False), indent=2)+"\n")
+    print("Captured eight native front-side resistor templates; no source board edits")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("action", choices=("templates",))
+    templates()
