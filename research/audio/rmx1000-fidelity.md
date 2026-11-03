@@ -1,6 +1,6 @@
 # RMX-1000 sound matching research
 
-- Updated: 2026-11-01
+- Updated: 2026-11-03
 - Status: active; scoped factory drums, nine deterministic Scene effects, three Isolator modes, Release and statistical Noise at 48 kHz; full-device validation incomplete
 - Question: what evidence, DSP work and validation would support a defensible claim of very close RMX-1000 sound matching?
 - Related implementation: [Scene](../../src/core/Scene.cpp), [Isolate](../../src/core/Isolator.cpp), [engine and Release](../../src/core/Engine.cpp), [drums](../../include/rmx/FactoryDrumSynth.h), [capture tools](../../tools/reference_audio.py).
@@ -20,7 +20,7 @@ There is substantial identification and validation left; a defensible overall pe
 | Spiral Up/Down | Live Default/48k/manual120: 1,709 static and 336 dynamic/cold/direction-switch programs pass; two declared synchronized [tempo-transition programs](tempo-transitions.md) also pass with fresh timing holdouts; optimized/sanitized WAV identity | Other tempos/rates/User profiles, drum/Isolator/Release combinations and hardware |
 | Release Back Spin/Echo/Brake | Live Default/48k: all216 complete native renders have identical float32 sample bits to the original;88 unseen frozen programs;88 regressions per wrapper | Other tempos/rates/profiles, combined reset/source actions, active type switches and hardware |
 | Isolator | Live Cut/Add, Trans/Roll and Gate/Drive: 146 reference programs per mode, including band gestures and lifecycle changes | Wider tempos/profiles/routes, combined effects and hardware |
-| Full performance path | [Drum-led interaction pass](drum-performance-path.md): 50/54 declared active programs and 54/54 paired drum/source controls; [Scene switching](scene-switching.md), [tempo transitions](tempo-transitions.md), moving Isolator and mixed-input source families each 9/9 | Three Scene-motion cases, Back Spin + Reverb Up; sampling, wider profiles/rates, overload and blind listening |
+| Full performance path | [Drum-led interaction pass](drum-performance-path.md): 54/54 declared active programs and 54/54 paired drum/source controls; [control motion and Release](control-motion-release.md) also pass 18 fresh timing holdouts; all six declared families pass 9/9 | Sampling, wider gestures/combinations, profiles/rates, overload, musical material, blind listening and hardware |
 | Physical device | No hardware equivalence established | Firmware-specific converter, level, control-response and audio comparison |
 
 Counts describe fixture coverage, not fractions of the device completed. The [live drum integration record](drums.md#live-integration-control-guards-and-wrappers) explains current evidence and its retained failure.
