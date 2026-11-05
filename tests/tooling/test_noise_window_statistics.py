@@ -7,13 +7,13 @@ import unittest
 
 import numpy as np
 
-from tools import noise_random_statistics as random_stats
-from tools import noise_window_statistics as window
-from tools.noise_statistics import float_wav, stereo_correlation
-from tools.reference_audio import write_wav
-from tools.rmx_noise_sidechain_stream import analyze as original_analyze
-from tools import rmx_noise_window_stream as stream
-from tools import rmx_noise_user as noise
+from tools.audio.noise import noise_random_statistics as random_stats
+from tools.audio.noise import noise_window_statistics as window
+from tools.audio.noise.noise_statistics import float_wav, stereo_correlation
+from tools.audio.common.reference_audio import write_wav
+from tools.audio.noise.rmx_noise_sidechain_stream import analyze as original_analyze
+from tools.audio.noise import rmx_noise_window_stream as stream
+from tools.audio.noise import rmx_noise_user as noise
 
 
 class ContinuousWindows(unittest.TestCase):

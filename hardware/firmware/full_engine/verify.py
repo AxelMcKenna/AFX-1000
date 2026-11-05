@@ -173,7 +173,7 @@ def main():
             )
         ]
     files += [p for p in HERE.parent.iterdir() if p.is_file() and p.suffix in (".h", ".cpp", ".ld", ".json")]
-    files += list((REPO / "tests").glob("*_tests.cpp")) + [REPO / "tools/memory_budget.cpp"]
+    files += list((REPO / "tests/core").glob("*_tests.cpp")) + [REPO / "tools/cli/memory_budget.cpp"]
     files += list((REPO / "hardware/runtime/tests/support").glob("*.h"))
     report = dict(
         revision="F06",

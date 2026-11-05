@@ -5,8 +5,8 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
-from tools.reference_audio import check_output_storage, render, write_wav
-from tools.rmx_factory_match import new_directory
+from tools.audio.common.reference_audio import check_output_storage, render, write_wav
+from tools.audio.common.rmx_factory_match import new_directory
 
 
 class AudioStoragePause(unittest.TestCase):

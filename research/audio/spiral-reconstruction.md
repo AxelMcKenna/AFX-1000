@@ -87,7 +87,7 @@ declared fixed 32/32 boundary convention.
 
 The development motion model is
 [SpiralMotion.h](experiments/SpiralMotion.h), rendered by
-[spiral_motion_probe.cpp](../../tools/spiral_motion_probe.cpp). Eight discovery
+[spiral_motion_probe.cpp](../../tools/probes/spiral_motion_probe.cpp). Eight discovery
 programs cover Main, pitch, time and repeated effect off/on in each direction.
 Candidate v8 passes all eight: Main, pitch and button outputs are sample-for-
 sample identical; time programs have maximum wet relative RMS error about
@@ -162,11 +162,11 @@ qualify live Engine integration or physical hardware.
 
 ## Reproduction and evidence boundaries
 
-`tools.rmx_spiral_programs` defines static sources and control recipes;
-`tools.rmx_spiral_static_match` verifies reference identity and control delivery.
-`tools.rmx_spiral_prospective` seals predictions and independently audits fresh
-static captures. `tools.rmx_spiral_static_audit` rechecks historical programs.
-`tools.rmx_spiral_motion_prospective` performs the separate moving-control
+`tools.audio.spiral.rmx_spiral_programs` defines static sources and control recipes;
+`tools.audio.spiral.rmx_spiral_static_match` verifies reference identity and control delivery.
+`tools.audio.spiral.rmx_spiral_prospective` seals predictions and independently audits fresh
+static captures. `tools.audio.spiral.rmx_spiral_static_audit` rechecks historical programs.
+`tools.audio.spiral.rmx_spiral_motion_prospective` performs the separate moving-control
 prediction/capture/audit sequence. Each checker binds its inputs and source
 hashes and rejects changed artifacts.
 
@@ -178,14 +178,14 @@ and building `build/core` on macOS:
 ```sh
 c++ -std=c++20 -O3 -ffp-contract=off \
   -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk \
-  -Iinclude tools/spiral_motion_probe.cpp build/core/librmx_core.a \
+  -Iinclude tools/probes/spiral_motion_probe.cpp build/core/librmx_core.a \
   -o build/core/rmx_spiral_motion_probe
-uv run --locked python -m tools.rmx_spiral_motion_fresh4 predict \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_motion_fresh4 predict \
   --session captures/spiral-fresh4 --renderer build/core/rmx_spiral_motion_probe
-uv run --locked python -m tools.rmx_spiral_motion_fresh4 capture \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_motion_fresh4 capture \
   --session captures/spiral-fresh4 --host "$RMX_REFERENCE_HOST" \
   --plugin "$RMX_REFERENCE_PLUGIN"
-uv run --locked python -m tools.rmx_spiral_motion_fresh4 audit \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_motion_fresh4 audit \
   --session captures/spiral-fresh4 --host "$RMX_REFERENCE_HOST" \
   --sanitizer build/core/rmx_spiral_motion_probe_asan --output checks/spiral-fresh4
 ```
@@ -268,12 +268,12 @@ holdout additionally requires complete sealed-prediction/native/sanitizer byte
 identity before a prospective pass. It includes frame-zero input, initial off,
 1/9/17-frame button touches and combined direction/knob changes.
 
-`tools.rmx_spiral_static_motion_audit` replays the static corpus through the
-stateful live processor. `tools.rmx_spiral_motion_regression` and
-`tools.rmx_spiral_cold_match` replay the dynamic/cold reference sets.
-`tools.rmx_spiral_engine_holdout` performs the fresh prediction/capture/audit
+`tools.audio.spiral.rmx_spiral_static_motion_audit` replays the static corpus through the
+stateful live processor. `tools.audio.spiral.rmx_spiral_motion_regression` and
+`tools.audio.spiral.rmx_spiral_cold_match` replay the dynamic/cold reference sets.
+`tools.audio.spiral.rmx_spiral_engine_holdout` performs the fresh prediction/capture/audit
 sequence. Use new output directories and retain the pinned original host and
-plug-in locally. `tools.rmx_spiral_plugins` binds an explicitly supplied project
+plug-in locally. `tools.audio.spiral.rmx_spiral_plugins` binds an explicitly supplied project
 AU/VST3 bundle to the native qualification, checks parameter delivery/readback
 and latency, and applies independent original-reference and wrapper/native
 gates. Gain uses the plug-in's decoded 0 dB parameter value, not an approximate
@@ -287,7 +287,7 @@ its complete bytes. This reduces duplicate local storage without changing any
 audio, error metric or threshold. Restore a retained wrapper WAV with:
 
 ```sh
-uv run --locked python -m tools.wav_delta path/to/case/audio.delta.json restored.wav
+uv run --locked python -m tools.audio.common.wav_delta path/to/case/audio.delta.json restored.wav
 ```
 
 The metadata and its adjacent native base/XOR stream must stay together.
@@ -353,6 +353,6 @@ flags to stay identical. The signed AU is then checked again against the same
 16 Engine holdouts and all 359 runtime assertions. This is a packaging replay,
 not 16 new Original programs. The VST3 copy already has a valid resource seal
 and remains byte-identical to its full qualification. The regular
-[Mac packager](../../tools/package_macos.py) also signs and strictly verifies
+[Mac packager](../../tools/packaging/package_macos.py) also signs and strictly verifies
 copies without changing the source build products. The local preview is not a
 notarized release.

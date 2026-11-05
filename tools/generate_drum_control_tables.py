@@ -4,8 +4,8 @@ import argparse
 import json
 from pathlib import Path
 
-from tools.reference_audio import sha256
-from tools.rmx_drums import require
+from tools.audio.common.reference_audio import sha256
+from tools.audio.drums.rmx_drums import require
 
 
 def generate(args):

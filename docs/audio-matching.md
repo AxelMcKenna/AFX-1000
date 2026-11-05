@@ -14,7 +14,7 @@ Of the ten Scene FX, Spiral Up and Spiral Down remain unmatched; the other eight
 
 On 26 October 2026, the official RMX-1000 Mac plug-in 2.2.0 was obtained from [AlphaTheta support](https://support.alphatheta.com/en-US/articles/4405128214809?product=4416587889433). Its installer signature, notarization and AU bundle signature verified through macOS trust services. The archive and hashes are retained locally under `build/artifacts/research/reference-acquisition/`; vendor binaries remain outside Git.
 
-The Intel AU uses legacy `thng` registration and was unavailable to `auval` on macOS 26.6.2. The package's signed Intel VST2 now loads successfully through the original minimal public-ABI adapter in `tools/legacy_vst2_host.h`. An x86_64 host runs under Rosetta and opens the extracted bundle directly, without installer scripts. Its identity is `RMX-1000 Plug-in` / `Pioneer Corporation` / `2.2.0`, with 52 public parameters. The project plug-in is used separately as a host fixture and candidate.
+The Intel AU uses legacy `thng` registration and was unavailable to `auval` on macOS 26.6.2. The package's signed Intel VST2 now loads successfully through the original minimal public-ABI adapter in `tools/hosts/legacy_vst2_host.h`. An x86_64 host runs under Rosetta and opens the extracted bundle directly, without installer scripts. Its identity is `RMX-1000 Plug-in` / `Pioneer Corporation` / `2.2.0`, with 52 public parameters. The project plug-in is used separately as a host fixture and candidate.
 
 At 48 kHz, the original bypass is bit-exact with the input after a 32-sample delay, despite reporting zero latency. Both channels agree. Repeated Isolator/Echo captures at host blocks of 32, 128 and 256 samples were bit-exact for the checked static cases. At 44.1 and 96 kHz, bypass includes extra filtering and different latency; these paths need a separate conversion model and are excluded from the current match claim.
 
@@ -25,10 +25,10 @@ Thirty-five fresh Isolator cases and twenty-five fresh Echo cases at 120 BPM pas
 Use the host architecture matching your separately obtained original plug-in. Each output directory must be new. From the repository root:
 
 ```sh
-uv run --locked python -m tools.rmx_factory_match capture --effect isolator \
+uv run --locked python -m tools.audio.common.rmx_factory_match capture --effect isolator \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --output build/artifacts/research/isolator-reference
-uv run --locked python -m tools.rmx_factory_match render \
+uv run --locked python -m tools.audio.common.rmx_factory_match render \
   --session build/artifacts/research/isolator-reference --renderer build/rmx_render \
   --output build/artifacts/research/isolator-candidate
 ```
@@ -36,7 +36,7 @@ uv run --locked python -m tools.rmx_factory_match render \
 Inspect `calibration-unreviewed.json` in the candidate directory. Check the effects-disabled reference plan, candidate preset, channel order, gain, polarity and bypass waveform. Save a reviewed copy with `verified: true`; retain its bypass hashes. Then run:
 
 ```sh
-uv run --locked python -m tools.rmx_factory_match compare \
+uv run --locked python -m tools.audio.common.rmx_factory_match compare \
   --session build/artifacts/research/isolator-reference \
   --candidate build/artifacts/research/isolator-candidate \
   --calibration build/artifacts/research/isolator-candidate/calibration-reviewed.json \
@@ -58,16 +58,16 @@ The [numerical identification record](../research/audio/measurements/2026-10-26-
 To reproduce with a separately obtained original and an independently reviewed 48 kHz bypass calibration:
 
 ```sh
-uv run --locked python -m tools.rmx_filter_capture \
+uv run --locked python -m tools.audio.filters.rmx_filter_capture \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --output build/artifacts/research/filter-reference
-uv run --locked python -m tools.rmx_filter_identify \
+uv run --locked python -m tools.audio.filters.rmx_filter_identify \
   --base build/artifacts/research/filter-reference \
   --grid build/artifacts/research/filter-reference \
   --calibration build/artifacts/research/filter-reference \
   --report build/artifacts/research/filter-identification.json \
   --header build/artifacts/research/FilterEchoCalibration.h
-uv run --locked python -m tools.rmx_filter_match \
+uv run --locked python -m tools.audio.filters.rmx_filter_match \
   --session build/artifacts/research/filter-reference --renderer build/rmx_render \
   --calibration calibration-reviewed.json --output build/artifacts/research/filter-candidate
 ```
@@ -83,14 +83,14 @@ The hold period needs the original arithmetic: multiply the raw byte by the roun
 Crush uses the four crossfaded combs and 0.75 feedback/0.7 return gain described above, with HP4 at 60 Hz on its return. Its [validation record](../research/audio/measurements/2026-10-26-crush-validation-48k.json) contains 54 passing static comparisons, including fresh stereo probes, crossfaded Sub1 positions, 90/128/137 BPM and clock-boundary impulses. Worst checked per-channel RMS error is about 0.021%; separate tails also pass. Eight native VST3 cases pass, including button-off. Initial host controls now seed engine smoothers before the first callback, so restoration before or after preparation gives the same settled hold phase.
 
 ```sh
-uv run --locked python -m tools.rmx_crush_identify capture \
+uv run --locked python -m tools.audio.filters.rmx_crush_identify capture \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --session build/artifacts/research/crush-reference
-uv run --locked python -m tools.rmx_crush_identify identify \
+uv run --locked python -m tools.audio.filters.rmx_crush_identify identify \
   --session build/artifacts/research/crush-reference \
   --clock-session build/artifacts/research/crush-reference \
   --calibration calibration-reviewed.json --report build/artifacts/research/crush-identification.json
-uv run --locked python -m tools.rmx_filter_match \
+uv run --locked python -m tools.audio.filters.rmx_filter_match \
   --session build/artifacts/research/crush-reference --renderer build/rmx_render \
   --calibration calibration-reviewed.json --output build/artifacts/research/crush-candidate
 ```
@@ -110,21 +110,21 @@ Thirty-two [component comparisons](../research/audio/measurements/2026-10-26-spi
 Reproduce with an independently obtained original bundle and reviewed bypass calibration:
 
 ```sh
-uv run --locked python -m tools.rmx_spiral_characterize capture \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_characterize capture \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --session build/artifacts/research/spiral-identification
-uv run --locked python -m tools.rmx_spiral_characterize analyze \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_characterize analyze \
   --session build/artifacts/research/spiral-identification \
   --calibration calibration-reviewed.json --report build/artifacts/research/spiral-identification.json
-uv run --locked python -m tools.rmx_spiral_return capture \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_return capture \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --session build/artifacts/research/spiral-return-impulses --main 128 --bpm 120 \
   --times 32 64 96 128 160 192 224 255 --stimulus impulses
-uv run --locked python -m tools.rmx_spiral_return capture \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_return capture \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --session build/artifacts/research/spiral-return-probe
 cmake --build build --target rmx_spiral_return_probe
-uv run --locked python -m tools.rmx_spiral_return compare \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_return compare \
   --session build/artifacts/research/spiral-return-impulses \
   --session build/artifacts/research/spiral-return-probe \
   --renderer build/rmx_spiral_return_probe --calibration calibration-reviewed.json \
@@ -133,9 +133,9 @@ uv run --locked python -m tools.rmx_spiral_return compare \
 
 Capture destinations and reports must be new. The characterization matrix writes substantial local audio and takes several minutes. Its stages can also be captured independently with `--stage`; combine their directories using the analyzer's six stage arguments. `--legacy-initial` permits the recorded initial campaign's naming convention for component comparison. Both analyzers verify reference identity and input/output/plan hashes. All raw vendor audio and binaries stay outside Git. Shared amplitude detection, pitch/phase reconstruction, Main mapping, inner feedback, other Sub2 positions, profiles, gestures and full-effect validation remain outstanding.
 
-Further [Spiral core experiments](../research/audio/spiral-core.md) separate linked peak detection and input clipping from quiet linear feedback. `tools.rmx_spiral_core` captures and verifies 94 component recipes plus three long-clock/broadband captures. A quiet 34-second recording identifies fractional-clock reversals. `tools.rmx_spiral_envelope` adds 135 verified probes for shared activity and stepped threshold release, with numerical tools that need only the locked NumPy dependency. Its rejected exact binary-gate prediction is preserved. The research candidate passes 150 of the original 208 complete renders and 273 of the expanded 343. The latest [361-render audit](../research/audio/measurements/2026-10-27-spiral-robustness-prototype-48k.json) adds 18 captures: 285 pass and 76 fail, with no changed outcomes on the earlier 343. Production Spiral remains unmatched. Use `clock` for the scoped quiet-channel analysis, the envelope tool's `identify`/`tail` commands for component inference and repeated core `compare --session` arguments for complete-render sweeps.
+Further [Spiral core experiments](../research/audio/spiral-core.md) separate linked peak detection and input clipping from quiet linear feedback. `tools.audio.spiral.rmx_spiral_core` captures and verifies 94 component recipes plus three long-clock/broadband captures. A quiet 34-second recording identifies fractional-clock reversals. `tools.audio.spiral.rmx_spiral_envelope` adds 135 verified probes for shared activity and stepped threshold release, with numerical tools that need only the locked NumPy dependency. Its rejected exact binary-gate prediction is preserved. The research candidate passes 150 of the original 208 complete renders and 273 of the expanded 343. The latest [361-render audit](../research/audio/measurements/2026-10-27-spiral-robustness-prototype-48k.json) adds 18 captures: 285 pass and 76 fail, with no changed outcomes on the earlier 343. Production Spiral remains unmatched. Use `clock` for the scoped quiet-channel analysis, the envelope tool's `identify`/`tail` commands for component inference and repeated core `compare --session` arguments for complete-render sweeps.
 
-`tools.rmx_spiral_robustness` reproduces original input-sensitivity, quiet-scaling, gate-refinement, feedback-collision and conditioned-recurrence diagnostics. The [audit](../research/audio/measurements/2026-10-27-spiral-robustness-audit.json) preserves failed prospective predictions and the failed autonomous comparison. Original late Up tails diverge after a one-ULP input change even though identical-input repeats are bit-exact. Supplying reconstructed original state to a recurrence is a component diagnostic, not a complete clone. Neither observation changes the one-percent whole/wet per-channel gate or establishes perceptual similarity. See the core research page for recipes and command examples.
+`tools.audio.spiral.rmx_spiral_robustness` reproduces original input-sensitivity, quiet-scaling, gate-refinement, feedback-collision and conditioned-recurrence diagnostics. The [audit](../research/audio/measurements/2026-10-27-spiral-robustness-audit.json) preserves failed prospective predictions and the failed autonomous comparison. Original late Up tails diverge after a one-ULP input change even though identical-input repeats are bit-exact. Supplying reconstructed original state to a recurrence is a component diagnostic, not a complete clone. Neither observation changes the one-percent whole/wet per-channel gate or establishes perceptual similarity. See the core research page for recipes and command examples.
 
 ## Reverb: identification and failed production baseline
 
@@ -146,16 +146,16 @@ The fixed Sub2 model is a second-order high-pass for Up and low-pass for Down, w
 Start a new local campaign with a separately obtained original:
 
 ```sh
-uv run --locked python -m tools.rmx_reverb_characterize capture --stage initial \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_characterize capture --stage initial \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --session captures/reverb/initial
-uv run --locked python -m tools.rmx_reverb_characterize analyze \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_characterize analyze \
   --session captures/reverb/initial --calibration calibration-reviewed.json \
   --report build/artifacts/research/reverb-initial.json
-uv run --locked python -m tools.rmx_reverb_characterize predict \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_characterize predict \
   --initial build/artifacts/research/reverb-initial.json \
   --report build/artifacts/research/reverb-onset-predictions.json
-uv run --locked python -m tools.rmx_reverb_characterize filter-model \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_characterize filter-model \
   --session captures/reverb/initial --calibration calibration-reviewed.json \
   --report build/artifacts/research/reverb-filter-model.json
 ```
@@ -163,18 +163,18 @@ uv run --locked python -m tools.rmx_reverb_characterize filter-model \
 Capture `--stage timing` into `captures/reverb/timing` with `--prediction build/artifacts/research/reverb-onset-predictions.json`. Capture `--stage filters` into `captures/reverb/filters` with `--prediction build/artifacts/research/reverb-filter-model.json`. Each capture also needs the same host/plugin arguments. The capture manifest binds the prospective file's hash before validation. Capture `--stage long-tail` into `captures/reverb/long-tail` without a prediction argument. This adds 16, 12 and four captures respectively; long-tail cases render 90 post-input seconds. Every stage supports `verify --stage STAGE --session DIRECTORY --report NEW.json` for exact samples, controls, extent and provenance.
 
 ```sh
-uv run --locked python -m tools.rmx_reverb_characterize timing \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_characterize timing \
   --session captures/reverb/timing --prediction build/artifacts/research/reverb-onset-predictions.json \
   --calibration calibration-reviewed.json --report build/artifacts/research/reverb-onset-validation.json
-uv run --locked python -m tools.rmx_reverb_characterize filter-validate \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_characterize filter-validate \
   --session captures/reverb/filters --initial captures/reverb/initial \
   --model build/artifacts/research/reverb-filter-model.json \
   --calibration calibration-reviewed.json --report build/artifacts/research/reverb-filter-validation.json
-uv run --locked python -m tools.rmx_reverb_characterize long-tail \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_characterize long-tail \
   --session captures/reverb/long-tail --calibration calibration-reviewed.json \
   --report build/artifacts/research/reverb-long-tail.json
 cmake --build build --target rmx_render
-uv run --locked python -m tools.rmx_reverb_characterize compare --stage initial \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_characterize compare --stage initial \
   --session captures/reverb/initial --renderer build/rmx_render \
   --calibration calibration-reviewed.json --output build/artifacts/research/reverb-production-baseline
 ```
@@ -183,10 +183,10 @@ Reports and output/session directories must be new. Timing and filter validators
 
 ### Autonomous Down network at Main128/Sub1-128
 
-The later [network identifier](../tools/rmx_reverb_network.py) detects five comb pairs from independently excited left/right impulses. It fits ten feedback gains and a shared wet gain, with empirical filter and allpass hypotheses. The [standalone C++ candidate](../research/audio/experiments/reverb_down_neutral_probe.cpp) produces its own reverb from the input WAV. It uses no original-derived wet fixture. The [28-render report](../research/audio/measurements/2026-10-27-reverb-down-network-prototype-48k.json) passes separate whole/wet/tail screens, including eight fresh captures after freezing the model. Worst wet/tail errors are approximately 0.0047%/0.0056%.
+The later [network identifier](../tools/audio/reverb/rmx_reverb_network.py) detects five comb pairs from independently excited left/right impulses. It fits ten feedback gains and a shared wet gain, with empirical filter and allpass hypotheses. The [standalone C++ candidate](../research/audio/experiments/reverb_down_neutral_probe.cpp) produces its own reverb from the input WAV. It uses no original-derived wet fixture. The [28-render report](../research/audio/measurements/2026-10-27-reverb-down-network-prototype-48k.json) passes separate whole/wet/tail screens, including eight fresh captures after freezing the model. Worst wet/tail errors are approximately 0.0047%/0.0056%.
 
 ```sh
-uv run --locked python -m tools.rmx_reverb_network identify \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_network identify \
   --initial captures/reverb/initial --calibration calibration-reviewed.json \
   --report build/artifacts/research/reverb-down-network.json \
   --header build/artifacts/research/ReverbDownNeutralCalibration.h
@@ -194,13 +194,13 @@ cmake --build build --target rmx_core
 c++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -I include \
   research/audio/experiments/reverb_down_neutral_probe.cpp build/librmx_core.a \
   -o build/reverb-down-neutral-probe
-uv run --locked python -m tools.rmx_reverb_network capture \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_network capture \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --session captures/reverb/network-holdout --calibration calibration-reviewed.json \
   --model build/artifacts/research/reverb-down-network.json
-uv run --locked python -m tools.rmx_reverb_network verify \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_network verify \
   --session captures/reverb/network-holdout --report build/artifacts/research/reverb-down-holdout-recipes.json
-uv run --locked python -m tools.rmx_reverb_network compare \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_network compare \
   --initial captures/reverb/initial --filters captures/reverb/filters \
   --holdout captures/reverb/network-holdout --renderer build/reverb-down-neutral-probe \
   --model build/artifacts/research/reverb-down-network.json \
@@ -213,24 +213,24 @@ The generated header is a new artifact, not an automatic overwrite of the [commi
 
 The [current research candidate](../research/audio/measurements/2026-10-27-reverb-down-control-interaction-prototype-48k.json) passes 1,204 complete Down renders at factory settings, 48 kHz and 120 BPM. The count includes 1,024 control-calibration cases, 64 earlier mixed-development cases, 64 fresh prospective mixed cases and 52 prior fixtures. Worst wet/tail errors are about 0.0058%/0.0060%. A previous separable level model failed 14 mixed cases; its [report](../research/audio/measurements/2026-10-27-reverb-down-control-separable-prototype-48k.json) and source checkpoint `9364cfd` are retained. The correction is a fixed rank-two Main/Sub1 level map derived from two additional sweeps. Main delays use their measured integer values; a smooth quadratic misses the Main143 boundary.
 
-`tools.rmx_reverb_controls` supports `capture`, `verify` and `identify` for four stages, each with 256 recipes: `main` (Sub1-128), `amount` (Main128), `main-long` (Sub1-255) and `amount-large` (Main255). Reports, session directories and generated headers must be new. Use the locally generated neutral network report from the preceding section, bound to the same reviewed calibration:
+`tools.audio.reverb.rmx_reverb_controls` supports `capture`, `verify` and `identify` for four stages, each with 256 recipes: `main` (Sub1-128), `amount` (Main128), `main-long` (Sub1-255) and `amount-large` (Main255). Reports, session directories and generated headers must be new. Use the locally generated neutral network report from the preceding section, bound to the same reviewed calibration:
 
 ```sh
-uv run --locked python -m tools.rmx_reverb_controls capture --stage main \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_controls capture --stage main \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --neutral build/artifacts/research/reverb-down-network.json --calibration calibration-reviewed.json \
   --session captures/reverb/control-main
-uv run --locked python -m tools.rmx_reverb_controls verify --stage main \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_controls verify --stage main \
   --session captures/reverb/control-main --report build/artifacts/research/reverb-main-recipes.json
-uv run --locked python -m tools.rmx_reverb_controls identify --stage main \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_controls identify --stage main \
   --session captures/reverb/control-main --neutral build/artifacts/research/reverb-down-network.json \
   --calibration calibration-reviewed.json --report build/artifacts/research/reverb-main.json
 ```
 
-Repeat for `amount` using separate paths and a `reverb-amount.json` identification report. Build the initial separable hypothesis with `tools.rmx_reverb_control_model build --main MAIN.json --amount AMOUNT.json --calibration CALIBRATION.json --report SEPARABLE.json --header NEW_HEADER.h`. Then capture and identify `main-long` and `amount-large` with the same neutral/calibration arguments plus `--static-model SEPARABLE.json`. `verify` still requires only stage, session and a new report. The saved feedback predictions are checked separately from fitting; a failed prediction prevents model construction. Exponential weighting is used only for identification of finite recordings, never for complete-render acceptance.
+Repeat for `amount` using separate paths and a `reverb-amount.json` identification report. Build the initial separable hypothesis with `tools.audio.reverb.rmx_reverb_control_model build --main MAIN.json --amount AMOUNT.json --calibration CALIBRATION.json --report SEPARABLE.json --header NEW_HEADER.h`. Then capture and identify `main-long` and `amount-large` with the same neutral/calibration arguments plus `--static-model SEPARABLE.json`. `verify` still requires only stage, session and a new report. The saved feedback predictions are checked separately from fitting; a failed prediction prevents model construction. Exponential weighting is used only for identification of finite recordings, never for complete-render acceptance.
 
 ```sh
-uv run --locked python -m tools.rmx_reverb_control_model build \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_control_model build \
   --main build/artifacts/research/reverb-main.json --amount build/artifacts/research/reverb-amount.json \
   --main-long build/artifacts/research/reverb-main-long.json \
   --amount-large build/artifacts/research/reverb-amount-large.json \
@@ -241,13 +241,13 @@ uv run --locked python -m tools.rmx_reverb_control_model build \
 The comparator checks the model against the [committed control header](../include/rmx/ReverbDownCalibration.h). For a recalibration, review and deliberately replace that header before rebuilding the C++ fixture with the preceding compiler command. Its extended CLI is `INPUT NEW_OUTPUT MAIN_RAW SUB1_RAW SUB2_RAW TAIL_SECONDS`. Controls must be integers 0–255; the legacy neutral form remains available.
 
 ```sh
-uv run --locked python -m tools.rmx_reverb_control_model capture --recipe mixed-v2 \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_control_model capture --recipe mixed-v2 \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --model build/artifacts/research/reverb-control-model.json --calibration calibration-reviewed.json \
   --session captures/reverb/control-mixed-v2
-uv run --locked python -m tools.rmx_reverb_control_model verify --recipe mixed-v2 \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_control_model verify --recipe mixed-v2 \
   --session captures/reverb/control-mixed-v2 --report build/artifacts/research/reverb-mixed-v2-recipes.json
-uv run --locked python -m tools.rmx_reverb_control_model compare \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_control_model compare \
   --model build/artifacts/research/reverb-control-model.json --calibration calibration-reviewed.json \
   --renderer build/reverb-down-neutral-probe --session main captures/reverb/control-main \
   --session amount captures/reverb/control-amount --session mixed-v2 captures/reverb/control-mixed-v2 \
@@ -265,10 +265,10 @@ The measured half-beat echo adds a first return of 0.35 and recirculates at 0.5.
 To reproduce coefficient identification with a separately obtained original:
 
 ```sh
-uv run --locked python -m tools.rmx_noise_identify --capture \
+uv run --locked python -m tools.audio.noise.rmx_noise_identify --capture \
   --host /path/to/Intel/RMXReferenceHost --plugin /path/to/RMX-1000Plug-in.vst \
   --session build/artifacts/research/noise-reference
-uv run --locked python -m tools.rmx_noise_identify \
+uv run --locked python -m tools.audio.noise.rmx_noise_identify \
   --session build/artifacts/research/noise-reference \
   --report build/artifacts/research/noise-identification.json \
   --header build/artifacts/research/NoiseCalibration.h
@@ -281,7 +281,7 @@ Long native-VST3 validation used 600 stationary seconds per case at Main raw 17,
 For an independently reviewed integer bypass calibration:
 
 ```sh
-uv run --locked python -m tools.noise_statistics original.wav candidate.wav \
+uv run --locked python -m tools.audio.noise.noise_statistics original.wav candidate.wav \
   --start 2 --duration 600 --calibration calibration-reviewed.json --report statistics.json
 ```
 
@@ -376,7 +376,7 @@ The host permits up to 1,200 seconds of processing after the input ends, with ev
 Use independent bypass captures with a broadband stimulus. The fractional estimator requires energy across many frequency bins; a sine cannot identify an unambiguous broadband delay. The existing `noise.wav` or separated impulse probe can be used with all effects disabled. Capture the full probe and tail without independent wet trimming.
 
 ```sh
-uv run --locked python -m tools.fidelity calibrate \
+uv run --locked python -m tools.audio.common.fidelity calibrate \
   captures/reference-bypass.wav captures/candidate-bypass.wav \
   --report calibration.json
 ```
@@ -388,7 +388,7 @@ Calibration starts with `verified: false`. Check the actual bypass settings, sta
 ## Compare deterministic cases
 
 ```sh
-uv run --locked python -m tools.fidelity compare \
+uv run --locked python -m tools.audio.common.fidelity compare \
   captures/reference-echo.wav captures/candidate-echo.wav \
   --calibration calibration.json --mode deterministic \
   --maximum-relative-rms 0.01 --report echo-comparison.json
@@ -405,7 +405,7 @@ For Noise or modulated late reverb, use `--mode stochastic`. The report remains 
 ## Measure stationary harmonic distortion
 
 ```sh
-uv run --locked python -m tools.fidelity harmonics captures/drive-tone.wav \
+uv run --locked python -m tools.audio.common.fidelity harmonics captures/drive-tone.wav \
   --fundamental 997 --start 2 --end 3 --report drive-harmonics.json
 ```
 
@@ -413,12 +413,12 @@ The chosen interval must contain a stationary known tone in both channels. Exclu
 
 ## Verification and remaining work
 
-Run the numerical regressions with `uv run --locked python -m tests.fidelity_tests`. They exercise known gain changes, integer/fractional delay, channel/polarity errors, narrowband rejection, a known cubic transfer and report preservation. CTest includes these as `reference_fidelity`.
+Run the numerical regressions with `uv run --locked python -m tests.audio.fidelity_tests`. They exercise known gain changes, integer/fractional delay, channel/polarity errors, narrowband rejection, a known cubic transfer and report preservation. CTest includes these as `reference_fidelity`.
 
 For the native host fixture, build this project's VST3 with `RMX_BUILD_PLUGINS=ON`, then run:
 
 ```sh
-uv run --locked python -m tests.reference_host_tests \
+uv run --locked python -m tests.audio.reference_host_tests \
   --host build/reference-host/RMXReferenceHost_artefacts/Release/RMXReferenceHost \
   --plugin build/reference-host/RMXPlugin_artefacts/Release/VST3/RMX.vst3
 ```

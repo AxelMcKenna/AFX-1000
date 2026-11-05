@@ -330,7 +330,7 @@ def make_package(parts, report):
     files["Electronics/components.json"] = (
         ROOT / "reference-power-components.json"
     ).read_bytes()
-    files["Tests/a09_integration_tests.py"] = (REPO / "tests/a09_integration_tests.py").read_bytes()
+    files["Tests/a09_integration_tests.py"] = (REPO / "tests/hardware/a09_integration_tests.py").read_bytes()
     files["manifest.json"] = (
         json.dumps(
             {

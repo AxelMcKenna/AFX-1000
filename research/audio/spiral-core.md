@@ -53,7 +53,7 @@ An isolated right-channel cue can still fail while the simultaneous continuous l
 
 ## Activity and release refinement
 
-[tools.rmx_spiral_envelope](../../tools/rmx_spiral_envelope.py) adds 135 exact input/control recipes. A left preconditioner establishes a held level; a later right impulse measures its clipping threshold before the first right-channel repeat. The right channel is otherwise untouched, except in the stereo-reset stage, where the known linear residue of an earlier unclipped control is subtracted. The [identification record](measurements/2026-10-26-spiral-envelope-identification.json) retains all first-pass fits, capture hashes and a failed prospective hypothesis. Every first-pass fit has relative RMS error below 0.0001%; this is component identification, not complete-effect matching.
+[tools.audio.spiral.rmx_spiral_envelope](../../tools/audio/spiral/rmx_spiral_envelope.py) adds 135 exact input/control recipes. A left preconditioner establishes a held level; a later right impulse measures its clipping threshold before the first right-channel repeat. The right channel is otherwise untouched, except in the stereo-reset stage, where the known linear residue of an earlier unclipped control is subtracted. The [identification record](measurements/2026-10-26-spiral-envelope-identification.json) retains all first-pass fits, capture hashes and a failed prospective hypothesis. Every first-pass fit has relative RMS error below 0.0001%; this is component identification, not complete-effect matching.
 
 Down's sparse threshold falls in discrete one-decibel steps. At delays of 0.25, 0.5, 1 and 2 seconds after the initial pulse, the measured ratios are approximately 0.794328, 0.630957, 0.398107 and 0.158489. The two-second ratio holds across initial pulse amplitudes from 0.0001 to 0.8. Up holds the initial threshold over the checked gaps; both directions hold after a continuous mono tone. Small controls that never reach the clipping threshold can reset the hold. Equal-and-opposite stereo controls do not reset it, while mono, same-sign and over-canceling controls do. A clipping-only reset or a maximum taken independently across channels misses these observations.
 
@@ -79,10 +79,10 @@ The new tools run in a clean locked uv environment with NumPy and no SciPy. Exis
 
 ## Reproduce
 
-Use the [reference host and reviewed bypass calibration](../../docs/audio-matching.md). Capture the initial and structure stages with `tools.rmx_spiral_characterize`; those stages supply the earlier clipped impulse fixtures. Capture each new stage into a new directory:
+Use the [reference host and reviewed bypass calibration](../../docs/audio-matching.md). Capture the initial and structure stages with `tools.audio.spiral.rmx_spiral_characterize`; those stages supply the earlier clipped impulse fixtures. Capture each new stage into a new directory:
 
 ```sh
-uv run --locked python -m tools.rmx_spiral_core capture \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_core capture \
   --stage linear --host /path/to/Intel/RMXReferenceHost \
   --plugin /path/to/RMX-1000Plug-in.vst --session build/artifacts/research/core-linear
 ```
@@ -90,7 +90,7 @@ uv run --locked python -m tools.rmx_spiral_core capture \
 Repeat with `--stage peak-phase`, `--stage stereo-linear` and `--stage detector`, each with a separate session directory. These four recipes contain 20, 28, 10 and 36 captures respectively. `verify --stage STAGE --session DIRECTORY --report NEW.json` checks capture identity, hashes, exact input samples, static controls, BPM, tail and host block size against the recipe. It does not certify sonic matching.
 
 ```sh
-uv run --locked python -m tools.rmx_spiral_core identify \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_core identify \
   --linear build/artifacts/research/core-linear \
   --peak-phase build/artifacts/research/core-peak-phase \
   --stereo-linear build/artifacts/research/core-stereo-linear \
@@ -107,7 +107,7 @@ The fitter uses only the project's locked NumPy dependency. The optional header 
 cmake --build build --target rmx_core
 c++ -std=c++20 -O2 -I include research/audio/experiments/spiral_neutral_probe.cpp \
   build/librmx_core.a -o build/spiral-neutral-probe
-uv run --locked python -m tools.rmx_spiral_core compare \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_core compare \
   --case build/artifacts/research/spiral-identification/initial/up-probe-main-128 \
   --case build/artifacts/research/core-linear/down-dc-0.2-impulse-0.0001 \
   --renderer build/spiral-neutral-probe --calibration calibration-reviewed.json \
@@ -119,7 +119,7 @@ Both selected cases now pass; an Up DC-conditioned case still fails. Comparison 
 Capture `--stage long-clock` and `--stage probe-zero` into separate new session directories, then verify each with the same stage. These add one and two captures. Analyze the long clock with:
 
 ```sh
-uv run --locked python -m tools.rmx_spiral_core clock \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_core clock \
   --session build/artifacts/research/core-long-clock \
   --renderer build/spiral-neutral-probe --calibration calibration-reviewed.json \
   --output build/artifacts/research/core-long-clock-analysis
@@ -127,10 +127,10 @@ uv run --locked python -m tools.rmx_spiral_core clock \
 
 `compare --session DIRECTORY` selects every captured Main-128, Sub2-zero, 120-BPM case in that directory. Repeat `--session` for the six characterization stages, four original core stages and new `probe-zero` stage to reproduce the 208-case sweep. Out-of-scope controls are listed separately in the report; they are not passes. `--case` remains available for explicit recordings. The long-clock command is a component analysis and cannot certify the complete effect.
 
-For the envelope campaign, capture each stage into its own new directory using `tools.rmx_spiral_envelope capture --stage STAGE --session DIRECTORY --host HOST --plugin PLUGIN`, then use `verify` with the same stage/session and a new `--report`. Counts are memory 16, timing 25, level 7, after-tone 8, reset 9, reset-small 16, reset-edge 16, reset-fine 6, reset-validation 6, stereo-reset 5, boundary 8 and attack 13. Capture order does not carry state between cases.
+For the envelope campaign, capture each stage into its own new directory using `tools.audio.spiral.rmx_spiral_envelope capture --stage STAGE --session DIRECTORY --host HOST --plugin PLUGIN`, then use `verify` with the same stage/session and a new `--report`. Counts are memory 16, timing 25, level 7, after-tone 8, reset 9, reset-small 16, reset-edge 16, reset-fine 6, reset-validation 6, stereo-reset 5, boundary 8 and attack 13. Capture order does not carry state between cases.
 
 ```sh
-uv run --locked python -m tools.rmx_spiral_envelope identify \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_envelope identify \
   --memory captures/memory --timing captures/timing --level captures/level \
   --after-tone captures/after-tone --reset captures/reset --reset-small captures/reset-small \
   --reset-edge captures/reset-edge --reset-fine captures/reset-fine \
@@ -138,34 +138,34 @@ uv run --locked python -m tools.rmx_spiral_envelope identify \
   --boundary captures/boundary --attack captures/attack \
   --components research/audio/measurements/2026-10-26-spiral-core-identification.json \
   --calibration calibration-reviewed.json --report build/artifacts/research/envelope.json
-uv run --locked python -m tools.rmx_spiral_envelope tail \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_envelope tail \
   --case captures/nonlinearity/down-square --case captures/nonlinearity/up-square \
   --renderer build/spiral-neutral-probe \
   --components research/audio/measurements/2026-10-26-spiral-core-identification.json \
   --calibration calibration-reviewed.json --output build/artifacts/research/envelope-tail
 ```
 
-The identifier intentionally returns 1 for the preserved rejected binary-gate prediction. The tail component command passes its declared fitting screen. Add all twelve envelope session directories to `tools.rmx_spiral_core compare` to reproduce the 343 complete renders; its aggregate result also remains a failure. Both analyzers run in the locked uv environment with NumPy and no SciPy installation. The optional seventh renderer argument writes new `pre.wav` and `limited.wav` diagnostics into a new trace directory; normal rendering does not allocate these trace buffers.
+The identifier intentionally returns 1 for the preserved rejected binary-gate prediction. The tail component command passes its declared fitting screen. Add all twelve envelope session directories to `tools.audio.spiral.rmx_spiral_core compare` to reproduce the 343 complete renders; its aggregate result also remains a failure. Both analyzers run in the locked uv environment with NumPy and no SciPy installation. The optional seventh renderer argument writes new `pre.wav` and `limited.wav` diagnostics into a new trace directory; normal rendering does not allocate these trace buffers.
 
-For the robustness audit, capture `sensitivity`, `reset-refinement` and `quiet-up` into separate new directories with `tools.rmx_spiral_robustness capture --stage STAGE --host HOST --plugin PLUGIN --session DIRECTORY`. Capture `collisions` with one or more `--predictor /path/to/renderer` arguments to save first-return forecasts before each original recording. Use a renderer compiled from the preceding checkpoint to challenge its predictions. Historical rejected-guard binaries remain local; their forecast values and hashes are retained in the audit. All four stages support `verify --stage STAGE --session DIRECTORY --report NEW.json`.
+For the robustness audit, capture `sensitivity`, `reset-refinement` and `quiet-up` into separate new directories with `tools.audio.spiral.rmx_spiral_robustness capture --stage STAGE --host HOST --plugin PLUGIN --session DIRECTORY`. Capture `collisions` with one or more `--predictor /path/to/renderer` arguments to save first-return forecasts before each original recording. Use a renderer compiled from the preceding checkpoint to challenge its predictions. Historical rejected-guard binaries remain local; their forecast values and hashes are retained in the audit. All four stages support `verify --stage STAGE --session DIRECTORY --report NEW.json`.
 
 ```sh
-uv run --locked python -m tools.rmx_spiral_robustness sensitivity \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_robustness sensitivity \
   --session captures/sensitivity --baseline captures/initial/up-time-0 \
   --calibration calibration-reviewed.json --report build/artifacts/research/sensitivity.json
-uv run --locked python -m tools.rmx_spiral_robustness quiet \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_robustness quiet \
   --session captures/quiet-up --calibration calibration-reviewed.json \
   --report build/artifacts/research/quiet-up.json
-uv run --locked python -m tools.rmx_spiral_robustness refinement \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_robustness refinement \
   --session captures/reset-refinement \
   --previous research/audio/measurements/2026-10-26-spiral-envelope-identification.json \
   --components research/audio/measurements/2026-10-26-spiral-core-identification.json \
   --calibration calibration-reviewed.json --report build/artifacts/research/refinement.json
-uv run --locked python -m tools.rmx_spiral_robustness collisions \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_robustness collisions \
   --session captures/collisions --renderer build/spiral-neutral-probe \
   --components research/audio/measurements/2026-10-26-spiral-core-identification.json \
   --calibration calibration-reviewed.json --output build/artifacts/research/collision-audit
-uv run --locked python -m tools.rmx_spiral_robustness recurrence \
+uv run --locked python -m tools.audio.spiral.rmx_spiral_robustness recurrence \
   --case captures/initial/up-time-0 --renderer build/spiral-neutral-probe \
   --components research/audio/measurements/2026-10-26-spiral-core-identification.json \
   --calibration calibration-reviewed.json --output build/artifacts/research/recurrence-audit

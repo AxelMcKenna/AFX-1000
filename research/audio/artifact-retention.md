@@ -8,15 +8,15 @@ The modulation runner additionally deletes native audio before rendering ASAN, t
 
 The Sidechain runner keeps one synthetic input and one output WAV at a time, within the same512MiB budget, and checks dry-stem subtraction separately. Retain failed detector hypotheses and inconclusive audio verdicts alongside successful control and delivery checks. Its separate reference-host build changes only an input-duration guard; preserve the old host until the byte-identity bridge is verified.
 
-The [performance-path runner](../../tools/rmx_performance_path.py) pairs each active program with an explicit drum/source control, deletes optimized output before ASAN and deletes ASAN output before the Original render. It retains per-channel reference/error energies for complete, one-second, event and effect-difference windows. The separate [energy auditor](../../tools/rmx_performance_path_audit.py) recomputes those verdicts after cleanup; it does not recreate raw audio. The preservation and wrapper-delivery runners also use serial, automatically cleaned temporary directories. Read-only debugger observations retain bounded control metadata and complete ordinary/observed artifact hashes.
+The [performance-path runner](../../tools/audio/performance/rmx_performance_path.py) pairs each active program with an explicit drum/source control, deletes optimized output before ASAN and deletes ASAN output before the Original render. It retains per-channel reference/error energies for complete, one-second, event and effect-difference windows. The separate [energy auditor](../../tools/audio/performance/rmx_performance_path_audit.py) recomputes those verdicts after cleanup; it does not recreate raw audio. The preservation and wrapper-delivery runners also use serial, automatically cleaned temporary directories. Read-only debugger observations retain bounded control metadata and complete ordinary/observed artifact hashes.
 
 Use:
 
-- `uv run --locked python -m tools.rmx_noise_stream --help`
-- `uv run --locked python -m tools.rmx_drum_replay_stream --help`
-- `uv run --locked python -m tools.rmx_noise_power_audit --help`
-- `uv run --locked python -m tools.rmx_performance_path --help`
-- `uv run --locked python -m tools.rmx_performance_path_audit --help`
+- `uv run --locked python -m tools.audio.noise.rmx_noise_stream --help`
+- `uv run --locked python -m tools.audio.drums.rmx_drum_replay_stream --help`
+- `uv run --locked python -m tools.audio.noise.rmx_noise_power_audit --help`
+- `uv run --locked python -m tools.audio.performance.rmx_performance_path --help`
+- `uv run --locked python -m tools.audio.performance.rmx_performance_path_audit --help`
 
 Keep `.rmx-audio-output-paused` in place while using these bounded workflows. It blocks legacy output paths under that checkout; the new runners use automatically cleaned temporary directories.
 

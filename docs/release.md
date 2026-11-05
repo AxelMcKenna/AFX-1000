@@ -10,7 +10,7 @@ uv run --locked cmake -S . -B build-release \
   '-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64'
 cmake --build build-release --parallel 4
 ctest --test-dir build-release --output-on-failure
-uv run --locked python tools/package_macos.py --build-dir build-release --output-dir build/packages-new
+uv run --locked python -m tools.packaging.package_macos --build-dir build-release --output-dir build/packages-new
 ```
 
 The destination must not exist. The packager checks every bundle's architecture, signs copies, verifies those signatures and publishes the complete output directory in one rename. Original build products are untouched.

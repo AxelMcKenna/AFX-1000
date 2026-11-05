@@ -22,7 +22,7 @@ The storage test fills borrowed buffers with NaNs, compares them with zero-fille
 
 ## How the reference was checked
 
-The hash-pinned [read-only observer](experiments/scene_selector_observer.py) reads scalar timing, gain and envelope states, never sample buffers. The [driver](../../tools/rmx_performance_path_observe.py) requires ordinary and observed audio, plan, initial/final state, parameter log, final inventory and explicit transport log to be byte-identical. Repeated ordinary renders also match the original audio hashes from the earlier published tempo campaign.
+The hash-pinned [read-only observer](experiments/scene_selector_observer.py) reads scalar timing, gain and envelope states, never sample buffers. The [driver](../../tools/audio/performance/rmx_performance_path_observe.py) requires ordinary and observed audio, plan, initial/final state, parameter log, final inventory and explicit transport log to be byte-identical. Repeated ordinary renders also match the original audio hashes from the earlier published tempo campaign.
 
 Use `--mode performance-selector --family tempo --effect-index 0`, `2` or `7` with the pinned Intel host, Original bundle, a new output and `--expected-output-sha256` to repeat the retained BPF, Spiral Up and Spiral Down observations. The provenance archive retains the earlier observer revision needed for its first trace.
 
@@ -30,7 +30,7 @@ The first delay-return correction passed five previously failing programs. A Spi
 
 ## Reproduction and retention
 
-Run `uv run --locked python -m tools.rmx_performance_path --stage fresh --family tempo` with explicit `--renderer`, `--sanitizer`, `--host`, `--plugin` and a new `--output`. Use `--stage fresh2` for the timing holdouts. Optimized and ASAN/UBSAN whole WAVs must agree before each Original render. Independent numerical scoring and negative controls run before audio deletion. The retained-energy auditor can recompute window verdicts afterward.
+Run `uv run --locked python -m tools.audio.performance.rmx_performance_path --stage fresh --family tempo` with explicit `--renderer`, `--sanitizer`, `--host`, `--plugin` and a new `--output`. Use `--stage fresh2` for the timing holdouts. Optimized and ASAN/UBSAN whole WAVs must agree before each Original render. Independent numerical scoring and negative controls run before audio deletion. The retained-energy auditor can recompute window verdicts afterward.
 
 The final Echo cleanup is bridged by complete optimized/sanitized prediction hashes for both accepted tempo cohorts. Separate preservation compares older manual drum programs, the complete preceding performance cohort and input-only Spiral direction/control programs. Signed AU/VST3 delivery uses its own declared one-shot/MIDI recipe and compares complete samples with the native engine; it does not substitute for Original qualification.
 

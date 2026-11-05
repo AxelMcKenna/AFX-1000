@@ -19,7 +19,7 @@ jobs:
       - run: ctest --test-dir build/full-engine-host --output-on-failure
       - run: uv run --locked python -m hardware.firmware.control_map --check
       - run: uv run --locked python -m unittest discover -s tests/tooling
-      - run: uv run --locked python -m unittest discover -s tests -p 'a*_integration_tests.py'
+      - run: uv run --locked python -m unittest discover -s tests/hardware -p 'a*_integration_tests.py'
   core:
     strategy:
       matrix:
@@ -58,7 +58,7 @@ jobs:
             build/RMXPlugin_artefacts/Release/VST3
       - run: cmake --build build --target RMXPluginProbe --parallel 3
       - run: ./build/RMXPluginProbe_artefacts/Release/RMXPluginProbe "$PWD/build/RMXPlugin_artefacts/Release/VST3/RMX.vst3" > build/vst3-runtime.json
-      - run: uv run --locked python tools/package_macos.py --build-dir build --output-dir build/packages
+      - run: uv run --locked python tools/packaging/package_macos.py --build-dir build --output-dir build/packages
       - uses: actions/upload-artifact@v4
         if: ${{ vars.AFX_ENABLE_LICENSED_BINARY_DISTRIBUTION == 'true' }}
         with:

@@ -28,7 +28,7 @@ The fresh presets change main position, level range, Sub1 position and callback 
 
 The unchanged statistical screen uses two-second Hann-window band powers, a conservative3.0 uncertainty multiplier with short HAC correction,0.5dB band and0.1dB overall-level margins, and the existing -40dB meaningful-band floor. Stereo correlation must agree within0.02. Qualification also requires early/late-third equivalence; an inconclusive result is not relabeled as a pass.
 
-[`rmx_noise_stream.py`](../../tools/rmx_noise_stream.py) saves block powers and correlations, then deletes the native, sanitizer and Original WAVs. This preserves sufficient information for these stationary screens, but does not preserve waveform or transient information. The [independent auditor](../../tools/rmx_noise_power_audit.py) recomputes every interval and verdict using separate float64 moment arithmetic. A3dB gain error is rejected.
+[`rmx_noise_stream.py`](../../tools/audio/noise/rmx_noise_stream.py) saves block powers and correlations, then deletes the native, sanitizer and Original WAVs. This preserves sufficient information for these stationary screens, but does not preserve waveform or transient information. The [independent auditor](../../tools/audio/noise/rmx_noise_power_audit.py) recomputes every interval and verdict using separate float64 moment arithmetic. A3dB gain error is rejected.
 
 The runner enforces a512MiB temporary-data ceiling and removes each case directory before continuing. The longest tests peaked at443MiB. The drum replay used11MiB, and its temporary audio was also deleted. See the [artifact policy](artifact-retention.md).
 

@@ -89,7 +89,7 @@ Link carries tempo and beat timing; RMX's saved rekordbox capture route supplies
 
 ## Checks run during this change
 
-`tests/tempo_tests.cpp` was built directly with Clang, first with optimization and warnings, then with AddressSanitizer and UndefinedBehaviorSanitizer. Both runs passed.
+`tests/core/tempo_tests.cpp` was built directly with Clang, first with optimization and warnings, then with AddressSanitizer and UndefinedBehaviorSanitizer. Both runs passed.
 
 | Check | Result |
 | --- | --- |

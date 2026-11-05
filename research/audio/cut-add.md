@@ -110,12 +110,12 @@ absolute floor for effectively silent references. Candidate latency and gain
 are never fitted to a recording. Full-file hashes retain the complete startup
 and tail even where a diagnostic window begins later.
 
-Reproduction uses `tools.rmx_cut_match` for frozen prediction, original capture
-and comparison; `tools.rmx_cut_audit` independently rescoring and sanitizer
-replay; and `tools.rmx_cut_plugins` for actual AU/VST3 normalized-control
+Reproduction uses `tools.audio.filters.rmx_cut_match` for frozen prediction, original capture
+and comparison; `tools.audio.filters.rmx_cut_audit` independently rescoring and sanitizer
+replay; and `tools.audio.filters.rmx_cut_plugins` for actual AU/VST3 normalized-control
 delivery and reference comparison. Use `--live --regression` for the live
 comparison and `--live` for its audit: delivery checks against existing
-recordings are not new prospective original evidence. `tools.rmx_cut_trans_compat`
+recordings are not new prospective original evidence. `tools.audio.filters.rmx_cut_trans_compat`
 requires all 146 prior Trans/Roll programs to retain their whole WAV bytes.
 
 The integrated native Engine, AU and VST3 each pass all 146 programs. Live

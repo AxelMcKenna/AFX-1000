@@ -1,0 +1,259 @@
+#!/usr/bin/env python3
+"""Audit motion provenance, fixed bypass latency, guards and sanitizer renders."""
+import argparse
+import copy
+import json
+import shlex
+from pathlib import Path
+
+import numpy as np
+
+from tools.audio.noise.noise_statistics import float_wav
+from tools.audio.common.reference_audio import save_json, sha256, write_wav
+from tools.audio.common.rmx_factory_match import new_directory, run
+from tools.audio.reverb.rmx_reverb_motion import HOLDOUT_STAGES, checked, prediction_payload, prediction_kind, predicted_config, recipe
+from tools.audio.spiral.rmx_spiral_core import calibration
+
+
+def sanitizer_build_record(build, binary, backend='core'):
+    """Check the actual build recipe, including the previously omitted WAV IO."""
+    build=build.resolve()
+    target='rmx_reverb_down_engine_probe' if backend=='engine' else 'rmx_reverb_down_probe'
+    if binary.resolve()!=build/target:
+        raise ValueError('Sanitized renderer must be the specified build target')
+    manifest=build/'compile_commands.json'
+    entries=json.loads(manifest.read_text())
+    repo=Path(__file__).resolve().parents[3]
+    checked_sources={}
+    newest_object=0
+    for relative in ('src/core/ReverbDown.cpp','src/core/Wav.cpp','tools/probes/reverb_down_probe.cpp',*(('src/core/Engine.cpp',) if backend=='engine' else ())):
+        rows=[e for e in entries if Path(e['file']).resolve()==repo/relative]
+        if relative=='tools/probes/reverb_down_probe.cpp':
+            rows=[e for e in rows if (('RMX_REVERB_ENGINE_FIXTURE=1' in e.get('command',' '.join(e.get('arguments',[]))))==(backend=='engine'))]
+        if len(rows)!=1:
+            raise ValueError('Missing/ambiguous sanitizer compile entry: '+relative)
+        row=rows[0]
+        command=row.get('arguments') or shlex.split(row['command'])
+        enabled={name for flag in command if flag.startswith('-fsanitize=') for name in flag.split('=',1)[1].split(',')}
+        if not {'address','undefined'}<=enabled or '-fno-omit-frame-pointer' not in command:
+            raise ValueError('Required sanitizer flags absent: '+relative)
+        objects=[command[i+1] for i,arg in enumerate(command[:-1]) if arg=='-o']
+        if len(objects)!=1:
+            raise ValueError('Missing sanitizer object: '+relative)
+        object_path=Path(row['directory'])/objects[0]
+        if object_path.stat().st_mtime_ns<(repo/relative).stat().st_mtime_ns:
+            raise ValueError('Stale sanitizer object: '+relative)
+        newest_object=max(newest_object,object_path.stat().st_mtime_ns)
+        checked_sources[relative]=dict(source_sha256=sha256(repo/relative),object_sha256=sha256(object_path),
+            compiler_command=command)
+    if binary.stat().st_mtime_ns<newest_object:
+        raise ValueError('Sanitizer binary predates checked objects')
+    return dict(compile_commands_sha256=sha256(manifest),sources=checked_sources,
+        address_and_undefined_enabled=True,wav_library_rebuilt=True,
+        limitation='Compile recipes and fresh object/binary hashes are checked; this is not proof that every possible path executed.')
+
+
+def audit(args):
+    calibration(args.calibration)
+    root = new_directory(args.output)
+    prediction = json.loads(args.prediction.read_text())
+    stage=prediction.get('stage')
+    if (stage not in HOLDOUT_STAGES
+            or prediction.get('kind') != prediction_kind(stage)
+            or prediction.get('candidate_config')!=predicted_config(stage)
+            or any(prediction.get(k) != v for k, v in prediction_payload(stage).items())
+            or prediction['model_sha256'] != sha256(args.model)
+            or prediction['renderer_sha256'] != sha256(args.renderer)
+            or prediction['calibration_sha256'] != sha256(args.calibration)):
+        raise ValueError('Frozen prospective model/recipe/source/renderer/calibration differs')
+    comparisons = [json.loads(p.read_text()) for p in args.comparison]
+    config=prediction['candidate_config']
+    def render(binary, source, output, schedule, dry):
+        return run([binary,source,output,schedule,config['gate'],config['cutoff_position'],config['gain_position'],
+            config['control_quantum'],dry,config['level_position'],config['coefficient_ramp_frames'],
+            config['ramp_components'],config['decay_step_per_32_frames']])
+    records = {}
+    for path, report in zip(args.comparison, comparisons):
+        if (report['candidate_config'] != prediction['candidate_config']
+                or report.get('backend','core')!=prediction.get('backend','core')
+                or report['renderer_sha256'] != sha256(args.renderer)
+                or report['model_sha256'] != sha256(args.model)
+                or report['calibration_sha256'] != sha256(args.calibration)):
+            raise ValueError('Comparison does not use frozen candidate')
+        for row in report['cases']:
+            key = (row['stage'], row['case'])
+            if key in records:
+                raise ValueError('Duplicate comparison case')
+            records[key] = (path.parent, row)
+    verified, bypass, cold_dry, seen = [], [], [], set()
+    host_hashes = set()
+    guard_fixture = None
+    for stage, directory in args.session:
+        if stage==prediction['stage']:
+            manifest=json.loads((directory/'matrix.json').read_text())
+            if (manifest['prediction_sha256']!=sha256(args.prediction)
+                    or sha256(directory/'predictions.json')!=sha256(args.prediction)):
+                raise ValueError('Fresh session is not bound to frozen predictions')
+        waves, cases = recipe(stage)
+        for case in cases:
+            audio, source, provenance = checked(directory, case, waves[case['source']])
+            key = (stage, case['name'])
+            seen.add(key)
+            folder = directory / case['name']
+            receipt = json.loads((folder / 'receipt.json').read_text())
+            plan = json.loads((folder / 'plan.json').read_text())
+            for name, field in (('state-before.bin', 'initial_state_sha256'),
+                                ('state-after.bin', 'final_state_sha256'),
+                                ('parameter-log.json', 'parameter_log_sha256'),
+                                ('inventory-after.json', 'final_inventory_sha256')):
+                if sha256(folder / name) != receipt[field]:
+                    raise ValueError('Modified capture auxiliary file: ' + str(folder / name))
+            log = json.loads((folder / 'parameter-log.json').read_text())['entries']
+            expected = [p | dict(frame=-1) for p in plan['parameters']] + plan['events']
+            if len(log) != len(expected):
+                raise ValueError('Parameter log extent differs')
+            for actual, requested in zip(log, expected):
+                if (any(actual[k] != requested[k] for k in ('frame', 'index', 'id', 'name'))
+                        or np.float32(actual['requested_value']) != np.float32(requested['value'])
+                        or abs(actual['immediate_readback'] - float(np.float32(requested['value']))) > 1e-14):
+                    raise ValueError('Applied parameter/readback differs: ' + str(folder) + '/' + requested['name'])
+            final = {p['name']: p['value'] for p in json.loads((folder / 'inventory-after.json').read_text())['parameters']}
+            target = {p['name']: p['value'] for p in expected}
+            if any(abs(final[k] - float(np.float32(v))) > 1e-14 for k, v in target.items()):
+                raise ValueError('Final control readback differs')
+            parent, result = records[key]
+            if any(result[k] != v for k, v in provenance.items()):
+                raise ValueError('Comparison provenance differs')
+            output = parent / (stage + '-' + case['name'] + '.wav')
+            if sha256(output) != result['candidate_sha256']:
+                raise ValueError('Candidate render changed')
+            dry_path=parent/(stage+'-'+case['name']+'-dry.wav')
+            schedule=parent/(stage+'-'+case['name']+'.tsv')
+            if sha256(dry_path)!=result['dry_trace_sha256'] or sha256(schedule)!=result['schedule_sha256']:
+                raise ValueError('Candidate dry trace or schedule changed')
+            cold_frames=min(12000,len(source))
+            if config['ramp_components']=='startup' and np.any(source[:cold_frames]):
+                candidate_prefix=float_wav(output)[1][:cold_frames]
+                dry_prefix=float_wav(dry_path)[1][:cold_frames]
+                if not np.array_equal(audio[:cold_frames],candidate_prefix) or not np.array_equal(candidate_prefix,dry_prefix):
+                    raise ValueError('Non-silent pre-wet dry prefix is not bit-exact')
+                original_bits=audio[:cold_frames].astype(np.float32).view(np.uint32)
+                candidate_bits=candidate_prefix.view(np.uint32)
+                dry_bits=dry_prefix.view(np.uint32)
+                pair_bits=np.array_equal(original_bits,candidate_bits)
+                all_bits=pair_bits and np.array_equal(candidate_bits,dry_bits)
+                cold_dry.append(dict(stage=stage,case=case['name'],frames=cold_frames,
+                    original_candidate_and_dry_sample_values_exact=True,
+                    original_candidate_bit_exact=pair_bits,
+                    original_candidate_and_dry_bit_exact=all_bits,
+                    signed_zero_only_differences=not all_bits))
+            if not case['enabled']:
+                stop = next((e['frame'] for e in case['events'] if e['control']=='enabled' and e['value']),len(source))
+                candidate = float_wav(output)[1]
+                a, b = audio[32:32+stop], candidate[32:32+stop]
+                reference_exact=np.array_equal(a,source[:stop])
+                candidate_exact=np.array_equal(b,source[:stop])
+                pair_exact=np.array_equal(a,b)
+                if config['ramp_components']=='startup' and not pair_exact:
+                    raise ValueError('Callback-aware candidate fails original initially-off prefix')
+                if config['ramp_components']!='startup' and (not candidate_exact or (not reference_exact and result['passed'])):
+                    raise ValueError('A passing case lacks exact initially-off bypass timing')
+                bypass.append(dict(stage=stage, case=case['name'], frames=stop,
+                    reference_offset=32, candidate_offset=32, both_bit_exact=reference_exact and candidate_exact,
+                    reference_bit_exact=reference_exact,candidate_bit_exact=candidate_exact,
+                    original_candidate_bit_exact=pair_exact,waveform_case_passed=result['passed']))
+            verified.append(provenance | dict(stage=stage, parameter_log_sha256=receipt['parameter_log_sha256'],
+                final_inventory_sha256=receipt['final_inventory_sha256'], applied_controls_verified=True))
+            host_hashes.add(receipt['host_sha256'])
+            if stage == 'steps' and case['name'] == 'down-step-main-128-192':
+                guard_fixture = (directory, case, waves[case['source']])
+    if seen != set(records) or len(host_hashes) != 1:
+        raise ValueError('Comparison/session coverage or reference host differs')
+
+    # A short full-bypass render proves the candidate offset without a wet search.
+    x = np.random.default_rng(0x8A11).normal(0, .02, (2048, 2)).astype(np.float32)
+    pre_roll=512 if config['ramp_components']=='startup' else 0
+    if pre_roll:x=np.pad(x,((pre_roll,0),(0,0)))
+    input_file, schedule = root / 'bypass-input.wav', root / 'bypass.tsv'
+    write_wav(input_file, 48000, x.ravel())
+    schedule.write_text('RMX_REVERB_MOTION 1\ninitial 128 128 0 0\ntail 0.03\n')
+    output, dry = root / 'bypass.wav', root / 'bypass-dry.wav'
+    render(args.renderer,input_file,output,schedule,dry)
+    y = float_wav(output)[1]
+    expected = np.zeros_like(y)
+    expected[32:32+len(x)] = x
+    if not np.array_equal(y, expected) or not np.array_equal(float_wav(dry)[1], expected):
+        raise ValueError('Candidate bypass is not exactly delayed by 32 frames')
+    rejected_offsets = [n for n in (0, 31, 33) if not np.array_equal(y[n:n+len(x)], x)]
+    if rejected_offsets != [0, 31, 33]:
+        raise ValueError('Bypass offset negative control is inconclusive')
+
+    guards = []
+    if guard_fixture is None:
+        raise ValueError('Audit requires the Main128-to-192 step guard fixture')
+    directory, case, source = guard_fixture
+    for field in ('main', 'amount', 'cutoff', 'block', 'tail', 'events', 'source-samples'):
+        changed, signal = copy.deepcopy(case), source
+        if field == 'events':
+            changed['events'][0]['frame'] += 1
+        elif field == 'source-samples':
+            signal = source.copy()
+            signal[1, 0] = .01
+        else:
+            changed[field] += 1
+        try:
+            checked(directory, changed, signal)
+        except ValueError:
+            guards.append(field)
+        else:
+            raise ValueError('Capture guard accepted changed ' + field)
+
+    build=getattr(args,'sanitized_build',None)
+    instrumentation=sanitizer_build_record(build,args.sanitized,prediction.get('backend','core')) if build else None
+    sanitized = []
+    fresh_key=(prediction['stage'],'down-'+prediction['stage']+'-0')
+    for key in (('steps', 'down-step-main-0-128'), fresh_key):
+        parent, result = records[key]
+        prefix = key[0] + '-' + key[1]
+        plan = parent / (prefix + '.tsv')
+        directory = dict(args.session)[key[0]]
+        receipt = json.loads((directory / key[1] / 'receipt.json').read_text())
+        out, trace = root / (prefix + '-asan.wav'), root / (prefix + '-asan-dry.wav')
+        render(args.sanitized,receipt['input_path'],out,plan,trace)
+        if sha256(out) != result['candidate_sha256'] or sha256(trace) != result['dry_trace_sha256']:
+            raise ValueError('Sanitized and optimized renders differ')
+        sanitized.append(dict(stage=key[0], case=key[1], bit_exact=True, output_sha256=sha256(out)))
+    save_json(root / 'verification.json', dict(kind='rmx220-reverb-down-motion-audit', passed=True,
+        prediction_sha256=sha256(args.prediction), model_sha256=sha256(args.model),
+        renderer_sha256=sha256(args.renderer), sanitized_renderer_sha256=sha256(args.sanitized),
+        script_sha256=sha256(Path(__file__)), comparisons_sha256=[sha256(p) for p in args.comparison],
+        capture_cases=verified, host_sha256=next(iter(host_hashes)), initially_off_bypass_prefixes=bypass,
+        non_silent_cold_dry_prefixes=cold_dry,
+        non_silent_cold_dry_prefix_summary=dict(total=len(cold_dry),
+            original_candidate_bit_exact=sum(c['original_candidate_bit_exact'] for c in cold_dry),
+            original_candidate_and_dry_sample_values_exact=len(cold_dry),
+            original_candidate_and_dry_bit_exact=sum(c['original_candidate_and_dry_bit_exact'] for c in cold_dry),
+            signed_zero_only_differences=sum(c['signed_zero_only_differences'] for c in cold_dry)),
+        full_candidate_bypass=dict(frames=len(y), bit_exact=True, offset=32,
+            input_silent_pre_roll_frames=pre_roll,
+            rejected_offsets=rejected_offsets, input_sha256=sha256(input_file), output_sha256=sha256(output)),
+        rejected_capture_changes=guards, sanitized_renders=sanitized,sanitizer_build=instrumentation,
+        limitations=([instrumentation['limitation']] if instrumentation else ['The linked WAV library was not rebuilt with sanitizers.'])+
+            ['Provenance, bypass and sanitizer checks do not turn failing motion cases into passes.']))
+    print('Audited', len(verified), 'captures,',len(bypass),'bypass prefixes, seven guards and two sanitizer renders')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--session', nargs=2, action='append', required=True, type=Path)
+    parser.add_argument('--comparison', type=Path, action='append', required=True)
+    for name in ('prediction', 'model', 'calibration', 'renderer', 'sanitized', 'output'):
+        parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--sanitized-build',type=Path,help='Verify compile recipes and fresh objects for DSP, WAV IO and fixture harness')
+    args = parser.parse_args()
+    args.session = [(str(stage), directory) for stage, directory in args.session]
+    audit(args)
+
+
+if __name__ == '__main__':
+    main()

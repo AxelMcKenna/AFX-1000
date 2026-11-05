@@ -10,7 +10,7 @@
 
 <img src="assets/readme-hero.svg" alt="AFX-1000. Charcoal housing viewed straight on, with blue drum pads, green/yellow/red level meters, ribbed knobs and recessed controls." width="100%">
 
-**AFX-1000** is a take on the RMX-1000, built around a shared C++20 audio engine. Native Mac app, AU and VST3, with a hardware-style amber/teal panel. A standalone Daisy Seed version is in development too.
+**AFX-1000** is an RMX-1000-inspired effects processor built around a shared C++20 audio engine, available as a native Mac app, AU and VST3. A standalone hardware version using **Daisy Seed 3** is in development, with a proposed signal PCB and power/protection PCB in a custom housing.
 
 Use it with rekordbox through app capture or an audio interface. The effects and factory drums are original implementations. Matching the reference unit's sound, timing and full feature set is still work in progress.
 
@@ -36,6 +36,12 @@ Pitch travel has separate up/down ranges from 1 to 24 semitones. The extra range
 ## Hardware design
 
 Current work targets the full 12 V standalone unit. The [fabrication preparation inventory](hardware/fabrication/README.md) identifies the selected development sources and remaining holds across all functional roles. The [A12 housing work](hardware/cad/a12/README.md) includes the larger enclosure proposal with 20% more depth and height. The integrated unit remains unfinished.
+
+The latest [two-main-board placement candidate](hardware/fabrication/staging/two-board-review-01/README.md) consolidates the eight development boards into a **268 × 63 mm signal PCB** and a **320 × 181.1 mm C-shaped power/protection PCB**. It retains the Daisy Seed 3 module and accounts for all 1,543 currently placed electrical components. Panel boards and bought-in modules remain additional. Both placements pass the recorded native geometry/library checks, but the combined schematics, routing, ESS codec land pattern, cooling, supports and complete installed fit are unfinished. **This is an engineering candidate, not a fabrication release.**
+
+[![Two-main-board placement candidate, front view](hardware/fabrication/staging/two-board-review-01/placement-F.png)](hardware/fabrication/staging/two-board-review-01/README.md)
+
+The [latest integrated signal-board checkpoint](hardware/fabrication/staging/two-board-signal-routed-native-03/README.md) now joins the audio and Daisy circuits in one schematic and preserves their original routing. It has **251 open connections**, zero native geometry/ERC findings and one missing ESS codec footprint. The power board still needs circuit integration and routing; neither board is released for fabrication.
 
 The earlier A11 design has a 334 × 157 × 38 mm chassis, 29 guided buttons, ten knobs, selector caps, optical inserts and the release mechanism. It includes mounts and clearances for its routed main supply and placed E25 disconnect board.
 
@@ -156,6 +162,19 @@ rekordbox cue  -> FLX headphones
 
 Physical FLX routing and cue separation still need testing. BlackHole and mixer send/return setups are covered in the [routing guide](docs/routing.md).
 
+## Repository layout
+
+| Directory | Purpose |
+| --- | --- |
+| `src/`, `include/` | Shared audio engine, public headers and native/plugin adapters |
+| `firmware/`, `hardware/` | Embedded targets, electronics, mechanics and qualification evidence |
+| [`tools/`](tools/README.md) | Audio tools grouped by effect, C++ probes, command-line utilities and packaging |
+| [`tests/`](tests/README.md) | Separate core, audio, hardware, packaging and tooling suites |
+| `research/` | Investigations, experiment sources and recorded measurements |
+| `docs/`, `assets/`, `prototypes/` | Guides and review records, product assets and earlier UI prototypes |
+
+Former source paths are listed in the [migration index](docs/path-migrations.json). Build outputs and large local artifacts remain under ignored `build*/` directories.
+
 ## Build
 
 ### Python tooling
@@ -165,10 +184,10 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then run 
 ```sh
 uv sync --locked
 uv run --locked python -m unittest discover -s tests/tooling
-uv run --locked python -m unittest discover -s tests -p 'a*_integration_tests.py'
+uv run --locked python -m unittest discover -s tests/hardware -p 'a*_integration_tests.py'
 ```
 
-uv uses Python 3.12 from `.python-version` and creates an ignored `.venv/`. The root `pyproject.toml` declares NumPy, Pillow and trimesh; `uv.lock` pins the resolved environment. Run Python tools with `uv run --locked python ...`. Use `uv add <package>==<version>` to change a pinned dependency, and commit both project metadata and the lockfile.
+uv uses Python 3.12 from `.python-version` and creates an ignored `.venv/`. The root `pyproject.toml` declares NumPy, Pillow, SciPy, Shapely and trimesh; `uv.lock` pins the resolved environment. Run Python tools with `uv run --locked python ...`. Use `uv add <package>==<version>` to change a pinned dependency, and commit both project metadata and the lockfile.
 
 Configure CMake through `uv run --locked cmake ...` so its Python tests use this environment. An existing CMake build may retain a previously selected interpreter; use a fresh build directory or explicitly set `-DPython3_EXECUTABLE=/absolute/path/to/.venv/bin/python` when reconfiguring.
 
@@ -264,4 +283,4 @@ The historical browser prototype is kept in `prototypes/web/`. Its guide is [her
 
 Original project material is covered by the [AFX-1000 Proprietary Rights Notice](LICENSE), copyright 2026 Axel McKenna, all rights reserved. It covers the project's original software, firmware, legacy prototypes, PCB and mechanical design files, documentation and assets to the extent the owner holds the relevant rights. Reuse, personal builds, manufacture and redistribution require separate written permission, subject to the exceptions in the notice.
 
-Factory drums and the current panel artwork are made by this project. The native and plugin interfaces use a panel generated from [drawing code](tools/generate_panel.mm), with no manufacturer photograph in current builds. Third-party software, footprints and other supplied material retain their own terms. JUCE and optional Link need a compatible licensing route for distribution; the project notice does not override their copyleft obligations. See [source and dependency notices](THIRD_PARTY_NOTICES.md).
+Factory drums and the current panel artwork are made by this project. The native and plugin interfaces use a panel generated from [drawing code](tools/assets/generate_panel.mm), with no manufacturer photograph in current builds. Third-party software, footprints and other supplied material retain their own terms. JUCE and optional Link need a compatible licensing route for distribution; the project notice does not override their copyleft obligations. See [source and dependency notices](THIRD_PARTY_NOTICES.md).

@@ -1,5 +1,5 @@
 import unittest
-from tools import rmx_performance_path as path
+from tools.audio.performance import rmx_performance_path as path
 
 
 class PerformancePathTests(unittest.TestCase):

@@ -6,7 +6,7 @@ At source checkpoint `9350b7b`, the standalone factory Default Down model passes
 
 ## Establish the reference
 
-The [offline reference host](../../tools/audio_plugin_render.cpp) loads the separately acquired original **RMX-1000 Plug-in 2.2.0**, checks its identity, and renders without a DAW's extra routing or effects. Its [VST2 adapter](../../tools/legacy_vst2_host.h) uses the public plug-in interface; the project does not incorporate the original DSP binary. The Intel reference host runs the original Intel plug-in locally.
+The [offline reference host](../../tools/hosts/audio_plugin_render.cpp) loads the separately acquired original **RMX-1000 Plug-in 2.2.0**, checks its identity, and renders without a DAW's extra routing or effects. Its [VST2 adapter](../../tools/hosts/legacy_vst2_host.h) uses the public plug-in interface; the project does not incorporate the original DSP binary. The Intel reference host runs the original Intel plug-in locally.
 
 Each capture keeps an input WAV, the requested settings and event plan, sample rate, tempo, callback size, original output, parameter readbacks, state snapshots, and a receipt containing hashes. Readback checks distinguish an accepted control event from a request the plug-in ignored. Audits recheck the files against the recipe and receipt rather than trusting a filename or a green summary.
 
@@ -16,7 +16,7 @@ Original binaries, large recordings and debugger artifacts stay in ignored `buil
 
 An impulse reveals delays, reflections and decay. Separate left/right impulses expose cross-channel paths. Seeded stereo noise, tones and chirps exercise a broad spectrum. Input gaps reveal a reverb tail without continuous dry audio masking it. Long tails expose slow state and feedback errors. Audio from frame zero tests cold startup, which a silent pre-roll would hide.
 
-First hold controls still to identify geometry, filters and coefficient maps. Then move one control, reverse it before settling, change several controls together, and switch the effect on and off. Repeat with different callback sizes and events inside a callback. Source generators and seeds are stored in [the capture tool](../../tools/rmx_reverb_motion.py); predictions hash the actual float32 source samples as well as their recipes.
+First hold controls still to identify geometry, filters and coefficient maps. Then move one control, reverse it before settling, change several controls together, and switch the effect on and off. Repeat with different callback sizes and events inside a callback. Source generators and seeds are stored in [the capture tool](../../tools/audio/reverb/rmx_reverb_motion.py); predictions hash the actual float32 source samples as well as their recipes.
 
 The Down model developed from a five-pair cross-coupled comb network, all-pass stages, input/output filters and measured static maps. Moving controls needed additional state machines: input gating and room controls use different clocks, and callback buffering affects physical output timing. Static impulse agreement alone missed these behaviors.
 
@@ -32,7 +32,7 @@ For each channel, the relative error is:
 sqrt(sum((candidate - reference)^2) / sum(reference^2))
 ```
 
-Every required screen must be at most **0.01 (1%)**. If the sum of squared reference samples is at most `1e-20`, the absolute error RMS must instead be at most `1e-8`. These rules are implemented by [`screen`](../../tools/rmx_filter_match.py). Channels are checked separately.
+Every required screen must be at most **0.01 (1%)**. If the sum of squared reference samples is at most `1e-20`, the absolute error RMS must instead be at most `1e-8`. These rules are implemented by [`screen`](../../tools/audio/filters/rmx_filter_match.py). Channels are checked separately.
 
 Checks cover the whole output, an estimated wet signal, the post-input tail, windows around every control event, and applicable activation/startup windows. Separate windows prevent a short error from disappearing in a long average. The estimated wet comparison subtracts the **candidate-predicted dry trace from both outputs**. That is useful but is not an independently recorded reference wet stem. At the 176-case checkpoint, 49 non-silent, pre-wet prefixes of 12,000 samples each match original output, candidate output and dry trace numerically. A later byte-level check confirms 46 triples are also bit-identical; three differ only in the sign bit of zero. This independently checks dry subtraction over those prefixes only.
 
@@ -46,7 +46,7 @@ When a set fails, retain its prediction, failed report and source checkpoint, ex
 
 ## Audit the experiment and the implementation
 
-The [auditor](../../tools/rmx_reverb_motion_audit.py) verifies recipes, receipts, auxiliary hashes, immediate/final control readbacks, candidate outputs, dry traces and schedules. Negative controls change source samples, controls, event times, callback size or duration and must be rejected. A bypass test rejects offsets 0, 31 and 33. Causal-prefix checks change later input/controls and require earlier output to stay identical.
+The [auditor](../../tools/audio/reverb/rmx_reverb_motion_audit.py) verifies recipes, receipts, auxiliary hashes, immediate/final control readbacks, candidate outputs, dry traces and schedules. Negative controls change source samples, controls, event times, callback size or duration and must be rejected. A bypass test rejects offsets 0, 31 and 33. Causal-prefix checks change later input/controls and require earlier output to stay identical.
 
 Sanitizer builds and allocation/resource checks address implementation defects separately from sound error. Historical startup audits explicitly disclose that their linked WAV library was not rebuilt with sanitizers. A clean sanitizer run alone cannot turn a failed audio comparison into a pass or prove a microcontroller meets its callback deadline.
 
@@ -60,8 +60,8 @@ cmake -S . -B build/reference-method -DCMAKE_BUILD_TYPE=Release \
   -DRMX_BUILD_TESTS=ON -DRMX_BUILD_PLUGINS=OFF -DRMX_BUILD_REFERENCE_HOST=OFF
 cmake --build build/reference-method --target rmx_reverb_down_engine_probe rmx_reverb_down_tests rmx_engine_reverb_tests
 ctest --test-dir build/reference-method -R '^(reverb_down|engine_reverb)$' --output-on-failure
-uv run --locked python -m tools.rmx_reverb_motion --help
-uv run --locked python -m tools.rmx_reverb_motion_audit --help
+uv run --locked python -m tools.audio.reverb.rmx_reverb_motion --help
+uv run --locked python -m tools.audio.reverb.rmx_reverb_motion_audit --help
 ```
 
 For reference comparisons, also prepare the original plug-in, the compatible Intel reference host and reviewed bypass calibration. The sequence is `predict-motion`, `capture --prediction`, `compare`, then the audit. Every report/session/output destination must be new. Use `--gate faded --cutoff-position post --gain-position read --quantum 32 --candidate-latency 32 --level-position output --coefficient-ramp 0 --ramp-components startup --decay-slew 0` for the current processor. Historical experimental modes require their recorded Git source checkpoints; current source hashes will intentionally differ.

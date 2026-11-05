@@ -6,15 +6,15 @@ from pathlib import Path
 
 import numpy as np
 
-from tools.noise_statistics import measure, measure_powers, powers, stereo_correlation
-from tools.rmx_noise_stream import RenderSpace
-from tools.rmx_noise_user import check_readbacks
-from tools.rmx_noise_user import xml
+from tools.audio.noise.noise_statistics import measure, measure_powers, powers, stereo_correlation
+from tools.audio.noise.rmx_noise_stream import RenderSpace
+from tools.audio.noise.rmx_noise_user import check_readbacks
+from tools.audio.noise.rmx_noise_user import xml
 
 
 class NoiseStreamTests(unittest.TestCase):
     def test_verified_trajectory_pairing_preserves_ratio_and_rejects_wrong_gain(self):
-        from tools.noise_reference_trajectory_statistics import measure
+        from tools.audio.noise.noise_reference_trajectory_statistics import measure
         common=np.exp(np.sin(np.arange(60))*2)
         total=np.repeat(common[:,None],2,axis=1)
         reference=dict(bands=np.repeat(total[:,None,:]/30,30,axis=1),total=total)
@@ -26,7 +26,7 @@ class NoiseStreamTests(unittest.TestCase):
         self.assertEqual(measure(reference,wrong)['verdict'],'different')
 
     def test_random_profiles_allow_independent_exposures_and_reject_gain_error(self):
-        from tools.noise_random_statistics import measure
+        from tools.audio.noise.noise_random_statistics import measure
         levels=np.broadcast_to(np.asarray([1.,2.,4.,8.])[None,:,None],(30,4,2)).copy()
         reference=dict(bands=np.repeat(levels[:,:,None,:]/6,6,axis=2),total=levels,exposure=np.full((30,4),100))
         different_exposure=reference|dict(exposure=np.full((30,4),150))
@@ -36,9 +36,9 @@ class NoiseStreamTests(unittest.TestCase):
             measure(reference,different_exposure|dict(exposure=np.zeros((30,4))))
 
     def test_sidechain_dry_subtraction_detects_one_sample_misalignment(self):
-        from tools.rmx_noise_sidechain_controls import stimulus
-        from tools.rmx_noise_sidechain_stream import residual
-        from tools.reference_audio import write_wav
+        from tools.audio.noise.rmx_noise_sidechain_controls import stimulus
+        from tools.audio.noise.rmx_noise_sidechain_stream import residual
+        from tools.audio.common.reference_audio import write_wav
         pattern=stimulus('asymmetric');dry=np.tile(pattern,(2,1))
         with tempfile.TemporaryDirectory() as directory:
             for delay in [32,31]:
@@ -49,7 +49,7 @@ class NoiseStreamTests(unittest.TestCase):
                 else:self.assertGreater(error,.1)
 
     def test_motion_screen_rejects_wrong_gain_and_inverted_control_profile(self):
-        from tools.noise_motion_statistics import measure
+        from tools.audio.noise.noise_motion_statistics import measure
         levels=np.broadcast_to(np.asarray([1.,2.,4.,8.])[None,:,None],(30,4,2)).copy()
         bands=np.repeat(levels[:,:,None,:]/6,6,axis=2)
         reference=dict(bands=bands,total=levels,exposure=np.full((30,4),100))
@@ -98,7 +98,7 @@ class NoiseStreamTests(unittest.TestCase):
         from unittest.mock import patch
         with tempfile.TemporaryDirectory(prefix='rmx-budget-test-') as temporary:
             root = Path(temporary); space = RenderSpace(root)
-            with patch('tools.rmx_noise_stream.BUDGET', 16):
+            with patch('tools.audio.noise.rmx_noise_stream.BUDGET', 16):
                 with self.assertRaisesRegex(ValueError, 'budget'):
                     space.run([sys.executable, '-c', 'from pathlib import Path; Path(__import__("sys").argv[1]).write_bytes(b"x"*32)', str(root/'output')])
             self.assertEqual(space.peak, 32)

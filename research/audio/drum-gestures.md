@@ -20,7 +20,7 @@ The fresh tests also caught a snare restart being cancelled when its old tail be
 
 ## How the reference was checked
 
-[`rmx_drum_gestures.py`](../../tools/rmx_drum_gestures.py) declares each program. Version3 of the native fixture adds eight beat assignments and explicit transport events while retaining the earlier fixture versions. A separately built reference host delivers and logs BPM, PPQ, seconds and playback state. Its static path was checked against the preceding host with identical audio and auxiliary state.
+[`rmx_drum_gestures.py`](../../tools/audio/drums/rmx_drum_gestures.py) declares each program. Version3 of the native fixture adds eight beat assignments and explicit transport events while retaining the earlier fixture versions. A separately built reference host delivers and logs BPM, PPQ, seconds and playback state. Its static path was checked against the preceding host with identical audio and auxiliary state.
 
 Read-only observers sampled command words, clock scalars and customization field names in the SHA-pinned Original. Observed renders were compared with ordinary renders before using the traces. No DSP state was written, no audio buffers were read by the observers, and no Original binary, instruction listing or recorded audio is part of the repository implementation.
 

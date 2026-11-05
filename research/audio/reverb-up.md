@@ -34,7 +34,7 @@ This structure was not inferred exclusively from black-box recordings. Inspectio
 
 ## How it was identified
 
-The [tool](../../tools/rmx_reverb_up.py) first verifies the original left/right impulse recordings against exact samples, settings, extent and receipt hashes. A regularized inverse using the earlier Down transfer locates candidate arrival times only; it is deliberately not accepted as Up's input-filter model. A unique pairing of left/right delays must reproduce the cross-channel arrival sums. Removing the diffuser phase makes the two cross-channel transfers agree to about 5.3e-7 relative error, supporting the shared diffuser/symmetric-network hypothesis.
+The [tool](../../tools/audio/reverb/rmx_reverb_up.py) first verifies the original left/right impulse recordings against exact samples, settings, extent and receipt hashes. A regularized inverse using the earlier Down transfer locates candidate arrival times only; it is deliberately not accepted as Up's input-filter model. A unique pairing of left/right delays must reproduce the cross-channel arrival sums. Removing the diffuser phase makes the two cross-channel transfers agree to about 5.3e-7 relative error, supporting the shared diffuser/symmetric-network hypothesis.
 
 For one pair, write `L=gL*z^-dL`, `R=gR*z^-dR`, and `H` for the feedback high-pass. Left-input direct/cross transfers are:
 
@@ -64,8 +64,8 @@ uv sync --locked
 cmake -S . -B build/reverb-up -DCMAKE_BUILD_TYPE=Release \
   -DRMX_BUILD_PLUGINS=OFF -DRMX_BUILD_REFERENCE_HOST=OFF
 cmake --build build/reverb-up --target rmx_reverb_up_probe
-uv run --locked python -m tools.rmx_reverb_up --help
-uv run --locked python -m tools.rmx_reverb_up_audit --help
+uv run --locked python -m tools.audio.reverb.rmx_reverb_up --help
+uv run --locked python -m tools.audio.reverb.rmx_reverb_up_audit --help
 ```
 
 Run `identify --initial INITIAL_SESSION --calibration CALIBRATION --report NEW_MODEL --header NEW_HEADER`. Compare a regenerated header to the [committed calibration](experiments/ReverbUpNeutralCalibration.h) before deliberately replacing/rebuilding it; reports and headers must be new. `predict --model MODEL --calibration CALIBRATION --renderer RENDERER --report NEW_PREDICTION` freezes the candidate before `capture --prediction NEW_PREDICTION`, with the original host/plug-in and new session directory.
@@ -91,7 +91,7 @@ The nominal 25 Hz feedback high-pass was initially calculated in double precisio
 
 Refit only the existing Main128/Sub1-128 calibration using these measured feedback coefficients to obtain a [revised reference](measurements/2026-10-27-reverb-up-control-reference.json). Apply `g(Main,Sub1) = g(Main,128) ** (T128/TSub1)`, with `T(raw)=1+49*(max(0,raw-3)/252)^3`. Refitting the old Sub1 sweep now gives a worst coefficient discrepancy of about `7.47e-7`; that is retrospective evidence. The [revised report](measurements/2026-10-27-reverb-up-amount-corrected-identification.json) still explicitly records the original failed forecasts.
 
-Then [freeze eight new forecasts](measurements/2026-10-27-reverb-up-feedback-corrected-predictions.json), change the input impulse from +0.02 at frame48000 to -0.019 at frame72013, and capture Sub1 positions 0/5/31/83/131/179/227/253. All [eight new coefficient checks pass](measurements/2026-10-27-reverb-up-feedback-corrected-validation.json), worst error about `7.37e-7`, retaining the original `2e-6` limit. This validates the coefficient hypothesis in this scope; it does not replace full waveform checks. Reproduction commands are in [`rmx_reverb_up_feedback.py`](../../tools/rmx_reverb_up_feedback.py): `refine-reference`, `predict`, `capture`, then `validate`.
+Then [freeze eight new forecasts](measurements/2026-10-27-reverb-up-feedback-corrected-predictions.json), change the input impulse from +0.02 at frame48000 to -0.019 at frame72013, and capture Sub1 positions 0/5/31/83/131/179/227/253. All [eight new coefficient checks pass](measurements/2026-10-27-reverb-up-feedback-corrected-validation.json), worst error about `7.37e-7`, retaining the original `2e-6` limit. This validates the coefficient hypothesis in this scope; it does not replace full waveform checks. Reproduction commands are in [`rmx_reverb_up_feedback.py`](../../tools/audio/reverb/rmx_reverb_up_feedback.py): `refine-reference`, `predict`, `capture`, then `validate`.
 
 ### Why every integer delay matters
 
@@ -105,7 +105,7 @@ Before new recordings, [freeze the model, renderer, source files, source samples
 
 The similar error for broad-spectrum and impulse programs suggests a Main/Sub1 level interaction, but that remains a hypothesis until separately measured. Preserve this failed candidate and report before changing it. Next measure Main across its full range at Sub1-255 and Sub1 across its full range at Main255, fit an interaction map only from those calibration sweeps, then freeze a different mixed program set before further original captures. The failed 64 become regressions for a revised candidate, not new validation of that revision.
 
-[`rmx_reverb_up_controls.py`](../../tools/rmx_reverb_up_controls.py) provides `capture`/`identify` for `main`, `amount`, `main-long` and `amount-large`. [`rmx_reverb_up_model.py`](../../tools/rmx_reverb_up_model.py) provides `build`, `predict`, `capture` and `compare`. Use `--help` for exact arguments. Every destination must be new; historical frozen bindings require the recorded source checkpoint. Full control auditing, moving controls, startup, live Engine integration, other rates/profiles/tempos, overload, listening and hardware remain unfinished.
+[`rmx_reverb_up_controls.py`](../../tools/audio/reverb/rmx_reverb_up_controls.py) provides `capture`/`identify` for `main`, `amount`, `main-long` and `amount-large`. [`rmx_reverb_up_model.py`](../../tools/audio/reverb/rmx_reverb_up_model.py) provides `build`, `predict`, `capture` and `compare`. Use `--help` for exact arguments. Every destination must be new; historical frozen bindings require the recorded source checkpoint. Full control auditing, moving controls, startup, live Engine integration, other rates/profiles/tempos, overload, listening and hardware remain unfinished.
 
 
 ## Measured interaction and a further fresh set
@@ -141,7 +141,7 @@ Two full optimized/sanitized renders are byte-identical, including a fresh stere
 After retaining the first candidate and failed report, use `capture --stage main-long` and `capture --stage amount-large` with `--neutral CORRECTED_REFERENCE --static-model SEPARABLE_MODEL`, then `identify` for each session with the same inputs. Build the revised model into **new** destinations:
 
 ```sh
-uv run --locked python -m tools.rmx_reverb_up_model build \
+uv run --locked python -m tools.audio.reverb.rmx_reverb_up_model build \
   --main MAIN_REPORT --amount AMOUNT_REPORT --neutral CORRECTED_REFERENCE \
   --calibration CALIBRATION --feedback-validation FRESH_COEFFICIENT_VALIDATION \
   --main-long MAIN_LONG_REPORT --amount-large AMOUNT_LARGE_REPORT \
@@ -150,7 +150,7 @@ uv run --locked python -m tools.rmx_reverb_up_model build \
 
 Review the generated header against `ReverbUpControlCalibration.h`, deliberately install/rebuild it, and compare all prior sessions. Use `predict --recipe mixed-v2`, then `capture --recipe mixed-v2 --prediction NEW_PREDICTION` with original host/plug-in and a new session; `compare --session mixed-v2 NEW_SESSION` renders the independently implemented candidate. Preserve complete original tails rather than using the damped identification response as an acceptance substitute.
 
-Run `uv run --locked python -m tools.rmx_reverb_up_model_audit --help` for the audit arguments. Supply the eleven named sessions, three component comparison reports, current/first mixed predictions, corrected reference/coefficient validation, original read-only observation artifacts, optimized/one-frame/sanitizer renderers and sanitizer build directory. The audit checks the installed original bundle and requires unchanged historical source bindings. Published numeric records omit large captures and raw debugger artifacts; reproducing those checks requires the separately acquired original and locally generated sessions.
+Run `uv run --locked python -m tools.audio.reverb.rmx_reverb_up_model_audit --help` for the audit arguments. Supply the eleven named sessions, three component comparison reports, current/first mixed predictions, corrected reference/coefficient validation, original read-only observation artifacts, optimized/one-frame/sanitizer renderers and sanitizer build directory. The audit checks the installed original bundle and requires unchanged historical source bindings. Published numeric records omit large captures and raw debugger artifacts; reproducing those checks requires the separately acquired original and locally generated sessions.
 
 Current scope is **static integer controls with settled silent pre-roll, factory Up, stereo 48 kHz/120 BPM**. Moving controls, activation/cold startup, fractional controls, other profiles/rates/tempos, live Engine integration, overload, listening and physical hardware remain required by the full sound-matching goal.
 

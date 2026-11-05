@@ -6,8 +6,8 @@ from pathlib import Path
 
 import numpy as np
 
-from tools.reference_audio import save_json, sha256
-from tools.rmx_drums import require
+from tools.audio.common.reference_audio import save_json, sha256
+from tools.audio.drums.rmx_drums import require
 
 
 def main():

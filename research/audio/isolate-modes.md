@@ -19,7 +19,7 @@ program and sparse stereo pulses. All programs are eight seconds at 48 kHz and
 Controls move at sample 96079 and return at 240173. Callback sizes are 127 and
 509 samples. One pulse at sample 31 checks startup behavior.
 
-`tools/rmx_isolate_modes.py` checks the original binary, host, input samples,
+`tools/audio/filters/rmx_isolate_modes.py` checks the original binary, host, input samples,
 parameter requests and readbacks, plans, receipts, state and output hashes. It
 compares the recorded float output directly at the established 32-sample delay.
 Acceptance remains 1% RMS error independently in each channel, for the complete

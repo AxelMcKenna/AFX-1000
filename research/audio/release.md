@@ -39,7 +39,7 @@ The [second 88-program prediction](measurements/2026-10-29-release-fresh2-predic
 
 [`FactoryRelease.cpp`](../../src/core/FactoryRelease.cpp) processes one common-clock block after Scene processing. The existing transport FIFO provides the measured 32-frame latency, including partial host callbacks. Raw history continues on that clock while a Release processor is selected. The original 40 programs, former 88 and unseen 88 supply **1,848 stereo waveform screens** across whole and declared interval windows.
 
-[`rmx_release_audit.py`](../../tools/rmx_release_audit.py) independently recomputes the numerical scores, verifies complete recipe/window coverage and checks original inputs, binary hashes, receipts, plans, immediate/final readbacks and all auxiliary artifacts. It requires the actual Engine and Release symbols and instrumented processing translation units. Every complete optimized render must equal its AddressSanitizer/UndefinedBehaviorSanitizer render byte for byte. Passed and failed windows are never removed or fitted away.
+[`rmx_release_audit.py`](../../tools/audio/release/rmx_release_audit.py) independently recomputes the numerical scores, verifies complete recipe/window coverage and checks original inputs, binary hashes, receipts, plans, immediate/final readbacks and all auxiliary artifacts. It requires the actual Engine and Release symbols and instrumented processing translation units. Every complete optimized render must equal its AddressSanitizer/UndefinedBehaviorSanitizer render byte for byte. Passed and failed windows are never removed or fitted away.
 
 The legacy and measured Release implementations share prepare-time backing storage because they run mutually exclusively. Changing between Default and User settings invalidates the other interpretation's history without allocating or clearing a large buffer in the audio callback. Unwritten history reads as zero. The measured processors share one work region and a separate continuously recorded raw region. This adds approximately 148 kB to the previous single-engine arena footprint, rather than keeping another six-megabyte set of buffers live.
 
@@ -49,7 +49,7 @@ Compatibility checks preserve all [836 prior dry/moving/combined drum programs](
 
 ## Reproduction and limits
 
-Use `uv run --locked python -m tools.rmx_release --help` for `predict`, `capture` and `compare`. Select `discovery`, `fresh` or `fresh-v2`; non-discovery capture requires the frozen prediction and renderer. Destinations must be new. `--regression` labels a comparison as development and cannot supply new prospective qualification. Use `tools.rmx_release_audit` for the independent audit and `tools.rmx_release_plugins` for explicit AU/VST3 delivery checks.
+Use `uv run --locked python -m tools.audio.release.rmx_release --help` for `predict`, `capture` and `compare`. Select `discovery`, `fresh` or `fresh-v2`; non-discovery capture requires the frozen prediction and renderer. Destinations must be new. `--regression` labels a comparison as development and cannot supply new prospective qualification. Use `tools.audio.release.rmx_release_audit` for the independent audit and `tools.audio.release.rmx_release_plugins` for explicit AU/VST3 delivery checks.
 
 Original recordings, installers, binaries, private instruction inspection and local scalar traces remain ignored artifacts. Committed evidence contains numerical results, source/binary/artifact hashes and the independently written implementation.
 
