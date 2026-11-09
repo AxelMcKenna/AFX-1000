@@ -8,9 +8,7 @@
 
 **Proprietary — all rights reserved.** Original project code, firmware, PCB and housing designs require a separate written license for reuse, builds, manufacture or redistribution. Public access and build instructions do not grant that permission. Third-party licenses and GitHub's applicable platform permissions remain in effect. See [LICENSE](LICENSE) and [dependency notices](THIRD_PARTY_NOTICES.md).
 
-<img src="assets/readme-hero.svg" alt="AFX-1000. Charcoal housing viewed straight on, with blue drum pads, green/yellow/red level meters, ribbed knobs and recessed controls." width="100%">
-
-**AFX-1000** is an RMX-1000-inspired effects processor built around a shared C++20 audio engine, available as a native Mac app, AU and VST3. A standalone hardware version using **Daisy Seed 3** is in development, with a proposed signal PCB and power/protection PCB in a custom housing.
+**AFX-1000** is an RMX-1000-inspired effects processor built around a shared C++20 audio engine, available as a native Mac app, AU and VST3. The standalone hardware design uses **Daisy Seed 3 and two main custom PCBs**—signal and power/protection—in a proposed custom housing.
 
 Use it with rekordbox through app capture or an audio interface. The effects and factory drums are original implementations. Matching the reference unit's sound, timing and full feature set is still work in progress.
 
@@ -33,102 +31,49 @@ Rebuilt kick, snare, clap and hat voices, with independent gain, decay and envel
 
 Pitch travel has separate up/down ranges from 1 to 24 semitones. The extra range is a project extension. These changes are implemented, but have not been matched against recordings of an RMX-1000. [DSP notes](docs/dsp-model.md) cover the details and limits.
 
-## Hardware design
+## Current hardware: two main PCBs
 
-Current work targets the full 12 V standalone unit. The [fabrication preparation inventory](hardware/fabrication/README.md) identifies the selected development sources and remaining holds across all functional roles. The [A12 housing work](hardware/cad/a12/README.md) includes the larger enclosure proposal with 20% more depth and height. The integrated unit remains unfinished.
+The current standalone design consolidates the earlier eight main boards into **two main custom PCBs**:
 
-The latest [two-main-board placement candidate](hardware/fabrication/staging/two-board-review-01/README.md) consolidates the eight development boards into a **268 × 63 mm signal PCB** and a **320 × 181.1 mm C-shaped power/protection PCB**. It retains the Daisy Seed 3 module and accounts for all 1,543 currently placed electrical components. Panel boards and bought-in modules remain additional. Both placements pass the recorded native geometry/library checks, but the combined schematics, routing, ESS codec land pattern, cooling, supports and complete installed fit are unfinished. **This is an engineering candidate, not a fabrication release.**
+- **Signal main:** audio, converter interface, the retained **Daisy Seed 3** module, controls and LED drivers.
+- **Power/protection:** supply conversion, inlet and rail protection, monitoring, negative-rail startup and fan health, on a C-shaped board that wraps around the signal-board allocation.
 
-[![Two-main-board placement candidate, front view](hardware/fabrication/staging/two-board-review-01/placement-F.png)](hardware/fabrication/staging/two-board-review-01/README.md)
+Panel boards and bought-in modules are additional; “two boards” describes the main PCB assembly, not every board in the unit.
 
-The [latest integrated signal-board checkpoint](hardware/fabrication/staging/two-board-signal-routed-native-03/README.md) now joins the audio and Daisy circuits in one schematic and preserves their original routing. It has **251 open connections**, zero native geometry/ERC findings and one missing ESS codec footprint. The power board still needs circuit integration and routing; neither board is released for fabrication.
+**Daisy Seed 3 is retained.** It mounts on the signal PCB in a 40-pin socket. The redesign combines the surrounding audio/control and power/protection circuits into the two main boards.
 
-The earlier A11 design has a 334 × 157 × 38 mm chassis, 29 guided buttons, ten knobs, selector caps, optical inserts and the release mechanism. It includes mounts and clearances for its routed main supply and placed E25 disconnect board.
+**The current design is in development and is not ready for fabrication.** The integrated schematics and partial routing are available in KiCad; routing, the ESS codec footprint, manufacturing choices and complete installed housing fit remain unfinished.
 
-[![A11 housing, controls and internal board placement](docs/assets/hardware/a11-overview.png)](docs/assets/hardware/a11-overview.png)
+| Current board | Functions | Overall size | Checked routing status |
+| --- | --- | --- | --- |
+| [Signal main](hardware/fabrication/staging/two-board-signal-routed-native-03/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 251 open connections; zero geometry/ERC findings; missing ESS codec footprint |
+| [Power/protection](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 2,172 open connections; zero geometry/parity/ERC errors; two retained isolated-reference warnings |
 
-See the [A11 editable CAD](hardware/cad/a11/README.md), [printer handoff](hardware/cad/a11/PRINTING.md), [electronics and wiring status](hardware/validation/disconnect-placement.json) and [saved review package](docs/reviews/standalone-E25-A11/). The unit is not build-ready: disconnect routing, 5 V distribution changes, remaining boards/wiring and physical qualification are unfinished.
+The signal PCB has 466 placed electrical footprints and one unplaced ESS codec. The power PCB has 1,086 electrical components. Its latest checked revision closes **27 connections**, completing local bypass and ground returns for all eleven U18–U28 startup ICs. All **1,555 retained reference checks** and 18 new paths pass; previous startup-reference repairs and all seven quiet-ground networks are preserved. **These eleven ICs still need their auxiliary source connections.** Across the AUX rail, 73 of 81 IC supply pins remain unconnected to the regulator. The startup-net survey records **58 missing joins across 32 nets**, in addition to supply/ground work. See the [recorded fabrication status](hardware/fabrication/staging/two-board-fabrication-status-50/status.json) for the exact projects and verification results.
 
-### PCB design
+### Current PCB layouts
 
-Native KiCad layouts from the standalone electronics work. These are engineering candidates; they have not been manufactured or electrically qualified. Click a layout for the full-resolution image.
+These are native KiCad exports of the current copper layouts, with incomplete routing and return paths. The power preview shows the current bottom copper and latest local startup bypass, ground and reference repairs. Click either image for its native SVG; other layers are linked below.
 
-**Combined main audio routing and reference plane · 150 × 63 mm · four-layer candidate**
+**Signal main — Daisy Seed 3 and audio/control circuitry**
 
-| Top local copper | Bottom local copper, viewed from below |
-| --- | --- |
-| [![Partial main audio PCB: actual top copper and lands](hardware/fabrication/staging/audio-main-controls-06/plots/top.png)](hardware/fabrication/staging/audio-main-controls-06/plots/top.png) | [![Partial main audio PCB: actual bottom copper and lands](hardware/fabrication/staging/audio-main-controls-06/plots/bottom.png)](hardware/fabrication/staging/audio-main-controls-06/plots/bottom.png) |
+[![Current signal main PCB: actual front copper](hardware/fabrication/staging/two-board-signal-routed-native-03/plots/front.png)](hardware/fabrication/staging/two-board-signal-routed-native-03/plots/front.svg)
 
-The [six-section audio candidate](hardware/fabrication/staging/audio-main-controls-06/README.md) retains **328 assigned electrical footprints**, including four bare test pads, and six proposed mounts. **All 131 declared local signal/supply endpoints and all 200 placed ground pads are native-connected.** Opens have fallen from 724 to **208**, including 57 verified low-speed control joins and 17 retained earlier control pairs. Its 2,425 tracks and 382 conventional vias preserve every amplifier placement and direct compensation capacitor track. The watchdog and settling-supervisor cells have renewed receiving; their private timing paths are connected, and the settling pull-up is local to its driver. Further codec-run/timer-ready, bypass-sense/bias-window and ANALOG_OK branches retain every component pose and earlier copper object; the longer controls still require installed timing/noise/loading qualification. Native geometry and ERC findings remain zero with all categories enabled. **The ESS codec footprint is missing and global routing is unfinished.** Full parts/process, analog, power/thermal and assembly verification remain open.
+[Bottom copper](hardware/fabrication/staging/two-board-signal-routed-native-03/plots/back.png) · [All layers and signal-board evidence](hardware/fabrication/staging/two-board-signal-routed-native-03/README.md)
 
-The newer, unselected [CODEC_PGOOD comparison with four copper views](hardware/fabrication/staging/audio-main-controls-08/README.md) reaches **203 opens and two remaining control gaps**. It retains the [205-open bypass rework](hardware/fabrication/staging/audio-main-bypass-repack-04/README.md), adds a short CHIP_EN bridge and completes the power-good branch after an independently checked SENSE-entry reroute. Native geometry/ERC are 0/0 with all earlier checked terminals retained. SENSE accuracy/noise, the earlier long INPUT_ENABLE repair and installed performance remain review holds; it is not a fabrication release.
+**Power/protection — C-shaped board, latest checked startup-cell revision**
 
-The unselected [six-layer local-routing trial](hardware/fabrication/staging/audio-main-six-local-01/README.md) reaches **180 opens with the control nets connected**. A dedicated signal layer and additional AGND plane first close the remaining control routes; 21 short surface links then complete six buffer feedback loops and local passive connections without adding more vias. Native geometry/ERC remain 0/0, and the local delta audit preserves all existing copper and 930 native pad shapes.
+[![Current power protection PCB: TBP50 completed local startup cells](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/plots/back.png)](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/plots/back.svg)
 
-The [173-open comparator-input trial](hardware/fabrication/staging/audio-main-six-monitor-01/README.md) adds seven bias-window input joins. Its original enlarged-spacing review is superseded: a 0.5 mm search radius missed four relationships that violated the intended 0.71 mm policy. Native DRC/ERC and connection counts were unaffected; the [measured erratum](hardware/fabrication/staging/audio-main-six-monitor-03/previous-spacing-erratum.json) records the defect.
+[Front copper](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/plots/front.png) · [Bottom copper](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/plots/back.png) · [All layers and power-board evidence](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/README.md)
 
-The newer [GAIN_REQ clearance rework and all six copper views](hardware/fabrication/staging/audio-main-six-monitor-03/README.md) reaches **172 opens**. It renews the obstructing digital branch with one standard via and bridges the right bias input without another hole. A separate exhaustive check measures **14,303 pairs across all 41 comparator-input tracks** and finds no violations of the 0.71 mm trace-centreline policy. All unretired geometry, 930 native pad shapes and earlier connection witnesses remain intact; native geometry/ERC are 0/0. The earlier layer-conversion audit checks all 19 keepouts and native inner lands. **The physical stack/cost is unapproved, U201 is missing, electrical noise/fault performance is unqualified and the wider analogue routing remains incomplete.** The selected four-layer checkpoint above is unchanged.
+### Housing and fabrication status
 
-After the [comparator-input closure](hardware/fabrication/staging/audio-main-six-monitor-04/README.md) and [supervisor bus routing](hardware/fabrication/staging/audio-main-six-pd-01/README.md), the [latest amplifier power-down repair and six copper views](hardware/fabrication/staging/audio-main-six-pd-02/README.md) reaches **162 opens**. All PD control nets and four comparator-input nets are native-connected. Two existing pull resistors move to the front, their land shapes match native templates, and two interrupted connections are restored. Every earlier connection witness remains intact; native geometry/ERC are 0/0. All 15,996 measured comparator-track/noisy-copper pairs meet the spacing policy. There are 926 unchanged native pad shapes and four declared moved pads. **The codec footprint, negative-bias and wider board routing, accepted stack and electrical qualification remain unfinished.** This remains an unselected six-layer trial.
+The [larger housing proposal](hardware/cad/a12/README.md) and board placement checks provide a starting point, but **complete installed fit has not been verified**. Supports, cooling, connector mates, cable bends and dimensional tolerances still need a coordinated mechanical review. Retired internal return studs also require qualified PCB return paths and updated bar/harness hardware. Both boards currently use a provisional eight-layer template; the fabrication stack is not accepted.
 
-| Actual In3 routing, renewed GAIN_REQ branch in cyan | Actual additional In4 AGND copper |
-| --- | --- |
-| [![Unselected six-layer amplifier PD repair: actual signal copper](hardware/fabrication/staging/audio-main-six-pd-02/plots/signals.png)](hardware/fabrication/staging/audio-main-six-pd-02/plots/signals.png) | [![Unselected six-layer amplifier PD repair: actual additional ground plane](hardware/fabrication/staging/audio-main-six-pd-02/plots/ground2.png)](hardware/fabrication/staging/audio-main-six-pd-02/plots/ground2.png) |
+Remaining work includes the approved ESS package/land/stencil inputs, module protection and startup limits, final inter-board interfaces, critical placement and electrical checks, all remaining routing, exact BOM and assembly requirements, and reviewed manufacturing outputs. The [latest power-board review](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/README.md) records the current checks and remaining work; the [fabrication inventory](hardware/fabrication/README.md) retains detailed engineering history.
 
-[![Actual inner AGND reference copper, sensitive-node openings and mounting exclusions](hardware/fabrication/staging/audio-main-controls-06/plots/ground.png)](hardware/fabrication/staging/audio-main-controls-06/plots/ground.png)
-
-All **161 placed supply/sense pads** now connect to their designated source through inner and outer copper. Native-refilled ground retains all 200 ground connections. Missing codec lands and complete capacity/drop/return qualification remain open.
-
-[![Actual partial In2 supply routing](hardware/fabrication/staging/audio-main-controls-06/plots/supplies.png)](hardware/fabrication/staging/audio-main-controls-06/plots/supplies.png)
-
-
-| E12 ADC driver · 110 × 78 mm | Main supply candidate · 90 × 44 mm |
-| --- | --- |
-| [![E12 ADC driver top copper and component outlines](docs/assets/hardware/e12-adc-layout.png)](docs/assets/hardware/e12-adc-layout.png) | [![Main supply candidate top copper and component outlines](docs/assets/hardware/main-power-layout.png)](docs/assets/hardware/main-power-layout.png) |
-| [Editable PCB and routing checks](hardware/electronics/adc_driver/pcb/) | [Editable PCB and routing checks](hardware/electronics/power_supply/routing/) |
-
-**E26 disconnect pilot · 156 × 45.25 mm**
-
-[![E26 six-rail disconnect pilot top copper, vias and component outlines](docs/assets/hardware/e26-disconnect-layout.png)](docs/assets/hardware/e26-disconnect-layout.png)
-
-The pictured E26 checkpoint has **21 open connections and 30 native DRC warnings**. The ADC driver is a separate characterization board, and the main supply shown predates the proposed P02 source redesign. These layouts do not yet form one integrated assembly. See the [E26 source and findings](hardware/electronics/rail_disconnect/revision26/) and [current development handoff](hardware/DEVELOPMENT.md).
-
-The [three-board qualification review](hardware/validation/board-qualification/README.md) identifies additional electrical/layout failures, a separate ADC repair trial and a new disconnect routing candidate. **Qualification is withheld for all three pictured boards; they are not fabrication-ready.**
-
-**E28 protection-board checkpoint · 156 × 60 mm · eight layers**
-
-[![E28 protection board: actual checked top copper, silkscreen and outline](hardware/electronics/rail_disconnect/revision28/generated/low-power-run-work/generated/native-signal-stub-cleanup-06/closed-top.svg)](hardware/electronics/rail_disconnect/revision28/generated/low-power-run-work/generated/native-signal-stub-cleanup-06/closed-top.svg)
-
-The pictured E28 checkpoint has zero open connections, zero hard DRC errors and zero ERC/parity findings, with all native rule categories enabled. It retains 52 warnings. A newer candidate removes ten geometrically redundant track objects and has 49 warnings, with the same zero opens/hard errors/ERC/parity findings. See the [current fabrication inventory](hardware/fabrication/README.md) and [pictured checkpoint review](hardware/qualification/boards/aux_low_power_run/CLOSED_LAYOUT_REVIEW.md). Manufacturing, P03 interface acceptance and physical qualification remain open. This is an actual KiCad plot, not manufactured hardware or a fabrication release.
-
-**Matching P03 source with integrated RUN transmitter · 160 × 45 mm · six layers**
-
-[![P03 source with integrated AX03 transmitter: actual checked top copper and component bodies](hardware/electronics/power_distribution/p03/candidates/ax03-run-transmitter/generated/native-closed-transmitter/closed-top.svg)](hardware/electronics/power_distribution/p03/candidates/ax03-run-transmitter/generated/native-closed-transmitter/closed-top.svg)
-
-The separate 264-part P03 candidate has zero native DRC errors, warnings, opens, ERC and parity findings. Its [integration review](hardware/qualification/boards/aux_low_power_run/P03_INTEGRATION_REVIEW.md) records the actual local bypass paths, E28 pin map and outstanding manufacturing, harness and physical qualification. Canonical P03 and the preserved source projects remain unchanged; the complete unit is not fabrication-ready.
-
-**Sequenced stereo bypass candidate · 110 × 55 mm · four layers**
-
-[![E11 sequenced bypass: checked top copper, relay and logic placement](hardware/fabrication/staging/bypass-closed-native-03/plots/top/top.svg)](hardware/fabrication/staging/bypass-closed-native-03/plots/top/top.svg)
-
-The new E11 layout contains 55 circuit parts and four mounts, with zero native DRC, ERC, schematic-parity or connectivity findings. It retains the independent input-settling and fresh-permit bypass circuit. The [source-bound handoff](hardware/fabrication/staging/bypass-closed-native-03/handoff.json) and [package corrections](hardware/fabrication/package-review.md) record the checks and limits. Installed fit, exact parts/connectors, assembly process and measured operation remain unqualified.
-
-**Eight-window rail monitor candidate · 80 × 70 mm · four layers**
-
-[![E13 rail monitor: actual checked top copper and all 181 circuit parts](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/plots/top/top.svg)](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/plots/top/top.svg)
-
-The selected E13 layout preserves the original 181-part circuit and four mounts, with **zero native DRC, ERC, schematic-parity or connectivity findings**. Reserving the supply escapes and adding 3.3 V branches on the inner supply layer closed routing while retaining the dedicated ground plane. The [bottom copper](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/plots/bottom/bottom.svg), [supply copper](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/plots/supply/supply.svg), [source-bound handoff](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/handoff.json) and [drill-to-SMD screen](hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/smd-drill-review.json) are available for review. Precision parts, power/noise review, installed fit and assembly/process acceptance remain open. This is a development layout, not a fabrication release.
-
-<details>
-<summary>3D bare-board preview · E12 ADC driver</summary>
-
-![Native KiCad 3D render of the unpopulated E12 ADC driver PCB](docs/assets/hardware/e12-adc-3d.png)
-
-An unpopulated board rendered directly from the KiCad PCB. This is a CAD preview, not a photograph of manufactured hardware.
-
-</details>
-
-The [F06 standalone firmware candidate](hardware/firmware/full_engine/README.md) builds the maintained DSP engine with 152 parameters, bounded SDRAM storage and control-fault recovery. The earlier [preserved runtime and host checks](hardware/runtime/README.md) remain available separately. Earlier [A08 mechanics](hardware/cad/a08/README.md), the [B1 budget prototype](hardware/budget/README.md) and the [A0 enclosure reference](hardware/cad/a0-reference/) also remain separate designs.
+The [standalone firmware candidate](hardware/firmware/full_engine/README.md) builds the shared DSP engine with 152 parameters, bounded SDRAM storage and control-fault recovery. Full-unit hardware operation remains to be qualified.
 
 ## Run it
 
@@ -250,16 +195,9 @@ Choose a new output directory each time. These clips use the current engine; the
 
 The engine uses stereo floating-point audio and preallocated processing buffers. The core audio callback does no allocation, locking, file I/O or UI work. Signal checks cover 44.1, 48, 88.2 and 96 kHz. Results belong to the revisions and configurations documented in [validation](docs/validation.md); they do not establish MCU deadlines or hardware-equivalent specifications. See [specifications](docs/specifications.md) for the remaining measurements.
 
-### Hardware
+### Earlier hardware variants
 
-**[B1: 5 V budget prototype](hardware/budget/README.md)** is the separate budget standalone design:
-
-- Daisy Seed with 64 MB SDRAM, physical controls, touch strip, SD loading and watchdog-qualified relay bypass.
-- Pin-connected KiCad schematics, BOM and a routed 100 x 100 mm four-layer audio/power/bypass carrier. Recorded native ERC and DRC are clean; draft Gerbers and drill files are included for engineering review.
-- Split panel STL files, seam joiner, shaft coupon, DXF/SVG and OpenSCAD enclosure source. Full tray/control solids and assembled fit still need validation.
-- Boot-time sample banks, User settings and ADC calibration, plus a 50 ms startup fade. Firmware cross-builds with pinned dependencies and checked ELF placement; it has not been flashed or measured on a board.
-
-The provisional cost ledger is **NZ$295.77**, assuming free printing, DIY assembly and reused power/cables. It is not a confirmed delivered basket. B1 targets consumer line levels and does not retain the original's high-level analogue headroom. The earlier [A0.2 higher-headroom carrier](hardware/electrical/README.md) is a separate design.
+The [B1 5 V budget prototype](hardware/budget/README.md) and [A0.2 higher-headroom carrier](hardware/electrical/README.md) are separate, earlier designs. Their board layouts, enclosure files, cost estimates and draft fabrication outputs apply only to those variants. The current two-main-board design is described above; earlier development checkpoints remain in the [fabrication inventory](hardware/fabrication/README.md).
 
 **No hardware has been ordered or assembled.** Audio performance, relay fault timing, power/thermal behavior, card I/O and physical fit remain unmeasured. Draft fabrication files are not a production release. Start with the [hardware guide](hardware/README.md) and [clone roadmap](docs/clone-roadmap.md).
 

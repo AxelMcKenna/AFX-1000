@@ -2,6 +2,13 @@
 
 This is an executable **measurement plan**, not measured evidence or a power-up release. It applies to the higher-headroom external-converter design, its E14/E25 baseline interfaces and F05 storage firmware. B1, the onboard-codec wiring and the old A0 ±24 V commissioning procedure are different designs. P01 is a separate proposed source redesign; it cannot be populated on the existing PSU PCB or tested under this baseline plan without a new review.
 
+The [current fabrication inventory](../fabrication/README.md) selects P03/E28 and
+the AC04/DC04 integration candidates. This E14/E25 plan does **not** qualify that
+configuration or the separate six- and eight-layer digital routing trials. Their first-article
+plan must bind the final board, stack, BOM, assembly, harness and firmware sources,
+then establish the corresponding fixture limits and acceptance criteria. Keep this
+baseline plan intact until that reviewed replacement exists.
+
 No physical tests have been performed by these tools. The generated capture template contains no readings, timestamps, instrument identities or fabricated waveform files. `verify` records the parser checks and the empty-template result under `hardware/validation/bench-plan/`; its physical-test count stays zero. Instrument access, actual assembled boards and a printer have not been confirmed.
 
 ```sh
