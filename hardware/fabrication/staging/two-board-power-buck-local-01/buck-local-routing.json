@@ -1,0 +1,602 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/route_two_board_buck_cell.py": "2dc913b5ff32cc1490a037c59efe795783dc4fad46e71baa8d6cf4e903631189",
+    "hardware/fabrication/staging/two-board-power-routing-inputs-2551-buck-cell/capture.json": "7439bdf9474e85a96ac6cfcad280ead6c13a82f63484dbb0344cbcf4ebb04aa5",
+    "hardware/fabrication/staging/two-board-placement-05/capture.json": "21d653479f36dde19c0e5d7e57da681f23c5be099b6a008f64c40b00232359b9",
+    "hardware/fabrication/staging/two-board-power-buck-cell-native-01/power_protection.kicad_pcb": "5cc25c95e60e828ee6d3ab7080dc8605a25987ec1a0af7e24888d3ba628ebd5c",
+    "hardware/fabrication/staging/two-board-power-buck-cell-native-01/buck-cell-audit.json": "e6440a81fbc9eddfaa4445efa5223def77734341ca32e7069c226046271e1395",
+    "hardware/fabrication/staging/two-board-power-buck-cell-native-01/P_power_p03.kicad_sch": "427c231b44c9a98ca11efb0ac124d580618a05e314b0ab0896c27d4f97589a0c",
+    "hardware/fabrication/staging/two-board-power-buck-cell-native-01/expected-circuit.json": "bf66f2e4c203a4f1d1ca2f9e0e4ab79791531ccbfe78ff49ac8df14a453ce3c7",
+    "hardware/fabrication/staging/assembly-layout-04/allocation.json": "95ba58aabb953415ef50b500884ada286d2890edd343513ba60020b5881d6aad",
+    "hardware/fabrication/route_nf_surface.py": "a81d6a6bc1777778a3ce3a6db9c343c103a54db23506600b8075579950db790c",
+    "hardware/fabrication/route_two_board_power_local_v2.py": "99cbb409927870a889a9b6fc8f2caf1b8dff6f25e8fdea075ae1f8cb657ec24f",
+    "hardware/fabrication/repack_two_board_buck_input.py": "aeaaa5b031264062772fd8923bcff7d5366b050043b99bf3f9a51933a8a46b4e"
+  },
+  "moves": [
+    {
+      "ref": "P_R220",
+      "old_xy": [
+        295.0,
+        123.5
+      ],
+      "new_xy": [
+        294.07,
+        131
+      ],
+      "rotation_added_degrees": -90
+    },
+    {
+      "ref": "P_R221",
+      "old_xy": [
+        300.6,
+        122.2
+      ],
+      "new_xy": [
+        296.27,
+        131
+      ],
+      "rotation_added_degrees": 180
+    },
+    {
+      "ref": "N_U28",
+      "old_xy": [
+        295.5,
+        132.5
+      ],
+      "new_xy": [
+        311.75,
+        133.0
+      ],
+      "rotation_added_degrees": 0
+    },
+    {
+      "ref": "N_C67",
+      "old_xy": [
+        289.0,
+        161.5
+      ],
+      "new_xy": [
+        310.3,
+        131.9
+      ],
+      "rotation_added_degrees": 0
+    }
+  ],
+  "bootstrap_replacement": {
+    "ref": "P_C221",
+    "template": "P_C230",
+    "old_value": "100nF 50V X7R",
+    "new_value": "100nF 50V X7R 10% TDK C1005X7R1H104K050BB",
+    "old_footprint": "TB05_P_Capacitor_SMD:C_0603_1608Metric",
+    "new_footprint": "TB05_P_Capacitor_SMD:C_0402_1005Metric",
+    "old_xy": [
+      290.5,
+      128.8
+    ],
+    "new_xy": [
+      292.35,
+      128.4
+    ],
+    "rating": "100nF +/-10%, 50V, X7R, 0402",
+    "pins_and_nets_unchanged": true,
+    "supplier_url": "https://product.tdk.com/en/search/capacitor/ceramic/mlcc/info?part_no=C1005X7R1H104K050BB",
+    "controller_url": "https://www.ti.com/lit/ds/symlink/tps543620.pdf",
+    "basis": "TI section 8.2.1.2.7 specifies 0.1uF ceramic rated at least 10V. Existing 50V 0402 MPN reused for a closer boot loop.",
+    "complete_manufacturing_process_and_effective_capacitance_accepted": false
+  },
+  "logic_bypass_source_relative_offset_mm": [
+    -1.45,
+    -1.1
+  ],
+  "routes": [
+    {
+      "label": "P_C230 VIN",
+      "left": [
+        "P_C230",
+        "1"
+      ],
+      "right": [
+        "P_U23",
+        "8"
+      ],
+      "net": "PWR_MODULE_FEED_IN",
+      "width_mm": 0.35,
+      "path_mm": [
+        [
+          297.5,
+          126.73
+        ],
+        [
+          296.025,
+          126.65
+        ]
+      ],
+      "length_mm": 1.4771678983785381,
+      "maximum_length_mm": 2.5,
+      "segment_uuids": [
+        "dc8a5ec7-94a6-59e0-9df5-8bdd32fb7cca"
+      ]
+    },
+    {
+      "label": "P_C230 PGND",
+      "left": [
+        "P_C230",
+        "2"
+      ],
+      "right": [
+        "P_U23",
+        "9"
+      ],
+      "net": "PWR_AGND",
+      "width_mm": 0.35,
+      "path_mm": [
+        [
+          297.5,
+          125.77
+        ],
+        [
+          296.025,
+          126.025
+        ]
+      ],
+      "length_mm": 1.496880088717888,
+      "maximum_length_mm": 2.5,
+      "segment_uuids": [
+        "8f1532d0-90f6-5214-b587-a18f2a056dcf"
+      ]
+    },
+    {
+      "label": "P_C231 VIN",
+      "left": [
+        "P_C231",
+        "1"
+      ],
+      "right": [
+        "P_U23",
+        "12"
+      ],
+      "net": "PWR_MODULE_FEED_IN",
+      "width_mm": 0.35,
+      "path_mm": [
+        [
+          292.5,
+          126.73
+        ],
+        [
+          293.975,
+          126.65
+        ]
+      ],
+      "length_mm": 1.4771678983785381,
+      "maximum_length_mm": 2.5,
+      "segment_uuids": [
+        "7cf61e66-b321-5b97-9e54-12d8c974d337"
+      ]
+    },
+    {
+      "label": "P_C231 PGND",
+      "left": [
+        "P_C231",
+        "2"
+      ],
+      "right": [
+        "P_U23",
+        "11"
+      ],
+      "net": "PWR_AGND",
+      "width_mm": 0.35,
+      "path_mm": [
+        [
+          292.5,
+          125.77
+        ],
+        [
+          293.975,
+          126.025
+        ]
+      ],
+      "length_mm": 1.496880088717888,
+      "maximum_length_mm": 2.5,
+      "segment_uuids": [
+        "76580896-c685-5d66-936f-aaf064fa0ebe"
+      ]
+    },
+    {
+      "label": "P_C222.1",
+      "left": [
+        "P_C222",
+        "1"
+      ],
+      "right": [
+        "P_C230",
+        "1"
+      ],
+      "net": "PWR_MODULE_FEED_IN",
+      "width_mm": 0.45,
+      "path_mm": [
+        [
+          299.4,
+          126.95
+        ],
+        [
+          297.5,
+          126.73
+        ]
+      ],
+      "length_mm": 1.9126944345608143,
+      "maximum_length_mm": 3,
+      "segment_uuids": [
+        "a81cac79-2c2d-5918-bbff-92120407c6ff"
+      ]
+    },
+    {
+      "label": "P_C222.2",
+      "left": [
+        "P_C222",
+        "2"
+      ],
+      "right": [
+        "P_C230",
+        "2"
+      ],
+      "net": "PWR_AGND",
+      "width_mm": 0.45,
+      "path_mm": [
+        [
+          299.4,
+          125.05
+        ],
+        [
+          297.5,
+          125.77
+        ]
+      ],
+      "length_mm": 2.0318464508913836,
+      "maximum_length_mm": 3,
+      "segment_uuids": [
+        "6dd05c7e-6008-5b08-98b3-5143555bc772"
+      ]
+    },
+    {
+      "label": "P_C223.1",
+      "left": [
+        "P_C223",
+        "1"
+      ],
+      "right": [
+        "P_C231",
+        "1"
+      ],
+      "net": "PWR_MODULE_FEED_IN",
+      "width_mm": 0.45,
+      "path_mm": [
+        [
+          290.6,
+          126.95
+        ],
+        [
+          292.5,
+          126.73
+        ]
+      ],
+      "length_mm": 1.9126944345608143,
+      "maximum_length_mm": 3,
+      "segment_uuids": [
+        "a1ad6aa1-9063-5f5a-8aa2-8ecc024e6a58"
+      ]
+    },
+    {
+      "label": "P_C223.2",
+      "left": [
+        "P_C223",
+        "2"
+      ],
+      "right": [
+        "P_C231",
+        "2"
+      ],
+      "net": "PWR_AGND",
+      "width_mm": 0.45,
+      "path_mm": [
+        [
+          290.6,
+          125.05
+        ],
+        [
+          292.5,
+          125.77
+        ]
+      ],
+      "length_mm": 2.0318464508913836,
+      "maximum_length_mm": 3,
+      "segment_uuids": [
+        "0ceb87aa-4ddd-5e12-80ee-3250b91e6cc0"
+      ]
+    },
+    {
+      "label": "BOOT",
+      "left": [
+        "P_C221",
+        "1"
+      ],
+      "right": [
+        "P_U23",
+        "14"
+      ],
+      "net": "/P_power_supply/P03_A_BOOT",
+      "width_mm": 0.2,
+      "path_mm": [
+        [
+          292.35,
+          128.88
+        ],
+        [
+          293.2,
+          128.1
+        ],
+        [
+          293.3,
+          127.8
+        ],
+        [
+          293.8375,
+          127.7
+        ]
+      ],
+      "length_mm": 2.016597352197009,
+      "maximum_length_mm": 3.5,
+      "segment_uuids": [
+        "cf93e7f4-50ab-5b5b-b5f2-d880fe307c78",
+        "1fc8dd00-ed62-5079-9ecb-b49172ca552e",
+        "f55a1156-429b-5810-ae8c-32529f2e093b"
+      ]
+    },
+    {
+      "label": "BOOT_RETURN",
+      "left": [
+        "P_C221",
+        "2"
+      ],
+      "right": [
+        "P_U23",
+        "13"
+      ],
+      "net": "/P_power_supply/P03_A_SW",
+      "width_mm": 0.2,
+      "path_mm": [
+        [
+          292.35,
+          127.92
+        ],
+        [
+          293.07000000000005,
+          127.2
+        ],
+        [
+          293.8375,
+          127.2
+        ]
+      ],
+      "length_mm": 1.7857337649085743,
+      "maximum_length_mm": 3.5,
+      "segment_uuids": [
+        "320564c3-f70b-5294-bae7-78c903ca725c",
+        "f3084970-c8da-5246-b788-fa7cd36f478f"
+      ]
+    },
+    {
+      "label": "BP5",
+      "left": [
+        "P_C220",
+        "1"
+      ],
+      "right": [
+        "P_U23",
+        "6"
+      ],
+      "net": "/P_power_supply/P03_A_BP5",
+      "width_mm": 0.25,
+      "path_mm": [
+        [
+          299.25,
+          129.05
+        ],
+        [
+          297.9,
+          127.7
+        ],
+        [
+          296.1625,
+          127.7
+        ]
+      ],
+      "length_mm": 3.646688309203655,
+      "maximum_length_mm": 5,
+      "segment_uuids": [
+        "06ff4165-7531-5c8e-a5ab-97579d584e2a",
+        "2a912129-28e2-529c-998a-476cd329161c"
+      ]
+    },
+    {
+      "label": "BP5_AGND",
+      "left": [
+        "P_C220",
+        "2"
+      ],
+      "right": [
+        "P_U23",
+        "5"
+      ],
+      "net": "PWR_AGND",
+      "width_mm": 0.25,
+      "path_mm": [
+        [
+          299.25,
+          130.95
+        ],
+        [
+          295.9875,
+          128.3875
+        ]
+      ],
+      "length_mm": 4.14853136664048,
+      "maximum_length_mm": 5,
+      "segment_uuids": [
+        "ac951a92-1f59-5f33-bde8-6d557ab71614"
+      ]
+    },
+    {
+      "label": "FB_BOTTOM",
+      "left": [
+        "P_R221",
+        "1"
+      ],
+      "right": [
+        "P_U23",
+        "4"
+      ],
+      "net": "/P_power_supply/P03_A_FB",
+      "width_mm": 0.2,
+      "path_mm": [
+        [
+          296.27,
+          130.0875
+        ],
+        [
+          295.5,
+          129.31750000000002
+        ],
+        [
+          295.5,
+          128.4125
+        ]
+      ],
+      "length_mm": 1.993944443027287,
+      "maximum_length_mm": 4,
+      "segment_uuids": [
+        "ade53a0c-10e5-5076-8f7c-6793086793b7",
+        "4abebbd7-fc1f-5fec-9920-4231e48266b4"
+      ]
+    },
+    {
+      "label": "FB_TOP",
+      "left": [
+        "P_R220",
+        "2"
+      ],
+      "right": [
+        "P_R221",
+        "1"
+      ],
+      "net": "/P_power_supply/P03_A_FB",
+      "width_mm": 0.2,
+      "path_mm": [
+        [
+          294.07,
+          130.08749999999998
+        ],
+        [
+          296.27,
+          130.0875
+        ]
+      ],
+      "length_mm": 2.1999999999999886,
+      "maximum_length_mm": 3.5,
+      "segment_uuids": [
+        "648190cd-e4b1-542b-b6c8-697ac98bb68b"
+      ]
+    },
+    {
+      "label": "FB_AGND",
+      "left": [
+        "P_R221",
+        "2"
+      ],
+      "right": [
+        "P_C220",
+        "2"
+      ],
+      "net": "PWR_AGND",
+      "width_mm": 0.25,
+      "path_mm": [
+        [
+          296.27,
+          131.91250000000002
+        ],
+        [
+          299.25,
+          130.95
+        ]
+      ],
+      "length_mm": 3.1315820682204984,
+      "maximum_length_mm": 5,
+      "segment_uuids": [
+        "34331005-182c-5f0d-95a4-1316fe297c76"
+      ]
+    },
+    {
+      "label": "SW_NECK",
+      "left": [
+        "P_U23",
+        "10"
+      ],
+      "right": [
+        "_SW_ANCHOR",
+        "1"
+      ],
+      "net": "/P_power_supply/P03_A_SW",
+      "width_mm": 0.4,
+      "path_mm": [
+        [
+          295.0,
+          126.2875
+        ],
+        [
+          295,
+          124.5
+        ]
+      ],
+      "length_mm": 1.7874999999999943,
+      "maximum_length_mm": 2.5,
+      "segment_uuids": [
+        "6d955218-baa0-50e4-85e0-f484101e01e9"
+      ]
+    },
+    {
+      "label": "SW_SPINE",
+      "left": [
+        "_SW_ANCHOR",
+        "1"
+      ],
+      "right": [
+        "P_L23",
+        "1"
+      ],
+      "net": "/P_power_supply/P03_A_SW",
+      "width_mm": 1.0,
+      "path_mm": [
+        [
+          295,
+          124.5
+        ],
+        [
+          295.0,
+          120.16
+        ]
+      ],
+      "length_mm": 4.340000000000003,
+      "maximum_length_mm": 5,
+      "segment_uuids": [
+        "a1bc80e5-fefe-5d02-b730-f9fae4b0f268"
+      ]
+    }
+  ],
+  "deferred": [],
+  "added_segments": 22,
+  "added_vias": 0,
+  "existing_tracks_and_vias_unchanged": true,
+  "power_return_planes_and_output_network_complete": false,
+  "switching_thermal_noise_and_current_qualified": false,
+  "native_validation_pending": true,
+  "fabrication_released": false
+}

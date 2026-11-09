@@ -1,0 +1,769 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/audit_two_board_power_interfaces.py": "ae071e090b0fcdccfa0882618fe8d4299714c51a29e95551db17771c9cec06fa",
+    "hardware/fabrication/staging/two-board-placement-05/capture.json": "21d653479f36dde19c0e5d7e57da681f23c5be099b6a008f64c40b00232359b9",
+    "hardware/qualification/boards/startup_negative_circuit/absolute_aux_gate/integration-contract.json": "d9b97387435cae5a6a28b65306c8031f768e3847dc4fe30c9277c03ac7e2c6ab",
+    "hardware/qualification/boards/fan_health/composite_nf_branch/README.md": "e8c3168e632c53a7b5acca6f8bdee2c3682e1073d40d41fb0a896a5d918b3b85",
+    "hardware/electronics/power_distribution/p03/candidates/ax03-run-transmitter/generated/native-closed-transmitter/power_p03.kicad_pcb": "575a460298861e3b7717548e0eed9553db24ce9d61a23d0082857fee47a918e0",
+    "hardware/electronics/power_distribution/p03/candidates/ax03-run-transmitter/generated/native-closed-transmitter/netlist.xml": "be3c8cfb4f7bca5e33161314c34dd17d831e23db2b79f0b4f3a0ddad5b0e23ef",
+    "hardware/fabrication/staging/input-protection-native-01/rear_inlet.kicad_pcb": "f10aafdce6abef0c2222a07f774bf9f558bebaba70686f1eeb965213d8941591",
+    "hardware/fabrication/staging/input-protection-native-01/netlist.xml": "2e632ca901199b0f5bcfbb0aaabc5d3a117cf06804b28d4f3d9c302e3ad6b22b",
+    "hardware/fabrication/staging/e28-branch-cleanup-native-12/rail_disconnect.kicad_pcb": "6f24714d7d340b1a46c35ab43aca509b44c99f083d26ab1af68a4b7b45ea53e0",
+    "hardware/fabrication/staging/e28-branch-cleanup-native-12/netlist.xml": "da5f4381d21cf4a8846f6ef22fe3aef97914960a3f337a439f480a4e6281c96f",
+    "hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/rail_monitor.kicad_pcb": "f1d7338ab007a1d858d093f0edb023383c80a2e0fa2d0f50e77ba2ce6ab892f6",
+    "hardware/fabrication/staging/rail-monitor-reserved-closed-native-02/netlist.xml": "e28f84c86659ea7a0ba0bca04f24fd6aecef719af6513f64015f9938790df8ed",
+    "hardware/fabrication/staging/nf-logic-swap-clean-native-01/negative_startup_physical.kicad_pcb": "cf88efb2fe316841a0930a1356ed4d38502061a3821189715040ec35b1a0498a",
+    "hardware/fabrication/staging/nf-logic-swap-clean-native-01/netlist.xml": "af327903eb7971efd16201d971696bae1d8a45c23d4d195a571d2d48336afc4c",
+    "hardware/fabrication/staging/fan-watchdog-land-native-01/fan_power_health.kicad_pcb": "c1f7f795abbf771fa028e117d0847328f3a3895d25ff0efdef910b5a950813e8",
+    "hardware/fabrication/staging/fan-watchdog-land-native-01/netlist.xml": "722971a97ce6bf4b3fd110869ad8542d28011ebf6b1f1229abe268ac6829caf6"
+  },
+  "checked_proposed_pin_pairs": 30,
+  "proposed_interfaces": [
+    {
+      "function": "inlet DC",
+      "endpoints": [
+        [
+          "I",
+          "J2",
+          "1"
+        ],
+        [
+          "P",
+          "J101",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "DC_IN",
+        "DC_IN"
+      ],
+      "basis": "Current inlet and P03 native pin contracts",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "inlet DC return",
+      "endpoints": [
+        [
+          "I",
+          "J2",
+          "2"
+        ],
+        [
+          "P",
+          "J101",
+          "2"
+        ]
+      ],
+      "actual_source_nets": [
+        "AGND",
+        "AGND"
+      ],
+      "basis": "Separate current-path review required",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "physical power switch",
+      "endpoints": [
+        [
+          "I",
+          "J3",
+          "1"
+        ],
+        [
+          "P",
+          "J104",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "SWITCH_SUPPLY",
+        "SWITCH_SUPPLY"
+      ],
+      "basis": "Current inlet and P03 switch ports",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "physical power switch",
+      "endpoints": [
+        [
+          "I",
+          "J3",
+          "2"
+        ],
+        [
+          "P",
+          "J104",
+          "2"
+        ]
+      ],
+      "actual_source_nets": [
+        "POWER_RUN",
+        "POWER_RUN"
+      ],
+      "basis": "Current inlet and P03 switch ports",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "physical power switch",
+      "endpoints": [
+        [
+          "I",
+          "J3",
+          "3"
+        ],
+        [
+          "P",
+          "J104",
+          "3"
+        ]
+      ],
+      "actual_source_nets": [
+        "AGND",
+        "AGND"
+      ],
+      "basis": "Current inlet and P03 switch ports",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "positive source to disconnect",
+      "endpoints": [
+        [
+          "P",
+          "J2",
+          "1"
+        ],
+        [
+          "E",
+          "J1",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "P19_SRC",
+        "P19_SRC"
+      ],
+      "basis": "Current native source/disconnect pin contracts; current capacity pending",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "positive source to disconnect",
+      "endpoints": [
+        [
+          "P",
+          "J2",
+          "4"
+        ],
+        [
+          "E",
+          "J1",
+          "4"
+        ]
+      ],
+      "actual_source_nets": [
+        "P12_SRC",
+        "P12_SRC"
+      ],
+      "basis": "Current native source/disconnect pin contracts; current capacity pending",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "raw analog 5V force",
+      "endpoints": [
+        [
+          "P",
+          "J24",
+          "1"
+        ],
+        [
+          "E",
+          "J10",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "V5_REG_SRC",
+        "V5_REG_SRC"
+      ],
+      "basis": "Operating force terminals; no test header substituted",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "raw digital 5V force",
+      "endpoints": [
+        [
+          "P",
+          "J23",
+          "1"
+        ],
+        [
+          "E",
+          "J11",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "5V_DIG_SRC",
+        "5V_DIG_SRC"
+      ],
+      "basis": "Operating force terminals; no test header substituted",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "supply/disconnect force return",
+      "endpoints": [
+        [
+          "P",
+          "J20",
+          "1"
+        ],
+        [
+          "E",
+          "J7",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "AGND",
+        "AGND"
+      ],
+      "basis": "Return topology/current/impedance unresolved",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "N19 source into NF",
+      "endpoints": [
+        [
+          "P",
+          "J2",
+          "3"
+        ],
+        [
+          "N",
+          "J2",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "N19_SRC",
+        "N19_P03_SRC"
+      ],
+      "basis": "hardware/qualification/boards/startup_negative_circuit/absolute_aux_gate/integration-contract.json",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "N19 NF output into E28",
+      "endpoints": [
+        [
+          "N",
+          "J2",
+          "2"
+        ],
+        [
+          "E",
+          "J1",
+          "3"
+        ]
+      ],
+      "actual_source_nets": [
+        "N19_E28_SRC",
+        "N19_SRC"
+      ],
+      "basis": "hardware/qualification/boards/startup_negative_circuit/absolute_aux_gate/integration-contract.json",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "N12 source into NF",
+      "endpoints": [
+        [
+          "P",
+          "J2",
+          "5"
+        ],
+        [
+          "N",
+          "J4",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "N12_SRC",
+        "N12_P03_SRC"
+      ],
+      "basis": "hardware/qualification/boards/startup_negative_circuit/absolute_aux_gate/integration-contract.json",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "N12 NF output into E28",
+      "endpoints": [
+        [
+          "N",
+          "J4",
+          "2"
+        ],
+        [
+          "E",
+          "J1",
+          "5"
+        ]
+      ],
+      "actual_source_nets": [
+        "N12_E28_SRC",
+        "N12_SRC"
+      ],
+      "basis": "hardware/qualification/boards/startup_negative_circuit/absolute_aux_gate/integration-contract.json",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "fan/NF operating raw5",
+      "endpoints": [
+        [
+          "P",
+          "J23",
+          "1"
+        ],
+        [
+          "F",
+          "J201",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "5V_DIG_SRC",
+        "FAN5V_IN"
+      ],
+      "basis": "hardware/qualification/boards/fan_health/composite_nf_branch/README.md",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "fan/NF operating return",
+      "endpoints": [
+        [
+          "P",
+          "J21",
+          "1"
+        ],
+        [
+          "F",
+          "J201",
+          "2"
+        ]
+      ],
+      "actual_source_nets": [
+        "AGND",
+        "GND"
+      ],
+      "basis": "hardware/qualification/boards/fan_health/composite_nf_branch/README.md",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "current-limited NF raw5",
+      "endpoints": [
+        [
+          "F",
+          "J401",
+          "1"
+        ],
+        [
+          "N",
+          "J1",
+          "3"
+        ]
+      ],
+      "actual_source_nets": [
+        "NF_RAW5",
+        "DIG5_FORCE"
+      ],
+      "basis": "hardware/qualification/boards/fan_health/composite_nf_branch/README.md",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "NF raw5/control return",
+      "endpoints": [
+        [
+          "F",
+          "J401",
+          "2"
+        ],
+        [
+          "N",
+          "J1",
+          "2"
+        ]
+      ],
+      "actual_source_nets": [
+        "GND",
+        "AGND"
+      ],
+      "basis": "hardware/qualification/boards/fan_health/composite_nf_branch/README.md",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "RUN through fan interlock: input",
+      "endpoints": [
+        [
+          "P",
+          "J106",
+          "3"
+        ],
+        [
+          "F",
+          "J4",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "POWER_RUN_E28_LEAF",
+        "P03_POWER_RUN"
+      ],
+      "basis": "Current AX03 leaf and FPC interlock; receiver/loading/timing review pending",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "RUN through fan interlock: output",
+      "endpoints": [
+        [
+          "F",
+          "J4",
+          "2"
+        ],
+        [
+          "E",
+          "J5",
+          "3"
+        ]
+      ],
+      "actual_source_nets": [
+        "E28_POWER_RUN",
+        "POWER_RUN"
+      ],
+      "basis": "Current FPC interlock and E28 receiver; no bypass",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "auxiliary supply",
+      "endpoints": [
+        [
+          "P",
+          "J106",
+          "1"
+        ],
+        [
+          "E",
+          "J5",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "V2V5_AUX",
+        "V2V5_AUX"
+      ],
+      "basis": "Current P03/E28 auxiliary contract; NF branch still unresolved",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "source-ready",
+      "endpoints": [
+        [
+          "P",
+          "J106",
+          "4"
+        ],
+        [
+          "E",
+          "J9",
+          "2"
+        ]
+      ],
+      "actual_source_nets": [
+        "P03_ALL_SOURCES_READY",
+        "P03_SOURCES_READY"
+      ],
+      "basis": "Current native P03/E28 ready contracts",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "NF output-valid",
+      "endpoints": [
+        [
+          "N",
+          "J1",
+          "30"
+        ],
+        [
+          "E",
+          "J12",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "NF_OUTPUT_VALID",
+        "NF_OUTPUT_VALID_RAW"
+      ],
+      "basis": "hardware/qualification/boards/startup_negative_circuit/absolute_aux_gate/integration-contract.json",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "protected analog monitor",
+      "endpoints": [
+        [
+          "E",
+          "J3",
+          "1"
+        ],
+        [
+          "M",
+          "J2",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "P19",
+        "P19"
+      ],
+      "basis": "Current monitor inputs must observe protected outputs",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "protected analog monitor",
+      "endpoints": [
+        [
+          "E",
+          "J3",
+          "2"
+        ],
+        [
+          "M",
+          "J2",
+          "2"
+        ]
+      ],
+      "actual_source_nets": [
+        "AGND",
+        "AGND"
+      ],
+      "basis": "Current monitor inputs must observe protected outputs",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "protected analog monitor",
+      "endpoints": [
+        [
+          "E",
+          "J3",
+          "3"
+        ],
+        [
+          "M",
+          "J2",
+          "3"
+        ]
+      ],
+      "actual_source_nets": [
+        "N19",
+        "N19"
+      ],
+      "basis": "Current monitor inputs must observe protected outputs",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "protected analog monitor",
+      "endpoints": [
+        [
+          "E",
+          "J3",
+          "4"
+        ],
+        [
+          "M",
+          "J2",
+          "4"
+        ]
+      ],
+      "actual_source_nets": [
+        "P12",
+        "P12"
+      ],
+      "basis": "Current monitor inputs must observe protected outputs",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "protected analog monitor",
+      "endpoints": [
+        [
+          "E",
+          "J3",
+          "5"
+        ],
+        [
+          "M",
+          "J2",
+          "5"
+        ]
+      ],
+      "actual_source_nets": [
+        "N12",
+        "N12"
+      ],
+      "basis": "Current monitor inputs must observe protected outputs",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "protected analog monitor",
+      "endpoints": [
+        [
+          "E",
+          "J3",
+          "6"
+        ],
+        [
+          "M",
+          "J2",
+          "6"
+        ]
+      ],
+      "actual_source_nets": [
+        "V5_REG",
+        "V5_REG"
+      ],
+      "basis": "Current monitor inputs must observe protected outputs",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    },
+    {
+      "function": "protected digital monitor",
+      "endpoints": [
+        [
+          "E",
+          "J4",
+          "1"
+        ],
+        [
+          "M",
+          "J1",
+          "1"
+        ]
+      ],
+      "actual_source_nets": [
+        "5V_DIG",
+        "5V_DIG"
+      ],
+      "basis": "Current monitor input must observe protected output",
+      "implemented_in_combined_schematic": false,
+      "electrical_and_physical_receiving_qualified": false
+    }
+  ],
+  "forbidden_direct_net_joins": [
+    [
+      [
+        "P",
+        "N19_SRC"
+      ],
+      [
+        "E",
+        "N19_SRC"
+      ]
+    ],
+    [
+      [
+        "P",
+        "N12_SRC"
+      ],
+      [
+        "E",
+        "N12_SRC"
+      ]
+    ],
+    [
+      [
+        "P",
+        "5V_DIG_SRC"
+      ],
+      [
+        "N",
+        "DIG5_FORCE"
+      ]
+    ],
+    [
+      [
+        "F",
+        "P03_POWER_RUN"
+      ],
+      [
+        "E",
+        "POWER_RUN"
+      ]
+    ],
+    [
+      [
+        "N",
+        "MODULE_INPUT_GND"
+      ],
+      [
+        "N",
+        "AGND"
+      ]
+    ],
+    [
+      [
+        "E",
+        "5V_DIG_SRC"
+      ],
+      [
+        "E",
+        "5V_DIG"
+      ]
+    ],
+    [
+      [
+        "E",
+        "V5_REG_SRC"
+      ],
+      [
+        "E",
+        "V5_REG"
+      ]
+    ]
+  ],
+  "forbidden_joins_absent_from_proposal": true,
+  "unresolved_design_holds": [
+    "NF GLOBAL_MASTER needs a qualified buffer from E28 U12.11 ALL_RAILS_ALLOW; E28 J6.2/U29.7 E28_MASTER_ENABLE is not interchangeable.",
+    "Complete NF clamp, OV-sense, fault-request, auxiliary and protected-output feedback wiring needs an integrated circuit and loading/fault review.",
+    "NF J6 guarded module-input feed and separate MODULE_INPUT_GND force return remain unresolved; no board tie to NF AGND is authorized by the source contract.",
+    "Do not adopt the older direct P03-to-E28 negative-rail links; they bypass NF. The old E28 J2 digital header is absent from the current source.",
+    "NF operating control power must use FPC current-limited NF_RAW5; the older direct raw5 proposal bypasses U401 protection.",
+    "Fan-health interlock must remain in the RUN path; old direct P03-to-E28 RUN wiring bypasses it.",
+    "Monitor V3V3_IO, NBIAS_L/R and PRE_ANALOG_OK cross-board connections require the final signal/power interface.",
+    "All power/ground current paths, Kelvin placement, voltage drop, source/fault/UV recovery, decoupling and thermal constraints need renewed review on the consolidated PCB."
+  ],
+  "combined_power_schematic_complete": false,
+  "wiring_qualified": false,
+  "fabrication_released": false
+}

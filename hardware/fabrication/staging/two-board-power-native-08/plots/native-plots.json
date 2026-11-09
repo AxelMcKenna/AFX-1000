@@ -1,0 +1,42 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/plot_two_board_module_feed.py": "329e1386db79064216e15a6972fbe6fc9d53142d362c91df6f081a54f0f4a025",
+    "hardware/fabrication/staging/two-board-power-native-08/power_protection.kicad_pcb": "d20bc11f3c772157e3decefc15e410707ca4fe575e1e5962883c7ac65682482b",
+    "hardware/fabrication/staging/two-board-power-native-08/power_protection.kicad_sch": "f59914a3b5c08ff9664cb5b26a48ffd3f08139eef75bf1a340491144561d1918",
+    "hardware/fabrication/staging/two-board-power-native-08/review.json": "94a806b7f51fa5fbcee15714ce1442723e045719047ea49788f3432cddc317a1"
+  },
+  "commands": [
+    [
+      "kicad-cli",
+      "sch",
+      "export",
+      "svg",
+      "--pages",
+      "8",
+      "-o",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/two-board-power-native-08/plots/schematic",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/two-board-power-native-08/power_protection.kicad_sch"
+    ],
+    [
+      "kicad-cli",
+      "pcb",
+      "export",
+      "svg",
+      "--layers",
+      "F.Cu,F.Fab,Edge.Cuts",
+      "--page-size-mode",
+      "2",
+      "--mode-single",
+      "--exclude-drawing-sheet",
+      "--output",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/two-board-power-native-08/plots/front.svg",
+      "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/two-board-power-native-08/power_protection.kicad_pcb"
+    ]
+  ],
+  "artifact_sha256": {
+    "front.svg": "ec6de7a84222ee60ca006416b3dd4e9bd3ac1bf59fd939061d3827af4bae3577",
+    "schematic/power_protection.svg": "288beaea7257043bc3b3bdbc566107eaa149e92f219f605a7ef2ba5c618ec135"
+  },
+  "visual_review_pending": true,
+  "fabrication_released": false
+}

@@ -1,0 +1,1357 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/audit_two_board_enable_recovery.py": "c303a0238a29becb097c6dd39407797547036a8a13feddbe21266a59b2757261",
+    "hardware/fabrication/audit_two_board_fault_mask.py": "68d9450572f39355ea50d48a5923c44ddc378c230e881a421b253effd2d4c562",
+    "hardware/fabrication/audit_two_board_source_sense.py": "93138374c42140b6cc78da66fcd1fa1a874f20c080d487e5dd7b508f43503ee0",
+    "hardware/fabrication/audit_two_board_power_delta.py": "040c5d90250df51aebb6a2b6aa4cbbc5ae8b41610c70d1d4e11d412d907bfe14",
+    "hardware/fabrication/staging/two-board-power-native-05/power_protection.kicad_pcb": "6ac97f360e0cab84252f264d5b39491af2c69e2a89df37c8fbf50703721be993",
+    "hardware/fabrication/staging/two-board-power-native-06/power_protection.kicad_pcb": "c862b4371b06d88df8e7168a805d5d5db7e2a41be3572265895c18da4552a71f",
+    "hardware/fabrication/staging/two-board-power-native-05/netlist.xml": "a07c140409201435053f4cda6f4906a12665db32babfc9999317b573dd78643b",
+    "hardware/fabrication/staging/two-board-power-native-06/netlist.xml": "219fb2608ff8c0f7ad2382fb2fa60f98947559b1cab494a199d8918dfe1555d7",
+    "hardware/fabrication/staging/two-board-power-native-06/review.json": "fa902f542563d7ebdaaefcd857e46153a6314acdf2283e6d1ee3a7649ea65561",
+    "hardware/fabrication/staging/two-board-power-native-06/libraries/TB05_E_RMX_E28.pretty/SN74LVC3G17_DCU0008A.kicad_mod": "f54c9963407e8c750df2406a364b9317c5c4ad89a74d5532f92f08d78df11c99",
+    "hardware/qualification/boards/startup_negative_circuit/uv_recovery/integration-contract.json": "838592e2476614f2c05f96d785af7db3678d0bd89dff3350498a68cc5453d59b",
+    "hardware/qualification/boards/aux_current_partition/sources/primary/SN74LVC3G17.pdf": "bcb966e7fbb682bb7f330c544326e32865abd9eb87c5ce7b6606f3447cb4a84c",
+    "hardware/qualification/boards/aux_current_partition/sources/primary/SN74AUP2G08.pdf": "68870919ee4edc84368e54be8d07d46ad8ec72faa1997dfd3901fde0e5f8b1ef",
+    "hardware/qualification/boards/aux_current_partition/sources/primary/SN74LVC08A.pdf": "5edd5cd664dac4f3774c9c6fc7ad8310c8f2ca3da7f0e369aa69dfe2b1cc2ba4",
+    "hardware/qualification/boards/aux_current_partition/sources/primary/SN74LVC14A.pdf": "97531f3f9b671fa8509820acb9114011cea15663b85a718dd98cd87204d80b7f"
+  },
+  "only_declared_four_enable_pin_connections_and_one_MPN_change": true,
+  "original_channel1_retained": true,
+  "electrical_parts": 1077,
+  "checked_physical_pads": 3440,
+  "retained_footprint_geometry_count": 1092,
+  "LVC_DCU_land_matches_4225266_A": true,
+  "enable_load_screen": {
+    "local_AUX_receiving_v": [
+      2.52,
+      2.7
+    ],
+    "per_output_pull_down_max_uA": 59.2235139284931,
+    "per_HCS_input_leakage_receiving_uA": 1,
+    "per_net_PCB_leakage_receiving_uA": 1,
+    "engineering_guard_factor": 1.2,
+    "per_buffer_output_guarded_uA": 73.46821671419171,
+    "LVC_rail_minus_p1_output_test_uA": 100,
+    "original_AUP_output_test_uA": 20,
+    "original_AUP_cannot_support_47k_light_load_row": true,
+    "E31_AUX_VALID_guarded_load_through85C_uA": 15.0,
+    "E31_AUX_VALID_guarded_load_through125C_uA": 55.8,
+    "E31_light_load_row_supported_through85C_given_requirements": true,
+    "E31_light_load_row_supported_through125C": false,
+    "old_existing_E31_guarded125C_load_without_new_buffer_uA": 49.8,
+    "LVC_buffer_max_rail_state_static_package_current_uA": 10,
+    "full_AUX_pool_or_input_transition_current_qualified": false,
+    "continuous_HCS_and_LVC_Schmitt_threshold_acceptance": false,
+    "partial_power_and_high_impedance_default_qualified": false
+  },
+  "UV_fault_settled_truth_cases": [
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": false,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": false,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": false,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": true
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": false,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": false,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": false,
+        "arm": true,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": false,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": false,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": false,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": false,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": true,
+        "run": false,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": false,
+        "reset": true,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": false,
+        "arm_clear": true,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": false
+      },
+      "outputs": {
+        "set": false,
+        "reset": false,
+        "q_before": false,
+        "q_after": false,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": false
+      }
+    },
+    {
+      "inputs": {
+        "uv_ready": true,
+        "source_safe": true,
+        "arm": true,
+        "aux_valid": true,
+        "run": true,
+        "other_fault": true
+      },
+      "outputs": {
+        "set": true,
+        "reset": false,
+        "q_before": false,
+        "q_after": true,
+        "global_valid": true,
+        "arm_clear": false,
+        "aux_fault": false
+      }
+    }
+  ],
+  "settled_recovery_trace": [
+    {
+      "phase": "normal_armed",
+      "arm_before": true,
+      "set": false,
+      "reset": false,
+      "q_before": false,
+      "q_after": false,
+      "global_valid": true,
+      "arm_clear": false,
+      "aux_fault": false
+    },
+    {
+      "phase": "UV_fault",
+      "arm_before": true,
+      "set": true,
+      "reset": false,
+      "q_before": false,
+      "q_after": true,
+      "global_valid": true,
+      "arm_clear": false,
+      "aux_fault": true
+    },
+    {
+      "phase": "fault_disables_GLOBAL",
+      "arm_before": true,
+      "set": true,
+      "reset": false,
+      "q_before": true,
+      "q_after": true,
+      "global_valid": false,
+      "arm_clear": true,
+      "aux_fault": true
+    },
+    {
+      "phase": "ARM_cleared",
+      "arm_before": false,
+      "set": false,
+      "reset": false,
+      "q_before": true,
+      "q_after": true,
+      "global_valid": false,
+      "arm_clear": true,
+      "aux_fault": true
+    },
+    {
+      "phase": "UV_recovers",
+      "arm_before": false,
+      "set": false,
+      "reset": false,
+      "q_before": true,
+      "q_after": true,
+      "global_valid": false,
+      "arm_clear": true,
+      "aux_fault": false
+    },
+    {
+      "phase": "RUN_off_reset",
+      "arm_before": false,
+      "set": false,
+      "reset": true,
+      "q_before": true,
+      "q_after": false,
+      "global_valid": false,
+      "arm_clear": true,
+      "aux_fault": false
+    }
+  ],
+  "AUX_VALID_loss_clears_fault_latch_counterexample": {
+    "set": false,
+    "reset": true,
+    "q_before": true,
+    "q_after": false,
+    "global_valid": false,
+    "arm_clear": true,
+    "aux_fault": true
+  },
+  "mutation_controls": {
+    "wrong_master_source": true,
+    "UV_fault_polarity_reversed": true,
+    "UV_directly_clears_ARM": true,
+    "fault_does_not_disable_master": true,
+    "SET_mask_removed": true
+  },
+  "inherited_fault_mask_combinations_rechecked": 32,
+  "upstream_source_sense_channels_rechecked": 2,
+  "recognized_UV_fault_retained_while_RUN_and_AUX_VALID_stay_high": true,
+  "no_reclose_proven_during_deep_AUX_corruption": false,
+  "minimum_recognized_UV_pulse_or_actual_OFF_interval_proven": false,
+  "complete_enable_electrical_qualification": false,
+  "fabrication_released": false
+}

@@ -1,0 +1,102 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/assess_two_board_buck_enable_dc.py": "dc973ffd1365af85e5150841b6ef7c80f90be5c1be6f69de4681b7970069f99b",
+    "hardware/fabrication/staging/two-board-power-buck-enable-native-01/netlist.xml": "fffd4f9d888cf7efca97ac1b0bc3919ec93fdb9fb0b446fe9cab265b9ef09596",
+    "hardware/fabrication/staging/two-board-power-buck-enable-native-01/buck-enable-audit.json": "26d8f48b1880420effe2e969dd65730bd8dd9b7bf69570792794c9d8b1a5140f"
+  },
+  "references": {
+    "TPS543620_SLUSDR5C_sections_6_5_and_7_3_2": "https://www.ti.com/lit/ds/symlink/tps543620.pdf",
+    "TPS2663_SLVSE94G_section_6_5": "https://www.ti.com/lit/ds/symlink/tps2663.pdf",
+    "SN74LVC1G97_SCES416N_section_6_5": "https://www.ti.com/lit/ds/symlink/sn74lvc1g97.pdf"
+  },
+  "cases": 512,
+  "total_linear_solutions": 2048,
+  "nominal_no_EN_source_V": [
+    2.3529411764705883,
+    1.6176470588235292,
+    1.6176470588235294
+  ],
+  "scenario_parameters": {
+    "AUX_band_V": [
+      2.3,
+      2.7
+    ],
+    "resistor_initial_tolerance": 0.01,
+    "EN_source_allocation_A": [
+      0,
+      2.5e-05
+    ],
+    "ready_node_current_allocation_A": [
+      -1.015e-05,
+      1.015e-05
+    ],
+    "PGOOD_sink_ohm": [
+      36,
+      130
+    ]
+  },
+  "voltage_ranges": {
+    "ready_released": {
+      "POWER_READY_V": [
+        2.1524994801186943,
+        2.585675146355685
+      ],
+      "D_ENABLE_V": [
+        1.4708361030302914,
+        1.9596838719667773
+      ],
+      "A_ENABLE_V": [
+        1.4708361030302914,
+        1.9596838719667775
+      ]
+    },
+    "ready_asserted": {
+      "POWER_READY_V": [
+        0.07863331434146341,
+        0.3162709061266622
+      ],
+      "D_ENABLE_V": [
+        0.05372162326822808,
+        0.39102638266888096
+      ],
+      "A_ENABLE_V": [
+        0.05372162326822808,
+        0.39102638266888096
+      ]
+    },
+    "aux_floating_ready_released": {
+      "POWER_READY_V": [
+        -0.164024,
+        0.719524
+      ],
+      "D_ENABLE_V": [
+        -0.1131164891371819,
+        0.668616489137182
+      ],
+      "A_ENABLE_V": [
+        -0.11311648913718189,
+        0.6686164891371821
+      ]
+    }
+  },
+  "scenario_enable_rising_screen_V": 1.25,
+  "scenario_enable_falling_screen_V": 1.05,
+  "all_selected_DC_scenarios_pass_enable_threshold_screen": true,
+  "assumptions": [
+    "AUX band is a proposed screen, not verified loaded rail tolerance.",
+    "25 uA is an engineering allocation, not a TPS543620 guaranteed maximum. Published 11.6 uA sourcing value above threshold is typical.",
+    "Ready-node 10.15 uA allocation combines an assumed 10 uA logic allowance with 0.15 uA eFuse leakage. Its continuous input-voltage envelope remains to be verified.",
+    "J103/J22 add no fitted external load or drive in these scenarios; final interface retirement/receiving is pending.",
+    "Only initial resistor tolerances are included; exact MPN drift and temperature are pending.",
+    "Floating-AUX model disconnects its pull-up source and applies the allocated currents. Negative linear voltages from sink-current corners are not clamp-device predictions."
+  ],
+  "outstanding": [
+    "Guaranteed full-range EN sourcing/current envelope",
+    "Loaded AUX voltage/current and ground offsets",
+    "Logic thresholds over actual supply range",
+    "Partial-power clamps and startup/shutdown timing",
+    "Final interfaces and fitted external loads"
+  ],
+  "full_enable_electrical_qualification": false,
+  "fabrication_released": false
+}

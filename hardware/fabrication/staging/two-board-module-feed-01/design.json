@@ -1,0 +1,482 @@
+{
+  "revision": "TBP07 module branch design",
+  "components": [
+    {
+      "ref": "U1",
+      "part": "TPS259474LRPWR",
+      "footprint": "TBP07_Module:TI_RPW0010A",
+      "source": "https://www.ti.com/lit/ds/symlink/tps25947.pdf",
+      "note": "Independent of GLOBAL_MASTER; PG unused, PGTH grounded. Latch reset needs VIN=0 or EN<0.45V.",
+      "x": 65,
+      "y": 70,
+      "pins": [
+        {
+          "number": "1",
+          "name": "EN_UVLO",
+          "net": "MODULE_UV",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "OVLO",
+          "net": "MODULE_OV",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "3",
+          "name": "PG",
+          "net": null,
+          "kind": "open_collector",
+          "side": "R"
+        },
+        {
+          "number": "4",
+          "name": "PGTH",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "input",
+          "side": "L"
+        },
+        {
+          "number": "5",
+          "name": "IN",
+          "net": "PWR_MODULE_FEED_IN",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "6",
+          "name": "OUT",
+          "net": "PWR_MODULE_12V",
+          "kind": "power_out",
+          "side": "R"
+        },
+        {
+          "number": "7",
+          "name": "DVDT",
+          "net": "MODULE_DVDT",
+          "kind": "passive",
+          "side": "R"
+        },
+        {
+          "number": "8",
+          "name": "GND",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "power_in",
+          "side": "L"
+        },
+        {
+          "number": "9",
+          "name": "ILM",
+          "net": "MODULE_ILM",
+          "kind": "passive",
+          "side": "R"
+        },
+        {
+          "number": "10",
+          "name": "ITIMER",
+          "net": "MODULE_ITIMER",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R1",
+      "part": "470k 0.1% 25ppm/K; complete resistance budget 0.5%",
+      "footprint": "TB05_A_Resistor_SMD:R_0603_1608Metric",
+      "source": "",
+      "note": "0603 precision resistor; exact order code and full drift budget require BOM receiving.",
+      "x": 180,
+      "y": 35,
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "PWR_MODULE_FEED_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "MODULE_UV",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R2",
+      "part": "59.0k 0.1% 25ppm/K; complete resistance budget 0.5%",
+      "footprint": "TB05_A_Resistor_SMD:R_0603_1608Metric",
+      "source": "",
+      "note": "0603 precision resistor; exact order code and full drift budget require BOM receiving.",
+      "x": 260,
+      "y": 35,
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "MODULE_UV",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R3",
+      "part": "470k 0.1% 25ppm/K; complete resistance budget 0.5%",
+      "footprint": "TB05_A_Resistor_SMD:R_0603_1608Metric",
+      "source": "",
+      "note": "0603 precision resistor; exact order code and full drift budget require BOM receiving.",
+      "x": 180,
+      "y": 70,
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "PWR_MODULE_FEED_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "MODULE_OV",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R4",
+      "part": "43.2k 0.1% 25ppm/K; complete resistance budget 0.5%",
+      "footprint": "TB05_A_Resistor_SMD:R_0603_1608Metric",
+      "source": "",
+      "note": "0603 precision resistor; exact order code and full drift budget require BOM receiving.",
+      "x": 260,
+      "y": 70,
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "MODULE_OV",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "R5",
+      "part": "6.49k 0.1% 25ppm/K; complete resistance budget 0.5%",
+      "footprint": "TB05_A_Resistor_SMD:R_0603_1608Metric",
+      "source": "",
+      "note": "0603 precision resistor; exact order code and full drift budget require BOM receiving.",
+      "x": 180,
+      "y": 105,
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "MODULE_ILM",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C1",
+      "part": "1uF 50V X7R 10%",
+      "footprint": "TB05_P_Capacitor_SMD:C_0805_2012Metric",
+      "source": "",
+      "note": "At least 0.5uF effective at maximum DC bias; local IN bypass.",
+      "x": 65,
+      "y": 135,
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "PWR_MODULE_FEED_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C2",
+      "part": "2.2uF 50V X7R 10%",
+      "footprint": "TB05_P_Capacitor_SMD:C_1206_3216Metric",
+      "source": "",
+      "note": "At least 1uF effective; local OUT bypass, in addition to N_C4 and N_C31.",
+      "x": 65,
+      "y": 170,
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "PWR_MODULE_12V",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C3",
+      "part": "4.7nF 50V C0G 5%; complete 6%",
+      "footprint": "TB05_P_Capacitor_SMD:C_0805_2012Metric",
+      "source": "",
+      "note": "Typical ramp 0.426V/ms. 50V rating exceeds maximum input plus 5V.",
+      "x": 260,
+      "y": 105,
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "MODULE_DVDT",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "C4",
+      "part": "2.2nF 50V C0G 5%; complete 6%",
+      "footprint": "TB05_P_Capacitor_SMD:C_0805_2012Metric",
+      "source": "",
+      "note": "Blanking duration calculated from specified current and voltage limits.",
+      "x": 260,
+      "y": 140,
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "net": "MODULE_ITIMER",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "D1",
+      "part": "SMAJ15A-E3/61",
+      "footprint": "TB05_P_Diode_SMD:D_SMA",
+      "source": "https://www.vishay.com/docs/88390/smaj50a.pdf",
+      "note": "Local transient clamp; actual temperature, inductance and pulse stresses require review.",
+      "x": 180,
+      "y": 175,
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "net": "PWR_MODULE_FEED_IN",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "D2",
+      "part": "SS14-E3/61T",
+      "footprint": "TB05_P_Diode_SMD:D_SMA",
+      "source": "https://www.vishay.com/docs/88746/ss12.pdf",
+      "note": "Local transient clamp; actual temperature, inductance and pulse stresses require review.",
+      "x": 260,
+      "y": 175,
+      "pins": [
+        {
+          "number": "1",
+          "name": "K",
+          "net": "PWR_MODULE_12V",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "A",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    },
+    {
+      "ref": "NT1",
+      "part": "MODULE_RETURN_STAR",
+      "footprint": "TBP07_Module:Return_Star",
+      "source": "",
+      "note": "Copper net tie at P_C103.2; sole connection of module primary return to system ground.",
+      "x": 65,
+      "y": 215,
+      "pins": [
+        {
+          "number": "1",
+          "name": "P03_BULK_RETURN",
+          "net": "PWR_AGND",
+          "kind": "passive",
+          "side": "L"
+        },
+        {
+          "number": "2",
+          "name": "MODULE_FORCE_RETURN",
+          "net": "PWR_MODULE_INPUT_GND",
+          "kind": "passive",
+          "side": "R"
+        }
+      ]
+    }
+  ],
+  "calculations": {
+    "assumptions": {
+      "resistance_total_fraction": 0.005,
+      "timing_cap_total_fraction": 0.06,
+      "pin_leakage_a": [
+        -1e-07,
+        1e-07
+      ],
+      "nominal_12V_receiving_window_v": [
+        11.4,
+        12.6
+      ],
+      "maximum_branch_distribution_drop_v": 0.1,
+      "accepted_source_window": false
+    },
+    "UV_turn_on_v": [
+      10.466363172695843,
+      11.110692371603783
+    ],
+    "UV_turn_off_v": [
+      9.515471613542458,
+      10.142752928626184
+    ],
+    "OV_turn_off_v": [
+      13.878771161783675,
+      14.709748539921831
+    ],
+    "OV_reenable_v": [
+      12.619234078680671,
+      13.426928467336683
+    ],
+    "nominal_current_limit_a": 0.5137134052388289,
+    "model_scaled_current_limit_a": [
+      0.4333111024231693,
+      0.5921363365363024
+    ],
+    "current_limit_model_is_not_new_datasheet_test_row": true,
+    "overcurrent_blanking_s": [
+      0.0010637791999999998,
+      0.0033833433333333336
+    ],
+    "typical_slew_v_per_ms": 0.425531914893617,
+    "typical_12V_ramp_s": 0.028200000000000003,
+    "conditional_max_slew_v_per_s": 864.6446355817112,
+    "receiving_operating_current_a": 0.35,
+    "receiving_total_output_capacitance_f": 6e-05,
+    "conditional_capacitive_inrush_a": 0.05187867813490268,
+    "conditional_combined_current_a": 0.40187867813490263,
+    "source_contract_normal_current_screen_a": 0.17412935323383083,
+    "two_full_1W_modules_typ_efficiency_input_current_at_9V_a": 0.28860028860028863,
+    "normal_loss_45mohm_model_w": 0.005512499999999999,
+    "normal_drop_45mohm_model_v": 0.01575,
+    "fault_input_power_at_14_8V_and_scaled_limit_w": 8.763617780737276,
+    "receiving_limits_verified": false,
+    "limits": [
+      "TMR efficiency is typical, not a minimum; startup/internal capacitance/current are not bounded by the datasheet table.",
+      "0.35A load and 60uF total capacitance are receiving requirements, not measured or manufacturer-guaranteed values.",
+      "Output slew specifications are typical; charging-current projection is a conditional design screen.",
+      "Moderate persistent overload latches after ITIMER. Fast short trips, then retries in current limit; thermal shutdown latches L variant.",
+      "Neither 500ns fast-trip nor 2us circuit-breaker delay is specified as a maximum.",
+      "A common approximately 0.51A electronic branch limit is not equivalent to two 250mA slow fuses; per-module fault containment still needs acceptance.",
+      "UV/OV faults recover automatically. RUN-off is not proven to discharge VIN enough to reset; DC power removal is the specified reset until discharged timing is proven."
+    ]
+  },
+  "source_endpoint": [
+    "P_C103",
+    "1"
+  ],
+  "return_star_endpoint": [
+    "P_C103",
+    "2"
+  ],
+  "module_positive_endpoint": [
+    "N_J6",
+    "1"
+  ],
+  "module_return_endpoint": [
+    "N_J6",
+    "2"
+  ],
+  "source_sha256": {
+    "hardware/fabrication/module_feed_design.py": "54d0d4b3046b7d8cf43ab00e419c9e0dd6134921d756afd9c186f8605237e21b",
+    "hardware/fabrication/staging/two-board-power-native-06/netlist.xml": "219fb2608ff8c0f7ad2382fb2fa60f98947559b1cab494a199d8918dfe1555d7",
+    "hardware/qualification/boards/startup_negative_circuit/uv_recovery/integration-contract.json": "838592e2476614f2c05f96d785af7db3678d0bd89dff3350498a68cc5453d59b",
+    "hardware/fabrication/staging/two-board-module-feed-01/sources/smaj.pdf": "b8617e715805bb3293892c4636279eac57c1ef18e8c87a481cec1b802731b72d",
+    "hardware/fabrication/staging/two-board-module-feed-01/sources/ss12.pdf": "b32a2d93d2d2cf9f48d6cf678ab03713956b7501029c0424c6a554425df562da",
+    "hardware/fabrication/staging/two-board-module-feed-01/sources/tps25947.pdf": "8f96de389903091650d4f462dcfad3210071c3ae7093623a7978f34baf8a65b4"
+  },
+  "manufacturer_sources": {
+    "TPS25947": "https://www.ti.com/lit/ds/symlink/tps25947.pdf",
+    "TMR1": "https://www.tracopower.com/tmr1-datasheet"
+  },
+  "TMR1_local_bytes_available": false,
+  "TMR1_review": "Official search-indexed Aug 7 2024 model/input tables; direct retrieval 403; complete original review remains open",
+  "electrical_transients_qualified": false,
+  "complete_unit_fabrication_released": false
+}

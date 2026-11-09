@@ -1,0 +1,50 @@
+# Startup permission, remaining receiver and pull-up routing
+
+Development candidate from TBP43; not a fabrication release. U42 and C85 move
+together to (102, 146.5) and (97.2, 148.6) respectively. U31 and C76 remain in
+their existing nearby placements. Values, footprints and schematic nets remain.
+
+25 targeted interconnects include the complete ALL_RAILS_ALLOW net, buffered
+AUX-valid fanout, ANA_PG2 and its Schmitt output, analog follower and pulldown
+signal end, U31 high-input/bypass/supply, U42 supply, all seven PG pull-up AUX
+ends, and both NF AUX-valid/global-master header connections. Four main-ground
+joins and the U42/C85 local bypass supply join bring the expected reduction to
+30 opens. U31/C76 ground escapes are explicitly checked against existing ground
+ownership; analog eFuse pulldown returns are left for their local return design.
+
+A conventional one-transition search could not connect U29.1. The final path
+uses bounded multilayer A* with four new transition vias. It includes a local
+In4 path, screened against both adjacent layers and protected In3 projections.
+Every final path and via is rechecked by the original geometry screen; native
+DRC, connectivity partition, references and copper ownership remain required.
+
+Four existing main-ground outlines extend. In5 may overlap its same-owner
+inlet field. Quiet fields, distinct same-net return groups, and mounting reserves
+are excluded. One unconnected In6 outline fragment is discarded by construction.
+plan.json is the construction input; archived searches retain scratch paths.
+
+Candidate 01 passed native geometry but lost 18 retained reference cases.
+This plan protects both old In5 and bottom projections from In6 cuts. Three
+long In6 paths reroute; R115 instead joins the nearby source-backed AUX via
+on In2, removing an unnecessary transition via. R119 reaches an AUX via on
+the same side of the DIG_PG3 reference gap. R107 uses a 0.05 mm candidate
+search and a new transition at (141.55, 131.6), retaining the original clearances
+and quiet-zone exclusion. A main-ground stitch at (42.5, 110.5) restores the
+PG0 reference region through existing main In5 ground. Own through-hole
+header-pad antipads are to be explicitly reported in new-route projection
+checks; the prior-reference preservation checks remain unchanged.
+
+Signal directions are clarified: U31.3 native AUX_VALID feeds U42.6 and U24;
+U42.2 produces buffered NF_AUX_VALID. Route labels are corrected accordingly.
+
+Candidate 02 closed 30 opens but left the superseded R119 AUX branch and its
+via connected on only one layer. Candidate 03 removes that proposed branch
+and via. The new R119 bottom escape to (143.8, 133.9) remains. No selected
+TBP43 copper is removed and no clearance rule is waived.
+
+Candidate 03 passed native geometry but retained one reference regression and
+one new gap. Candidate 04 replaces the old ANA_PG0 inner segment with a short
+detour around the R95 supply projection, preserving its endpoints and net.
+R107 now reaches the existing AUX via at (141.5, 136.5) on In2; its extra
+transition via and In6 leg are removed. The R107 escape via at (141.55, 131.6)
+remains, with source-plane fill effects under separate native investigation.

@@ -1,0 +1,5 @@
+(version 1)
+(rule "General copper clearance" (constraint clearance (min 0.20mm)))
+(rule "TI RPY manufacturer internal pad spacing"
+ (condition "A.Type == 'Pad' && B.Type == 'Pad' && ((A.memberOfFootprint('P_U20') && B.memberOfFootprint('P_U20')) || (A.memberOfFootprint('P_U23') && B.memberOfFootprint('P_U23')))")
+ (constraint clearance (min 0.15mm)))

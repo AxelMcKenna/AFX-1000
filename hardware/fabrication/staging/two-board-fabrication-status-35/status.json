@@ -1,0 +1,327 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/capture_two_board_status_v35.py": "c3b3b08f4bdf7d0cdba2a82b34272528a6c0836c432b17ed331bce33ef0670d1",
+    "hardware/fabrication/staging/two-board-fabrication-status-34/status.json": "dfe129bdceeb1517109dc527b961c83f40a267a24f8f01b70ef285941beda3ee",
+    "hardware/fabrication/staging/two-board-power-routing-inputs-2372-inlet-fuse-01/capture.json": "a8bb8fb153adcbe14c2e43f013a81434969c6fff08b5018c46ad5007775506e0",
+    "hardware/fabrication/staging/two-board-power-inlet-fuse-native-01/review.json": "69f942b422808a88df7e9db3d7a4b5c448d19396a205e92214cc7747131b0067",
+    "hardware/fabrication/staging/two-board-power-inlet-fuse-native-01/inlet-fuse-change.json": "2e385153e438a0c84de2ff718a50414f573182c7052f625eedad1f9adc089834",
+    "hardware/fabrication/staging/two-board-power-inlet-fuse-native-01/inlet-fuse-review.json": "b2c6d19dd9bf18fa2f1dcc154c87c3f31e1bec43d72f6117e6c23d33283d7ce2",
+    "hardware/fabrication/staging/two-board-signal-routed-native-03/review.json": "89e61c306f67f8b089e950e4d288b500c07b2a5b3e89c94cbf8420738ab08bcc",
+    "hardware/fabrication/staging/two-board-power-inlet-fuse-native-01/README.md": "e1c16d68d9bfbd3884237b90c9af68cc224d83772ade277112cd7f4932c7935c"
+  },
+  "previous_status": "hardware/fabrication/staging/two-board-fabrication-status-34/status.json",
+  "previous_status_scope": "TBP34 geometry, connectivity and visual evidence carries forward through exact whole-board and native-capture comparison; fuse value/MPN are corrected here.",
+  "verified_direct_source_and_artifact_bindings": 975,
+  "signal_project": "hardware/fabrication/staging/two-board-signal-routed-native-03/signal_main.kicad_pro",
+  "signal_opens": 251,
+  "power_project": "hardware/fabrication/staging/two-board-power-inlet-fuse-native-01/power_protection.kicad_pro",
+  "power_opens": 2372,
+  "power_geometry_findings": 0,
+  "power_schematic_parity_findings": 0,
+  "power_ERC_errors": 0,
+  "power_ERC_warnings": 2,
+  "power_parts": 1086,
+  "power_footprints": 1101,
+  "power_schematic_pin_entries": 3420,
+  "power_mapped_pad_instances": 3481,
+  "power_copper_segments": 2444,
+  "power_copper_vias": 262,
+  "power_filled_zones": 21,
+  "power_connections_closed_this_pass": 0,
+  "power_added_vias_this_pass": 0,
+  "power_added_zones_this_pass": 0,
+  "power_previous_native_connection_groups_preserved": 3110,
+  "power_complete_footprints_unchanged": 1100,
+  "power_moved_footprints_this_pass": 0,
+  "power_schematic_pin_net_changes_this_pass": 0,
+  "power_retired_tracks_this_pass": 0,
+  "power_retired_vias_this_pass": 0,
+  "power_unchanged_existing_zone_fills": 21,
+  "power_changed_existing_zone_fills": 0,
+  "power_native_group_merges": [],
+  "power_inlet_geometry_review": "hardware/fabrication/staging/two-board-power-inlet-corridor-native-02/inlet-corridor-review.json",
+  "power_inlet_feed_connected": true,
+  "power_inlet_return_connected": true,
+  "power_input_TVS_connected": true,
+  "power_inlet_full_current_thermal_transient_qualified": false,
+  "power_inlet_H_NEW2_total_width_per_layer_mm": 5.56,
+  "power_inlet_minimum_nominal_hole_edge_gap_mm": 0.5098705680092779,
+  "power_inlet_In5_fill_pieces": 2,
+  "power_inlet_all_new_filled_pieces_connected_to_intended_group": true,
+  "power_source_bank_contact_vias": 5,
+  "power_all_vias_screened": 262,
+  "power_minimum_all_via_drill_to_SMD_mm": 0.16506678073386125,
+  "power_fast_OV_route_sections_with_adjacent_ground": 33,
+  "power_fast_OV_reference_geometry_passed": true,
+  "power_fast_OV_electrical_response_qualified": false,
+  "power_AUX_ground_group_and_local_copper_preserved": true,
+  "power_AUX_load_derating_startup_and_thermal_qualified": false,
+  "power_G_NT1_connected": false,
+  "power_copper_all_layers_visually_reviewed": true,
+  "power_full_system_return_qualified": false,
+  "power_complete_circuit": false,
+  "stack_accepted": false,
+  "full_installed_fit_verified": false,
+  "next_required_design_work": [
+    "Qualify corrected 045106.3MRL fuse continuous/temperature derating, startup pulses, hot resistance and adapter/TVS/jack/copper fault coordination",
+    "Qualify the connected input TVS across surge waveform, temperature, negative/positive overshoot and fuse/adapter fault energy",
+    "Qualify inlet feed/return current sharing, voltage drop and thermal margin, including fuse, jack-to-fuse neck, both transition banks and mounting-hole sections",
+    "Complete full system current returns and remaining distribution; G_NT1 remains isolated",
+    "Qualify fast-OV cutoff response, threshold/hysteresis, capacitor derating and loop/reference electrical behavior; all 33 current route projections now have adjacent ground coverage",
+    "Reconcile AUX effective capacitance and loaded startup with the added C114 bypass; current direct nominal total is 28.5uF",
+    "Qualify complete bypass-loop inductance, electrical reference performance, exact passive MPN/derating and threshold tolerances",
+    "Qualify actual stack/current/thermal and source transient limits, including the 2mm output bus, bulk-capacitor loop and gate/driver reference environment",
+    "Reconcile current E/P/N state loads against AX03; resolve actual effective capacitance, startup and installed regulator thermal margin",
+    "Regroup remaining source/protection critical circuits; audit every terminal before further internal-port removal",
+    "Connect and qualify wider U20 input/output/force-return distribution and enable reference environment",
+    "Reconcile exact input MPN/derating to at least 2uF effective near each VIN/PGND side; the old 1uF allocation alone is insufficient",
+    "Replace former P_J20/P_J21 return-bar functions with qualified analog/digital current-return paths",
+    "Revise legacy return bars, harness/support CAD and final physical interface manifest after internal-port retirement",
+    "Connect wider U23 source feed and complete board-wide distribution/planes; verify local current/thermal returns",
+    "Qualify shared POWER_READY enable levels, EN sourcing bounds, loaded AUX, resistor drift and partial-power/timing behavior",
+    "Verify effective buck input/output capacitance after voltage/temperature/tolerance derating",
+    "Resolve module normal/startup current and effective capacitance; 9.5mA margin is only an engineering screen",
+    "Finalize individual module fault containment and its voltage-drop/time-current coordination",
+    "Complete passive MPN receiving, critical module/source placement, RTN thermal vias and return-star routing",
+    "AUX_VALID high-temperature fan-out; full-range thresholds, noise/default/partial-power and loaded timing",
+    "Loaded reference, sense, clamp and shared AUX current/return review",
+    "Minimum recognized UV pulse, loaded cutoff and actual GLOBAL-OFF interval; deep AUX loss resets E28 latch",
+    "Repair rejected source routes to current track/drill/clearance rules; route remaining power and signal nets with verified returns"
+  ],
+  "other_open_release_requirements": [
+    "ESS approved package/land/stencil and interface inputs",
+    "Final cross-board power/control interface and all routing",
+    "Critical placement, current/return/timing/noise/thermal design verification",
+    "Accepted manufacturing stack/BOM/process and complete fabrication outputs",
+    "Revised supports, airflow/cooling, real mates/harnesses and full installed fit",
+    "Complete whole-unit prototype inspection and bring-up plan; module procedure is drafted"
+  ],
+  "fabrication_released": false,
+  "goal_complete": false,
+  "power_changed_pad_instances_this_pass": 0,
+  "power_input_TVS_review": "hardware/fabrication/staging/two-board-power-input-tvs-native-01/input-tvs-review.json",
+  "power_input_TVS_new_vias_per_terminal": 6,
+  "power_DC_IN_all_ten_pads_connected": true,
+  "power_input_TVS_temperature_surge_and_fuse_coordination_qualified": false,
+  "power_inlet_geometry_review_scope": "TBP33 historical inlet construction; TBP34 checks its retained geometry, refills, references and connections with the added TVS.",
+  "power_previous_full_width_adjacent_ground_reference_cases_preserved": 228,
+  "power_fast_OV_current_reference_coverage": [
+    {
+      "label": "sense-pin",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "sense-feedback",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "sense-divider",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "sense-via",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "reference-pin",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "reference-divider",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "reference-divider-feed",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "reference-inner",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0,
+        "In3.Cu": 2.2399415070081043
+      }
+    },
+    {
+      "label": "reference-cap",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "reference-cap-ground",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "sense-ground",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "comparator-ground",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "comparator-bypass-supply",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "comparator-bypass-ground",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "comparator-AUX-escape",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "reference-AUX-feed",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "VIN-divider",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "bulk-ground",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "reference-ground",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "feedback-output",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "output-source",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "output-inner",
+      "adjacent_reference_uncovered_mm2": {
+        "In4.Cu": 3.3014996887186054,
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "output-receiver",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "gate-resistor",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "gate-pulldown",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "comparator-AUX-feed-adjacent",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0,
+        "In3.Cu": 0.2561244572210961
+      }
+    },
+    {
+      "label": "VIN-sense-adjacent",
+      "adjacent_reference_uncovered_mm2": {
+        "In4.Cu": 0.0,
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "VIN-AUX-adjacent",
+      "adjacent_reference_uncovered_mm2": {
+        "In4.Cu": 0.7257712169760153,
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "shutdown-gate-direct",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "shutdown-source-ground",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "pulldown-ground",
+      "adjacent_reference_uncovered_mm2": {
+        "In6.Cu": 0.0
+      }
+    },
+    {
+      "label": "shutdown-drain",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0
+      }
+    },
+    {
+      "label": "shutdown-to-SHDN",
+      "adjacent_reference_uncovered_mm2": {
+        "In1.Cu": 0.0,
+        "In3.Cu": 1.4844561981880338
+      }
+    }
+  ],
+  "power_moved_component_mechanical_screen_findings": 0,
+  "power_input_TVS_Z_range_mm": [
+    4.9,
+    8.1
+  ],
+  "power_complete_footprint_geometries_unchanged": 1101,
+  "power_changed_component_values_this_pass": 1,
+  "power_input_fuse_MPN": "045106.3MRL",
+  "power_input_fuse_current_rating_a": 6.3,
+  "power_input_fuse_review": "hardware/fabrication/staging/two-board-power-inlet-fuse-native-01/inlet-fuse-review.json",
+  "power_input_fuse_hot_resistance_bounded": false,
+  "power_input_fuse_adapter_TVS_fault_coordination_qualified": false,
+  "power_visual_evidence_scope": "TBP34 inspected copper exports remain geometrically identical; no new render claimed."
+}

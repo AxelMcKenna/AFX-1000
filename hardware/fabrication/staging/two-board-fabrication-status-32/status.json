@@ -1,0 +1,609 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/capture_two_board_status_v32.py": "4bef0e31cda91eb0284b7ba4711f859e5a59bfe39348795f7685cda75d80cb50",
+    "hardware/fabrication/staging/two-board-fabrication-status-31/status.json": "f4ca7e956eca5c772f5e10b367668ca8bec120ce7593cfdf72bd7841465dba20",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/review.json": "d105ada83e432753ebebf9c3eec3de7adfc7910c1b84f459334856652c8c1845",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/circuit-audit.json": "2a670e5fcd4e9c4fafed4343bf5ac7a9556371eed9f6979cd8dcf330e02ffd46",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/fast-ov-return-routing.json": "636561e8278a39a4d60589f7459d07c604e35e7cc88448ccf1979c7214375796",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/fast-ov-return-audit.json": "f04306464b8dc6412ee8b5532a109b27ee13f11e1398425c21d64ba724695b31",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/fast-ov-return-plane-review.json": "c1df6c67d641f541e9b67b9e7863291308889d6fb1709cc267b3c293000f341d",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/rejected-source-net-status.json": "3b1f91314296e02fd198b0f8a56b5ad657072c9676e7ca7f7149fce4f0cf7b8d",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/plots/native-plots.json": "1b3ae125bc8c69576a5ad1825f3c2bc2ba51b6fc22411c3c721b159d804899f8",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/plots/preview-render.json": "bea189e18256545d63525c260257e63e19e60806b3912bf97e6397c45be3484e",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/plots/detail-render.json": "55c6d9f372ff8795dfbcf6f679b5f2ab5a668cc7f0bd4f5febde1d9146c19d04",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/plots/visual-review.json": "947d400e691b99edfef4d980087986f33ef6876333598d06ead50a6b972a300a",
+    "hardware/fabrication/staging/two-board-power-routing-inputs-2383-fast-ov-return-02/capture.json": "facb56778c8e69c2bbcdedf8789191b6c81418f236aa31196af9f03de1f87ab6",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-filled-02/local-plane-fill.json": "ac7c798eeb4a2a40a8ff7aa14339b5b8207afc30c8ba8937822b4894ec1b9f54",
+    "hardware/fabrication/staging/two-board-power-fast-ov-native-03/fast-ov-return-load-review.json": "954a29ba3625d5b42b9646b9619ad4c0b6cce69e0ef59788c0d2fb6c8894d1aa",
+    "hardware/fabrication/staging/two-board-signal-routed-native-03/review.json": "89e61c306f67f8b089e950e4d288b500c07b2a5b3e89c94cbf8420738ab08bcc",
+    "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/README.md": "6c1c63dd59e72e3ca7d22402743e3cbccb24a0e4e025b1e3623db09e29c40b25"
+  },
+  "verified_direct_source_and_artifact_bindings": 709,
+  "signal_project": "hardware/fabrication/staging/two-board-signal-routed-native-03/signal_main.kicad_pro",
+  "signal_opens": 251,
+  "power_project": "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/power_protection.kicad_pro",
+  "power_opens": 2383,
+  "power_geometry_findings": 0,
+  "power_schematic_parity_findings": 0,
+  "power_ERC_errors": 0,
+  "power_ERC_warnings": 2,
+  "power_parts": 1086,
+  "power_fault_mask_settled_combinations_verified": 32,
+  "power_upstream_source_sense_pins_corrected": [
+    "E_R49.1",
+    "E_R53.1"
+  ],
+  "power_native_schematic_authored": true,
+  "power_complete_circuit": false,
+  "next_required_design_work": [
+    "Qualify fast-OV cutoff response, threshold/hysteresis, capacitor derating and loop/reference electrical behavior; all 33 current route projections now have adjacent ground coverage",
+    "Complete external input-cable feed and full system current return; local VIN-to-AUX and fast-OV circuit are connected",
+    "Reconcile AUX effective capacitance and loaded startup with the added C114 bypass; current direct nominal total is 28.5uF",
+    "Qualify complete bypass-loop inductance, electrical reference performance, exact passive MPN/derating and threshold tolerances",
+    "Qualify actual stack/current/thermal and source transient limits, including the 2mm output bus, bulk-capacitor loop and gate/driver reference environment",
+    "Reconcile current E/P/N state loads against AX03; resolve actual effective capacitance, startup and installed regulator thermal margin",
+    "Regroup remaining source/protection critical circuits; audit every terminal before further internal-port removal",
+    "Connect and qualify wider U20 input/output/force-return distribution and enable reference environment",
+    "Reconcile exact input MPN/derating to at least 2uF effective near each VIN/PGND side; the old 1uF allocation alone is insufficient",
+    "Replace former P_J20/P_J21 return-bar functions with qualified analog/digital current-return paths",
+    "Revise legacy return bars, harness/support CAD and final physical interface manifest after internal-port retirement",
+    "Connect wider U23 source feed and complete board-wide distribution/planes; verify local current/thermal returns",
+    "Qualify shared POWER_READY enable levels, EN sourcing bounds, loaded AUX, resistor drift and partial-power/timing behavior",
+    "Verify effective buck input/output capacitance after voltage/temperature/tolerance derating",
+    "Resolve module normal/startup current and effective capacitance; 9.5mA margin is only an engineering screen",
+    "Finalize individual module fault containment and its voltage-drop/time-current coordination",
+    "Complete passive MPN receiving, critical module/source placement, RTN thermal vias and return-star routing",
+    "AUX_VALID high-temperature fan-out; full-range thresholds, noise/default/partial-power and loaded timing",
+    "Loaded reference, sense, clamp and shared AUX current/return review",
+    "Minimum recognized UV pulse, loaded cutoff and actual GLOBAL-OFF interval; deep AUX loss resets E28 latch",
+    "Repair rejected source routes to current track/drill/clearance rules; route remaining power and signal nets with verified returns"
+  ],
+  "other_open_release_requirements": [
+    "ESS approved package/land/stencil and interface inputs",
+    "Final cross-board power/control interface and all routing",
+    "Critical placement, current/return/timing/noise/thermal design verification",
+    "Accepted manufacturing stack/BOM/process and complete fabrication outputs",
+    "Revised supports, airflow/cooling, real mates/harnesses and full installed fit",
+    "Complete whole-unit prototype inspection and bring-up plan; module procedure is drafted"
+  ],
+  "fabrication_released": false,
+  "goal_complete": false,
+  "power_enable_interfaces_wired": true,
+  "power_enable_MPN_change": {
+    "E_U42": "SN74LVC3G17DCUR"
+  },
+  "power_enable_full_electrical_qualified": false,
+  "power_settled_UV_fault_cases_verified": 64,
+  "power_settled_fault_retained_during_UV_recovery_if_RUN_and_AUX_VALID_high": true,
+  "power_deep_AUX_corruption_and_minimum_actual_OFF_interval_verified": false,
+  "power_schematic_pin_entries": 3420,
+  "power_mapped_pad_instances": 3481,
+  "module_input_branch_captured": true,
+  "module_return_star_captured": true,
+  "module_return_star_routed": false,
+  "module_branch_fault_qualified": false,
+  "module_branch_requires_cutoff_revision": false,
+  "module_cutoff_implemented": "TPS26601RHFR, MODE open; timer-operated latch-off",
+  "module_cutoff_maximum_duration_guaranteed": false,
+  "module_control_RTN_separate_from_force_GND": true,
+  "module_first_article_plan": "hardware/fabrication/staging/two-board-power-native-10/MODULE-FIRST-ARTICLE.md",
+  "module_first_article_tests_executed": false,
+  "power_copper_segments": 2444,
+  "power_copper_vias": 234,
+  "power_connections_closed_this_pass": 0,
+  "power_all_component_poses_preserved": false,
+  "power_copper_all_layers_visually_reviewed": true,
+  "power_planes_restored": false,
+  "power_rejected_source_nets_requiring_route_repair": 44,
+  "power_local_control_routes_verified": 99,
+  "power_previous_native_connection_groups_preserved": 3121,
+  "power_inherited_vias_relocated": 10,
+  "power_all_vias_screened": 234,
+  "power_remaining_via_drills_in_SMD_lands": 0,
+  "power_minimum_all_via_drill_to_SMD_mm": 0.16506678073386125,
+  "power_originally_rejected_source_nets": 52,
+  "power_formerly_rejected_source_nets_now_connected": 8,
+  "power_footprints": 1101,
+  "power_retired_internal_cable_connectors": [
+    "I_J2",
+    "P_J101",
+    "P_J106"
+  ],
+  "power_retired_connector_terminal_opens": 9,
+  "power_retired_inlet_leaf_tracks": 3,
+  "power_original_integration_pin_pairs": 49,
+  "power_retained_interface_header_pin_pairs": null,
+  "power_remaining_pin_net_map_unchanged": true,
+  "power_all_retained_copper_objects_unchanged": false,
+  "power_buck_U23_local_cell_regrouped": true,
+  "power_buck_U23_power_loop_qualified": false,
+  "power_U20_and_AUX_local_placement_requires_repair": false,
+  "power_moved_courtyard_context_findings": 0,
+  "power_moved_courtyard_gap_mm": 0.3,
+  "power_buck_U23_local_route_sections": 17,
+  "power_buck_U23_added_tracks": 22,
+  "power_buck_U23_added_vias": 0,
+  "power_moved_footprints_this_pass": 2,
+  "power_replaced_footprints_this_pass": 0,
+  "power_changed_pad_instances_this_pass": 5,
+  "power_boot_capacitor_substitution": "P_C221: TDK C1005X7R1H104K050BB, 100nF 50V X7R 0402",
+  "power_buck_U23_feedback_region_repacked": true,
+  "power_buck_U23_boot_paths_mm": [
+    2.017,
+    1.786
+  ],
+  "power_boot_return_internal_pin_reconciliation_pending": false,
+  "power_local_buck_detail_visually_reviewed": true,
+  "power_remaining_opens_on_originally_rejected_source_nets": 82,
+  "power_schematic_pin_net_changes_this_pass": 0,
+  "power_retained_track_net_changes_this_pass": 0,
+  "power_all_retained_copper_geometry_unchanged": false,
+  "power_pin_partition_equivalent_through_declared_internal_bridges": true,
+  "power_U23_output_bank_connected_to_inductor_and_PGND": true,
+  "power_U23_output_bank_route_sections": 16,
+  "power_U23_output_bank_added_tracks": 17,
+  "power_U23_output_bank_added_vias": 6,
+  "power_U23_output_sense_connected": true,
+  "power_U23_configuration_connected": true,
+  "power_N_U28_local_bypass_connected": true,
+  "power_U23_minimum_projected_sense_to_switching_copper_mm": 1.15,
+  "power_U23_quiet_AGND_to_PGND_pending": false,
+  "power_local_filled_planes": 14,
+  "power_whole_board_planes_complete": false,
+  "power_U23_local_input_connected": true,
+  "power_U23_input_connected_to_source": false,
+  "power_U23_enable_connected": true,
+  "power_intentionally_replaced_MODE_tracks": 0,
+  "power_intentionally_replaced_MODE_vias": 0,
+  "power_all_other_copper_objects_unchanged": true,
+  "power_U23_enable_full_electrical_qualified": false,
+  "power_U23_enable_DC_scenario_screen_pass": true,
+  "power_U23_enable_DC_allocations_guaranteed": false,
+  "power_local_plane_contacts_preserved": false,
+  "power_sense_reference_projection_preserved": true,
+  "power_retired_schematic_pins_this_pass": 0,
+  "power_all_retained_tracks_vias_unchanged": true,
+  "power_previous_native_connection_groups_retired": 0,
+  "power_retired_internal_return_studs": [
+    "P_J20",
+    "P_J21"
+  ],
+  "power_retired_terminal_opens_this_pass": 0,
+  "power_final_physical_interface_manifest_complete": false,
+  "power_U20_local_cell_regrouped": true,
+  "power_U20_local_route_sections": 17,
+  "power_U20_local_connections_closed": 16,
+  "power_U20_bulk_input_output_and_return_network_complete": false,
+  "power_U20_configuration_enable_and_feedback_top_complete": true,
+  "power_U20_placement_remaining_scope": "Local U20 cell routed; wider distribution/current/thermal/derating and enable reference remain",
+  "power_U20_boot_capacitor_substitution": "P_C201: TDK C1005X7R1H104K050BB, 100nF 50V X7R 0402",
+  "power_internal_return_bar_replacement_qualified": false,
+  "power_legacy_return_bar_assembly_requires_revision": true,
+  "power_existing_U23_planes_unchanged": true,
+  "power_U20_output_bank_connected_to_inductor_and_PGND": true,
+  "power_U20_output_bank_route_sections": 16,
+  "power_U20_output_bank_added_tracks": 17,
+  "power_U20_output_bank_added_vias": 6,
+  "power_U20_output_bank_current_thermal_stability_qualified": false,
+  "power_U20_effective_input_capacitance_qualified": false,
+  "power_U20_output_sense_connected": true,
+  "power_U20_feedback_trim_connected": true,
+  "power_U20_configuration_connected": true,
+  "power_U20_control_route_sections": 13,
+  "power_U20_control_added_tracks": 16,
+  "power_U20_control_added_vias": 7,
+  "power_U20_quiet_to_PGND_pending": false,
+  "power_U20_sense_reference_plane_complete": true,
+  "power_U20_minimum_projected_sense_to_switching_copper_mm": 1.1500000000000057,
+  "power_capacitor_review": "hardware/fabrication/staging/two-board-input-capacitor-review-01/review.json",
+  "power_U20_enable_connected": true,
+  "power_U20_enable_pulldown_ground_connected": true,
+  "power_U20_enable_full_electrical_qualified": false,
+  "power_U20_enable_reference_plane_complete": false,
+  "power_U20_enable_route_sections": 6,
+  "power_U20_enable_added_tracks": 8,
+  "power_U20_enable_added_vias": 3,
+  "power_U20_enable_shared_READY_feed_preserved": true,
+  "power_flipped_footprints_this_pass": 0,
+  "power_U20_input_route_sections": 16,
+  "power_U20_input_added_tracks": 16,
+  "power_U20_input_added_vias": 13,
+  "power_U20_local_plane_checks": [
+    {
+      "layer": "In1.Cu",
+      "net": "PWR_AGND",
+      "area_mm2": 449.1247928309373,
+      "holes": 7,
+      "connected_new_vias": 7,
+      "minimum_captured_foreign_copper_gap_mm": 0.1996752752990109,
+      "single_contiguous_filled_polygon": true,
+      "area_updated_after_AUX_reference_recess": true
+    },
+    {
+      "layer": "In3.Cu",
+      "net": "PWR_MODULE_FEED_IN",
+      "area_mm2": 85.51334425253516,
+      "holes": 4,
+      "connected_new_vias": 6,
+      "minimum_captured_foreign_copper_gap_mm": 0.19967533707820803,
+      "single_contiguous_filled_polygon": true
+    }
+  ],
+  "power_U20_bulk_capacitor_move": "C204: front (185,132) at 90deg to back (173,132) at 0deg; identical C205 package template",
+  "power_U20_local_input_output_quiet_return_connectivity_complete": true,
+  "power_U20_quiet_return_enters_plane_near_BP5": true,
+  "power_U20_sense_reference_scope": "Geometric coverage of 0.2mm trace projection except its own via clearances; field impedance/noise unqualified",
+  "power_retained_copper_geometry_exception": "Five moved pads; 20 tracks and 3 vias retired; 16 tracks and 3 vias added; five refilled regions. Four ground-reference outlines change; nine prior fills remain exact.",
+  "power_U23_quiet_return_enters_plane_near_BP5": true,
+  "power_U23_ground_plane_area_mm2": 321.56442978772054,
+  "power_U23_direct_plane_contact_replaced": "b5f4ee52-86f1-5c42-8547-352d2466cc7c",
+  "power_U23_remote_MODE_return_connection_preserved": true,
+  "power_local_plane_contact_change": "Q103 source and R120 return use replacement vias. U101 reference regions extend and AUX reference outlines receive notches. All prior connection groups and AUX split-return topology remain intact.",
+  "power_U20_planes_and_U23_VIN_plane_unchanged": true,
+  "power_AUX_placement_candidate": "hardware/fabrication/staging/two-board-aux-cell-survey-01/survey.json",
+  "power_AUX_placement_candidate_native_validation_pending": false,
+  "power_AUX_placement_candidate_implemented": true,
+  "power_AUX_placement_revision": "Eight moved footprints; R108 and R130 revised from the original seven-move survey",
+  "power_AUX_local_routing_audit": "hardware/fabrication/staging/two-board-power-aux-local-native-01/aux-local-audit.json",
+  "power_AUX_local_capacitor_feedback_enable_connected": true,
+  "power_AUX_local_route_sections": 20,
+  "power_AUX_local_added_tracks": 32,
+  "power_AUX_local_added_vias": 5,
+  "power_AUX_local_connections_closed": 15,
+  "power_AUX_input_output_ground_regions_and_thermal_vias_complete": true,
+  "power_AUX_source_output_distribution_and_PG_connected": false,
+  "power_AUX_load_derating_startup_and_thermal_qualified": false,
+  "power_local_AUX_detail_visually_reviewed": true,
+  "power_U23_planes_and_U20_VIN_plane_unchanged": true,
+  "power_U20_ground_plane_area_mm2": 449.1247928309373,
+  "power_U20_ground_recess_for_AUX_reference_mm2": 1.5677389398189812,
+  "power_U20_all_direct_ground_via_contacts_preserved": 12,
+  "power_AUX_ground_routing_audit": "hardware/fabrication/staging/two-board-power-aux-ground-native-02/aux-ground-audit.json",
+  "power_AUX_input_output_returns_join_at_GND_pin": true,
+  "power_AUX_FB_reference_projection_complete_except_own_via_antipads": true,
+  "power_AUX_ground_plane_checks": [
+    {
+      "uuid": "d0572a8e-b95d-5c59-9a7c-1d3514a507b4",
+      "layer": "F.Cu",
+      "net": "PWR_AGND",
+      "area_mm2": 37.895840120231085,
+      "directly_contacted_pads": [
+        [
+          "P_C110",
+          "2"
+        ],
+        [
+          "P_C113",
+          "2"
+        ],
+        [
+          "P_R109",
+          "2"
+        ],
+        [
+          "P_U102",
+          "4"
+        ],
+        [
+          "P_U102",
+          "9"
+        ]
+      ],
+      "directly_contacted_vias": [
+        "2024a6bb-5361-5f57-a6c1-7daa1faaa56d",
+        "5486ac9f-c04a-55ab-9c2b-d9ba8cd52cda",
+        "6a8fcf33-c0e2-5d96-9455-7fbfe01758d6",
+        "f55f5ccc-7709-5d90-890b-6fd399aa9004"
+      ]
+    },
+    {
+      "uuid": "94ece1a2-cfec-59cf-ba79-c618ed566f57",
+      "layer": "F.Cu",
+      "net": "PWR_AGND",
+      "area_mm2": 15.370790354606992,
+      "directly_contacted_pads": [
+        [
+          "P_C106",
+          "2"
+        ],
+        [
+          "P_C107",
+          "2"
+        ],
+        [
+          "P_U102",
+          "4"
+        ]
+      ],
+      "directly_contacted_vias": []
+    },
+    {
+      "uuid": "bc76c316-2c04-5ecb-85b7-3e5f80b26bf1",
+      "layer": "B.Cu",
+      "net": "PWR_AGND",
+      "area_mm2": 24.015403810852423,
+      "directly_contacted_pads": [],
+      "directly_contacted_vias": [
+        "2024a6bb-5361-5f57-a6c1-7daa1faaa56d",
+        "5486ac9f-c04a-55ab-9c2b-d9ba8cd52cda",
+        "6a8fcf33-c0e2-5d96-9455-7fbfe01758d6",
+        "f55f5ccc-7709-5d90-890b-6fd399aa9004"
+      ],
+      "minimum_captured_foreign_copper_gap_mm": 0.19948960823560163
+    },
+    {
+      "uuid": "dfd01f0a-edcf-55b7-aecb-2d44a419b9b3",
+      "layer": "In1.Cu",
+      "net": "PWR_AGND",
+      "area_mm2": 44.02912785517799,
+      "directly_contacted_pads": [],
+      "directly_contacted_vias": [
+        "2024a6bb-5361-5f57-a6c1-7daa1faaa56d",
+        "5486ac9f-c04a-55ab-9c2b-d9ba8cd52cda",
+        "6a8fcf33-c0e2-5d96-9455-7fbfe01758d6",
+        "f55f5ccc-7709-5d90-890b-6fd399aa9004"
+      ],
+      "minimum_captured_foreign_copper_gap_mm": 0.19967518218316427
+    }
+  ],
+  "power_AUX_thermal_via_count": 4,
+  "power_AUX_actual_thermal_resistance_qualified": false,
+  "power_zone_capture_geometric_fidelity_verified": true,
+  "power_AUX_PG_routing_audit": "hardware/fabrication/staging/two-board-power-aux-pg-native-01/aux-pg-audit.json",
+  "power_AUX_FB_via_relocated_mm": {
+    "from": [
+      190.6,
+      133.6
+    ],
+    "to": [
+      190.3,
+      133.4
+    ]
+  },
+  "power_AUX_PG_connected_to_input_eFuse_SHDN": true,
+  "power_AUX_input_C102_connected_to_regulator_input_cell": true,
+  "power_AUX_upstream_VIN_source_connected": true,
+  "power_complete_RUN_net_connected": false,
+  "power_AUX_load_review": "hardware/fabrication/staging/two-board-aux-load-review-01/review.json",
+  "power_E_U42_stale_datasheet_metadata_corrected": true,
+  "power_component_pose_exception": "Q103 moves and rotates 180 degrees; G_NT1 shifts for spacing. Five pads move, with no flips, package/value changes or schematic changes.",
+  "power_input_controls_routing_audit": "hardware/fabrication/staging/two-board-power-input-controls-native-02/input-controls-audit.json",
+  "power_input_ILIM_and_dVdT_locally_connected": true,
+  "power_input_GND_EP_and_control_passive_returns_locally_connected": true,
+  "power_input_control_reference_projection_complete": true,
+  "power_input_control_ground_plane_checks": [
+    {
+      "uuid": "a147ef12-37f5-562e-9340-6c74b3790186",
+      "layer": "F.Cu",
+      "net": "PWR_AGND",
+      "area_mm2": 30.706521325606996,
+      "directly_contacted_pads": [
+        [
+          "P_C105",
+          "2"
+        ],
+        [
+          "P_Q103",
+          "2"
+        ],
+        [
+          "P_R107",
+          "2"
+        ],
+        [
+          "P_U101",
+          "25"
+        ],
+        [
+          "P_U101",
+          "8"
+        ]
+      ],
+      "directly_contacted_vias": [
+        "07bf732b-067d-51ed-bd05-591390bee9bb",
+        "27f71217-eb24-5e46-b30e-3a6e75698158",
+        "2916e09f-bb18-51f5-975d-abe338db0722",
+        "7232c18c-5b3a-5fb2-b5a9-21c0681e4d63",
+        "e0edb3ab-4cc9-510b-8c66-3741d83218e7"
+      ],
+      "minimum_captured_foreign_copper_gap_mm": 0.19948960823560163
+    },
+    {
+      "uuid": "d41ab58e-16e9-5d76-8b14-dc335aff8371",
+      "layer": "In1.Cu",
+      "net": "PWR_AGND",
+      "area_mm2": 339.7205793336571,
+      "directly_contacted_pads": [
+        [
+          "P_C103",
+          "2"
+        ]
+      ],
+      "directly_contacted_vias": [
+        "07bf732b-067d-51ed-bd05-591390bee9bb",
+        "20a7d201-43ab-520c-8d21-f6d3652c3367",
+        "27f71217-eb24-5e46-b30e-3a6e75698158",
+        "2916e09f-bb18-51f5-975d-abe338db0722",
+        "3808a83c-fa3f-543d-b67a-eb414f991b6d",
+        "576dfa2c-2013-545d-bf94-97129345e52e",
+        "7232c18c-5b3a-5fb2-b5a9-21c0681e4d63",
+        "aeb0b9ac-9455-5366-b909-c9bf6fe8d85d",
+        "ca9909d1-9c38-5740-9692-51caf0903f82",
+        "d9188787-926f-5142-bb68-8c78df086dd8",
+        "e0edb3ab-4cc9-510b-8c66-3741d83218e7",
+        "fbaf7687-65b0-5031-bdaa-7d5d47e414d5"
+      ],
+      "minimum_captured_foreign_copper_gap_mm": 0.19948960823561504
+    },
+    {
+      "uuid": "78fadc71-5bdb-5968-8ca8-0e3b4b40722f",
+      "layer": "In6.Cu",
+      "net": "PWR_AGND",
+      "area_mm2": 392.4172344580114,
+      "directly_contacted_pads": [
+        [
+          "P_C103",
+          "2"
+        ]
+      ],
+      "directly_contacted_vias": [
+        "07bf732b-067d-51ed-bd05-591390bee9bb",
+        "20a7d201-43ab-520c-8d21-f6d3652c3367",
+        "27f71217-eb24-5e46-b30e-3a6e75698158",
+        "2916e09f-bb18-51f5-975d-abe338db0722",
+        "3808a83c-fa3f-543d-b67a-eb414f991b6d",
+        "576dfa2c-2013-545d-bf94-97129345e52e",
+        "7232c18c-5b3a-5fb2-b5a9-21c0681e4d63",
+        "aeb0b9ac-9455-5366-b909-c9bf6fe8d85d",
+        "ca9909d1-9c38-5740-9692-51caf0903f82",
+        "d9188787-926f-5142-bb68-8c78df086dd8",
+        "e0edb3ab-4cc9-510b-8c66-3741d83218e7",
+        "fbaf7687-65b0-5031-bdaa-7d5d47e414d5"
+      ],
+      "minimum_captured_foreign_copper_gap_mm": 0.19948960823561504
+    }
+  ],
+  "power_input_force_routing_complete": false,
+  "power_input_protection_startup_and_thermal_qualified": false,
+  "power_exact_input_control_passive_MPN_and_tolerances_qualified": false,
+  "power_local_input_controls_visually_reviewed": true,
+  "power_input_source_routing_audit": "hardware/fabrication/staging/two-board-power-input-source-native-03/input-source-audit.json",
+  "power_input_source_plane_review": "hardware/fabrication/staging/two-board-power-input-source-native-03/input-source-plane-review.json",
+  "power_input_blocking_gate_driver_and_local_pulldown_connected": true,
+  "power_input_Q101_drain_to_both_U101_IN_pins_connected": true,
+  "power_input_U101_OUT_pins_and_output_capacitors_connected": true,
+  "power_input_output_capacitor_returns_connected": true,
+  "power_input_bulk_output_trace_reference_complete_except_own_antipads": true,
+  "power_input_gate_driver_reference_environment_complete": false,
+  "power_input_current_capacity_and_transients_qualified": false,
+  "power_input_bypass_and_voltage_thresholds_complete": false,
+  "power_native_instance_paths_canonical": true,
+  "power_duplicate_paths_removed_this_pass": 0,
+  "power_local_input_source_visually_reviewed": true,
+  "power_input_bypass_routing_audit": "hardware/fabrication/staging/two-board-power-input-bypass-native-03/input-bypass-audit.json",
+  "power_input_bypass_plane_review": "hardware/fabrication/staging/two-board-power-input-bypass-native-03/input-bypass-plane-review.json",
+  "power_input_IN_SYS_bypass_locally_connected": true,
+  "power_input_IN_SYS_connected_to_Q101_source_bank": true,
+  "power_input_PGTH_divider_locally_connected": true,
+  "power_input_UV_OV_dividers_and_clamp_connected": true,
+  "power_input_bypass_loop_and_final_reference_qualified": false,
+  "power_local_input_bypass_visually_reviewed": true,
+  "power_input_thresholds_routing_audit": "hardware/fabrication/staging/two-board-power-input-thresholds-native-03/input-thresholds-audit.json",
+  "power_input_thresholds_plane_review": "hardware/fabrication/staging/two-board-power-input-thresholds-native-03/input-thresholds-plane-review.json",
+  "power_input_AUX_clamp_bias_and_pullup_connected": true,
+  "power_input_adjacent_In6_reference_geometrically_verified": true,
+  "power_input_adjacent_In6_route_coverage": [
+    {
+      "label": "UV-receiver",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "UV-divider",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "OV-receiver",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "OV-divider",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "UV-ground",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "OV-ground",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "PGTH-divider",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "PGTH-divider-escape",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "PGTH-output-sense",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "PGTH-ground",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "AUX-clamp-capacitor",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "AUX-clamp-bleed",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "clamp-ground-join",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "clamp-ground-stitch",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "IN_SYS-bypass",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    },
+    {
+      "label": "bypass-return",
+      "layer": "B.Cu",
+      "reference_layer": "In6.Cu",
+      "uncovered_mm2": 0.0
+    }
+  ],
+  "power_input_fast_OV_monitor_connected": true,
+  "power_added_components_this_pass": [],
+  "power_added_schematic_pins_this_pass": 0,
+  "power_added_pad_instances_this_pass": 0,
+  "power_fast_OV_routing_audit": "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/fast-ov-return-audit.json",
+  "power_fast_OV_plane_review": "hardware/fabrication/staging/two-board-power-fast-ov-return-native-02/fast-ov-return-plane-review.json",
+  "power_fast_OV_return_load_review": "hardware/fabrication/staging/two-board-power-fast-ov-native-03/fast-ov-return-load-review.json",
+  "power_input_fast_OV_loaded_response_qualified": false,
+  "power_fast_OV_reference_design_review_complete": false,
+  "power_AUX_VIN_connection_scope": "Local Q101 drain/U101 input to U102 input network; external input-cable feed and full current return still incomplete.",
+  "power_AUX_rail_terminals": 230,
+  "power_AUX_direct_nominal_capacitance_F": 2.8499999999999998e-05,
+  "power_local_fast_OV_visually_reviewed": true,
+  "power_fast_OV_return_load_review_scope": "Historical TBP31 route-gap evidence and unchanged AUX load census; TBP32 plane review supersedes the route-gap screen.",
+  "power_fast_OV_reference_geometry_passed": true,
+  "power_fast_OV_route_sections_with_adjacent_ground": 33
+}

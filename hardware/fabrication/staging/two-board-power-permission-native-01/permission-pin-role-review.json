@@ -1,0 +1,73 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/staging/two-board-power-permission-native-01/netlist.xml": "0ff69e98088b0a4390cb9c9793e518e0c5abd27d4fcf5352f9d368037d2cdc45"
+  },
+  "checked_pin_roles": [
+    {
+      "ref": "E_U31",
+      "pin": "3",
+      "net": "PWR_E28_AUX_VALID_NATIVE",
+      "electrical_type": "output"
+    },
+    {
+      "ref": "E_U31",
+      "pin": "6",
+      "net": "PWR_V2V5_AUX",
+      "electrical_type": "input"
+    },
+    {
+      "ref": "E_U31",
+      "pin": "7",
+      "net": "/E_rail_disconnect/E28_ANA_FOLLOW",
+      "electrical_type": "output"
+    },
+    {
+      "ref": "E_U42",
+      "pin": "1",
+      "net": "/E_rail_disconnect/ANA_PG2",
+      "electrical_type": "input"
+    },
+    {
+      "ref": "E_U42",
+      "pin": "7",
+      "net": "/E_rail_disconnect/ANA_PG2_SCHMITT",
+      "electrical_type": "output"
+    },
+    {
+      "ref": "E_U42",
+      "pin": "3",
+      "net": "PWR_ALL_RAILS_ALLOW",
+      "electrical_type": "input"
+    },
+    {
+      "ref": "E_U42",
+      "pin": "5",
+      "net": "PWR_NF_GLOBAL_MASTER",
+      "electrical_type": "output"
+    },
+    {
+      "ref": "E_U42",
+      "pin": "6",
+      "net": "PWR_E28_AUX_VALID_NATIVE",
+      "electrical_type": "input"
+    },
+    {
+      "ref": "E_U42",
+      "pin": "2",
+      "net": "PWR_NF_AUX_VALID",
+      "electrical_type": "output"
+    }
+  ],
+  "manufacturer_sources": [
+    "https://www.ti.com/lit/gpn/sn74aup2g08",
+    "https://www.ti.com/lit/ds/symlink/sn74lvc3g17.pdf"
+  ],
+  "routing_label_clarifications": {
+    "Buffered AUX valid to startup chain": "Native AUX_VALID from U31 output 3 to U42 Schmitt input 6; U42 output 2 drives NF_AUX_VALID.",
+    "Buffered AUX valid to U24": "Native AUX_VALID fanout to U24.13, not the NF buffered output.",
+    "NF AUX valid to Schmitt receiver": "Physical U42 output 2 to N_J1.5; the route label reverses its signal direction."
+  },
+  "circuit_changes": [],
+  "full_startup_qualified": false,
+  "fabrication_released": false
+}

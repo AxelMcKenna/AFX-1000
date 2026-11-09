@@ -1,0 +1,120 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/audit_two_board_source_sense.py": "93138374c42140b6cc78da66fcd1fa1a874f20c080d487e5dd7b508f43503ee0",
+    "hardware/fabrication/audit_two_board_fault_mask.py": "68d9450572f39355ea50d48a5923c44ddc378c230e881a421b253effd2d4c562",
+    "hardware/fabrication/audit_two_board_power_delta.py": "040c5d90250df51aebb6a2b6aa4cbbc5ae8b41610c70d1d4e11d412d907bfe14",
+    "hardware/fabrication/staging/two-board-power-native-04/power_protection.kicad_pcb": "077c63e7527a65843672d67ab61b960772e04e08429d0241b73b88115bc62702",
+    "hardware/fabrication/staging/two-board-power-native-05/power_protection.kicad_pcb": "6ac97f360e0cab84252f264d5b39491af2c69e2a89df37c8fbf50703721be993",
+    "hardware/fabrication/staging/two-board-power-native-04/netlist.xml": "bfd5396c5821f42a9f53c27b6b90a18482867b1674b0db41291359794b7c2bf7",
+    "hardware/fabrication/staging/two-board-power-native-05/netlist.xml": "a07c140409201435053f4cda6f4906a12665db32babfc9999317b573dd78643b",
+    "hardware/fabrication/staging/two-board-power-native-04/fault-mask-audit.json": "5499877f1fea0cf85f2b6a6aa74ec7dd944d947583b5330da48d9ad468a83b74",
+    "hardware/fabrication/staging/two-board-power-native-05/review.json": "7ae4e2603bc80ec2ac31f9d30eb3dfae1bfbc02279f8065e5b15d0353a0d6176"
+  },
+  "source_sense_channels": [
+    {
+      "rail": "N19",
+      "source": "PWR_N19_SOURCE",
+      "post_switch": "PWR_N19_POST_NF",
+      "protected_output": "PWR_N19",
+      "moved_sense_pin": "E_R49.1",
+      "inverter_gain": 0.06402048655569782,
+      "nominal_raw_source_magnitude_v": 19,
+      "nominal_reference_v": 1.25,
+      "nominal_UV_comparison_threshold_v": 1.1779672996277624,
+      "nominal_upstream_sense_v": 1.2163892445582587,
+      "nominal_sense_with_discharged_downstream_v": 0,
+      "source_UV_LOW_to_permit_clear_LOW": [
+        {
+          "ref": "N_U42",
+          "low_input": "4",
+          "forced_low_output": "6"
+        },
+        {
+          "ref": "N_U42",
+          "low_input": "9",
+          "forced_low_output": "8"
+        },
+        {
+          "ref": "N_U42",
+          "low_input": "12",
+          "forced_low_output": "11"
+        },
+        {
+          "ref": "N_U51",
+          "low_input": "12",
+          "forced_low_output": "11"
+        },
+        {
+          "ref": "N_U37",
+          "low_input": "13",
+          "forced_low_output": "11"
+        }
+      ],
+      "permit_flipflop": "N_U1",
+      "old_downstream_sense_holds_permit_cleared": true,
+      "new_upstream_sense_independent_of_switch_output": true
+    },
+    {
+      "rail": "N12",
+      "source": "PWR_N12_SOURCE",
+      "post_switch": "PWR_N12_POST_NF",
+      "protected_output": "PWR_N12",
+      "moved_sense_pin": "E_R53.1",
+      "inverter_gain": 0.1,
+      "nominal_raw_source_magnitude_v": 12,
+      "nominal_reference_v": 1.25,
+      "nominal_UV_comparison_threshold_v": 1.1499994940002227,
+      "nominal_upstream_sense_v": 1.2000000000000002,
+      "nominal_sense_with_discharged_downstream_v": 0,
+      "source_UV_LOW_to_permit_clear_LOW": [
+        {
+          "ref": "N_U43",
+          "low_input": "4",
+          "forced_low_output": "6"
+        },
+        {
+          "ref": "N_U43",
+          "low_input": "9",
+          "forced_low_output": "8"
+        },
+        {
+          "ref": "N_U43",
+          "low_input": "12",
+          "forced_low_output": "11"
+        },
+        {
+          "ref": "N_U41",
+          "low_input": "5",
+          "forced_low_output": "6"
+        }
+      ],
+      "permit_flipflop": "N_U7",
+      "old_downstream_sense_holds_permit_cleared": true,
+      "new_upstream_sense_independent_of_switch_output": true
+    }
+  ],
+  "only_two_declared_sense_pin_changes": true,
+  "native_parts_and_values_retained": 1077,
+  "retained_complete_footprint_geometries": 1092,
+  "mapped_pad_instances": 3440,
+  "settled_fault_mask_combinations_rechecked": 32,
+  "source_sense_mutations_rejected": {
+    "both_senses_returned_downstream": true,
+    "N19_sense_returned_downstream": true,
+    "N12_sense_returned_downstream": true,
+    "protected_monitor_moved_upstream": true
+  },
+  "primary_pin_function_sources": [
+    "https://www.ti.com/lit/ds/symlink/opa333.pdf",
+    "https://www.ti.com/lit/ds/symlink/tlv1822.pdf",
+    "https://www.ti.com/lit/ds/symlink/sn74hcs08.pdf",
+    "https://www.ti.com/lit/ds/symlink/sn74aup1g74.pdf"
+  ],
+  "limitations": [
+    "Nominal comparison assumes a valid AUX supply, 1.25V reference and settled ideal inverter behavior.",
+    "Source/reference tolerance, input loading, partial-power behavior and timing remain to be qualified.",
+    "Removing this circular dependency does not qualify full startup: MASTER/AUX_VALID, module feed and UV recovery remain incomplete."
+  ],
+  "complete_startup_verified": false,
+  "fabrication_released": false
+}

@@ -1,0 +1,592 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/audit_two_board_fault_mask.py": "68d9450572f39355ea50d48a5923c44ddc378c230e881a421b253effd2d4c562",
+    "hardware/fabrication/audit_two_board_power_delta.py": "040c5d90250df51aebb6a2b6aa4cbbc5ae8b41610c70d1d4e11d412d907bfe14",
+    "hardware/fabrication/staging/two-board-placement-cad-03/power_protection.kicad_pcb": "13e924ee5e93caf4db5c7dbf8405310e78a792ad4a025fbb3b7d4e93911ae4f5",
+    "hardware/fabrication/staging/two-board-power-native-04/power_protection.kicad_pcb": "077c63e7527a65843672d67ab61b960772e04e08429d0241b73b88115bc62702",
+    "hardware/fabrication/staging/two-board-power-native-04/netlist.xml": "bfd5396c5821f42a9f53c27b6b90a18482867b1674b0db41291359794b7c2bf7",
+    "hardware/fabrication/staging/two-board-power-native-03/netlist.xml": "a7af10c351f450a01a2cb6c5f439b3e5baa8599b19177683ef1ebff6e78b7eca",
+    "hardware/fabrication/staging/two-board-power-native-04/review.json": "927832267a68b5ece1b670e7c4198934bd9584dd703b5aae5c0ce1985b380f93",
+    "hardware/fabrication/staging/two-board-power-native-04/erc.json": "a937f7bd47b29abcc8a0bf12ac82a0ebdeef0dc67d5ce7b8fa008f53b58f9c1a",
+    "hardware/fabrication/staging/two-board-power-native-04/drc.json": "d6575289c55be227d5c77d345e5c9a8f9e9a5396ed3bbf0e42abccbbcc748b07"
+  },
+  "native_pin_function": "SET = (native OR negative19 OR negative12) AND NOT(not_run OR not_aux)",
+  "source_pin_maps": {
+    "SN74LVC02A": "https://www.ti.com/lit/ds/symlink/sn74lvc02a.pdf",
+    "SN74HCS32": "https://www.ti.com/lit/ds/symlink/sn74hcs32.pdf",
+    "SN74AUP2G14": "https://www.ti.com/lit/ds/symlink/sn74aup2g14.pdf"
+  },
+  "truth_table": [
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": false,
+        "negative12_fault": false,
+        "not_run": false,
+        "not_aux": false
+      },
+      "reset": false,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ],
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": false,
+        "negative12_fault": false,
+        "not_run": false,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": false,
+        "negative12_fault": false,
+        "not_run": true,
+        "not_aux": false
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": false,
+        "negative12_fault": false,
+        "not_run": true,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": false,
+        "negative12_fault": true,
+        "not_run": false,
+        "not_aux": false
+      },
+      "reset": false,
+      "set": true,
+      "stable_fault_and_complement": [
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": false,
+        "negative12_fault": true,
+        "not_run": false,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": false,
+        "negative12_fault": true,
+        "not_run": true,
+        "not_aux": false
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": false,
+        "negative12_fault": true,
+        "not_run": true,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": true,
+        "negative12_fault": false,
+        "not_run": false,
+        "not_aux": false
+      },
+      "reset": false,
+      "set": true,
+      "stable_fault_and_complement": [
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": true,
+        "negative12_fault": false,
+        "not_run": false,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": true,
+        "negative12_fault": false,
+        "not_run": true,
+        "not_aux": false
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": true,
+        "negative12_fault": false,
+        "not_run": true,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": true,
+        "negative12_fault": true,
+        "not_run": false,
+        "not_aux": false
+      },
+      "reset": false,
+      "set": true,
+      "stable_fault_and_complement": [
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": true,
+        "negative12_fault": true,
+        "not_run": false,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": true,
+        "negative12_fault": true,
+        "not_run": true,
+        "not_aux": false
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": false,
+        "negative19_fault": true,
+        "negative12_fault": true,
+        "not_run": true,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": false,
+        "negative12_fault": false,
+        "not_run": false,
+        "not_aux": false
+      },
+      "reset": false,
+      "set": true,
+      "stable_fault_and_complement": [
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": false,
+        "negative12_fault": false,
+        "not_run": false,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": false,
+        "negative12_fault": false,
+        "not_run": true,
+        "not_aux": false
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": false,
+        "negative12_fault": false,
+        "not_run": true,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": false,
+        "negative12_fault": true,
+        "not_run": false,
+        "not_aux": false
+      },
+      "reset": false,
+      "set": true,
+      "stable_fault_and_complement": [
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": false,
+        "negative12_fault": true,
+        "not_run": false,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": false,
+        "negative12_fault": true,
+        "not_run": true,
+        "not_aux": false
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": false,
+        "negative12_fault": true,
+        "not_run": true,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": true,
+        "negative12_fault": false,
+        "not_run": false,
+        "not_aux": false
+      },
+      "reset": false,
+      "set": true,
+      "stable_fault_and_complement": [
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": true,
+        "negative12_fault": false,
+        "not_run": false,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": true,
+        "negative12_fault": false,
+        "not_run": true,
+        "not_aux": false
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": true,
+        "negative12_fault": false,
+        "not_run": true,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": true,
+        "negative12_fault": true,
+        "not_run": false,
+        "not_aux": false
+      },
+      "reset": false,
+      "set": true,
+      "stable_fault_and_complement": [
+        [
+          true,
+          false
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": true,
+        "negative12_fault": true,
+        "not_run": false,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": true,
+        "negative12_fault": true,
+        "not_run": true,
+        "not_aux": false
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "inputs": {
+        "native_fault": true,
+        "negative19_fault": true,
+        "negative12_fault": true,
+        "not_run": true,
+        "not_aux": true
+      },
+      "reset": true,
+      "set": false,
+      "stable_fault_and_complement": [
+        [
+          false,
+          true
+        ]
+      ]
+    }
+  ],
+  "settled_input_combinations_checked": 32,
+  "stable_latch_equilibria_checked_per_combination": 4,
+  "reset_priority_in_settled_boolean_model": true,
+  "mutation_controls": {
+    "reset_mask_grounded": true,
+    "mask_bypassed": true,
+    "native_driver_shorted_to_SET": true,
+    "negative19_fault_omitted": true,
+    "unmasked_native_TBP03_rejected": true
+  },
+  "only_declared_pin_partition_changes": true,
+  "unchanged_components": 1077,
+  "unchanged_complete_footprint_geometries": 1092,
+  "checked_pad_instances": 3440,
+  "unchanged_outline_mounts_and_setup": true,
+  "erc_errors": 0,
+  "erc_warnings": 2,
+  "limitations": [
+    "Ideal settled Boolean model assumes valid supply and valid logic levels.",
+    "This does not prove propagation-delay priority, minimum reset or GLOBAL-OFF pulse width.",
+    "UV recovery, receiving/loading and complete protection behavior remain unqualified."
+  ],
+  "fabrication_released": false
+}

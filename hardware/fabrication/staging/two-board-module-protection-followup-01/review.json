@@ -1,0 +1,38 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/staging/two-board-power-native-10/module-cutoff-audit.json": "2944ce1c97bc76833e43c13c26e9bd4d40c13a715fd578c4e5c49b3c65d13dcc"
+  },
+  "current_module_floor_v": 9.353518961548193,
+  "remaining_series_drop_before_9V_v": 0.3535189615481933,
+  "candidate_screens": [
+    {
+      "part": "SCHURTER 3403.0160.11/.24",
+      "family": "UMT 250",
+      "rated_current_a": 0.25,
+      "characteristic": "time lag",
+      "maximum_drop_at_rated_current_v": 0.8,
+      "unchanged_threshold_screen_pass": false,
+      "source": "https://www.avnet.com/wcm/connect/dc5ac394-70b5-4d76-8cd0-6db88b7ef01b/SCHURTER-UMT-250-Series-EN-Datasheet.pdf?MOD=AJPERES&attachment=false&id=1622469016139"
+    },
+    {
+      "part": "Bel 0679L0250-01/-05",
+      "rated_current_a": 0.25,
+      "characteristic": "quick acting",
+      "maximum_drop_at_rated_current_v": 0.53,
+      "unchanged_threshold_screen_pass": false,
+      "source": "https://www.belfuse.com/media/datasheets/products/circuit-protection/ds-cp-0679l-series.pdf"
+    }
+  ],
+  "interpretation": "Conservative full-rated-current voltage-drop screen fails the present 0.354V remaining allocation. This does not prove these parts fail at the actual lower operating current; temperature, PCB conditions, startup and fuse coordination require supported bounds. Quick-acting is not the module manufacturer recommended slow characteristic.",
+  "shared_current_example": {
+    "one_branch_a": 0.3,
+    "other_branch_a": 0.1,
+    "total_a": 0.4,
+    "nominal_common_breaker_a": 0.5129864253393664,
+    "below_common_nominal_threshold": true
+  },
+  "local_PDF_and_package_visual_review_obtained": false,
+  "PCB_or_BOM_changed": false,
+  "required_next": "Choose an individual containment approach with current, pulse and temperature support; recalculate source/module UV budget before insertion. Do not treat common breaker as separate per-module limits.",
+  "fabrication_released": false
+}

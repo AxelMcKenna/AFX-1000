@@ -1,0 +1,2257 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/analyze_two_board_inlet_resistance.py": "9d6cef08a5cf54f1219d2a49e81ea69441f6a1842d85d7a25ce9de674fa76351",
+    "hardware/fabrication/sheet_resistance.py": "5a5386cbdfebdb727dd512d05306c3dc43e2345347ef9f9abdad20cdbdf93b7f",
+    "hardware/fabrication/staging/two-board-power-routing-inputs-2372-inlet-fuse-01/capture.json": "a8bb8fb153adcbe14c2e43f013a81434969c6fff08b5018c46ad5007775506e0",
+    "hardware/fabrication/staging/two-board-fabrication-status-35/status.json": "b0e07b3df89a5fbd961d87d20531e984c3f3ce201c871d910233c2e2a43407c6",
+    "tests/tooling/test_sheet_resistance.py": "72993e37f0abfd6e6a2403d535fa1c2d9d55f2c57b4ffdd285bc9b8d9fbd2823",
+    "uv.lock": "8e7c4f83b15d82b07453197752f225b1b1e9b13e4974597444352a2a5eb80442",
+    "hardware/fabrication/route_nf_surface.py": "a81d6a6bc1777778a3ce3a6db9c343c103a54db23506600b8075579950db790c",
+    "hardware/fabrication/staging/two-board-power-inlet-fuse-native-01/inlet-fuse-review.json": "b2c6d19dd9bf18fa2f1dcc154c87c3f31e1bec43d72f6117e6c23d33283d7ce2",
+    "hardware/fabrication/staging/two-board-power-inlet-fuse-native-01/inlet-fuse-change.json": "2e385153e438a0c84de2ff718a50414f573182c7052f625eedad1f9adc089834"
+  },
+  "model": "2D uniform isotropic sheet; four-neighbour finite-volume resistor grid; ideal equipotential contact ports",
+  "copper_reference": "https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nbshandbook100.pdf",
+  "assumptions": {
+    "resistivity_20C_ohm_m": 1.7241e-08,
+    "resistance_temperature_coefficient_per_C": 0.00393,
+    "conductivity": "100% IACS assumed; actual PCB foil/plating conductivity unaccepted",
+    "temperatures_are_imposed_not_predicted": true,
+    "physical_current_rating_established": false
+  },
+  "cases": [
+    {
+      "label": "In2.Cu",
+      "net": "PWR_DC_IN",
+      "layer": "In2.Cu",
+      "zone_uuid": "2d29f18e-f863-557a-bd84-b2d1a216144c",
+      "source_objects": [
+        "5947fc62-6303-5ed4-b1ac-0ebcdeb8aa9b",
+        "7e2449b2-c8e2-5e36-abb5-3fb5cb939513",
+        "65aa1904-5825-50af-86cc-3be251a1fb01",
+        "a2ee302c-f0ce-5683-8986-2fb5b630dd36",
+        "67ef56ab-3146-55be-bf7d-c50d3517e8ec",
+        "ae0812c2-b7db-5743-a06b-f66099a98d71",
+        "a0a4ee89-1a4a-5c09-8b22-b0541c6eee9d",
+        "370d24f8-8875-5548-813c-1fc558e81bc4",
+        "b36c94e6-f82c-55a9-85c5-f99286b4b874",
+        "26eea069-6c8a-5bc4-b3de-c8a0b1482829",
+        "bb1a21bb-cd03-5176-ba9b-85faeb9d3d8f",
+        "9ba375d5-c249-5afb-a129-014813d903f3"
+      ],
+      "sink_objects": [
+        "86009a5d-8934-526b-92de-cf7c8f2495c3",
+        "f19e23d9-bb63-557e-9a57-a1dfb07026f5",
+        "519137a4-bbcb-5367-b834-5ce65ea999cc",
+        "83ce4dc6-32a3-5ee5-a1de-34abb8d29157",
+        "09d3b396-6ba8-5a29-9fb1-e10ca395f03e"
+      ],
+      "meshes": [
+        {
+          "step_mm": 0.25,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 83629,
+          "discarded_zero_current_nodes": 3,
+          "mesh_copper_area_mm2": 5227.0,
+          "exact_copper_area_mm2": 5548.863084142668,
+          "resistance_squares": 61.69902772238491,
+          "source_current_at_unit_voltage": 0.01620771083297301,
+          "current_balance_relative_error": 8.29490467336015e-11,
+          "energy_relative_error": 5.2914933399688314e-11,
+          "maximum_interior_KCL_error": 2.6645352591003757e-15,
+          "ports": {
+            "via:280.5,20.8": {
+              "active_nodes": 4,
+              "fraction": 0.1237707053209449
+            },
+            "via:280.5,21.5": {
+              "active_nodes": 4,
+              "fraction": 0.0983053808351224
+            },
+            "via:280.5,22.2": {
+              "active_nodes": 4,
+              "fraction": 0.2813526452095352
+            },
+            "via:281.2,20.8": {
+              "active_nodes": 4,
+              "fraction": 0.02544450210605511
+            },
+            "via:281.2,21.5": {
+              "active_nodes": 4,
+              "fraction": 0.0023391932518768564
+            },
+            "via:281.2,22.2": {
+              "active_nodes": 4,
+              "fraction": 0.12736545309110212
+            },
+            "via:281.9,20.8": {
+              "active_nodes": 5,
+              "fraction": 0.014992600104460267
+            },
+            "via:281.9,21.5": {
+              "active_nodes": 4,
+              "fraction": 0.00027689777998611743
+            },
+            "via:281.9,22.2": {
+              "active_nodes": 5,
+              "fraction": 0.11071563598373886
+            },
+            "via:282.6,20.8": {
+              "active_nodes": 5,
+              "fraction": 0.025595753628449965
+            },
+            "via:282.6,21.5": {
+              "active_nodes": 4,
+              "fraction": 0.01335420148030537
+            },
+            "via:282.6,22.2": {
+              "active_nodes": 5,
+              "fraction": 0.17648703120842288
+            },
+            "via:189.95,112.75": {
+              "active_nodes": 4,
+              "fraction": 0.5557814805425535
+            },
+            "via:191.5,112.8": {
+              "active_nodes": 4,
+              "fraction": 0.0811509687591769
+            },
+            "via:192.1,112.8": {
+              "active_nodes": 5,
+              "fraction": 0.17026435958545633
+            },
+            "via:189.5,114.8": {
+              "active_nodes": 4,
+              "fraction": 0.18459134388121504
+            },
+            "via:193.9,114.3": {
+              "active_nodes": 3,
+              "fraction": 0.008211847148649367
+            }
+          }
+        },
+        {
+          "step_mm": 0.125,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 345275,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 5394.921875,
+          "exact_copper_area_mm2": 5548.863084142668,
+          "resistance_squares": 55.7675707310314,
+          "source_current_at_unit_voltage": 0.017931568237444462,
+          "current_balance_relative_error": 2.088360552933812e-10,
+          "energy_relative_error": 1.3033047886445625e-10,
+          "maximum_interior_KCL_error": 4.884981308350689e-15,
+          "ports": {
+            "via:280.5,20.8": {
+              "active_nodes": 16,
+              "fraction": 0.12287989525623925
+            },
+            "via:280.5,21.5": {
+              "active_nodes": 16,
+              "fraction": 0.0916820745695425
+            },
+            "via:280.5,22.2": {
+              "active_nodes": 16,
+              "fraction": 0.2733838243221604
+            },
+            "via:281.2,20.8": {
+              "active_nodes": 21,
+              "fraction": 0.02701958188567628
+            },
+            "via:281.2,21.5": {
+              "active_nodes": 16,
+              "fraction": 0.000135827796109524
+            },
+            "via:281.2,22.2": {
+              "active_nodes": 21,
+              "fraction": 0.13373564752377645
+            },
+            "via:281.9,20.8": {
+              "active_nodes": 18,
+              "fraction": 0.015253310071464368
+            },
+            "via:281.9,21.5": {
+              "active_nodes": 18,
+              "fraction": 5.863805149117728e-05
+            },
+            "via:281.9,22.2": {
+              "active_nodes": 18,
+              "fraction": 0.11215163864306833
+            },
+            "via:282.6,20.8": {
+              "active_nodes": 18,
+              "fraction": 0.024988591815708117
+            },
+            "via:282.6,21.5": {
+              "active_nodes": 18,
+              "fraction": 0.022516826102440827
+            },
+            "via:282.6,22.2": {
+              "active_nodes": 18,
+              "fraction": 0.17619414396232275
+            },
+            "via:189.95,112.75": {
+              "active_nodes": 16,
+              "fraction": 0.5919022216417829
+            },
+            "via:191.5,112.8": {
+              "active_nodes": 16,
+              "fraction": 0.08822620604831553
+            },
+            "via:192.1,112.8": {
+              "active_nodes": 18,
+              "fraction": 0.14257459005237225
+            },
+            "via:189.5,114.8": {
+              "active_nodes": 16,
+              "fraction": 0.16682864808296216
+            },
+            "via:193.9,114.3": {
+              "active_nodes": 13,
+              "fraction": 0.01046833396573109
+            }
+          }
+        },
+        {
+          "step_mm": 0.1,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 542555,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 5425.55,
+          "exact_copper_area_mm2": 5548.863084142668,
+          "resistance_squares": 55.24501489384128,
+          "source_current_at_unit_voltage": 0.018101180747649326,
+          "current_balance_relative_error": 2.86517374111154e-10,
+          "energy_relative_error": 1.8343053702218413e-10,
+          "maximum_interior_KCL_error": 4.884981308350689e-15,
+          "ports": {
+            "via:280.5,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.12674028868753914
+            },
+            "via:280.5,21.5": {
+              "active_nodes": 32,
+              "fraction": 0.08799474151737079
+            },
+            "via:280.5,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.2935476085196484
+            },
+            "via:281.2,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.02256703176911748
+            },
+            "via:281.2,21.5": {
+              "active_nodes": 32,
+              "fraction": 2.4083028735553785e-05
+            },
+            "via:281.2,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.12042777183829122
+            },
+            "via:281.9,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.014252996107447126
+            },
+            "via:281.9,21.5": {
+              "active_nodes": 32,
+              "fraction": 1.524848602728376e-05
+            },
+            "via:281.9,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.11117502952233821
+            },
+            "via:282.6,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.023671039458124002
+            },
+            "via:282.6,21.5": {
+              "active_nodes": 32,
+              "fraction": 0.020793753427351208
+            },
+            "via:282.6,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.1787904076380096
+            },
+            "via:189.95,112.75": {
+              "active_nodes": 25,
+              "fraction": 0.5826486608078649
+            },
+            "via:191.5,112.8": {
+              "active_nodes": 32,
+              "fraction": 0.09473723176404325
+            },
+            "via:192.1,112.8": {
+              "active_nodes": 32,
+              "fraction": 0.13670810753920137
+            },
+            "via:189.5,114.8": {
+              "active_nodes": 32,
+              "fraction": 0.17726608397707208
+            },
+            "via:193.9,114.3": {
+              "active_nodes": 22,
+              "fraction": 0.008639915625301036
+            }
+          }
+        }
+      ],
+      "shifted_fine_mesh": {
+        "step_mm": 0.1,
+        "origin_mm": [
+          0.05,
+          0.05
+        ],
+        "active_nodes": 547792,
+        "discarded_zero_current_nodes": 0,
+        "mesh_copper_area_mm2": 5477.920000000001,
+        "exact_copper_area_mm2": 5548.863084142668,
+        "resistance_squares": 54.73509369120766,
+        "source_current_at_unit_voltage": 0.01826981434692665,
+        "current_balance_relative_error": 1.8650831126940665e-10,
+        "energy_relative_error": 1.1976075282985094e-10,
+        "maximum_interior_KCL_error": 5.440092820663267e-15,
+        "ports": {
+          "via:280.5,20.8": {
+            "active_nodes": 27,
+            "fraction": 0.12720825171166641
+          },
+          "via:280.5,21.5": {
+            "active_nodes": 27,
+            "fraction": 0.08919056917521803
+          },
+          "via:280.5,22.2": {
+            "active_nodes": 27,
+            "fraction": 0.2877491243469665
+          },
+          "via:281.2,20.8": {
+            "active_nodes": 27,
+            "fraction": 0.023474115404194678
+          },
+          "via:281.2,21.5": {
+            "active_nodes": 27,
+            "fraction": 0.00010272304622764058
+          },
+          "via:281.2,22.2": {
+            "active_nodes": 27,
+            "fraction": 0.12092907280612065
+          },
+          "via:281.9,20.8": {
+            "active_nodes": 26,
+            "fraction": 0.01491712485191662
+          },
+          "via:281.9,21.5": {
+            "active_nodes": 26,
+            "fraction": 0.0001174152468158538
+          },
+          "via:281.9,22.2": {
+            "active_nodes": 26,
+            "fraction": 0.1106684976805345
+          },
+          "via:282.6,20.8": {
+            "active_nodes": 26,
+            "fraction": 0.026162007208114096
+          },
+          "via:282.6,21.5": {
+            "active_nodes": 26,
+            "fraction": 0.02364146129379534
+          },
+          "via:282.6,22.2": {
+            "active_nodes": 26,
+            "fraction": 0.17583963722842968
+          },
+          "via:189.95,112.75": {
+            "active_nodes": 32,
+            "fraction": 0.6045844265574745
+          },
+          "via:191.5,112.8": {
+            "active_nodes": 26,
+            "fraction": 0.09357650740009234
+          },
+          "via:192.1,112.8": {
+            "active_nodes": 25,
+            "fraction": 0.13161399131987908
+          },
+          "via:189.5,114.8": {
+            "active_nodes": 26,
+            "fraction": 0.15955911463354824
+          },
+          "via:193.9,114.3": {
+            "active_nodes": 21,
+            "fraction": 0.010665959902497626
+          }
+        }
+      },
+      "fine_refinement_relative_difference": 0.009458877659717535,
+      "fine_grid_shift_relative_difference": 0.00923017585592989
+    },
+    {
+      "label": "In3.Cu",
+      "net": "PWR_DC_IN",
+      "layer": "In3.Cu",
+      "zone_uuid": "a94125f8-f63e-5d6b-a427-21dcfd31e312",
+      "source_objects": [
+        "5947fc62-6303-5ed4-b1ac-0ebcdeb8aa9b",
+        "7e2449b2-c8e2-5e36-abb5-3fb5cb939513",
+        "65aa1904-5825-50af-86cc-3be251a1fb01",
+        "a2ee302c-f0ce-5683-8986-2fb5b630dd36",
+        "67ef56ab-3146-55be-bf7d-c50d3517e8ec",
+        "ae0812c2-b7db-5743-a06b-f66099a98d71",
+        "a0a4ee89-1a4a-5c09-8b22-b0541c6eee9d",
+        "370d24f8-8875-5548-813c-1fc558e81bc4",
+        "b36c94e6-f82c-55a9-85c5-f99286b4b874",
+        "26eea069-6c8a-5bc4-b3de-c8a0b1482829",
+        "bb1a21bb-cd03-5176-ba9b-85faeb9d3d8f",
+        "9ba375d5-c249-5afb-a129-014813d903f3"
+      ],
+      "sink_objects": [
+        "86009a5d-8934-526b-92de-cf7c8f2495c3",
+        "f19e23d9-bb63-557e-9a57-a1dfb07026f5",
+        "519137a4-bbcb-5367-b834-5ce65ea999cc",
+        "83ce4dc6-32a3-5ee5-a1de-34abb8d29157",
+        "09d3b396-6ba8-5a29-9fb1-e10ca395f03e"
+      ],
+      "meshes": [
+        {
+          "step_mm": 0.25,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 83998,
+          "discarded_zero_current_nodes": 1,
+          "mesh_copper_area_mm2": 5249.9375,
+          "exact_copper_area_mm2": 5566.08105053035,
+          "resistance_squares": 60.43416627352486,
+          "source_current_at_unit_voltage": 0.01654693134135421,
+          "current_balance_relative_error": 8.046311352724785e-11,
+          "energy_relative_error": 5.0824348328433046e-11,
+          "maximum_interior_KCL_error": 2.55351295663786e-15,
+          "ports": {
+            "via:280.5,20.8": {
+              "active_nodes": 4,
+              "fraction": 0.12377070532088918
+            },
+            "via:280.5,21.5": {
+              "active_nodes": 4,
+              "fraction": 0.09830538083517423
+            },
+            "via:280.5,22.2": {
+              "active_nodes": 4,
+              "fraction": 0.2813526452095669
+            },
+            "via:281.2,20.8": {
+              "active_nodes": 4,
+              "fraction": 0.02544450210605029
+            },
+            "via:281.2,21.5": {
+              "active_nodes": 4,
+              "fraction": 0.0023391932519083868
+            },
+            "via:281.2,22.2": {
+              "active_nodes": 4,
+              "fraction": 0.12736545309108885
+            },
+            "via:281.9,20.8": {
+              "active_nodes": 5,
+              "fraction": 0.01499260010444836
+            },
+            "via:281.9,21.5": {
+              "active_nodes": 4,
+              "fraction": 0.00027689777999290795
+            },
+            "via:281.9,22.2": {
+              "active_nodes": 5,
+              "fraction": 0.11071563598377378
+            },
+            "via:282.6,20.8": {
+              "active_nodes": 5,
+              "fraction": 0.025595753628428395
+            },
+            "via:282.6,21.5": {
+              "active_nodes": 4,
+              "fraction": 0.013354201480295712
+            },
+            "via:282.6,22.2": {
+              "active_nodes": 5,
+              "fraction": 0.17648703120838302
+            },
+            "via:189.95,112.75": {
+              "active_nodes": 4,
+              "fraction": 0.2584951931300935
+            },
+            "via:191.5,112.8": {
+              "active_nodes": 4,
+              "fraction": 0.07505544420630099
+            },
+            "via:192.1,112.8": {
+              "active_nodes": 5,
+              "fraction": 0.10842014205790029
+            },
+            "via:189.5,114.8": {
+              "active_nodes": 4,
+              "fraction": 0.46717963014684616
+            },
+            "via:193.9,114.3": {
+              "active_nodes": 3,
+              "fraction": 0.09084959037839611
+            }
+          }
+        },
+        {
+          "step_mm": 0.125,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 346449,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 5413.265625,
+          "exact_copper_area_mm2": 5566.08105053035,
+          "resistance_squares": 54.625891234540056,
+          "source_current_at_unit_voltage": 0.018306337478439128,
+          "current_balance_relative_error": 2.0382255513691487e-10,
+          "energy_relative_error": 1.2522149067679344e-10,
+          "maximum_interior_KCL_error": 4.884981308350689e-15,
+          "ports": {
+            "via:280.5,20.8": {
+              "active_nodes": 16,
+              "fraction": 0.12287989525620677
+            },
+            "via:280.5,21.5": {
+              "active_nodes": 16,
+              "fraction": 0.09168207456945049
+            },
+            "via:280.5,22.2": {
+              "active_nodes": 16,
+              "fraction": 0.2733838243221008
+            },
+            "via:281.2,20.8": {
+              "active_nodes": 21,
+              "fraction": 0.027019581885761028
+            },
+            "via:281.2,21.5": {
+              "active_nodes": 16,
+              "fraction": 0.0001358277960857191
+            },
+            "via:281.2,22.2": {
+              "active_nodes": 21,
+              "fraction": 0.13373564752377284
+            },
+            "via:281.9,20.8": {
+              "active_nodes": 18,
+              "fraction": 0.01525331007151074
+            },
+            "via:281.9,21.5": {
+              "active_nodes": 18,
+              "fraction": 5.863805150698708e-05
+            },
+            "via:281.9,22.2": {
+              "active_nodes": 18,
+              "fraction": 0.1121516386431017
+            },
+            "via:282.6,20.8": {
+              "active_nodes": 18,
+              "fraction": 0.02498859181575297
+            },
+            "via:282.6,21.5": {
+              "active_nodes": 18,
+              "fraction": 0.02251682610244814
+            },
+            "via:282.6,22.2": {
+              "active_nodes": 18,
+              "fraction": 0.1761941439623018
+            },
+            "via:189.95,112.75": {
+              "active_nodes": 16,
+              "fraction": 0.27403832562815245
+            },
+            "via:191.5,112.8": {
+              "active_nodes": 16,
+              "fraction": 0.07434734150024315
+            },
+            "via:192.1,112.8": {
+              "active_nodes": 18,
+              "fraction": 0.0920856833898564
+            },
+            "via:189.5,114.8": {
+              "active_nodes": 16,
+              "fraction": 0.4740237528929695
+            },
+            "via:193.9,114.3": {
+              "active_nodes": 13,
+              "fraction": 0.08550489638495579
+            }
+          }
+        },
+        {
+          "step_mm": 0.1,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 544376,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 5443.760000000001,
+          "exact_copper_area_mm2": 5566.08105053035,
+          "resistance_squares": 54.12225567236481,
+          "source_current_at_unit_voltage": 0.018476687410325487,
+          "current_balance_relative_error": 2.7753942113971174e-10,
+          "energy_relative_error": 1.7606769432939766e-10,
+          "maximum_interior_KCL_error": 4.218847493575595e-15,
+          "ports": {
+            "via:280.5,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.12674028868766415
+            },
+            "via:280.5,21.5": {
+              "active_nodes": 32,
+              "fraction": 0.08799474151735133
+            },
+            "via:280.5,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.2935476085197983
+            },
+            "via:281.2,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.0225670317691449
+            },
+            "via:281.2,21.5": {
+              "active_nodes": 32,
+              "fraction": 2.4083028807534428e-05
+            },
+            "via:281.2,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.12042777183832702
+            },
+            "via:281.9,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.014252996107373173
+            },
+            "via:281.9,21.5": {
+              "active_nodes": 32,
+              "fraction": 1.5248485936180162e-05
+            },
+            "via:281.9,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.11117502952243774
+            },
+            "via:282.6,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.02367103945791106
+            },
+            "via:282.6,21.5": {
+              "active_nodes": 32,
+              "fraction": 0.020793753427217312
+            },
+            "via:282.6,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.17879040763803133
+            },
+            "via:189.95,112.75": {
+              "active_nodes": 25,
+              "fraction": 0.26381451073868184
+            },
+            "via:191.5,112.8": {
+              "active_nodes": 32,
+              "fraction": 0.0742874597631998
+            },
+            "via:192.1,112.8": {
+              "active_nodes": 32,
+              "fraction": 0.08713920039804277
+            },
+            "via:189.5,114.8": {
+              "active_nodes": 32,
+              "fraction": 0.49218974607641747
+            },
+            "via:193.9,114.3": {
+              "active_nodes": 22,
+              "fraction": 0.08256908274611872
+            }
+          }
+        }
+      ],
+      "shifted_fine_mesh": {
+        "step_mm": 0.1,
+        "origin_mm": [
+          0.05,
+          0.05
+        ],
+        "active_nodes": 549656,
+        "discarded_zero_current_nodes": 0,
+        "mesh_copper_area_mm2": 5496.560000000001,
+        "exact_copper_area_mm2": 5566.08105053035,
+        "resistance_squares": 53.62279303089013,
+        "source_current_at_unit_voltage": 0.018648786150022745,
+        "current_balance_relative_error": 1.7841280675979536e-10,
+        "energy_relative_error": 1.152262516166751e-10,
+        "maximum_interior_KCL_error": 4.6629367034256575e-15,
+        "ports": {
+          "via:280.5,20.8": {
+            "active_nodes": 27,
+            "fraction": 0.12720825171163727
+          },
+          "via:280.5,21.5": {
+            "active_nodes": 27,
+            "fraction": 0.08919056917529478
+          },
+          "via:280.5,22.2": {
+            "active_nodes": 27,
+            "fraction": 0.2877491243471119
+          },
+          "via:281.2,20.8": {
+            "active_nodes": 27,
+            "fraction": 0.023474115404248673
+          },
+          "via:281.2,21.5": {
+            "active_nodes": 27,
+            "fraction": 0.00010272304625611314
+          },
+          "via:281.2,22.2": {
+            "active_nodes": 27,
+            "fraction": 0.12092907280606979
+          },
+          "via:281.9,20.8": {
+            "active_nodes": 26,
+            "fraction": 0.014917124851868734
+          },
+          "via:281.9,21.5": {
+            "active_nodes": 26,
+            "fraction": 0.00011741524687599853
+          },
+          "via:281.9,22.2": {
+            "active_nodes": 26,
+            "fraction": 0.11066849768053558
+          },
+          "via:282.6,20.8": {
+            "active_nodes": 26,
+            "fraction": 0.026162007207957076
+          },
+          "via:282.6,21.5": {
+            "active_nodes": 26,
+            "fraction": 0.02364146129374855
+          },
+          "via:282.6,22.2": {
+            "active_nodes": 26,
+            "fraction": 0.17583963722839555
+          },
+          "via:189.95,112.75": {
+            "active_nodes": 32,
+            "fraction": 0.2812738092879939
+          },
+          "via:191.5,112.8": {
+            "active_nodes": 26,
+            "fraction": 0.07323519757426815
+          },
+          "via:192.1,112.8": {
+            "active_nodes": 25,
+            "fraction": 0.0851937537607875
+          },
+          "via:189.5,114.8": {
+            "active_nodes": 26,
+            "fraction": 0.47372431293208117
+          },
+          "via:193.9,114.3": {
+            "active_nodes": 21,
+            "fraction": 0.08657292626645655
+          }
+        }
+      },
+      "fine_refinement_relative_difference": 0.009305516851035645,
+      "fine_grid_shift_relative_difference": 0.009228415099663101
+    },
+    {
+      "label": "In4.Cu",
+      "net": "PWR_AGND",
+      "layer": "In4.Cu",
+      "zone_uuid": "787e0385-5c4c-5b8f-9a2a-017054f7da0e",
+      "source_objects": [
+        "b5494e1c-0d16-5da4-a9f8-3956d3ef772a"
+      ],
+      "sink_objects": [
+        "e0edb3ab-4cc9-510b-8c66-3741d83218e7",
+        "07bf732b-067d-51ed-bd05-591390bee9bb",
+        "20a7d201-43ab-520c-8d21-f6d3652c3367",
+        "fbaf7687-65b0-5031-bdaa-7d5d47e414d5",
+        "aeb0b9ac-9455-5366-b909-c9bf6fe8d85d",
+        "ca9909d1-9c38-5740-9692-51caf0903f82"
+      ],
+      "meshes": [
+        {
+          "step_mm": 0.25,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 89533,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 5595.8125,
+          "exact_copper_area_mm2": 5939.443086789761,
+          "resistance_squares": 59.50666733703943,
+          "source_current_at_unit_voltage": 0.016804839604545596,
+          "current_balance_relative_error": 9.705955648627835e-11,
+          "energy_relative_error": 6.480546949914668e-11,
+          "maximum_interior_KCL_error": 2.1094237467877974e-15,
+          "ports": {
+            "I_J1.2": {
+              "active_nodes": 84,
+              "fraction": 1.0
+            },
+            "via:194.0,126.7": {
+              "active_nodes": 4,
+              "fraction": 0.021667761818334543
+            },
+            "via:198.7,124.5": {
+              "active_nodes": 4,
+              "fraction": 0.03072327635836466
+            },
+            "via:195.8,119.5": {
+              "active_nodes": 4,
+              "fraction": 0.15789200672419085
+            },
+            "via:197.95,111.3": {
+              "active_nodes": 4,
+              "fraction": 0.1994426601932507
+            },
+            "via:193.8,117.0": {
+              "active_nodes": 4,
+              "fraction": 0.3690309381173479
+            },
+            "via:194.0,118.3": {
+              "active_nodes": 4,
+              "fraction": 0.22124335669145184
+            }
+          }
+        },
+        {
+          "step_mm": 0.125,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 369560,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 5774.375,
+          "exact_copper_area_mm2": 5939.443086789761,
+          "resistance_squares": 56.57789980522575,
+          "source_current_at_unit_voltage": 0.017674745853815454,
+          "current_balance_relative_error": 2.245407317968883e-10,
+          "energy_relative_error": 1.4445591151415232e-10,
+          "maximum_interior_KCL_error": 3.3306690738754696e-15,
+          "ports": {
+            "I_J1.2": {
+              "active_nodes": 336,
+              "fraction": 1.0
+            },
+            "via:194.0,126.7": {
+              "active_nodes": 16,
+              "fraction": 0.06065975568102231
+            },
+            "via:198.7,124.5": {
+              "active_nodes": 16,
+              "fraction": 0.032654714988430075
+            },
+            "via:195.8,119.5": {
+              "active_nodes": 16,
+              "fraction": 0.12780201529171092
+            },
+            "via:197.95,111.3": {
+              "active_nodes": 21,
+              "fraction": 0.1965580027681967
+            },
+            "via:193.8,117.0": {
+              "active_nodes": 16,
+              "fraction": 0.3580658636585406
+            },
+            "via:194.0,118.3": {
+              "active_nodes": 16,
+              "fraction": 0.22425964738755882
+            }
+          }
+        },
+        {
+          "step_mm": 0.1,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 580550,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 5805.5,
+          "exact_copper_area_mm2": 5939.443086789761,
+          "resistance_squares": 56.12101417344131,
+          "source_current_at_unit_voltage": 0.01781863736299405,
+          "current_balance_relative_error": 3.0252814589545785e-10,
+          "energy_relative_error": 1.9373611599229484e-10,
+          "maximum_interior_KCL_error": 3.3306690738754696e-15,
+          "ports": {
+            "I_J1.2": {
+              "active_nodes": 540,
+              "fraction": 1.0
+            },
+            "via:194.0,126.7": {
+              "active_nodes": 32,
+              "fraction": 0.06442713389482393
+            },
+            "via:198.7,124.5": {
+              "active_nodes": 31,
+              "fraction": 0.03118195008258428
+            },
+            "via:195.8,119.5": {
+              "active_nodes": 32,
+              "fraction": 0.12676017343185442
+            },
+            "via:197.95,111.3": {
+              "active_nodes": 26,
+              "fraction": 0.18961166440345772
+            },
+            "via:193.8,117.0": {
+              "active_nodes": 32,
+              "fraction": 0.36345685164692865
+            },
+            "via:194.0,118.3": {
+              "active_nodes": 32,
+              "fraction": 0.224562226237823
+            }
+          }
+        }
+      ],
+      "shifted_fine_mesh": {
+        "step_mm": 0.1,
+        "origin_mm": [
+          0.05,
+          0.05
+        ],
+        "active_nodes": 586446,
+        "discarded_zero_current_nodes": 0,
+        "mesh_copper_area_mm2": 5864.460000000001,
+        "exact_copper_area_mm2": 5939.443086789761,
+        "resistance_squares": 55.534233961862355,
+        "source_current_at_unit_voltage": 0.018006910848662128,
+        "current_balance_relative_error": 2.819049910163373e-10,
+        "energy_relative_error": 1.8400702901213187e-10,
+        "maximum_interior_KCL_error": 3.219646771412954e-15,
+        "ports": {
+          "I_J1.2": {
+            "active_nodes": 526,
+            "fraction": 1.0
+          },
+          "via:194.0,126.7": {
+            "active_nodes": 26,
+            "fraction": 0.07130691227728107
+          },
+          "via:198.7,124.5": {
+            "active_nodes": 26,
+            "fraction": 0.033230608233673006
+          },
+          "via:195.8,119.5": {
+            "active_nodes": 26,
+            "fraction": 0.12764138620620716
+          },
+          "via:197.95,111.3": {
+            "active_nodes": 26,
+            "fraction": 0.19079667288023008
+          },
+          "via:193.8,117.0": {
+            "active_nodes": 26,
+            "fraction": 0.3553368193790762
+          },
+          "via:194.0,118.3": {
+            "active_nodes": 26,
+            "fraction": 0.22168760074162755
+          }
+        }
+      },
+      "fine_refinement_relative_difference": 0.008141079389129224,
+      "fine_grid_shift_relative_difference": 0.010455623801906344
+    },
+    {
+      "label": "In5.Cu",
+      "net": "PWR_AGND",
+      "layer": "In5.Cu",
+      "zone_uuid": "1893ea20-0fe1-5364-8239-d1853c450ce0",
+      "source_objects": [
+        "b5494e1c-0d16-5da4-a9f8-3956d3ef772a"
+      ],
+      "sink_objects": [
+        "e0edb3ab-4cc9-510b-8c66-3741d83218e7",
+        "07bf732b-067d-51ed-bd05-591390bee9bb",
+        "20a7d201-43ab-520c-8d21-f6d3652c3367",
+        "fbaf7687-65b0-5031-bdaa-7d5d47e414d5",
+        "aeb0b9ac-9455-5366-b909-c9bf6fe8d85d",
+        "ca9909d1-9c38-5740-9692-51caf0903f82"
+      ],
+      "meshes": [
+        {
+          "step_mm": 0.25,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 88664,
+          "discarded_zero_current_nodes": 340,
+          "mesh_copper_area_mm2": 5562.75,
+          "exact_copper_area_mm2": 5913.739405446473,
+          "resistance_squares": 63.57855487866742,
+          "source_current_at_unit_voltage": 0.01572857391786253,
+          "current_balance_relative_error": 1.1036290100432e-10,
+          "energy_relative_error": 7.395003687362668e-11,
+          "maximum_interior_KCL_error": 2.3314683517128287e-15,
+          "ports": {
+            "I_J1.2": {
+              "active_nodes": 84,
+              "fraction": 1.0
+            },
+            "via:194.0,126.7": {
+              "active_nodes": 0,
+              "fraction": -0.0
+            },
+            "via:198.7,124.5": {
+              "active_nodes": 4,
+              "fraction": 0.0030008871173682664
+            },
+            "via:195.8,119.5": {
+              "active_nodes": 4,
+              "fraction": 0.0710845414978525
+            },
+            "via:197.95,111.3": {
+              "active_nodes": 4,
+              "fraction": 0.7724126150034818
+            },
+            "via:193.8,117.0": {
+              "active_nodes": 3,
+              "fraction": 0.11877438047580195
+            },
+            "via:194.0,118.3": {
+              "active_nodes": 4,
+              "fraction": 0.034727575795132665
+            }
+          }
+        },
+        {
+          "step_mm": 0.125,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 366132,
+          "discarded_zero_current_nodes": 1502,
+          "mesh_copper_area_mm2": 5744.28125,
+          "exact_copper_area_mm2": 5913.739405446473,
+          "resistance_squares": 59.211294894361274,
+          "source_current_at_unit_voltage": 0.016888669666557665,
+          "current_balance_relative_error": 2.4813964186948907e-10,
+          "energy_relative_error": 1.5966588428327778e-10,
+          "maximum_interior_KCL_error": 3.774758283725532e-15,
+          "ports": {
+            "I_J1.2": {
+              "active_nodes": 336,
+              "fraction": 1.0
+            },
+            "via:194.0,126.7": {
+              "active_nodes": 0,
+              "fraction": -0.0
+            },
+            "via:198.7,124.5": {
+              "active_nodes": 16,
+              "fraction": 0.004711120858752915
+            },
+            "via:195.8,119.5": {
+              "active_nodes": 16,
+              "fraction": 0.07022890850189409
+            },
+            "via:197.95,111.3": {
+              "active_nodes": 21,
+              "fraction": 0.757590874423395
+            },
+            "via:193.8,117.0": {
+              "active_nodes": 16,
+              "fraction": 0.1347822620063599
+            },
+            "via:194.0,118.3": {
+              "active_nodes": 16,
+              "fraction": 0.032686833961458425
+            }
+          }
+        },
+        {
+          "step_mm": 0.1,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 575264,
+          "discarded_zero_current_nodes": 2403,
+          "mesh_copper_area_mm2": 5776.670000000001,
+          "exact_copper_area_mm2": 5913.739405446473,
+          "resistance_squares": 58.694762536072055,
+          "source_current_at_unit_voltage": 0.017037295267792074,
+          "current_balance_relative_error": 3.340669049985263e-10,
+          "energy_relative_error": 2.1307394861759863e-10,
+          "maximum_interior_KCL_error": 3.1086244689504383e-15,
+          "ports": {
+            "I_J1.2": {
+              "active_nodes": 540,
+              "fraction": 1.0
+            },
+            "via:194.0,126.7": {
+              "active_nodes": 0,
+              "fraction": -0.0
+            },
+            "via:198.7,124.5": {
+              "active_nodes": 31,
+              "fraction": 0.004592769875686956
+            },
+            "via:195.8,119.5": {
+              "active_nodes": 32,
+              "fraction": 0.07257450159357784
+            },
+            "via:197.95,111.3": {
+              "active_nodes": 26,
+              "fraction": 0.7494955423023846
+            },
+            "via:193.8,117.0": {
+              "active_nodes": 32,
+              "fraction": 0.1416462784604617
+            },
+            "via:194.0,118.3": {
+              "active_nodes": 32,
+              "fraction": 0.031690907433822066
+            }
+          }
+        }
+      ],
+      "shifted_fine_mesh": {
+        "step_mm": 0.1,
+        "origin_mm": [
+          0.05,
+          0.05
+        ],
+        "active_nodes": 581087,
+        "discarded_zero_current_nodes": 2471,
+        "mesh_copper_area_mm2": 5835.580000000001,
+        "exact_copper_area_mm2": 5913.739405446473,
+        "resistance_squares": 57.97380840193842,
+        "source_current_at_unit_voltage": 0.017249168677463733,
+        "current_balance_relative_error": 3.1070827262853065e-10,
+        "energy_relative_error": 2.0131224322628325e-10,
+        "maximum_interior_KCL_error": 3.885780586188048e-15,
+        "ports": {
+          "I_J1.2": {
+            "active_nodes": 526,
+            "fraction": 1.0
+          },
+          "via:194.0,126.7": {
+            "active_nodes": 0,
+            "fraction": -0.0
+          },
+          "via:198.7,124.5": {
+            "active_nodes": 26,
+            "fraction": 0.0052665001769998665
+          },
+          "via:195.8,119.5": {
+            "active_nodes": 26,
+            "fraction": 0.07476927465494695
+          },
+          "via:197.95,111.3": {
+            "active_nodes": 26,
+            "fraction": 0.7427955244843744
+          },
+          "via:193.8,117.0": {
+            "active_nodes": 25,
+            "fraction": 0.1421480150735028
+          },
+          "via:194.0,118.3": {
+            "active_nodes": 26,
+            "fraction": 0.035020685299467676
+          }
+        }
+      },
+      "fine_refinement_relative_difference": 0.008800314303542445,
+      "fine_grid_shift_relative_difference": 0.012283108457770142
+    },
+    {
+      "label": "jack-to-fuse",
+      "net": "/I_input_protection/DC_JACK",
+      "layer": "F.Cu",
+      "source_objects": [
+        "33abbdb2-f232-50f3-a04c-c92b7e3bea3c"
+      ],
+      "sink_objects": [
+        "17c49e60-f4fe-5a07-9cbd-1f0c8e2535df"
+      ],
+      "meshes": [
+        {
+          "step_mm": 0.1,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 8684,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 86.84000000000002,
+          "exact_copper_area_mm2": 93.13305269480387,
+          "resistance_squares": 9.249985593017595,
+          "source_current_at_unit_voltage": 0.10810827648800403,
+          "current_balance_relative_error": 1.0530136737508152e-12,
+          "energy_relative_error": 6.345296342009362e-13,
+          "maximum_interior_KCL_error": 1.7763568394002505e-15,
+          "ports": {
+            "I_J1.1": {
+              "active_nodes": 655,
+              "fraction": 1.0
+            },
+            "I_F1.1": {
+              "active_nodes": 570,
+              "fraction": 0.999999999998947
+            }
+          }
+        },
+        {
+          "step_mm": 0.05,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 35974,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 89.935,
+          "exact_copper_area_mm2": 93.13305269480387,
+          "resistance_squares": 8.74773214201074,
+          "source_current_at_unit_voltage": 0.1143153429672964,
+          "current_balance_relative_error": 4.208423643389029e-12,
+          "energy_relative_error": 2.7873249539090786e-12,
+          "maximum_interior_KCL_error": 2.6645352591003757e-15,
+          "ports": {
+            "I_J1.1": {
+              "active_nodes": 2662,
+              "fraction": 1.0
+            },
+            "I_F1.1": {
+              "active_nodes": 2378,
+              "fraction": 0.9999999999957916
+            }
+          }
+        },
+        {
+          "step_mm": 0.025,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 146360,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 91.47500000000001,
+          "exact_copper_area_mm2": 93.13305269480387,
+          "resistance_squares": 8.577510461976196,
+          "source_current_at_unit_voltage": 0.11658394407479478,
+          "current_balance_relative_error": 7.07198045327159e-12,
+          "energy_relative_error": 4.3041351494595884e-12,
+          "maximum_interior_KCL_error": 3.774758283725532e-15,
+          "ports": {
+            "I_J1.1": {
+              "active_nodes": 10733,
+              "fraction": 1.0
+            },
+            "I_F1.1": {
+              "active_nodes": 9548,
+              "fraction": 0.999999999992928
+            }
+          }
+        }
+      ],
+      "shifted_fine_mesh": {
+        "step_mm": 0.025,
+        "origin_mm": [
+          0.0125,
+          0.0125
+        ],
+        "active_nodes": 147490,
+        "discarded_zero_current_nodes": 0,
+        "mesh_copper_area_mm2": 92.18125,
+        "exact_copper_area_mm2": 93.13305269480387,
+        "resistance_squares": 8.483480433530422,
+        "source_current_at_unit_voltage": 0.11787614857312134,
+        "current_balance_relative_error": 5.989494783134968e-12,
+        "energy_relative_error": 3.67512028050362e-12,
+        "maximum_interior_KCL_error": 3.4416913763379853e-15,
+        "ports": {
+          "I_J1.1": {
+            "active_nodes": 10609,
+            "fraction": 1.0
+          },
+          "I_F1.1": {
+            "active_nodes": 9672,
+            "fraction": 0.9999999999940105
+          }
+        }
+      },
+      "fine_refinement_relative_difference": 0.019845114825464805,
+      "fine_grid_shift_relative_difference": 0.010962391577673425
+    },
+    {
+      "label": "fuse-to-inlet-vias",
+      "net": "PWR_DC_IN",
+      "layer": "F.Cu",
+      "source_objects": [
+        "349e3461-4059-5e0b-bab9-90a457727607"
+      ],
+      "sink_objects": [
+        "5947fc62-6303-5ed4-b1ac-0ebcdeb8aa9b",
+        "7e2449b2-c8e2-5e36-abb5-3fb5cb939513",
+        "65aa1904-5825-50af-86cc-3be251a1fb01",
+        "a2ee302c-f0ce-5683-8986-2fb5b630dd36",
+        "67ef56ab-3146-55be-bf7d-c50d3517e8ec",
+        "ae0812c2-b7db-5743-a06b-f66099a98d71",
+        "a0a4ee89-1a4a-5c09-8b22-b0541c6eee9d",
+        "370d24f8-8875-5548-813c-1fc558e81bc4",
+        "b36c94e6-f82c-55a9-85c5-f99286b4b874",
+        "26eea069-6c8a-5bc4-b3de-c8a0b1482829",
+        "bb1a21bb-cd03-5176-ba9b-85faeb9d3d8f",
+        "9ba375d5-c249-5afb-a129-014813d903f3"
+      ],
+      "meshes": [
+        {
+          "step_mm": 0.1,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 1824,
+          "discarded_zero_current_nodes": 1279,
+          "mesh_copper_area_mm2": 31.03,
+          "exact_copper_area_mm2": 36.14876288777636,
+          "resistance_squares": 0.32019053486419385,
+          "source_current_at_unit_voltage": 3.123140415203534,
+          "current_balance_relative_error": 4.265794848879263e-15,
+          "energy_relative_error": 2.2750905860689404e-15,
+          "maximum_interior_KCL_error": 1.5543122344752192e-15,
+          "ports": {
+            "I_F1.2": {
+              "active_nodes": 589,
+              "fraction": 1.0
+            },
+            "via:280.5,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.3085638257487891
+            },
+            "via:280.5,21.5": {
+              "active_nodes": 32,
+              "fraction": 0.24623644827600402
+            },
+            "via:280.5,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.38631112761520275
+            },
+            "via:281.2,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.004556509669794135
+            },
+            "via:281.2,21.5": {
+              "active_nodes": 32,
+              "fraction": 3.0123237987458004e-05
+            },
+            "via:281.2,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.0369797439691122
+            },
+            "via:281.9,20.8": {
+              "active_nodes": 32,
+              "fraction": 0.00024764603144879064
+            },
+            "via:281.9,21.5": {
+              "active_nodes": 32,
+              "fraction": 1.3876863724625863e-06
+            },
+            "via:281.9,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.011906713068492688
+            },
+            "via:282.6,20.8": {
+              "active_nodes": 32,
+              "fraction": 1.4628391137361936e-05
+            },
+            "via:282.6,21.5": {
+              "active_nodes": 32,
+              "fraction": 1.935022102975616e-05
+            },
+            "via:282.6,22.2": {
+              "active_nodes": 32,
+              "fraction": 0.005132496084625001
+            }
+          }
+        },
+        {
+          "step_mm": 0.05,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 7656,
+          "discarded_zero_current_nodes": 5740,
+          "mesh_copper_area_mm2": 33.49,
+          "exact_copper_area_mm2": 36.14876288777636,
+          "resistance_squares": 0.2897556962124764,
+          "source_current_at_unit_voltage": 3.4511832314996322,
+          "current_balance_relative_error": 6.433868909027671e-15,
+          "energy_relative_error": 2.444870185430515e-15,
+          "maximum_interior_KCL_error": 1.9984014443252818e-15,
+          "ports": {
+            "I_F1.2": {
+              "active_nodes": 2457,
+              "fraction": 1.0
+            },
+            "via:280.5,20.8": {
+              "active_nodes": 112,
+              "fraction": 0.31283892688300563
+            },
+            "via:280.5,21.5": {
+              "active_nodes": 112,
+              "fraction": 0.24331100777140788
+            },
+            "via:280.5,22.2": {
+              "active_nodes": 112,
+              "fraction": 0.3802108413870618
+            },
+            "via:281.2,20.8": {
+              "active_nodes": 112,
+              "fraction": 0.0064270611700768514
+            },
+            "via:281.2,21.5": {
+              "active_nodes": 112,
+              "fraction": 1.1773133202114927e-05
+            },
+            "via:281.2,22.2": {
+              "active_nodes": 112,
+              "fraction": 0.03795247878144936
+            },
+            "via:281.9,20.8": {
+              "active_nodes": 112,
+              "fraction": 0.000467139708392561
+            },
+            "via:281.9,21.5": {
+              "active_nodes": 112,
+              "fraction": 5.887795284505731e-07
+            },
+            "via:281.9,22.2": {
+              "active_nodes": 112,
+              "fraction": 0.012804583064251552
+            },
+            "via:282.6,20.8": {
+              "active_nodes": 112,
+              "fraction": 3.779616626945549e-05
+            },
+            "via:282.6,21.5": {
+              "active_nodes": 112,
+              "fraction": 3.9219433773926295e-05
+            },
+            "via:282.6,22.2": {
+              "active_nodes": 112,
+              "fraction": 0.005898583721573978
+            }
+          }
+        },
+        {
+          "step_mm": 0.025,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 31344,
+          "discarded_zero_current_nodes": 24285,
+          "mesh_copper_area_mm2": 34.768125000000005,
+          "exact_copper_area_mm2": 36.14876288777636,
+          "resistance_squares": 0.28755028594466964,
+          "source_current_at_unit_voltage": 3.477652601578076,
+          "current_balance_relative_error": 1.813311305738056e-14,
+          "energy_relative_error": 8.044972694471657e-15,
+          "maximum_interior_KCL_error": 2.1094237467877974e-15,
+          "ports": {
+            "I_F1.2": {
+              "active_nodes": 9828,
+              "fraction": 1.0
+            },
+            "via:280.5,20.8": {
+              "active_nodes": 448,
+              "fraction": 0.3140684220411199
+            },
+            "via:280.5,21.5": {
+              "active_nodes": 448,
+              "fraction": 0.24103367279852295
+            },
+            "via:280.5,22.2": {
+              "active_nodes": 448,
+              "fraction": 0.3806974401141282
+            },
+            "via:281.2,20.8": {
+              "active_nodes": 448,
+              "fraction": 0.0068050402095011335
+            },
+            "via:281.2,21.5": {
+              "active_nodes": 448,
+              "fraction": 2.8800440858760787e-06
+            },
+            "via:281.2,22.2": {
+              "active_nodes": 448,
+              "fraction": 0.03776545237485183
+            },
+            "via:281.9,20.8": {
+              "active_nodes": 448,
+              "fraction": 0.000535904565130992
+            },
+            "via:281.9,21.5": {
+              "active_nodes": 448,
+              "fraction": 1.4679411451455248e-07
+            },
+            "via:281.9,22.2": {
+              "active_nodes": 448,
+              "fraction": 0.012916671436820092
+            },
+            "via:282.6,20.8": {
+              "active_nodes": 448,
+              "fraction": 4.732250056909035e-05
+            },
+            "via:282.6,21.5": {
+              "active_nodes": 448,
+              "fraction": 4.4963159064849836e-05
+            },
+            "via:282.6,22.2": {
+              "active_nodes": 448,
+              "fraction": 0.006082083962072539
+            }
+          }
+        }
+      ],
+      "shifted_fine_mesh": {
+        "step_mm": 0.025,
+        "origin_mm": [
+          0.0125,
+          0.0125
+        ],
+        "active_nodes": 31697,
+        "discarded_zero_current_nodes": 24587,
+        "mesh_copper_area_mm2": 35.1775,
+        "exact_copper_area_mm2": 36.14876288777636,
+        "resistance_squares": 0.2843611827884126,
+        "source_current_at_unit_voltage": 3.516654383675425,
+        "current_balance_relative_error": 5.215435571930911e-14,
+        "energy_relative_error": 4.5082578672623127e-14,
+        "maximum_interior_KCL_error": 2.220446049250313e-15,
+        "ports": {
+          "I_F1.2": {
+            "active_nodes": 9750,
+            "fraction": 1.0
+          },
+          "via:280.5,20.8": {
+            "active_nodes": 437,
+            "fraction": 0.31400053129701516
+          },
+          "via:280.5,21.5": {
+            "active_nodes": 437,
+            "fraction": 0.24026449321458831
+          },
+          "via:280.5,22.2": {
+            "active_nodes": 438,
+            "fraction": 0.37893862093193936
+          },
+          "via:281.2,20.8": {
+            "active_nodes": 437,
+            "fraction": 0.007621673655972126
+          },
+          "via:281.2,21.5": {
+            "active_nodes": 437,
+            "fraction": 5.209586777007269e-06
+          },
+          "via:281.2,22.2": {
+            "active_nodes": 438,
+            "fraction": 0.03851792907489189
+          },
+          "via:281.9,20.8": {
+            "active_nodes": 437,
+            "fraction": 0.0006631049260313768
+          },
+          "via:281.9,21.5": {
+            "active_nodes": 437,
+            "fraction": 3.032286433836874e-07
+          },
+          "via:281.9,22.2": {
+            "active_nodes": 438,
+            "fraction": 0.013404935306727482
+          },
+          "via:282.6,20.8": {
+            "active_nodes": 437,
+            "fraction": 6.546713061829788e-05
+          },
+          "via:282.6,21.5": {
+            "active_nodes": 437,
+            "fraction": 5.784595365548984e-05
+          },
+          "via:282.6,22.2": {
+            "active_nodes": 438,
+            "fraction": 0.006459885693087895
+          }
+        }
+      },
+      "fine_refinement_relative_difference": 0.00766965075538506,
+      "fine_grid_shift_relative_difference": 0.011090592888058137
+    },
+    {
+      "label": "source-vias-to-Q101",
+      "net": "PWR_DC_IN",
+      "layer": "F.Cu",
+      "source_objects": [
+        "86009a5d-8934-526b-92de-cf7c8f2495c3",
+        "f19e23d9-bb63-557e-9a57-a1dfb07026f5",
+        "519137a4-bbcb-5367-b834-5ce65ea999cc",
+        "83ce4dc6-32a3-5ee5-a1de-34abb8d29157",
+        "09d3b396-6ba8-5a29-9fb1-e10ca395f03e"
+      ],
+      "sink_objects": [
+        "35e46c6d-d40e-544a-82cf-592f811783a0",
+        "a88eb91c-df34-5547-b2b9-d74bb2f1323b",
+        "2654bd95-df44-5e83-9f5b-3eac2efc613d"
+      ],
+      "meshes": [
+        {
+          "step_mm": 0.1,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 1120,
+          "discarded_zero_current_nodes": 1983,
+          "mesh_copper_area_mm2": 31.03,
+          "exact_copper_area_mm2": 36.14876288777636,
+          "resistance_squares": 0.09558989730897575,
+          "source_current_at_unit_voltage": 10.461356567501003,
+          "current_balance_relative_error": 6.792070714494667e-16,
+          "energy_relative_error": 3.3960353572473336e-16,
+          "maximum_interior_KCL_error": 1.2212453270876722e-15,
+          "ports": {
+            "via:189.95,112.75": {
+              "active_nodes": 25,
+              "fraction": 0.2182162856479129
+            },
+            "via:191.5,112.8": {
+              "active_nodes": 32,
+              "fraction": 0.2422385219048407
+            },
+            "via:192.1,112.8": {
+              "active_nodes": 32,
+              "fraction": 0.22763340123654544
+            },
+            "via:189.5,114.8": {
+              "active_nodes": 24,
+              "fraction": 0.18499644947927663
+            },
+            "via:193.9,114.3": {
+              "active_nodes": 26,
+              "fraction": 0.12691534173142438
+            },
+            "P_Q101.1": {
+              "active_nodes": 75,
+              "fraction": 0.31073562638368857
+            },
+            "P_Q101.2": {
+              "active_nodes": 76,
+              "fraction": 0.2898783924277125
+            },
+            "P_Q101.3": {
+              "active_nodes": 76,
+              "fraction": 0.3993859811885983
+            }
+          }
+        },
+        {
+          "step_mm": 0.05,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 4859,
+          "discarded_zero_current_nodes": 8537,
+          "mesh_copper_area_mm2": 33.49,
+          "exact_copper_area_mm2": 36.14876288777636,
+          "resistance_squares": 0.0799130139322158,
+          "source_current_at_unit_voltage": 12.513606367646512,
+          "current_balance_relative_error": 3.1229886348227388e-15,
+          "energy_relative_error": 1.5614943174113694e-15,
+          "maximum_interior_KCL_error": 1.7763568394002505e-15,
+          "ports": {
+            "via:189.95,112.75": {
+              "active_nodes": 112,
+              "fraction": 0.2423640330633862
+            },
+            "via:191.5,112.8": {
+              "active_nodes": 112,
+              "fraction": 0.24701289572687504
+            },
+            "via:192.1,112.8": {
+              "active_nodes": 112,
+              "fraction": 0.21950425017887795
+            },
+            "via:189.5,114.8": {
+              "active_nodes": 102,
+              "fraction": 0.17800954637647307
+            },
+            "via:193.9,114.3": {
+              "active_nodes": 104,
+              "fraction": 0.1131092746543878
+            },
+            "P_Q101.1": {
+              "active_nodes": 313,
+              "fraction": 0.2958306605738051
+            },
+            "P_Q101.2": {
+              "active_nodes": 313,
+              "fraction": 0.29099397132860544
+            },
+            "P_Q101.3": {
+              "active_nodes": 313,
+              "fraction": 0.41317536809758637
+            }
+          }
+        },
+        {
+          "step_mm": 0.025,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 20351,
+          "discarded_zero_current_nodes": 35278,
+          "mesh_copper_area_mm2": 34.768125000000005,
+          "exact_copper_area_mm2": 36.14876288777636,
+          "resistance_squares": 0.07406307318502077,
+          "source_current_at_unit_voltage": 13.50200520982769,
+          "current_balance_relative_error": 1.9602804543282728e-14,
+          "energy_relative_error": 1.1840620193929165e-14,
+          "maximum_interior_KCL_error": 5.551115123125783e-15,
+          "ports": {
+            "via:189.95,112.75": {
+              "active_nodes": 448,
+              "fraction": 0.24173863128645204
+            },
+            "via:191.5,112.8": {
+              "active_nodes": 448,
+              "fraction": 0.24943928171738897
+            },
+            "via:192.1,112.8": {
+              "active_nodes": 448,
+              "fraction": 0.21601582645368628
+            },
+            "via:189.5,114.8": {
+              "active_nodes": 425,
+              "fraction": 0.18240831690572595
+            },
+            "via:193.9,114.3": {
+              "active_nodes": 432,
+              "fraction": 0.11039794363674686
+            },
+            "P_Q101.1": {
+              "active_nodes": 1246,
+              "fraction": 0.29042965044990965
+            },
+            "P_Q101.2": {
+              "active_nodes": 1246,
+              "fraction": 0.29289002533331077
+            },
+            "P_Q101.3": {
+              "active_nodes": 1246,
+              "fraction": 0.41668032421676
+            }
+          }
+        }
+      ],
+      "shifted_fine_mesh": {
+        "step_mm": 0.025,
+        "origin_mm": [
+          0.0125,
+          0.0125
+        ],
+        "active_nodes": 20517,
+        "discarded_zero_current_nodes": 35767,
+        "mesh_copper_area_mm2": 35.1775,
+        "exact_copper_area_mm2": 36.14876288777636,
+        "resistance_squares": 0.07652876224806271,
+        "source_current_at_unit_voltage": 13.06698253865088,
+        "current_balance_relative_error": 2.2838321558670554e-14,
+        "energy_relative_error": 1.386612380347855e-14,
+        "maximum_interior_KCL_error": 2.1094237467877974e-15,
+        "ports": {
+          "via:189.95,112.75": {
+            "active_nodes": 437,
+            "fraction": 0.23941659599032697
+          },
+          "via:191.5,112.8": {
+            "active_nodes": 438,
+            "fraction": 0.24336459712150849
+          },
+          "via:192.1,112.8": {
+            "active_nodes": 438,
+            "fraction": 0.21696765689918557
+          },
+          "via:189.5,114.8": {
+            "active_nodes": 421,
+            "fraction": 0.18634894984542702
+          },
+          "via:193.9,114.3": {
+            "active_nodes": 428,
+            "fraction": 0.11390220014355186
+          },
+          "P_Q101.1": {
+            "active_nodes": 1249,
+            "fraction": 0.294871845039887
+          },
+          "P_Q101.2": {
+            "active_nodes": 1249,
+            "fraction": 0.28631955350885674
+          },
+          "P_Q101.3": {
+            "active_nodes": 1249,
+            "fraction": 0.4188086014512335
+          }
+        }
+      },
+      "fine_refinement_relative_difference": 0.07898593044581048,
+      "fine_grid_shift_relative_difference": 0.03329174657500733
+    },
+    {
+      "label": "Q101-to-U101",
+      "net": "/P_power_supply/VIN_IC",
+      "layer": "F.Cu",
+      "source_objects": [
+        "980f68a8-a24f-5148-8944-e8f4f7d27824"
+      ],
+      "sink_objects": [
+        "18a2f723-8548-5a42-a41c-89c0f95d792b",
+        "e25f31ed-fd4d-5b86-bfe1-65bf82ee25cd"
+      ],
+      "meshes": [
+        {
+          "step_mm": 0.1,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 3024,
+          "discarded_zero_current_nodes": 316,
+          "mesh_copper_area_mm2": 33.4,
+          "exact_copper_area_mm2": 37.22749148486988,
+          "resistance_squares": 1.77609175456503,
+          "source_current_at_unit_voltage": 0.5630339746973843,
+          "current_balance_relative_error": 3.707092964358179e-14,
+          "energy_relative_error": 3.3127213724051814e-14,
+          "maximum_interior_KCL_error": 1.887379141862766e-15,
+          "ports": {
+            "P_Q101.5": {
+              "active_nodes": 2070,
+              "fraction": 1.0
+            },
+            "P_U101.1": {
+              "active_nodes": 20,
+              "fraction": 0.9525576705970742
+            },
+            "P_U101.2": {
+              "active_nodes": 20,
+              "fraction": 0.047442329402888575
+            }
+          }
+        },
+        {
+          "step_mm": 0.05,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 12622,
+          "discarded_zero_current_nodes": 1484,
+          "mesh_copper_area_mm2": 35.26500000000001,
+          "exact_copper_area_mm2": 37.22749148486988,
+          "resistance_squares": 1.6677879484861302,
+          "source_current_at_unit_voltage": 0.5995966099333618,
+          "current_balance_relative_error": 3.634723347721051e-13,
+          "energy_relative_error": 3.434748757016072e-13,
+          "maximum_interior_KCL_error": 1.9984014443252818e-15,
+          "ports": {
+            "P_Q101.5": {
+              "active_nodes": 8132,
+              "fraction": 1.0
+            },
+            "P_U101.1": {
+              "active_nodes": 60,
+              "fraction": 0.922725183170493
+            },
+            "P_U101.2": {
+              "active_nodes": 60,
+              "fraction": 0.07727481682914346
+            }
+          }
+        },
+        {
+          "step_mm": 0.025,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 51505,
+          "discarded_zero_current_nodes": 6313,
+          "mesh_copper_area_mm2": 36.136250000000004,
+          "exact_copper_area_mm2": 37.22749148486988,
+          "resistance_squares": 1.5458974017239522,
+          "source_current_at_unit_voltage": 0.6468734593154896,
+          "current_balance_relative_error": 1.0924191509135101e-12,
+          "energy_relative_error": 1.0366396970176907e-12,
+          "maximum_interior_KCL_error": 3.3306690738754696e-15,
+          "ports": {
+            "P_Q101.5": {
+              "active_nodes": 32320,
+              "fraction": 1.0
+            },
+            "P_U101.1": {
+              "active_nodes": 306,
+              "fraction": 0.9347127021976039
+            },
+            "P_U101.2": {
+              "active_nodes": 305,
+              "fraction": 0.06528729780130346
+            }
+          }
+        }
+      ],
+      "shifted_fine_mesh": {
+        "step_mm": 0.025,
+        "origin_mm": [
+          0.0125,
+          0.0125
+        ],
+        "active_nodes": 51954,
+        "discarded_zero_current_nodes": 6504,
+        "mesh_copper_area_mm2": 36.53625,
+        "exact_copper_area_mm2": 37.22749148486988,
+        "resistance_squares": 1.5109179295229869,
+        "source_current_at_unit_voltage": 0.6618493171999824,
+        "current_balance_relative_error": 9.98757227186327e-13,
+        "energy_relative_error": 9.460851127529196e-13,
+        "maximum_interior_KCL_error": 4.6629367034256575e-15,
+        "ports": {
+          "P_Q101.5": {
+            "active_nodes": 32694,
+            "fraction": 1.0
+          },
+          "P_U101.1": {
+            "active_nodes": 310,
+            "fraction": 0.929264951996298
+          },
+          "P_U101.2": {
+            "active_nodes": 310,
+            "fraction": 0.07073504800270324
+          }
+        }
+      },
+      "fine_refinement_relative_difference": 0.0788477596419066,
+      "fine_grid_shift_relative_difference": 0.022627292187668457
+    },
+    {
+      "label": "U101-to-bulk",
+      "net": "PWR_MODULE_FEED_IN",
+      "layer": "F.Cu",
+      "source_objects": [
+        "c7dd49d1-ab83-55b7-b47c-bc9055e1b84a",
+        "178b885e-830a-5483-bc1d-1b6508f0bf99"
+      ],
+      "sink_objects": [
+        "87adf928-a183-54d2-b630-a9fe687ba515"
+      ],
+      "meshes": [
+        {
+          "step_mm": 0.1,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 3937,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 39.370000000000005,
+          "exact_copper_area_mm2": 44.02531507431277,
+          "resistance_squares": 11.053125756200176,
+          "source_current_at_unit_voltage": 0.09047214535119685,
+          "current_balance_relative_error": 9.439801149598843e-13,
+          "energy_relative_error": 6.074360180762336e-13,
+          "maximum_interior_KCL_error": 1.9984014443252818e-15,
+          "ports": {
+            "P_U101.17": {
+              "active_nodes": 20,
+              "fraction": 0.22799826327498918
+            },
+            "P_U101.18": {
+              "active_nodes": 20,
+              "fraction": 0.7720017367250108
+            },
+            "P_C103.1": {
+              "active_nodes": 244,
+              "fraction": 0.999999999999056
+            }
+          }
+        },
+        {
+          "step_mm": 0.05,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 16674,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 41.685,
+          "exact_copper_area_mm2": 44.02531507431277,
+          "resistance_squares": 10.44583135630509,
+          "source_current_at_unit_voltage": 0.09573196865718125,
+          "current_balance_relative_error": 2.185347842913177e-12,
+          "energy_relative_error": 1.5931656911187937e-12,
+          "maximum_interior_KCL_error": 1.9984014443252818e-15,
+          "ports": {
+            "P_U101.17": {
+              "active_nodes": 60,
+              "fraction": 0.26601376669800403
+            },
+            "P_U101.18": {
+              "active_nodes": 60,
+              "fraction": 0.733986233301996
+            },
+            "P_C103.1": {
+              "active_nodes": 990,
+              "fraction": 0.9999999999978146
+            }
+          }
+        },
+        {
+          "step_mm": 0.025,
+          "origin_mm": [
+            0.0,
+            0.0
+          ],
+          "active_nodes": 68588,
+          "discarded_zero_current_nodes": 0,
+          "mesh_copper_area_mm2": 42.86750000000001,
+          "exact_copper_area_mm2": 44.02531507431277,
+          "resistance_squares": 10.117552670530635,
+          "source_current_at_unit_voltage": 0.09883813137071151,
+          "current_balance_relative_error": 8.18164694482454e-12,
+          "energy_relative_error": 5.949280293447067e-12,
+          "maximum_interior_KCL_error": 2.55351295663786e-15,
+          "ports": {
+            "P_U101.17": {
+              "active_nodes": 306,
+              "fraction": 0.2657347216253949
+            },
+            "P_U101.18": {
+              "active_nodes": 308,
+              "fraction": 0.7342652783746051
+            },
+            "P_C103.1": {
+              "active_nodes": 3996,
+              "fraction": 0.9999999999918183
+            }
+          }
+        }
+      ],
+      "shifted_fine_mesh": {
+        "step_mm": 0.025,
+        "origin_mm": [
+          0.0125,
+          0.0125
+        ],
+        "active_nodes": 69374,
+        "discarded_zero_current_nodes": 0,
+        "mesh_copper_area_mm2": 43.35875000000001,
+        "exact_copper_area_mm2": 44.02531507431277,
+        "resistance_squares": 10.014972804408039,
+        "source_current_at_unit_voltage": 0.09985049580562566,
+        "current_balance_relative_error": 8.638793147924625e-12,
+        "energy_relative_error": 6.892160264695833e-12,
+        "maximum_interior_KCL_error": 2.4424906541753444e-15,
+        "ports": {
+          "P_U101.17": {
+            "active_nodes": 310,
+            "fraction": 0.2695684647485361
+          },
+          "P_U101.18": {
+            "active_nodes": 310,
+            "fraction": 0.7304315352514639
+          },
+          "P_C103.1": {
+            "active_nodes": 3903,
+            "fraction": 0.9999999999913612
+          }
+        }
+      },
+      "fine_refinement_relative_difference": 0.0324464518707801,
+      "fine_grid_shift_relative_difference": 0.01013880228381514
+    }
+  ],
+  "layer_and_port_shares": {
+    "In2.Cu": {
+      "layer_current_fraction": 0.49486702367324414,
+      "ideal_port_currents_at_4A": {
+        "via:280.5,20.8": 0.2508783577691609,
+        "via:280.5,21.5": 0.1741827833343909,
+        "via:280.5,22.2": 0.5810681253380682,
+        "via:281.2,20.8": 0.04467071937889085,
+        "via:281.2,21.5": 4.7671587005602856e-05,
+        "via:281.2,22.2": 0.23838293206886282,
+        "via:281.9,20.8": 0.028213351048474774,
+        "via:281.9,21.5": 3.0183891583379857e-05,
+        "via:281.9,22.2": 0.22006742386601824,
+        "via:282.6,20.8": 0.04685606737557499,
+        "via:282.6,21.5": 0.041160571478354446,
+        "via:282.6,22.2": 0.35390990755659146,
+        "via:189.95,112.75": 1.1533344344847587,
+        "via:191.5,112.8": 0.18752932765645763,
+        "via:192.1,112.8": 0.2706093371597055,
+        "via:189.5,114.8": 0.35089255750378007,
+        "via:193.9,114.3": 0.01710243732112272
+      }
+    },
+    "In3.Cu": {
+      "layer_current_fraction": 0.5051329763267558,
+      "ideal_port_currents_at_4A": {
+        "via:280.5,20.8": 0.2560827969812482,
+        "via:280.5,21.5": 0.1777961827350529,
+        "via:280.5,22.2": 0.5931223087408282,
+        "via:281.2,20.8": 0.045597407697634464,
+        "via:281.2,21.5": 4.866052808205147e-05,
+        "via:281.2,22.2": 0.24332815528437438,
+        "via:281.9,20.8": 0.028798633381164302,
+        "via:281.9,21.5": 3.081005234167745e-05,
+        "via:281.9,22.2": 0.22463269422353568,
+        "via:282.6,20.8": 0.04782809045649076,
+        "via:282.6,21.5": 0.04201444223077984,
+        "via:282.6,22.2": 0.3612517229954908,
+        "via:189.95,112.75": 0.533045636030469,
+        "via:191.5,112.8": 0.15010018261575692,
+        "via:192.1,112.8": 0.17606753460718785,
+        "via:189.5,114.8": 0.9944850854123637,
+        "via:193.9,114.3": 0.16683346608046853
+      }
+    },
+    "In4.Cu": {
+      "layer_current_fraction": 0.5112081650988713,
+      "ideal_port_currents_at_4A": {
+        "I_J1.2": 2.0448326603954854,
+        "via:194.0,126.7": 0.131742707603809,
+        "via:198.7,124.5": 0.06376186994369004,
+        "via:195.8,119.5": 0.259203342670852,
+        "via:197.95,111.3": 0.38772412416413843,
+        "via:193.8,117.0": 0.7432084408921563,
+        "via:194.0,118.3": 0.45919217450222044
+      }
+    },
+    "In5.Cu": {
+      "layer_current_fraction": 0.48879183490112865,
+      "ideal_port_currents_at_4A": {
+        "I_J1.2": 1.9551673396045146,
+        "via:194.0,126.7": -0.0,
+        "via:198.7,124.5": 0.008979633659262623,
+        "via:195.8,119.5": 0.1418952952038392,
+        "via:197.95,111.3": 1.4653892054887963,
+        "via:193.8,117.0": 0.27694217742242117,
+        "via:194.0,118.3": 0.06196102717703882
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "copper_thickness_um": 35,
+      "uniform_copper_temperature_C": 20,
+      "sheet_resistance_ohm": 0.0004926,
+      "paired_feed_ohm": 0.013467159919559225,
+      "paired_return_ohm": 0.014132457886521057,
+      "modeled_front_sections_ohm": 0.010148827899869371,
+      "modeled_copper_subtotal_ohm": 0.03774844570594965,
+      "at_4A": {
+        "drop_v": 0.1509937828237986,
+        "dissipation_w": 0.6039751312951944
+      },
+      "at_4_83A": {
+        "drop_v": 0.18232499275973682,
+        "dissipation_w": 0.8806297150295288
+      }
+    },
+    {
+      "copper_thickness_um": 35,
+      "uniform_copper_temperature_C": 85,
+      "sheet_resistance_ohm": 0.00061843467,
+      "paired_feed_ohm": 0.01690734592101063,
+      "paired_return_ohm": 0.017742594253632858,
+      "modeled_front_sections_ohm": 0.012741345986891,
+      "modeled_copper_subtotal_ohm": 0.047391286161534485,
+      "at_4A": {
+        "drop_v": 0.18956514464613794,
+        "dissipation_w": 0.7582605785845518
+      },
+      "at_4_83A": {
+        "drop_v": 0.22889991216021158,
+        "dissipation_w": 1.105586575733822
+      }
+    },
+    {
+      "copper_thickness_um": 70,
+      "uniform_copper_temperature_C": 20,
+      "sheet_resistance_ohm": 0.0002463,
+      "paired_feed_ohm": 0.0067335799597796125,
+      "paired_return_ohm": 0.007066228943260529,
+      "modeled_front_sections_ohm": 0.0050744139499346854,
+      "modeled_copper_subtotal_ohm": 0.018874222852974826,
+      "at_4A": {
+        "drop_v": 0.0754968914118993,
+        "dissipation_w": 0.3019875656475972
+      },
+      "at_4_83A": {
+        "drop_v": 0.09116249637986841,
+        "dissipation_w": 0.4403148575147644
+      }
+    },
+    {
+      "copper_thickness_um": 70,
+      "uniform_copper_temperature_C": 85,
+      "sheet_resistance_ohm": 0.000309217335,
+      "paired_feed_ohm": 0.008453672960505315,
+      "paired_return_ohm": 0.008871297126816429,
+      "modeled_front_sections_ohm": 0.0063706729934455,
+      "modeled_copper_subtotal_ohm": 0.023695643080767242,
+      "at_4A": {
+        "drop_v": 0.09478257232306897,
+        "dissipation_w": 0.3791302892922759
+      },
+      "at_4_83A": {
+        "drop_v": 0.11444995608010579,
+        "dissipation_w": 0.552793287866911
+      }
+    }
+  ],
+  "excluded": [
+    "Jack/plug contacts and jack barrel/solder",
+    "Fuse hot operating resistance",
+    "All via-barrel resistances and non-equipotential transition banks",
+    "MOSFET and eFuse device on-resistances",
+    "Local bulk-return copper and downstream distribution",
+    "Solder joints, adapter/cable impedance and connector aging",
+    "Interlayer coupling at intermediate vias and other parallel copper paths",
+    "Actual thermal boundary conditions, current rating, surge inductance and fault energy"
+  ],
+  "results_are_estimates_not_guaranteed_bounds": true,
+  "full_input_loop_resistance_established": false,
+  "stack_accepted": false,
+  "thermal_qualified": false,
+  "fabrication_released": false
+}
