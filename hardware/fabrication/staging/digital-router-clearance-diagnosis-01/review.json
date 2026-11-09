@@ -1,0 +1,46 @@
+{
+  "image": "ghcr.io/freerouting/freerouting@sha256:146ab8ecfe78a6c21ba017218d7c0e89a02fbf7018243b562b0794c740f3de9f",
+  "image_revision": "b647a2f824cfbc54bc4dcaee71b03b7cd945eb76",
+  "upstream_sources": [
+    {
+      "url": "https://github.com/freerouting/freerouting/blob/b647a2f824cfbc54bc4dcaee71b03b7cd945eb76/src/main/java/app/freerouting/board/searchtree/ShapeSearchTree.java",
+      "local_file": "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-router-clearance-diagnosis-01/src_main_java_app_freerouting_board_searchtree_ShapeSearchTree.java",
+      "sha256": "1438dd0d02aed939d962b4d0f2bd7b1d30d39d597f6a5b1cc0b90c7cfb09ba8e"
+    },
+    {
+      "url": "https://github.com/freerouting/freerouting/blob/b647a2f824cfbc54bc4dcaee71b03b7cd945eb76/src/main/java/app/freerouting/board/actions/ForcedViaInserter.java",
+      "local_file": "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-router-clearance-diagnosis-01/src_main_java_app_freerouting_board_actions_ForcedViaInserter.java",
+      "sha256": "7e4237856f6c484621517732fc04688a49f231880cad35a2f77a416401d3070a"
+    },
+    {
+      "url": "https://github.com/freerouting/freerouting/blob/b647a2f824cfbc54bc4dcaee71b03b7cd945eb76/src/main/java/app/freerouting/board/model/items/Via.java",
+      "local_file": "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-router-clearance-diagnosis-01/src_main_java_app_freerouting_board_model_items_Via.java",
+      "sha256": "c3c6db596003263456a1c93a1e5972f30717ed7968ab0cec184733f546b7e7c7"
+    },
+    {
+      "url": "https://github.com/freerouting/freerouting/blob/b647a2f824cfbc54bc4dcaee71b03b7cd945eb76/src/main/java/app/freerouting/board/model/items/Item.java",
+      "local_file": "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-router-clearance-diagnosis-01/src_main_java_app_freerouting_board_model_items_Item.java",
+      "sha256": "38384c9fc270fcffcd21b2ea2fe093f998529d0d908691170c85d2b8da8d036d"
+    },
+    {
+      "url": "https://github.com/freerouting/freerouting/blob/b647a2f824cfbc54bc4dcaee71b03b7cd945eb76/src/main/java/app/freerouting/management/HeadlessBoardManager.java",
+      "local_file": "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-router-clearance-diagnosis-01/afx-HeadlessBoardManager.java",
+      "sha256": "13adfe9e616364eb88e12bc460819ee99bdc4700da027ab948574441796dea74"
+    }
+  ],
+  "source_sha256": {
+    "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-interface-clean-native-02/review.json": "a8b1040ddc11b177dda9fb5bdad1a3589ce441beef38d8878eaaa3ad535ad7c0",
+    "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-selective-six-routing-02/router-console.log": "a324326c60c2c11b58282da7dd6a759b14d92d6565f345b9e9bb3e0337cdaefc",
+    "/Users/axelmckrnna/dev/rmx-publish/hardware/fabrication/staging/digital-clock-series-clean-native-01/digital_core.kicad_pro": "06ab175afb363732b30d2c5b5f7a8c3c029250954d71732ac9dbf1f9c9d5d611"
+  },
+  "findings": [
+    "hole_clearance_um controls hole-to-copper obstacles; it is not a drill-to-drill rule.",
+    "Via.isObstacle treats another same-net via as an obstacle; Item.clearanceViolations applies the copper clearance matrix to that pair.",
+    "The previously loaded native-clean board produced 463 router clearance findings, including 184 fixed-item findings whose first five examples are same-net AGND via pairs.",
+    "Correcting the hole override alone cannot resolve the same-net via copper-clearance mismatch.",
+    "The existing global rerouting result remains rejected. No new Freerouting result is adopted.",
+    "A separate additive screen now uses captured actual via geometry and is accepted only through native KiCad and independent audits."
+  ],
+  "native_rules_changed": false,
+  "fabrication_released": false
+}

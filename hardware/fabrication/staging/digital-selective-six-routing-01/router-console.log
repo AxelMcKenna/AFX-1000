@@ -1,0 +1,81 @@
+2026-11-02T10:43:04.284574716Z main ERROR Could not determine local host name
+java.net.UnknownHostException: jdk.internal.util.Exceptions$NonSocketInfo@6237958999395e76e380: Temporary failure in name resolution
+	at java.base/java.net.InetAddress.getLocalHost(Unknown Source)
+	at org.apache.logging.log4j.core.util.NetUtils.getHostname(NetUtils.java:71)
+	at org.apache.logging.log4j.core.util.NetUtils.getLocalHostname(NetUtils.java:56)
+	at org.apache.logging.log4j.core.LoggerContext.lambda$setConfiguration$2(LoggerContext.java:691)
+	at java.base/java.util.concurrent.ConcurrentHashMap.computeIfAbsent(Unknown Source)
+	at org.apache.logging.log4j.core.LoggerContext.setConfiguration(LoggerContext.java:691)
+	at org.apache.logging.log4j.core.LoggerContext.reconfigure(LoggerContext.java:786)
+	at org.apache.logging.log4j.core.LoggerContext.reconfigure(LoggerContext.java:808)
+	at org.apache.logging.log4j.core.LoggerContext.start(LoggerContext.java:311)
+	at org.apache.logging.log4j.core.impl.Log4jContextFactory.getContext(Log4jContextFactory.java:264)
+	at org.apache.logging.log4j.core.impl.Log4jContextFactory.getContext(Log4jContextFactory.java:48)
+	at org.apache.logging.log4j.LogManager.getContext(LogManager.java:119)
+	at app.freerouting.startup.LoggingBootstrap.initialize(LoggingBootstrap.java:132)
+	at app.freerouting.Freerouting.main(Freerouting.java:536)
+Caused by: java.net.UnknownHostException: 99395e76e380: Temporary failure in name resolution
+	at java.base/java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+	at java.base/java.net.Inet6AddressImpl.lookupAllHostAddr(Unknown Source)
+	at java.base/java.net.InetAddress$PlatformResolver.lookupByName(Unknown Source)
+	at java.base/java.net.InetAddress.getAddressesFromNameService(Unknown Source)
+	at java.base/java.net.InetAddress$NameServiceAddresses.get(Unknown Source)
+	at java.base/java.net.InetAddress.getAllByName0(Unknown Source)
+	... 14 more
+
+2026-11-02T10:43:04.289763508Z main ERROR Could not determine local host name
+java.net.UnknownHostException: jdk.internal.util.Exceptions$NonSocketInfo@1fa121e299395e76e380: Temporary failure in name resolution
+	at java.base/java.net.InetAddress.getLocalHost(Unknown Source)
+	at org.apache.logging.log4j.core.util.NetUtils.getHostname(NetUtils.java:71)
+	at org.apache.logging.log4j.core.util.NetUtils.getLocalHostname(NetUtils.java:56)
+	at org.apache.logging.log4j.core.LoggerContext.lambda$setConfiguration$2(LoggerContext.java:691)
+	at java.base/java.util.concurrent.ConcurrentHashMap.computeIfAbsent(Unknown Source)
+	at org.apache.logging.log4j.core.LoggerContext.setConfiguration(LoggerContext.java:691)
+	at org.apache.logging.log4j.core.LoggerContext.reconfigure(LoggerContext.java:786)
+	at org.apache.logging.log4j.core.LoggerContext.reconfigure(LoggerContext.java:808)
+	at app.freerouting.startup.LoggingBootstrap.initialize(LoggingBootstrap.java:132)
+	at app.freerouting.Freerouting.main(Freerouting.java:536)
+Caused by: java.net.UnknownHostException: 99395e76e380: Temporary failure in name resolution
+	at java.base/java.net.Inet6AddressImpl.lookupAllHostAddr(Native Method)
+	at java.base/java.net.Inet6AddressImpl.lookupAllHostAddr(Unknown Source)
+	at java.base/java.net.InetAddress$PlatformResolver.lookupByName(Unknown Source)
+	at java.base/java.net.InetAddress.getAddressesFromNameService(Unknown Source)
+	at java.base/java.net.InetAddress$NameServiceAddresses.get(Unknown Source)
+	at java.base/java.net.InetAddress.getAllByName0(Unknown Source)
+	... 10 more
+
+2026-11-02 10:43:04.310 INFO   Freerouting v2.5.0 (build-date: 2026-10-05)
+2026-11-02 10:43:04.340 WARN   [startup] freerouting.json contains a stale 'logging.file.location' value: '/work/router.log'. The actual log file is being written to '/work/config/freerouting.log' (as resolved at startup). The stale value will be corrected in freerouting.json on next save. If you see this in Docker, the old JSON was written by an earlier version that stored the host path; the fix is to delete freerouting.json so it is regenerated with the correct path.
+2026-11-02 10:43:04.561 INFO   Hardware: 2 CPU cores, 458 CPU score, 1024 MB RAM
+2026-11-02 10:43:04.563 WARN   GUI is disabled and you don't have a console available, so the only feedback from Freerouting is in the log.
+2026-11-02 10:43:05.920 INFO   [1B500F\BCFA28] Loading board file 'routing-view.dsn'...
+2026-11-02 10:43:06.177 INFO   Applied drill-hole clearance override: 250.0 um (2500 board units), 30 hole keepouts reclassified.
+2026-11-02 10:43:06.213 INFO   [1B500F\BCFA28] Job '1B500F\BCFA28' started at 2026-11-02T10:43:06.213857509Z.
+2026-11-02 10:43:06.759 WARN   Design Warning: Board has 517 pre-existing clearance violation(s) in the loaded design (before routing):
+  - 517 unfixable violation(s) (cannot be resolved by Freerouting):
+      * 517 fixed trace/via clearance violations (first 5 shown):
+          - FixedVia#3897 [net /LED/BLANK_5V_SRC] <-> FixedTrace#2960 [net /CONTROLS/CONTROL_29]
+          - FixedVia#3894 [net LED_MOSI] <-> J1003.3 [net /PROCESSOR/MCU_PERMIT]
+          - FixedVia#3894 [net LED_MOSI] <-> J1003.3 [net /PROCESSOR/MCU_PERMIT]
+          - FixedVia#3894 [net LED_MOSI] <-> J1003.3 [net /PROCESSOR/MCU_PERMIT]
+          - FixedVia#3894 [net LED_MOSI] <-> J1003.3 [net /PROCESSOR/MCU_PERMIT]
+          ... and 512 more
+  - 0 potentially fixable violations
+Notice: Freerouting does not modify component placement, board outlines, or fixed items.
+Resolving these 517 unfixable violation(s) is the responsibility of the board author in their EDA tool (e.g. KiCad).
+2026-11-02 10:43:06.800 INFO   [1B500F\BCFA28] Pipeline thread limits: autorouter pass is single-threaded, optimizer.max_threads=2.
+2026-11-02 10:43:07.611 INFO   [1B500F\BCFA28] Fanout stage started on board 'deb96d48af99a58a5bd8843ed70f78c9' with 238 of 448 SMD pins needing fanout (210 already connected, 0 netless).
+2026-11-02 10:43:10.726 INFO   [1B500F\BCFA28] Fanout pass #1 on board '3417d47073cb65d5482c78211de53941' completed in 2.70 seconds with 16 SMD pins fanouted, 67 not routed, 0 insert errors, +6 extra vias (0 SMD pins still to check in pass, ripup costs=100).
+2026-11-02 10:43:14.770 WARN   BasicBoard.normalizeTraces: reached 2000 iterations for net '/LED/PG_3V3' — stopping to prevent hang. The board geometry for this net may be oscillating (split/combine cycle); traces are kept as-is and further normalization for this net is suppressed on this board candidate.
+2026-11-02 10:43:15.666 INFO   [1B500F\BCFA28] Fanout pass #2 on board 'c07c32c0c329102e549f85c82faa7e51' completed in 4.90 seconds with 9 SMD pins fanouted, 42 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=200).
+2026-11-02 10:43:17.539 INFO   [1B500F\BCFA28] Fanout pass #3 on board '70c88ad481dc5926d45319eda41c99f5' completed in 1.84 seconds with 8 SMD pins fanouted, 12 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=300).
+2026-11-02 10:43:19.407 INFO   [1B500F\BCFA28] Fanout pass #4 on board '2c1b9de5d9488c7a0a12b5652aa6916b' completed in 1.83 seconds with 8 SMD pins fanouted, 12 not routed, 0 insert errors, +0 extra vias (0 SMD pins still to check in pass, ripup costs=400).
+2026-11-02 10:43:19.820 INFO   [1B500F\BCFA28] Fanout stage completed: started with 448 total SMD pins, completed in 11.84 seconds, escaped pins: 354/448 (79.0%), using 12.23 total CPU seconds, 11.79 GB total allocated, and 227.5 MB peak heap usage.
+2026-11-02 10:43:21.267 INFO   [1B500F\BCFA28] Auto-routing stage started on board '2c1b9de5d9488c7a0a12b5652aa6916b' with baseline score 755.97 for 82 unrouted items.
+2026-11-02 10:44:32.977 INFO   [1B500F\BCFA28] Auto-routing pass #1 on board '2c1b9de5d9488c7a0a12b5652aa6916b' was completed in 71.21 seconds with score 755.97 (82 unrouted and 517 violations), using 82.49 CPU seconds and the job allocated 102.13 GB of memory so far.
+2026-11-02 10:45:41.938 INFO   [1B500F\BCFA28] Auto-routing pass #2 on board 'eab39e522e7a055915d733106060ffc3' was completed in 68.43 seconds with score 755.97 (82 unrouted and 517 violations), using 148.78 CPU seconds and the job allocated 187.32 GB of memory so far.
+2026-11-02 10:46:07.981 INFO   [1B500F\BCFA28] Auto-routing pass #3 on board '389610d04a4f1547f22c2919d1b894c4' was completed in 25.51 seconds with score 755.97 (82 unrouted and 517 violations), using 172.73 CPU seconds and the job allocated 217.22 GB of memory so far.
+2026-11-02 10:46:09.574 INFO   [1B500F\BCFA28] Auto-routing stage completed with timeout: started with 86 unrouted nets, completed in 182.26 seconds, final score: 755.97 (82 unrouted and 517 violations), using 172.73 total CPU seconds, 217.22 GB total allocated, and 369.1 MB peak heap usage.
+2026-11-02 10:46:09.617 INFO   [1B500F\BCFA28] Job '1B500F\BCFA28' finished with state: TIMED_OUT (elapsed: 3 minutes 3.40 seconds, finished at UTC: 2026-11-02T10:46:09.617306968Z).
+2026-11-02 10:46:09.622 INFO   Saving output file '/work/routed.ses' (SES)...
+2026-11-02 10:46:09.625 INFO   Successfully saved output file '/work/routed.ses' (332643 bytes).

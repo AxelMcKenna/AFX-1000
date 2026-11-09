@@ -1,0 +1,270 @@
+"""Open timer-pin access by renewing one complete control span between real vias."""
+import argparse
+import copy
+import json
+import math
+import shutil
+import sys
+from pathlib import Path
+
+from hardware.electronics.common.sexpr import children, first, read_sexpr, sexpr
+from hardware.fabrication.audio_main_bypass_repack import add_geometry, add_via
+from hardware.fabrication.audio_main_local_routes import relative_hashes, verify_hashes
+from hardware.fabrication.audit_candidate import sha
+
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT/'staging/audio-main-controls-08'
+OUT = ROOT/'staging/audio-main-controls-09'
+DRIVER = '/CODEC/DRIVER_SETTLE_READY'
+TIMER = '/BYPASS/TIMER_INPUT_OK'
+RETIRED = {'599b0ae6-95dc-50a6-a335-b074c9211b30','60600f0c-7d4e-50f7-9b97-4857f341a340',
+ '35949e89-f6d6-53ff-a0d0-69708dd03479','0aeece30-5475-5eaf-b4a8-6645ea676060',
+ '1e17c3c2-6813-56e0-821b-10e35b4395e6','894e9e9a-912b-5ed3-8be0-aa26c53d9a07',
+ 'ef532391-1051-58fe-bb4c-bacc32aad73a','439b9d3a-821c-5600-b400-5736ca8985fa','babb28b5-6841-5b39-8f03-60ede5a24549'}
+OLD_VIAS = {'ec272c0b-aa02-5864-b404-479f42a9d868','df28b74c-6b75-5b93-8644-56fe3ad19e1e'}
+
+
+def snapshot(label):
+    p = OUT/('applied-'+label+'.py.txt')
+    number = 2
+    while p.exists():
+        p = OUT/('applied-'+label+f'-{number:02}.py.txt')
+        number += 1
+    shutil.copyfile(Path(__file__),p)
+    return p
+
+
+def prepare():
+    assert not OUT.exists()
+    parent = json.loads((SOURCE/'routing-handoff.json').read_text())
+    verify_hashes(parent['source_sha256'])
+    assert parent['uncapped_open_connections']==203 and not parent['fabrication_released']
+    refill = json.loads((SOURCE/'native-refill.json').read_text())
+    verify_hashes(refill['source_sha256'])
+    assert sha(SOURCE/'audio_core.kicad_pcb')==refill['filled_PCB_sha256']
+    board = read_sexpr((SOURCE/'audio_core.kicad_pcb').read_text())
+    names = {n[1]:str(n[2]) for n in children(board,'net')}
+    retired = [n for n in children(board,'segment') if str(first(n,'uuid')[1]) in RETIRED]
+    assert len(retired)==9 and all(names[first(n,'net')[1]]==DRIVER and first(n,'layer')[1]=='F.Cu' and float(first(n,'width')[1])==.2 for n in retired)
+    board = [n for n in board if n not in retired]
+    OUT.mkdir()
+    applied = snapshot('trace-span-preparation')
+    for p in SOURCE.iterdir():
+        if p.suffix in ('.kicad_sch','.kicad_pro','.kicad_sym','.kicad_dru') or p.name in ('plan.json','fp-lib-table','sym-lib-table'):
+            shutil.copyfile(p,OUT/p.name)
+    shutil.copytree(SOURCE/'libraries',OUT/'libraries')
+    dest = OUT/'prepared-input.kicad_pcb'
+    dest.write_text(sexpr(board)+'\n')
+    inputs = [applied,SOURCE/'audio_core.kicad_pcb',SOURCE/'routing-handoff.json',SOURCE/'native-refill.json']
+    record = dict(source_sha256=relative_hashes(inputs),authored_PCB_sha256=sha(dest),
+                  retired_copper_uuids=sorted(RETIRED),retired_nodes=retired,
+                  all_component_poses_and_unretired_objects_exact=True,native_checks_pending=True,fabrication_released=False)
+    (OUT/'preparation-record.json').write_text(json.dumps(record,indent=2)+'\n')
+    print('Retired one nine-segment control span; no component, supply or timing-cell move')
+
+
+def capture():
+    assert sys.platform=='linux','Mac CAD remains disabled'
+    from hardware.fabrication.capture_audio_routing_draft import capture as actual_capture
+    applied = snapshot('post-cut-native-capture')
+    actual_capture(OUT,OUT/'prepared-input.kicad_pcb',OUT/'preparation-record.json','prepared-native-inputs.json',applied)
+
+
+def controls():
+    from shapely.geometry import LineString, Point
+
+    from hardware.fabrication.audio_main_continuous_path import route
+    from hardware.fabrication.audio_main_global_controls import LAYERS, SignalScreen
+    from hardware.fabrication.audio_main_joint_fanouts import choices
+
+    assert not (OUT/'distribution-input.kicad_pcb').exists()
+    applied = snapshot('joint-control-routing')
+    proposal_path = OUT/'joint-control-proposal.json'
+    previous = None
+    if proposal_path.exists():
+        number = 1
+        while (OUT/f'joint-control-proposal-{number:02}.json').exists():
+            number += 1
+        previous = OUT/f'joint-control-proposal-{number:02}.json'
+        proposal_path.rename(previous)
+    capture_path = OUT/'prepared-native-inputs.json'
+    captured = json.loads(capture_path.read_text())
+    verify_hashes(captured['source_sha256'])
+    assert captured['native_uncapped_opens']==204
+    objects = {o['uuid']:o for o in captured['objects']}
+    membership = {i:k for k,ids in captured['groups'].items() for i in ids}
+    pads = {(o['ref'],o['pin']):o for o in objects.values() if o['kind']=='PAD' and o['pin']}
+    source_point,target_point = [63.5,6.5],[57.2,14.4]
+    endpoints = [next(o for o in objects.values() if o['kind']=='PCB_VIA' and o['net']==DRIVER and math.dist(o['position_mm'],p)<1e-7) for p in (source_point,target_point)]
+    assert {o['uuid'] for o in endpoints}==OLD_VIAS
+    groups = [membership[o['uuid']] for o in endpoints]
+    assert groups[0]!=groups[1],'The native cut must split the intended control span'
+    timer_point = [56.1,6.9]
+    timer_neck = [pads['U607','6']['position_mm'],timer_point]
+    driver_screen = SignalScreen(captured)
+    assert driver_screen.via_legal(TIMER,timer_point) and driver_screen.legal(TIMER,'F.Cu',timer_neck)
+    assert LineString(timer_neck).length<=3.5
+    driver_screen.new_vias.append((TIMER,timer_point))
+    driver_screen.added.append((TIMER,'F.Cu',LineString(timer_neck)))
+    driver = route(driver_screen,DRIVER,'B.Cu',source_point,target_point,[50,2,70,20])
+    assert driver and driver['length_mm']<=min(180,2.5*math.dist(source_point,target_point)+10)
+    driver_row = dict(net=DRIVER,runs=[('B.Cu',driver['points_mm'])],vias=[],new_vias_mm=[],groups=groups,
+        source_groups=[[k] for k in groups],portals=[source_point,target_point],terminal_points_mm=[source_point,target_point],
+        planar_length_mm=driver['length_mm'],maximum_planar_length_mm=min(180,2.5*math.dist(source_point,target_point)+10),
+        continuous_path_receipt=driver)
+    # The retained parent contacts and renewed span are all on B.Cu. The two
+    # former F/B transition holes therefore have no remaining layer transition.
+    for point in (source_point,target_point):
+        faces = {l for o in objects.values() if o['kind']=='PCB_TRACK' and o['net']==DRIVER and
+                 LineString([o['position_mm'],o['end_mm']]).distance(Point(point))<1e-7 for l in o['layers']}
+        assert faces=={'B.Cu'},'A retained routed face still needs an endpoint via'
+    effective = copy.deepcopy(captured)
+    effective['objects'] = [o for o in effective['objects'] if o['uuid'] not in OLD_VIAS]
+    effective['groups'] = {k:[i for i in ids if i not in OLD_VIAS] for k,ids in effective['groups'].items()}
+    screen = SignalScreen(effective)
+    screen.added.append((DRIVER,'B.Cu',LineString(driver['points_mm'])))
+    assert screen.via_legal(TIMER,timer_point) and screen.legal(TIMER,'F.Cu',timer_neck)
+    start,end = pads['U607','6'],pads['U606','2']
+    timer_groups = [membership[p['uuid']] for p in (start,end)]
+    assert timer_groups[0]!=timer_groups[1] and start['net']==end['net']==TIMER
+    physical = [start['position_mm'],end['position_mm']]
+    limit = min(180,2.5*math.dist(*physical)+10)
+    candidates = []
+    destinations = [dict(point=end['position_mm'],layer='B.Cu',neck=None)]
+    distinct = []
+    for row in choices(screen,end,timer_groups[1],limit=128):
+        if any(math.dist(row['point'],q)<.65 for q in distinct):
+            continue
+        distinct.append(row['point'])
+        destinations += [dict(point=row['point'],layer=l,neck=row) for l in ('F.Cu','In2.Cu')]
+        if len(distinct)>=8:
+            break
+    for dest in destinations:
+        for bounds in ([40,0,80,55],[30,0,95,62]):
+            middle = route(screen,TIMER,dest['layer'],timer_point,dest['point'],bounds,seconds=15)
+            if not middle:
+                continue
+            if dest['layer']=='F.Cu':
+                runs = [('F.Cu',timer_neck+middle['points_mm'][1:])]
+                new_vias = []
+                source_portal = start['position_mm']
+            else:
+                runs = [('F.Cu',timer_neck),(dest['layer'],middle['points_mm'])]
+                new_vias = [timer_point]
+                source_portal = timer_point
+            if dest['neck']:
+                runs += [(face,list(reversed(ps))) for face,ps in reversed(dest['neck']['runs'])]
+                new_vias.append(dest['point'])
+            length = sum(LineString(ps).length for _,ps in runs)
+            if length>limit or not all(screen.legal(TIMER,face,ps) for face,ps in runs):
+                continue
+            row = dict(net=TIMER,runs=runs,vias=new_vias,new_vias_mm=new_vias,groups=timer_groups,
+                source_groups=[[k] for k in timer_groups],portals=[source_portal,dest['point']],terminal_points_mm=physical,
+                planar_length_mm=length,maximum_planar_length_mm=limit,continuous_path_receipt=middle)
+            candidates.append(row)
+            break
+        if candidates:
+            break
+    fallback_used = False
+    fallback_trials = []
+    if not candidates:
+        import time
+
+        import hardware.fabrication.nf_pin_escape_routes as raster
+        import hardware.fabrication.route_nf_surface as surface
+        from hardware.fabrication import audio_main_via_weighted_router as weighted
+        from hardware.fabrication.audio_main_global_controls import via_mask
+
+        fallback_used = True
+        raster.STEP = weighted.STEP = .2
+        raster.WIDTH = weighted.WIDTH = surface.WIDTH = .2
+        raster.RASTER_MARGIN = math.sqrt(2)*.2/2+.002
+        surface.MARGIN = .01
+        weighted.LAYERS,weighted.via_mask = LAYERS,via_mask
+        starts = [dict(point=timer_point,layers=['B.Cu','In2.Cu'],runs=[('F.Cu',timer_neck)],
+                       vias=[timer_point],cost=LineString(timer_neck).length+2.5,group=timer_groups[0]),
+                  dict(point=start['position_mm'],layers=['F.Cu'],runs=[],vias=[],cost=0,group=timer_groups[0])]
+        ends = {l:[] for l in LAYERS}
+        ends['B.Cu'].append(dict(point=end['position_mm'],layers=['B.Cu'],runs=[],vias=[],cost=0,group=timer_groups[1]))
+        for dest in destinations[1:]:
+            neck = dest['neck']
+            ends[dest['layer']].append(dict(neck,layers=[dest['layer']],
+                runs=[(face,list(reversed(ps))) for face,ps in reversed(neck['runs'])]))
+        for via_cost in (20,5):
+            weighted.VIA_COST = via_cost
+            result = weighted.route_multi(screen,TIMER,starts,ends,time.monotonic()+40,max_visits=1500000)
+            if not result:
+                fallback_trials.append(dict(via_search_penalty_mm=via_cost,path_found=False))
+                continue
+            length = sum(LineString(ps).length for _,ps in result['runs'])
+            fresh = [p for p in result['vias'] if not any(n==TIMER and math.dist(p,q)<1e-7 for n,q in screen.vias)]
+            fallback_trials.append(dict(via_search_penalty_mm=via_cost,path_found=True,result=result,
+                planar_length_mm=length,maximum_planar_length_mm=limit,fresh_vias_mm=fresh,
+                individual_fresh_vias_legal=all(screen.via_legal(TIMER,p) for p in fresh)))
+            print('Timer fallback',round(length,3),'mm /',len(fresh),'fresh vias; limit',round(limit,3),'mm / 4 vias',flush=True)
+            if length>limit or len(fresh)>4 or not all(screen.via_legal(TIMER,p) for p in fresh):
+                continue
+            terminals = [result['runs'][0][1][0],result['runs'][-1][1][-1]]
+            assert terminals==physical
+            result.update(net=TIMER,source_groups=[[k] for k in result['groups']],new_vias_mm=fresh,
+                          terminal_points_mm=terminals,planar_length_mm=length,maximum_planar_length_mm=limit,
+                          via_search_penalty_mm=via_cost,planned_by='weighted_multilayer_fallback')
+            candidates.append(result)
+            break
+    inputs = [applied,capture_path,ROOT/'audio_main_continuous_path.py',ROOT/'audio_main_global_controls.py',ROOT/'audio_main_joint_fanouts.py']
+    if fallback_used:
+        inputs += [ROOT/'audio_main_via_weighted_router.py',ROOT/'nf_pin_escape_routes.py',ROOT/'route_nf_surface.py']
+    if previous:
+        inputs.append(previous)
+    proposal = dict(source_sha256=relative_hashes(inputs),driver_repair=driver_row,timer_candidates=candidates,
+                    removed_redundant_endpoint_vias=sorted(OLD_VIAS),weighted_multilayer_fallback_used=fallback_used,
+                    weighted_fallback_trials=fallback_trials,
+                    proposal_only=True,native_checks_pending=True,fabrication_released=False)
+    proposal_path.write_text(json.dumps(proposal,indent=2)+'\n')
+    assert candidates,'No complete timer route within ordinary construction budgets'
+    timer_row = min(candidates,key=lambda r:r['planar_length_mm']+20*len(r['new_vias_mm']))
+    routes = [driver_row,timer_row]
+    board = read_sexpr((OUT/'prepared-input.kicad_pcb').read_text())
+    board = [n for n in board if not isinstance(n,list) or not n or n[0]!='via' or str(first(n,'uuid')[1]) not in OLD_VIAS]
+    additions = []
+    for row in routes:
+        for face,ps in row['runs']:
+            add_geometry(board,additions,row['net'],face,ps,.2,'renewed_driver_span' if row['net']==DRIVER else 'timer_control')
+        for point in row['new_vias_mm']:
+            add_via(board,additions,row['net'],point,'timer_control')
+    dest = OUT/'distribution-input.kicad_pcb'
+    dest.write_text(sexpr(board)+'\n')
+    record = dict(source_sha256=relative_hashes([applied,proposal_path,OUT/'prepared-input.kicad_pcb',OUT/'preparation-record.json',ROOT/'audio_main_bypass_repack.py']),
+        authored_PCB_sha256=sha(dest),routes=routes,removed_redundant_endpoint_vias=sorted(OLD_VIAS),
+        added_segments=[r for r in additions if r['kind']=='segment'],added_vias=[r for r in additions if r['kind']=='via'],
+        allowed_control_nets=sorted([DRIVER,TIMER]),signal_layers=LAYERS,trace_width_mm=.2,clearance_mm=.2,planning_margin_mm=.01,
+        repaired_existing_control_joins=1,new_global_control_joins=1,native_checks_pending=True,fabrication_released=False)
+    (OUT/'distribution-construction.json').write_text(json.dumps(record,indent=2)+'\n')
+    print('Renewed driver',round(driver_row['planar_length_mm'],3),'mm; timer',round(timer_row['planar_length_mm'],3),'mm /',len(timer_row['new_vias_mm']),'new vias')
+
+
+def native(action):
+    assert sys.platform=='linux','Mac CAD remains disabled'
+    applied = snapshot(action+'-entry')
+    if action=='fill':
+        from hardware.fabrication import audio_main_power_routes as helper
+        helper.OUT=OUT
+        helper.fill()
+        result=OUT/'native-refill.json'
+    elif action=='review':
+        from hardware.fabrication.audio_main_native_review import review
+        review(OUT,SOURCE/'terminal-connectivity-review.json',OUT/'prepared-native-inputs.json',OUT/'distribution-construction.json',applied)
+        result=OUT/'terminal-connectivity-review.json'
+    else:
+        from hardware.fabrication.review_audio_control_retention import review
+        review(SOURCE,OUT,64,applied)
+        result=OUT/'additional-terminal-review.json'
+    (OUT/(action+'-entry.json')).write_text(json.dumps(dict(source_sha256=relative_hashes([applied,result]),fabrication_released=False),indent=2)+'\n')
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('action',choices=('prepare','capture','controls','fill','review','retain'))
+    args=parser.parse_args()
+    {'prepare':prepare,'capture':capture,'controls':controls,'fill':lambda:native('fill'),
+     'review':lambda:native('review'),'retain':lambda:native('retain')}[args.action]()
