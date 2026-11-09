@@ -1,0 +1,92 @@
+"""Adopt the independently checked input voltage divider and clamp revision."""
+import json
+from pathlib import Path
+from hardware.fabrication.integrate_two_board_signal import REPO, STAGING, sha
+
+
+def run():
+    power = STAGING/'two-board-power-input-thresholds-native-03'
+    previous = STAGING/'two-board-fabrication-status-29/status.json'
+    reports = [previous, *[power/n for n in [
+        'review.json', 'circuit-audit.json', 'input-thresholds-routing.json',
+        'input-thresholds-audit.json', 'input-thresholds-plane-review.json',
+        'rejected-source-net-status.json', 'plots/native-plots.json',
+        'plots/preview-render.json', 'plots/detail-render.json', 'plots/visual-review.json']],
+        STAGING/'two-board-power-routing-inputs-2405-input-thresholds/capture.json',
+        STAGING/'two-board-power-input-thresholds-filled-03/local-plane-fill.json',
+        STAGING/'two-board-aux-load-review-01/review.json',
+        STAGING/'two-board-aux-load-review-01/verification.json',
+        STAGING/'two-board-signal-routed-native-03/review.json']
+    count = 0
+    for report in reports:
+        d = json.loads(report.read_text())
+        for field in ['source_sha256', 'artifact_sha256']:
+            for name, h in d.get(field, {}).items():
+                p = Path(name)
+                if not p.is_absolute(): p = (REPO if name.startswith(('hardware/', 'tests/')) else report.parent)/p
+                assert p.is_file() and sha(p) == h, (report, name)
+                count += 1
+    audit = json.loads((power/'input-thresholds-audit.json').read_text())
+    native = json.loads((power/'review.json').read_text())
+    planes = json.loads((power/'input-thresholds-plane-review.json').read_text())
+    visual = json.loads((power/'plots/visual-review.json').read_text())
+    assert audit['new_opens'] == native['opens'] == 2405 and audit['old_opens'] == 2420 and audit['connections_closed'] == 15
+    assert audit['all_previous_connection_groups_preserved'] == planes['all_previous_connection_groups_preserved'] == 3158
+    for key in ['unchanged_complete_pin_net_map', 'all_values_and_package_identifiers_unchanged',
+        'back_resistors_match_retained_R102_package', 'all_retained_tracks_vias_and_unmoved_pads_unchanged',
+        'all_native_zone_declarations_and_fill_provenance_verified', 'all_native_instance_paths_canonical']:
+        assert audit[key], key
+    assert audit['geometry_errors'] == audit['parity_errors'] == audit['ERC_errors'] == 0 and audit['ERC_warnings'] == 2
+    assert planes['all_fourteen_native_planes_contiguous'] and planes['AUX_input_output_returns_separate_after_GND_land_cut']
+    assert planes['full_control_reference_uncovered_mm2'] == planes['bulk_output_trace_reference_uncovered_mm2_excluding_own_antipads'] == 0
+    assert audit['tracks'] == 2390 and audit['vias'] == 219 and audit['zones'] == 14 and audit['unchanged_existing_zones'] == 6
+    assert not visual['complete_delta_audit_pending'] and len(visual['inspected_views']) == 11
+    assert len(planes['adjacent_In6_back_route_coverage']) == 16
+    assert all(q['uncovered_mm2'] == 0 for q in planes['adjacent_In6_back_route_coverage'])
+    assert audit['moved_footprints'] == 7 and audit['flipped_footprints'] == 3 and audit['changed_pad_instances'] == 14
+    status = json.loads(previous.read_text())
+    status.update(
+        source_sha256={str(p.relative_to(REPO)): sha(p) for p in [Path(__file__), *reports, power/'README.md']},
+        verified_direct_source_and_artifact_bindings=count,
+        power_project=str((power/'power_protection.kicad_pro').relative_to(REPO)),
+        power_opens=2405, power_copper_segments=2390, power_copper_vias=219,
+        power_connections_closed_this_pass=15, power_moved_footprints_this_pass=7,
+        power_flipped_footprints_this_pass=3, power_replaced_footprints_this_pass=0,
+        power_changed_pad_instances_this_pass=14, power_all_component_poses_preserved=False,
+        power_component_pose_exception='R101/R103/R104 move to the back using the retained R102 package; R102/R105/R106/R115 move on the back. Values, packages and logical pin/net mapping remain unchanged.',
+        power_all_retained_copper_objects_unchanged=False, power_all_retained_copper_geometry_unchanged=False,
+        power_retained_copper_geometry_exception='Fourteen moved pads, fourteen retired tracks, two retired vias, seven refilled regions, expanded U101 In1 ground outline and one new In6 ground region. All retained tracks/vias, unmoved pads and six earlier regions remain exact.',
+        power_all_retained_tracks_vias_unchanged=True, power_all_other_copper_objects_unchanged=True,
+        power_previous_native_connection_groups_preserved=3158,
+        power_all_vias_screened=219,
+        power_minimum_all_via_drill_to_SMD_mm=audit['all_via_minimum_drill_to_SMD_mm'],
+        power_local_plane_contacts_preserved=False,
+        power_local_plane_contact_change='New ground stitches connect divider and clamp returns; the U101 In1 outline expands and an adjacent In6 reference is added. Previous connectivity and AUX split-return topology remain intact.',
+        power_input_thresholds_routing_audit=str((power/'input-thresholds-audit.json').relative_to(REPO)),
+        power_input_thresholds_plane_review=str((power/'input-thresholds-plane-review.json').relative_to(REPO)),
+        power_input_IN_SYS_bypass_locally_connected=True,
+        power_input_IN_SYS_connected_to_Q101_source_bank=True,
+        power_input_PGTH_divider_locally_connected=True,
+        power_input_UV_OV_dividers_and_clamp_connected=True,
+        power_local_filled_planes=14,
+        power_input_AUX_clamp_bias_and_pullup_connected=True,
+        power_input_adjacent_In6_reference_geometrically_verified=True,
+        power_input_adjacent_In6_route_coverage=planes["adjacent_In6_back_route_coverage"],
+        power_input_fast_OV_monitor_connected=False,
+        power_input_bypass_loop_and_final_reference_qualified=False,
+        power_input_bypass_and_voltage_thresholds_complete=False,
+        power_input_control_ground_plane_checks=[q for q in planes['plane_contacts'] if q['uuid'] in ['a147ef12-37f5-562e-9340-6c74b3790186', 'd41ab58e-16e9-5d76-8b14-dc335aff8371'] or q['layer'] == 'In6.Cu'],
+        power_AUX_ground_plane_checks=[q for q in planes['plane_contacts'] if q['uuid'] in ['d0572a8e-b95d-5c59-9a7c-1d3514a507b4', '94ece1a2-cfec-59cf-ba79-c618ed566f57', 'bc76c316-2c04-5ecb-85b7-3e5f80b26bf1', 'dfd01f0a-edcf-55b7-aecb-2d44a419b9b3']],
+        power_duplicate_paths_removed_this_pass=0,
+        power_local_input_bypass_visually_reviewed=True,
+        fabrication_released=False, goal_complete=False)
+    status['next_required_design_work'] = [
+        'Complete input-cable feed, VIN link to AUX, full system return and fast overvoltage monitoring; local UV/OV/PGTH dividers, bypass and clamp are now connected',
+        'Qualify complete bypass-loop inductance, electrical reference performance, exact passive MPN/derating and threshold tolerances',
+        *[q for q in status['next_required_design_work'] if not q.startswith(('Complete input UV/OV dividers', 'Qualify complete bypass-loop inductance'))]]
+    out = STAGING/'two-board-fabrication-status-30'; out.mkdir(exist_ok=False)
+    (out/'status.json').write_text(json.dumps(status, indent=2)+'\n')
+    print(json.dumps(dict(bindings=count, power_opens=2405, signal_opens=251, connections_closed=15, fabrication_released=False)))
+
+
+if __name__ == '__main__': run()

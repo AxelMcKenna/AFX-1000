@@ -1,0 +1,90 @@
+"""Author screened startup bypass, main-ground return and local feedback joins."""
+import json,shutil,uuid
+from pathlib import Path
+from shapely.geometry import Point,LineString
+from hardware.electronics.common.sexpr import a,children,first,read_sexpr,sexpr
+from hardware.fabrication.integrate_two_board_signal import REPO,STAGING,prop,sha
+from hardware.fabrication.repack_two_board_buck_input import rotate_footprint
+from hardware.fabrication.route_nf_surface import shape
+BASE=STAGING/'two-board-power-startup-cells-native-03'
+CAP=STAGING/'two-board-power-routing-inputs-2199-startup-cells-03/capture.json'
+PLAN=STAGING/'two-board-startup-remaining-plan-06/plan.json'
+OUT=STAGING/'two-board-power-startup-remaining-03'
+
+
+def run():
+ assert not OUT.exists()
+ c=json.loads(CAP.read_text());p=json.loads(PLAN.read_text())
+ for data in [c,p]:
+  for n,h in data['source_sha256'].items():assert sha(Path(n) if Path(n).is_absolute() else REPO/n)==h,n
+ assert all(len(cell['ground_paths'])==(4 if cell['chip']=='E_U22' else 2) for cell in p['cells'])
+ assert len(p['cells'])>=7 and p['expected_closed_connections']==len(p['joins'])>=24
+ board=read_sexpr((BASE/'power_protection.kicad_pcb').read_text())
+ for i,f in enumerate(board):
+  if not(isinstance(f,list) and f and f[0]=='footprint'):continue
+  ref=prop(f,'Reference')[2]
+  if ref in p['moves']:
+   xy,rot,flip=p['moves'][ref];assert not flip
+   board[i]=rotate_footprint(f,xy,rot)
+ retired=set(p['retired_objects']);assert len(retired)>=112
+ board[:]=[n for n in board if not(isinstance(n,list) and n and n[0]=='segment' and str(first(n,'uuid')[1]) in retired)]
+ codes={str(n[2]):int(n[1]) for n in children(board,'net')}
+ uid=lambda key:str(uuid.uuid5(uuid.NAMESPACE_URL,'AFX:TBPSTARTREMAIN03:'+sha(CAP)+':'+key))
+ for i,r in enumerate(p['routes']):
+  r['segment_uuids']=[]
+  for j,(start,end) in enumerate(zip(r['path_mm'],r['path_mm'][1:])):
+   u=uid(f'track:{i}:{j}');r['segment_uuids'].append(u)
+   board.append([a('segment'),[a('start'),*start],[a('end'),*end],[a('width'),r['width_mm']],[a('layer'),r['layer']],[a('net'),codes[r['net']]],[a('uuid'),u]])
+ for i,v in enumerate(p['vias']):
+  v['uuid']=uid(f'via:{i}')
+  board.append([a('via'),[a('at'),*v['position_mm']],[a('size'),v['size_mm']],[a('drill'),v['drill_mm']],[a('layers'),'F.Cu','B.Cu'],[a('net'),codes[v['net']]],[a('uuid'),v['uuid']]])
+ affected={l:[] for l in c['copper_layers']}
+ for o in c['objects']:
+  if o['uuid'] in retired:
+   for l,ps in o['layers'].items():affected[l].append(shape(ps).buffer(.7))
+ for r in p['routes']:affected[r['layer']].append(LineString(r['path_mm']).buffer(.7))
+ for v in p['vias']:
+  for l in affected:affected[l].append(Point(v['position_mm']).buffer(1.))
+ from hardware.fabrication.route_two_board_buck_cell import position,transform_object
+ originalfps={prop(f,'Reference')[2]:f for f in children(read_sexpr((BASE/'power_protection.kicad_pcb').read_text()),'footprint')}
+ for o in c['objects']:
+  if o.get('ref') not in p['moves']:continue
+  xy,rot,_=p['moves'][o['ref']];n=transform_object(o,position(originalfps[o['ref']]),xy,rot)
+  for item in [o,n]:
+   for l,ps in item['layers'].items():affected[l].append(shape(ps).buffer(.7))
+ zmap={z['uuid']:z for z in c['zones']};refill=[];edited=[]
+ main=next(o['group'] for o in c['objects'] if o.get('ref')=='P_C103' and o.get('pin')=='2')
+ extension=shape([p['proposed_main_In6_extension']])
+ # Do not let an expanded main field collect an existing isolated return.
+ for o in c['objects']:
+  if o['net']=='PWR_AGND' and o['group']!=main and o['layers'].get('In6.Cu'):
+   extension=extension.difference(shape(o['layers']['In6.Cu']).buffer(.215))
+ mainid='4b63f119-2e71-5d61-96f6-8b78a1f5c6cb'
+ for u,z in zmap.items():
+  if u!=mainid and z['layer']=='In6.Cu' and z['net']=='PWR_AGND':extension=extension.difference(shape(z['authored_outline']).buffer(.215))
+
+ for z in children(board,'zone'):
+  u=str(first(z,'uuid')[1]);g=shape(zmap[u]['authored_outline'])
+  if u==mainid:
+   g=g.union(extension).simplify(.00001,preserve_topology=True)
+   assert g.geom_type=='Polygon' and g.is_valid
+   z[:]=[n for n in z if not(isinstance(n,list) and n and n[0]=='polygon')]
+   z.extend([[a('polygon'),[a('pts'),*[[a('xy'),round(x,6),round(y,6)] for x,y in ring.coords[:-1]]]] for ring in [g.exterior,*g.interiors]])
+   edited.append(dict(uuid=u,layer='In6.Cu',outer_mm=list(g.exterior.coords),holes_mm=[list(h.coords) for h in g.interiors]))
+  if u==mainid or any(g.intersects(h) for h in affected[zmap[u]['layer']]):
+   z[:]=[n for n in z if not(isinstance(n,list) and n and n[0]=='filled_polygon')];refill.append(u)
+ OUT.mkdir();sources=[]
+ for src in BASE.rglob('*'):
+  if not src.is_file():continue
+  rel=src.relative_to(BASE)
+  if rel.parts[0] in ['libraries','symbols'] or len(rel.parts)==1 and (src.suffix=='.kicad_sch' or src.name in ['power_protection.kicad_pcb','power_protection.kicad_pro','power_protection.kicad_dru','fp-lib-table','sym-lib-table','expected-circuit.json','symbol-paths.json']):
+   target=OUT/rel;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(src,target);sources.append(src)
+ (OUT/'power_protection.kicad_pcb').write_text(sexpr(board)+'\n')
+ path=OUT/'power_protection.kicad_sch';sch=read_sexpr(path.read_text());first(first(sch,'title_block'),'rev')[1]='TBP50-CANDIDATE';path.write_text(sexpr(sch)+'\n')
+ sources += [Path(__file__),CAP,PLAN,REPO/'hardware/fabrication/repack_two_board_buck_input.py',REPO/'hardware/fabrication/route_two_board_buck_cell.py',REPO/'hardware/fabrication/route_nf_surface.py']
+ result=dict(p,source_sha256={str(f.relative_to(REPO)):sha(f) for f in sources},refilled_existing_zones=refill,edited_zone_outlines=edited,retired_objects=sorted(retired),added_tracks=sum(len(r['segment_uuids']) for r in p['routes']),added_vias=len(p['vias']),all_aux_supply_distribution_complete=False,startup_functionally_verified=False,fabrication_released=False)
+ (OUT/'startup-cell-routing.json').write_text(json.dumps(result,indent=2)+'\n')
+ print(json.dumps({k:result[k] for k in ['added_tracks','added_vias','expected_closed_connections','refilled_existing_zones']}))
+
+
+if __name__=='__main__':run()

@@ -1,0 +1,165 @@
+"""Independent placement, drill and SD checks for the coordinated routing trial."""
+import argparse
+import copy
+import json
+import math
+from pathlib import Path
+
+from shapely.geometry import Point, Polygon, box
+from shapely import make_valid
+from shapely.ops import unary_union
+
+from hardware.electronics.common.netlists import netlist
+from hardware.electronics.common.sexpr import children, first, read_sexpr, sexpr
+from hardware.electronics.output_stage.check_placement import courtyard
+from hardware.fabrication.audit_candidate import geometry_delta, native_evidence_errors, sha
+from hardware.fabrication.audit_digital_core import verify_export
+from hardware.fabrication.digital_core_layout import pad_box
+from hardware.fabrication.route_nf_surface import shape
+
+ROOT = Path(__file__).resolve().parent
+
+
+def check(label, capture_label='digital-coordinated-six-clean-inputs-117'):
+    out = ROOT/'staging'/label
+    pcb = out/'digital_core.kicad_pcb'
+    rp = out/'review.json'
+    review = json.loads(rp.read_text())
+    assert not native_evidence_errors(pcb.with_suffix('.kicad_pro'), review)
+    assert review['status']['counts']['schematic_parity'] == review['status']['counts']['erc'] == 0
+    drc = json.loads((out/'drc.json').read_text())
+    assert all(v['severity'] == 'warning' and v['type'] == 'via_dangling' for v in drc['violations'])
+    parts, pins = netlist(out/'netlist.xml')
+    verify_export(parts, pins)
+    board = read_sexpr(pcb.read_text())
+    base = ROOT/'staging/digital-distribution-native-02/digital_core.kicad_pcb'
+    original = read_sexpr(base.read_text())
+    delta = geometry_delta(original, board)
+    normalized = copy.deepcopy(board)
+    normalized[normalized.index(first(normalized, 'layers'))] = copy.deepcopy(first(original, 'layers'))
+    assert geometry_delta(original, normalized)['other_root_geometry_exact']
+    assert len(delta['zone']['added']) == 1 and not delta['zone']['removed'] and not delta['zone']['changed']
+    assert [n[1] for n in first(board, 'layers')[1:] if n[1].endswith('.Cu')] == ['F.Cu','In1.Cu','In2.Cu','In3.Cu','In4.Cu','B.Cu']
+    ground = next(z for z in children(board, 'zone') if first(z, 'layer')[1] == 'In4.Cu')
+    reference = next(z for z in children(original, 'zone') if first(z, 'layer')[1] == 'In1.Cu')
+    def authored(z):
+        return [n for n in z if not isinstance(n, list) or n[0] not in ('uuid','layer','filled_polygon','filled_areas_thickness')]
+    assert authored(ground) == authored(reference)
+    assert not delta['footprint']['added'] and not delta['footprint']['removed']
+    def refs(tree):
+        return {next(p[2] for p in children(f, 'property') if p[1] == 'Reference'): f
+                for f in children(tree, 'footprint')}
+    fps, old_fps = refs(board), refs(original)
+    changed = sorted(r for r in fps if sexpr(fps[r]) != sexpr(old_fps[r]))
+    expected = {f'R{n}' for n in (1010,1011,1012,1013,1015,1016,1017,1018,1019,1020,1039,3019,3020,3021)}
+    assert set(changed) == expected
+    profile = Polygon([(0,0),(64,0),(64,3),(104,3),(104,9),(114,9),(114,60),(0,60)])
+    sides = {r: first(f, 'layer')[1][0] for r, f in fps.items()}
+    courts = {r: box(*courtyard(f, sides[r]+'.CrtYd')) for r, f in fps.items()}
+    through = {r: [box(*pad_box(f, p, .5)) for p in children(f, 'pad') if p[2] == 'thru_hole']
+               for r, f in fps.items()}
+    for ref in parts:
+        assert profile.covers(courts[ref]) and courts[ref].distance(profile.boundary) >= .5-1e-8
+        for other in parts:
+            if ref == other:
+                continue
+            if sides[ref] == sides[other]:
+                assert courts[ref].distance(courts[other]) >= .3-1e-8, (ref, other)
+            else:
+                assert not any(courts[ref].intersection(p).area > 1e-10 for p in through[other]), (ref, other)
+        for x, y in [(4,4),(66,13),(110,25),(4,36),(110,44)]:
+            assert courts[ref].distance(box(x-3.6,y-3.6,x+3.6,y+3.6)) >= .15-1e-8
+    cp = ROOT/'staging/digital-signal-corridor-inputs/capture.json'
+    capture = json.loads(cp.read_text())
+    assert all(sha(Path(p)) == h for p, h in capture['source_sha256'].items())
+    captured_pcb = next(Path(p) for p in capture['source_sha256'] if p.endswith('.kicad_pcb'))
+    assert all(sexpr(fps[r]) == sexpr(f) for r, f in refs(read_sexpr(captured_pcb.read_text())).items())
+    smd = [(o, shape(ps)) for o in capture['objects'] if o['kind'] == 'PAD' and not any(o['drill_mm'])
+           for layer, ps in o['layers'].items() if layer in ('F.Cu', 'B.Cu') and ps]
+    thermal_path = ROOT/'staging/digital-thermal-vias-01/construction.json'
+    thermal = json.loads(thermal_path.read_text())
+    special = {r['via_uuid']: r['ref'] for r in thermal['thermal_vias']}
+    old_vias = {first(v, 'uuid')[1]: v for v in children(original, 'via')}
+    drills = []
+    for v in children(board, 'via'):
+        uid = first(v, 'uuid')[1]
+        xy = list(map(float, first(v, 'at')[1:3]))
+        drill, size = float(first(v, 'drill')[1]), float(first(v, 'size')[1])
+        assert drill >= .3 and (size-drill)/2 >= .15-1e-9
+        exempt = special.get(uid)
+        if exempt:
+            assert sexpr(v) == sexpr(old_vias[uid])
+            assert sexpr(fps[exempt]) == sexpr(old_fps[exempt])
+        gap = min(Point(xy).distance(g)-drill/2 for o, g in smd
+                  if not (o['ref'] == exempt and o['pin'] == '33'))
+        assert gap >= .15-1e-6, (uid, gap)
+        drills.append(dict(uuid=uid, xy_mm=xy, hole_edge_to_SMD_copper_mm=gap,
+                           retained_mask_covered_EP_ref=exempt))
+    assert sum(r['retained_mask_covered_EP_ref'] is not None for r in drills) == 21
+    nr = out/'stage-connectivity-review.json'
+    native = json.loads(nr.read_text())
+    assert all(sha(Path(p)) == h for p, h in native['source_sha256'].items())
+    assert native['copper_layer_count'] == 6
+    assert {(z['net'],z['layer']) for z in native['planes']} == {('AGND','In1.Cu'),('5V_DIG','In2.Cu'),('AGND','In4.Cu')}
+    plane_cp = ROOT/'staging'/capture_label/'capture.json'
+    plane_capture = json.loads(plane_cp.read_text())
+    assert plane_capture['source_sha256'][str(pcb)] == sha(pcb)
+    assert all(sha(Path(p)) == h for p, h in plane_capture['source_sha256'].items())
+    planes = []
+    for zone in native['planes']:
+        layer, net = zone['layer'], zone['net']
+        # Filled-zone contours alone omit thermal pad copper. The small
+        # J1007 ground lobe joins the main fill through its actual THT pad.
+        # Require one physical same-net copper component, including every
+        # captured pad, via and track on the layer; do not waive a split.
+        shapes = [make_valid(shape(zone['polygons']))]
+        shapes += [make_valid(shape(o['layers'][layer])) for o in plane_capture['objects']
+                   if o['net'] == net and o['layers'].get(layer)]
+        copper = unary_union(shapes)
+        assert copper.geom_type == 'Polygon' and copper.is_valid, (layer, copper.geom_type)
+        planes.append(dict(layer=layer, net=net, filled_zone_regions=len(zone['polygons']),
+                           actual_copper_components_including_pads_tracks_and_vias=1,
+                           actual_copper_area_mm2=copper.area))
+    assert native['preserved_power_ground_pads'] == 201
+    assert native['preserved_local_connections'] == 39 and native['preserved_thermal_connections'] == 33
+    assert native['uncapped_open_connections'] == review['uncapped_open_connections']
+    sd_path = ROOT/'staging/digital-sd-matched-routes-01/construction.json'
+    sd_recipe = json.loads(sd_path.read_text())
+    by_net = {r['net']: r for r in native['nets']}
+    sd = []
+    for row in sd_recipe['carrier_path_totals']:
+        nets = [by_net['/PROCESSOR/SDMMC_'+row['signal']+suffix] for suffix in ('', '_SRC')]
+        assert all(r['all_pads_connected'] for r in nets)
+        length = sum(r['planar_copper_length_mm'] for r in nets)
+        assert math.isclose(length, row['carrier_planar_mm'], abs_tol=1e-5)
+        assert sum(r['via_count'] for r in nets) == 1
+        sd.append(dict(signal=row['signal'], carrier_planar_mm=length, via_count=1))
+    inputs = [Path(__file__), pcb, pcb.with_suffix('.kicad_pro'), rp, out/'drc.json', out/'netlist.xml',
+              base, cp, captured_pcb, plane_cp, thermal_path, nr, sd_path,
+              ROOT/'digital_core_layout.py', ROOT/'route_nf_surface.py']
+    return dict(source_sha256={str(p): sha(p) for p in inputs},
+                changed_component_refs=changed, conditional_courtyard_THT_and_mount_clearances_pass=True,
+                geometry_delta_from_DC03=delta, drill_review=drills, planes=planes,
+                minimum_drill_to_nonexempt_SMD_gap_mm=min(r['hole_edge_to_SMD_copper_mm'] for r in drills),
+                retained_EP_process_hold_vias=21, SD_carrier_paths=sd,
+                SD_planar_spread_mm=max(r['carrier_planar_mm'] for r in sd)-min(r['carrier_planar_mm'] for r in sd),
+                SD_Seed_socket_card_loading_impedance_timing_qualified=False,
+                uncapped_open_connections=native['uncapped_open_connections'],
+                retained_native_warnings=len(drc['violations']),
+                physical_six_layer_stack_accepted=False,
+                complete_assembly_and_fabrication_qualified=False, fabrication_released=False)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--source', required=True)
+    parser.add_argument('--capture', default='digital-coordinated-six-clean-inputs-117')
+    args = parser.parse_args()
+    assert all(c.isalnum() or c in '-_' for c in args.source)
+    assert all(c.isalnum() or c in '-_' for c in args.capture)
+    result = check(args.source, args.capture)
+    with (ROOT/'staging'/args.source/'corridor-audit.json').open('x') as f:
+        json.dump(result, f, indent=2)
+        f.write('\n')
+    print('Placement/drill/SD audit passed;', result['uncapped_open_connections'], 'opens;',
+          round(result['SD_planar_spread_mm'], 3), 'mm SD spread')
