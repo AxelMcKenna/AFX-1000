@@ -69,6 +69,18 @@ These are native KiCad exports of the current copper layouts, with incomplete ro
 
 ### Housing and fabrication status
 
+**Current housing CAD renders** — the r6 housing and revised r5 lever assembly, shown as an unpowered fit prototype. These are CAD renders, not photographs of assembled hardware. Controls and fasteners are omitted from the housing views. Click any image to enlarge it.
+
+[![Assembled r6 housing with control-panel apertures, viewed from the front](docs/assets/hardware/tbh01-r6-front.png)](docs/assets/hardware/tbh01-r6-front.png)
+
+| Rear connector panel | Open shell and PCB supports |
+| --- | --- |
+| [![Rear view of the r6 housing and removable connector panel](docs/assets/hardware/tbh01-r6-rear.png)](docs/assets/hardware/tbh01-r6-rear.png) | [![Open r6 housing showing the internal mounting posts](docs/assets/hardware/tbh01-r6-open.png)](docs/assets/hardware/tbh01-r6-open.png) |
+
+**Revised lever assembly** — removable bearing cap, pivot guard and thrust shims.
+
+[![Current lever CAD assembly with replacement bracket, removable bearing cap and thrust shims](docs/assets/hardware/tbh03-r5-lever.png)](docs/assets/hardware/tbh03-r5-lever.png)
+
 The [larger housing proposal](hardware/cad/a12/README.md) and board placement checks provide a starting point, but **complete installed fit has not been verified**. Supports, cooling, connector mates, cable bends and dimensional tolerances still need a coordinated mechanical review. Retired internal return studs also require qualified PCB return paths and updated bar/harness hardware. Both boards currently use a provisional eight-layer template; the fabrication stack is not accepted.
 
 Remaining work includes the approved ESS package/land/stencil inputs, module protection and startup limits, final inter-board interfaces, critical placement and electrical checks, all remaining routing, exact BOM and assembly requirements, and reviewed manufacturing outputs. The [latest power-board review](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/README.md) records the current checks and remaining work; the [fabrication inventory](hardware/fabrication/README.md) retains detailed engineering history.
