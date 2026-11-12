@@ -10,6 +10,12 @@ def bind(p):
  for rel in re.findall(r'(?:include|use)\s*<([^>]+)>',p.read_text()):bind(p.parent/rel)
 bind(REPO/source)
 roles=[
+ ('sensor_lever_nominal','installed','lever','Nominal zero-angle lever rotor in housing coordinates','Magnet and grub screw are not included; motion envelope is a separate role'),
+ ('sensor_pivot_shims','installed','pivot_hardware','Retained left/right0.9mm pivot shims','Actual shim thickness selected by physical receiving'),
+ ('sensor_pivot_shaft','installed','pivot_hardware','Retained3mm pivot shaft at nominal axial location','Actual shaft fit/retention remains a receiving check'),
+ ('sensor_right_screw_heads','installed','mounting_hardware','Two right guard screw/washer heads atX326','LeftX306 heads already belong to sensor_fixture; do not duplicate'),
+ ('sensor_spring_pins_nominal','installed','hardware_with_receiving_reservation','Fixed and zero-angle moving spring clevis pins, sleeves and washers','Frozen module mixes nominal hardware with receiving-only bent split-pin boxes; these boxes are not actual split-pin CAD'),
+ ('sensor_spring_body_nominal','receiving','spring','Nominal spring body/loop occupied envelope','Hull reservation, not an actual coil/loop solid; physical spring force and retention unqualified'),
  ('sensor_fixture','installed','sensor_mount','Carrier, magnet guard, cap and mounting/cap hardware','Printed receiving tolerances and actual fastener stack remain physical checks'),
  ('sensor_substrate','installed','pcb','20x18x1.6mm sensor board substrate','Selected sensor PCB source bound; fabrication/receiving remains open'),
  ('sensor_population','receiving','electronic_population','Actual selected component placement plus solder and local wire reservations','Mixed component/reserve envelope, not supplier-certified complete assembly CAD'),
@@ -20,6 +26,12 @@ roles=[
  ('sensor_spring_motion','motion','spring','Fixed pin, moving pin sweep and attached spring corridor','Spring return force and physical hook retention require qualification')]
 components=[dict(id=n,source=source,module=n,role=role,category=category,description=desc,uncertainty=uncertainty)for n,role,category,desc,uncertainty in roles]
 contacts=[
+ dict(components=['sensor_lever_nominal','sensor_lever_motion'],reason='Motion envelope intentionally contains zero-angle rotor',evidence='hardware/cad/two_board_sensor_05/spring-verified-r2/spring_arm_preservation_clearance/result.json',mode='motion_contains_nominal'),
+ dict(components=['sensor_spring_pins_nominal','sensor_spring_motion'],reason='Spring motion includes fixed pin and zero-angle moving pin',evidence='hardware/cad/two_board_sensor_05/spring.scad',mode='motion_contains_nominal'),
+ dict(components=['sensor_spring_body_nominal','sensor_spring_motion'],reason='Nominal spring body is covered by spring motion reservation',evidence='hardware/cad/two_board_sensor_05/spring.scad',mode='motion_contains_nominal'),
+ dict(components=['sensor_right_screw_heads','sensor_lever_guard'],reason='Right washer seats at top of guard mounting pads atZ20',evidence='hardware/cad/two_board_print_03/retention_r5.scad',mode='seating_boundary_only'),
+ dict(components=['sensor_spring_pins_nominal','sensor_lever_nominal'],reason='Moving clevis pin passes through the lever spring eye',evidence='hardware/cad/two_board_sensor_05/spring.scad',mode='attachment_only'),
+ dict(components=['sensor_spring_pins_nominal','sensor_lever_bracket'],reason='Fixed clevis pin attaches to the fixed bracket eye',evidence='hardware/cad/two_board_sensor_05/spring.scad',mode='attachment_only'),
  dict(components=['sensor_fixture','sensor_substrate'],reason='PCB edge-capture seating; retain strict non-seat clearance checks',evidence='hardware/cad/two_board_sensor_05/verified-r3/carrier_board_clearance/result.json',mode='seating_boundary_only'),
  dict(components=['sensor_population','sensor_substrate'],reason='Component/solder termination envelopes intentionally meet the PCB substrate',evidence='hardware/cad/two_board_sensor_05/population-contract.json',mode='electronic_attachment'),
  dict(components=['sensor_harness','sensor_population'],reason='Sensor-end wire fanout meets local wire/solder receiving region',evidence='hardware/cad/two_board_sensor_05/harness_mate_clearance/contract.json',mode='termination_region_only',region_mm={'min':[293,73.1,22.7],'max':[301.9,90.9,38.5]}),
@@ -30,7 +42,7 @@ meta=dict(schema_version=1,components=components,sources_sha256=sources,intentio
  assembly_rules=['Instantiate each atomic component once; do not also include carrier tbh05_installed or a second harness complete module.','Keep native main-board components except replace original D_H2/D_H5 screw heads; main mate intentionally occupies D_J1010 interface.','Do not substitute inherited generic sensor_package() for actual_population().','Motion and receiving roles are collision reservations; they are not all simultaneously printable physical solids.'],
  selected_pcb={'main_signal':'hardware/cad/two_board_sensor_05/signal_input/native-r7/signal_main.kicad_pcb','sensor':'hardware/cad/two_board_sensor_05/pcb/native-r3/sensor.kicad_pcb'},
  evidence=['hardware/cad/two_board_sensor_05/harness_mate_clearance/review.json','hardware/cad/two_board_sensor_05/signal_input/final-review.json'],
- complete_installed_fit=False,fabrication_released=False)
+ unmodeled_installed_items=[{'id':'sensor_magnet','reason':'No frozen nominal installed magnet module; magnet_escape is a diagnostic displaced witness and must not be rendered as actual magnet','evidence':'hardware/cad/two_board_sensor_05/mechanical-contract.json'},{'id':'sensor_grub_screw','reason':'Lever has threaded receiving hole but no frozen installed grub-screw solid','evidence':'hardware/cad/two_board_sensor_05/spring.scad'},{'id':'sensor_actual_spring_coil','reason':'Available spring_body_at module is an occupied hull; registry marks it receiving, not actual coil geometry','evidence':'hardware/cad/two_board_sensor_05/spring.scad'}],complete_installed_fit=False,fabrication_released=False)
 for key,path in meta['selected_pcb'].items():meta.setdefault('selected_pcb_sha256',{})[key]=hashlib.sha256((REPO/path).read_bytes()).hexdigest()
 for c in contacts:assert (REPO/c['evidence']).is_file(),c['evidence']
 (R/'components.json').write_text(json.dumps(meta,indent=2)+'\n')

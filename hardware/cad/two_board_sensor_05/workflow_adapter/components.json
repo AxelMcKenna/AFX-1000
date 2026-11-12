@@ -2,6 +2,60 @@
   "schema_version": 1,
   "components": [
     {
+      "id": "sensor_lever_nominal",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_lever_nominal",
+      "role": "installed",
+      "category": "lever",
+      "description": "Nominal zero-angle lever rotor in housing coordinates",
+      "uncertainty": "Magnet and grub screw are not included; motion envelope is a separate role"
+    },
+    {
+      "id": "sensor_pivot_shims",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_pivot_shims",
+      "role": "installed",
+      "category": "pivot_hardware",
+      "description": "Retained left/right0.9mm pivot shims",
+      "uncertainty": "Actual shim thickness selected by physical receiving"
+    },
+    {
+      "id": "sensor_pivot_shaft",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_pivot_shaft",
+      "role": "installed",
+      "category": "pivot_hardware",
+      "description": "Retained3mm pivot shaft at nominal axial location",
+      "uncertainty": "Actual shaft fit/retention remains a receiving check"
+    },
+    {
+      "id": "sensor_right_screw_heads",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_right_screw_heads",
+      "role": "installed",
+      "category": "mounting_hardware",
+      "description": "Two right guard screw/washer heads atX326",
+      "uncertainty": "LeftX306 heads already belong to sensor_fixture; do not duplicate"
+    },
+    {
+      "id": "sensor_spring_pins_nominal",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_spring_pins_nominal",
+      "role": "installed",
+      "category": "hardware_with_receiving_reservation",
+      "description": "Fixed and zero-angle moving spring clevis pins, sleeves and washers",
+      "uncertainty": "Frozen module mixes nominal hardware with receiving-only bent split-pin boxes; these boxes are not actual split-pin CAD"
+    },
+    {
+      "id": "sensor_spring_body_nominal",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_spring_body_nominal",
+      "role": "receiving",
+      "category": "spring",
+      "description": "Nominal spring body/loop occupied envelope",
+      "uncertainty": "Hull reservation, not an actual coil/loop solid; physical spring force and retention unqualified"
+    },
+    {
       "id": "sensor_fixture",
       "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
       "module": "sensor_fixture",
@@ -75,7 +129,7 @@
     }
   ],
   "sources_sha256": {
-    "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad": "5352dfac2f57a0b46e6100614bb31dfabcd9d7d6a5083d608745c2e3ea005eb1",
+    "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad": "4e356ba571d7873025a8b7aac5082f19373cf85fc628e0157ce21b0a66362ec4",
     "hardware/cad/two_board_sensor_05/carrier.scad": "3fb015e9b7cecfe5836cee73484c14d5a45ebbfb6501326717b34cd2d7addacb",
     "hardware/cad/two_board_print_03/retention_r5.scad": "26653e6902de4e1cc3f85cfc634a5255a76edd8fc8856c27a17e9da58376f037",
     "hardware/cad/two_board_print_01/housing.scad": "ad1b8a239521c1bd6963d507321780427f4b3a9aaa145ba5dc6a3069989a4c1a",
@@ -91,6 +145,60 @@
     "hardware/cad/two_board_sensor_05/harness_mate_clearance/panel_mates.scad": "6b3a1b5080aafb07c6d6b62b2152b22c46d49f77498df1f002e6e1e89a5fffa1"
   },
   "intentional_contacts": [
+    {
+      "components": [
+        "sensor_lever_nominal",
+        "sensor_lever_motion"
+      ],
+      "reason": "Motion envelope intentionally contains zero-angle rotor",
+      "evidence": "hardware/cad/two_board_sensor_05/spring-verified-r2/spring_arm_preservation_clearance/result.json",
+      "mode": "motion_contains_nominal"
+    },
+    {
+      "components": [
+        "sensor_spring_pins_nominal",
+        "sensor_spring_motion"
+      ],
+      "reason": "Spring motion includes fixed pin and zero-angle moving pin",
+      "evidence": "hardware/cad/two_board_sensor_05/spring.scad",
+      "mode": "motion_contains_nominal"
+    },
+    {
+      "components": [
+        "sensor_spring_body_nominal",
+        "sensor_spring_motion"
+      ],
+      "reason": "Nominal spring body is covered by spring motion reservation",
+      "evidence": "hardware/cad/two_board_sensor_05/spring.scad",
+      "mode": "motion_contains_nominal"
+    },
+    {
+      "components": [
+        "sensor_right_screw_heads",
+        "sensor_lever_guard"
+      ],
+      "reason": "Right washer seats at top of guard mounting pads atZ20",
+      "evidence": "hardware/cad/two_board_print_03/retention_r5.scad",
+      "mode": "seating_boundary_only"
+    },
+    {
+      "components": [
+        "sensor_spring_pins_nominal",
+        "sensor_lever_nominal"
+      ],
+      "reason": "Moving clevis pin passes through the lever spring eye",
+      "evidence": "hardware/cad/two_board_sensor_05/spring.scad",
+      "mode": "attachment_only"
+    },
+    {
+      "components": [
+        "sensor_spring_pins_nominal",
+        "sensor_lever_bracket"
+      ],
+      "reason": "Fixed clevis pin attaches to the fixed bracket eye",
+      "evidence": "hardware/cad/two_board_sensor_05/spring.scad",
+      "mode": "attachment_only"
+    },
     {
       "components": [
         "sensor_fixture",
@@ -184,6 +292,23 @@
   "evidence": [
     "hardware/cad/two_board_sensor_05/harness_mate_clearance/review.json",
     "hardware/cad/two_board_sensor_05/signal_input/final-review.json"
+  ],
+  "unmodeled_installed_items": [
+    {
+      "id": "sensor_magnet",
+      "reason": "No frozen nominal installed magnet module; magnet_escape is a diagnostic displaced witness and must not be rendered as actual magnet",
+      "evidence": "hardware/cad/two_board_sensor_05/mechanical-contract.json"
+    },
+    {
+      "id": "sensor_grub_screw",
+      "reason": "Lever has threaded receiving hole but no frozen installed grub-screw solid",
+      "evidence": "hardware/cad/two_board_sensor_05/spring.scad"
+    },
+    {
+      "id": "sensor_actual_spring_coil",
+      "reason": "Available spring_body_at module is an occupied hull; registry marks it receiving, not actual coil geometry",
+      "evidence": "hardware/cad/two_board_sensor_05/spring.scad"
+    }
   ],
   "complete_installed_fit": false,
   "fabrication_released": false,

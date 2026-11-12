@@ -13,3 +13,10 @@ module sensor_lever_bracket(){spring_bracket_world();}
 module sensor_lever_guard(){guard();}
 module sensor_lever_motion(){spring_arm_sweep(.5);}
 module sensor_spring_motion(){spring_installed_envelope();}
+
+module sensor_lever_nominal(){translate([0,0,7.6])lever_arm_spring(0);}
+module sensor_pivot_shims(){shims_world();}
+module sensor_pivot_shaft(){shaft();}
+module sensor_right_screw_heads(){screw_heads();}
+module sensor_spring_pins_nominal(){fixed_pin();moving_pin(0);}
+module sensor_spring_body_nominal(){spring_body_at(0);}
