@@ -32,7 +32,7 @@ The original missing footprint is **A_U201 (ES9292QPRO)**. No footprint or packa
 From the repository root, run:
 
 ```sh
-.venv/bin/python -m hardware.cad.two_board_sensor_05.signal_dac.verify_portable_r26
+.venv/bin/python -m hardware.cad.two_board_sensor_05.signal_dac.verify_portable_r26 --reference --regressions
 ```
 
-The portable entry point verifies the frozen relative source closure, maps only the recorded owner-worktree prefix to the current checkout, and runs the unchanged final gate without rewriting evidence. It rejects dependencies outside this checkout. The original native project must remain available alongside the checkpoint. Native execution uses the pinned Linux image in `run_linux.py`; host-native CAD must not be used. Keep native outputs immutable and use a fresh output folder for any changed native probe. Intermediate candidate/capture files included in the source closure preserve how the final geometry was authored; they are not additional selected boards.
+The portable entry point verifies the frozen relative source closure, maps only the recorded owner-worktree prefix to the current checkout, and runs the unchanged final gate without rewriting evidence. It rejects dependencies outside this checkout. The original native project must remain available alongside the checkpoint. `--reference` recomputes the full frozen reference audit and requires identical results; `--regressions` checks missing and wrong-net transition proofs fail at the intended identity assertions. Both options passed in a separate copied checkout, with all reads rebased locally and no evidence rewritten. Native execution uses the pinned Linux image in `run_linux.py`; host-native CAD must not be used. Keep native outputs immutable and use a fresh output folder for any changed native probe. Intermediate candidate/capture files included in the source closure preserve how the final geometry was authored; they are not additional selected boards.
