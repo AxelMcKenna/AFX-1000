@@ -21,10 +21,10 @@ Only **11 µF nominal** currently connects to both AUX source and main ground. T
 
 ## Supervisor and reset-buffer routing targets
 
-`startup-route-targets.json` provides exact pad/source-group identities and nearest same-surface copper objects from TBP72. It does not establish obstacle clearance or a valid new route; filled zones are excluded from its proximity list.
+`startup-route-targets.json` provides exact pad/source-group identities and nearest same-surface copper objects from TBP72. The E_U19/E_U35/E_C58/E_C78 target pads are B.Cu-only; native layer membership is authoritative. It does not establish obstacle clearance or a valid new route; filled zones are excluded from its proximity list.
 
-- E_U19.4 is at (77, 155.4) mm and already shares its isolated AUX island with E_C58.1 at (74.5, 156.95) mm. E_U19.2 and E_C58.2 already reach main ground. Its closest existing F.Cu source-connected object is about 21.50 mm away.
-- E_U35.8 at (113.55, 158.75) mm and E_C78.1 at (110.5, 161.2) mm are separate isolated AUX pads. Their nearest F.Cu source copper is approximately 8.62 mm and 6.775 mm away respectively.
+- E_U19.4 is at (77, 155.4) mm and already shares its isolated AUX island with E_C58.1 at (74.5, 156.95) mm. E_U19.2 and E_C58.2 already reach main ground. Its closest existing B.Cu source-connected object is about 21.50 mm away.
+- E_U35.8 at (113.55, 158.75) mm and E_C78.1 at (110.5, 161.2) mm are separate isolated AUX pads. Their nearest B.Cu source copper is approximately 8.62 mm and 6.775 mm away respectively.
 - E_U35.4 already reaches main ground; E_C78.2 at (112.1, 161.2) mm does not. The pairings are consistent with the existing `revision28/aux_supervisor_fanout.py` and `revision28/reset_buffer_placement_screen.py` local component groups.
 
 ## Actual inhibit chain and the timing gap
