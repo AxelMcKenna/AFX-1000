@@ -1,0 +1,3 @@
+$fn=64;
+use </private/tmp/rmx-hardware-integration-20261112/hardware/cad/assembly_workflow/cache/component/2e4cb73ac190f182d755b804bdb2a90ff9d2c1de93be18f268e07c00e96b7632/sources/hardware/cad/two_board_service_10/removable_handle/parts.scad>
+intersection(){union(){service_handle_withdrawal();}union(){import("/private/tmp/rmx-hardware-integration-20261112/hardware/cad/assembly_workflow/cache/component/b1b194a722406e7bfc4af27eeb0e9151d53b0af6e155379d33bd46808c2e100d/geometry.stl");import("/private/tmp/rmx-hardware-integration-20261112/hardware/cad/assembly_workflow/cache/component/a553671c5383695ada3d5da7f179d39e7dcddf22c0014892f7dd8b0589bcf0f1/geometry.stl");}}
