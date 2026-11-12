@@ -25,7 +25,7 @@ current ground contract and its dependencies.
 
 The native SVG was rendered in three overlapping detail views and visually
 reviewed across all 29 notes. Labels fit below their symbols; the legend clears
-the page border. Original native SVG and images remain in `drawing/` for zooming.
+the page border. Normalized SVG and images remain in `drawing/` for zooming; exact native SVG bytes are preserved in `panel-native.svg.gz`. Element/path/style equality verifies whitespace-only normalization.
 The underlying panel hierarchy is unchanged.
 
 Ground supports, strain relief, service slack, actual terminals, the remaining
