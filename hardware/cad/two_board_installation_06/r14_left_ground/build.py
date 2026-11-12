@@ -41,15 +41,22 @@ a='D_J2002:15';b='button_quantize:3';w=Wire(endpoints[a]);az=math.radians(250)
 T,N=w.arc([0,0,1],[math.cos(az),math.sin(az),0],12,90)
 w.arc(T,[T[1],-T[0],0],12,70) # heading250 ->180
 w.s_curve([-1,0,0],[0,0,-1],12,39.04-30)
-w.line([175,w.p[1],30]);w.s_curve([-1,0,0],[0,0,1],12,1.6)
-offset=w.p[1]-endpoints[b][1]
-w.line([endpoints[b][0]+offset,w.p[1],31.6]);w.arc([-1,0,0],[0,-1,0],offset,90)
+w.s_curve([-1,0,0],[0,-1,0],12,w.p[1]-14.8)
+radius=20;offset=endpoints[b][1]-14.8;angle=math.degrees(math.acos(1-offset/radius));run=math.sqrt(2*radius*offset-offset*offset)
+w.line([endpoints[b][0]+run,14.8,30]);first=len(w.points)-1;w.arc([-1,0,0],[0,1,0],radius,angle);w.change_height(first,len(w.points)-1,1.6)
 add(a,b,w)
 # Alternating direction keeps intermediate leads on separate physical terminals.
 order=[('quantize','3','4'),('auto','3','4'),('tap','4','3'),('nudge_up','4','3'),('nudge_down','4','3'),('source_input','3','4'),('isolate_0','3','4'),('isolate_1','3','4'),('isolate_2','3','4'),('isolate_3','3','4'),('overdub','4','3'),('pad_3','4','3'),('pad_2','4','3'),('pad_1','4','3'),('pad_0','4','3'),('roll','4','3'),('bank','4','3'),('source_xpad','4','3'),('hold','3',None)]
 for previous,current in zip(order,order[1:]):
  a='button_'+previous[0]+':'+previous[2];b='button_'+current[0]+':'+current[1];w=Wire(endpoints[a])
- if previous[0]=='nudge_down':
+ if previous[0]=='quantize':
+  offset=19.75-14.8;run=math.sqrt(4*12*offset-offset*offset)
+  w.s_curve([1,0,0],[0,-1,0],12,offset);w.line([endpoints[b][0]-run,14.8,31.6]);w.s_curve([1,0,0],[0,1,0],12,offset)
+ elif previous[0]=='tap':
+  chord=endpoints[a][0]-endpoints[b][0];sag=12.75;R=chord*chord/(8*sag)+sag/2
+  radial=np.array([chord/2,R-sag,0]);T=unit([-radial[1],radial[0],0]);N=-unit(radial)
+  w.arc(T,N,R,math.degrees(2*math.asin(chord/(2*R))))
+ elif previous[0]=='nudge_down':
   w.s_curve([-1,0,0],[0,1,0],14,.5);w.line([25.75,36.25,31.6]);w.arc([-1,0,0],[0,1,0],12,90);w.line(endpoints[b])
  elif previous[0]=='isolate_3':
   w.line([173,56.75,31.6]);w.arc([1,0,0],[0,1,0],12,90)

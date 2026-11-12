@@ -15,19 +15,30 @@ is an explicit receiving condition; a qualified solder/strip/insulation process
 and local strain support are still required. The internal switch connection is
 not a bent external wire.
 
-The feed follows the selected r13 escape, then passes the controls at Z30 before
-rising to the first button. Inter-button wires mostly follow Z31.6; the return to
+The feed follows the selected r13 escape, then passes around the front of the
+display at Z30 before rising smoothly to the first button. Inter-button wires mostly follow Z31.6; the return to
 Hold passes at Z30 and rises smoothly. The wire-to-wire check covers all 171
 pairs and finds **0.4 mm minimum surface gap** for the inflated Ø1.2 mm model.
 The initial straight crossing and two tighter approaches were corrected rather
 than accepted as intentional wire contacts.
 
-Final local native evidence is revision r3: feed and links separately have empty
-intersections against frozen housing/holders/selector structures and conservative
-component/pot reservations. Positive feed STL is closed and oriented. Positive
-links STL is nonempty but has 16 bad edges (6 excluded degenerate triangles) in
-the repository mesh audit; **use original SCAD for link Boolean checks**, not
-that mesh. Native source intersections remain valid and explicitly scoped.
+The first root assembly screen caught a real collision with the BPM display:
+the feed crossed display leads, quantize-to-auto crossed its front post/shaft,
+and tap-to-nudge_up crossed the tray underside. The exact display-only probe
+reproduced20.72641mm³ with the same bounds as root's20.74830mm³ full-controls
+check (different native tessellation). No contacts were waived.
+
+Revision r4 routes the feed and quantize-to-auto wire around the display's front,
+and gives tap-to-nudge_up a20.9069mm-radius rear arc around the tray and rear post.
+Endpoint adjacency is unchanged. Final local native evidence is `structure-all-r4`,
+`allocations-all-r4` and `display-clear-r4`, all empty intersections. The failed
+`display-witness-r3` is retained as regression evidence. The prior root sensor
+and cooling passes were for r3; repeat full-root checks for r4 before promotion.
+
+Use current original SCAD for Booleans. Historical r3 positive feed STL was closed;
+r3 positive links had16badedges (6excludeddegenerate triangles). Those older
+STLs are not current-r4 geometry or proof. Root will generate current positive
+operands during integration.
 
 `verification.json` checks endpoint coordinates against the frozen world datums,
 independent 19-button membership, terminal exclusivity, native source net,

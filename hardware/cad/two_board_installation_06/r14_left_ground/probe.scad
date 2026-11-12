@@ -9,3 +9,5 @@ if(part=="structure")intersection(){candidate();union(){shell();holders_installe
 if(part=="allocations")intersection(){candidate();panel_ground_allocations();}
 if(part=="mates")intersection(){candidate();tbh10_panel_mates();}
 if(part=="positive")candidate();
+use <../../two_board_controls_04/display.scad>
+if(part=="display")intersection(){candidate();union(){tbh04_display_installed();tbh04_wire_reserve();tbh04_fasteners();}}
