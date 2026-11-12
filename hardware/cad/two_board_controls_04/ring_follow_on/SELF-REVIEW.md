@@ -1,0 +1,7 @@
+# Ring self-review
+
+The final review challenged source drift, actual emitter/pad polarity, omitted series branches, neighboring holder interference, lens retention and unintended lid edits. Native KiCad checked all 8 RGB packages and 24 resistor pin pairs against four external leads with zero DRC violations and no opens. The final CAD contains actual purchased-part envelopes, local wires, hardware, a captured clear lens and all existing assemblies inherited by the housing variants.
+
+Two actual mechanical collisions were fixed: the original annular PCB hit ten scene-holder posts, and a frame arm hit a solder envelope. Failed outputs remain. The final shaped board uses three lobes, and its frame arms clear all parts. A near-coincident aperture restoration caused invalid lid facets; the repaired annular 2D fill passed a bounded Manifold probe and the full 20-case source-bound batch. Exact lid/guide preservation tests pass outside declared masks. The final rendered assembly was visually inspected.
+
+Remaining acceptance gaps are deliberate and recorded: brightness and current sharing across eight parallel branches per color, diffuser material, PCB/printed tolerances, physical retention torque, full harness route and strain relief. These do not become proven by the geometry or DRC results. No further actionable defect was found within the checked geometry/connectivity scope; this is a self-review, not independent audit or fabrication approval.
