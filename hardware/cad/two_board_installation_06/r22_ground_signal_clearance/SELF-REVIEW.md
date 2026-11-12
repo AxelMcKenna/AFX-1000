@@ -1,0 +1,5 @@
+# Antagonistic self-review
+
+The apparent adjacent-route problem was reproducible using the terminal sphere alone, so changing a signal route could not resolve it. Audited all29 signal terminals and found exactly four conflicts. Additive correction preserves every source endpoint, terminal Z and external edge, rather than changing terminal assignment or shrinking reservations. Single analytic radius18 arcs preserve continuous tangents internally; changed joint approach directions are explicit and not claimed physically qualified.
+
+Verification includes all selected ground except superseded wire shapes, selected CONTROL21, exact splice/cage/keyed guide/selectors, main allocations/mates and local structure. Minimum separation checks use full0.6 mm receiving radii, not tessellated undersizing. Native positive and original-fault witness boundaries are closed with zero degenerates. Replacement registry includes all nine links once; original role must be removed. Current root full-scene and physical joint qualification remain required. Self-review is not independent review.
