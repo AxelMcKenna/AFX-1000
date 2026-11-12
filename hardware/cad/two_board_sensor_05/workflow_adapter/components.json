@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "components": [
+    {
+      "id": "sensor_fixture",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_fixture",
+      "role": "installed",
+      "category": "sensor_mount",
+      "description": "Carrier, magnet guard, cap and mounting/cap hardware",
+      "uncertainty": "Printed receiving tolerances and actual fastener stack remain physical checks"
+    },
+    {
+      "id": "sensor_substrate",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_substrate",
+      "role": "installed",
+      "category": "pcb",
+      "description": "20x18x1.6mm sensor board substrate",
+      "uncertainty": "Selected sensor PCB source bound; fabrication/receiving remains open"
+    },
+    {
+      "id": "sensor_population",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_population",
+      "role": "receiving",
+      "category": "electronic_population",
+      "description": "Actual selected component placement plus solder and local wire reservations",
+      "uncertainty": "Mixed component/reserve envelope, not supplier-certified complete assembly CAD"
+    },
+    {
+      "id": "sensor_harness",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_harness",
+      "role": "receiving",
+      "category": "harness",
+      "description": "Current ribbon, main mate, clamp and replacement screw-head envelope",
+      "uncertainty": "Conditional mating, cable forming, clamp strength and12pF branch ceiling require receiving"
+    },
+    {
+      "id": "sensor_lever_bracket",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_lever_bracket",
+      "role": "installed",
+      "category": "lever_mount",
+      "description": "Current fixed spring anchor/bracket",
+      "uncertainty": "Printed strength and actual spring/clevis receiving remain open"
+    },
+    {
+      "id": "sensor_lever_guard",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_lever_guard",
+      "role": "installed",
+      "category": "lever_guard",
+      "description": "Retained lever guard",
+      "uncertainty": "Source preserved; physical tolerances remain open"
+    },
+    {
+      "id": "sensor_lever_motion",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_lever_motion",
+      "role": "motion",
+      "category": "lever",
+      "description": "Continuous0..35degree lever sweep with0.5mm axial allowance",
+      "uncertainty": "Motion reservation, not stationary hardware"
+    },
+    {
+      "id": "sensor_spring_motion",
+      "source": "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad",
+      "module": "sensor_spring_motion",
+      "role": "motion",
+      "category": "spring",
+      "description": "Fixed pin, moving pin sweep and attached spring corridor",
+      "uncertainty": "Spring return force and physical hook retention require qualification"
+    }
+  ],
+  "sources_sha256": {
+    "hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad": "5352dfac2f57a0b46e6100614bb31dfabcd9d7d6a5083d608745c2e3ea005eb1",
+    "hardware/cad/two_board_sensor_05/carrier.scad": "3fb015e9b7cecfe5836cee73484c14d5a45ebbfb6501326717b34cd2d7addacb",
+    "hardware/cad/two_board_print_03/retention_r5.scad": "26653e6902de4e1cc3f85cfc634a5255a76edd8fc8856c27a17e9da58376f037",
+    "hardware/cad/two_board_print_01/housing.scad": "ad1b8a239521c1bd6963d507321780427f4b3a9aaa145ba5dc6a3069989a4c1a",
+    "hardware/cad/two_board_print_01/captured.scad": "59992f74f95ffb1686f40b36c91724ec5b54c61cd960c6f460c13ee5053777fd",
+    "hardware/cad/a11/generated/button-fixture.scad": "9df4774926c93b58f585c0a14e12141f288e878bff6504ddd7fb960c2cebfbb3",
+    "hardware/cad/a11/controls.scad": "6a578846e727ad60e8e797044ba9ac1e6642a59b4d028fcb1ae96651936e6d4c",
+    "hardware/cad/a11/mechanisms.scad": "3113f6095116b2fd045e9fb0f1dd2c27dacac5c5893e05d60abd78d13d47d60a",
+    "hardware/cad/two_board_sensor_05/population.scad": "65752416d0e2a80a99f749ed993c22e45bcc09fdf1c1076c0e544588188b2f2d",
+    "hardware/cad/two_board_sensor_05/spring.scad": "087e3dbba7096beee54fcd21b2709ed99b14dc39fb680f05a53a0a99ade86782",
+    "hardware/cad/two_board_sensor_05/harness_mate_clearance/route.scad": "48ac610bf7d6b19fc878d637df919de72b27c52fc7701323d33195aed9aa52f2",
+    "hardware/cad/two_board_sensor_05/harness_mate_clearance/pot_receiving.scad": "97bf8d9203cf5074ea5b960eff99b8b4ba1cf9a55ebc28a4213883d05e1a47b8",
+    "hardware/cad/two_board_sensor_05/harness_mate_clearance/baseline.scad": "53e96e96668fbc6d5e08141cf5ccf2e745406df270a180d3cccc75e740a42eff",
+    "hardware/cad/two_board_sensor_05/harness_mate_clearance/panel_mates.scad": "6b3a1b5080aafb07c6d6b62b2152b22c46d49f77498df1f002e6e1e89a5fffa1"
+  },
+  "intentional_contacts": [
+    {
+      "components": [
+        "sensor_fixture",
+        "sensor_substrate"
+      ],
+      "reason": "PCB edge-capture seating; retain strict non-seat clearance checks",
+      "evidence": "hardware/cad/two_board_sensor_05/verified-r3/carrier_board_clearance/result.json",
+      "mode": "seating_boundary_only"
+    },
+    {
+      "components": [
+        "sensor_population",
+        "sensor_substrate"
+      ],
+      "reason": "Component/solder termination envelopes intentionally meet the PCB substrate",
+      "evidence": "hardware/cad/two_board_sensor_05/population-contract.json",
+      "mode": "electronic_attachment"
+    },
+    {
+      "components": [
+        "sensor_harness",
+        "sensor_population"
+      ],
+      "reason": "Sensor-end wire fanout meets local wire/solder receiving region",
+      "evidence": "hardware/cad/two_board_sensor_05/harness_mate_clearance/contract.json",
+      "mode": "termination_region_only",
+      "region_mm": {
+        "min": [
+          293,
+          73.1,
+          22.7
+        ],
+        "max": [
+          301.9,
+          90.9,
+          38.5
+        ]
+      }
+    },
+    {
+      "components": [
+        "sensor_spring_motion",
+        "sensor_lever_motion"
+      ],
+      "reason": "Moving spring pin is attached to lever; body-versus-lever clearance has a separate verified check",
+      "evidence": "hardware/cad/two_board_sensor_05/spring-verified-r2/spring_body_lever_clearance/result.json",
+      "mode": "attachment_only"
+    },
+    {
+      "components": [
+        "sensor_spring_motion",
+        "sensor_lever_bracket"
+      ],
+      "reason": "Fixed pin attaches spring to bracket; this does not waive spring body interference",
+      "evidence": "hardware/cad/two_board_sensor_05/spring-verified-r2/spring_body_lever_clearance/result.json",
+      "mode": "attachment_only"
+    }
+  ],
+  "replacement_hardware": [
+    {
+      "ref": "D_H2",
+      "world_xy_mm": [
+        250,
+        57
+      ],
+      "remove": "Original board screw head/washer at board seat",
+      "replacement": "Included in sensor_harness: M2x25 head/washer seatZ23.35; clamp foot atZ8.35",
+      "source_module": "mount_heads"
+    },
+    {
+      "ref": "D_H5",
+      "world_xy_mm": [
+        294,
+        88
+      ],
+      "remove": "Original board screw head/washer at board seat",
+      "replacement": "Included in sensor_harness: M2x20 head/washer seatZ18.35; clamp foot atZ8.35",
+      "source_module": "mount_heads"
+    }
+  ],
+  "assembly_rules": [
+    "Instantiate each atomic component once; do not also include carrier tbh05_installed or a second harness complete module.",
+    "Keep native main-board components except replace original D_H2/D_H5 screw heads; main mate intentionally occupies D_J1010 interface.",
+    "Do not substitute inherited generic sensor_package() for actual_population().",
+    "Motion and receiving roles are collision reservations; they are not all simultaneously printable physical solids."
+  ],
+  "selected_pcb": {
+    "main_signal": "hardware/cad/two_board_sensor_05/signal_input/native-r7/signal_main.kicad_pcb",
+    "sensor": "hardware/cad/two_board_sensor_05/pcb/native-r3/sensor.kicad_pcb"
+  },
+  "evidence": [
+    "hardware/cad/two_board_sensor_05/harness_mate_clearance/review.json",
+    "hardware/cad/two_board_sensor_05/signal_input/final-review.json"
+  ],
+  "complete_installed_fit": false,
+  "fabrication_released": false,
+  "selected_pcb_sha256": {
+    "main_signal": "db9e750feac5a44ef9a004b00e8ecacd22ab848a1e6411e7db9bd4cb0339fa80",
+    "sensor": "efc4783d58dea05be323e31d4c82936d3d82e98075918d8e6cb8ea110aa3cc24"
+  }
+}
