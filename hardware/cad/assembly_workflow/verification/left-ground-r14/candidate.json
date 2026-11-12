@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "units": "mm",
+  "coordinate_frame": "Existing captured housing datum; adapters apply installed transforms exactly once",
+  "variant": "one_piece",
+  "registries": [
+    "hardware/cad/assembly_workflow/base.json",
+    "hardware/cad/two_board_controls_04/workflow_adapter/registry.json",
+    "hardware/cad/two_board_sensor_05/workflow_adapter/components.json",
+    "hardware/cad/two_board_installation_06/workflow_adapter/registry.json",
+    "hardware/cad/two_board_installation_06/workflow_adapter/left-ground-registry.json"
+  ],
+  "checks": [
+    {
+      "id": "left_ground_sensor",
+      "left": [
+        "panel_ground_r14_left_feed",
+        "panel_ground_r14_left_links",
+        "panel_ground_r14_right_exit"
+      ],
+      "right": [
+        "sensor_harness",
+        "sensor_fixture",
+        "sensor_substrate",
+        "sensor_population",
+        "sensor_lever_bracket",
+        "sensor_lever_guard",
+        "sensor_lever_motion",
+        "sensor_spring_motion"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "left_ground_controls",
+      "left": [
+        "panel_ground_r14_left_feed",
+        "panel_ground_r14_left_links",
+        "panel_ground_r14_right_exit"
+      ],
+      "right": [
+        "controls_display",
+        "controls_display_wiring",
+        "controls_selectors",
+        "controls_selector_wiring",
+        "controls_selector_motion",
+        "controls_meters",
+        "controls_meters_lenses",
+        "controls_meters_wiring",
+        "controls_banks",
+        "controls_banks_lenses",
+        "controls_banks_wiring",
+        "controls_ring",
+        "controls_ring_lens",
+        "controls_ring_wiring",
+        "controls_button_indicators",
+        "controls_button_wiring",
+        "controls_button_motion",
+        "controls_lid",
+        "controls_guide",
+        "controls_knobs",
+        "controls_pot_hardware",
+        "controls_pot_shafts",
+        "controls_pot_body",
+        "controls_keycaps",
+        "controls_button_mechanisms",
+        "controls_touch_backer",
+        "controls_touch_lens",
+        "controls_touch_module_receiving"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "left_ground_cooling",
+      "left": [
+        "panel_ground_r14_left_feed",
+        "panel_ground_r14_left_links",
+        "panel_ground_r14_right_exit"
+      ],
+      "right": [
+        "cooling_installed",
+        "cooling_fans",
+        "cooling_internal_harness",
+        "cooling_external_harness",
+        "cooling_tie_path",
+        "cooling_tie_head"
+      ],
+      "expect": "empty"
+    }
+  ],
+  "boards": {
+    "signal": "hardware/cad/two_board_sensor_05/signal_input/native-r7/signal_main.kicad_pcb",
+    "power": "hardware/fabrication/staging/two-board-power-aux-ground-reuse-native-01/power_protection.kicad_pcb"
+  },
+  "unresolved": [
+    "Candidate screening only; unchanged current.json remains authoritative.",
+    "Switch wire termination regions are not waived: any observed intersections require exact inspection.",
+    "Right branch, supports, service slack and terminal preparation remain incomplete."
+  ],
+  "fabrication_released": false
+}
