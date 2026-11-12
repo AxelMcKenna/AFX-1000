@@ -47,13 +47,13 @@ Panel boards and bought-in modules are additional; “two boards” describes th
 | Current board | Functions | Overall size | Checked routing status |
 | --- | --- | --- | --- |
 | [Signal main](hardware/cad/two_board_sensor_05/signal_input/native-r7/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 230 open connections; zero geometry/ERC findings; missing ESS codec footprint |
-| [Power/protection](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 1,943 open connections; zero geometry/parity/ERC errors; two retained isolated-reference warnings |
+| [Power/protection](hardware/fabrication/staging/two-board-power-aux-ground-reuse-native-01/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 1,937 open connections; zero geometry/parity/ERC errors; two retained isolated-reference warnings |
 
-The [current signal candidate](hardware/cad/two_board_sensor_05/signal_input/README.md) has 230 opens, 466 placed electrical footprints and one unplaced ESS codec. Its I2C and input-stage routing remain subject to complete-board and analog-performance qualification. The power PCB has 1,086 electrical components. The latest verified working candidate, **TBP71**, has **1,943 opens** after 49 new auxiliary bypass-ground connections. Its audit preserves all 2,521 prior reference cases, all eleven supply fields and seven quiet-ground networks; all 49 new vias reach the main In1/In6 ground fields. AUX now has 72 of 87 capacitor ground pins connected, but 72 of 81 IC supply pins still lack regulator connections. See the [TBP71 evidence](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/final-review.json) and [current AUX inventory](hardware/fabrication/staging/two-board-aux-distribution-survey-05/inventory.json). Earlier checkpoint counts retain their original revision scope.
+The [current signal candidate](hardware/cad/two_board_sensor_05/signal_input/README.md) has 230 opens, 466 placed electrical footprints and one unplaced ESS codec. Its I2C and input-stage routing remain subject to complete-board and analog-performance qualification. The power PCB has 1,086 electrical components. The latest verified working candidate, **TBP72**, has **1,937 opens** after six additional auxiliary capacitor ground connections. Eight surface tracks reuse existing ground contacts; all original copper, all 47 plane fills and the seven quiet-ground networks are preserved. AUX now has 78 of 87 capacitor ground pins connected, but 72 of 81 IC supply pins still lack regulator connections. Return paths up to 11.5 mm remain subject to decoupling-performance review. See the [TBP72 evidence](hardware/fabrication/staging/two-board-power-aux-ground-reuse-native-01/final-review.json) and [current AUX inventory](hardware/fabrication/staging/two-board-aux-distribution-survey-06/inventory.json). Earlier checkpoint counts retain their original revision scope.
 
 ### Current PCB layouts
 
-These are native KiCad exports with incomplete routing and return paths. The signal image is the earlier signal03 baseline; the current input-r7 project is linked above. The power preview shows TBP71 bottom copper; the linked inner layers contain the updated ground references. Click either image for its native SVG; other layers are linked below.
+These are native KiCad exports with incomplete routing and return paths. The signal image is the earlier signal03 baseline; the current input-r7 project is linked above. The power preview shows the earlier TBP71 bottom copper; the linked inner layers contain the updated ground references. Click either image for its native SVG; other layers are linked below.
 
 **Signal main — Daisy Seed 3 and audio/control circuitry**
 
@@ -63,7 +63,7 @@ These are native KiCad exports with incomplete routing and return paths. The sig
 
 **Power/protection — C-shaped board, TBP71 control routing and ground returns**
 
-[![Current power protection PCB: TBP71 verified working candidate](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/plots/back.png)](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/plots/back.svg)
+[![Earlier power protection PCB: TBP71 verified checkpoint](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/plots/back.png)](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/plots/back.svg)
 
 [Front copper](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/plots/front.png) · [Bottom copper](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/plots/back.png) · [All layers and power-board evidence](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/README.md)
 
