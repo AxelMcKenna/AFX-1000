@@ -1,6 +1,7 @@
 """Source-bound AUX package census and regulator margin; never a full load bound."""
 import hashlib
 import json
+import math
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -54,11 +55,11 @@ def calculate(facts=None):
     rblo=10000*(1-.001-10e-6*100); rbhi=10000*(1+.001+10e-6*100)
     lo=1.193*.98*(1+rtoplo/rbhi)-.1e-6*rtophi
     hi=1.193*1.02*(1+rtophi/rblo)+.1e-6*rtophi
-    demand=sum(r['table_max_family_uA'] for r in rows)/1e6
+    demand=math.fsum(r['table_max_family_uA'] for r in rows)/1e6
     ledger=json.loads((PARENT/'ledger.json').read_text())
     # Recompute source-port terms, not rounded README total.
     ports=ledger['owned_source_ports']
-    portsum=sum(r['conditional_max_A'] for r in ports)
+    portsum=math.fsum(r['conditional_max_A'] for r in ports)
     assert [components[r] for r in ['E_R137','E_R138','E_R139']]==['11.1k 0.1%','39.2 0.1%','10k 0.1%']
     assert pins['E_R137','1']=='PWR_V2V5_AUX' and pins['E_R139','2']=='PWR_AGND'
     assert pins['E_R137','2']==pins['E_R138','1']
