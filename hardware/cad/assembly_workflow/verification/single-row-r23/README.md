@@ -9,3 +9,5 @@ The initial base check failed with a zero-thickness wafer/substrate-top witness 
 This is a diagnostic candidate containing an extra substrate probe role; it is not selected in current.json and must not be presented as the installed assembly. The source/local7.5mm closed-lid withdrawal sweep still fails at D_J1022 against R04 by3.354295mm³. Seated registration, finished-hole/positional tolerances, contact crimping, retention, actual BOM/PCB replacement and a qualified lid-open/unplug sequence remain open. The34 new wires require Alpha5854 and remain unrouted; existing Alpha5853 wires are unchanged.
 
 Self-review checked current native pin identity, removal of exactly the own generic allocations, nominal tail-hole inclusion and the scope of the contact mask. No unresolved nominal installed collision was found in these tested groups. This does not establish manufacturing or service readiness.
+
+Subsequent S02/S03 source correction invalidates this historical provider registry binding. The31-check report remains evidence for its frozen input snapshot, not the current69-role selection. Rebind and re-screen before adopting the connectors.
