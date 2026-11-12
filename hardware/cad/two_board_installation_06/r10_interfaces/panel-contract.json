@@ -1,0 +1,1071 @@
+{
+  "scope": "Panel electrical endpoint contract; connector selection, wire distribution, physical routing and receiving tests remain separate. Shared AGND endpoints require rated distribution, not unspecified multiple wires in a contact.",
+  "sources": [
+    {
+      "path": "hardware/cad/two_board_installation_06/r7/interface-manifest.json",
+      "sha256": "55ce82f548f553a52f7577f2934aeba38a1991253d82d18b38489d7d388da422"
+    },
+    {
+      "path": "hardware/firmware/control-inputs.json",
+      "sha256": "55c53d7b52c3de703a179e6c5423c01748d66bf433064027b2146c8c7369fcd7"
+    },
+    {
+      "path": "hardware/fabrication/staging/two-board-signal-routed-native-03/netlist.xml",
+      "sha256": "0f32c415d030bcb3e8a7059a6164aebeda2af45aae8135e283a2cec2a074aa9b"
+    },
+    {
+      "path": "/private/tmp/rmx-control-carriers-20261112/hardware/cad/two_board_controls_04/selector-contract.json",
+      "sha256": "0f0c2775b35360c7d86cfb05ffb0a321abec4b5eb996ce7e9b7515a52cc13681"
+    },
+    {
+      "path": "/private/tmp/rmx-control-carriers-20261112/hardware/cad/two_board_controls_04/reference/ck-js.pdf",
+      "sha256": "96ab4e8857bfda06f7d4b8ca449d8daf6c8c9130d0f09e952f8b88e262e1eefd"
+    },
+    {
+      "path": "/private/tmp/rmx-control-carriers-20261112/hardware/cad/two_board_controls_04/led_follow_on/reference/PTV09.pdf",
+      "sha256": "411cdb6a62e61f9c5bc2df76ed64ee21d7bcfbee035c1ba36beff08c43f28558"
+    },
+    {
+      "path": "hardware/wiring/system.py",
+      "sha256": "ac380e3ca6ba70676d3a83ca86ed655ea962082461d8706fcb1402548b5d735a"
+    }
+  ],
+  "manufacturer_sources": {
+    "selectors": "C&K JS series 22 Sep 2022 p4, circuit diagrams visually inspected",
+    "pots": "https://www.bourns.com/docs/product-datasheets/PTV09.pdf p1 schematic / p3 PTV09A-6 terminal layout"
+  },
+  "front_inputs": [
+    {
+      "id": "quantize",
+      "logical_index": 0,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "13",
+        "xy": [
+          211.24,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_00"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "auto",
+      "logical_index": 1,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "11",
+        "xy": [
+          208.7,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_01"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "tap",
+      "logical_index": 2,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "9",
+        "xy": [
+          206.16,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_02"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "nudge_down",
+      "logical_index": 3,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "7",
+        "xy": [
+          203.62,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_03"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "nudge_up",
+      "logical_index": 4,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "5",
+        "xy": [
+          201.08,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_04"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "source_input",
+      "logical_index": 5,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "3",
+        "xy": [
+          198.54,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_05"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "source_xpad",
+      "logical_index": 6,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "1",
+        "xy": [
+          196.0,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_06"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "isolate_0",
+      "logical_index": 7,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "2",
+        "xy": [
+          196.0,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_07"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "isolate_1",
+      "logical_index": 8,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "4",
+        "xy": [
+          198.54,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_08"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "isolate_2",
+      "logical_index": 9,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "6",
+        "xy": [
+          201.08,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_09"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "isolate_3",
+      "logical_index": 10,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "8",
+        "xy": [
+          203.62,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_10"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "bank",
+      "logical_index": 11,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "10",
+        "xy": [
+          206.16,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_11"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "roll",
+      "logical_index": 12,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "12",
+        "xy": [
+          208.7,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_12"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "pad_0",
+      "logical_index": 13,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2001",
+        "pin": "14",
+        "xy": [
+          211.24,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_13"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "pad_1",
+      "logical_index": 14,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "13",
+        "xy": [
+          236.24,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_14"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "pad_2",
+      "logical_index": 15,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "11",
+        "xy": [
+          233.7,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_15"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "pad_3",
+      "logical_index": 16,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "9",
+        "xy": [
+          231.16,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_16"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "overdub",
+      "logical_index": 17,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "7",
+        "xy": [
+          228.62,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_17"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "hold",
+      "logical_index": 18,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "5",
+        "xy": [
+          226.08,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_18"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "scene_0",
+      "logical_index": 19,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "3",
+        "xy": [
+          223.54,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_19"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "scene_1",
+      "logical_index": 20,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "1",
+        "xy": [
+          221.0,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_20"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "scene_2",
+      "logical_index": 21,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "2",
+        "xy": [
+          221.0,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_21"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "scene_3",
+      "logical_index": 22,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "4",
+        "xy": [
+          223.54,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_22"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "scene_4",
+      "logical_index": 23,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "6",
+        "xy": [
+          226.08,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_23"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "scene_5",
+      "logical_index": 24,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "8",
+        "xy": [
+          228.62,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_24"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "scene_6",
+      "logical_index": 25,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "10",
+        "xy": [
+          231.16,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_25"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "scene_7",
+      "logical_index": 26,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "12",
+        "xy": [
+          233.7,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_26"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "scene_8",
+      "logical_index": 27,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2002",
+        "pin": "14",
+        "xy": [
+          236.24,
+          48.46
+        ],
+        "net": "/D_CONTROLS/CONTROL_27"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "scene_9",
+      "logical_index": 28,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2003",
+        "pin": "2",
+        "xy": [
+          246.54,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_28"
+      },
+      "receiver_kind": "B3F-1000 momentary"
+    },
+    {
+      "id": "settings",
+      "logical_index": 29,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2003",
+        "pin": "3",
+        "xy": [
+          249.08,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_29"
+      },
+      "receiver_kind": "selector"
+    },
+    {
+      "id": "release_back_spin",
+      "logical_index": 30,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2003",
+        "pin": "4",
+        "xy": [
+          251.62,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_30"
+      },
+      "receiver_kind": "selector"
+    },
+    {
+      "id": "release_vinyl_brake",
+      "logical_index": 31,
+      "active": "low",
+      "signal": {
+        "reference": "D_J2003",
+        "pin": "5",
+        "xy": [
+          254.16,
+          51.0
+        ],
+        "net": "/D_CONTROLS/CONTROL_31"
+      },
+      "receiver_kind": "selector"
+    }
+  ],
+  "pots": [
+    {
+      "id": "input",
+      "value_ohm": 10000,
+      "main": [
+        {
+          "reference": "D_J1020",
+          "pin": "1",
+          "xy": [
+            188.0,
+            90.0
+          ],
+          "net": "LINK_AGND"
+        },
+        {
+          "reference": "D_J1020",
+          "pin": "2",
+          "xy": [
+            190.54,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/POT_RAW_00"
+        },
+        {
+          "reference": "D_J1020",
+          "pin": "3",
+          "xy": [
+            193.08,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/V3V3_ANALOG"
+        }
+      ],
+      "pot_terminal_assignment": {
+        "1": "AGND",
+        "2": "wiper",
+        "3": "V3V3_ANALOG"
+      },
+      "direction_acceptance": "Verify wiper increases on clockwise rotation at receiving inspection; manufacturer schematic confirms wiper2 but does not label endpoint rotation."
+    },
+    {
+      "id": "output",
+      "value_ohm": 10000,
+      "main": [
+        {
+          "reference": "D_J1021",
+          "pin": "1",
+          "xy": [
+            198.0,
+            90.0
+          ],
+          "net": "LINK_AGND"
+        },
+        {
+          "reference": "D_J1021",
+          "pin": "2",
+          "xy": [
+            200.54,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/POT_RAW_01"
+        },
+        {
+          "reference": "D_J1021",
+          "pin": "3",
+          "xy": [
+            203.08,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/V3V3_ANALOG"
+        }
+      ],
+      "pot_terminal_assignment": {
+        "1": "AGND",
+        "2": "wiper",
+        "3": "V3V3_ANALOG"
+      },
+      "direction_acceptance": "Verify wiper increases on clockwise rotation at receiving inspection; manufacturer schematic confirms wiper2 but does not label endpoint rotation."
+    },
+    {
+      "id": "low",
+      "value_ohm": 10000,
+      "main": [
+        {
+          "reference": "D_J1022",
+          "pin": "1",
+          "xy": [
+            208.0,
+            90.0
+          ],
+          "net": "LINK_AGND"
+        },
+        {
+          "reference": "D_J1022",
+          "pin": "2",
+          "xy": [
+            210.54,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/POT_RAW_02"
+        },
+        {
+          "reference": "D_J1022",
+          "pin": "3",
+          "xy": [
+            213.08,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/V3V3_ANALOG"
+        }
+      ],
+      "pot_terminal_assignment": {
+        "1": "AGND",
+        "2": "wiper",
+        "3": "V3V3_ANALOG"
+      },
+      "direction_acceptance": "Verify wiper increases on clockwise rotation at receiving inspection; manufacturer schematic confirms wiper2 but does not label endpoint rotation."
+    },
+    {
+      "id": "mid",
+      "value_ohm": 10000,
+      "main": [
+        {
+          "reference": "D_J1023",
+          "pin": "1",
+          "xy": [
+            218.0,
+            90.0
+          ],
+          "net": "LINK_AGND"
+        },
+        {
+          "reference": "D_J1023",
+          "pin": "2",
+          "xy": [
+            220.54,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/POT_RAW_03"
+        },
+        {
+          "reference": "D_J1023",
+          "pin": "3",
+          "xy": [
+            223.08,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/V3V3_ANALOG"
+        }
+      ],
+      "pot_terminal_assignment": {
+        "1": "AGND",
+        "2": "wiper",
+        "3": "V3V3_ANALOG"
+      },
+      "direction_acceptance": "Verify wiper increases on clockwise rotation at receiving inspection; manufacturer schematic confirms wiper2 but does not label endpoint rotation."
+    },
+    {
+      "id": "high",
+      "value_ohm": 10000,
+      "main": [
+        {
+          "reference": "D_J1024",
+          "pin": "1",
+          "xy": [
+            228.0,
+            90.0
+          ],
+          "net": "LINK_AGND"
+        },
+        {
+          "reference": "D_J1024",
+          "pin": "2",
+          "xy": [
+            230.54,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/POT_RAW_04"
+        },
+        {
+          "reference": "D_J1024",
+          "pin": "3",
+          "xy": [
+            233.08,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/V3V3_ANALOG"
+        }
+      ],
+      "pot_terminal_assignment": {
+        "1": "AGND",
+        "2": "wiper",
+        "3": "V3V3_ANALOG"
+      },
+      "direction_acceptance": "Verify wiper increases on clockwise rotation at receiving inspection; manufacturer schematic confirms wiper2 but does not label endpoint rotation."
+    },
+    {
+      "id": "scene_depth",
+      "value_ohm": 10000,
+      "main": [
+        {
+          "reference": "D_J1025",
+          "pin": "1",
+          "xy": [
+            238.0,
+            90.0
+          ],
+          "net": "LINK_AGND"
+        },
+        {
+          "reference": "D_J1025",
+          "pin": "2",
+          "xy": [
+            240.54,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/POT_RAW_05"
+        },
+        {
+          "reference": "D_J1025",
+          "pin": "3",
+          "xy": [
+            243.08,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/V3V3_ANALOG"
+        }
+      ],
+      "pot_terminal_assignment": {
+        "1": "AGND",
+        "2": "wiper",
+        "3": "V3V3_ANALOG"
+      },
+      "direction_acceptance": "Verify wiper increases on clockwise rotation at receiving inspection; manufacturer schematic confirms wiper2 but does not label endpoint rotation."
+    },
+    {
+      "id": "x_level",
+      "value_ohm": 10000,
+      "main": [
+        {
+          "reference": "D_J1026",
+          "pin": "1",
+          "xy": [
+            248.0,
+            90.0
+          ],
+          "net": "LINK_AGND"
+        },
+        {
+          "reference": "D_J1026",
+          "pin": "2",
+          "xy": [
+            250.54,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/POT_RAW_06"
+        },
+        {
+          "reference": "D_J1026",
+          "pin": "3",
+          "xy": [
+            253.08,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/V3V3_ANALOG"
+        }
+      ],
+      "pot_terminal_assignment": {
+        "1": "AGND",
+        "2": "wiper",
+        "3": "V3V3_ANALOG"
+      },
+      "direction_acceptance": "Verify wiper increases on clockwise rotation at receiving inspection; manufacturer schematic confirms wiper2 but does not label endpoint rotation."
+    },
+    {
+      "id": "x_pitch",
+      "value_ohm": 10000,
+      "main": [
+        {
+          "reference": "D_J1027",
+          "pin": "1",
+          "xy": [
+            258.0,
+            90.0
+          ],
+          "net": "LINK_AGND"
+        },
+        {
+          "reference": "D_J1027",
+          "pin": "2",
+          "xy": [
+            260.54,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/POT_RAW_07"
+        },
+        {
+          "reference": "D_J1027",
+          "pin": "3",
+          "xy": [
+            263.08,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/V3V3_ANALOG"
+        }
+      ],
+      "pot_terminal_assignment": {
+        "1": "AGND",
+        "2": "wiper",
+        "3": "V3V3_ANALOG"
+      },
+      "direction_acceptance": "Verify wiper increases on clockwise rotation at receiving inspection; manufacturer schematic confirms wiper2 but does not label endpoint rotation."
+    },
+    {
+      "id": "scene_time",
+      "value_ohm": 10000,
+      "main": [
+        {
+          "reference": "D_J1028",
+          "pin": "1",
+          "xy": [
+            268.0,
+            90.0
+          ],
+          "net": "LINK_AGND"
+        },
+        {
+          "reference": "D_J1028",
+          "pin": "2",
+          "xy": [
+            270.54,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/POT_RAW_08"
+        },
+        {
+          "reference": "D_J1028",
+          "pin": "3",
+          "xy": [
+            273.08,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/V3V3_ANALOG"
+        }
+      ],
+      "pot_terminal_assignment": {
+        "1": "AGND",
+        "2": "wiper",
+        "3": "V3V3_ANALOG"
+      },
+      "direction_acceptance": "Verify wiper increases on clockwise rotation at receiving inspection; manufacturer schematic confirms wiper2 but does not label endpoint rotation."
+    },
+    {
+      "id": "scene_resonance",
+      "value_ohm": 10000,
+      "main": [
+        {
+          "reference": "D_J1029",
+          "pin": "1",
+          "xy": [
+            278.0,
+            90.0
+          ],
+          "net": "LINK_AGND"
+        },
+        {
+          "reference": "D_J1029",
+          "pin": "2",
+          "xy": [
+            280.54,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/POT_RAW_09"
+        },
+        {
+          "reference": "D_J1029",
+          "pin": "3",
+          "xy": [
+            283.08,
+            90.0
+          ],
+          "net": "/D_PROCESSOR/V3V3_ANALOG"
+        }
+      ],
+      "pot_terminal_assignment": {
+        "1": "AGND",
+        "2": "wiper",
+        "3": "V3V3_ANALOG"
+      },
+      "direction_acceptance": "Verify wiper increases on clockwise rotation at receiving inspection; manufacturer schematic confirms wiper2 but does not label endpoint rotation."
+    }
+  ],
+  "selectors": [
+    {
+      "id": "settings",
+      "mpn": "JS202011CQN",
+      "common_pins": [
+        2,
+        5
+      ],
+      "state_connections": {
+        "a": [
+          [
+            2,
+            3
+          ],
+          [
+            5,
+            6
+          ]
+        ],
+        "b": [
+          [
+            2,
+            1
+          ],
+          [
+            5,
+            4
+          ]
+        ]
+      },
+      "wires": [
+        {
+          "pad": "W2.1",
+          "main": {
+            "reference": "D_J2003",
+            "pin": "1",
+            "xy": [
+              244.0,
+              51.0
+            ],
+            "net": "LINK_AGND"
+          }
+        },
+        {
+          "pad": "W3.1",
+          "main": {
+            "reference": "D_J2003",
+            "pin": "3",
+            "xy": [
+              249.08,
+              51.0
+            ],
+            "net": "/D_CONTROLS/CONTROL_29"
+          }
+        }
+      ],
+      "no_wire": [
+        "W1.1",
+        "W4.1",
+        "W5.1",
+        "W6.1"
+      ],
+      "logical_states": {
+        "a": "settings active",
+        "b": "settings inactive"
+      }
+    },
+    {
+      "id": "release",
+      "mpn": "JS203011SCQN",
+      "common_pins": [
+        3,
+        7
+      ],
+      "state_connections": {
+        "a": [
+          [
+            3,
+            4
+          ],
+          [
+            7,
+            8
+          ]
+        ],
+        "b": [
+          [
+            3,
+            2
+          ],
+          [
+            7,
+            6
+          ]
+        ],
+        "c": [
+          [
+            3,
+            1
+          ],
+          [
+            7,
+            5
+          ]
+        ]
+      },
+      "wires": [
+        {
+          "pad": "W3.1",
+          "main": {
+            "reference": "D_J2003",
+            "pin": "1",
+            "xy": [
+              244.0,
+              51.0
+            ],
+            "net": "LINK_AGND"
+          }
+        },
+        {
+          "pad": "W1.1",
+          "main": {
+            "reference": "D_J2003",
+            "pin": "4",
+            "xy": [
+              251.62,
+              51.0
+            ],
+            "net": "/D_CONTROLS/CONTROL_30"
+          }
+        },
+        {
+          "pad": "W4.1",
+          "main": {
+            "reference": "D_J2003",
+            "pin": "5",
+            "xy": [
+              254.16,
+              51.0
+            ],
+            "net": "/D_CONTROLS/CONTROL_31"
+          }
+        }
+      ],
+      "no_wire": [
+        "W2.1",
+        "W5.1",
+        "W6.1",
+        "W7.1",
+        "W8.1"
+      ],
+      "logical_states": {
+        "a": "vinyl brake",
+        "b": "neither input asserted",
+        "c": "back spin"
+      }
+    }
+  ],
+  "button_contact_assignment": "Pending exact B3F-1000 terminal diagram; do not infer pin pairs from schematic symbol orientation.",
+  "fabrication_released": false
+}
