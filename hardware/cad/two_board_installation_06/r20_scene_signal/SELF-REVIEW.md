@@ -1,0 +1,5 @@
+# Antagonistic self-review
+
+South and east emergence trials collided with real holders/lever and were rejected. A12-direction source-only study identified clear candidate directions; it was not treated as proof of downstream fit. Southwest full route initially crossed ground near[187,16,30]; lowering the signal crossing to28.2 resolves that intersection and leaves0.6 mm minimum modeled ground separation. Final approach is from+X, avoiding adjacent scene2 ground terminal3. These are real route changes, not exclusions or reduced obstacle geometry.
+
+Analytical endpoint/net checks, conservative curvature bounds, sampled radius and nonlocal self/ground-distance checks pass. Native r6 collision probes are empty and current positive operand closed. The$fn24 mesh defect is preserved as failed evidence; it is superseded by source-bound$fn32 evidence. Full current root scene, physical wire preparation, supports and fixed/lid opening remain explicit blockers to full-fit/fabrication claims. Self-review is not independent review.
