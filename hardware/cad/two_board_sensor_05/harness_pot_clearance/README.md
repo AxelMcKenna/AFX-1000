@@ -1,0 +1,15 @@
+# Sensor clamp correction for final pot body
+
+This revision supersedes `../harness/route.scad` for installation. The root combined assembly found a 9.48536 mm³ collision between the main ribbon-clamp wing and the updated scene-depth potentiometer receiving envelope. The older local test used an earlier control allocation and could not establish final combined fit.
+
+The main clamp center moves along the same ribbon corridor from (255,65.4054,28) to **(259,66.9189189,28)**. Its D_H2 mounting foot stays at (250,57); the connecting arm becomes longer. Cable route, cut length, connector, wire mapping, sensor clamp, board holes, fastener lengths and conditional capacitance budget remain unchanged. Use the parts and assembly instructions in [the harness specification](../harness/README.md), with the new printable main saddle/lid positions. The longer arm still requires printed-strength and cable-grip receiving checks.
+
+`pot_receiving.scad` contains the exact receiving module from the frozen root `body_receiving.scad`, with its required local `captured.scad` include. `pot-body-source.scad.txt` retains the complete original source and `source-contract.json` binds its hash and the exact knob-coordinate source. The extended allocation is 16×16 mm per pot from Z29.1 to Z43.6. It is an explicit receiving allocation, not a supplier-certified maximum body/tail envelope.
+
+The regression test reproduces the original clash using renamed, otherwise identical old harness modules in `baseline.scad`. The corrected assembly must have an empty intersection with the exact extended pot allocation. Native checks also repeat component, carrier, shell, lever/spring-motion, mating-body, screw-access and seating checks. `trial-r5/review.json` is the selected 20-case local result; `review.json` binds selected sources and verifies all four clamp meshes are connected watertight solids. Final latest-control/cooling integration still belongs to the root combined-assembly check.
+
+The first isolated probe stopped on an unknown `knobs` variable: OpenSCAD `use` resolves the module's variables in its defining file. The extracted module lacked its local include. That source dependency was corrected, the warning/failure record was preserved, and one fresh controlled probe passed before the full batch. No native runtime crash or Mac CAD launch occurred.
+
+`contract.json` now binds the later analog-input r7 signal PCB; D_J1010 pads and housing datum remain exact. The complete sensor branch still has a **conditional 12 pF per-line receiving ceiling**; the other I2C branches, board/device loading, analog noise, physical grip and powered 400 kHz waveforms remain unqualified. This correction does not release the housing for fabrication or claim the whole harness is complete.
+
+Facet resolution is64 to match root integration. The retained witness exactly reproduces the root mesh volume9.485355714 mm³ and bounds; the earlier32-facet diagnostic had the same collision with slightly different tessellated volume. This was resolved by matching resolution, not relaxing the regression comparison.
