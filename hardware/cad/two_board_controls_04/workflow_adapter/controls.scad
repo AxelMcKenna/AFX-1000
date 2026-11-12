@@ -10,6 +10,7 @@ use <../pot_follow_on/knobs.scad>
 use <../ring_follow_on/ring.scad>
 use <../selectors.scad>
 use <../workflow_adapter/key_scope.scad>
+use <../workflow_adapter/touch_reserve.scad>
 
 module controls_display(){tbh04_display_installed(); tbh04_fasteners();}
 module controls_display_wiring(){tbh04_wire_reserve();}
@@ -37,3 +38,7 @@ module controls_pot_body(){tbh04_pot_body_receiving();}
 module controls_keycaps(){controls_keys_delegate();}
 module controls_switches(){controls_switches_delegate();}
 module controls_retaining_clips(){controls_clips_delegate();}
+module controls_button_mechanisms(){controls_mechanisms_delegate();}
+module controls_touch_backer(){controls_touch_backer_delegate();}
+module controls_touch_lens(){controls_touch_lens_delegate();}
+module controls_touch_module_receiving(){controls_touch_reserve_delegate();}
