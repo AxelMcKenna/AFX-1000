@@ -1,0 +1,9 @@
+# Remaining panel wire and connector inventory
+
+The source-bound inventory enumerates every remaining source cavity and receiver against the frozen native signal netlist and captured interface pad map. Counts are 96 LED sink wires,32 input signals (29 buttons and3 selector throws),30 pot wires, and72 anode-distribution segments. The latter serve38 receivers through34 explicit three-wire splices. This gives230 unrouted segments plus32 formed ground segments,262 planned external panel wire segments in total.
+
+There are171 cavities across17 main panel headers;164 are used and7 are unused. Unused cavities are D_J2001:15/16, D_J2003:1 and D_J3002..3005:26. The LED headers' pin26 is +5V, not ground. Both D_J2002 ground cavities15/16 are used by the frozen r15 topology, which supersedes the older r11 ground topology. Pots keep separate individual ground wires.
+
+Four26-way LED and two16-way control connector mates have conditional receiving reservations. The5-way D_J2003 and ten3-way pot mates are still unselected. Main source nets and pad positions are checked against the frozen capture, not inferred from connector numbering. Current root PCB freshness checks remain required; inventory generation does not certify any later board movement. Receiver identities come from the frozen panel endpoint contract and four exact wiring CSVs. Other non-panel installation interfaces remain in the broader r7 inventory.
+
+First bounded branch selected for routing: D_J2002:2 CONTROL_21 to scene2 B3F terminal1, using the existing conditional16-way mate and Alpha5853 wire. This branch does not alter the ground graph or L01/R01 service flexibility. The inventory's230 segments remain marked unrouted until a verified geometry checkpoint explicitly selects a route. It is not a cut list or fabrication release.
