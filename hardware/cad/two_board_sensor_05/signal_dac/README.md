@@ -1,8 +1,8 @@
 # DAC internal routing checkpoint
 
-The latest verified electrical checkpoint is [r44](CHECKPOINT-R44.md): 197 total opens, seven remaining DAC connections, and one explicit R303 translation. Its affected mechanical checks must be refreshed during assembly integration. The r26 provenance and immutable recheck below remain available.
+The latest verified electrical checkpoint is [r46](CHECKPOINT-R46.md): 196 total opens and six remaining DAC connections. It retains every [r44](CHECKPOINT-R44.md) component pose, including the explicit R303 translation, and adds physical ground-reference corridors for BUF_IN_L. Selected-board identity and affected mechanical evidence must be refreshed during integration. The r26 provenance and immutable recheck below remain available.
 
-Selected board: [native-r26/signal_main.kicad_pcb](native-r26/signal_main.kicad_pcb), SHA-256 `e67e18cf534a2ef58945a3ec0e7d7ed1a4dd526cd9ed347010b7b49096390790`.
+Frozen r26 board: [native-r26/signal_main.kicad_pcb](native-r26/signal_main.kicad_pcb), SHA-256 `e67e18cf534a2ef58945a3ec0e7d7ed1a4dd526cd9ed347010b7b49096390790`.
 
 This adds 32 native connection joins to the accepted signal-input r7 board, reducing total native opens from 230 to 198. All 477 component poses, original tracks/vias, authored zones/keepouts, outline, stackup, thickness, project, and design rules remain unchanged. The additions comprise 63 route pieces, 31 signal vias, and 23 ground stitches. Left/right internal signal routing uses In3/In5 with the connected In4 reference between them. This is a bounded geometry checkpoint, not a completed DAC or fabrication release.
 
@@ -23,7 +23,7 @@ This adds 32 native connection joins to the accepted signal-input r7 board, redu
 
 ![Native captured routing](preview-r26.png)
 
-## Remaining DAC connections
+## Remaining DAC connections at r26
 
 Eight connections remain: BIAS_P_L, BIAS_P_R, BUF_IN_L, CM_DRV_L, CM_SUM_R, IV_P_L, RX_NEG_L, and RX_POS_R. R303/R308 remain in their original positions and both pads of each remain unrouted; relocation was surveyed but not applied. Continue constrained escape/internal routing and, where justified, explicit placement changes with fresh native/mechanical verification.
 
