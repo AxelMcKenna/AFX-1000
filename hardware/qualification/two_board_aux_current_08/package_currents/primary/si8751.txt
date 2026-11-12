@@ -1,0 +1,1189 @@
+Si8751/52 Data Sheet
+
+Isolated FET Driver with Pin Control or Diode Emulator Inputs
+                                                                                                       KEY FEATURES
+The Si875x enables new pathways to the creation of custom Solid State Relay (SSR)
+configurations. The Si875x integrates robust isolation technology with an SSR FET driver. A            • Drives user-selected external FETs
+floating secondary side dc power supply is unnecessary as the product generates its own                • Choice of digital input control (Si8751)
+self-contained gate drive output voltage. When combined with a customer-selected external                or diode emulation control (Si8752)
+FET, a complete Solid State Relay is formed, allowing customers to optimize their system               • Internally generated secondary side
+for cost, PCB area, power, On-Resistance, and thermal performance.                                       power supply
+                                                                                                       • 10 V output with 1 mA input current
+Customers have a choice of digital input control (Si8751) or diode emulation control
+(Si8752) to best suit their application. The Si875x integrates versatile outputs that support          • As fast as 82 μs turn-on time and 46
+                                                                                                         us turn-off time
+driving AC or DC load configurations.
+                                                                                                       • Active Miller Clamp to prevent
+The Si875x eliminates the need for bulky mechanical relays which can be difficult to assem-              unintended turn-on and reduce
+ble onto PCBs and add switching noise to the system.                                                     inductive chatter
+                                                                                                       • Supports AC or DC load switching
+Traditional SSRs integrate optocoupler-style LED inputs, which limit the operating tempera-            • 2.5 KVrms isolation rating
+ture range of the solution. The Si875x experiences no such limitation and can support full
+                                                                                                       • UL, CSA, VDE, and CQC certifications
+industrial and automotive temperature ranges with increased stability and longer life.
+                                                                                                       • AEC-Q100 qualified
+The Si875x drives FET gates with a nominal 10 V using as little as 1 mA input current.                 • Industrial –40 to 105 °C or Automotive
+Increasing the input current to 10 mA enables turn-on times as fast as 94 μs. Input side                 –40 to 125 °C temperature ranges
+voltages on the Si8751 are flexible from 2.25 V to 5.5 V supporting seamless connection                • ROHS-compliant SOIC-8 Package
+to low-power controllers. The Si875x devices provide an Active Miller Clamp to prevent the
+unintended turn-on of the external FET when a high dV/dt is present on the FET’s drain.                APPLICATIONS
+
+
+The Si875x is qualified to the AEC-Q100 standard, making it suitable for automotive applica-           • Motor Controls
+tions. Further, its 2.5 KVrms isolation rating forms the basis for full certification to UL, CSA,
+                                                                                                       • Valve Controls
+VDE, and CQC.
+                                                                                                       • HVAC Relays
+Applications include mechanical relay, photo switch, or SSR replacement in motor control,              • HEV/EV Automotive Charging
+valve control, HVAC relay, automotive, charging, battery monitoring, ac mains line switching,          • Battery Monitoring
+and more.
+                                                                                                       • AC Mains Line Switching
+The Si8751 and Si8752 come in ROHS-compliant SOIC-8 packaging, providing a compact,
+industry-standard footprint and generous margin to creepage and clearance requirements.
+
+
+
+
+            Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+1      206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022           1
+Si8751/52 Data Sheet • Ordering Guide
+
+1. Ordering Guide
+
+
+                                                     Table 1.1. Si8751/2 Ordering Guide
+
+
+    Ordering Part Number1,        Input Support              Package           Temperature Range (Ambient)            Isolation Rating (kVrms)
+              2
+
+         Si8751AB-IS               Digital CMOS               SOIC-8                –40 to 105 °C Industrial                     2.5 kV
+
+        Si8751AB-AS                Digital CMOS               SOIC-8               –40 to 125 °C Automotive                      2.5 kV
+
+         Si8752AB-IS             Diode Emulation              SOIC-8                –40 to 105 °C Industrial                     2.5 kV
+
+        Si8752AB-AS              Diode Emulation              SOIC-8               –40 to 125 °C Automotive                      2.5 kV
+
+Note:
+ 1. "Si" and "SI" are used interchangeably.
+ 2. Add an “R” at the end of the device to denote tape and reel option
+
+
+
+
+              Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+2        206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022      2
+Si8751/52 Data Sheet • System Overview
+
+2. System Overview
+
+
+
+
+                               VDD
+
+
+
+
+                                                      Signal & Power Transmitter
+                                                                                                                         MCAP1
+                                 TT
+
+
+
+
+                                                                                           CMOS Isolation   Receiver
+                                 IN                                                                                      GATE
+
+
+                                                                                                                         SOURCE
+
+                              GND
+                                                                                                                         MCAP2
+
+
+                                                     Figure 2.1. Si8751 Block Diagram
+
+
+
+
+                         ANODE
+                                                                                                                       MCAP1
+
+
+
+
+                                                              Signal & Power Transmitter
+                                                                                           CMOS Isolation   Receiver
+                                             e                                                                         GATE
+
+
+
+                                                                                                                       SOURCE
+
+                      CATHODE                                                                                          MCAP2
+
+
+                                                     Figure 2.2. Si8752 Block Diagram
+
+
+
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+3       206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   3
+Si8751/52 Data Sheet • System Overview
+
+The operation of an Si875x channel is analogous to that of an optocoupler and gate driver, except an RF carrier is modulated instead of
+light. This simple architecture provides a robust isolated data path and requires no special considerations or initialization at start-up. A
+simplified block diagram for a single Si875x channel is shown in the figure below.
+
+
+              Transmitter                                                                 Receiver
+                                                              Semiconductor-
+     A                       MODULATOR                        Based Isolation                  DEMODULATOR                                    B
+                                                                 Barrier
+                         RF OSCILLATOR
+
+
+                                                  Figure 2.3. Simplified Channel Diagram
+
+A channel consists of an RF Transmitter and RF Receiver separated by a semiconductor-based isolation barrier. Referring to the
+Transmitter, input A modulates the carrier provided by an RF oscillator using on/off keying. The Receiver contains a demodulator that
+decodes the input state according to its RF energy content and applies the result to output B via the output driver. This RF on/off keying
+scheme is superior to pulse code schemes as it provides best-in-class noise immunity, low power consumption, and better immunity to
+magnetic fields. See figure below for more details.
+
+
+
+
+                                                                                                Input Signal
+
+
+                                                                                               Modulation Signal
+
+
+
+
+                                                                                                Output Signal
+
+
+                                                        Figure 2.4. Modulation Scheme
+
+
+2.1 Device Behavior
+
+The following are truth tables for the Si875x family.
+
+                                                         Table 2.1. Si8751 Truth Table
+
+
+                      VDD                                               IN                                              Gate
+
+                   Powered                                               H                                                H
+
+                   Powered                                               L                                                L
+
+                  Unpowered                                              X                                                L
+
+                                                         Table 2.2. Si8752 Truth Table
+
+
+                             Input Current                                                                  Gate
+
+                                 > If(TH)                                                                     H
+
+                                 < If(TH)                                                                     L
+
+
+              Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+4        206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022       4
+Si8751/52 Data Sheet • System Overview
+
+2.2 Power Supply Connections (Si8751 Only)
+
+The Si8751 requires a 0.1 µF bypass capacitor between VDD and GND. The capacitor should be placed as close as possible to the
+package. To enhance the robustness of a design, the user may also include a 1 µf capacitor for bulk decoupling as well as a resistor
+(50–300 Ω) in series with the input if the system is excessively noisy.
+
+
+2.3 TT Pin Description (Si8751 Only)
+
+The Si8751 provides a pin to control how much current is consumed by the supply when the input pin is logic high. The more current
+consumed by the input supply, the faster the output can turn on the external FET. This allows the application designer to optimize the
+tradeoff between power consumption and switching time.
+
+Typically, this pin is connected to the supply ground through a resistor. The greater the value of the resistor, the less current is
+consumed by the input supply. Values can range from 0 Ω (shorted to ground) to open (TT not connected).
+
+In addition to a resistor, a capacitor, typically 0.1 µf, can be placed in parallel to the resistor. This allows the device to draw more
+current to switch the external FET on quickly yet draw less supply current in the steady state. Total power over time is reduced while
+maintaining fast switching of the FET.
+
+
+                    VDD                                                                                          Max Drive
+
+
+
+
+                              Signal & Power Transmitter
+                                                                                                 MCAP1            Current
+                   TT
+
+
+
+
+                                                           CMOS Isolation   Receiver                             Static Drive
+                        IN                                                                       GATE
+              IN
+                                                                                                                   Current
+                                                                                                 SOURCE                                    ~1/C
+                   GND
+                                                                                                 MCAP2
+
+                                                                                                                                                   t
+
+                   Figure 2.5. Si8751 TT Example                                                                Figure 2.6. Drive Current vs. Time Using TT with Capacitor
+
+
+
+2.4 LED Emulator Input (Si8752 Only)
+
+
+
+
+                                                                                       Figure 2.8. Diode Emulator Model and I-V Curve
+
+The Si8752 uses input current to achieve the development of power across the isolation barrier. Therefore, the more current provided to
+the input, the more power is developed on the isolated side of the device. This translates into a faster turn on time of the external FET.
+This benefit is limited to an input current of about 15 mA. Beyond that, increasing the input current has little effect on the switching time
+of the external FET.
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+5       206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022                                   5
+Si8751/52 Data Sheet • System Overview
+
+2.5 Output Description
+
+The output of the Si875x device develops a positive voltage on the GATE pin with respect to the SOURCE pin. This voltage is used to
+turn on a typical field effect transistor (FET). Because power is transmitted across the isolation barrier, no isolated supply is required.
+
+This can be used to drive a FET configured as a switch for a dc load. It can also be used to drive a pair of FETs configured as a switch
+for an ac load. See 3. Applications.
+
+
+2.6 Miller Clamp
+
+
+2.6.1 Miller Clamp Description
+
+The Si875x devices provide a clamping device to prevent unintended turn on of the external FET when a high dV/dt is present on the
+FET’s drain. To use this feature, a capacitor is connected between the drain(s) of the FET(s) and one of the MCAPx inputs. A sudden,
+positive slope on this pin will cause the clamp device within the Si875x to activate and provide a low impedance path between the gate
+and source pins. This will prevent the FET from being unintentionally turned on.
+
+The Si875x device provides two miller clamp input pins. This allows for both FET’s to be protected from unintended turn on when the
+device is used in an AC switch configuration. In this case each drain is connected to an MCAPx input through a capacitor.
+
+Connection to a MCAPx pin, and use of the Miller Clamp feature, is optional. The device will function as expected if these pins are left
+unconnected.
+
+
+2.6.2 Sizing Miller Clamp Capacitors
+
+The recommended value of the capacitor used to connect the drain of the external FET to the Si875x device is typically 10 pf. If the
+application has a very large dV/dt and the clamp is not adequately keeping the external FET off, then this capacitor value can be
+increased up to 100 pf. The voltage rating of the capacitor should be greater than or equal to the peak voltage expected at the drain
+of the FET. The relationship of the capacitor and the dV/dt is governed by the equation: C = IMC/(dV/dt); where: IMC is the Miller Clamp
+input current (6mA max, as specified in Electrical Tables), and dV/dt is the expected slew rate.
+
+
+
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+6       206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   6
+Si8751/52 Data Sheet • Applications
+
+3. Applications
+
+The following examples illustrate typical circuit configurations using the Si8751/52.
+
+
+3.1 DC SSR Example
+
+The Si875x device can be used to control a dc load as shown in the following figure:
+
+
+                                                                                                                                                               VDC
+                                  VDD
+
+
+
+
+                                                                  Signal & Power Transmitter
+                                                                                                                                              MCAP1
+
+                                      TT
+
+
+
+
+                                                                                                         CMOS Isolation         Receiver      GATE
+                                      IN
+
+                                                                                                                                              SOURCE
+
+                                 GND                                                                                                                       DC Load
+                                                                                                                                              MCAP2
+
+
+                               Figure 3.1. Driving an FET for DC Load Including Miller Clamp Capacitor
+
+In this configuration, the Si8751 charges the gate of the external FET; turning it on. This switches on power, supplied by VDC, to the
+load. The output side circuitry is identical if using the Si8752.
+
+
+3.2 AC SSR Example
+
+The Si875x can be used to control power to an ac load using the following circuit:
+
+
+
+                               VDD                                                                                                                   AC Load
+
+
+
+
+                                               Signal & Power Transmitter
+                                                                                                                                           MCAP1
+                                TT
+
+
+
+
+                                                                                               CMOS Isolation
+                                                                                                                                                                 AC
+                                                                                                                          Receiver
+                                                                                                                                                               Supply
+                                 IN
+                                                                                                                                           GATE
+
+
+                                                                                                                                           SOURCE
+                               GND
+                                                                                                                                           MCAP2
+
+
+                                             Figure 3.2. Driving FETs for AC Load Switching
+
+In this configuration, both FET’s are turned on by the charge delivered by the Si8751. This allows ac current to flow to the load. When
+the Si875x is turned off, charge is drained form the gates of both FET’s and the ac current is turned off. The output side circuitry is
+identical if using the Si8752.
+
+
+
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+7       206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022                              7
+Si8751/52 Data Sheet • Electrical Specifications
+
+4. Electrical Specifications
+
+
+                                                     Table 4.1. Electrical Specifications
+
+• Automotive: VDD=2.25 to 5.5V; GND=0V; TA=-40 to +125ºC; typical specs at 25ºC; TJ=-40 to +150ºC
+• Industrial: VDD=2.25 to 5.5V; GND=0V; TA=-40 to +105ºC; typical specs at 25ºC; TJ=-40 to +150ºC
+
+              Parameter                   Symbol                    Test Condition                          Min        Typ        Max         Unit
+
+Si8751 Only
+
+Input Side
+
+            Supply Voltage                  VDD                                                             2.25        3.3       5.5          V
+
+            Supply Current                  IDD                         IN = 0V                              —         140         —          nA
+
+                                                                 IN = VDD, TT = GND                          —         13.8        17         mA
+
+                                                                IN = VDD, TT = 10 kΩ                         —          7.8       9.5         mA
+
+                                                              IN = VDD, TT unconnected                       —          1.5       1.8         mA
+
+      High Level Input Voltage              VIH                                                         50% of VDD      —          —           V
+
+       Low Level Input Voltage               VIL                                                             —          —     25% of VDD       V
+
+            Input Hystersis                VHYS                                                              —         180         —          mV
+
+Driver Side
+
+          GATE Off Voltage                VG(OFF)                       IN = 0 V                             —           0         —          mV
+
+          GATE On Voltage                 VG(ON)                 IN = VDD, TT = GND                          7.5        10         13          V
+
+                                                                IN = VDD, TT = 10 kΩ                          9        10.8        13          V
+
+                                                              IN = VDD, TT unconnected                        9        10.8        13          V
+
+        GATE On Impedance                    RG                  IN = VDD, TT = GND                          —         162        330         kΩ
+
+                                                                IN = VDD, TT = 10 kΩ                         —         265        370         kΩ
+
+                                                              IN = VDD, TT unconnected                       —          1.5       1.85        MΩ
+
+             Turn-off Time                TG(OFF)                       IN = 0 V                             —          15         35         µs
+
+    Turn-on Time (50% of VG(ON))           TG(ON)                      TT = GND                              —          42        120         µs
+
+                                                                      TT = 10 kΩ                             —          58        170         µs
+
+                                                                    TT unconnected                           —         286        650         µs
+
+    Turn-on Time (90% of VG(ON))           TG(ON)                      TT = GND                              —         85.3       190         µs
+
+                                                                      TT = 10 kΩ                             —         130        260         µs
+
+                                                                    TT unconnected                           —          0.7       1.2         ms
+
+Si8752 Only
+
+Input Side
+
+             Input Current                 IF(ON)                                                            1.0        —         30.0        mA
+
+       Guaranteed Off Current              IF(OFF)                                                           —          —          10         µA
+
+       Forward Voltage (OFF)              VF(OFF)    Measured ANODE with respect to Cathode                  —           0         —           V
+
+
+
+
+              Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+8        206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022          8
+Si8751/52 Data Sheet • Electrical Specifications
+
+
+              Parameter                   Symbol                    Test Condition                          Min        Typ        Max         Unit
+
+        Forward Voltage (ON)               VF(ON)    1 mA < IF < 10 mA, measured ANODE with                  1.8        —         2.35         V
+                                                                 respect to cathode
+
+                                                    10 mA < IF < 30 mA, measured ANODE with                 2.03        —         2.7          V
+                                                                respect to cathode
+
+Driver Side
+
+          GATE Off Voltage                VG(OFF)                      IF = 0 mA                             —           0         —           mV
+
+          GATE On Voltage                 VG(ON)                       IF = 1 mA                              8        10.3        13          V
+
+                                                                       IF = 10 mA                             8        10.3        13          V
+
+                                                                       IF = 30 mA                             8        10.9        13          V
+
+        GATE On Impedance                    RG                        IF = 1 mA                             —          2.7       3.5         MΩ
+
+                                                                       IF = 10 mA                            —         194        300          kΩ
+
+                                                                       IF = 30 mA                            —         168        290          kΩ
+
+             Turn-off Time                TG(OFF)                      IF = 0 mA                             —          15         35          µs
+
+    Turn-on Time (50% of VG(ON))           TG(ON)                      IF = 1 mA                             —         463        720          µs
+
+                                                                       IF = 10 mA                            —          41        125          µs
+
+                                                                       IF = 30 mA                            —          36         90          µs
+
+    Turn-on Time (90% of VG(ON))           TG(ON)                      IF = 1 mA                             —          1.1       1.49         ms
+
+                                                                       IF = 10 mA                            —          94        190          µs
+
+                                                                       IF = 30 mA                            —          82        180          µs
+
+Si8751 and Si8752
+
+         Miller Clamp Current               IMC                    Max input current                         —          —          6           mA
+
+    Miller Clamp Pull-Down Current           IG                IMC = 50 µA; VGate = 1 V                       5        12.8        —           mA
+
+        Gate OFF Impedance                                        IF = 0 mA (Si8752)                         —         21.5        —          MΩ
+
+                                                                   IN = 0 V (Si8751)
+
+Common Mode Transient Immunity                                      VCM = 1500 V                             20         —          —          kV/µs
+
+Note:
+ 1. All measurements use 100 pF gate capacitance load unless specified.
+
+
+
+
+              Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+9        206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022          9
+Si8751/52 Data Sheet • Electrical Specifications
+
+4.1 Test Circuits
+
+The following figure depicts a common-mode transient immunity test circuit:
+
+                                                          Si8751
+                                                     VDD         GATE
+                     Isolated +                      IN         MCAP1
+                      Supply -                       TT         MCAP2
+                                                     GND       SOURCE
+                                                                                                              Oscilloscope
+                              Isolated
+                              Ground                                                 High-Voltage
+                                                   High-Voltage Surge                 Differential
+                                                       Generator                         Probe
+
+                                        Figure 4.1. Common-Mode Transient Immunity Test Circuit
+
+
+4.2 Regulatory Information
+
+
+                                                     Table 4.2. Regulatory Information1,2
+
+
+CSA
+
+The Si875x is certified under CSA Component Acceptance Notice 5A. For more details, see Master Contract Number 232873.
+
+60950-1: Up to 125 VRMS reinforced insulation working voltage; up to 600 VRMS basic insulation working voltage.
+
+VDE
+
+The Si875x is certified according to VDE 0884-10. For more details, see Certificate 40018443.
+
+VDE 0884-10: Up to 630 Vpeak for basic insulation working voltage.
+
+UL
+
+The Si875x is certified under UL1577 component recognition program. For more details, see File E257455.
+
+Rated up to 2500 VRMS isolation voltage for basic protection.
+
+CQC
+
+The Si875x is certified under GB4943.1-2011. For more details, see Certificate CQC17001177960.
+
+Rated up to 125 VRMS reinforced insulation working voltage; up to 600 VRMS basic insulation working voltage.
+
+     1. Regulatory Certifications apply to 2.5 kVRMS rated devices which are production tested to 3.0 kVRMS for 1 sec.
+     2. For more information, see 1. Ordering Guide.
+
+
+
+
+               Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+10        206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   10
+Si8751/52 Data Sheet • Electrical Specifications
+
+
+
+                                           Table 4.3. Insulation and Safety-Related Specifications
+
+
+                    Parameter                               Symbol                 Test Condition               SOIC-8 Value              Unit
+
+Nominal External Air Gap                                      CLR                                                     4.7                 mm
+
+(Clearance)
+
+Nominal External Tracking                                     CPG                                                     3.9                 mm
+
+(Creepage)
+
+Minimum Internal Gap                                          DTI                                                    0.008                mm
+
+(Internal Clearance)
+
+Tracking Resistance                                           PTI                      IEC60112                       600                     V
+
+Erosion Depth                                                  ED                                                    0.04                 mm
+
+Resistance                                                    RIO                                                    1012                     Ω
+
+(Input-Output)1
+
+Capacitance                                                   CIO                      f = 1 MHz                      0.5                     pF
+
+(Input-Output)1
+
+Input Capacitance2                                             CI                                                     3.0                     pF
+
+Notes:
+ 1. To determine resistance and capacitance, the Si875x is converted into a 2-terminal device. All pins on side 1 are shorted to
+    create terminal 1, and all pins on side 2 are shorted to create terminal 2. The parameters are then measured between these two
+    terminals.
+ 2. Measured from input pin to ground.
+
+                                                        Table 4.4. IEC 60664-1 Ratings
+
+
+                Parameter                                        Test Condition                                  SOIC-8 Specification
+
+          Basic Isolation Group                                  Material Group                                                I
+
+        Installation Classification                    Rated Mains Voltages < 150 VRMS                                       I-IV
+
+                                                       Rated Mains Voltages < 300 VRMS                                       I-III
+
+                                                       Rated Mains Voltages < 400 VRMS                                       I-II
+
+                                                       Rated Mains Voltages < 600 VRMS                                       I-II
+
+
+
+
+              Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+11       206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022        11
+Si8751/52 Data Sheet • Electrical Specifications
+
+
+
+                                                 Table 4.5. VDE 0884 Insulation Characteristics1
+
+
+Parameter                                          Symbol                 Test Condition                Characteristic               Unit
+
+Maximum Working Insulation Voltage                  VIORM                                                      630                  V peak
+
+Input to Output Test Voltage                         VPR                     Method b1                        1181                  V peak
+                                                                   (VIORM x 1.875 = VPR, 100%
+                                                                    Production Test, tm = 1 sec,
+                                                                     Partial Discharge < 5 pC)
+
+Transient Overvoltage                               VIOTM                    t = 60 sec                       4000                  V peak
+
+Surge Voltage                                       VIOSM       Tested per IEC 60065 with surge                                     Vpeak
+                                                                     voltage of 1.2 µs/50 µs                  3077
+
+                                                                    Si875x tested with 4000 V
+
+Pollution Degree                                                                                                2
+
+(DIN VDE 0110, Table 1)
+
+Insulation Resistance at                              RS                                                      >109                      Ω
+
+TS, VIO = 500 V
+
+Note:
+ 1. Maintenance of the safety data is ensured by protective circuits. The Si875x provides a climate classification of 40/125/21.
+
+
+                                                     Table 4.6. IEC Safety Limiting Values1
+
+
+         Parameter                       Symbol                  Test Condition                    SOIC-8                         Unit
+
+Safety Temperature                          TS                                                       150                           °C
+
+Safety Input Current                        ΙS                   θJA = 110 °C/W                      206                           mA
+(Si8751)
+                                                                  VDD = 5.5 V,
+
+                                                                   TJ = 150 °C,
+
+                                                                    TA = 25 °C
+
+                                                                 θJA = 110 °C/W                      313                           mA
+
+                                                                  VDD = 3.63 V,
+
+                                                                   TJ = 150 °C,
+
+                                                                    TA = 25 °C
+
+                                                                 θJA = 110 °C/W                      413                           mA
+
+                                                                  VDD = 2.75 V,
+
+                                                                   TJ = 150 °C,
+
+                                                                    TA = 25 °C
+
+Safety Input Current                        ΙS                   θJA = 110 °C/W                      454                           mA
+(Si8752)
+                                                                   VF = 2.5 V,
+
+                                                                   TJ = 150 °C,
+
+                                                                    TA = 25 °C
+
+
+              Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+12       206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   12
+Si8751/52 Data Sheet • Electrical Specifications
+
+
+         Parameter                       Symbol                  Test Condition                    SOIC-8                         Unit
+
+Safety Input Power                          PS                   θJA = 110 °C/W                     1136                           mW
+(Si8752)
+                                                                   VF = 2.5 V,
+
+                                                                   TJ = 150 °C,
+
+                                                                    TA = 25 °C
+
+Device Power Dissipation                    PD                                                        1                             W
+
+Note:
+ 1. Maximum value allowed in the event of a failure. Refer to the thermal derating curves below.
+
+
+
+
+              Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+13       206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   13
+Si8751/52 Data Sheet • Electrical Specifications
+
+
+
+                                                     Table 4.7. Thermal Characteristics
+
+
+            Parameter                              Symbol                               SOIC-8                                 Unit
+
+        IC Junction-to-Air                           θJA                                  110                                 °C/W
+       Thermal Resistance
+
+
+
+
+                                 Figure 4.2. Thermal Derating Curve for Safety Limiting Current (Si8751)
+
+
+
+
+                                 Figure 4.3. Thermal Derating Curve for Safety Limiting Current (Si8752)
+
+
+
+
+              Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+14       206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   14
+Si8751/52 Data Sheet • Electrical Specifications
+
+
+
+                                                   Table 4.8. Absolute Maximum Ratings1
+
+
+                           Parameter                                      Symbol                    Min               Max              Units
+
+Storage Temperature                                                         TSTG                    –65               +150               °C
+
+Operating Temperature                                                         TA                    –40               +125               °C
+
+Junction Temperature                                                          TJ                     —                +150               °C
+
+Input-side supply voltage (Si8751)                                          VDD                     –0.6               6.0                V
+
+Voltage on any input side pin with respect to ground (pin                    VIO                    –0.5           VDD + 0.5              V
+4, Si8751 only)
+
+Average Forward Anode Current (Si8752)                                     IF(AVG)                   —                 30                mA
+
+Reverse Anode Voltage (Si8752)                                               VR                      —                 0.3                V
+
+Lead Solder Temperature (10 s)                                                                       —                260                °C
+
+ESD Rating, HBM                                                                                      —                3500                V
+
+ESD Rating, CDM                                                                                      —                2000                V
+
+Maximum Isolation Voltage (Input to Output) (1 sec)                                                  —                3000             VRMS
+
+SOIC-8
+
+Latch-up Immunity                                                                                    —                400              kV/μs
+
+Note:
+ 1. Permanent device damage may occur if the absolute maximum ratings are exceeded. Functional operation should be restricted to
+    the conditions specified in the operational sections of this data sheet.
+
+
+
+
+              Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+15       206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022    15
+Si8751/52 Data Sheet • Electrical Specifications
+
+4.3 Typical Operating Characteristics
+
+
+
+
+     Figure 4.4. Si8751 Typical Gate Voltage vs. Temperature                    Figure 4.5. Si8752 Typical Gate Voltage vs. Temperature
+                             and TT                                                               and Anode Current
+
+
+
+
+     Figure 4.6. Si8751 Typical Turn-On Time vs. Temperature                   Figure 4.7. Si8752 Typical Turn-On Time vs. Temperature
+             and TT with 100 pF Load (50% of Output)                             and Anode Current with 100 pF Load (50% of Output)
+
+
+
+
+               Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+16        206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   16
+Si8751/52 Data Sheet • Electrical Specifications
+
+
+
+
+     Figure 4.8. Si8751 Typical Turn-On Time vs. Temperature                   Figure 4.9. Si8752 Typical Turn-On Time vs. Temperature
+             and TT with 100 pF Load (90% of Output)                             and Anode Current with 100 pF Load (90% of Output)
+
+
+
+
+  Figure 4.10. Si8751 Typical Turn-On Time vs. Capacitance                     Figure 4.11. Si8752 Typical Turn-On Time vs. Capacitance
+                   and TT (50% of Output)                                                 and Anode Current (50% of Output)
+
+
+
+
+               Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+17        206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   17
+Si8751/52 Data Sheet • Electrical Specifications
+
+
+
+
+  Figure 4.12. Si8751 Typical Turn-On Time vs. Capacitance                   Figure 4.13. Si8752 Typical Turn-On Time vs. Capacitance
+                   and TT (90% of Output)                                               and Anode Current (90% of Output)
+
+
+
+
+              Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+18       206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   18
+Si8751/52 Data Sheet • Pin Descriptions
+
+5. Pin Descriptions
+
+5.1 Si8751 Pin Descriptions
+
+
+
+                                          VDD 1                                          8 GATE
+                                           TT 2                                       7 MCAP1
+                                                            Si8751
+                                           IN 3                                       6 MCAP2
+
+                                          GND 4                                       5 SOURCE
+                                                    Figure 5.1. Pin Assignments Si8751
+
+
+                                                    Table 5.1. Si8751 Pin Descriptions
+
+
+              Pin                           Name                                                   Description
+
+               1                             VDD                 Input side power supply
+
+               2                              TT                 Turn-on time control (optional)
+
+               3                               IN                Digital control input
+
+               4                             GND                 Input side ground
+
+               5                           SOURCE                Connection to switch FET Source
+
+               6                            MCAP2                Miller capacitance control 2 (optional)
+
+               7                            MCAP1                Miller capacitance control 1 (optional)
+
+               8                             GATE                Connection to switch FET Gate
+
+
+
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+19      206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   19
+Si8751/52 Data Sheet • Pin Descriptions
+
+5.2 Si8752 Pin Descriptions
+
+
+
+                                              NC 1                                         8 GATE
+                                      ANODE 2                                              7 MCAP1
+                                                                 Si8752
+                                              NC 3                                         6 MCAP2
+
+                                 CATHODE 4                                                5 SOURCE
+                                                    Figure 5.2. Pin Assignments Si8752
+
+
+                                                    Table 5.2. Si8752 Pin Descriptions
+
+
+              Pin                           Name                                                   Description
+
+               1                              NC                 No Connect
+
+               2                           ANODE                 Anode of LED emulator
+
+               3                              NC                 No Connect
+
+               4                          CATHODE                Cathode of LED emulator
+
+               5                           SOURCE                Connection to switch FET Source
+
+               6                            MCAP2                Miller capacitance control 2 (optional)
+
+               7                            MCAP1                Miller capacitance control 1 (optional)
+
+               8                             GATE                Connection to switch FET Gate
+
+
+
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+20      206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   20
+Si8751/52 Data Sheet • Package Outlines
+
+6. Package Outlines
+
+6.1 Package Outline: 8-Pin Narrow Body SOIC
+
+The figure below illustrates the package details for the Si875x in an 8-pin narrow-body SOIC package. The table below lists the values
+for the dimensions shown in the illustration.
+
+
+
+
+                                              Figure 6.1. 8-Pin Narrow Body SOIC Package
+
+
+
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+21      206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   21
+Si8751/52 Data Sheet • Package Outlines
+
+
+
+                                  Table 6.1. 8-Pin Narrow Body SOIC Package Diagram Dimensions
+
+
+                   Symbol                                                                  Millimeters
+
+                                                                      Min                                              Max
+
+                      A                                               1.35                                             1.75
+
+                      A1                                              0.10                                             0.25
+
+                      A2                                           1.40 REF                                          1.55 REF
+
+                      B                                               0.33                                             0.51
+
+                      C                                               0.19                                             0.25
+
+                      D                                               4.80                                             5.00
+
+                      E                                               3.80                                             4.00
+
+                       e                                                                    1.27 BSC
+
+                      H                                               5.80                                             6.20
+
+                       h                                              0.25                                             0.50
+
+                       L                                              0.40                                             1.27
+
+                      α                                                0°                                                8°
+
+
+
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+22      206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   22
+Si8751/52 Data Sheet • Land Patterns
+
+7. Land Patterns
+
+7.1 Land Pattern: 8-Pin Narrow Body SOIC
+
+The figure below illustrates the recommended land pattern details for the Si875x in an 8-pin narrow-body SOIC. The table below lists
+the values for the dimensions shown in the illustration.
+
+
+
+
+                                            Figure 7.1. 8-Pin Narrow Body SOIC Land Pattern
+
+
+                                       Table 7.1. 8-Pin Narrow Body SOIC Land Pattern Dimensions
+
+
+Dimension                                        Feature                                          (mm)
+
+C1                                               Pad Column Spacing                               5.40
+
+E                                                Pad Row Pitch                                    1.27
+
+X1                                               Pad Width                                        0.60
+
+Y1                                               Pad Length                                       1.55
+
+Notes:
+ 1. This Land Pattern Design is based on IPC-7351 pattern SOIC127P600X173-8N for Density Level B (Median Land Protrusion).
+ 2. All feature sizes shown are at Maximum Material Condition (MMC) and a card fabrication tolerance of 0.05 mm is assumed.
+
+
+
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+23      206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   23
+Si8751/52 Data Sheet • Top Markings
+
+8. Top Markings
+
+8.1 8-Pin Narrow Body SOIC
+
+
+
+
+                                                    Table 8.1. Top Marking Explanation
+
+
+         Line 1 Marking:              Customer Part Number               Si875 = ISOdriver product series
+
+                                                                         X: 1 = Digital input, 2 = LED emulator input
+
+                                                                         A: Reserved
+
+                                                                         V: B = 2.5 kV isolation rating
+
+         Line 2 Marking:              TTTTTT = Mfg code                  Manufacturing Code from Assembly Purchase Order form.
+
+         Line 3 Marking:              YY = Year                          Assigned by the Assembly House. Corresponds to the year and
+                                                                         workweek of the mold date.
+                                      WW = Work week
+
+
+
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+24      206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   24
+Si8751/52 Data Sheet • Revision History
+
+9. Revision History
+
+Revision A, July 2022
+• Added Agile data sheet revision in footer
+
+
+Revision 1.0, December 2017
+• Significant edits with production electrical specifications and load switching diagram.
+
+
+Revision 0.5, September 2016
+• Significant edits with production electrical specifications.
+
+
+Revision 0.1, May 2016
+
+• Initial revision.
+
+
+
+
+             Skyworks Solutions, Inc. • Phone [781] 376-3000 • Fax [781] 376-3100 • sales@skyworksinc.com • www.skyworksinc.com
+25      206331A • Skyworks Proprietary Information • Products and Product Information are Subject to Change Without Notice • July 27, 2022   25
+Table of Contents
+1. Ordering Guide       . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 2
+2. System Overview . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+  2.1 Device Behavior       .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 4
+  2.2 Power Supply Connections (Si8751 Only) .                  .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 5
+  2.3 TT Pin Description (Si8751 Only) .            .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 5
+  2.4 LED Emulator Input (Si8752 Only) .                .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 5
+  2.5 Output Description.       .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 6
+  2.6 Miller Clamp . . . . . . . . .                    .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 6
+    2.6.1 Miller Clamp Description . . .                .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 6
+    2.6.2 Sizing Miller Clamp Capacitors .              .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 6
+
+3. Applications. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+  3.1 DC SSR Example .          .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 7
+  3.2 AC SSR Example .          .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . 7
+
+4. Electrical Specifications . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+  4.1 Test Circuits .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .10
+  4.2 Regulatory Information .          .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .10
+  4.3 Typical Operating Characteristics .           .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .16
+
+5. Pin Descriptions . . . . . . . . . . . . . . . . . . . . . . . . . . . . .                                                               19
+  5.1 Si8751 Pin Descriptions .         .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .19
+  5.2 Si8752 Pin Descriptions .         .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .20
+
+6. Package Outlines . . . . . . . . . . . . . . . . . . . . . . . . . . . . .                                                               21
+  6.1 Package Outline: 8-Pin Narrow Body SOIC .                     .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .21
+
+7. Land Patterns . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .                                                                23
+  7.1 Land Pattern: 8-Pin Narrow Body SOIC                  .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .23
+
+8. Top Markings . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .                                                                 24
+  8.1 8-Pin Narrow Body SOIC            .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .24
+
+9. Revision History . . . . . . . . . . . . . . . . . . . . . . . . . . . . .                                                               25
+     Connecting Everyone
+
+     and Everything,
+
+     All the Time
+
+
+
+
+                                 Portfolio                                 Quality                          Support & Resources
+                             skyworksinc.com                      skyworksinc.com/quality                 skyworksinc.com/support
+
+Copyright © 2022 Skyworks Solutions, Inc. All Rights Reserved.
+
+Information in this document is provided in connection with Skyworks Solutions, Inc. (“Skyworks”) products or services. These materials, including
+the information contained herein, are provided by Skyworks as a service to its customers and may be used for informational purposes only by the
+customer. Skyworks assumes no responsibility for errors or omissions in these materials or the information contained herein. Skyworks may change its
+documentation, products, services, specifications or product descriptions at any time, without notice. Skyworks makes no commitment to update the
+materials or information and shall have no responsibility whatsoever for conflicts, incompatibilities, or other difficulties arising from any future changes.
+
+No license, whether express, implied, by estoppel or otherwise, is granted to any intellectual property rights by this document. Skyworks assumes
+no liability for any materials, products or information provided hereunder, including the sale, distribution, reproduction or use of Skyworks products,
+information or materials, except as may be provided in Skyworks’ Terms and Conditions of Sale.
+
+THE MATERIALS, PRODUCTS AND INFORMATION ARE PROVIDED “AS IS” WITHOUT WARRANTY OF ANY KIND, WHETHER EXPRESS, IMPLIED,
+STATUTORY, OR OTHERWISE, INCLUDING FITNESS FOR A PARTICULAR PURPOSE OR USE, MERCHANTABILITY, PERFORMANCE, QUALITY OR NON-
+INFRINGEMENT OF ANY INTELLECTUAL PROPERTY RIGHT; ALL SUCH WARRANTIES ARE HEREBY EXPRESSLY DISCLAIMED. SKYWORKS DOES NOT
+WARRANT THE ACCURACY OR COMPLETENESS OF THE INFORMATION, TEXT, GRAPHICS OR OTHER ITEMS CONTAINED WITHIN THESE MATERIALS.
+SKYWORKS SHALL NOT BE LIABLE FOR ANY DAMAGES, INCLUDING BUT NOT LIMITED TO ANY SPECIAL, INDIRECT, INCIDENTAL, STATUTORY, OR
+CONSEQUENTIAL DAMAGES, INCLUDING WITHOUT LIMITATION, LOST REVENUES OR LOST PROFITS THAT MAY RESULT FROM THE USE OF THE
+MATERIALS OR INFORMATION, WHETHER OR NOT THE RECIPIENT OF MATERIALS HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Skyworks products are not intended for use in medical, lifesaving or life-sustaining applications, or other equipment in which the failure of the Skyworks
+products could lead to personal injury, death, physical or environmental damage. Skyworks customers using or selling Skyworks products for use in such
+applications do so at their own risk and agree to fully indemnify Skyworks for any damages resulting from such improper use or sale.
+
+Customers are responsible for their products and applications using Skyworks products, which may deviate from published specifications as a result of
+design defects, errors, or operation of products outside of published parameters or design specifications. Customers should include design and operating
+safeguards to minimize these and other risks. Skyworks assumes no liability for applications assistance, customer product design, or damage to any
+equipment resulting from the use of Skyworks products outside of Skyworks’ published specifications or parameters.
+
+Skyworks, the Skyworks symbol, Sky5®, SkyOne®, SkyBlue™, Skyworks Green™, ClockBuilder®, DSPLL®, ISOmodem®, ProSLIC®, and SiPHY® are trademarks
+or registered trademarks of Skyworks Solutions, Inc. or its subsidiaries in the United States and other countries. Third-party brands and names are for
+identification purposes only and are the property of their respective owners. Additional information, including relevant terms and conditions, posted at
+www.skyworksinc.com, are incorporated by reference.
+
+                          Skyworks Solutions, Inc. | Nasdaq: SWKS | sales@skyworksinc.com | www.skyworksinc.com
+                                    USA: 781-376-3000 | Asia: 886-2-2735 0399 | Europe: 33 (0)1 43548540
+
