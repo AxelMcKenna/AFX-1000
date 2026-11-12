@@ -20,3 +20,34 @@ python3 hardware/cad/two_board_installation_06/workflow_adapter/verify.py
 ```
 
 `compile-r1/result.json` records one pinned Linux CSG compilation of all eight aliases at caller `$fn=64`, with no warnings, source drift or Mac CAD launch. This validates module resolution, not mesh clearance or physical fit. `verification.json` adds direct-alias and registry mutation checks. Root integration owns the unified cache, collision matrix, final assembly and report.
+
+### PCB mechanical freshness bridge
+
+Run `pcb_freshness.py` with `--power` and `--signal` paths selected by the central
+assembly manifest, `--output` for a new JSON report, and optionally `--repo-root`.
+Paths are relative to that repository; no worktree location is embedded. The
+checked-in `pcb-freshness.json` records TBP71 power and sensor native-r7 against
+the original PCB inputs whose hashes are pinned by TBH01 `capture.json`.
+
+The host-only bridge uses the repository S-expression parser and
+`assembly_layout.outline`. Both boards must have zero differences to return 0.
+Missing or unsupported geometry fails closed. It checks footprint presence,
+XY/rotation/side, library identity, all non-property physical footprint fields
+(including courtyards, fabrication graphics, 3D model declarations, pad and drill
+geometry), property values, mounting holes, outline and nominal thickness.
+Only UUIDs, net assignments, pin electrical labels and schematic paths are
+ignored inside physical records. Conservative ordering/text/graphics differences
+may require review; no part-value change is silently accepted. Tracks, zones and
+vias are outside this mechanical comparison.
+
+`source_sha256` binds both selected PCBs, the original PCBs, capture, bridge and
+parser/outline implementation. `freshness_key` hashes that complete map. Consumers
+must rehash those files before reusing a report and run the bridge again if any
+hash or selected path changes. A passing report preserves the *existing generic
+receiving envelopes*, not exact supplier STEP bodies or approved part heights.
+External 3D model files are not evaluated or certified by this bridge. Existing
+height assumptions remain explicitly reported even when geometry is fresh.
+
+`test_pcb_freshness.py` exercises the real captured power PCB: moved footprint,
+side change, value change, drill change, courtyard change, translated board
+outline and deleted footprint all reject; unchanged input passes.
