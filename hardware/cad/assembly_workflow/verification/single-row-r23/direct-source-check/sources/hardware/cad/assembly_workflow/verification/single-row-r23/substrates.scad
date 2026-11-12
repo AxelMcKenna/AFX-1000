@@ -1,0 +1,68 @@
+// Diagnostic substrates: retain captured profiles/mount holes; add exactly35 current native connector drills.
+module r23_substrates_with_connector_drills(){
+translate([0,0,6.75])linear_extrude(1.6)difference(){polygon([[30.0, 42.0], [30.0, 105.0], [180.0, 105.0], [180.0, 104.0], [184.0, 104.0], [298.0, 104.0], [298.0, 53.0], [288.0, 53.0], [288.0, 47.0], [248.0, 47.0], [248.0, 44.0], [184.0, 44.0], [184.0, 47.0], [180.0, 47.0], [180.0, 42.0]]);
+translate([250.0, 57.0])circle(d=2.4);
+translate([40.0, 98.0])circle(d=2.4);
+translate([294.0, 88.0])circle(d=2.4);
+translate([294.0, 69.0])circle(d=2.4);
+translate([176.0, 46.0])circle(d=2.4);
+translate([34.0, 46.0])circle(d=2.4);
+translate([112.0, 98.0])circle(d=2.4);
+translate([176.0, 101.0])circle(d=2.4);
+translate([188.0, 48.0])circle(d=2.4);
+translate([188.0, 80.0])circle(d=2.4);
+translate([34.0, 101.0])circle(d=2.4);
+translate([188.0, 90.0])circle(d=1.0);
+translate([190.54, 90.0])circle(d=1.0);
+translate([193.08, 90.0])circle(d=1.0);
+translate([198.0, 90.0])circle(d=1.0);
+translate([200.54, 90.0])circle(d=1.0);
+translate([203.08, 90.0])circle(d=1.0);
+translate([208.0, 90.0])circle(d=1.0);
+translate([210.54, 90.0])circle(d=1.0);
+translate([213.08, 90.0])circle(d=1.0);
+translate([218.0, 90.0])circle(d=1.0);
+translate([220.54, 90.0])circle(d=1.0);
+translate([223.08, 90.0])circle(d=1.0);
+translate([228.0, 90.0])circle(d=1.0);
+translate([230.54, 90.0])circle(d=1.0);
+translate([233.08, 90.0])circle(d=1.0);
+translate([238.0, 90.0])circle(d=1.0);
+translate([240.54, 90.0])circle(d=1.0);
+translate([243.08, 90.0])circle(d=1.0);
+translate([248.0, 90.0])circle(d=1.0);
+translate([250.54, 90.0])circle(d=1.0);
+translate([253.08, 90.0])circle(d=1.0);
+translate([258.0, 90.0])circle(d=1.0);
+translate([260.54, 90.0])circle(d=1.0);
+translate([263.08, 90.0])circle(d=1.0);
+translate([268.0, 90.0])circle(d=1.0);
+translate([270.54, 90.0])circle(d=1.0);
+translate([273.08, 90.0])circle(d=1.0);
+translate([278.0, 90.0])circle(d=1.0);
+translate([280.54, 90.0])circle(d=1.0);
+translate([283.08, 90.0])circle(d=1.0);
+translate([244.0, 51.0])circle(d=1.0);
+translate([246.54, 51.0])circle(d=1.0);
+translate([249.08, 51.0])circle(d=1.0);
+translate([251.62, 51.0])circle(d=1.0);
+translate([254.16, 51.0])circle(d=1.0);
+}
+translate([0,0,7.9])linear_extrude(1.6)difference(){polygon([[8.0, 30.0], [8.0, 40.0], [8.0, 108.5], [8.0, 110.0], [8.0, 182.5], [328.0, 182.5], [328.0, 108.5], [27.0, 108.5], [27.0, 40.0], [248.0, 40.0], [248.0, 40.4], [281.0, 40.4], [281.0, 45.4], [312.0, 45.4], [312.0, 3.4], [307.0, 3.4], [307.0, 1.4], [248.0, 1.4], [248.0, 30.0], [27.0, 30.0]]);
+translate([205.0, 158.0])circle(d=2.6);
+translate([173.0, 158.0])circle(d=2.6);
+translate([13.0, 35.0])circle(d=2.4);
+translate([240.0, 35.0])circle(d=2.4);
+translate([13.0, 100.0])circle(d=2.4);
+translate([13.0, 113.0])circle(d=2.4);
+translate([164.0, 113.0])circle(d=2.4);
+translate([323.0, 113.0])circle(d=2.4);
+translate([13.0, 178.0])circle(d=2.4);
+translate([164.0, 178.0])circle(d=2.4);
+translate([323.0, 178.0])circle(d=2.4);
+translate([275.0, 8.0])circle(d=2.4);
+translate([307.0, 35.0])circle(d=2.4);
+translate([130.0871, 168.922])circle(d=9.0);
+translate([93.0871, 168.9352])circle(d=9.0);
+}
+}
