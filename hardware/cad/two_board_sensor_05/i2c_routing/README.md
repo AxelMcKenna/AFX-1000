@@ -1,3 +1,5 @@
+**Current selection: r4.** See [R4-TRANSITIONS.md](R4-TRANSITIONS.md) for the local return stitches and selected native-r4 evidence. The r3 description below is retained checkpoint history; its pin1-only attachment statement no longer describes r4.
+
 # I2C routing and control-return candidate r3
 
 Selected output is `native-r3/signal_main.kicad_pcb`. It closes all four baseline I2C opens, with zero new native geometry findings and exact schematic netlist partitions. It also joins the two existing LINK_AGND islands at the documented MCU control return. This substantive ground-topology change is a candidate for integration review, not noise qualification or fabrication release. The board retains 246 other opens and the missing A_U201 ES9292QPRO footprint.
