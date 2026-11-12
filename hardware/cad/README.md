@@ -103,3 +103,5 @@ analog/control placement still do not fit by inference from the generic power re
 Meshes and previews are written to `build/artifacts/cad/`; small verification records remain in `hardware/cad/generated/`. Add `--update-previews` to copy the selected PNGs into the tracked documentation after a successful render. The button renderer supports the same option. Documentation previews represent their last reviewed snapshot.
 
 The rendering checks require the OpenSCAD backends used by the model. Their recorded scope and version are in the generated validation JSON. Mesh closure, clearances and source-level checks remain separate from a physical print or full-unit fit test.
+
+The [conditional panel ground-chain amendment](two_board_controls_04/panel_ground_amendment/README.md) updates the 29 switch terminal notes for the r12 electrical topology. It passes strict native ERC and exact panel netlist parity; formed wire routes remain under development.

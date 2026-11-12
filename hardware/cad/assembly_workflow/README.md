@@ -44,3 +44,5 @@ The initial eleven strict intersection checks cover the corrected sensor cable, 
 ## Design decision
 
 Keep OpenSCAD and KiCad and consolidate their interfaces. Migrating CAD kernels would change geometry while solving an orchestration problem. One small Python runner, registries and thin SCAD adapters give a shared assembly, reproducible operands, automatic invalidation and recoverable failures without adding a server or a new CAD system. Binary STL caching is used only for closed manifold operands; original-source checks remain the fallback for contact-rich assemblies.
+
+The selected r13 ground role adds two 12 mm-radius source exits as receiving geometry. Three additional checks cover the current sensor, controls and cooling assemblies (14 configured checks total; 59 roles). These checks validate only the exit pair, excluding its own conditional connector termination, and do not qualify the downstream harness. Native evidence is in `verification/formed-ground-r13/`.

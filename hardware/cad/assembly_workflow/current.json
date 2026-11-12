@@ -7,7 +7,8 @@
     "hardware/cad/assembly_workflow/base.json",
     "hardware/cad/two_board_controls_04/workflow_adapter/registry.json",
     "hardware/cad/two_board_sensor_05/workflow_adapter/components.json",
-    "hardware/cad/two_board_installation_06/workflow_adapter/registry.json"
+    "hardware/cad/two_board_installation_06/workflow_adapter/registry.json",
+    "hardware/cad/two_board_installation_06/workflow_adapter/formed-ground-registry.json"
   ],
   "checks": [
     {
@@ -151,6 +152,75 @@
         "cooling_external_harness"
       ],
       "expect": "empty"
+    },
+    {
+      "id": "formed_ground_sensor",
+      "left": [
+        "panel_ground_r13_exits"
+      ],
+      "right": [
+        "sensor_harness",
+        "sensor_fixture",
+        "sensor_substrate",
+        "sensor_population",
+        "sensor_lever_bracket",
+        "sensor_lever_guard",
+        "sensor_lever_motion",
+        "sensor_spring_motion"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "formed_ground_controls",
+      "left": [
+        "panel_ground_r13_exits"
+      ],
+      "right": [
+        "controls_display",
+        "controls_display_wiring",
+        "controls_selectors",
+        "controls_selector_wiring",
+        "controls_selector_motion",
+        "controls_meters",
+        "controls_meters_lenses",
+        "controls_meters_wiring",
+        "controls_banks",
+        "controls_banks_lenses",
+        "controls_banks_wiring",
+        "controls_ring",
+        "controls_ring_lens",
+        "controls_ring_wiring",
+        "controls_button_indicators",
+        "controls_button_wiring",
+        "controls_button_motion",
+        "controls_lid",
+        "controls_guide",
+        "controls_knobs",
+        "controls_pot_hardware",
+        "controls_pot_shafts",
+        "controls_pot_body",
+        "controls_keycaps",
+        "controls_button_mechanisms",
+        "controls_touch_backer",
+        "controls_touch_lens",
+        "controls_touch_module_receiving"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "formed_ground_cooling",
+      "left": [
+        "panel_ground_r13_exits"
+      ],
+      "right": [
+        "cooling_installed",
+        "cooling_fans",
+        "cooling_internal_harness",
+        "cooling_external_harness",
+        "cooling_tie_path",
+        "cooling_tie_head"
+      ],
+      "expect": "empty"
     }
   ],
   "boards": {
@@ -162,7 +232,8 @@
     "Receiving allowances are not supplier-certified geometry; exact part/connector dimensions and physical qualification remain open.",
     "Magnet,grub screw and actual spring coil lack separate installed source models; sensor registry records these omissions.",
     "Remaining panel harness/splice physical routes and whole-board electrical/thermal work remain incomplete.",
-    "Default scene is one-piece structural geometry. Use --reservations and --motion for explicitly labeled allowances/sweeps."
+    "Default scene is one-piece structural geometry. Use --reservations and --motion for explicitly labeled allowances/sweeps.",
+    "The r13 formed-ground role contains only two 12mm-radius source exits; downstream wire routes, exact terminations, supports and service slack remain incomplete. Its own panel-mate termination contact is not certified by these cross-fit checks."
   ],
   "fabrication_released": false
 }
