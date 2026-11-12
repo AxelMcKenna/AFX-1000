@@ -1,6 +1,6 @@
 # DAC internal routing checkpoint
 
-The latest verified electrical checkpoint is [r46](CHECKPOINT-R46.md): 196 total opens and six remaining DAC connections. It retains every [r44](CHECKPOINT-R44.md) component pose, including the explicit R303 translation, and adds physical ground-reference corridors for BUF_IN_L. Selected-board identity and affected mechanical evidence must be refreshed during integration. The r26 provenance and immutable recheck below remain available.
+The latest verified electrical checkpoint is [r50](CHECKPOINT-R50.md): 194 total opens and four remaining DAC connections. It preserves all [r46](CHECKPOINT-R46.md) poses and copper while connecting BIAS_P_L and CM_SUM_R with physical ground references. The sole placement change from the original board remains the [r44 R303 translation](CHECKPOINT-R44.md). Selected-board identity and affected mechanical evidence require integration. The frozen r26 provenance remains below.
 
 Frozen r26 board: [native-r26/signal_main.kicad_pcb](native-r26/signal_main.kicad_pcb), SHA-256 `e67e18cf534a2ef58945a3ec0e7d7ed1a4dd526cd9ed347010b7b49096390790`.
 
