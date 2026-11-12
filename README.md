@@ -69,7 +69,7 @@ These are native KiCad exports with incomplete routing and return paths. The sig
 
 ### Housing and fabrication status
 
-The [combined assembly checks](hardware/cad/two_board_integrated_07/README.md) now include control carriers, populated sensor, revised lever and cooling. The latest candidate still has a sensor ribbon/connector receiving-envelope clash; it is not ready for complete assembly or fabrication.
+The [combined assembly checks](hardware/cad/two_board_integrated_07/README.md) now include control carriers, populated sensor, revised lever and cooling. The corrected sensor ribbon and connector receiving envelopes now pass their combined checks. Use the [unified assembly workflow](hardware/cad/assembly_workflow/README.md) for the selected scene, KiCad freshness and incremental clearances. Complete wiring, actual-part receiving and fabrication qualification remain open.
 
 For the earlier sealed unpowered prototype, start with the [print-first kit](hardware/cad/two_board_print_02/TBH01-r6-print-first-kit.zip) and [print order](hardware/cad/two_board_print_02/README.md): test the four core coupons, then print the tray before the lid. The minimum case uses three one-piece parts or twelve split pieces.
 

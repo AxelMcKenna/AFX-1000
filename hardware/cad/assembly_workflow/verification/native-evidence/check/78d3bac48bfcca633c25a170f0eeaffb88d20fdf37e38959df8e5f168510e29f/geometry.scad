@@ -1,0 +1,3 @@
+$fn=64;
+use </private/tmp/rmx-hardware-integration-20261112/hardware/cad/assembly_workflow/cache/component/2d60c7bce08b7161bafc9e6ad4868ad1f87fe8ac9a41be3923621f81b517f17d/sources/hardware/cad/two_board_sensor_05/workflow_adapter/sensor.scad>
+intersection(){union(){sensor_harness();}union(){import("/private/tmp/rmx-hardware-integration-20261112/hardware/cad/assembly_workflow/cache/component/b1b194a722406e7bfc4af27eeb0e9151d53b0af6e155379d33bd46808c2e100d/geometry.stl");import("/private/tmp/rmx-hardware-integration-20261112/hardware/cad/assembly_workflow/cache/component/a553671c5383695ada3d5da7f179d39e7dcddf22c0014892f7dd8b0589bcf0f1/geometry.stl");}}

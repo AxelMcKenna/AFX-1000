@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "units": "mm",
+  "coordinate_frame": "Existing captured housing datum; adapters apply installed transforms exactly once",
+  "variant": "one_piece",
+  "registries": [
+    "hardware/cad/assembly_workflow/base.json",
+    "hardware/cad/two_board_controls_04/workflow_adapter/registry.json",
+    "hardware/cad/two_board_sensor_05/workflow_adapter/components.json",
+    "hardware/cad/two_board_installation_06/workflow_adapter/registry.json"
+  ],
+  "checks": [
+    {
+      "id": "sensor_harness_controls",
+      "left": [
+        "sensor_harness"
+      ],
+      "right": [
+        "controls_display",
+        "controls_display_wiring",
+        "controls_selectors",
+        "controls_selector_wiring",
+        "controls_selector_motion",
+        "controls_meters",
+        "controls_meters_wiring",
+        "controls_banks",
+        "controls_banks_wiring",
+        "controls_ring",
+        "controls_ring_lens",
+        "controls_ring_wiring",
+        "controls_button_indicators",
+        "controls_button_wiring",
+        "controls_pot_body"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "sensor_harness_lid_guide",
+      "left": [
+        "sensor_harness"
+      ],
+      "right": [
+        "controls_lid",
+        "controls_guide"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "sensor_harness_cooling",
+      "left": [
+        "sensor_harness"
+      ],
+      "right": [
+        "cooling_installed",
+        "cooling_fans"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "sensor_harness_internal_fan",
+      "left": [
+        "sensor_harness"
+      ],
+      "right": [
+        "cooling_internal_harness"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "sensor_harness_external_fan",
+      "left": [
+        "sensor_harness"
+      ],
+      "right": [
+        "cooling_external_harness"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "panel_mates_sensor_harness",
+      "left": [
+        "panel_mates"
+      ],
+      "right": [
+        "sensor_harness"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "panel_mates_controls",
+      "left": [
+        "panel_mates"
+      ],
+      "right": [
+        "controls_display",
+        "controls_display_wiring",
+        "controls_selectors",
+        "controls_selector_wiring",
+        "controls_selector_motion",
+        "controls_meters",
+        "controls_meters_wiring",
+        "controls_banks",
+        "controls_banks_wiring",
+        "controls_ring",
+        "controls_ring_lens",
+        "controls_ring_wiring",
+        "controls_button_indicators",
+        "controls_button_wiring",
+        "controls_pot_body"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "panel_mates_lid_guide",
+      "left": [
+        "panel_mates"
+      ],
+      "right": [
+        "controls_lid",
+        "controls_guide"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "panel_mates_cooling",
+      "left": [
+        "panel_mates"
+      ],
+      "right": [
+        "cooling_installed",
+        "cooling_fans"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "panel_mates_internal_fan",
+      "left": [
+        "panel_mates"
+      ],
+      "right": [
+        "cooling_internal_harness"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "panel_mates_external_fan",
+      "left": [
+        "panel_mates"
+      ],
+      "right": [
+        "cooling_external_harness"
+      ],
+      "expect": "empty"
+    }
+  ],
+  "boards": {
+    "signal": "hardware/cad/two_board_sensor_05/signal_input/native-r7/signal_main.kicad_pcb",
+    "power": "hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/power_protection.kicad_pcb"
+  },
+  "unresolved": [
+    "These11 strict cross-fit checks cover the recent cable/mate integration, not every possible component pair. Other frozen local checks remain required.",
+    "Receiving allowances are not supplier-certified geometry; exact part/connector dimensions and physical qualification remain open.",
+    "Magnet,grub screw and actual spring coil lack separate installed source models; sensor registry records these omissions.",
+    "Remaining panel harness/splice physical routes and whole-board electrical/thermal work remain incomplete.",
+    "Default scene is one-piece structural geometry. Use --reservations and --motion for explicitly labeled allowances/sweeps."
+  ],
+  "fabrication_released": false
+}

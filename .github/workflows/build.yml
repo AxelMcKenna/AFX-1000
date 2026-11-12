@@ -20,6 +20,7 @@ jobs:
       - run: uv run --locked python -m hardware.firmware.control_map --check
       - run: uv run --locked python -m unittest discover -s tests/tooling
       - run: uv run --locked python -m unittest discover -s tests/hardware -p 'a*_integration_tests.py'
+      - run: uv run --locked python -m unittest tests.hardware.test_assembly_workflow hardware.cad.two_board_installation_06.workflow_adapter.test_pcb_freshness
   core:
     strategy:
       matrix:

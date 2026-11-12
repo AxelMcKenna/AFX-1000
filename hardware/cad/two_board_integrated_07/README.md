@@ -1,8 +1,10 @@
 # Combined housing fit checks
 
+New integration work uses the [unified assembly workflow](../assembly_workflow/README.md). This directory preserves the earlier explicit cross-fit evidence.
+
 The current modeled assembly combines the two main PCB allocations, display and selector carriers, 25 button indicators, meter/bank LEDs, RGB ring, revised knobs, populated sensor board and spring mechanism, sensor ribbon harness, and r9 fan pods and leads. The final guide uses `tbh07_connected_guide_variant()`; the superseded ring guide contains an unretained center island.
 
-The r9 external envelope is **363.6 × 192.4 × 45.6 mm**, excluding feet and external plugs. This is a candidate fit, not a fabrication or complete installed-fit release. The design currently has two main boards plus 34 passive control boards, a sensor PCB and Daisy Seed; literal two-physical-PCB compliance is unresolved.
+The r9 housing/cooling body envelope is **363.6 × 192.4 × 45.6 mm**, excluding raised controls, feet and external plugs. This is a candidate fit, not a fabrication or complete installed-fit release. The design currently has two main boards plus 34 passive control boards, a sensor PCB and Daisy Seed; literal two-physical-PCB compliance is unresolved.
 
 ## Evidence
 
@@ -16,7 +18,9 @@ The r9 external envelope is **363.6 × 192.4 × 45.6 mm**, excluding feet and ex
 
 Each runner binds recursive SCAD dependencies before and after rendering. It uses the authorized pinned isolated Linux OpenSCAD image, bounded runtime and fresh output directories. The macOS CAD runtime remains disabled. Earlier evidence remains immutable.
 
-- `trial15-corrected-harness-mates/review.json`: all five corrected sensor-harness checks pass. Five panel-mate checks pass, but the conditional mate envelopes overlap the ribbon by14.94994 mm³; sensor and installation workstreams are correcting this separate defect.
+- `trial15-corrected-harness-mates/review.json`: all five corrected sensor-harness checks pass. Five panel-mate checks pass, but the conditional mate envelopes overlap the ribbon by14.94994 mm³; trial16 corrects this separate defect.
+
+- `trial16-sensor-mates-repaired/review.json`: all six affected corrected-harness checks pass, including the panel mates.
 
 ## Remaining fit gates
 
