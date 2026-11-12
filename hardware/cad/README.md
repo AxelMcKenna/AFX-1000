@@ -105,3 +105,5 @@ Meshes and previews are written to `build/artifacts/cad/`; small verification re
 The rendering checks require the OpenSCAD backends used by the model. Their recorded scope and version are in the generated validation JSON. Mesh closure, clearances and source-level checks remain separate from a physical print or full-unit fit test.
 
 The [conditional panel ground-chain amendment](two_board_controls_04/panel_ground_amendment/README.md) updates the 29 switch terminal notes for the r12 electrical topology. It passes strict native ERC and exact panel netlist parity; formed wire routes remain under development.
+
+Current panel ground adjacency is in [panel_ground_r15](two_board_controls_04/panel_ground_r15/README.md), matching the selected formed harness. It supersedes the preserved r12 terminal schedule; all349 components and native pin nets remain unchanged, with strict ERC passing.
