@@ -8,7 +8,7 @@
     "hardware/cad/two_board_controls_04/workflow_adapter/registry.json",
     "hardware/cad/two_board_sensor_05/workflow_adapter/components.json",
     "hardware/cad/two_board_installation_06/workflow_adapter/registry.json",
-    "hardware/cad/two_board_installation_06/workflow_adapter/formed-ground-registry.json"
+    "hardware/cad/two_board_installation_06/workflow_adapter/left-ground-registry.json"
   ],
   "checks": [
     {
@@ -154,9 +154,11 @@
       "expect": "empty"
     },
     {
-      "id": "formed_ground_sensor",
+      "id": "left_ground_sensor",
       "left": [
-        "panel_ground_r13_exits"
+        "panel_ground_r14_left_feed",
+        "panel_ground_r14_left_links",
+        "panel_ground_r14_right_exit"
       ],
       "right": [
         "sensor_harness",
@@ -171,9 +173,11 @@
       "expect": "empty"
     },
     {
-      "id": "formed_ground_controls",
+      "id": "left_ground_controls",
       "left": [
-        "panel_ground_r13_exits"
+        "panel_ground_r14_left_feed",
+        "panel_ground_r14_left_links",
+        "panel_ground_r14_right_exit"
       ],
       "right": [
         "controls_display",
@@ -208,9 +212,11 @@
       "expect": "empty"
     },
     {
-      "id": "formed_ground_cooling",
+      "id": "left_ground_cooling",
       "left": [
-        "panel_ground_r13_exits"
+        "panel_ground_r14_left_feed",
+        "panel_ground_r14_left_links",
+        "panel_ground_r14_right_exit"
       ],
       "right": [
         "cooling_installed",
@@ -228,12 +234,12 @@
     "power": "hardware/fabrication/staging/two-board-power-aux-ground-reuse-native-01/power_protection.kicad_pcb"
   },
   "unresolved": [
-    "These11 strict cross-fit checks cover the recent cable/mate integration, not every possible component pair. Other frozen local checks remain required.",
+    "These14 strict cross-fit checks cover selected cable/mate integration, not every possible component pair. Frozen local checks remain required.",
     "Receiving allowances are not supplier-certified geometry; exact part/connector dimensions and physical qualification remain open.",
     "Magnet,grub screw and actual spring coil lack separate installed source models; sensor registry records these omissions.",
     "Remaining panel harness/splice physical routes and whole-board electrical/thermal work remain incomplete.",
     "Default scene is one-piece structural geometry. Use --reservations and --motion for explicitly labeled allowances/sweeps.",
-    "The r13 formed-ground role contains only two 12mm-radius source exits; downstream wire routes, exact terminations, supports and service slack remain incomplete. Its own panel-mate termination contact is not certified by these cross-fit checks."
+    "Selected r14 receiving geometry contains the formed19-button left ground chain and only the right source exit. Scene/selector branch, exact terminations, supports and service slack remain incomplete."
   ],
   "fabrication_released": false
 }

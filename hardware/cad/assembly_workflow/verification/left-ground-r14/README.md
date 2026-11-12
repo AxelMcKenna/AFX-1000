@@ -20,3 +20,7 @@ The source registries and frozen local evidence remain in their original paths.
 
 Supports, service slack, the scene/selector branch and physical terminal receiving
 qualification remain incomplete. This is not a fabrication release.
+
+## Corrected r4 selection
+
+The later r4 reroute clears the BPM display without changing terminal adjacency. All three current-assembly checks pass; `native-r4/`, `results-r4.json` and `review-r4.json` preserve the evidence. The active receiving geometry now selects this left chain and the unchanged right exit. The earlier failed r3 evidence above remains historical. Supports, service slack and the complete right branch remain open.
