@@ -1,0 +1,5 @@
+# Antagonistic self-review
+
+Initial parallel routing collided with ground links, selected S01, a holder and low front connector allocations. Those trials were rejected. Endpoint-only analysis proved scene1/scene3 terminal reservations were already obstructed by frozen ground; the dependency is explicitly corrected by additive r22 rather than moving terminals or waiving contact. Current routes include exact cage/splice/keyed guide and corrected S01, preventing the prior omitted-support defect from recurring.
+
+Changed source elevation and southern receiver approaches resolve physical crossings. Independent analytical arc reconstruction and tangent joins reject kinks; full-radius separation is checked against selected/mutual wires and other signal terminals. S03's inclined receiving approach and tight0.278291 mm nominal surface gap are explicit qualification limits. Final current root screening, physical preparation/supports and opening allowance remain outstanding. This is self-review, not independent review.
