@@ -15,7 +15,7 @@ for name in ['route.json','verification.json']:
  bind(p)
 checks={}
 for part in ['ground','structure','receiving','positive']:
- p=HERE/'native'/(part+'-r6')/'result.json';v=json.loads(p.read_text());assert not v['runtime_failure'] and v['empty']==(part!='positive')
+ p=HERE/'native'/(part+'-r10')/'result.json';v=json.loads(p.read_text());assert not v['runtime_failure'] and v['empty']==(part!='positive')
  if part=='positive':assert v['mesh']['closed_oriented_boundary'] and v['mesh']['volume_mm3']>0
  for key,h in v['source_sha256'].items():assert sha(REPO/key)==h;bind(REPO/key)
  bind(p);checks[part]=str(p.relative_to(REPO))
