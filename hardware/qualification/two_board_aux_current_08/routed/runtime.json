@@ -1,0 +1,19 @@
+{
+  "image": "kicad/kicad@sha256:c8f05703e865a1caa7266851cf4986dd01d5fb1148e4f63382b6a73466ba7e71",
+  "platform": "linux/amd64",
+  "network": "none",
+  "root_filesystem": "read-only",
+  "capabilities": "ALL dropped",
+  "no_new_privileges": true,
+  "baseline": "TBP73 two-board-power-aux-local-distribution-native-03, read-only mount",
+  "baseline_root_checkpoint": "e5e1c6e1",
+  "author_command": "python3 /work/routed/native.py /work /baseline /out",
+  "author_mounts": {"/work": "two_board_aux_current_08, read-only", "/baseline": "frozen TBP73 native stage, read-only", "/out": "routed/native-04, writable"},
+  "identity_command": "python3 /repo/hardware/qualification/two_board_aux_current_08/routed/identity_native.py /baseline/power_protection.kicad_pcb /out/power_protection.kicad_pcb /out",
+  "identity_mounts": {"/repo": "owned worktree, read-only for shared S-expression parser", "/baseline": "frozen TBP73 native stage, read-only", "/out": "routed/native-04, writable for evidence only"},
+  "visual_command": "python3 /work/visual_native.py /work/native-04/power_protection.kicad_pcb /out",
+  "native_mac_cad_used": false,
+  "accepted_board_written": false,
+  "final_native_output": "native-04",
+  "rejected_intermediate_outputs": ["native-01", "native-02", "native-03"]
+}
