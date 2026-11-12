@@ -1,5 +1,6 @@
 """Selected architecture's regulator operating requirements, not bench acceptance."""
-import json
+import hashlib,json
+from pathlib import Path
 from .candidate import calculate,HERE
 
 def calculate_preregulator():
@@ -11,7 +12,7 @@ def calculate_preregulator():
  ldo_loss=(hi-aux['conditional_interval_V'][0])*load+hi*ig
  buck_output_W=hi*(load+ig)+hi**2/(rtop+rb)
  buck_max_loss=(125-85)/61.6
- return {'selected_controller':'TPS62175DQCR','output_nominal_V':nom,'conditional_output_interval_V':[lo,hi],
+ return {'selected_controller':'TPS62175DQCR','source_sha256':{str(p.relative_to(HERE)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__),HERE/'candidate.py',HERE/'primary/tps62175.pdf',HERE/'primary/tps62175.txt']},'cold_start_sleep':{'source':'SLVSB35C section 8.4.4 final sentence; section 8.4.1; pin table','sleep_inhibited_until_soft_start_complete':True,'soft_start_ends_at_regulation':True,'SLEEP_VIH_V':.9,'VOUT_min_above_SLEEPhigh_V':lo-.9,'startup_time_max_s':None},'output_nominal_V':nom,'conditional_output_interval_V':[lo,hi],
   'R_top_ohm':rtop,'R_bottom_ohm':rb,'total_R_error_allocation':e,'FB_current_bound_at0V8_A':ib,
   'input_operating_scenario_V':[9.8,13.2],'controller_recommended_input_V':[4.75,28],
   'LDO_accuracy_headroom_margin_at_prereg_min_V':lo-aux['input_for_accuracy_V'],

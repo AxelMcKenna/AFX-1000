@@ -1,0 +1,357 @@
+                                                                                             Application Report
+                                                                                         SLVA543 – December 2012
+
+
+
+
+                                              Optimizing the TPS62175 Output Filter
+Chris Glaser                                                                   Low Power DC-DC Applications
+
+                                                    ABSTRACT
+                                         TM
+       The TPS62175 uses DCS-Control , which combines the advantages of hysteretic, voltage mode and current
+       mode control including an AC loop directly associated to the output voltage. This control loop takes information
+       about output voltage changes and feeds it directly to a fast comparator stage, providing an immediate
+       response to dynamic load changes. Use of this control topology allows for a wide range of inductor and output
+       capacitor values to accomplish specific design goals. The designer is able to optimize many factors such as
+       control loop stability, transient response, output voltage ripple, or maximum output current based on the needs
+       of the application. This application report discusses how to choose the output filter for the TPS62175 in order
+       to meet the requirements of a specific design.
+
+
+
+   1   Analyzing the Stability of the Design
+       The TPS62175 datasheet recommends inductance and capacitance ranges which support the majority of
+       designs. If for some specific application requirement these ranges must be exceeded, certain tradeoffs must
+       be made and the designer should consider many factors when choosing an inductor and output capacitor
+       combination. For example, lower inductances save board space because they can be physically smaller due
+       to fewer windings. However, this causes the peak switch current and output voltage ripple to increase. Larger
+       voltage ripple can be lowered by using a higher output capacitance, if the design can tolerate the larger size
+       and slower transient response.
+
+       The inductor and output capacitor values are also a key influence on stability. Regardless of what goals need
+       to be met through optimizing the output filter, the design has to be stable. The LC filter forms a double pole in
+       the control loop, which has a strong impact on the frequency response and system stability. Equation 1
+       calculates the corner frequency of the LC filter:
+
+
+                  1
+        ƒC =                                                                                                             (1)
+               2π LCout
+
+       The closed loop crossover frequency of the control loop determines how fast the device responds to changes
+       on the input and output. The control loop responds faster to load or line changes with higher crossover
+       frequencies. The crossover frequency moves lower with lower corner frequencies and vice versa. If the corner
+       frequency is too high, the crossover frequency also moves too high (too close to the switching frequency of
+       typically 1 MHz) and instability results. Additional output capacitance solves this by moving the corner
+       frequency lower.
+
+       Table 1 shows the stability of different LC combinations that have been tested with input voltages of 7.2 V, 12
+       V, and 24 V at a load current of 500 mA. All stability measurements were taken at 3.3-Vout. The measured
+       crossover frequency of every LC combination at a 12-V input voltage is shown. To calculate the corner
+       frequency, use the nominal inductor value and the nominal capacitor value de-rated by 50% to account for DC
+       bias. Capacitors rated at 6.3-V were used for the 3.3-V output.
+
+
+
+
+SLVA543 – December 2012                                                          Optimizing the TPS62175 Output Filter     1
+SLVA543
+
+
+
+                                       Nominal Ceramic Capacitance Value (effective = 1/2 nominal)
+                   Nominal              10 µF      22 µF       47 µF       100 µF         200 µF
+               Inductance Value                    Crossover Frequency at 12Vin (in kHz)
+                     4.7 µH                 465      276           206         113             77
+                     10 µH                  215      171           129          76             50
+                     22 µH                  134      109           88           52             33
+                     47 µH                  101       70           54           31             19
+
+
+                                     Recommended by the TPS62175 datasheet
+                                     Stable at 7.2-V, 12-V, and 24-V input voltage
+                                     Stable at 12-V and 24-V input voltages
+                                     Unstable for all input voltages
+
+
+                                 Table 1. TPS62175 Stability and Crossover Frequency
+        Table 1 shows those combinations recommended by the datasheet (colored in white) and additional
+        combinations that are stable for all three input voltages tested (colored in green). Blue-colored cells contain
+        combinations that were not stable at a 7.2-V input voltage and should only be used for higher input voltages.
+        Typically, stability improves with increasing input voltage. Finally, yellow-colored cells indicate combinations
+        that were never stable for any of the three input voltages tested.
+
+        Although the stable combinations in the table satisfy the requirements for control loop stability, certain
+        combinations may not work in every system due to other measures of performance, such as output voltage
+        ripple or load transient response. For more information on control loop measurement procedures, see the
+                                                                                                  TM
+        application report How to Measure Control Loop of TPS62130/40/50/60/70 DCS-Control Devices
+        (SLVA465A). For more information on determining the stability from the load-step response and Bode plot
+        measurements, see the application report Simplifying Stability Checks (SLVA381A). Using these application
+        reports, the LC filter combinations in Table 1 are determined to be stable because they have at least 30
+        degrees of phase before and at the crossover frequency, and they have less than three rings in the transient
+                                         TM
+        response. For the DCS-Control topology, phase margin at such high crossover frequencies is less
+        meaningful and the transient response is the primary indicator of stability.
+
+
+
+    2   Optimizing Load Transient Response
+
+        The transient (or load step) response can be optimized for a lower voltage drop or for a faster response.
+        When the load is quickly increased (or stepped), the output capacitor supplies the load with current until the
+        regulator reacts to the change and increases its output current. A larger output capacitor provides this current
+        with a smaller amount of output voltage drop; however, a smaller capacitor increases the bandwidth of the
+        device and provides faster response. Figure 1 shows the TPS62175 transient responses to a 200-mA to 500-
+        mA load step using a (a) 22-µF and (b) 47-µF output capacitor with a 10-µH inductor at 3.3-V out at 4.75-V
+        input voltage. The response with the 47-µF capacitor has approximately half the voltage drop. Note that
+        because the inductor current (Icoil) is not linear, but curved, during the recovery of the output voltage, this
+        indicates large signal affects (high-side MOSEFT R(DS)ON, inductor DCR, and so on) are coming into play over
+        the small signal control loop aspects. Thus, Figure 1a is not an indication of instability but rather shows the
+        typical behavior at lower input voltages, such as 4.75 V.
+
+
+
+2   Optimizing the TPS62175 Output Filter                                                      SLVA543 – December 2012
+                                                                                                              SLVA543
+
+
+                                                  Vout (AC) 50 mV / div
+
+
+
+                                                        Vin 1 V / div
+
+
+
+                                         Iload 200 mA / div
+                                         Icoil 200 mA / div
+
+                                                        5 µsec / div
+                                        (a)                                               (b)
+
+           Figure 1. TPS62175 Load Transient Response Using a (a) 22-µF and (b) 47-µF Output Capacitor
+
+       Figure 2 shows the TPS62175 closed-loop frequency response at a load of 500 mA and 3.3-Vout. Both plots
+       show a stable system for all three input voltages tested (7.2 V, 12 V, and 24 V).
+
+
+
+
+                                (a)                                                        (b)
+
+                                 Figure 2. TPS62175 Closed-Loop Frequency Response Using a
+
+                                               (a) 22-µF and (b) 47-µF Output Capacitor
+
+
+
+   3   Reducing Output Voltage Ripple
+
+       Output voltage ripple can pose a problem to processors that have tight voltage tolerances and systems that
+       are sensitive to power supply noise. Worst case ripple occurs in power save mode when the load is at its
+       lightest. At this operating point, each switching cycle transfers too much energy to the output such that the
+       output voltage rises above its setpoint. This allows the device to enter a standby state with minimal power
+       consumption and keep efficiency high at these light loads, but it also increases the output voltage ripple. The
+       output voltage ripple in power save mode can be approximated as:
+
+                 (Vin − Vout ) × Vin × t on2
+       ∆Vout ≅                                                                                                       (2)
+                    2 × L × Cout × Vout
+
+
+
+
+SLVA543 – December 2012                                                          Optimizing the TPS62175 Output Filter     3
+SLVA543
+        Where ton is estimated from Equation 3:
+
+                Vout
+        =
+        t on         × 1µs                                                                                         (3)
+                Vin
+
+        Increasing either the output capacitance or inductance reduces the ripple in power save mode. Figure 3
+        shows the output voltage ripple for a 3.3-Vout, 12-V input voltage system at no load with both a single 22-µF
+        output capacitor and two 22-µF output capacitors. The extra output capacitor reduces the ripple from 16.4 mV
+        to 10 mV.
+
+
+
+
+                                                    Vout (AC) 20 mV / div
+
+
+
+
+                                                       SW 5 V / div
+
+
+
+
+                                                          5 msec / div
+
+
+
+                                  (a)                                          (b)
+
+               Figure 3. TPS62175 Output Voltage Ripple Using a (a) 22-µF and (b) 2 x 22-µF Output Capacitor
+
+        Note that the 3.3-V DC bias on these 6.3-V rated output capacitors substantially reduces the effective output
+        capacitance, and when combined with device tolerances and propagation delays, the ripple increases above
+        the result of Equation 2. Use Equation 2 as a guideline for estimating the required output capacitance, and
+        then confirm with lab measurements.
+
+        The output voltage ripple in PWM mode is approximated using Equation 4. The same technique of increasing
+        the inductance and output capacitance also reduces the ripple in PWM mode. The ripple in PWM mode is
+        always lower than in power save mode.
+
+                    ∆IL
+        ∆Vout =                                                                                                    (4)
+              2π × ƒ sw × Cout
+
+                (Vin − Vout ) Vout   1
+    =∆IL                     ×     ×                                                                               (5)
+                     L         Vin ƒ sw
+
+        Where: ƒsw is the switching frequency of typically 1 MHz.
+
+
+
+
+4   Optimizing the TPS62175 Output Filter                                                    SLVA543 – December 2012
+                                                                                                                SLVA543
+   4   Increasing Maximum Output Current
+
+       The TPS62175 contains a built-in current limiting circuit which needs to be accounted for when choosing an
+       inductance. In order for the device to regulate properly, the peak inductor current needs to be less than the
+       high-side MOSFET forward current limit as stated in the data sheet. When choosing an inductance for a
+       reliable power supply, the minimum high-side forward current limit value (0.8 A) must be used to determine the
+       maximum allowable peak inductor current. Equation 5 and Equation 6 can be used to choose an inductance
+       that meets the peak output current requirements:
+
+                      ∆IL
+           = Iout +
+       IL max                                                                                                          (6)
+                       2
+
+
+       Equation 5 shows that the peak inductor current is inversely proportional to inductance. Thus, in order to
+       decrease the peak inductor current, a larger inductance must be used. For example, with an input voltage
+       of 12 V, the load is increased high enough to cause the device to enter current limit and reduce the output
+       voltage to 3 V from its 3.3-V setpoint. Figure 4 shows the output voltage in yellow, load current in blue, and
+       inductor current in red for two cases: (a) using a 4.7-µH inductor and (b) using a 47-µH inductor. Since the
+       device always limits the peak current to the same 1-A typical, the output current delivered is higher for the
+       larger inductance case. Specifically, the 47-µH circuit delivers 820 mA while the 4.7-µH circuit delivers only
+       650 mA of output current. Note that these are measured (typical) values, and they demonstrate that increasing
+       the inductance provides higher output currents. However, the above equations should be used to account for
+       worst case conditions and device tolerances when determining the maximum output current.
+
+                                                     Vout 500 mV / div
+
+
+
+
+                                                                   Iload 200 mA / div
+
+
+
+                                                    Icoil 200 mA / div
+
+               0 level for all traces
+                                                    1 µsec / div
+
+                                   (a)                                                   (b)
+
+                Figure 4. TPS62175 Maximum Output Current Using a (a) 4.7-µH and (b) 47-µH Inductor
+
+
+
+
+SLVA543 – December 2012                                                            Optimizing the TPS62175 Output Filter     5
+SLVA543
+    5    Conclusion
+
+        This application report has presented methods to analyze control loop stability, optimize transient response,
+        minimize output voltage ripple, and increase maximum output current for the TPS62175 device. The methods
+        presented in this application report and in the references show that a wider variety of external components can
+        be used to achieve the desired power supply performance when the datasheet recommended output filters are
+        not sufficient for the application. Using components outside of the datasheet recommendations has benefits
+        and tradeoffs across all measures of performance, such as stability, transient response, output ripple, power
+        save mode performance, efficiency, and so on. This application report discusses these tradeoffs and aids with
+        the design of a TPS62175 power supply.
+
+References
+
+        1.   Simplifying Stability Checks (SLVA381A).
+                                                                            TM
+        2.   How to Measure Control Loop of TPS62130/40/50/60/70 DCS-Control Devices (SLVA465A)
+        3.   TPS62175, 28V, 0.5A Step-Down Converter with Sleep Mode (SLVSB35A)
+                          TM
+        4.   DCS-Control Landing Page: http://www.ti.com/ww/en/analog/tps621x/
+
+
+
+
+6   Optimizing the TPS62175 Output Filter                                                     SLVA543 – December 2012
+                                                              IMPORTANT NOTICE
+Texas Instruments Incorporated and its subsidiaries (TI) reserve the right to make corrections, enhancements, improvements and other
+changes to its semiconductor products and services per JESD46, latest issue, and to discontinue any product or service per JESD48, latest
+issue. Buyers should obtain the latest relevant information before placing orders and should verify that such information is current and
+complete. All semiconductor products (also referred to herein as “components”) are sold subject to TI’s terms and conditions of sale
+supplied at the time of order acknowledgment.
+TI warrants performance of its components to the specifications applicable at the time of sale, in accordance with the warranty in TI’s terms
+and conditions of sale of semiconductor products. Testing and other quality control techniques are used to the extent TI deems necessary
+to support this warranty. Except where mandated by applicable law, testing of all parameters of each component is not necessarily
+performed.
+TI assumes no liability for applications assistance or the design of Buyers’ products. Buyers are responsible for their products and
+applications using TI components. To minimize the risks associated with Buyers’ products and applications, Buyers should provide
+adequate design and operating safeguards.
+TI does not warrant or represent that any license, either express or implied, is granted under any patent right, copyright, mask work right, or
+other intellectual property right relating to any combination, machine, or process in which TI components or services are used. Information
+published by TI regarding third-party products or services does not constitute a license to use such products or services or a warranty or
+endorsement thereof. Use of such information may require a license from a third party under the patents or other intellectual property of the
+third party, or a license from TI under the patents or other intellectual property of TI.
+Reproduction of significant portions of TI information in TI data books or data sheets is permissible only if reproduction is without alteration
+and is accompanied by all associated warranties, conditions, limitations, and notices. TI is not responsible or liable for such altered
+documentation. Information of third parties may be subject to additional restrictions.
+Resale of TI components or services with statements different from or beyond the parameters stated by TI for that component or service
+voids all express and any implied warranties for the associated TI component or service and is an unfair and deceptive business practice.
+TI is not responsible or liable for any such statements.
+Buyer acknowledges and agrees that it is solely responsible for compliance with all legal, regulatory and safety-related requirements
+concerning its products, and any use of TI components in its applications, notwithstanding any applications-related information or support
+that may be provided by TI. Buyer represents and agrees that it has all the necessary expertise to create and implement safeguards which
+anticipate dangerous consequences of failures, monitor failures and their consequences, lessen the likelihood of failures that might cause
+harm and take appropriate remedial actions. Buyer will fully indemnify TI and its representatives against any damages arising out of the use
+of any TI components in safety-critical applications.
+In some cases, TI components may be promoted specifically to facilitate safety-related applications. With such components, TI’s goal is to
+help enable customers to design and create their own end-product solutions that meet applicable functional safety standards and
+requirements. Nonetheless, such components are subject to these terms.
+No TI components are authorized for use in FDA Class III (or similar life-critical medical equipment) unless authorized officers of the parties
+have executed a special agreement specifically governing such use.
+Only those TI components which TI has specifically designated as military grade or “enhanced plastic” are designed and intended for use in
+military/aerospace applications or environments. Buyer acknowledges and agrees that any military or aerospace use of TI components
+which have not been so designated is solely at the Buyer's risk, and that Buyer is solely responsible for compliance with all legal and
+regulatory requirements in connection with such use.
+TI has specifically designated certain components as meeting ISO/TS16949 requirements, mainly for automotive use. In any case of use of
+non-designated products, TI will not be responsible for any failure to meet ISO/TS16949.
+Products                                                           Applications
+Audio                                www.ti.com/audio              Automotive and Transportation      www.ti.com/automotive
+Amplifiers                           amplifier.ti.com              Communications and Telecom         www.ti.com/communications
+Data Converters                      dataconverter.ti.com          Computers and Peripherals          www.ti.com/computers
+DLP® Products                        www.dlp.com                   Consumer Electronics               www.ti.com/consumer-apps
+DSP                                  dsp.ti.com                    Energy and Lighting                www.ti.com/energy
+Clocks and Timers                    www.ti.com/clocks             Industrial                         www.ti.com/industrial
+Interface                            interface.ti.com              Medical                            www.ti.com/medical
+Logic                                logic.ti.com                  Security                           www.ti.com/security
+Power Mgmt                           power.ti.com                  Space, Avionics and Defense        www.ti.com/space-avionics-defense
+Microcontrollers                     microcontroller.ti.com        Video and Imaging                  www.ti.com/video
+RFID                                 www.ti-rfid.com
+OMAP Applications Processors         www.ti.com/omap               TI E2E Community                   e2e.ti.com
+Wireless Connectivity                www.ti.com/wirelessconnectivity
+
+
+                             Mailing Address: Texas Instruments, Post Office Box 655303, Dallas, Texas 75265
+                                            Copyright © 2013, Texas Instruments Incorporated
+
