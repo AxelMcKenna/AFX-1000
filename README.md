@@ -46,32 +46,52 @@ Panel boards and bought-in modules are additional; “two boards” describes th
 
 | Current board | Functions | Overall size | Checked routing status |
 | --- | --- | --- | --- |
-| [Signal main](hardware/fabrication/staging/two-board-signal-routed-native-03/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 251 open connections; zero geometry/ERC findings; missing ESS codec footprint |
-| [Power/protection](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 2,172 open connections; zero geometry/parity/ERC errors; two retained isolated-reference warnings |
+| [Signal main](hardware/cad/two_board_sensor_05/signal_input/native-r7/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 230 open connections; zero geometry/ERC findings; missing ESS codec footprint |
+| [Power/protection](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 1,943 open connections; zero geometry/parity/ERC errors; two retained isolated-reference warnings |
 
-The signal PCB has 466 placed electrical footprints and one unplaced ESS codec. The power PCB has 1,086 electrical components. Its latest checked revision closes **27 connections**, completing local bypass and ground returns for all eleven U18–U28 startup ICs. All **1,555 retained reference checks** and 18 new paths pass; previous startup-reference repairs and all seven quiet-ground networks are preserved. **These eleven ICs still need their auxiliary source connections.** Across the AUX rail, 73 of 81 IC supply pins remain unconnected to the regulator. The startup-net survey records **58 missing joins across 32 nets**, in addition to supply/ground work. See the [recorded fabrication status](hardware/fabrication/staging/two-board-fabrication-status-50/status.json) for the exact projects and verification results.
+The [current signal candidate](hardware/cad/two_board_sensor_05/signal_input/README.md) has 230 opens, 466 placed electrical footprints and one unplaced ESS codec. Its I2C and input-stage routing remain subject to complete-board and analog-performance qualification. The power PCB has 1,086 electrical components. The latest verified working candidate, **TBP71**, has **1,943 opens** after 49 new auxiliary bypass-ground connections. Its audit preserves all 2,521 prior reference cases, all eleven supply fields and seven quiet-ground networks; all 49 new vias reach the main In1/In6 ground fields. AUX now has 72 of 87 capacitor ground pins connected, but 72 of 81 IC supply pins still lack regulator connections. See the [TBP71 evidence](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/final-review.json) and [current AUX inventory](hardware/fabrication/staging/two-board-aux-distribution-survey-05/inventory.json). Earlier checkpoint counts retain their original revision scope.
 
 ### Current PCB layouts
 
-These are native KiCad exports of the current copper layouts, with incomplete routing and return paths. The power preview shows the current bottom copper and latest local startup bypass, ground and reference repairs. Click either image for its native SVG; other layers are linked below.
+These are native KiCad exports with incomplete routing and return paths. The signal image is the earlier signal03 baseline; the current input-r7 project is linked above. The power preview shows TBP71 bottom copper; the linked inner layers contain the updated ground references. Click either image for its native SVG; other layers are linked below.
 
 **Signal main — Daisy Seed 3 and audio/control circuitry**
 
-[![Current signal main PCB: actual front copper](hardware/fabrication/staging/two-board-signal-routed-native-03/plots/front.png)](hardware/fabrication/staging/two-board-signal-routed-native-03/plots/front.svg)
+[![Earlier signal03 baseline: actual front copper](hardware/fabrication/staging/two-board-signal-routed-native-03/plots/front.png)](hardware/fabrication/staging/two-board-signal-routed-native-03/plots/front.svg)
 
 [Bottom copper](hardware/fabrication/staging/two-board-signal-routed-native-03/plots/back.png) · [All layers and signal-board evidence](hardware/fabrication/staging/two-board-signal-routed-native-03/README.md)
 
-**Power/protection — C-shaped board, latest checked startup-cell revision**
+**Power/protection — C-shaped board, TBP71 control routing and ground returns**
 
-[![Current power protection PCB: TBP50 completed local startup cells](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/plots/back.png)](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/plots/back.svg)
+[![Current power protection PCB: TBP71 verified working candidate](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/plots/back.png)](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/plots/back.svg)
 
-[Front copper](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/plots/front.png) · [Bottom copper](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/plots/back.png) · [All layers and power-board evidence](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/README.md)
+[Front copper](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/plots/front.png) · [Bottom copper](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/plots/back.png) · [All layers and power-board evidence](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/README.md)
 
 ### Housing and fabrication status
 
-The [larger housing proposal](hardware/cad/a12/README.md) and board placement checks provide a starting point, but **complete installed fit has not been verified**. Supports, cooling, connector mates, cable bends and dimensional tolerances still need a coordinated mechanical review. Retired internal return studs also require qualified PCB return paths and updated bar/harness hardware. Both boards currently use a provisional eight-layer template; the fabrication stack is not accepted.
+The [combined assembly checks](hardware/cad/two_board_integrated_07/README.md) now include control carriers, populated sensor, revised lever and cooling. The latest candidate still has a sensor ribbon/connector receiving-envelope clash; it is not ready for complete assembly or fabrication.
 
-Remaining work includes the approved ESS package/land/stencil inputs, module protection and startup limits, final inter-board interfaces, critical placement and electrical checks, all remaining routing, exact BOM and assembly requirements, and reviewed manufacturing outputs. The [latest power-board review](hardware/fabrication/staging/two-board-power-startup-remaining-native-03/README.md) records the current checks and remaining work; the [fabrication inventory](hardware/fabrication/README.md) retains detailed engineering history.
+For the earlier sealed unpowered prototype, start with the [print-first kit](hardware/cad/two_board_print_02/TBH01-r6-print-first-kit.zip) and [print order](hardware/cad/two_board_print_02/README.md): test the four core coupons, then print the tray before the lid. The minimum case uses three one-piece parts or twelve split pieces.
+
+The sealed [TBH01 r6 housing package](hardware/cad/two_board_print_01/README.md) is available for an **unpowered fit prototype**, with 67 checked STL designs, actual PCB supports, a removable lid and bolted split parts. [Download the print package](hardware/cad/two_board_print_01/TBH01-r6-print-package.zip). The largest split part is **175 × 192.4 × 43.6 mm**, before brim. Printer compatibility and print duration require the actual printer and material.
+
+**Sealed r6 housing CAD renders** — generated from the delivered r6 STL geometry. Controls and fasteners are omitted; these views show the unpowered fit prototype.
+
+[![Assembled r6 housing with control-panel apertures, viewed from the front](docs/assets/hardware/tbh01-r6-front.png)](docs/assets/hardware/tbh01-r6-front.png)
+
+| Rear connector panel | Open shell and PCB supports |
+| --- | --- |
+| [![Rear view of the r6 housing and removable connector panel](docs/assets/hardware/tbh01-r6-rear.png)](docs/assets/hardware/tbh01-r6-rear.png) | [![Open r6 housing showing the internal mounting posts](docs/assets/hardware/tbh01-r6-open.png)](docs/assets/hardware/tbh01-r6-open.png) |
+
+[Housing and two-board placement overview](hardware/cad/two_board_print_01/preview-r6.png)
+
+For the lever, use the [TBH03-r5 retention add-on](hardware/cad/two_board_print_03/TBH03-lever-retention-r5.zip) and its [assembly instructions](hardware/cad/two_board_print_03/README.md). Its replacement bracket and removable bearing cap replace the original r6 lever bracket and provide a checked rigid assembly path. Fourteen delivered STLs, fifteen clearance/assembly checks and four retention/stop checks pass independent review. The housing and lever arm remain unchanged.
+
+[![Current lever CAD assembly with replacement bracket, removable bearing cap and thrust shims](hardware/cad/two_board_print_03/preview-r5.png)](hardware/cad/two_board_print_03/preview-r5.png)
+
+The newer selector/display/LED/sensor carriers and lever spring/magnet assemblies have modeled verification. Complete harness integration, actual-part receiving and operating cooling remain unfinished. The CAD supports use the TBP61 placement snapshot; TBP62–66 preserve those board outlines, mounts and component positions. Both boards use a provisional eight-layer template; the manufacturing stack is not accepted.
+
+Remaining work includes full routing and current returns, approved ESS package/land/stencil inputs, loaded power and startup checks, AUX distribution, installed thermal and assembly qualification, exact BOM and reviewed manufacturing outputs. The [latest power-board review](hardware/fabrication/staging/two-board-power-aux-cap-ground-native-01/README.md) records the current checks; the [fabrication inventory](hardware/fabrication/README.md) retains detailed engineering history.
 
 The [standalone firmware candidate](hardware/firmware/full_engine/README.md) builds the shared DSP engine with 152 parameters, bounded SDRAM storage and control-fault recovery. Full-unit hardware operation remains to be qualified.
 

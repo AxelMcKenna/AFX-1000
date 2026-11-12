@@ -3,8 +3,9 @@
 Current completion work adds [BPM/selector carriers and breakout boards](two_board_controls_04/README.md),
 a [sensor carrier and spring assembly](two_board_sensor_05/README.md), and an
 [external fan-pod alternative](two_board_installation_06/README.md).
-[Combined addon checks](two_board_integrated_07/README.md) found a sensor harness clash
-with the scene-depth pot receiving allocation. The final fan routes clear the
+[Combined addon checks](two_board_integrated_07/README.md) verified the corrected sensor clamp
+against the scene-depth pot allocation, but found a new overlap between the
+ribbon and conditional panel connector receiving boxes. The final fan routes clear the
 controls and guide; complete harness integration and physical/thermal acceptance
 remain open. They do not
 silently replace the sealed r6 print package below.

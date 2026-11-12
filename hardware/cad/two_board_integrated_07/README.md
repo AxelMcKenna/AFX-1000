@@ -11,10 +11,12 @@ The r9 external envelope is **363.6 × 192.4 × 45.6 mm**, excluding feet and ex
 - `trial10-support-contacts/review.json`: new supports and fasteners clear the lid/guide. The old and new full pod share the same zero-volume lid seating contact; this is recorded separately, not called a strictly empty intersection.
 - `trial11-ring-terminal/review.json`: seven checks covering the RGB ring and detailed fan terminal routes. Its guide is superseded for printing.
 - `trial13-internal-probe/review.json`: split internal fan route clears the complete controls.
-- `trial14-complete-split/`: found a 9.48536 mm³ sensor harness/control interference at X249.363..252, Y70..73.2499, Z29.1..31.6, within the scene-depth pot receiving allocation. This is an unresolved integration defect assigned to the sensor workstream.
+- `trial14-complete-split/`: found a 9.48536 mm³ sensor harness/control interference at X249.363..252, Y70..73.2499, Z29.1..31.6, within the scene-depth pot receiving allocation. The relocated clamp fixes this defect in trial15.
 - `trial12-complete-controls/`: the first three combined final-control checks are empty. The full internal-plus-external fan CSG operation timed out at 60 seconds and its container was stopped; no result is claimed for that case. See `timeout-diagnosis.json` for the split-check approach.
 
 Each runner binds recursive SCAD dependencies before and after rendering. It uses the authorized pinned isolated Linux OpenSCAD image, bounded runtime and fresh output directories. The macOS CAD runtime remains disabled. Earlier evidence remains immutable.
+
+- `trial15-corrected-harness-mates/review.json`: all five corrected sensor-harness checks pass. Five panel-mate checks pass, but the conditional mate envelopes overlap the ribbon by14.94994 mm³; sensor and installation workstreams are correcting this separate defect.
 
 ## Remaining fit gates
 

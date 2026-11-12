@@ -1,22 +1,23 @@
 # Current hardware designs
 
-The two-board development selection is recorded in [TBP50](../staging/two-board-fabrication-status-50/status.json).
+The latest verified power-board working candidate is [TBP71](../staging/two-board-power-aux-cap-ground-native-01/final-review.json).
+[TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
-| Signal main | [KiCad project](../staging/two-board-signal-routed-native-03/signal_main.kicad_pro) | [251 opens and missing codec footprint](../staging/two-board-signal-routed-native-03/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-startup-remaining-native-03/power_protection.kicad_pro) | [2,172 opens; AUX source distribution unfinished](../staging/two-board-power-startup-remaining-native-03/README.md) |
+| Signal main | [KiCad project](../../cad/two_board_sensor_05/signal_input/native-r7/signal_main.kicad_pro) | [230 opens and missing codec footprint](../../cad/two_board_sensor_05/signal_input/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-aux-cap-ground-native-01/power_protection.kicad_pro) | [1,943 opens; AUX source distribution unfinished](../staging/two-board-power-aux-cap-ground-native-01/README.md) |
 
-Current supporting inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
+Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
-[AUX distribution](../staging/two-board-aux-distribution-survey-02/README.md).
+[current AUX distribution](../staging/two-board-aux-distribution-survey-05/inventory.json).
 The [fabrication inventory](../README.md) records remaining electrical, mechanical,
 manufacturing and qualification work. The earlier module-level selections in
 [scope.json](../scope.json) remain reference checkpoints for the consolidation.
 
 Browse [retained experiments](../experiments/README.md) separately. The
-[complete catalog](../workspace-catalog.json) distinguishes current designs,
+[workspace catalog](../workspace-catalog.json) records the earlier TBP50 selection,
 module references, immediate review inputs, and retained history/experiments.
 These categories organize the workspace; they do not change any review's scope.
 
