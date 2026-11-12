@@ -2,12 +2,15 @@
 from pathlib import Path
 import json,csv,hashlib,xml.etree.ElementTree as ET
 from collections import Counter
+from hardware.cad.two_board_installation_06.r19_panel_inventory.anode_graph import validate_anodes
 HERE=Path(__file__).resolve().parent;BASE=HERE.parent;REPO=HERE.parents[3];sources=[]
 def read(p):sources.append(p);return json.loads(p.read_text())
 p=read(BASE/'r11_distribution/reference/panel-contract.json');a=read(BASE/'r11_distribution/anode-topology.json');g=read(BASE/'r15_right_ground/ground-contract.json');interfaces=read(BASE/'r7/interface-manifest.json');mates=read(BASE/'r10_interfaces/mate-envelopes.json')
 x=BASE/'r11_distribution/reference/signal-netlist.xml';sources.append(x)
 nets={(node.get('ref'),node.get('pin')):net.get('name') for net in ET.parse(x).findall('.//nets/net') for node in net.findall('node')}
 pads={(i['reference'],v['pin']):v for i in interfaces['interfaces'] for v in i['pads']}
+anode_validation=validate_anodes(a,nets,pads)
+sources.append(HERE/'anode_graph.py')
 wires=[]
 def add(kind,ref,pin,net,target):
  assert nets[ref,pin]==net and pads[ref,pin]['net']==net
@@ -35,10 +38,11 @@ assert len(used)==164
 refs={key.split(':')[0] for key in used};selected={m['ref'] for m in mates['mates']};cavities=[]
 for ref,pin in sorted(pads):
  if ref not in refs:continue
+ assert pads[ref,pin]['net']==nets[ref,pin],('captured cavity net mismatch',ref,pin)
  key=ref+':'+pin;cavities.append(dict(id=key,net=nets[ref,pin],used=key in used,xy_mm=pads[ref,pin]['xy'],mate_status='conditional_receiving_selected' if ref in selected else 'unselected',outgoing_wires=[w for w in wires if w['source']==key],ground_feed=key in ['D_J2002:15','D_J2002:16']))
 assert len(cavities)==171
 assert {c['id'] for c in cavities if not c['used']}=={'D_J2001:15','D_J2001:16','D_J2003:1',*[f'D_J300{i}:26' for i in range(2,6)]}
 assert len({w['source'] for w in wires if w['kind']!='anode_distribution'})==158
 sources.append(Path(__file__))
-out=dict(source_sha256={str(f.relative_to(REPO)):hashlib.sha256(f.read_bytes()).hexdigest() for f in sources},counts=counts,remaining_unrouted_segments=230,formed_ground_segments=32,planned_total_external_segments=262,anode_splices=34,anode_receivers=38,main_header_cavities=171,used_cavities=164,unused_cavities=7,cavities=cavities,wires=wires,scope='Panel inputs, pots and LED sinks/anode distribution only. Other installation interfaces remain in r7 inventory. Ground follows r15 rather than superseded r11 ground topology.',complete_harness=False,fabrication_released=False)
+out=dict(source_sha256={str(f.relative_to(REPO)):hashlib.sha256(f.read_bytes()).hexdigest() for f in sources},counts=counts,anode_validation=anode_validation,remaining_unrouted_segments=230,formed_ground_segments=32,planned_total_external_segments=262,anode_splices=34,anode_receivers=38,main_header_cavities=171,used_cavities=164,unused_cavities=7,cavities=cavities,wires=wires,scope='Panel inputs, pots and LED sinks/anode distribution only. Other installation interfaces remain in r7 inventory. Ground follows r15 rather than superseded r11 ground topology.',complete_harness=False,fabrication_released=False)
 (HERE/'inventory.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(counts))
