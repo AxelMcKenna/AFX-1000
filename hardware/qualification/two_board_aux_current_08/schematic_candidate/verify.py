@@ -25,9 +25,9 @@ def check_pins(old_refs,op,np,expected,new_parts):
    if net is None:assert got.startswith('unconnected-'),(part['ref'],pin,got)
    else:assert got==(net if net.startswith('PWR_') else ('/P_power_supply/' if part['ref'].startswith('P_') else '/E_rail_disconnect/')+net),(part['ref'],pin,net,got)
  return moves
-def verify(baseline=None):
- a=HERE/'authored';n=HERE/'native-03';m=json.loads((a/'candidate.json').read_text());assert m['builder_sha256']==H(HERE/'build.py')
- baseline=Path(baseline) if baseline else HERE.parents[3]/'hardware/fabrication/staging'/m['source_directory']
+def verify(baseline=None,here=HERE):
+ a=here/'authored';n=here/'native-03';m=json.loads((a/'candidate.json').read_text());assert m['builder_sha256']==H(here/'build.py')
+ baseline=Path(baseline) if baseline else here.parents[3]/'hardware/fabrication/staging'/m['source_directory']
  assert baseline.is_dir(),('frozen baseline missing; pass its directory explicitly',str(baseline))
  check_hashes(a,json.loads((n/'candidate-input-hashes.json').read_text()))
  check_hashes(baseline,json.loads((n/'baseline-input-hashes.json').read_text()))
@@ -36,19 +36,19 @@ def verify(baseline=None):
  assert set(new)-set(old)=={p['ref'] for p in m['new_parts']};assert not set(old)-set(new)
  changed={r:(old[r].findtext('value'),new[r].findtext('value')) for r in old if old[r].findtext('value')!=new[r].findtext('value')}
  assert changed=={r['ref']:(r['old_value'],r['new_value']) for r in m['changed_values']}
- expected={(r,p):('/P_power_supply/' if r.startswith('P_') else '/E_rail_disconnect/')+net for r,p,net in m['retargeted_existing_pins']}
+ expected={(r,p):(net if net.startswith('PWR_') else ('/P_power_supply/' if r.startswith('P_') else '/E_rail_disconnect/')+net) for r,p,net in m['retargeted_existing_pins']}
  moves=check_pins(set(old),op,np,expected,m['new_parts'])
  assert issues(n/'baseline-erc.json')==issues(n/'candidate-erc.json')
  # Existing source pin partition is preserved everywhere outside four declared moves.
  # Pin-name and numeric mapping of added ICs remains primary-datasheet review.
- with (HERE/'candidate-bom.csv').open('w') as f:
+ with (here/'candidate-bom.csv').open('w') as f:
   w=csv.writer(f);w.writerow(['reference','value','MPN','footprint','datasheet'])
   for r,c in sorted(new.items()):
    fields={x.attrib['name']:x.text or '' for x in c.findall('./fields/field')}
    w.writerow([r,c.findtext('value'),fields.get('MPN',''),c.findtext('footprint'),c.findtext('datasheet')])
- report=dict(native_ERC_added_violations=0,inherited_ERC=issues(n/'candidate-erc.json'),existing_components=len(old),new_components=len(new)-len(old),changed_values=len(changed),existing_pins_moved=len(moves),all_other_existing_pin_nets_unchanged=True,existing_pin_union_checked=True,added_pin_sets_exact=True,baseline_original_input_hashes_verified=True,new_part_pin_mapping_verified=True,board_emitted=False,fabrication_released=False,
- source_sha256={str(p.relative_to(HERE)):H(p) for p in [HERE/'build.py',HERE/'native.py',HERE/'verify.py',*sorted(a.rglob('*.kicad_sch')),*sorted(a.rglob('*.kicad_sym')),a/'candidate.json',*sorted(n.glob('*.json')),*sorted(n.glob('*.xml'))]},
+ report=dict(verification_engine_sha256=H(Path(__file__)),native_ERC_added_violations=0,inherited_ERC=issues(n/'candidate-erc.json'),existing_components=len(old),new_components=len(new)-len(old),changed_values=len(changed),existing_pins_moved=len(moves),all_other_existing_pin_nets_unchanged=True,existing_pin_union_checked=True,added_pin_sets_exact=True,baseline_original_input_hashes_verified=True,new_part_pin_mapping_verified=True,board_emitted=False,fabrication_released=False,
+ source_sha256={str(p.relative_to(here)):H(p) for p in [here/'build.py',here/'native.py',here/'verify.py',*sorted(a.rglob('*.kicad_sch')),*sorted(a.rglob('*.kicad_sym')),a/'candidate.json',*sorted(n.glob('*.json')),*sorted(n.glob('*.xml'))]},
  missing_new_footprints=[p['ref'] for p in m['new_parts'] if not p['footprint']])
- (HERE/'verification.json').write_text(json.dumps(report,indent=2)+'\n');print({k:v for k,v in report.items() if k not in ['source_sha256','inherited_ERC']})
+ (here/'verification.json').write_text(json.dumps(report,indent=2)+'\n');print({k:v for k,v in report.items() if k not in ['source_sha256','inherited_ERC']})
  return report
 if __name__=='__main__':verify(sys.argv[1] if len(sys.argv)>1 else None)
