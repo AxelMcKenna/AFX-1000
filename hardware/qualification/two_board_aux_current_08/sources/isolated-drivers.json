@@ -1,0 +1,1020 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/analyze_two_board_aux_isolated_drivers.py": "099b090a28d7b16a252173670bfed4453ef7b9e135b0375b2498af13098d469f",
+    "hardware/fabrication/staging/two-board-power-startup-remaining-native-03/netlist.xml": "80894d753180973c8eb47d173049341d3fe037cefe283f06f15df9d1ccf59abc",
+    "hardware/fabrication/staging/two-board-power-startup-remaining-native-03/review.json": "ac70176764093e9317923d72502e2ac499189405685f84595cc9d1114d84d3b4",
+    "hardware/fabrication/staging/two-board-aux-current-reconciliation-01/output-loads.json": "45b0a09c58006ff83922c9246f916d4b5ddbf72298940e577ece37c015f1d02b",
+    "hardware/fabrication/staging/two-board-aux-resistor-networks-01/analysis.json": "ce8dde765a31b109a626dcbf7027a79319ec2111845546bbf9cb26e306e82182",
+    "hardware/fabrication/staging/two-board-aux-reference-amplifier-01/analysis.json": "0b0dc87933b346d6dc4da0395d757108a8d35613ee57de8935f94e091a2748fd",
+    "hardware/fabrication/assess_two_board_aux_load.py": "8ae0c1f330101c1b10d9930c20906350a12874465855816b0d9811a1af7b3a47",
+    "hardware/qualification/boards/aux_current_partition/sources/primary/Si8751.pdf": "bad875e9f53f558e6b9e7896ff624157de6b1962af2baee26bb6e2ca68ca3c66",
+    "hardware/qualification/boards/aux_current_partition/sources/primary/SN74AUP2G08.pdf": "68870919ee4edc84368e54be8d07d46ad8ec72faa1997dfd3901fde0e5f8b1ef",
+    "hardware/qualification/boards/startup_negative_protection/sources/primary/csd18540q5b.pdf": "2e43c4a2ac82af8a089be0a9e413282326f8d7857254ac07390b458deca854e0"
+  },
+  "selected_revision": "TBP50",
+  "drivers": [
+    {
+      "ref": "E_U1",
+      "part": "SI8751AB-ISR",
+      "pins": {
+        "3": "E_rail_disconnect/P19_ALLOW",
+        "5": "E_rail_disconnect/P19_COMMON",
+        "8": "E_rail_disconnect/P19_DRIVE",
+        "7": "E_rail_disconnect/P19_MCAP1",
+        "6": "E_rail_disconnect/P19_MCAP2",
+        "2": "E_rail_disconnect/P19_TT",
+        "4": "PWR_AGND",
+        "1": "PWR_V2V5_AUX"
+      },
+      "series": {
+        "ref": "E_R4",
+        "value": "100 1%",
+        "nominal_ohm": 100.0,
+        "pins": {
+          "1": "E_rail_disconnect/E28_MASTER_ENABLE",
+          "2": "E_rail_disconnect/P19_ALLOW"
+        }
+      },
+      "pulldown": {
+        "ref": "E_R5",
+        "value": "10k 1%",
+        "nominal_ohm": 10000.0,
+        "pins": {
+          "1": "E_rail_disconnect/P19_ALLOW",
+          "2": "PWR_AGND"
+        }
+      },
+      "timing": {
+        "ref": "E_R3",
+        "value": "10k 1%",
+        "nominal_ohm": 10000.0,
+        "pins": {
+          "1": "E_rail_disconnect/P19_TT",
+          "2": "PWR_AGND"
+        }
+      },
+      "gate_series": {
+        "ref": "E_R1",
+        "value": "22 1%",
+        "nominal_ohm": 22.0,
+        "pins": {
+          "1": "E_rail_disconnect/P19_DRIVE",
+          "2": "E_rail_disconnect/P19_GATE"
+        }
+      },
+      "gate_pulldown": {
+        "ref": "E_R2",
+        "value": "20M 1%",
+        "nominal_ohm": 20000000.0,
+        "pins": {
+          "2": "E_rail_disconnect/P19_COMMON",
+          "1": "E_rail_disconnect/P19_GATE"
+        }
+      },
+      "gate_net": "E_rail_disconnect/P19_GATE",
+      "common_net": "E_rail_disconnect/P19_COMMON",
+      "FETs": [
+        {
+          "ref": "E_Q1",
+          "part": "CSD18540Q5B",
+          "pins": {
+            "1": "E_rail_disconnect/P19_COMMON",
+            "2": "E_rail_disconnect/P19_GATE",
+            "3": "PWR_P19_SRC"
+          }
+        },
+        {
+          "ref": "E_Q2",
+          "part": "CSD18540Q5B",
+          "pins": {
+            "1": "E_rail_disconnect/P19_COMMON",
+            "2": "E_rail_disconnect/P19_GATE",
+            "3": "PWR_P19"
+          }
+        }
+      ],
+      "miller_capacitors": [
+        {
+          "driver_pin": "7",
+          "capacitor": "E_C2",
+          "value": "10pF 100V C0G 5%",
+          "capacitor_pins": {
+            "2": "E_rail_disconnect/P19_MCAP1",
+            "1": "E_rail_disconnect/P19_MCAP1_LIMIT"
+          },
+          "series_limit": {
+            "ref": "E_R6",
+            "value": "15k 1%",
+            "nominal_ohm": 15000.0,
+            "pins": {
+              "2": "E_rail_disconnect/P19_MCAP1_LIMIT",
+              "1": "PWR_P19_SRC"
+            }
+          },
+          "drain_net": "PWR_P19_SRC"
+        },
+        {
+          "driver_pin": "6",
+          "capacitor": "E_C3",
+          "value": "10pF 100V C0G 5%",
+          "capacitor_pins": {
+            "2": "E_rail_disconnect/P19_MCAP2",
+            "1": "E_rail_disconnect/P19_MCAP2_LIMIT"
+          },
+          "series_limit": {
+            "ref": "E_R7",
+            "value": "15k 1%",
+            "nominal_ohm": 15000.0,
+            "pins": {
+              "2": "E_rail_disconnect/P19_MCAP2_LIMIT",
+              "1": "PWR_P19"
+            }
+          },
+          "drain_net": "PWR_P19"
+        }
+      ],
+      "external_clamp": null,
+      "gate_contacts": [
+        {
+          "ref": "E_Q1",
+          "pin": "2",
+          "pinfunction": "GATE_GROUP_2",
+          "pintype": "input"
+        },
+        {
+          "ref": "E_Q2",
+          "pin": "2",
+          "pinfunction": "GATE_GROUP_2",
+          "pintype": "input"
+        },
+        {
+          "ref": "E_R1",
+          "pin": "2",
+          "pinfunction": "2_2",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_R2",
+          "pin": "1",
+          "pinfunction": "1_1",
+          "pintype": "passive"
+        }
+      ],
+      "common_contacts": [
+        {
+          "ref": "E_Q1",
+          "pin": "1",
+          "pinfunction": "SOURCE_GROUP_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_Q2",
+          "pin": "1",
+          "pinfunction": "SOURCE_GROUP_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_R2",
+          "pin": "2",
+          "pinfunction": "2_2",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_U1",
+          "pin": "5",
+          "pinfunction": "SOURCE_5",
+          "pintype": "passive"
+        }
+      ]
+    },
+    {
+      "ref": "E_U2",
+      "part": "SI8751AB-ISR",
+      "pins": {
+        "3": "E_rail_disconnect/N19_ALLOW",
+        "8": "E_rail_disconnect/N19_DRIVE",
+        "7": "E_rail_disconnect/N19_MCAP1",
+        "6": "E_rail_disconnect/N19_MCAP2",
+        "2": "E_rail_disconnect/N19_TT",
+        "4": "PWR_AGND",
+        "5": "PWR_N19_BANK_COMMON",
+        "1": "PWR_V2V5_AUX"
+      },
+      "series": {
+        "ref": "E_R12",
+        "value": "100 1%",
+        "nominal_ohm": 100.0,
+        "pins": {
+          "1": "E_rail_disconnect/E28_MASTER_ENABLE",
+          "2": "E_rail_disconnect/N19_ALLOW"
+        }
+      },
+      "pulldown": {
+        "ref": "E_R13",
+        "value": "10k 1%",
+        "nominal_ohm": 10000.0,
+        "pins": {
+          "1": "E_rail_disconnect/N19_ALLOW",
+          "2": "PWR_AGND"
+        }
+      },
+      "timing": {
+        "ref": "E_R11",
+        "value": "10k 1%",
+        "nominal_ohm": 10000.0,
+        "pins": {
+          "1": "E_rail_disconnect/N19_TT",
+          "2": "PWR_AGND"
+        }
+      },
+      "gate_series": {
+        "ref": "E_R9",
+        "value": "22 1%",
+        "nominal_ohm": 22.0,
+        "pins": {
+          "1": "E_rail_disconnect/N19_DRIVE",
+          "2": "PWR_N19_BANK_GATE"
+        }
+      },
+      "gate_pulldown": {
+        "ref": "E_R10",
+        "value": "20M 1%",
+        "nominal_ohm": 20000000.0,
+        "pins": {
+          "2": "PWR_N19_BANK_COMMON",
+          "1": "PWR_N19_BANK_GATE"
+        }
+      },
+      "gate_net": "PWR_N19_BANK_GATE",
+      "common_net": "PWR_N19_BANK_COMMON",
+      "FETs": [
+        {
+          "ref": "E_Q3",
+          "part": "CSD18540Q5B",
+          "pins": {
+            "1": "PWR_N19_BANK_COMMON",
+            "2": "PWR_N19_BANK_GATE",
+            "3": "PWR_N19_POST_NF"
+          }
+        },
+        {
+          "ref": "E_Q4",
+          "part": "CSD18540Q5B",
+          "pins": {
+            "3": "PWR_N19",
+            "1": "PWR_N19_BANK_COMMON",
+            "2": "PWR_N19_BANK_GATE"
+          }
+        }
+      ],
+      "miller_capacitors": [
+        {
+          "driver_pin": "7",
+          "capacitor": "E_C6",
+          "value": "10pF 100V C0G 5%",
+          "capacitor_pins": {
+            "2": "E_rail_disconnect/N19_MCAP1",
+            "1": "E_rail_disconnect/N19_MCAP1_LIMIT"
+          },
+          "series_limit": {
+            "ref": "E_R14",
+            "value": "15k 1%",
+            "nominal_ohm": 15000.0,
+            "pins": {
+              "2": "E_rail_disconnect/N19_MCAP1_LIMIT",
+              "1": "PWR_N19_POST_NF"
+            }
+          },
+          "drain_net": "PWR_N19_POST_NF"
+        },
+        {
+          "driver_pin": "6",
+          "capacitor": "E_C7",
+          "value": "10pF 100V C0G 5%",
+          "capacitor_pins": {
+            "2": "E_rail_disconnect/N19_MCAP2",
+            "1": "E_rail_disconnect/N19_MCAP2_LIMIT"
+          },
+          "series_limit": {
+            "ref": "E_R15",
+            "value": "15k 1%",
+            "nominal_ohm": 15000.0,
+            "pins": {
+              "2": "E_rail_disconnect/N19_MCAP2_LIMIT",
+              "1": "PWR_N19"
+            }
+          },
+          "drain_net": "PWR_N19"
+        }
+      ],
+      "external_clamp": {
+        "relay": "N_U6",
+        "part": "TLP4590AF(F",
+        "pins": {
+          "4": "N_negative_startup_protection/N19_BANK_CLAMP_GATE",
+          "2": "N_negative_startup_protection/N19_CLAMP_LED_K",
+          "1": "N_negative_startup_protection/N19_CLAMP_LED_MID",
+          "6": "PWR_N19_BANK_COMMON",
+          "3": "unconnected-(N_U6-PHYSICAL_NC-Pad3)",
+          "5": "unconnected-(N_U6-S_COMMON_NC-Pad5)"
+        },
+        "series": {
+          "ref": "N_R7",
+          "value": "220ohm COMPLETE +/-3% RECEIVING",
+          "nominal_ohm": 220.0,
+          "pins": {
+            "2": "N_negative_startup_protection/N19_BANK_CLAMP_GATE",
+            "1": "PWR_N19_BANK_GATE"
+          }
+        }
+      },
+      "gate_contacts": [
+        {
+          "ref": "E_Q3",
+          "pin": "2",
+          "pinfunction": "GATE_GROUP_2",
+          "pintype": "input"
+        },
+        {
+          "ref": "E_Q4",
+          "pin": "2",
+          "pinfunction": "GATE_GROUP_2",
+          "pintype": "input"
+        },
+        {
+          "ref": "E_R10",
+          "pin": "1",
+          "pinfunction": "1_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_R9",
+          "pin": "2",
+          "pinfunction": "2_2",
+          "pintype": "passive"
+        },
+        {
+          "ref": "N_J3",
+          "pin": "1",
+          "pinfunction": "BANK_GATE_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "N_R7",
+          "pin": "1",
+          "pinfunction": "1_1",
+          "pintype": "passive"
+        }
+      ],
+      "common_contacts": [
+        {
+          "ref": "E_Q3",
+          "pin": "1",
+          "pinfunction": "SOURCE_GROUP_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_Q4",
+          "pin": "1",
+          "pinfunction": "SOURCE_GROUP_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_R10",
+          "pin": "2",
+          "pinfunction": "2_2",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_U2",
+          "pin": "5",
+          "pinfunction": "SOURCE_5",
+          "pintype": "passive"
+        },
+        {
+          "ref": "N_J3",
+          "pin": "2",
+          "pinfunction": "BANK_COMMON_2",
+          "pintype": "passive"
+        },
+        {
+          "ref": "N_U6",
+          "pin": "6",
+          "pinfunction": "D2_6",
+          "pintype": "passive"
+        }
+      ]
+    },
+    {
+      "ref": "E_U3",
+      "part": "SI8751AB-ISR",
+      "pins": {
+        "3": "E_rail_disconnect/P12_ALLOW",
+        "5": "E_rail_disconnect/P12_COMMON",
+        "8": "E_rail_disconnect/P12_DRIVE",
+        "7": "E_rail_disconnect/P12_MCAP1",
+        "6": "E_rail_disconnect/P12_MCAP2",
+        "2": "E_rail_disconnect/P12_TT",
+        "4": "PWR_AGND",
+        "1": "PWR_V2V5_AUX"
+      },
+      "series": {
+        "ref": "E_R20",
+        "value": "100 1%",
+        "nominal_ohm": 100.0,
+        "pins": {
+          "1": "E_rail_disconnect/E28_MASTER_ENABLE",
+          "2": "E_rail_disconnect/P12_ALLOW"
+        }
+      },
+      "pulldown": {
+        "ref": "E_R21",
+        "value": "10k 1%",
+        "nominal_ohm": 10000.0,
+        "pins": {
+          "1": "E_rail_disconnect/P12_ALLOW",
+          "2": "PWR_AGND"
+        }
+      },
+      "timing": {
+        "ref": "E_R19",
+        "value": "10k 1%",
+        "nominal_ohm": 10000.0,
+        "pins": {
+          "1": "E_rail_disconnect/P12_TT",
+          "2": "PWR_AGND"
+        }
+      },
+      "gate_series": {
+        "ref": "E_R17",
+        "value": "22 1%",
+        "nominal_ohm": 22.0,
+        "pins": {
+          "1": "E_rail_disconnect/P12_DRIVE",
+          "2": "E_rail_disconnect/P12_GATE"
+        }
+      },
+      "gate_pulldown": {
+        "ref": "E_R18",
+        "value": "20M 1%",
+        "nominal_ohm": 20000000.0,
+        "pins": {
+          "2": "E_rail_disconnect/P12_COMMON",
+          "1": "E_rail_disconnect/P12_GATE"
+        }
+      },
+      "gate_net": "E_rail_disconnect/P12_GATE",
+      "common_net": "E_rail_disconnect/P12_COMMON",
+      "FETs": [
+        {
+          "ref": "E_Q5",
+          "part": "CSD18540Q5B",
+          "pins": {
+            "1": "E_rail_disconnect/P12_COMMON",
+            "2": "E_rail_disconnect/P12_GATE",
+            "3": "PWR_P12_SRC"
+          }
+        },
+        {
+          "ref": "E_Q6",
+          "part": "CSD18540Q5B",
+          "pins": {
+            "1": "E_rail_disconnect/P12_COMMON",
+            "2": "E_rail_disconnect/P12_GATE",
+            "3": "PWR_P12"
+          }
+        }
+      ],
+      "miller_capacitors": [
+        {
+          "driver_pin": "7",
+          "capacitor": "E_C10",
+          "value": "10pF 100V C0G 5%",
+          "capacitor_pins": {
+            "2": "E_rail_disconnect/P12_MCAP1",
+            "1": "E_rail_disconnect/P12_MCAP1_LIMIT"
+          },
+          "series_limit": {
+            "ref": "E_R22",
+            "value": "15k 1%",
+            "nominal_ohm": 15000.0,
+            "pins": {
+              "2": "E_rail_disconnect/P12_MCAP1_LIMIT",
+              "1": "PWR_P12_SRC"
+            }
+          },
+          "drain_net": "PWR_P12_SRC"
+        },
+        {
+          "driver_pin": "6",
+          "capacitor": "E_C11",
+          "value": "10pF 100V C0G 5%",
+          "capacitor_pins": {
+            "2": "E_rail_disconnect/P12_MCAP2",
+            "1": "E_rail_disconnect/P12_MCAP2_LIMIT"
+          },
+          "series_limit": {
+            "ref": "E_R23",
+            "value": "15k 1%",
+            "nominal_ohm": 15000.0,
+            "pins": {
+              "2": "E_rail_disconnect/P12_MCAP2_LIMIT",
+              "1": "PWR_P12"
+            }
+          },
+          "drain_net": "PWR_P12"
+        }
+      ],
+      "external_clamp": null,
+      "gate_contacts": [
+        {
+          "ref": "E_Q5",
+          "pin": "2",
+          "pinfunction": "GATE_GROUP_2",
+          "pintype": "input"
+        },
+        {
+          "ref": "E_Q6",
+          "pin": "2",
+          "pinfunction": "GATE_GROUP_2",
+          "pintype": "input"
+        },
+        {
+          "ref": "E_R17",
+          "pin": "2",
+          "pinfunction": "2_2",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_R18",
+          "pin": "1",
+          "pinfunction": "1_1",
+          "pintype": "passive"
+        }
+      ],
+      "common_contacts": [
+        {
+          "ref": "E_Q5",
+          "pin": "1",
+          "pinfunction": "SOURCE_GROUP_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_Q6",
+          "pin": "1",
+          "pinfunction": "SOURCE_GROUP_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_R18",
+          "pin": "2",
+          "pinfunction": "2_2",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_U3",
+          "pin": "5",
+          "pinfunction": "SOURCE_5",
+          "pintype": "passive"
+        }
+      ]
+    },
+    {
+      "ref": "E_U4",
+      "part": "SI8751AB-ISR",
+      "pins": {
+        "3": "E_rail_disconnect/N12_ALLOW",
+        "8": "E_rail_disconnect/N12_DRIVE",
+        "7": "E_rail_disconnect/N12_MCAP1",
+        "6": "E_rail_disconnect/N12_MCAP2",
+        "2": "E_rail_disconnect/N12_TT",
+        "4": "PWR_AGND",
+        "5": "PWR_N12_BANK_COMMON",
+        "1": "PWR_V2V5_AUX"
+      },
+      "series": {
+        "ref": "E_R28",
+        "value": "100 1%",
+        "nominal_ohm": 100.0,
+        "pins": {
+          "1": "E_rail_disconnect/E28_MASTER_ENABLE",
+          "2": "E_rail_disconnect/N12_ALLOW"
+        }
+      },
+      "pulldown": {
+        "ref": "E_R29",
+        "value": "10k 1%",
+        "nominal_ohm": 10000.0,
+        "pins": {
+          "1": "E_rail_disconnect/N12_ALLOW",
+          "2": "PWR_AGND"
+        }
+      },
+      "timing": {
+        "ref": "E_R27",
+        "value": "10k 1%",
+        "nominal_ohm": 10000.0,
+        "pins": {
+          "1": "E_rail_disconnect/N12_TT",
+          "2": "PWR_AGND"
+        }
+      },
+      "gate_series": {
+        "ref": "E_R25",
+        "value": "22 1%",
+        "nominal_ohm": 22.0,
+        "pins": {
+          "1": "E_rail_disconnect/N12_DRIVE",
+          "2": "PWR_N12_BANK_GATE"
+        }
+      },
+      "gate_pulldown": {
+        "ref": "E_R26",
+        "value": "20M 1%",
+        "nominal_ohm": 20000000.0,
+        "pins": {
+          "2": "PWR_N12_BANK_COMMON",
+          "1": "PWR_N12_BANK_GATE"
+        }
+      },
+      "gate_net": "PWR_N12_BANK_GATE",
+      "common_net": "PWR_N12_BANK_COMMON",
+      "FETs": [
+        {
+          "ref": "E_Q7",
+          "part": "CSD18540Q5B",
+          "pins": {
+            "1": "PWR_N12_BANK_COMMON",
+            "2": "PWR_N12_BANK_GATE",
+            "3": "PWR_N12_POST_NF"
+          }
+        },
+        {
+          "ref": "E_Q8",
+          "part": "CSD18540Q5B",
+          "pins": {
+            "3": "PWR_N12",
+            "1": "PWR_N12_BANK_COMMON",
+            "2": "PWR_N12_BANK_GATE"
+          }
+        }
+      ],
+      "miller_capacitors": [
+        {
+          "driver_pin": "7",
+          "capacitor": "E_C14",
+          "value": "10pF 100V C0G 5%",
+          "capacitor_pins": {
+            "2": "E_rail_disconnect/N12_MCAP1",
+            "1": "E_rail_disconnect/N12_MCAP1_LIMIT"
+          },
+          "series_limit": {
+            "ref": "E_R30",
+            "value": "15k 1%",
+            "nominal_ohm": 15000.0,
+            "pins": {
+              "2": "E_rail_disconnect/N12_MCAP1_LIMIT",
+              "1": "PWR_N12_POST_NF"
+            }
+          },
+          "drain_net": "PWR_N12_POST_NF"
+        },
+        {
+          "driver_pin": "6",
+          "capacitor": "E_C15",
+          "value": "10pF 100V C0G 5%",
+          "capacitor_pins": {
+            "2": "E_rail_disconnect/N12_MCAP2",
+            "1": "E_rail_disconnect/N12_MCAP2_LIMIT"
+          },
+          "series_limit": {
+            "ref": "E_R31",
+            "value": "15k 1%",
+            "nominal_ohm": 15000.0,
+            "pins": {
+              "2": "E_rail_disconnect/N12_MCAP2_LIMIT",
+              "1": "PWR_N12"
+            }
+          },
+          "drain_net": "PWR_N12"
+        }
+      ],
+      "external_clamp": {
+        "relay": "N_U12",
+        "part": "TLP4590AF(F",
+        "pins": {
+          "4": "N_negative_startup_protection/N12_BANK_CLAMP_GATE",
+          "2": "N_negative_startup_protection/N12_CLAMP_LED_K",
+          "1": "N_negative_startup_protection/N12_CLAMP_LED_MID",
+          "6": "PWR_N12_BANK_COMMON",
+          "3": "unconnected-(N_U12-PHYSICAL_NC-Pad3)",
+          "5": "unconnected-(N_U12-S_COMMON_NC-Pad5)"
+        },
+        "series": {
+          "ref": "N_R14",
+          "value": "220ohm COMPLETE +/-3% RECEIVING",
+          "nominal_ohm": 220.0,
+          "pins": {
+            "2": "N_negative_startup_protection/N12_BANK_CLAMP_GATE",
+            "1": "PWR_N12_BANK_GATE"
+          }
+        }
+      },
+      "gate_contacts": [
+        {
+          "ref": "E_Q7",
+          "pin": "2",
+          "pinfunction": "GATE_GROUP_2",
+          "pintype": "input"
+        },
+        {
+          "ref": "E_Q8",
+          "pin": "2",
+          "pinfunction": "GATE_GROUP_2",
+          "pintype": "input"
+        },
+        {
+          "ref": "E_R25",
+          "pin": "2",
+          "pinfunction": "2_2",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_R26",
+          "pin": "1",
+          "pinfunction": "1_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "N_J5",
+          "pin": "1",
+          "pinfunction": "BANK_GATE_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "N_R14",
+          "pin": "1",
+          "pinfunction": "1_1",
+          "pintype": "passive"
+        }
+      ],
+      "common_contacts": [
+        {
+          "ref": "E_Q7",
+          "pin": "1",
+          "pinfunction": "SOURCE_GROUP_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_Q8",
+          "pin": "1",
+          "pinfunction": "SOURCE_GROUP_1",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_R26",
+          "pin": "2",
+          "pinfunction": "2_2",
+          "pintype": "passive"
+        },
+        {
+          "ref": "E_U4",
+          "pin": "5",
+          "pinfunction": "SOURCE_5",
+          "pintype": "passive"
+        },
+        {
+          "ref": "N_J5",
+          "pin": "2",
+          "pinfunction": "BANK_COMMON_2",
+          "pintype": "passive"
+        },
+        {
+          "ref": "N_U12",
+          "pin": "6",
+          "pinfunction": "D2_6",
+          "pintype": "passive"
+        }
+      ]
+    }
+  ],
+  "master_driver": {
+    "ref": "E_U29",
+    "pin": "7",
+    "supply": "PWR_V2V5_AUX",
+    "contacts": [
+      {
+        "ref": "E_J6",
+        "pin": "2",
+        "pinfunction": "ALL_RAILS_ALLOW_2",
+        "pintype": "passive"
+      },
+      {
+        "ref": "E_J9",
+        "pin": "5",
+        "pinfunction": "E28_MASTER_ENABLE_5",
+        "pintype": "passive"
+      },
+      {
+        "ref": "E_R104",
+        "pin": "1",
+        "pinfunction": "1_1",
+        "pintype": "passive"
+      },
+      {
+        "ref": "E_R12",
+        "pin": "1",
+        "pinfunction": "1_1",
+        "pintype": "passive"
+      },
+      {
+        "ref": "E_R141",
+        "pin": "1",
+        "pinfunction": "1_1",
+        "pintype": "passive"
+      },
+      {
+        "ref": "E_R20",
+        "pin": "1",
+        "pinfunction": "1_1",
+        "pintype": "passive"
+      },
+      {
+        "ref": "E_R28",
+        "pin": "1",
+        "pinfunction": "1_1",
+        "pintype": "passive"
+      },
+      {
+        "ref": "E_R4",
+        "pin": "1",
+        "pinfunction": "1_1",
+        "pintype": "passive"
+      },
+      {
+        "ref": "E_U15",
+        "pin": "1",
+        "pinfunction": "EN_UVLO_1",
+        "pintype": "input"
+      },
+      {
+        "ref": "E_U20",
+        "pin": "1",
+        "pinfunction": "SENSE_1",
+        "pintype": "input"
+      },
+      {
+        "ref": "E_U20",
+        "pin": "3",
+        "pinfunction": "MR_N_3",
+        "pintype": "input"
+      },
+      {
+        "ref": "E_U25",
+        "pin": "13",
+        "pinfunction": "B_13",
+        "pintype": "input"
+      },
+      {
+        "ref": "E_U27",
+        "pin": "2",
+        "pinfunction": "B_2",
+        "pintype": "input"
+      },
+      {
+        "ref": "E_U29",
+        "pin": "5",
+        "pinfunction": "A_5",
+        "pintype": "input"
+      },
+      {
+        "ref": "E_U29",
+        "pin": "7",
+        "pinfunction": "Y_7",
+        "pintype": "output"
+      },
+      {
+        "ref": "E_U30",
+        "pin": "1",
+        "pinfunction": "A_1",
+        "pintype": "input"
+      },
+      {
+        "ref": "E_U30",
+        "pin": "5",
+        "pinfunction": "A_5",
+        "pintype": "input"
+      },
+      {
+        "ref": "E_U31",
+        "pin": "1",
+        "pinfunction": "A_1",
+        "pintype": "input"
+      },
+      {
+        "ref": "E_U34",
+        "pin": "2",
+        "pinfunction": "B_2",
+        "pintype": "input"
+      },
+      {
+        "ref": "E_U34",
+        "pin": "5",
+        "pinfunction": "A_5",
+        "pintype": "input"
+      }
+    ]
+  },
+  "master_pulldowns": [
+    {
+      "ref": "E_R104",
+      "value": "47k",
+      "nominal_ohm": 47000.0,
+      "pins": {
+        "1": "E_rail_disconnect/E28_MASTER_ENABLE",
+        "2": "PWR_AGND"
+      }
+    },
+    {
+      "ref": "E_R141",
+      "value": "10k",
+      "nominal_ohm": 10000.0,
+      "pins": {
+        "1": "E_rail_disconnect/E28_MASTER_ENABLE",
+        "2": "PWR_AGND"
+      }
+    }
+  ],
+  "resistor_order": [
+    "E_R4",
+    "E_R5",
+    "E_R12",
+    "E_R13",
+    "E_R20",
+    "E_R21",
+    "E_R28",
+    "E_R29",
+    "E_R104",
+    "E_R141"
+  ],
+  "conditional_maxima": {
+    "new_driver_input_resistors_A": 0.0011023782790650209,
+    "previously_counted_master_pulldowns_A": 0.00033757402939241064,
+    "master_total_A": 0.0014399523084574315
+  },
+  "conditional_HIGH_minimum_input_V": 1.8305620728348464,
+  "conditional_LOW_maximum_input_V": 0.4458016735596807,
+  "HIGH_margin_to_0p5_times_2p7V": 0.4805620728348463,
+  "LOW_margin_to_0p25_times_2p3V": 0.12919832644031926,
+  "residual_master_source_current_to_3p1mA_A": 0.0016600476915425684,
+  "new_resistors": [
+    "E_R12",
+    "E_R13",
+    "E_R20",
+    "E_R21",
+    "E_R28",
+    "E_R29",
+    "E_R4",
+    "E_R5"
+  ],
+  "previously_counted_resistors": [
+    "E_R104",
+    "E_R141"
+  ],
+  "resistor_fraction_requirement": [
+    0.97,
+    1.03
+  ],
+  "actual_total_resistor_bounds_accepted": false,
+  "output_voltage_screen": {
+    "HIGH_floor_V": 1.85,
+    "LOW_ceiling_V": 0.45,
+    "table_scope": "AUP2G08 at VCC=2.3V, source/sink3.1mA, full temperature; use over2.3..2.7V here is a conditional receiving envelope, not an added datasheet guarantee."
+  },
+  "driver_current_table": {
+    "IN_equals_VDD_required": true,
+    "gate_capacitance_F": 1e-10,
+    "four_TT_10kohm_max_A": 0.038,
+    "four_TT_ground_max_A": 0.068,
+    "four_TT_open_max_A": 0.0072,
+    "OFF_140nA_per_device_is_typical_not_maximum": true,
+    "TT_resistor_current_is_not_AUX_divided_by_10kohm": true,
+    "selected_TT_tolerance_and_gate_load_applicability_verified": false
+  },
+  "gate_load_comparison": {
+    "two_FETs_per_driver": true,
+    "Ciss_pair_typ_F": 6.5e-09,
+    "Ciss_pair_max_F": 8.46e-09,
+    "Ciss_conditions": "25C, VGS0V, VDS30V,1MHz; not a nonlinear gate-charge or timing model.",
+    "Qg_pair_10V_typ_C": 8.2e-08,
+    "Qg_pair_10V_max_C": 1.06e-07,
+    "Qg_conditions": "25C, VDS30V, ID28A; not actual installed fault/temperature envelope.",
+    "gate_clamp_overlap_states_qualified": false,
+    "table_turn_on_and_off_times_transferred_to_actual_load": false
+  },
+  "assumptions": "Fixed MASTER voltage, zero receiver/connector leakage, no switching current. Four IN branches share MASTER. Local supply and return drops excluded.",
+  "complete_master_receiver_voltage_and_current_qualification": false,
+  "package_supply_currents_added_to_resistor_result": false,
+  "complete_current_bound_established": false,
+  "fabrication_released": false
+}
