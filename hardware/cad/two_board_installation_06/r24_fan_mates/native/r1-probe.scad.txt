@@ -1,0 +1,8 @@
+use <mates.scad>
+use <../r8/terminal_harness.scad>
+part="scoped";$fn=64;
+if(part=="original")intersection(){tbh08_harness();captured_fan_connectors();}
+if(part=="unmasked")intersection(){tbh08_harness();conditional_fan_connectors();}
+if(part=="scoped")difference(){intersection(){tbh08_harness();conditional_fan_connectors();}fan_entry_masks();}
+if(part=="wrongmask")difference(){intersection(){tbh08_harness();conditional_fan_connectors();}translate([.5,0,0])fan_entry_masks();}
+if(part=="positive")conditional_fan_connectors();
