@@ -1,0 +1,45 @@
+// TBH06 alternative only: external two-fan intake, opposite-side exhaust.
+// Coordinate frame and sealed r6 source unchanged. No thermal release.
+include <../two_board_print_01/captured.scad>
+use <../two_board_print_01/housing.scad>
+$fn=64;
+part="shell_variant";
+W=338;H=43.6;D=192.4;
+fan_centres=[45,145];
+module port(y,x=-1){translate([x,y-18,8])cube([5,36,30]);}
+module bolt(y,z){translate([-2,y,z])rotate([0,90,0])cylinder(d=3.4,h=9);}
+module nut(y,z){translate([2.8,y,z])rotate([0,90,0])cylinder(d=6.6,h=2.4,$fn=6);}
+module mounting_holes(){for(c=fan_centres,y=[c-26.5,c+26.5],z=[8,38])bolt(y,z);}
+module shell_variant(){difference(){shell();for(y=fan_centres){port(y);port(y,W-4);}mounting_holes();for(c=fan_centres,yy=[c-16,c+16],z=[6.8,38.8])translate([-1,yy,z])rotate([0,90,0])cylinder(d=4.8,h=5);}}
+// Pod fan seat lies outside sealed shell: maximum body 40.5 square ×10.5.
+// Body cavity 41.5 square. Axial gap shimmed after measuring actual fan.
+module pod(y=0){difference(){union(){
+ translate([-15,y-22.75,.05])cube([15,45.5,45.5]);
+ translate([-2,y-30,3])cube([2,60,39.6]);
+ }translate([-15.1,y-20.75,2.05])cube([12.1,41.5,41.5]);
+ hull(){translate([-3.1,y,22.8])rotate([0,90,0])cylinder(d=36,h=.2);translate([-.1,y-18,8])cube([.2,36,30]);}
+ for(yy=[y-26.5,y+26.5],z=[8,38])bolt(yy,z);
+ for(yy=[y-16,y+16],z=[6.8,38.8])translate([-16,yy,z])rotate([0,90,0])cylinder(d=4.8,h=16);
+ for(yy=[y-16,y+16],z=[6.8,38.8])translate([-3.4,yy,z])rotate([0,90,0])cylinder(d=7.2/cos(30),h=3.5,$fn=6);
+}}
+// Separate guard: four M4 fan bolts retain body without crediting printed friction.
+// Slots need a separately retained fine mesh for finger/wire exclusion.
+module guard(y=0){difference(){translate([-17,y-22.75,.05])cube([2,45.5,45.5]);
+ translate([-18,y,22.8])rotate([0,90,0])linear_extrude(4)difference(){circle(d=36);for(a=[-6,6])translate([a-1,-20])square([2,40]);}
+ for(yy=[y-16,y+16],z=[6.8,38.8])translate([-18,yy,z])rotate([0,90,0])cylinder(d=4.8,h=4);
+}}
+module fan_boxes(){for(y=fan_centres)difference(){translate([-14,y-20.25,2.55])cube([10.5,40.5,40.5]);for(yy=[y-16,y+16],z=[6.8,38.8])translate([-15,yy,z])rotate([0,90,0])cylinder(d=4,h=13);}}
+module hardware(){for(c=fan_centres,y=[c-26.5,c+26.5],z=[8,38]){translate([-4.5,y,z])rotate([0,90,0])cylinder(d=5.5,h=2.5);translate([-2,y,z])rotate([0,90,0])cylinder(d=3,h=8);nut(y,z);}for(c=fan_centres,y=[c-16,c+16],z=[6.8,38.8]){translate([-17,y,z])rotate([0,90,0])cylinder(d=4,h=20);translate([-3.3,y,z])rotate([0,90,0])cylinder(d=7/cos(30),h=3.2,$fn=6);}}
+module installed(){for(y=fan_centres){pod(y);guard(y);}hardware();}
+module exhaust_screen_frame(){difference(){translate([0,-21,0])cube([2,42,36]);translate([-.1,-18,3])cube([2.2,36,30]);}}
+if(part=="shell_variant")shell_variant();
+if(part=="pod")translate([0,30,0])pod();
+if(part=="guard")translate([0,22.75,0])guard();
+if(part=="exhaust_frame")exhaust_screen_frame();
+if(part=="assembly"){color("gray")shell_variant();color("orange")installed();color("blue")fan_boxes();}
+if(part=="hardware_components")intersection(){hardware();box_rows(component_boxes);}
+if(part=="hardware_controls")intersection(){hardware();box_rows(context_boxes);}
+if(part=="pod_components")intersection(){installed();box_rows(component_boxes);}
+if(part=="fan_pod_clearance")intersection(){fan_boxes();installed();}
+if(part=="shell_components")intersection(){shell_variant();box_rows(component_boxes);}
+if(part=="positive_control")intersection(){installed();translate([-16,23,1])cube([2,2,2]);}
