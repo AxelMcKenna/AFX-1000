@@ -1,0 +1,9 @@
+# Positive antirotation for the release wire guide
+
+This additive revision keeps the frozen r17 wire bore and mounting hardware. A rear fence at Y65.7 spans X309..325.5, crossing both sides of the mounting screw axis X316; an east fence begins X324.2. Nominal PCB edges are Y65.5 and X324, giving 0.2 mm side clearance. Fences extend to Z39.5, engaging 1.4 mm of PCB edge while clearing the selector bracket bottom Z39.7 by 0.2 mm. Joining webs end at Z37.8, 0.3 mm beneath the PCB. The guide slides off downward after removal of its mounting screw; it does not hook above the PCB.
+
+Both rotation directions now encounter a positive rear-edge stop, rather than relying solely on screw friction. Pinned Linux native checks prove noninterference at the installed position and closed positive stop intersections at -3 and +3 degrees about [316,63.5]. These are interference witnesses, not exact first-contact angles or strength ratings. The probes deliberately exclude the coplanar mounting-seat plane Z38.1 so the witnesses isolate edge-stop engagement. Volumes are 0.620107 and 0.381443 mm3.
+
+Four local collision checks pass: selectors with exact original seat masks, complete frozen ground wiring, receiving allocations/selector wiring/r16 cage, and local enclosure structure. The keyed guide is one closed connected solid, volume365.388 mm3. Root current full-assembly screening remains required. Replace only panel_ground_r17_guide; retain panel_ground_r17_selectors, r16 splice support and their existing contact records.
+
+This resolves the lack of a positive rotation constraint in the nominal geometry. PCB edge loading, manufacturing tolerances, wire abrasion, print strength and axial terminal strain relief remain unqualified. The guide is still a loose positional support, not a pull-rated clamp. The r15 electrical graph, R13 path and L01/R01 service feeds are unchanged. No service-opening or fabrication claim is made.
