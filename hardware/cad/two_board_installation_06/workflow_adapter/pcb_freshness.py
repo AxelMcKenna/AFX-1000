@@ -88,7 +88,7 @@ def run(repo, selected, capture_path):
     # Bind the actual executing code, even when reading another isolated checkout.
     for path in (Path(__file__), Path(sx.__file__), Path(assembly_layout.__file__)):
         sources[str(path.relative_to(REPO))] = sha(path)
-    result = {'schema': 1, 'selected_pcbs': selected, 'source_sha256': sources,
+    result = {'schema': 1, 'selected_pcbs': selected, 'mechanical_capture': capture_path, 'source_sha256': sources,
               'boards': {}, 'errors': [], 'geometry_fresh': False,
               'qualification': 'Receiving envelopes only; not exact STEP or supplier-approved heights.',
               'height_uncertainty': {'supplier_approved': capture.get('heights_supplier_approved', False),

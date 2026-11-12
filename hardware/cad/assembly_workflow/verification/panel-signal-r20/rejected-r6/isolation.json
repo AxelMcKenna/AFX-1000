@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "units": "mm",
+  "coordinate_frame": "Existing captured housing datum; adapters apply installed transforms exactly once",
+  "variant": "one_piece",
+  "registries": [
+    "hardware/cad/assembly_workflow/verification/ground-r18/registry.json",
+    "hardware/cad/two_board_installation_06/workflow_adapter/scene-signal-registry.json"
+  ],
+  "checks": [
+    {
+      "id": "r20_signal_splice_cage",
+      "left": [
+        "panel_signal_r20_scene2"
+      ],
+      "right": [
+        "panel_ground_r16_support"
+      ],
+      "expect": "empty"
+    },
+    {
+      "id": "r20_signal_splice_body",
+      "left": [
+        "panel_signal_r20_scene2"
+      ],
+      "right": [
+        "panel_ground_r15_splice"
+      ],
+      "expect": "empty"
+    }
+  ],
+  "boards": {
+    "signal": "hardware/cad/two_board_sensor_05/signal_dac/native-r26/signal_main.kicad_pcb",
+    "power": "hardware/fabrication/staging/two-board-power-aux-ground-reuse-native-01/power_protection.kicad_pcb"
+  },
+  "unresolved": [
+    "These14 strict cross-fit checks cover selected cable/mate integration, not every possible component pair. Frozen local checks remain required.",
+    "Receiving allowances are not supplier-certified geometry; exact part/connector dimensions and physical qualification remain open.",
+    "Magnet,grub screw and actual spring coil lack separate installed source models; sensor registry records these omissions.",
+    "Remaining panel harness/splice physical routes and whole-board electrical/thermal work remain incomplete.",
+    "Default scene is one-piece structural geometry. Use --reservations and --motion for explicitly labeled allowances/sweeps.",
+    "Selected r15 ground geometry contains32wires and1splice for29buttons and2selectorcommons. Supports, terminal preparation, all other panel wires and service slack remain incomplete.",
+    "Original fixed lever crossbar obstructs vertical lid removal at9..12mm lift. Verified removable-handle candidate exists in two_board_service_10 but is not yet selected or physically qualified.",
+    "r16 support receiving geometry passes selected assembly checks; support-selector contact uses the frozen scoped local probe. Actual sleeve, PCB/print strength, tool access, retention and full service motion remain unqualified.",
+    "r18 positive rotation stops checked as nominal geometry only; PCB edge loading, strength, tolerance, abrasion, axial strain relief and opening remain unqualified.",
+    "S01 CONTROL_21 is modeled from source receiving interface to scene2 terminal1; actual termination, support and opening flex unqualified. 229 other panel signal/power segments remain unmodeled."
+  ],
+  "fabrication_released": false
+}

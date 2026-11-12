@@ -38,6 +38,32 @@ class WorkflowTests(unittest.TestCase):
             patcher.stop()
         self.temp.cleanup()
 
+    def test_selected_capture_change_invalidates_board_cache(self):
+        from hardware.cad.two_board_installation_06.workflow_adapter import pcb_freshness
+        for name in ['capture-a.json','capture-b.json']:(self.root/name).write_text('{}')
+        boards={'signal':'s.kicad_pcb','power':'p.kicad_pcb'}
+        old={'selected_pcbs':boards,'mechanical_capture':'capture-a.json','source_sha256':{'capture-a.json':w.sha(self.root/'capture-a.json')},'freshness_key':'old'}
+        folder=self.root/'cache/boards';folder.mkdir(parents=True)
+        (folder/'latest.json').write_text(json.dumps(old))
+        new={'selected_pcbs':boards,'mechanical_capture':'capture-b.json','source_sha256':{'capture-b.json':w.sha(self.root/'capture-b.json')},'freshness_key':'new'}
+        with patch.object(pcb_freshness,'run',return_value=new) as run:
+            self.assertEqual(w.board_state({'boards':boards,'mechanical_capture':'capture-b.json'}),new)
+            run.assert_called_once_with(self.root,boards,'capture-b.json')
+        with patch.object(pcb_freshness,'run',side_effect=AssertionError('unchanged capture should be cached')):
+            self.assertEqual(w.board_state({'boards':boards,'mechanical_capture':'capture-b.json'}),new)
+
+    def test_unrelated_bound_source_cannot_impersonate_selected_capture(self):
+        from hardware.cad.two_board_installation_06.workflow_adapter import pcb_freshness
+        (self.root/'board.kicad_pcb').write_text('(kicad_pcb)')
+        boards={'signal':'board.kicad_pcb','power':'p.kicad_pcb'}
+        old={'mechanical_capture':'capture.json','selected_pcbs':boards,'source_sha256':{'board.kicad_pcb':w.sha(self.root/'board.kicad_pcb')},'freshness_key':'old'}
+        folder=self.root/'cache/boards';folder.mkdir(parents=True)
+        (folder/'latest.json').write_text(json.dumps(old))
+        with patch.object(pcb_freshness,'run',side_effect=ValueError('invalid selected capture')) as run:
+            with self.assertRaisesRegex(ValueError,'invalid selected capture'):
+                w.board_state({'boards':boards,'mechanical_capture':'board.kicad_pcb'})
+            run.assert_called_once()
+
     def test_dependency_change_invalidates_only_affected_component(self):
         a = w.job('component', self.parts['a'], self.parts)[1]
         b = w.job('component', self.parts['b'], self.parts)[1]

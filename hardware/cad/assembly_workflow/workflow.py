@@ -280,12 +280,13 @@ def scene(components, path, reservations=False, motion=False):
 
 def board_state(manifest):
     from hardware.cad.two_board_installation_06.workflow_adapter import pcb_freshness
+    capture_path = relative(ROOT / manifest.get('mechanical_capture', 'hardware/cad/two_board_print_01/capture.json'))
     pointer = CACHE / 'boards/latest.json'
     if pointer.exists():
         previous = json.loads(pointer.read_text())
-        if previous['selected_pcbs'] == manifest['boards'] and all((ROOT / p).is_file() and sha(ROOT / p) == h for p, h in previous['source_sha256'].items()):
+        if previous.get('mechanical_capture') == capture_path and previous['selected_pcbs'] == manifest['boards'] and all((ROOT / p).is_file() and sha(ROOT / p) == h for p, h in previous['source_sha256'].items()):
             return previous
-    result = pcb_freshness.run(ROOT, manifest['boards'], 'hardware/cad/two_board_print_01/capture.json')
+    result = pcb_freshness.run(ROOT, manifest['boards'], capture_path)
     for path, expected in result['source_sha256'].items():
         assert sha(ROOT / path) == expected, ('PCB source changed during comparison', path)
     folder = CACHE / 'boards'

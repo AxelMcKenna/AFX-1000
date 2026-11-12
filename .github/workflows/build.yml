@@ -1,5 +1,8 @@
 name: Build and engine checks
 on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   standalone:
     runs-on: ubuntu-24.04
@@ -20,7 +23,7 @@ jobs:
       - run: uv run --locked python -m hardware.firmware.control_map --check
       - run: uv run --locked python -m unittest discover -s tests/tooling
       - run: uv run --locked python -m unittest discover -s tests/hardware -p 'a*_integration_tests.py'
-      - run: uv run --locked python -m unittest tests.hardware.test_assembly_workflow hardware.cad.two_board_installation_06.workflow_adapter.test_pcb_freshness
+      - run: uv run --locked python -m unittest tests.hardware.test_assembly_workflow hardware.cad.two_board_installation_06.workflow_adapter.test_pcb_freshness tests.hardware.test_aux_pad_escape hardware.cad.two_board_installation_06.r19_panel_inventory.test_anode_graph hardware.qualification.two_board_aux_current_08.held_rail.test_analysis
   core:
     strategy:
       matrix:
