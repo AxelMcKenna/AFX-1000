@@ -1,5 +1,7 @@
 # Screw-retained RGB ring and populated emitter board
 
+**Guide correction:** use `../connected-guide-r1` final guide exports and `../connected_guide.scad` integration wrappers. Earlier guide exports remain historical because their ring relief left a loose central island. The final guides are each one connected solid; all50 button seats remain verified.
+
 Eight Kingbright APTF1616LSEEZGKQBKC common-anode RGB emitters align to the existing eight optical rods at radius 24 mm about (244,78). Exact primary package, polarity and recommended land geometry are retained in `APTF1616LSEEZGKQBKC.pdf`. Pin 1 is anode, pins 2/3/4 are red/green/blue cathodes. Each cathode branch includes a Yageo RC0603FR-071KP 1 kΩ resistor; the 24 resistors use the existing KiCad 0603 land pattern. Manufacturer resistor dimensions/rating are retained in `Yageo-RC-P.pdf` and the exact part is documented at https://www.yageogroup.com/component-documentation/download/specsheet/RC0603FR-071KP .
 
 Only the existing three ring sink channels 93–95 are used. The three channels each feed eight resistor/LED branches; there are no new independently addressable ring segments. At the existing approximately 3 mA channel setting, equal sharing would give 0.375 mA per LED. The resistors reduce imbalance but do not guarantee equal brightness. Actual forward-voltage bins, diffuser material, ambient visibility, color balance and current-sink compliance must be tested. Native connectivity and DRC are not powered optical acceptance.
