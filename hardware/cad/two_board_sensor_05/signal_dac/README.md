@@ -1,5 +1,7 @@
 # DAC internal routing checkpoint
 
+The latest verified electrical checkpoint is [r44](CHECKPOINT-R44.md): 197 total opens, seven remaining DAC connections, and one explicit R303 translation. Its affected mechanical checks must be refreshed during assembly integration. The r26 provenance and immutable recheck below remain available.
+
 Selected board: [native-r26/signal_main.kicad_pcb](native-r26/signal_main.kicad_pcb), SHA-256 `e67e18cf534a2ef58945a3ec0e7d7ed1a4dd526cd9ed347010b7b49096390790`.
 
 This adds 32 native connection joins to the accepted signal-input r7 board, reducing total native opens from 230 to 198. All 477 component poses, original tracks/vias, authored zones/keepouts, outline, stackup, thickness, project, and design rules remain unchanged. The additions comprise 63 route pieces, 31 signal vias, and 23 ground stitches. Left/right internal signal routing uses In3/In5 with the connected In4 reference between them. This is a bounded geometry checkpoint, not a completed DAC or fabrication release.
