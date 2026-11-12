@@ -2,7 +2,10 @@
   "image": "kicad/kicad@sha256:c8f05703e865a1caa7266851cf4986dd01d5fb1148e4f63382b6a73466ba7e71",
   "platform": "linux/amd64",
   "native_command": "python3 /work/native.py /work /out",
-  "mounts": {"/work": "placement directory, read-only", "/out": "placement/native directory, writable"},
+  "mounts": {
+    "/work": "placement directory, read-only",
+    "/out": "placement/native directory, writable"
+  },
   "network": "none",
   "read_only_root": true,
   "capabilities_dropped": "ALL",
@@ -11,5 +14,11 @@
   "cpu_limit": 2,
   "pid_limit": 256,
   "temporary_home": "/tmp",
-  "accepted_board_mounted": false
+  "accepted_board_mounted": false,
+  "pose_command": "python3 /work/placement/native_poses.py /work /out",
+  "pose_mounts": {
+    "/work": "two_board_aux_current_08 directory, read-only",
+    "/out": "placement/native, writable"
+  },
+  "pose_board": "new in-memory board only, no accepted PCB loaded or written"
 }
