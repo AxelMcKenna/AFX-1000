@@ -1,0 +1,24 @@
+# Conditional single-row panel connector candidate
+
+Eleven documented mating pairs replace the *proposed identity* of generic retained Header3/Header5 parts. No native PCB, BOM, selected assembly or fabrication release changes here. The r46b board audit independently confirms 35 retained pad positions, nets, sides, angles and nominal 1.0 mm holes; it does not identify an original manufacturer's header.
+
+| Use | Qty | Proposed PCB header | Cable housing | Populated contacts |
+| --- | ---: | --- | --- | ---: |
+| D_J1020–D_J1029 | 10 | Harwin M20-9770346 | M20-1060300 | 30 |
+| D_J2003 | 1 | Harwin M20-9770546 | M20-1060500 | 4 |
+
+All 34 contacts are loose tin M20-1180046. D_J2003 position1 remains empty. Housing triangle/position1 must face smallest world X; the other positions increase X. `mate-contract.json` gives every cavity, net, receiver and receiving wire-exit point. Pot positions1/2/3 are ground/wiper/analog3V3. D_J2003 positions2–5 are CONTROL28–31, respectively scene9/settingsW3.1/releaseW1.1/releaseW4.1. Identical pot connectors are interchangeable mechanically: label each reference and continuity-check before power. There is no positive latch or polarization.
+
+Primary Harwin drawings are retained, hashed and visually inspected. M20-977 issue14 specifies 5.80±0.25 mm mating pins, wholly within M20-106's 5.50–6.30 mm range. Both specify 2.54 mm pitch and 0.64 mm square mating pins. The header recommends finished holes1.02±0.05 mm: current nominal1.00 lies inside, but fabrication finished-hole tolerance, positional tolerances and actual pin fit remain unqualified. Drawing tail length3.10±0.25 takes precedence over the product-title shorthand3mm. Header finish46 and contact46 are tin.
+
+Use Alpha5854 24AWG for these **new**34 wires. Its specified OD1.016–1.2446 mm fits the contact's0.90–1.60 mm range; reserve diameter1.3 mm and bend radius≥13 mm. Existing Alpha5853 routes are unchanged. Alpha5853's minimumOD0.889 mm falls below this contact's minimum, so nominal diameter alone cannot qualify it. The contact drawing specifies Z20-320 tool, strip3–4 mm and24AWG conductor crimp height0.83–0.89 mm. Tool setup, insulation support and pull acceptance remain to be demonstrated.
+
+`mates.scad` contains receiving solids, not exact manufactured STEP. Female maximum dimensions from drawing are8.12/13.20 ×2.70 ×14.20 mm. Proposed receiving lengths8.5/13.6 and width3.0 include additional registration allowance. Female seated-bottom rangeZ10.5–11.3 is a project constraint, **not a manufacturer-guaranteed seated stack**; topZ25.5. Header wafer nominal2.54±0.10 is enclosed below it. Tail receiving squares0.68 mm at retained pad centers extendZ5.0–8.35; maximum actual pin square0.66 fits this reservation, but board fabrication registration still needs qualification. The PCB mating cavities are intentional contact locations only; no broad PCB/component contact waiver is allowed.
+
+Final native r5 checks: component allocations, complete r22 ground variant plus S01/r21 wires/supports, and local shell/holders/fasteners all clear. Positive mesh is closed,884 triangles,no degenerate triangles or bad edges. The source-bound7.5 mm vertical withdrawal sweep **fails** at D_J1022 against lid-mounted R04:3.354295 mm³. This demands a qualified lid-open/unplug sequence; no complete removal or lid-flex claim is made. Root must separately screen current full controls/sensor/cooling and opening motion. Generic own11 header allocations must be replaced once, not treated as collisions with their proposed replacement; all other captured component/tail/context reservations remain obstacles.
+
+Rejected90156 and90123 reservations are preserved with their original generated geometry and native failure witnesses. The former conflicts with Teensy/D_J1012 and LED mates; the latter's positive-Y buttons conflict with LED mates. Reversing90123 leaves inadequate tolerance allowance beside Teensy/header. HarwinM20-999 was rejected because6.10±0.25 exceeds the female's6.30 maximum. Intermediate r3/r4 evidence is historical only; r5 is the final source-bound checkpoint.
+
+Verification: run `python -m hardware.cad.two_board_installation_06.r23_single_row_mates.verify --pcb PATH_TO_SELECTED_SIGNAL_PCB`. It verifies source hashes, current board hash, all34 targets against independent r19 inventory, four rejected pin-map mutations and final native results. `audit_board.py --pcb ... --output ...` can independently refresh the board comparison. Root owns integration and PR delivery.
+
+Self-review caught the too-long M20-999 maximum pin, incompatible Alpha5853 minimum insulation diameter, and an initially incomplete ground-obstacle union; these are corrected in the final candidate. Installed fit remains conditional on receiving assumptions and full assembly checks. Unplugging remains blocked in the closed-lid position.
