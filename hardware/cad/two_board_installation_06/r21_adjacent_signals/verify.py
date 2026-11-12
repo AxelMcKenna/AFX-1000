@@ -1,5 +1,5 @@
 from pathlib import Path
-import json,math,hashlib,importlib.util,xml.etree.ElementTree as ET
+import json,math,hashlib,importlib.util,re,xml.etree.ElementTree as ET
 import numpy as np
 HERE=Path(__file__).resolve().parent;BASE=HERE.parent;REPO=HERE.parents[3]
 helper=BASE/'r12_ground/verify.py';spec=importlib.util.spec_from_file_location('distance',helper);distance=importlib.util.module_from_spec(spec);spec.loader.exec_module(distance)
@@ -7,10 +7,21 @@ g=json.loads((HERE/'routes.json').read_text());bows=json.loads((BASE/'r22_ground
 datums=json.loads((BASE/'r12_ground/ground-routes.json').read_text())['endpoints_mm'];contract=json.loads((BASE/'r11_distribution/reference/panel-contract.json').read_text());nets={(node.get('ref'),node.get('pin')):net.get('name') for net in ET.parse(BASE/'r11_distribution/reference/signal-netlist.xml').findall('.//nets/net') for node in net.findall('node')}
 assert {(e['source'],e['target']) for e in g['edges']}=={('D_J2002:1','button_scene_1:1'),('D_J2002:4','button_scene_3:1')}
 assert not {e['source'] for e in g['edges']} & {e['source'] for e in selected}
-minimum=999;minimum_terminal=999;results=[]
+minimum=999;minimum_terminal=999;results=[];closest=None
+max_radius=max(x['radius_mm'] for e in g['edges'] for x in e['primitives'] if x['kind']=='arc')
+clearance_bound=.87*math.cos(math.pi/32)**2-max_radius*(1-math.cos(math.radians(1.5)))-.6
+assert clearance_bound>=.25
+
 for e in g['edges']:
  name=e['target'][7:-2];pad=next(x['signal'] for x in contract['front_inputs'] if x['id']==name);assert e['source']==pad['reference']+':'+pad['pin'] and e['net']==pad['net']==nets[pad['reference'],pad['pin']]
- p=np.array(e['points_mm']);assert np.linalg.norm(p[0]-(pad['xy']+[27.04]))<1e-7 and np.linalg.norm(p[-1]-datums[e['target']])<1e-7
+ p=np.array(e['points_mm'])
+ for filename,prefix,radius in [('routes.scad','panel_signal_',.6),('clearance.scad','clearance_',.87)]:
+  body=(HERE/filename).read_text().split('module '+prefix+e['id']+'(){',1)[1].split('\n}',1)[0]
+  modeled=np.array([json.loads(q) for q in re.findall(r'translate\((\[[^]]+\])\)',body)])
+  assert modeled.shape==(2*(len(p)-1),3)
+  assert np.max(np.abs(modeled-np.array([q for a,b in zip(p,p[1:]) for q in [a,b]])))<1e-9
+  assert len(re.findall(r'sphere\(r='+re.escape(str(radius).lstrip('0'))+r',\$fn=32\)',body))==len(modeled)
+ assert np.linalg.norm(p[0]-(pad['xy']+[27.04]))<1e-7 and np.linalg.norm(p[-1]-datums[e['target']])<1e-7
  cursor=0;last=None;min_radius=999;joins=[]
  for primitive in e['primitives']:
   assert np.linalg.norm(p[cursor]-primitive['start'])<1e-7
@@ -29,7 +40,8 @@ for e in g['edges']:
    for c,d in zip(q,q[1:]):
     lower=np.linalg.norm(np.maximum(0,np.maximum(np.minimum(a,b),np.minimum(c,d))-np.minimum(np.maximum(a,b),np.maximum(c,d))))
     if lower>=minimum:continue
-    minimum=min(minimum,distance.distance(a,b,c,d))
+    new=distance.distance(a,b,c,d)
+    if new<minimum:minimum=new;closest=dict(wires=[e['id'],other['id']],segments=[[a.tolist(),b.tolist()],[c.tolist(),d.tolist()]])
  lengths=np.linalg.norm(p[1:]-p[:-1],axis=1);stations=np.concatenate(([0],np.cumsum(lengths)))
  for i,(a,b) in enumerate(zip(p,p[1:])):
   for j in range(i+2,len(p)-1):
@@ -43,9 +55,9 @@ for e in g['edges']:
   for a,b in zip(p,p[1:]):
    v=b-a;minimum_terminal=min(minimum_terminal,float(np.linalg.norm(point-a-np.clip((point-a)@v/(v@v),0,1)*v)))
  results.append(dict(wire=e['id'],net=e['net'],minimum_radius_mm=min_radius,minimum_tangent_join_dot=min(joins),terminal_tangent=last.tolist(),installed_centerline_length_mm=float(stations[-1])))
-assert minimum>=1.2,('selected wire collision',minimum)
-assert minimum_terminal>=1.2,('other signal terminal collision',minimum_terminal)
+assert minimum>=1.45,('selected wire clearance below0.25mm',minimum,closest)
+assert minimum_terminal>=1.45,('other signal terminal clearance below0.25mm',minimum_terminal)
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();assert all(sha(REPO/p)==h for p,h in g['source_sha256'].items())
-sources=[Path(__file__),helper,HERE/'routes.json',HERE/'routes.scad',BASE/'r22_ground_signal_clearance/bows.json',BASE/'r15_right_ground/right-routes.json',BASE/'r14_left_ground/left-routes.json',BASE/'r20_scene_signal/route.json',BASE/'r12_ground/ground-routes.json',BASE/'r11_distribution/reference/panel-contract.json',BASE/'r11_distribution/reference/signal-netlist.xml']
-out=dict(source_sha256={str(p.relative_to(REPO)):sha(p) for p in sources},wires=results,minimum_wire_surface_gap_mm=minimum-1.2,minimum_other_signal_terminal_surface_gap_mm=minimum_terminal-1.2,requires_ground_variant='r22',fabrication_released=False,opening_slack_qualified=False)
+sources=[Path(__file__),helper,HERE/'routes.json',HERE/'routes.scad',HERE/'clearance.scad',BASE/'r22_ground_signal_clearance/bows.json',BASE/'r15_right_ground/right-routes.json',BASE/'r14_left_ground/left-routes.json',BASE/'r20_scene_signal/route.json',BASE/'r12_ground/ground-routes.json',BASE/'r11_distribution/reference/panel-contract.json',BASE/'r11_distribution/reference/signal-netlist.xml']
+out=dict(source_sha256={str(p.relative_to(REPO)):sha(p) for p in sources},wires=results,minimum_wire_surface_gap_mm=minimum-1.2,closest_wire_pair=closest,minimum_other_signal_terminal_surface_gap_mm=minimum_terminal-1.2,expanded_controls_probe_min_margin_mm=clearance_bound,requires_ground_variant='r22',fabrication_released=False,opening_slack_qualified=False)
 (HERE/'verification.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:v for k,v in out.items() if k!='source_sha256'}))
