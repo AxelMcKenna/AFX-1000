@@ -1,0 +1,9 @@
+# Isolate 0/1 integration
+
+S08 connects D_J2001:2 CONTROL_07 to button_isolate_0:1; S09 connects D_J2001:4 CONTROL_08 to button_isolate_1:1. Both complete receiving routes preserve existing holder, connector, terminal and PCB geometry. Local native screening includes original unrelieved controls, prior wires/supports, population, structure and future touch sweep. Three rejected revisions are retained, including capacitor and control collisions; no collision waiver was used.
+
+All 147 full-assembly checks passed. The 135 prior checks remain byte-for-byte unchanged. Eleven new checks screen the union of the two wires against all 81 prior roles, and one checks the pair against each other. An empty intersection with the wire union establishes empty intersection with each wire; individual positive meshes are still validated. This reduces duplicate native jobs without reducing coverage.
+
+Root reproduced the local analytic/native verifiers and five invalid-contract mutations. The reusable additive staging helper separately passes seven contract tests, rejects component replacements, preserves the prior manifest and cannot select candidates. `staging-source.py` freezes the helper used for this candidate so future helper changes do not invalidate historical evidence. `selected-status.json` confirms all 147 check caches are fresh for the selected geometry.
+
+The selected assembly has 83 roles and nine receiving panel-input edges, leaving 221 further non-ground signal/power segments. The signal board remains r125 (166 opens), with cumulative R303/R308/D101 mechanical capture; selected power remains TBP73 (1,936 opens). The D101/C105 0.02 mm receiving-envelope gap remains nominal-only. Physical termination, support, manufacturing tolerance and complete opening/service qualification remain unresolved.

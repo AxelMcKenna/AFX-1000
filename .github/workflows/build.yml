@@ -24,7 +24,7 @@ jobs:
       - run: uv run --locked python -m unittest discover -s tests/tooling
       - run: uv run --locked python -m unittest discover -s tests/hardware -p 'a*_integration_tests.py'
       - run: uv run --locked python -m unittest tests.hardware.test_assembly_workflow hardware.cad.two_board_installation_06.workflow_adapter.test_pcb_freshness tests.hardware.test_aux_pad_escape hardware.cad.two_board_installation_06.r19_panel_inventory.test_anode_graph hardware.qualification.two_board_aux_current_08.held_rail.test_analysis
-      - run: uv run --locked python -m unittest hardware.cad.assembly_workflow.verification.main-fasteners-r1.test_budget hardware.cad.assembly_workflow.verification.main-fasteners-r1.test_npth_guard hardware.cad.two_board_sensor_05.signal_dac.test_portable_closure_r107
+      - run: uv run --locked python -m unittest hardware.cad.assembly_workflow.verification.main-fasteners-r1.test_budget hardware.cad.assembly_workflow.verification.main-fasteners-r1.test_npth_guard hardware.cad.two_board_sensor_05.signal_dac.test_portable_closure_r107 hardware.cad.assembly_workflow.pcb_updates.r125.test_capture tests.hardware.test_panel_staging
   core:
     strategy:
       matrix:
