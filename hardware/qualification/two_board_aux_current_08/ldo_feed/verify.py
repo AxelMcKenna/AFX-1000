@@ -31,6 +31,11 @@ def semantics(e,p):
   assert v['uuid'] in (main if v['net']=='PWR_AGND' else supply)['members']
  return {'exact_declared_source_group_merge':True,'all_other_original_groups_preserved':True,'anonymous_pad_physical_identities_preserved':True}
 
+def contact_evidence(contacts):
+ assert contacts['candidate_sha256']==sha(H/'local-IN-slot-01.kicad_pcb')
+ assert contacts['source_capture_sha256']==sha(H/'capture-02/capture.json')
+ assert contacts['status']=='PASS' and not contacts['lost_original_track_reference']
+
 def run():
  m=json.loads((H/'review-manifest-02.json').read_text());src=H/m['bundle_name'];check_tree(src,m);p=json.loads((H/'manifest-IN-slot-01.json').read_text());e=json.loads(gzip.decompress((H/'review-02/native-evidence.json.gz').read_bytes()));result=semantics(e,p)
  assert e['source']['board_sha256']==sha(Q/'reference_fix/inputs-reference-09/power_protection.kicad_pcb')==m['source_board_sha256'];assert e['candidate']['board_sha256']==sha(src/'power_protection.kicad_pcb')
@@ -48,6 +53,6 @@ def run():
  a,b=zs(a),zs(b);assert b==zs(read_sexpr((H/'local-IN-slot-01.kicad_pcb').read_text()));local=json.loads((H/'local-IN-slot-01.json').read_text());allowed={r['uuid'] for r in local['zones']};assert len(allowed)==5
  for u in a:
   if u not in allowed:assert a[u]==b[u],u
- transition=json.loads((H/'transition-review.json').read_text());assert transition['status']=='PASS' and transition['candidate_sha256']==e['candidate']['board_sha256'];contacts=json.loads((H/'local-check.json').read_text());assert contacts['status']=='PASS' and not contacts['lost_original_track_reference']
+ transition=json.loads((H/'transition-review.json').read_text());assert transition['status']=='PASS' and transition['candidate_sha256']==e['candidate']['board_sha256'];contacts=json.loads((H/'local-check.json').read_text());contact_evidence(contacts)
  result.update(status='PASS',opens=1942,foreign_fills_unchanged=True,local_native_antipad_zones=5,original_ground_contacts=107,original_referenced_tracks=2206,remaining_DSE_violations=4,qualified=False);return result
 if __name__=='__main__':print(json.dumps(run(),indent=2))
