@@ -1,6 +1,6 @@
 # DAC internal routing checkpoint
 
-The latest verified geometry checkpoint is [r83](CHECKPOINT-R83.md): 187 total opens and zero remaining modeled DAC connections. It adds three short ADC control joins on the front layer without vias, zones, footprint changes or replaced copper. All 91 new-route reference cases, 4,877 retained cases, 49 local returns, 205 fill-fidelity cases and 74 drill checks pass. Prior [r82](CHECKPOINT-R82.md) closed modeled DAC connectivity; missing ESS footprint, remaining ADC/board routing and analog-noise/stability qualification remain open. Selected-board identity requires integration. The frozen r26 provenance remains below.
+The latest verified geometry checkpoint is [r89](CHECKPOINT-R89.md): 177 total opens and zero remaining modeled DAC connections. It adds ten ADC monitor/control joins relative to r83, with no removed accepted copper or footprint changes. All 109 new-route reference cases, 4,877 retained cases, 57 local returns, 214 fill-fidelity cases and 84 drill checks pass. Failed return/reference candidates are retained; the accepted threshold route eliminates a redundant candidate via. Current E12-R2 monitor constraints are explicitly bound. Missing ESS, remaining ADC/board routing and analog-noise/stability qualification remain open. Selected-board identity requires integration. The frozen r26 provenance remains below.
 
 Frozen r26 board: [native-r26/signal_main.kicad_pcb](native-r26/signal_main.kicad_pcb), SHA-256 `e67e18cf534a2ef58945a3ec0e7d7ed1a4dd526cd9ed347010b7b49096390790`.
 
