@@ -1,0 +1,31 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--name",
+    "rmx-power-mechanical-roundtrip-20261113",
+    "--platform",
+    "linux/amd64",
+    "--network",
+    "none",
+    "--read-only",
+    "--memory",
+    "2g",
+    "--cpus",
+    "2",
+    "--tmpfs",
+    "/tmp:rw,size=512m",
+    "-v",
+    "/private/tmp/rmx-power-roundtrip-input-20261113:/inputs:ro",
+    "-v",
+    "/private/tmp/rmx-hardware-integration-20261112/hardware/cad/assembly_workflow/pcb_updates/power-reference-fix/native-roundtrip:/output:rw",
+    "--entrypoint",
+    "/usr/bin/python3",
+    "kicad/kicad@sha256:c8f05703e865a1caa7266851cf4986dd01d5fb1148e4f63382b6a73466ba7e71",
+    "/inputs/capture.py"
+  ],
+  "exit_code": 0,
+  "timeout": false,
+  "elapsed_seconds": 3.892954917
+}
