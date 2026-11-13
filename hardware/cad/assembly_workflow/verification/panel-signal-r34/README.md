@@ -4,4 +4,4 @@ The selected S04 receiving route connects D_J2002:6 CONTROL_23 to button_scene_4
 
 The routed centerline is180.658470 mm with minimum R12 bends; it is not a fabrication cut length. Terminations, support, receiving tolerances and complete wired opening remain unqualified. Rejected local meshes and connector/control collisions are preserved in the owner package.
 
-The selected r98 board still has the separately identified D_H4 copper-under-bearing conflict. This receiving-wire clearance result does not resolve or waive that electrical/mechanical interface issue. The candidate main fastener envelope also passes an added S04 check, but that hardware remains unselected.
+This checkpoint selected r98 with the separately identified D_H4 copper-under-bearing conflict; subsequent r107 integration repairs it. This receiving-wire clearance result does not resolve or waive that electrical/mechanical interface issue. The candidate main fastener envelope also passes an added S04 check, but that hardware remains unselected.

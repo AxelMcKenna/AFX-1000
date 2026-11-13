@@ -10,7 +10,9 @@ Sources visually checked from retained supplier PDFs:
 
 The proposed receiving bearing area is radius2.4 mm: maximum washer radius2.25 plus project acceptance limit0.15 mm for washer-center registration. The polygon circumscribes that circle. Registration is a receiving/assembly requirement, not a supplier guarantee. All 22 mount poses are matched to the exact selected native PCB footprint ownership; reference prefixes do not determine board membership.
 
-## Confirmed copper under the bearing area
+## Historical r98 copper under the bearing area
+
+The selected r107 board now clears all nine signal-mount contact regions and includes native keepouts/rules. See [root repair verification](../../pcb_updates/r107/README.md). The original r98 finding below remains preserved.
 
 At signal mount D_H4=(188,80), two LINK_SDA tracks and one LED_39 via lie inside even the original nominal Ø4.5 mm head/washer area:
 
@@ -34,4 +36,4 @@ The declared receiving budget leaves at least0.51 mm (signal) and1.30 mm (power)
 
 Ten native receiving-envelope checks pass against74 external roles; an additional check passes against the subsequently selected S04 wire. Own-contact checks retain all22 washer/PCB seat planes and all22 nut/pocket-roof planes, without calling those contacts empty intersections. Eleven host tests cover stack failures and NPTH discrimination. The source PCB's12 signal and23 power NPTH pads are proved wholly contained by their drill apertures; enlarged or offset annuli are not silently excluded. Use `npth_guard.audit()` before applying the frozen `copper_screen.audit()` to a different board.
 
-Underhead fillet/washer mating, actual screw length/tip condition, washer registration, nut bearing, printed strength, torque, feet compression and tooling remain unqualified. In particular, the simplified nominal shank is not a supplier guarantee that an unmodeled underhead transition will seat in the washer. Hardware is **not selected** while copper repair and final integration remain open.
+Underhead fillet/washer mating, actual screw length/tip condition, washer registration, nut bearing, printed strength, torque, feet compression and tooling remain unqualified. In particular, the simplified nominal shank is not a supplier guarantee that an unmodeled underhead transition will seat in the washer. Hardware is **not selected**. The r107 copper repair closes that gate; final hardware integration and physical receiving remain open.

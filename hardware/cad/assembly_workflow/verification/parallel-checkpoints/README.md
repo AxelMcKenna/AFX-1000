@@ -7,3 +7,7 @@ Root also reran the touch cradle, replacement-fastener, release-witness, endpoin
 `review.json` binds the reproduced reports and receipts. Existing selected mechanical roles and board identities were not changed by importing these packages.
 
 The isolated VIN-feed candidate also reproduces root verification and seven mutation tests:13 tracks/two vias,1944 opens,0.824621 mm signal/return separation. Only five local AGND antipads change; DC_IN and44 other fills are retained. Saved-copper deltas are checked separately from bounded native extraction quantization. Four DSE errors remain unwaived; selected TBP73 is unchanged. The r33 touch-wire1 mm deformation passes its local evidence but does not establish the actual connector release stroke or complete a touch wire.
+
+The isolated main-LDO capacitor feed also passes root verification and four tests at1943 opens. Its new0.254 mm local AGND corner envelope is explicit: two source-native corner runs,0.76447936 mm² removed, no added copper,48 other zone records exact, all four original contacts preserved and unchanged reference fill. IN/EN and the local bypass loop remain incomplete; TBP73 remains selected.
+
+The AUTO source-exit obstruction and a small holder-only relief reproduce their local evidence. That relief preserves the protected switch/posts/lead bores but leaves only a0.5 mm upper seat layer where channels pass. It remains unselected pending paired-wire/full-assembly/retention qualification; no extra wire is counted complete.
