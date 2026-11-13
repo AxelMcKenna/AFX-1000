@@ -2,6 +2,8 @@
 
 The latest verified geometry checkpoint is [r89](CHECKPOINT-R89.md): 177 total opens and zero remaining modeled DAC connections. It adds ten ADC monitor/control joins relative to r83, with no removed accepted copper or footprint changes. All 109 new-route reference cases, 4,877 retained cases, 57 local returns, 214 fill-fidelity cases and 84 drill checks pass. Failed return/reference candidates are retained; the accepted threshold route eliminates a redundant candidate via. Current E12-R2 monitor constraints are explicitly bound. Missing ESS, remaining ADC/board routing and analog-noise/stability qualification remain open. Selected-board identity requires integration. The frozen r26 provenance remains below.
 
+Design is currently held for workflow coordination. The unselected [r95 candidate](HOLD-R95.md) reaches 167 native opens but fails one new-route reference case; r89 remains the accepted 177-open checkpoint. Its rejected result is source-bound and reproducible with `verify_failed_r95 --reference`.
+
 Frozen r26 board: [native-r26/signal_main.kicad_pcb](native-r26/signal_main.kicad_pcb), SHA-256 `e67e18cf534a2ef58945a3ec0e7d7ed1a4dd526cd9ed347010b7b49096390790`.
 
 This adds 32 native connection joins to the accepted signal-input r7 board, reducing total native opens from 230 to 198. All 477 component poses, original tracks/vias, authored zones/keepouts, outline, stackup, thickness, project, and design rules remain unchanged. The additions comprise 63 route pieces, 31 signal vias, and 23 ground stitches. Left/right internal signal routing uses In3/In5 with the connected In4 reference between them. This is a bounded geometry checkpoint, not a completed DAC or fabrication release.

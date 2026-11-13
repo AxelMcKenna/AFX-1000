@@ -1,0 +1,11 @@
+# Routing hold after rejected r95 validation
+
+The user requested efficient workflow before further design. No new design or planner pass is authorized during this hold. Accepted checkpoint remains r89 (177 opens), commit 3edcf18e.
+
+The current r95 candidate reaches 167 native opens with clean geometry/ERC/parity and ten intended joins. It preserves all r89 copper, groups and component poses. All 65 local returns, 225 fill-fidelity checks, 96 drill checks and 4,877 retained-reference cases pass. One of 127 new-route reference cases fails: PD_R front escape has 0.00010027711015885879 mm² unexplained uncovered reference, bounds X80.91483497549062..80.93654616758954, Y79.28335144393549..79.300998460943. No waiver or repair has been applied after that result. This candidate is not selected or accepted.
+
+Reproduce the exact rejected state with `python -m hardware.cad.two_board_sensor_05.signal_dac.verify_failed_r95 --reference`. The command checks local source bytes, redoes the exact inventory/rejection receipt, and requires the full reference audit to fail at its intended acceptance assertion. It never promotes or rewrites evidence.
+
+Current route intent: r92 adds BIAS_SHIFT_R and disable-control connections; r94 appends four adjacent 1.27 mm unity-buffer feedback links. r95 adds their physical reference corridors. PD_L/PD_R each still lack their FDA pin escape. Further ADC/board routing, ESS footprint, analog/physical qualification and fabrication release remain open.
+
+Workflow gaps for coordination: the mechanical `run --manifest` CLI already supports candidates and cache reuse. The electrical native-fill/capture/return/reference/inventory chain still uses owner-run revision-specific scripts and separate portable receipts. Generic route planning also exhaustively enumerates existing track-midpoint via escapes, even when pad/via anchors exist, and saves successful joins only at the end of the pass. The r92 run took several minutes while doing this work. A coordinated planner improvement should preserve exact dependency identities, structured search outcomes and partial planning checkpoints; use pad/via escapes first with explicit targeted midpoint fallback. No planner implementation change is made during this hold.
