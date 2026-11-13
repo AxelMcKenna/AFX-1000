@@ -1,0 +1,7 @@
+# Root input-feed review
+
+Root independently reproduced the isolated input-feed native-evidence verifier, original contact/reference audit, transition/keepout audit and four mutation tests. One declared source-group merge reduces isolated candidate opens to 1942; other original groups and pad identities remain exact. All 107 original ground contacts and 2206 retained surface-track reference areas survive. Foreign fills are unchanged and five bounded native main-ground antipad runs are retained. The original four DSE clearance errors remain unwaived.
+
+The contact report intentionally refers to an intermediate board whose zones are byte-identical to the final board. Root explicitly checked that report's board and source-capture hashes; final track/reference checks independently bind the final board. Self-review identified that the standalone candidate verifier should itself enforce those reused-report hashes; that tightening and stale-report regression have been requested for the combined candidate. Root's full replay and explicit binding receipt are retained here.
+
+The candidate moves C907 west and clears its peer receiving conflict. Its capacitor-positive lead is 1.6464 mm and its ground lead 4.1181 mm; those lengths are not transient/impedance qualification. EN5 remains open. C13 and inductor repairs require explicit integration into one immutable native candidate before selection. Selected power remains TBP73; no fabrication or thermal approval is made.
