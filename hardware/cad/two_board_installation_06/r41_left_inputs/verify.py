@@ -25,7 +25,7 @@ for e in g['edges']:
  assert np.linalg.norm(initial/np.linalg.norm(initial)-[0,0,1])<1e-9
  for filename,prefix,radius in [('routes.scad','panel_signal_',.6),('clearance.scad','clearance_',.863)]:
   facets=24 if filename=='routes.scad' else 32
-  rotation='[17,23,31]' if filename=='routes.scad' else '[17,23,31]'
+  rotation='[17,23,31]' if filename=='routes.scad' else '[11,7,3]'
   body=(HERE/filename).read_text().split('module '+prefix+e['id']+'(){',1)[1].split('\n}',1)[0]
   expected=[]
   for a,b in zip(e['points_mm'],e['points_mm'][1:]):expected.append('hull(){translate('+json.dumps(a)+')rotate('+rotation+')sphere(r='+str(radius).lstrip('0')+',$fn='+str(facets)+');translate('+json.dumps(b)+')rotate('+rotation+')sphere(r='+str(radius).lstrip('0')+',$fn='+str(facets)+');}')

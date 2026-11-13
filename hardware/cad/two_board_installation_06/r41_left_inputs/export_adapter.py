@@ -1,6 +1,7 @@
 """Publish only verified additive S12/S13 sources; never select the root assembly."""
 import hashlib,json,re
 from pathlib import Path
+from hardware.cad.two_board_installation_06.r41_left_inputs.positive_gate import require_clean_positive
 H=Path(__file__).resolve().parent;R=H.parents[3];A=H.parent/'workflow_adapter'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 sources={}
@@ -11,15 +12,15 @@ def bind(p):
  # Rejected SCAD snapshots are evidence bytes; native verifier resolves original compile scope.
  if p.suffix=='.scad' and not any(x.startswith('rejected-r') for x in p.parts):
   for q in re.findall(r'(?:include|use)\s*<([^>]+)>',p.read_text()):bind(p.parent/q)
-for name in ['routes.json','verification.json','mutation-tests.json','native-verification.json']:
+for name in ['routes.json','verification.json','mutation-tests.json','native-verification.json','positive-gate-tests.json','allocation-clearance.json']:
  p=H/name;v=json.loads(p.read_text())
  for path,digest in v['source_sha256'].items():assert sha(R/path)==digest;bind(R/path)
  bind(p)
 checks={}
 for part in ['positive','positive_S12','positive_S13','positive_clearance','receiving','wires','structure','controls_clearance','future_touch','original_controls','lid_guide']:
- folder=H/'native'/(part+('-r8' if part=='positive_clearance' else '-r9'));p=folder/'result.json';v=json.loads(p.read_text())
+ folder=H/'native'/(part+'-r10');p=folder/'result.json';v=json.loads(p.read_text())
  assert not v['runtime_failure'] and v['empty']==(not part.startswith('positive'))
- if part.startswith('positive'):assert v['mesh']['closed_oriented_boundary'] and v['mesh']['volume_mm3']>0
+ if part.startswith('positive'):require_clean_positive(v)
  for path,digest in v['source_sha256'].items():assert sha(R/path)==digest;bind(R/path)
  for artifact in folder.iterdir():
   if artifact.is_file():bind(artifact)

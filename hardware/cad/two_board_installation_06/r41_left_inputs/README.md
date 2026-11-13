@@ -23,7 +23,7 @@ receiving hulls contain that wire after a conservative sphere-inscription and
 arc-chord bound (0.5856656 mm). The separately executed radius 0.863/fn32 controls
 probe guarantees at least 0.2505967 mm beyond the ideal radius 0.6 route:
 `0.863*cos(pi/32)^2 - 12*(1-cos(1.5deg)) - 0.6`.
-Both sphere sets use rotation [17,23,31]. The verifier reconstructs every executed
+Physical spheres use rotation [17,23,31]; margin spheres use [11,7,3]. The verifier reconstructs every executed
 hull/sphere line, point, radius, facet count and rotation. No positive volume is
 waived. Host wire surface clearance is at least 0.4218006 mm; clearance to other
 reserved input-terminal spheres is at least 2.0458879 mm. Independent exact
@@ -31,17 +31,19 @@ chord-to-box bounds cover all 2097 retained component allocation boxes, with a
 minimum surface gap 0.3532312 mm; these are captured receiving boxes, not STEP
 claims or a substitute for root's current PCB population screen.
 
-The final native set uses r9 physical positives/intersections and the exact
-unchanged r8 clearance-positive source. The r9 union/S12/S13 have 38474/16334/22140
-triangles, zero excluded degenerates and zero bad directed edges. The margin
-operand has 53562 triangles, 14 excluded degenerates and zero bad directed edges;
-its remaining oriented boundary is closed. All seven final intersection cases
+The final native set uses r10 positives and intersections. Its union/S12/S13
+have 38474/16334/22140 triangles, zero excluded degenerates and zero bad directed
+edges. The margin operand has 54806 triangles, zero excluded degenerates and
+zero bad directed edges. All four oriented boundaries are closed. All seven final intersection cases
 must be EMPTY: selected controls with margin, receiving allocations/supports,
 previous and mutual wires, structure, future touch flex with margin, original
 unrelieved controls with margin, and display lid/guide with margin. Each job is
 pinned Linux OpenSCAD with a 60 s, 2 CPU, 2 GB bound. `verify_native.py` remeasures every
 retained STL and binds sources and artifacts; `export_adapter.py` refuses a
-failed or stale final set. Nine contract mutations must be rejected.
+failed or stale final set. Both enforce the same strict positive gate: zero
+excluded degenerate facets, zero bad directed edges, closed boundary and
+positive volume. Nine route-contract mutations and five positive-gate mutations
+(including 1 and 14 excluded facets despite a closed boundary) are rejected.
 
 Rejected evidence is retained, never silently converted to pass:
 - r1–r3: nonclosed margin meshes; r1 physical wire union was closed.
@@ -54,6 +56,11 @@ Rejected evidence is retained, never silently converted to pass:
   6.325510 mm3 actual structure. Receiving/wires/touch/lid were clear.
 - r8: margin closed, physical wire union had 10 bad directed edges. r9 changes
   only physical sphere orientation; analytic paths and margin source unchanged.
+- r9: physical wires and intersections passed, but the retained r8 margin
+  operand still excluded 14 degenerate facets. Integration rejected this under
+  the earlier zero-degenerate gate. r10 changes only margin sphere orientation,
+  obtains a clean positive operand and reruns every native witness. No facet
+  deletion, repair or weakened mesh criterion is accepted.
 
 Self-review corrected a physical sphere bound that had accidentally used the
 margin's fn32 instead of physical fn24 during the rejected r7 report. The final

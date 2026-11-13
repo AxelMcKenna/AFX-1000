@@ -10,7 +10,7 @@ sources=[Path(__file__),H/'search_corridor.py',B/'r15_right_ground/curves.py',B/
 (H/'routes.json').write_text(json.dumps(dict(edges=edges,wire_radius_mm=.6,required_centerline_radius_mm=12,requires_r37_candidate=True,fabrication_released=False,opening_slack_qualified=False,source_sha256={str(p.relative_to(R)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}),indent=2)+'\n')
 for filename,radius,prefix,group in [('routes.scad',.6,'panel_signal_','panel_left_inputs'),('clearance.scad',.863,'clearance_','left_inputs_control_clearance')]:
  facets=24 if filename=="routes.scad" else 32
- rotation="[17,23,31]" if filename=="routes.scad" else "[17,23,31]"
+ rotation="[17,23,31]" if filename=="routes.scad" else "[11,7,3]"
  lines=[]
  for e in edges:
   lines.append('module '+prefix+e['id']+'(){')
