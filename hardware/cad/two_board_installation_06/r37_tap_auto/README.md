@@ -1,0 +1,13 @@
+# TAP and AUTO input routing candidate
+
+S05 connects D_J2001:9 CONTROL_02 to TAP terminal 1; S06 connects D_J2001:11 CONTROL_01 to AUTO terminal 1. Both preserve the native electrical graph and all terminal positions. Their initial R12 arcs exactly match r36's verified plastic-only scene-zero holder channels. Original holder obstruction witnesses remain in r35. No actual switch body, mounting post, lead bore or upper 0.5 mm switch-bearing layer is removed.
+
+The complete installed centerline lengths are 159.871542 and 182.430548 mm; these exclude termination and service allowances and are not cut lengths. Alpha 5853 maximum insulation diameter is 1.0922 mm, represented by a 0.6 mm receiving radius. All bends are at least R12, with analytic tangent continuity. Host checks include all 29 input-terminal reservations, r22 ground replacement, S01–S03 and candidate S04. Minimum wire surface gap, accounting for arc sampling, is 0.341655 mm. The expanded controls and future-touch probes guarantee at least 0.260895 mm modeled margin after sphere faceting and chord error.
+
+Three native positive meshes are closed oriented boundaries. The union and S06 contain four excluded zero-area triangles, with zero bad directed edges; S05 has none. Five exact native intersections are empty: revised controls at expanded radius, component and connector allocations, existing wires/supports, structure, and the r33 future-touch swept wire reservation. Every job uses bounded pinned Linux OpenSCAD. These are local scopes, not the full root assembly.
+
+Integration must replace BOTH base_button_holders (atomic, scene false) and controls_button_mechanisms (scene composite) with the additive r37 variants. The variants delegate all frozen geometry and subtract only r36's scene-zero channels. Keeping either original role would retain the proven obstruction. Wire roles remain receiving candidates. No contact waiver applies.
+
+Full root assembly screening, printed holder strength/creep/retention, real connector engagement, terminations, support, fabrication tolerances and lid-opening slack remain unqualified. The r36 receiving relief and S04 candidate are explicit dependencies; no current root selection is changed. These two routes count toward completed panel wiring only after root acceptance and do not complete physical harness qualification.
+
+Reproduce host checks with `python -m hardware.cad.two_board_installation_06.r37_tap_auto.verify`, `...test_contract`, and `...verify_native`. Native jobs use `...run CASE --revision REVISION` with fresh evidence names; do not overwrite or retry failed evidence.
