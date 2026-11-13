@@ -1,0 +1,19 @@
+# Sourced flat-seat removable-handle candidate
+
+The original fixed lever prevents vertical lid removal. The earlier removable crossbar used a generic M2 countersunk receiving cone without an exact selected screw. The retained SIK-M2-6-A4 supplier sheet lists1.2mm countersunk length,3.5..3.8mm head diameter and90..92degree angle, but does not bound its full head profile or length tolerance sufficiently to establish fit in that earlier1mm cone. This is unresolved compatibility, not a claimed native collision.
+
+This additive candidate uses Accu **SSCF-M2-6-A2**, a full-thread M2×6 socket-cap screw, with supplier head diameter3.62..3.8mm, head height1.86..2mm and1.5mm hex socket. Both primary one-page drawings were rendered and visually inspected. The source PDFs are retained; no stock availability, purchase or supplier confirmation is claimed.
+
+The handle footprint16×8mm, undersideZ53.6, socket4.4×4.4mm and stem seatZ55.6 remain unchanged. The handle is1.2mm taller (topZ58.8), with aØ4.2mm flat counterbore atZ56.5,Ø2.4mm shank bore and small underhead relief. The existing lever body/pilot remains unchanged. Nominal screw tip isZ50.5, giving5.1mm nominal thread allocation. The original selected lever remains unchanged while this candidate is screened.
+
+`contract.json` separates supplier dimensions from **unqualified project receiving requirements**: screw length5.7..6.3mm, printed/datumed heights±0.1mm, counterbore4.1..4.3mm and≤0.1mm registration. Under those assumptions the budget gives≥0.4mm tip-to-pilot-bottom margin,≥4.6mm engagement allocation (≥4.0mm after explicit incomplete-tip/entry allowances),≥0.1mm head recess and≥0.7mm bearing-roof thickness. These are acceptance requirements, not manufacturer promises or printed-thread strength/torque evidence. The modeled underhead fillet envelope also requires receiving confirmation.
+
+The motion probe bounds the new handle through0..35degrees with±0.5mm inherited axial play and0.11mm box padding. Maximum1degree arc/chord departure is below0.0011mm. The handle withdrawal is a continuous8mm vertical sweep. Allocated tool access includes aØ2mm tip andØ10×50mm upper shaft region; it is not a sourced complete screwdriver or hand/grip envelope. The cap screw must be removed before withdrawal.
+
+Each external comparison partitions every selected opponent into exact groups of eight, excluding only the original lever and its old motion envelope because the candidate replaces them. The full selected receiving and motion roles otherwise remain in scope. Own handle/body seating and screw/thread engagement need separate contact treatment; the current model retains theØ1.6mm tap pilot, so a solid screw envelope is expected to intersect the future tapped-thread region and must not be advertised as an empty clearance pass.
+
+Printed thread strength, socket fit, bearing creep, tightening/retention, exact tool handling, full wired-lid service and all existing release gates remain open. This is not a selected or fabrication-ready part.
+
+Primary sources: https://www.accu.co.uk/api/product-datasheet?id=3792 and https://www.accu.co.uk/api/product-datasheet?id=66049 .
+
+All37external operating/service and local-lift checks passed under the current runner. Raw handle/body and screw/handle contacts are exactZ55.6/Z56.5planes; neither is an empty pass. The withdrawal/body sweep is native-empty, with its initial nominal seating contact retained separately. The solid-screw/tap-pilot overlap is a closed5.758724mm³witness confined toZ50.5..55.6andØ2, classified as the future tapped-thread region—not a clearance pass or evidence of thread strength. The candidate remains unselected pending integration of its body and enlarged operating envelope into the full assembly.
