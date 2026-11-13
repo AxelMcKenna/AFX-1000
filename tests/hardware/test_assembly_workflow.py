@@ -299,6 +299,136 @@ class WorkflowTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError,'Source snapshot changed'):
                 w.main()
 
+    def allow_native_policy(self):
+        policy = self.root/'hardware/validation/board-qualification/NATIVE-CAD-STOP.json'
+        policy.parent.mkdir(parents=True, exist_ok=True)
+        policy.write_text(json.dumps(dict(isolated_Linux_restart_authorized_by_user=True, allowed_isolated_image=w.IMAGE)))
+
+    def test_export_report_binds_components_artifacts_and_recursive_sources(self):
+        candidate = self.candidate_manifest()
+        self.allow_native_policy()
+        self.seed_positive_operands()
+        output = self.root/'exports.json'
+        state = dict(geometry_fresh=True, source_sha256={}, freshness_key='board-key')
+        with patch.object(w, 'board_state', return_value=state), patch.object(w.subprocess, 'run') as native, patch.object(w.sys, 'argv',
+                ['workflow', 'export', '--manifest', str(candidate), '--only', 'a', '--output', str(output)]):
+            w.main()
+            native.assert_not_called()
+        report = json.loads(output.read_text())
+        row, = report['results']
+        self.assertEqual(row['component'], 'a')
+        self.assertTrue(row['passed'] and row['cached'])
+        folder = self.root/row['cache']
+        self.assertEqual(row['result_sha256'], w.sha(folder/'result.json'))
+        self.assertEqual(row['artifacts']['geometry.stl'], w.sha(folder/'geometry.stl'))
+        for name in ['a.scad', 'nested.scad', 'engine.py']:
+            self.assertEqual(report['snapshot_sha256'][name], w.sha(self.root/name))
+        self.assertEqual(report['board_freshness_key'], 'board-key')
+
+    def test_report_created_during_native_work_is_not_overwritten(self):
+        candidate = self.candidate_manifest()
+        self.allow_native_policy()
+        self.seed_positive_operands()
+        output = self.root/'race.json'
+        original_execute = w.execute
+        def concurrent_report(*args, **kwargs):
+            result = original_execute(*args, **kwargs)
+            output.write_text('other owner evidence')
+            return result
+        state = dict(geometry_fresh=True, source_sha256={}, freshness_key='board-key')
+        with patch.object(w, 'board_state', return_value=state), patch.object(w, 'execute', side_effect=concurrent_report), patch.object(w.sys, 'argv',
+                ['workflow', 'export', '--manifest', str(candidate), '--only', 'a', '--output', str(output)]):
+            with self.assertRaisesRegex(RuntimeError, 'Fresh evidence output required'):
+                w.main()
+        self.assertEqual(output.read_text(), 'other owner evidence')
+        self.assertFalse(list(self.root.glob('.*.tmp')))
+
+    def test_two_publishers_cannot_clobber_fresh_evidence(self):
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        target = self.root/'concurrent.json'
+        barrier = Barrier(2)
+        original_link = w.os.link
+        def synchronize(source, destination):
+            # Both publishers have finished writing their private JSON before
+            # either attempts publication of the same originally absent path.
+            json.loads(Path(source).read_text())
+            barrier.wait(timeout=5)
+            return original_link(source, destination)
+        def publish(owner):
+            try:
+                w.publish_json(target, {'owner': owner, 'payload': 'x'*10000}, replace=False)
+                return owner
+            except FileExistsError:
+                return None
+        with patch.object(w.os, 'link', side_effect=synchronize), ThreadPoolExecutor(max_workers=2) as pool:
+            winners = list(pool.map(publish, ['a', 'b']))
+        winner, = [owner for owner in winners if owner is not None]
+        self.assertEqual(json.loads(target.read_text())['owner'], winner)
+        self.assertFalse(list(self.root.glob('.*.tmp')))
+
+    def test_atomic_cache_publication_keeps_old_json_until_complete(self):
+        target = self.root/'latest.json'
+        target.write_text(json.dumps({'old': True}))
+        original_replace = Path.replace
+        observations = []
+        def observe(source, destination):
+            observations.append((json.loads(target.read_text()), json.loads(source.read_text())))
+            return original_replace(source, destination)
+        with patch.object(Path, 'replace', observe):
+            w.publish_json(target, {'new': True})
+        self.assertEqual(observations, [({'old': True}, {'new': True})])
+        self.assertEqual(json.loads(target.read_text()), {'new': True})
+        self.assertFalse(list(self.root.glob('.*.tmp')))
+
+    def test_plan_observes_incomplete_and_runtime_failure_without_retry(self):
+        identity, folder = w.job('check', self.check, self.parts)
+        folder.mkdir(parents=True)
+        w.publish_json(folder/'running.json', dict(identity=identity, pid=w.os.getpid()))
+        with patch.object(w.subprocess, 'run') as native:
+            self.assertEqual(w.plan(self.parts, {'a_b': self.check})[0]['state'], 'incomplete')
+            native.assert_not_called()
+        log = folder/'native.log'; log.write_text('preserved failure')
+        w.publish_json(folder/'result.json', dict(identity=identity, artifacts={'native.log': w.sha(log)},
+                                                runtime_failure=True, passed=False, returncode=137))
+        with patch.object(w.subprocess, 'run') as native:
+            self.assertEqual(w.plan(self.parts, {'a_b': self.check})[0]['state'], 'runtime_failed')
+            native.assert_not_called()
+        with self.assertRaisesRegex(RuntimeError, 'Failed job preserved'):
+            w.cached(identity, folder)
+        log.write_text('corrupt')
+        with self.assertRaisesRegex(AssertionError, 'Corrupt cached artifact'):
+            w.plan(self.parts, {'a_b': self.check})
+
+    def test_plan_does_not_read_transient_running_marker(self):
+        _, folder = w.job('check', self.check, self.parts)
+        folder.mkdir(parents=True)
+        (folder/'running.json').write_text('not a completed result')
+        original_read = Path.read_text
+        def reject_running_read(path, *args, **kwargs):
+            if path.name == 'running.json':
+                raise FileNotFoundError('Publisher removed running marker')
+            return original_read(path, *args, **kwargs)
+        with patch.object(Path, 'read_text', reject_running_read):
+            self.assertEqual(w.plan(self.parts, {'a_b': self.check})[0]['state'], 'incomplete')
+
+    def test_source_snapshot_merge_rejects_conflicting_geometry(self):
+        snapshot = {'a.scad': 'original'}
+        w.merge_sources(snapshot, {'nested.scad': 'dependency', 'a.scad': 'original'})
+        self.assertEqual(snapshot['nested.scad'], 'dependency')
+        with self.assertRaisesRegex(RuntimeError, 'Conflicting source snapshots: a.scad'):
+            w.merge_sources(snapshot, {'a.scad': 'changed'})
+        self.assertEqual(snapshot['a.scad'], 'original')
+
+    def test_native_returncode_is_preserved_in_failed_cache_result(self):
+        proc = type('Proc', (), dict(returncode=137, stdout='', stderr='killed'))()
+        with patch.object(w, 'command', return_value=['docker','run','image']), patch.object(w.subprocess, 'run', return_value=proc):
+            result, _ = w.execute('component', self.parts['a'], self.parts)
+        self.assertTrue(result['runtime_failure'])
+        self.assertEqual(result['returncode'], 137)
+        _, folder = w.job('component', self.parts['a'], self.parts)
+        self.assertEqual(json.loads((folder/'result.json').read_text())['returncode'], 137)
+
 
 if __name__=='__main__':
     unittest.main()

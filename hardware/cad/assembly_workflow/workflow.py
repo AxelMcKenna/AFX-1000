@@ -32,6 +32,32 @@ def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
 
+def publish_json(path, data, *, replace=True):
+    """Publish complete JSON atomically; evidence reports must never clobber."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name('.' + path.name + '-' + uuid.uuid4().hex + '.tmp')
+    try:
+        with temporary.open('x') as stream:
+            stream.write(json.dumps(data, indent=2) + '\n')
+            stream.flush()
+            os.fsync(stream.fileno())
+        if replace:
+            temporary.replace(path)
+        else:
+            # Same-directory hardlink publishes complete bytes and fails atomically
+            # if any other publisher already owns the destination (even a symlink).
+            os.link(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def merge_sources(target, incoming):
+    for path, expected in incoming.items():
+        if path in target and target[path] != expected:
+            raise RuntimeError('Conflicting source snapshots: ' + path)
+        target[path] = expected
+
+
 def relative(path):
     return str(path.resolve().relative_to(ROOT))
 
@@ -121,18 +147,22 @@ def job(kind, definition, components):
     return identity, CACHE / kind / key
 
 
-def cached(identity, folder):
+class IncompleteJobError(RuntimeError):
+    pass
+
+
+def cached(identity, folder, *, allow_runtime_failure=False):
     result = folder / 'result.json'
     if not result.exists():
         if folder.exists():
-            raise RuntimeError(f'Incomplete job preserved at {folder}; inspect its running.json/log before retrying')
+            raise IncompleteJobError(f'Incomplete job preserved at {folder}; inspect its running.json/log before retrying')
         return None
     data = json.loads(result.read_text())
     assert data['identity'] == identity, 'Cache identity mismatch'
     for name, expected in data['artifacts'].items():
         assert (folder / name).resolve().is_relative_to(CACHE.resolve()), 'Artifact outside cache'
         assert sha(folder / name) == expected, ('Corrupt cached artifact', folder / name)
-    if data['runtime_failure']:
+    if data['runtime_failure'] and not allow_runtime_failure:
         raise RuntimeError(f'Failed job preserved at {folder}; fix the cause before a new source-keyed run')
     return data
 
@@ -170,7 +200,7 @@ def execute(kind, definition, components, timeout=60, expected=None):
     folder.parent.mkdir(parents=True, exist_ok=True)
     folder.mkdir()  # Exclusive ownership: a concurrent job must not overwrite it.
     name = 'afx-assembly-' + uuid.uuid4().hex[:12]
-    (folder / 'running.json').write_text(json.dumps(dict(identity=identity, status='running', pid=os.getpid(), container=name, started=datetime.now(timezone.utc).isoformat()), indent=2))
+    publish_json(folder / 'running.json', dict(identity=identity, status='running', pid=os.getpid(), container=name, started=datetime.now(timezone.utc).isoformat()))
     source = folder / 'geometry.scad'
     operands = []
     if kind == 'check':
@@ -246,9 +276,9 @@ def execute(kind, definition, components, timeout=60, expected=None):
                              (not empty and shape is not None and shape['volume_mm3'] > 0 and shape['balanced_oriented_boundary']))
     files = [source, folder / 'native.log'] + ([target] if target.exists() else [])
     data = dict(identity=identity, passed=passed, runtime_failure=bool(failure), timeout=timed_out,
-                source_drift=drift, empty=empty, mesh=shape, container=name,
+                source_drift=drift, empty=empty, mesh=shape, container=name, returncode=returncode,
                 artifacts={os.path.relpath(p, folder):sha(p) for p in files + operands}, fabrication_released=False)
-    (folder / 'result.json').write_text(json.dumps(data, indent=2) + '\n')
+    publish_json(folder / 'result.json', data)
     (folder / 'running.json').unlink()
     return data, False
 
@@ -257,8 +287,16 @@ def plan(components, checks):
     rows = []
     for name, check in checks.items():
         ident, folder = job('check', check, components)
-        result = cached(ident, folder)
-        rows.append(dict(id=name, state='pending' if result is None else ('passed' if result['passed'] else 'interference'),
+        try:
+            result = cached(ident, folder, allow_runtime_failure=True)
+        except IncompleteJobError:
+            # Observation never reads the transient running marker: a publisher
+            # may remove it immediately after atomically installing result.json.
+            state = 'incomplete'
+        else:
+            state = ('pending' if result is None else 'runtime_failed' if result['runtime_failure']
+                     else 'passed' if result['passed'] else 'interference')
+        rows.append(dict(id=name, state=state,
                          components=sorted(set(check['left'] + check['right'])), cache=relative(folder)))
     return rows
 
@@ -295,10 +333,12 @@ def board_state(manifest):
     if frozen.exists():
         assert json.loads(frozen.read_text()) == result, 'Freshness-key collision or altered cache'
     else:
-        frozen.write_text(json.dumps(result, indent=2) + '\n')
-    temp = folder / ('latest-' + uuid.uuid4().hex + '.json')
-    temp.write_text(json.dumps(result, indent=2) + '\n')
-    temp.replace(pointer)
+        try:
+            publish_json(frozen, result, replace=False)
+        except FileExistsError:
+            # Concurrent comparisons may publish the same content-addressed key.
+            assert json.loads(frozen.read_text()) == result, 'Freshness-key collision or altered cache'
+    publish_json(pointer, result)
     return result
 
 
@@ -332,7 +372,7 @@ def recover(job_path, reason):
     archive = CACHE / 'failed' / (folder.parent.name + '-' + folder.name + '-' + uuid.uuid4().hex[:8])
     archive.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(folder), str(archive))
-    (archive / 'recovery.json').write_text(json.dumps(dict(reason=reason, archived_at=datetime.now(timezone.utc).isoformat(), automatically_retried=False), indent=2) + '\n')
+    publish_json(archive / 'recovery.json', dict(reason=reason, archived_at=datetime.now(timezone.utc).isoformat(), automatically_retried=False))
     return dict(archived=relative(archive), reason=reason, automatically_retried=False)
 
 
@@ -395,6 +435,12 @@ def main():
             batch_identities.append(component_identities[component])
             if not result['passed']:
                 raise RuntimeError(f'Component {component} is empty/invalid; inspect {job("component", components[component], components)[1]}')
+            if args.action == 'export':
+                component_folder = CACHE / 'component' / digest(component_identities[component])
+                rows.append(dict(component=component, passed=True, cached=reused,
+                                 cache=relative(component_folder),
+                                 result_sha256=sha(component_folder / 'result.json'),
+                                 artifacts=result['artifacts']))
             print(f'component {component}: ' + ('cached' if reused else 'exported'), flush=True)
         if args.action == 'check':
             for component_identity in component_identities.values():
@@ -405,12 +451,16 @@ def main():
             if result['runtime_failure']:
                 raise RuntimeError(f'Native job failed for {ident}; no automatic retry')
     for identity in batch_identities:
+        merge_sources(batch_sources, identity['sources'])
         assert_current(identity)
     assert_current({'sources': batch_sources})
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        assert not args.output.exists(), 'Fresh evidence output required'
-        args.output.write_text(json.dumps(dict(results=rows, registries=registries, snapshot_sha256=batch_sources, board_freshness_key=boards['freshness_key'], fabrication_released=False), indent=2) + '\n')
+        try:
+            publish_json(args.output, dict(results=rows, registries=registries, snapshot_sha256=batch_sources,
+                                          board_freshness_key=boards['freshness_key'], fabrication_released=False), replace=False)
+        except FileExistsError as error:
+            raise RuntimeError('Fresh evidence output required: ' + str(args.output)) from error
     if any(not row['passed'] for row in rows):
         raise SystemExit(1)
 

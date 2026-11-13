@@ -14,6 +14,20 @@ Use `./hardware/cad/assembly_workflow/run` as the short command (for example, `r
 
 `scene` writes one assembled SCAD entry point at `generated/assembly.scad`. The default is the one-piece structural assembly. Receiving envelopes and motion sweeps are opt-in, translucent layers. Atomic switch/clip/holder alternatives and split-lid bars are excluded when their composite or one-piece replacement is selected. Main-board allocations omit the seven connector reservations replaced by current panel and sensor mates. Nominal shafts, shims, springs, button mechanisms and touch parts come from existing sources; unresolved exact supplier geometry stays explicitly labeled.
 
+## Setup and daily loop
+
+From the repository root, use `uv sync --locked` to prepare the repository's `.venv`. Native checks also require the Docker engine and the pinned OpenSCAD image named in `hardware/cad/a12/enclosure_growth/r1_local/linux_runner/openscad.py`; the runner never pulls a different image automatically. Status and planning do not launch CAD.
+
+1. Run `./hardware/cad/assembly_workflow/run status` to inspect PCB freshness and check states.
+2. Edit the owning parametric SCAD source or native KiCad candidate in the task's isolated worktree. Keep supplier assumptions and installed transforms in the component registry.
+3. Run `plan --manifest path/to/candidate.json`, then `check --manifest path/to/candidate.json --only affected_check --output path/to/new-evidence.json`.
+4. Export selected parts with `export --manifest path/to/candidate.json --only component_id --output path/to/new-export-report.json`. The report identifies the component, cache result, artifact hashes and frozen source inputs; the STL stays in the content-addressed cache.
+5. Hand the candidate and evidence to the integration owner. That owner reviews the delta, runs all configured checks, then updates `current.json`. Selection remains explicit.
+
+Each owner uses unique report paths. Complete reports publish without overwriting an existing destination, including a competing writer. Cache JSON publishes atomically. Status labels incomplete and runtime-failed jobs without restarting them; only explicit diagnosis and recovery can clear a stopped job.
+
+The PCB bridge checks mechanical freshness, not electrical correctness. Each PCB handoff must separately include its revision-specific native DRC/ERC, connectivity, return/reference checks and portable verifier bound to the exact board hash. Foreign filled-zone cutbacks require explicit layer/net ownership and a native delta audit; a mechanical pass cannot authorize them. Automatic routing search and electrical verification remain their existing scripts rather than a new CAD system.
+
 ## Candidate work and parallel ownership
 
 Each agent uses its existing task branch and isolated worktree. The integration owner alone changes `current.json`; candidate checks never promote a design. Use the same runner directly for a candidate, without Python monkeypatches:
@@ -73,7 +87,7 @@ The r16 checkpoint installed the conditional splice cage and replacement selecto
 
 The r18 checkpoint added the keyed R13 guide and replacement selector rear hardware (66 roles; 22 checks). See `verification/ground-r18/`. Separate removable-handle withdrawal/tool-space checks also pass against the current modeled assembly; full service opening remains unqualified.
 
-The current selection has77 roles and94 passing clearance checks: signal r89(177opens), TBP73(1936opens), corrected scene ground r22 and three panel signals. `mechanical_capture` selects the cumulative R303/R308 update under `pcb_updates/r62/`. Native screening rejected the earlier S02 control collision and a tight nominal revision before accepting r13 with an expanded control-clearance probe. See `verification/panel-signals-r21-r13/`.
+The current selection has77 roles and94 clearance checks that passed at the frozen integration checkpoint `99c724e9`: signal r89(177opens), TBP73(1936opens), corrected scene ground r22 and three panel signals. `mechanical_capture` selects the cumulative R303/R308 update under `pcb_updates/r62/`. Native screening rejected the earlier S02 control collision and a tight nominal revision before accepting r13 with an expanded control-clearance probe. See `verification/panel-signals-r21-r13/`.
 
 There are227 further non-ground signal/power segments. The wider main-population screen passes controls and sensor checks, while `verification/coverage-01/` records an unresolved own fan-connector reservation/harness mismatch. The isolated buck and single-row connector candidates remain unselected. Full service, physical receiving, electrical/thermal and fabrication gates remain open.
 
@@ -81,4 +95,6 @@ The selected r24/r25 integration replaces the duplicated fan-bundle reservation 
 
 The historical r78 signal checkpoint preserves all477 poses and remains mechanically fresh against the r62 capture. All57 selected checks pass for its exact PCB identity; root portable reference/transition verification is retained in `pcb_updates/r78/`. At r78 one modeled DAC connection remained; r82 closed it, while ESS and analog qualification remain open.
 
-The current removable-handle integration passes94 checks and preserves the latest PCB selection. It removes the fixed-crossbar obstruction for a neutral-lever local lift, without qualifying full wired service or printed threads. See `verification/handle-r2/` for the native preview and evidence. Signal r89 is mechanically fresh and has177 opens; see `pcb_updates/r89/`.
+The removable-handle integration passed94 checks under its recorded runtime and preserves the latest PCB selection. It removes the fixed-crossbar obstruction for a neutral-lever local lift, without qualifying full wired service or printed threads. See `verification/handle-r2/` for the native preview and evidence. Signal r89 is mechanically fresh and has177 opens; see `pcb_updates/r89/`.
+
+The subsequent workflow publication/status fixes intentionally invalidate native cache keys. The 94-check result above remains bound to its original runtime; consult `run status` for verification under the current runtime. Workflow regression tests and fresh native smoke evidence are recorded in `verification/workflow-interface/`.
