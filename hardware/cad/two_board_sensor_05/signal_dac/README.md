@@ -1,6 +1,6 @@
 # DAC internal routing checkpoint
 
-The latest verified electrical checkpoint is [r62](CHECKPOINT-R62.md): 192 total opens and two remaining DAC connections. It connects both R308 pads while preserving all r50 copper and the original authored zones. R308 moves to (120.5, 81) mm with its source-derived sensitive-pad exclusion; the prior R303 translation remains. Selected-board identity and affected mechanical evidence require integration. The frozen r26 provenance remains below.
+The latest verified electrical checkpoint is [r78](CHECKPOINT-R78.md): 191 total opens and one remaining DAC connection, BIAS_P_R. It connects RX_POS_R through a verified In3/In5 transition and replaces eight explicitly inventoried agent-added copper objects. All original feedback copper and all r62 footprint poses remain unchanged. The 45.086564 mm closure route has verified reference and return geometry; analog-noise/stability qualification remains open. Selected-board identity requires integration. The frozen r26 provenance remains below.
 
 Frozen r26 board: [native-r26/signal_main.kicad_pcb](native-r26/signal_main.kicad_pcb), SHA-256 `e67e18cf534a2ef58945a3ec0e7d7ed1a4dd526cd9ed347010b7b49096390790`.
 
