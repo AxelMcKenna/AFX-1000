@@ -23,3 +23,5 @@ After successful native checks, run `package_plane.py`, then `verify_plane.py`. 
 Twelve regression tests cover subprocess success/failure/signal/timeout, prior-evidence preservation, the original quoted-coordinate defect, non-finite coordinates and library confinement. Local cell routing is the next stage and must use captured final filled geometry, with explicit pin/net assertions and semantic group deltas.
 
 Electrical receiving conditions remain unresolved: ≥200 µF effective reservoir, ≤100 mA drain, ≤20 mV distribution drop and ≤1 µs logic-delay allocation. The modeled 81.00348 µs hold interval and 50.00348 µs driver-turnoff allocation remain conditional. No process waiver or fabrication release is implied.
+
+The next verified local-copper checkpoint is `native-local-02`; see [LOCAL.md](LOCAL.md) for its 18 connections, exact preservation checks and remaining external routes.
