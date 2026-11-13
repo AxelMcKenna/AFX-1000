@@ -1,6 +1,6 @@
 # DAC internal routing checkpoint
 
-The latest verified electrical checkpoint is [r78](CHECKPOINT-R78.md): 191 total opens and one remaining DAC connection, BIAS_P_R. It connects RX_POS_R through a verified In3/In5 transition and replaces eight explicitly inventoried agent-added copper objects. All original feedback copper and all r62 footprint poses remain unchanged. The 45.086564 mm closure route has verified reference and return geometry; analog-noise/stability qualification remains open. Selected-board identity requires integration. The frozen r26 provenance remains below.
+The latest verified geometry checkpoint is [r82](CHECKPOINT-R82.md): 190 total opens and zero remaining modeled DAC connections. It closes BIAS_P_R with a 32.261504 mm front/In5 route and replaces three explicitly inventoried agent-added segments; original feedback copper and all r78 component poses remain unchanged. All 88 new-route reference cases, 4,877 retained cases, 49 local returns, 205 fill-fidelity cases and 74 drill checks pass. Missing ESS footprint, remaining board routing and analog-noise/stability qualification remain open. Selected-board identity requires integration. The frozen r26 provenance remains below.
 
 Frozen r26 board: [native-r26/signal_main.kicad_pcb](native-r26/signal_main.kicad_pcb), SHA-256 `e67e18cf534a2ef58945a3ec0e7d7ed1a4dd526cd9ed347010b7b49096390790`.
 
