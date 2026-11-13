@@ -4,6 +4,6 @@
 
 The review reproduced and fixed missing export evidence, concurrent report overwrites and status failures during active jobs. Complete cache JSON publishes atomically; reports publish without replacing another owner. Status observes incomplete or runtime-failed jobs without retrying them. Native exit codes are retained. Corrupted cache evidence and changed sources still fail closed.
 
-The original full 94-check assembly batch is retained at commit `99c724e9` and in `../handle-r2/` plus `../../pcb_updates/r89/`. It is not represented as a new-runtime pass. These interface fixes invalidate runtime-dependent keys; the new native smoke covers export, cache reuse and one real clearance, while `status.json` records the remaining pending checks. No physical-fit or fabrication approval is implied.
+The full 94-check assembly batch has now also passed under the final runtime. `full-results.json` and `full-selected-manifest.json` bind that actual rerun for signal r89 and the 77-role assembly. The earlier `status.json` is the pre-batch snapshot and remains unchanged. Historical evidence at commit `99c724e9` is retained separately. No physical-fit or fabrication approval is implied.
 
 `review.json` binds the implementation, tests and observed evidence. Root self-review was supplemented by a subagent review; it is not an external audit.
