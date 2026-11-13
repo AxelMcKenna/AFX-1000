@@ -1,0 +1,96 @@
+{
+  "native05_refill_timeout": {
+    "command": [
+      "kicad-cli",
+      "pcb",
+      "drc",
+      "--refill-zones",
+      "--save-board",
+      "--format",
+      "json",
+      "--output",
+      "/out/refill/drc.json",
+      "/out/refill/power_protection.kicad_pcb"
+    ],
+    "timeout_seconds": 180,
+    "status": "timeout",
+    "input_sha256": {
+      "/out/authored-fill.kicad_pcb": "26f6b96a34ab5f9a199b6d43fb3f88cf42275846356305adf2f744e2f3955c2b",
+      "/repo/hardware/qualification/two_board_aux_current_08/ldo_local/direct-return-plan.json": "fe4cfd9e37adfba303554647b570044e6c2a178b1dff3423b7d39d310db91cf1"
+    },
+    "returncode": null,
+    "signal": null,
+    "elapsed_seconds": 180.08073991399579,
+    "stdout.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs_unchanged": {
+      "/out/authored-fill.kicad_pcb": true,
+      "/repo/hardware/qualification/two_board_aux_current_08/ldo_local/direct-return-plan.json": true
+    }
+  },
+  "native05_authored_sha256": "26f6b96a34ab5f9a199b6d43fb3f88cf42275846356305adf2f744e2f3955c2b",
+  "selected_zone_diagnostic_phases": [
+    {
+      "phase": "load_started",
+      "elapsed_seconds": 0.030285124994406942,
+      "source_sha256": "26f6b96a34ab5f9a199b6d43fb3f88cf42275846356305adf2f744e2f3955c2b"
+    },
+    {
+      "phase": "load_completed",
+      "elapsed_seconds": 1.0862439999982598,
+      "zone_count": 50
+    },
+    {
+      "phase": "connectivity_completed",
+      "elapsed_seconds": 1.2401778339990415
+    },
+    {
+      "phase": "selected_fill_started",
+      "elapsed_seconds": 1.2421067920004134,
+      "zone_uuid": "6426ba88-8fe7-5dbe-a480-447525689bde"
+    },
+    {
+      "phase": "selected_fill_completed",
+      "elapsed_seconds": 1.3811490009975387
+    },
+    {
+      "phase": "save_completed",
+      "elapsed_seconds": 1.7129072089956026,
+      "output_sha256": "35e7edd875eba98c85c65cf2b22d64bc965a5683e1f14aa2523c4188c526fc99"
+    }
+  ],
+  "selected_zone_diagnostic_process": {
+    "command": [
+      "python3",
+      "/repo/hardware/qualification/two_board_aux_current_08/ldo_local/fill_one.py",
+      "/repo/hardware/qualification/two_board_aux_current_08/ldo_local/native-05/authored-fill.kicad_pcb",
+      "/out"
+    ],
+    "timeout_seconds": 90,
+    "status": "passed",
+    "input_sha256": {
+      "/repo/hardware/qualification/two_board_aux_current_08/ldo_local/fill_one.py": "1b70b9d96599ee94eebc204ccf555885093340944b316eb0f814efd9f0908043",
+      "/repo/hardware/qualification/two_board_aux_current_08/ldo_local/native-05/authored-fill.kicad_pcb": "26f6b96a34ab5f9a199b6d43fb3f88cf42275846356305adf2f744e2f3955c2b"
+    },
+    "returncode": 0,
+    "signal": null,
+    "elapsed_seconds": 2.1554519170022104,
+    "stdout.log_sha256": "7d6ea3a5cb93e877325c5885cd18593f1355919e5a695728a1238125d27dca92",
+    "stderr.log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs_unchanged": {
+      "/repo/hardware/qualification/two_board_aux_current_08/ldo_local/fill_one.py": true,
+      "/repo/hardware/qualification/two_board_aux_current_08/ldo_local/native-05/authored-fill.kicad_pcb": true
+    }
+  },
+  "interpretation": "Selected new-zone fill works. Full-board CLI timeout cause remains undetermined; no unchanged retry or timeout increase was used.",
+  "native06_rejected_stale_input": {
+    "expected_host_current_sha256": "042f0a8070022ba94164d1c1b41087c1d63ac7602826f7d112a9cc63f9e88872",
+    "native_recorded_sha256": {
+      "/repo/hardware/qualification/two_board_aux_current_08/ldo_local/authored/P_power_p03.kicad_sch": "95b142b9bbf2573cd4ec6e70625536ca8ec6302ff94175d4bc45a167cb5b7b07"
+    },
+    "status": "Rejected by semantic equality; not promoted. The reused path returned prior bytes in native run. Filesystem caching cause not proved."
+  },
+  "native04_priority_failure": "Missing optional priority lookup raised IndexError before fill; corrected safe optional-node lookup.",
+  "native01_to03": "Initial cap pad required explicit F.Cu ground cutback; full refill remote changes rejected, then exact native local corner run retained. The long ground chain was rejected as a local bypass return.",
+  "native07_remaining_silk": "Reference text overlapped P_L20. Native08 changes only this new reference text, does not refill."
+}
