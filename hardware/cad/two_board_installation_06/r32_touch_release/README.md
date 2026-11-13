@@ -58,3 +58,22 @@ Self-review corrected the conflation of full-cradle removal with connector
 unmating, and added both host and C3 fixed-end length checks rather than
 assessing only the outgoing halves. Length sufficiency, motion clearance,
 actual mating compatibility and assembly qualification remain separate.
+
+## Restricted constant-length deformation
+
+`bend_family.py` supplies an exact analytic deformation of the four **host-side
+halves only** with their source exits fixed. For a pure +Y connector translation
+`t`, increase the downstream quarter-circle radius from 13 to
+`13+t/(2-pi/2)` mm and shorten both adjacent straight runs accordingly. This
+preserves wire length and both terminal tangent directions, with radius never
+below 13 mm. The first straight reaches zero at a common four-wire travel limit
+of **10.874447 mm** (individual limits 10.874447, 12.171042, 12.402812 and
+11.569757 mm). The identities and nonnegative straight lengths are checked at
+101 points per wire, including both endpoints.
+
+This family cannot achieve the prescribed 24 mm whole-cradle removal. That is
+not a proof against other deformation families. No swept clearance, mutual
+wire separation, outgoing-half constant-length deformation or Z-lift is
+verified. In particular, the increased radii change the corridors, so the
+installed r29 clearance results cannot be reused for this motion. Actual
+unmating travel remains unknown and is not set to the analytic family limit.
