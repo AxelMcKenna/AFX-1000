@@ -87,7 +87,7 @@ The r16 checkpoint installed the conditional splice cage and replacement selecto
 
 The r18 checkpoint added the keyed R13 guide and replacement selector rear hardware (66 roles; 22 checks). See `verification/ground-r18/`. Separate removable-handle withdrawal/tool-space checks also pass against the current modeled assembly; full service opening remains unqualified.
 
-The current selection has 86 roles and 169 passing clearance checks: signal r131 (164 opens), TBP73 (1936 opens), corrected scene ground r22 and eleven receiving panel inputs. `mechanical_capture` selects the cumulative R303/R308/D101 update under `pcb_updates/r125/`. Native screening rejected the earlier S02 control collision and a tight nominal revision before accepting r13 with an expanded control-clearance probe. See `verification/panel-signals-r21-r13/`.
+The current selection has 86 roles and 169 passing clearance checks: signal r139 (163 opens), TBP73 (1936 opens), corrected scene ground r22 and eleven receiving panel inputs. `mechanical_capture` selects the cumulative R303/R308/D101 update under `pcb_updates/r125/`. Native screening rejected the earlier S02 control collision and a tight nominal revision before accepting r13 with an expanded control-clearance probe. See `verification/panel-signals-r21-r13/`.
 
 There are 219 further non-ground signal/power segments. The wider main-population screen passes controls and sensor checks, while `verification/coverage-01/` records an unresolved own fan-connector reservation/harness mismatch. The isolated buck and single-row connector candidates remain unselected. Full service, physical receiving, electrical/thermal and fabrication gates remain open.
 
@@ -95,7 +95,7 @@ The selected r24/r25 integration replaces the duplicated fan-bundle reservation 
 
 The historical r78 signal checkpoint preserves all477 poses and remains mechanically fresh against the r62 capture. All57 selected checks pass for its exact PCB identity; root portable reference/transition verification is retained in `pcb_updates/r78/`. At r78 one modeled DAC connection remained; r82 closed it, while ESS and analog qualification remain open.
 
-The removable-handle integration passed94 checks under its recorded runtime and preserves the latest PCB selection. It removes the fixed-crossbar obstruction for a neutral-lever local lift, without qualifying full wired service or printed threads. See `verification/handle-r2/` for the native preview and evidence. Signal r131 is mechanically fresh and has 164 opens; see `pcb_updates/r131/`.
+The removable-handle integration passed94 checks under its recorded runtime and preserves the latest PCB selection. It removes the fixed-crossbar obstruction for a neutral-lever local lift, without qualifying full wired service or printed threads. See `verification/handle-r2/` for the native preview and evidence. Signal r139 is mechanically fresh and has 163 opens; see `pcb_updates/r139/`.
 
 The subsequent workflow publication/status fixes intentionally invalidated native cache keys. All 94 selected checks have now passed again under that final runtime; see `verification/workflow-interface/full-results.json`. Workflow regression tests, fresh native export/cache smoke evidence and the frozen assembly selection are retained alongside it.
 
