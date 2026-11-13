@@ -1,6 +1,6 @@
 # Main PCB fastener and copper-contact audit
 
-The selected assembly still uses generic heads at 22 main-board mounts. This study proposes full screw/washer/nut stacks while preserving the sensor-owned D_H2/D_H5 mounts and original shallow nut pockets. No replacement hardware is selected.
+This r1 study proposed full screw/washer/nut stacks for22main-board mounts, preserving sensor-owned D_H2/D_H5 and the original shallow nut pockets. The later [r2 integration](../main-fasteners-r2/README.md) selects this conditional nominal geometry after full assembly screening. Physical receiving and strength remain unqualified.
 
 Sources visually checked from retained supplier PDFs:
 
@@ -36,4 +36,4 @@ The declared receiving budget leaves at least0.51 mm (signal) and1.30 mm (power)
 
 Ten native receiving-envelope checks pass against74 external roles; an additional check passes against the subsequently selected S04 wire. Own-contact checks retain all22 washer/PCB seat planes and all22 nut/pocket-roof planes, without calling those contacts empty intersections. Eleven host tests cover stack failures and NPTH discrimination. The source PCB's12 signal and23 power NPTH pads are proved wholly contained by their drill apertures; enlarged or offset annuli are not silently excluded. Use `npth_guard.audit()` before applying the frozen `copper_screen.audit()` to a different board.
 
-Underhead fillet/washer mating, actual screw length/tip condition, washer registration, nut bearing, printed strength, torque, feet compression and tooling remain unqualified. In particular, the simplified nominal shank is not a supplier guarantee that an unmodeled underhead transition will seat in the washer. Hardware is **not selected**. The r107 copper repair closes that gate; final hardware integration and physical receiving remain open.
+Underhead fillet/washer mating, actual screw length/tip condition, washer registration, nut bearing, printed strength, torque, feet compression and tooling remain unqualified. In particular, the simplified nominal shank is not a supplier guarantee that an unmodeled underhead transition will seat in the washer. This r1 packet records the original unselected study. The subsequent r2 packet selects the nominal stacks after full integration; underhead mating and other physical receiving requirements remain open.

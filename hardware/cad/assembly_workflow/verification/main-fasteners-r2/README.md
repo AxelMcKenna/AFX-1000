@@ -1,0 +1,11 @@
+# Full main-board mounting stacks
+
+The selected integration replaces the 22 generic main-board heads with sourced nominal screw/washer/nut stacks and adds a conservative receiving envelope. All unrelated geometry, sensor-owned D_H2/D_H5 hardware, nine panel inputs and selected board identities are preserved. The checkpoint has 84 modeled roles and 157 passing clearance checks: all 147 previous checks, plus ten receiving-envelope checks against every one of the 80 external prior roles.
+
+Signal mounts use SSCF-M2-10-A2 screws; power mounts use SSCF-M2-12-A2. Both use HRDW-M2-A4-BL washers and HPN-M2-A2 nuts, with the original shallow nut-pocket roof. The bare-board H_NEW5 stack is distinct from the unselected touch-cradle's 14 mm screw/tab stack. Supplier PDFs, dimensions and receiving budgets are retained in `../main-fasteners-r1/`; `preview.png` is a visually inspected nominal section schematic, not exact supplier CAD.
+
+Root recomputed all 22 conductive bearing regions against selected r131/TBP73 and found no copper contact. All 12 signal and 23 power NPTH pads were independently proved drill-only before being excluded from the copper screen. No solder mask or coating is credited as bearing insulation. The native signal mounting keepouts remain intact.
+
+Own contact is treated separately. Exact source/runtime identity proves that the full nominal hardware, PCB and shell seat geometry matches the r1 contact evidence: 22 washer/board planes and 22 nut/pocket-roof planes, each limited to its intended seat. They are not empty-intersection passes. No foreign contact or external obstacle is excluded. Eleven budget/NPTH regression tests pass. The selected registry carries these narrowly scoped contact records.
+
+The receiving requirements leave at least 0.51 mm (signal) and 1.30 mm (power) of full thread beyond the nut after tip allowance. Minimum main-fastener table gaps are 4.11/3.20 mm only if measured loaded local floor clearance is at least 6 mm; these are not the minimum clearances of every screw elsewhere in the housing. Underhead fillet/washer mating, actual length/tip conformity, centering/alignment, nut bearing, torque, creep, printed strength, tool access and feet compression remain unqualified. Selecting this nominal geometry does not qualify physical hardware or release fabrication.
