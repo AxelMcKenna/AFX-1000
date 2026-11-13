@@ -23,3 +23,5 @@ Run from the repository root:
 The existing four DSE clearance errors remain unwaived. Actual current, transient/return impedance, installed thermal performance, hold-up/RESET loading and driver shutdown timing remain qualification gates. This input feed alone does not establish the conditional 20 mV distribution allocation. Main LDO feed, remote supervisor, RESET and held distribution still need completion.
 
 Observed verification: native opens 1945 → 1944; exact declared group merge only; all original objects/pad identities retained; both mechanical contact audits pass; no reference exception outside the actual via antipads.
+
+The extraction comparison is a measured equivalence check, not a universal KiCad error guarantee: saved-versus-Unfracture boundary Hausdorff distances are 0.707088, 1.000000, 0.707096, 0.707088 and 0.707088 nm. KiCad coordinates use a 1 nm grid. The 1.1 nm comparison limit allows 0.1 nm numerical margin over the observed single-grid-step maximum; it applies only to extraction, never to saved copper, clearance or contact loss. The verifier records each measured distance and rejects a larger discrepancy.
