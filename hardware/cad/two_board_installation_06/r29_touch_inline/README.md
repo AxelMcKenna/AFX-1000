@@ -1,0 +1,31 @@
+# Touch inline receiving study (r29)
+
+Not selected, not a complete qualified harness. Four paired route segments join the D_J1009 direct-wire exit study to C3 J1 through a provisional inline connector reservation. No panel edges are completed. Direct solder joints, strip/tail geometry, supports, latch access, disconnection travel, controlled connector dimensions, crimp qualification and bus capacitance remain open. Native intersections are diagnostic evidence, not full-assembly acceptance.
+
+## Proposed connector
+
+JST PNIRR-04VF / PNIRP-04V-S, with SPNI-001T-P0.5 pin and SPND-001T-C0.5 socket contacts. Both are tin interfaces, specified for 26–22 AWG and insulation OD 1.0–1.5 mm. Alpha 5854 is 24 AWG with OD 1.016–1.2446 mm; this interval lies inside both contact ranges. This does not qualify a crimp process.
+
+The [current JST catalog](https://jst.co.uk/downloads/series/ePNI-WW_%2821-08-25%29.pdf) specifies AP-K2N tooling with APLMK SPAL001-05 and APLMK SPND001-05 applicators. The corresponding wire-specific crimp setup/inspection remains required. YC-610R is not accepted for Alpha 5854 merely because it lists 24 AWG: its [manufacturer tool sheet](https://media.digikey.com/pdf/Data%20Sheets/JST%20PDFs/YC-610R_spec.pdf) specifies UL1007 wire, fixed insulation dies, and appearance/tensile checks. Alpha's insulation is not that specified wire.
+
+The catalog's 21.35 mm assembly length is a reference dimension. The route study reserves a project-defined 11 × 23 × 11 mm box; it is **not a manufacturer maximum, exact STEP, or confirmed terminal-axis registration**. Project cavity labels 1–4 correspond respectively to host pins 1–4; controlled housing-view pin orientation must be established before a wiring drawing is released. C3 destinations are copied from the frozen r26 contract: pins 3,4,6,5. C3 pins 1 and 2 remain unused.
+
+## Rejected alternatives and diagnostic history
+
+- Molex 70107-0003 / 50579404 mating family is confirmed by the [current female housing page](https://www.molex.com/en-us/products/part-detail/50579404). Gold contacts 16-02-0110 / 16-02-0098 accept the gauge and general OD range. However both current hand-tool sheets [63825-8800](https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/applicationtoolingspecificationpdf/638/63825/ATS-638258800-001.pdf) and [200218-7000](https://www.molex.com/content/dam/molex/molex-dot-com/products/automated/en-us/applicationtoolingspecificationpdf/200/200218/2002187000-000.pdf) recommend 1.25–1.40 mm insulation for the 24 AWG profile. Alpha 5854's whole specified OD range is below that recommendation. No compliant insulation grip is claimed. Male housing drawing retained as manufacturer-authored mirror; reference dimensions do not become maxima.
+- JST SM/RCY contact minimum insulation OD 1.2 mm does not cover the wire's full range. [Primary SM catalog](https://www.jst-mfg.com/product/pdf/eng/eSM.pdf).
+- Draft r1: mutual wire intersection EMPTY; population collision 51.497625 mm³, control collision 37.908781 mm³, ground/support collision 5.910709 mm³. Preserve all three native witnesses and `rejected-r1/`. No masks were added. The next draft relocates the inline body and longitudinal corridors beyond the identified capacitor/control/ground obstacles.
+
+## Checks
+
+Run the generator from the repository root. All native probes use the existing bounded pinned Linux runner. `verify_study.py` checks retained catalog/source hashes, full OD containment, exact endpoint/net ownership, and rejects the known tool/insulation mismatch; it does not certify physical fit. Remaining route curvature/separation and positive-volume proofs must precede integration.
+
+Draft r2 cleared population but the connector reservation intersected a control underside by 9.819923 mm³. Lowering that unchanged-size box cleared controls but draft r3 intersected a different population allocation by 13.302805 mm³. Both snapshots/witnesses remain. Draft r4 translates the box to X172–183, Y113.5–136.5, Z21.5–32.5; no obstacles were reduced or excluded to achieve that change.
+
+`separation.py` verifies every pair of different wire segments with a conservative box-distance prune, then subtracts wire diameters and both arc chord-sag errors. r4 minimum surface-gap bound is 0.334768 mm, above the 0.25 mm project minimum. `verify_study.py` reconstructs all circles/lines from independent primitives, checks tangent joins and R13 minimum, and proves the source bends equal r27. Its four mutations reject wrong-port (net-identical D_J1010), wrong-net, insulation tolerance, and unsupported tooling qualification. The curve extension takes an earlier point on r27's straight westbound segment; it does not move the source bends.
+
+Self-review: the inline body is an allocated space, not a controlled part model; source and C3 solder datums remain unfinished, and no clips/strain relief or release clearance is modeled. These are blockers to selecting an installed harness, explicitly retained rather than waived. Existing local probes omit the detailed C3 module and root's newer main-board population changes; integration must screen these and scope only actual terminal contact. Do not promote this geometry as complete hardware. Source-only r27 is not intended to coexist as a duplicate with these paths.
+
+Final tessellation trial r6 preserves r4 centerlines, R13 bends and 0.65 mm wire radius, rotating each sphere's facet orientation by [11,7,3] degrees. r4 and r5 positive meshes had duplicate directed edges and remain rejected evidence; increasing facet count alone did not solve it. r6 positive mesh is closed with 92,680 triangles, zero degenerate triangles and zero bad directed edges. Rotation does not reduce the sphere's conservative inscribed-radius bound; the maximum Alpha insulation radius remains enclosed with >0.017 mm margin after chord error.
+
+The modeled free-wire lengths are TH1 249.57, TH2 249.03, TH3 252.78 and TH4 248.76 mm, excluding connector internal length, termination preparation and service allowance. These are path lengths, not cut lengths. The shared 400 kHz I2C capacitance budget remains unverified; no capacitance per metre is inferred for these separated wires.
