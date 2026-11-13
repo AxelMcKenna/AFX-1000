@@ -1,0 +1,43 @@
+"""Retarget only three complete isolated driver/bypass supply branches."""
+import ast,json,sys,hashlib,shutil,subprocess,uuid
+from pathlib import Path
+import pcbnew
+H=Path(sys.argv[1]);OUT=Path(sys.argv[2]);BASE=H/'bypass_local/native-02'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+# Reuse the reviewed native inspectors without executing their entry points.
+for name,names in [('routed/native.py',{'groups','object_state','fill_state'}),('routed/identity_native.py',{'identity','polygons'})]:
+ tree=ast.parse((H/name).read_text());exec(compile(ast.Module(body=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in names],type_ignores=[]),name,'exec'))
+b=pcbnew.LoadBoard(str(BASE/'power_protection.kicad_pcb'));before,opens=groups(b);state=object_state(b);fills=fill_state(b);pads={f.GetReference()+'.'+p.GetNumber():p for f in b.GetFootprints() for p in f.Pads() if p.GetNumber()};objects={p.m_Uuid.AsString():p for f in b.GetFootprints() for p in f.Pads()};objects.update({t.m_Uuid.AsString():t for t in b.GetTracks()});ident={p.m_Uuid.AsString():identity(p,b) for f in b.GetFootprints() for p in f.Pads()}
+plan=json.loads((H/'bypass_local/c36-return.json').read_text());net=b.GetNetsByName()['PWR_AGND'];moves={};branches=plan['routes'];added=[]
+for i,r in enumerate(branches):
+ for j,(start,end) in enumerate(zip(r['path_mm'],r['path_mm'][1:])):
+  t=pcbnew.PCB_TRACK(b);t.SetUuid(pcbnew.KIID(str(uuid.uuid5(uuid.NAMESPACE_URL,'RMX:C36-RETURN-01:'+str(i)+':'+str(j)))));t.SetStart(pcbnew.VECTOR2I(*[pcbnew.FromMM(x) for x in start]));t.SetEnd(pcbnew.VECTOR2I(*[pcbnew.FromMM(x) for x in end]));t.SetWidth(pcbnew.FromMM(r['width_mm']));t.SetLayer(pcbnew.F_Cu);t.SetNet(net);b.Add(t);added.append(t.m_Uuid.AsString())
+for v in plan['new_vias']:
+ t=pcbnew.PCB_VIA(b);t.SetUuid(pcbnew.KIID(str(uuid.uuid5(uuid.NAMESPACE_URL,'RMX:C36-RETURN-01:via:'+v['name']))));t.SetPosition(pcbnew.VECTOR2I(*[pcbnew.FromMM(x) for x in v['position_mm']]));t.SetWidth(pcbnew.FromMM(v['size_mm']));t.SetDrill(pcbnew.FromMM(v['drill_mm']));t.SetViaType(pcbnew.VIATYPE_THROUGH);t.SetLayerPair(pcbnew.F_Cu,pcbnew.B_Cu);t.SetNet(net);b.Add(t);added.append(t.m_Uuid.AsString())
+OUT.mkdir(parents=True,exist_ok=True)
+for n in ['power_protection.kicad_pro','power_protection.kicad_dru','fp-lib-table']:shutil.copy2(BASE/n,OUT/n)
+shutil.copytree(BASE/'libraries',OUT/'libraries',dirs_exist_ok=True)
+pcbnew.SaveBoard(str(OUT/'power_protection.kicad_pcb'),b);b=pcbnew.LoadBoard(str(OUT/'power_protection.kicad_pcb'));after,afteropens=groups(b);now=object_state(b)
+assert set(now)==set(state)|set(added)
+for u,old in state.items():
+ expected=list(old)
+ if u in moves:expected[1]=moves[u]
+ assert now[u]==expected,(u,'Unexpected physical or net change')
+assert fills==fill_state(b)
+mainrow=next(r for r in before if '00b41082-e346-59e4-aee2-f34d9b87e697' in r['members']);joined=set(mainrow['members']);sourcegroups=[]
+for r in branches:
+ row=next(x for x in before if r['source_uuid'] in x['members']);assert row['members']==[r['source_uuid']];joined.update(row['members']);sourcegroups.append(row)
+expected=[x for x in before if x!=mainrow and x not in sourcegroups]+[{'net':'PWR_AGND','members':sorted(joined|set(added))}]
+assert sorted(expected,key=lambda r:r['members'])==sorted(after,key=lambda r:r['members'])
+newident={p.m_Uuid.AsString():identity(p,b) for f in b.GetFootprints() for p in f.Pads()};assert set(ident)==set(newident)
+for u,old in ident.items():
+ expected=dict(old)
+ if u in moves:expected['net']=moves[u]
+ assert expected==newident[u]
+mapping=json.loads((H/'routed/anonymous-pad-mapping.json').read_text());keys=[]
+for row in mapping['mappings']:
+ u=row['candidate_uuid'];assert ident[u]==newident[u]==row['full_physical_identity'];keys.append(json.dumps(newident[u],sort_keys=True))
+assert len(keys)==55 and len(set(keys))==55
+subprocess.run(['kicad-cli','pcb','drc','--format','json','--output',str(OUT/'drc.json'),str(OUT/'power_protection.kicad_pcb')],check=True)
+report={'source_sha256':sha(BASE/'power_protection.kicad_pcb'),'candidate_sha256':sha(OUT/'power_protection.kicad_pcb'),'script_sha256':sha(Path(__file__)),'plan_sha256':sha(H/'bypass_local/c36-return.json'),'added_copper_uuids':added,'declared_joined_source_uuids':[r['source_uuid'] for r in branches],'native_groups_before':len(before),'native_groups_after':len(after),'exact_declared_group_merges_only':True,'all_original_pad_identities_unchanged':True,'all_original_fills_unchanged':True,'all_original_copper_unchanged':True,'anonymous_identity_bijection_preserved':55,'opens_before':opens,'opens_after':afteropens,'qualified':False}
+(OUT/'review.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))
