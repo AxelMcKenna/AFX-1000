@@ -18,8 +18,11 @@ def run():
         assert result['passed'] and not result['runtime_failure'], name
         identities.append(identity)
     rows = []
-    for name, other, z in [('hardware_shell_seat', 'cooling_shell', 4.8), ('hardware_board_seat', 'panel_touch_c3_r25', 21.6)]:
-        check = dict(id=name, left=['panel_touch_hardware_r26'], right=[other], expect='empty')
+    for name, left, other, z in [
+            ('hardware_shell_seat', 'panel_touch_hardware_r26', 'cooling_shell', 4.8),
+            ('hardware_board_seat', 'panel_touch_hardware_r26', 'panel_touch_c3_r25', 21.6),
+            ('board_shell_seat', 'panel_touch_c3_r25', 'cooling_shell', 20.0)]:
+        check = dict(id=name, left=[left], right=[other], expect='empty')
         identity, folder = w.job('check', check, parts)
         result, reused = w.execute('check', check, parts, expected=identity)
         assert not result['runtime_failure'], name
