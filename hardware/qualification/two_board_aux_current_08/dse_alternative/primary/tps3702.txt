@@ -1,0 +1,1720 @@
+                                                                                                                                                                                  TPS3702
+                                                                                                                           SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+                                            TPS3702 High-Accuracy Over and Undervoltage Monitoring
+
+1 Features                                                                                                 3 Description
+•   Input Voltage Range: 2V to 18V                                                                         The TPS3702 is an integrated overvoltage and
+•   High threshold accuracy:                                                                               undervoltage window voltage detector in a small
+    – 0.25% (typical)                                                                                      SOT-6 package. This highly accurate voltage detector
+    – 0.9% (–40°C to 125°C)                                                                                is an excellent choice for systems that operate on
+•   Fixed window thresholds optimized for nominal                                                          low-voltage supply rails and have narrow margin
+    rails between 1V and 5V                                                                                supply tolerances. Low threshold hysteresis options
+•   Open-drain outputs for overvoltage and                                                                 of 0.55% and 1.0% prevent false reset signals when
+    undervoltage indication                                                                                the monitored voltage supply is in the normal range
+•   Internal glitch immunity                                                                               of operation. Internal glitch immunity and noise filters
+•   Threshold adjust using the SET pin                                                                     further eliminate false resets resulting from erroneous
+•   Low quiescent current: 7µA (typical)                                                                   signals.
+•   Internal threshold hysteresis: 0.55%, 1.0%                                                             The TPS3702 does not require any external resistors
+•   SOT-6 package                                                                                          for setting overvoltage and undervoltage reset
+2 Applications                                                                                             thresholds, which further increases overall accuracy
+                                                                                                           and reduces solution size and cost. The SET
+•   FPGA and ASIC applications                                                                             pin is used to select between the two available
+•   DSP-based systems                                                                                      threshold voltages designed into each device. A
+•   Industrial control systems                                                                             separate SENSE input pin and VDD pin allow
+•   Factory automation                                                                                     for the redundancy sought by safety-critical and
+•   Personal electronics                                                                                   high-reliability systems. This device also features
+•   Building automation                                                                                    independent reset outputs for the OV and UV pins;
+•   Motor drives                                                                                           as a result of the open-drain configuration, UV and
+                                        Undervoltage Accuracy vs Temperature                               OV can be tied together.
+                       0.5
+                                            Unit 1                    Unit 2              Unit 3
+                       0.4                  Unit 4                    Unit 5              Avg              This device has a low typical quiescent current
+                       0.3                                                                                 specification of 7µA and is qualified for use over the
+                       0.2
+                                                                                                           industrial temperature range of –40°C to 125°C.
+
+     UV Accuracy (%)
+                       0.1
+                         0                                                                                                      Device Information
+                       -0.1                                                                                                                                    BODY SIZE (NOM)
+                                                                                                                 PART NUMBER            PACKAGE (1)                         (2)
+                       -0.2
+                       -0.3                                                                                TPS3702                SOT (6)                      2.90mm × 1.60mm
+                       -0.4
+                       -0.5                                                                                (1)    For all available packages, see the orderable addendum at
+                              ±40 ±25 ±10     5       20    35   50     65     80   95 110 125 140                the end of the data sheet.
+                                                           Temperature (°C)                                (2)    The package size (length × width) is a nominal value and
+                                            Overvoltage Accuracy vs Temperature                                   includes pins, where applicable.
+                       0.5
+                                             Unit 1                   Unit 2               Unit 3                                    Nominal Monitored Rail
+                       0.4                   Unit 4                   Unit 5               Avg                                            Up to 5 V
+                       0.3
+                       0.2
+
+
+
+
+     OV Accuracy (%)
+                       0.1
+                         0                                                                                                        TPS3702        R2       R1
+                                                                                                                   Up to
+                       -0.1                                                                                        18 V                                               VDD
+                       -0.2                                                                                                   SENSE         UV                  RST
+                       -0.3
+                                                                                                                              VDD
+                       -0.4                                                                                                                                           µP
+                                                                                                                   Up to
+                       -0.5
+                                                                                                                               SET
+                                                                                                                   6.5 V
+                              ±40 ±25 ±10    5       20    35    50    65      80   95 110 125 140
+                                                                                                                               GND          OV                  NMI
+                                                                                                    C001
+                                                           Temperature (°C)
+
+                                Accuracy versus Temperature
+
+                                                                                                                           Typical Application Circuit
+         An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+         intellectual property matters and other important disclaimers. PRODUCTION DATA.
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                                                                  www.ti.com
+
+
+                                                                        Table of Contents
+1 Features............................................................................1   7 Application and Implementation.................................. 13
+2 Applications..................................................................... 1       7.1 Application Information............................................. 13
+3 Description.......................................................................1       7.2 Typical Application.................................................... 17
+4 Pin Configuration and Functions...................................3                     8 Power Supply Recommendations................................19
+5 Specifications.................................................................. 4      9 Layout.............................................................................20
+  5.1 Absolute Maximum Ratings........................................ 4                    9.1 Layout Guidelines..................................................... 20
+  5.2 ESD Ratings............................................................... 4          9.2 Layout Example........................................................ 20
+  5.3 Recommended Operating Conditions.........................4                          10 Device and Documentation Support..........................21
+  5.4 Thermal Information....................................................4              10.1 Device Support....................................................... 21
+  5.5 Electrical Characteristics.............................................5              10.2 Documentation Support.......................................... 22
+  5.6 Timing Requirements.................................................. 6               10.3 Support Resources................................................. 22
+  5.7 Typical Characteristics................................................ 7             10.4 Trademarks............................................................. 22
+6 Detailed Description......................................................10              10.5 Electrostatic Discharge Caution..............................22
+  6.1 Overview................................................................... 10        10.6 Glossary..................................................................22
+  6.2 Functional Block Diagram......................................... 10                11 Revision History.......................................................... 22
+  6.3 Feature Description...................................................11            12 Mechanical, Packaging, and Orderable
+  6.4 Device Functional Modes..........................................12                   Information.................................................................... 22
+
+
+
+
+2       Submit Document Feedback                                                                                          Copyright © 2024 Texas Instruments Incorporated
+
+                                                                      Product Folder Links: TPS3702
+                                                                                                                                        TPS3702
+www.ti.com                                                                                    SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+
+4 Pin Configuration and Functions
+                                                           UV   1                    6   OV
+
+                                                         GND    2                    5   VDD
+
+                                                       SENSE    3                    4   SET
+
+
+                                                         Figure 4-1. DDC Package
+                                                                  SOT-6
+                                                                 Top View
+
+                                                         Table 4-1. Pin Functions
+             PIN
+                                     I/O                                                 DESCRIPTION
+      NO.          NAME
+                                              Active-low, open-drain undervoltage output. This pin goes low when the SENSE voltage falls
+ 1                   UV              O        below the internally set undervoltage threshold (VIT–). See the timing diagram in Figure 5-1 for
+                                              more details. Connect this pin to a pull-up resistor terminated to the desired pull-up voltage.
+ 2                  GND              —        Ground
+                                              Input for the monitored supply voltage rail. When the SENSE voltage goes below the
+ 3                 SENSE              I       undervoltage threshold, the UV pin is driven low.
+                                              When the SENSE voltage goes above the overvoltage threshold, the OV pin is driven low.
+                                              Use this pin to configure the threshold voltages.
+ 4                   SET              I
+                                              Refer to Table 10-1 for the desired configuration.
+                                              Supply voltage input pin. To power the device, connect a voltage supply (within the range of 2V
+ 5                  VDD               I       and 18V) to VDD.
+                                              Good analog design practice is to place a 0.1μF ceramic capacitor close to this pin.
+                                              Active-low, open-drain overvoltage output. This pin goes low when the SENSE voltage rises
+ 6                   OV              O        above the internally set overvoltage threshold (VIT+). See the timing diagram in Figure 5-1 for
+                                              more details. Connect this pin to a pull-up resistor terminated to the desired pull-up voltage.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                               Submit Document Feedback           3
+                                                          Product Folder Links: TPS3702
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                                               www.ti.com
+
+
+5 Specifications
+5.1 Absolute Maximum Ratings
+over operating free-air temperature range (unless otherwise noted)(1)
+                                                                                                       MIN              MAX                   UNIT
+                              VDD                                                                      –0.3               20                    V
+    Voltage                   VUV, VOV                                                                 –0.3               20                    V
+                              VSENSE, VSET                                                             –0.3                  7                  V
+    Current                   IUV, IOV                                                                                   ±40                   mA
+    Continuous total power dissipation                                                                 See the Section 5.4
+    Operating junction temperature, TJ (2)                                                             –40               125                   °C
+    Storage temperature, Tstg                                                                          –65               150                   °C
+
+(1)        Stresses beyond those listed under Absolute Maximum Ratings may cause permanent damage to the device. These are stress
+           ratings only, which do not imply functional operation of the device at these or any other conditions beyond those indicated under
+           Recommended Operating Conditions. Exposure to absolute-maximum-rated conditions for extended periods may affect device
+           reliability.
+(2)        As a result of the low dissipated power in this device, it is assumed that TJ = TA.
+
+5.2 ESD Ratings
+                                                                                                                             VALUE             UNIT
+                                             Human body model (HBM), per ANSI/ESDA/JEDEC JS-001(1)                               ±2000
+    V(ESD)      Electrostatic discharge                                                                                                          V
+                                             Charged device model (CDM), per JEDEC specification JESD22-C101(2)                  ±750
+
+(1)        JEDEC document JEP155 states that 500V HBM allows safe manufacturing with a standard ESD control process.
+(2)        JEDEC document JEP157 states that 250V CDM allows safe manufacturing with a standard ESD control process.
+
+5.3 Recommended Operating Conditions
+over operating free-air temperature range (unless otherwise noted)
+                                                                                                   MIN           NOM                MAX        UNIT
+    VDD               Supply pin voltage                                                              2                                  18      V
+    VSENSE            Input pin voltage                                                               0                                 6.5      V
+    VSET              SET pin voltage                                                                 0                                 6.5      V
+    VUV, VOV          Output pin voltage                                                              0                                  18      V
+    IUV, IOV          Output pin current                                                            0.3                                  10     mA
+    RPU               Pull-up resistor                                                              2.2                           10,000        kΩ
+
+
+5.4 Thermal Information
+                                                                                                                   TPS3702
+                                              THERMAL METRIC(1)                                                   DDC (SOT)                   UNIT
+                                                                                                                     6 PINS
+    RθJA             Junction-to-ambient thermal resistance                                                          201.6                    °C/W
+    RθJC(top)        Junction-to-case (top) thermal resistance                                                        47.8                    °C/W
+    RθJB             Junction-to-board thermal resistance                                                             51.2                    °C/W
+    ψJT              Junction-to-top characterization parameter                                                        0.7                    °C/W
+    ψJB              Junction-to-board characterization parameter                                                     50.8                    °C/W
+    RθJC(bot)        Junction-to-case (bottom) thermal resistance                                                     N/A                     °C/W
+
+(1)        For more information about traditional and new thermal metrics, see the IC Package Thermal Metrics application report, SPRA953.
+
+
+
+
+4          Submit Document Feedback                                                                     Copyright © 2024 Texas Instruments Incorporated
+
+                                                            Product Folder Links: TPS3702
+                                                                                                                           TPS3702
+www.ti.com                                                                            SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+
+5.5 Electrical Characteristics
+At 2V ≤ VDD ≤ 18V, 1V ≤ VSENSE ≤ 5V, and over the operating free-air temperature range of –40°C to 125°C, unless otherwise
+noted. Typical values are at TJ = 25°C.
+                    PARAMETER                              TEST CONDITIONS                    MIN        TYP        MAX     UNIT
+ VDD           Supply voltage range                                                             2                     18      V
+ VIT+(OV)      Positive-going threshold accuracy   VSET ≤ VIL(SET), VSET ≥ VIH(SET)         –0.9%     ±0.25%       0.9%
+ VIT–(UV)      Negative-going threshold accuracy   VSET ≤ VIL(SET), VSET ≥ VIH(SET)         –0.9%     ±0.25%       0.9%
+ VHYS          Hysteresis voltage(2)               TPS3702xXx                                0.3%      0.55%       0.8%
+ V(POR)        Power-on reset voltage(1)           VOL(max) = 0.25V, IOUT = 15µA                                     0.8      V
+                                                   VDD = 2V                                               6.0         10
+ IDD           Supply current                                                                                                µA
+                                                   VDD ≥ 5V                                               7.0         12
+ ISENSE        Input current, SENSE pin            VSENSE = 5V                                              1        1.5     µA
+ ISET          Internal pull-up current, SET pin   VDD = 18V, SET pin = GND                              600                 nA
+                                                   VDD = 1.3V, IOUT = 0.4mA                                          250
+ VOL           Low-level output voltage            VDD = 2V, IOUT = 3mA                                              250     mV
+                                                   VDD = 5V, IOUT = 5mA                                              250
+ VIL(set)      Low-level SET pin input voltage                                                                       250     mV
+ VIH(set)      High-level SET pin input voltage                                               750                            mV
+ ID(leak)                                          VPU = VDD                                                         300
+               Open-drain output leakage current                                                                             nA
+ ILKG(od)                                          VDD = 2V, VPU = 18V                                               300
+ UVLO          Undervoltage lockout(3)             VDD falling                                 1.3                   1.7      V
+
+(1)     The outputs are undetermined below V(POR).
+(2)     Hysteresis is 0.55% of the nominal trip point.
+(3)     When VDD falls below UVLO, UV is driven low and OV goes to high impedance.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                      Submit Document Feedback      5
+                                                      Product Folder Links: TPS3702
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                                          www.ti.com
+
+5.6 Timing Requirements
+At VDD = 2V, 2.5% input overdrive(4) with RPU = 10kΩ, VOH = 0.9 × VDD, and VOL = 400mV, unless otherwise noted. RPU
+refers to the pull-up resistor at the UV and OV pins.
+                                                                                                      MIN        NOM              MAX      UNIT
+    tpd(HL)                 High-to-low propagation delay(1)                                                        19                       µs
+    tpd(LH)                 Low-to-high propagation delay(1)                                                        35                       µs
+    tR                      Output rise time(2)                                                                    2.2                       µs
+    tF                      Output fall time(2)                                                                   0.22                       µs
+    tSD                     Startup delay(3)                                                                       300                       µs
+
+(1)        High-to-low and low-to-high refers to the transition at the SENSE pin
+(2)        Output transitions from 10% to 90% for rise times and 90% to 10% for fall times.
+(3)        During the power-on sequence, VDD must be at or above 2V for at least tSD before the output is in the correct state.
+(4)        Overdrive = | (V(VDD) / VIT – 1) × 100% |.
+
+
+                            VDD(min)
+                     VDD( UVLO )
+
+           VDD
+
+                   V(POR)
+
+
+
+                                                                          VIT+(OV)
+                                                  VHYS
+                                                                          VIT–(OV)
+
+
+         SENSE                                                            VIT+(UV)
+                                                  VHYS
+                                                                          VIT–(UV)
+
+
+
+
+                       Undefined
+              UV
+                                           tSD                        tpd(HL)         tpd(LH)                                  tSD
+
+
+
+
+              OV       Undefined
+                                           tSD                  tpd(HL)                     tpd(LH)                            tSD
+
+
+
+
+                                                               Figure 5-1. Timing Diagram
+
+
+
+
+6          Submit Document Feedback                                                                     Copyright © 2024 Texas Instruments Incorporated
+
+                                                                 Product Folder Links: TPS3702
+                                                                                                                                                                                                                                                TPS3702
+www.ti.com                                                                                                                                                                 SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+
+5.7 Typical Characteristics
+At TJ = 25°C, VDD = 3V, and RPU = 10kΩ, unless otherwise noted.
+
+                           0.5                                                                                                                          0.5
+                                                       Unit 1                          Unit 2                     Unit 3                                                          Unit 1                           Unit 2                    Unit 3
+                           0.4                         Unit 4                          Unit 5                     Avg                                   0.4                       Unit 4                           Unit 5                    Avg
+                           0.3                                                                                                                          0.3
+                           0.2                                                                                                                          0.2
+
+
+
+
+     UV Accuracy (%)                                                                                                                OV Accuracy (%)
+                           0.1                                                                                                                          0.1
+                                0                                                                                                                         0
+                           -0.1                                                                                                                         -0.1
+                           -0.2                                                                                                                         -0.2
+                           -0.3                                                                                                                         -0.3
+                           -0.4                                                                                                                         -0.4
+                           -0.5                                                                                                                         -0.5
+                                    ±40 ±25 ±10           5       20          35   50     65     80     95 110 125 140                                         ±40 ±25 ±10          5       20          35    50     65     80     95 110 125 140
+                                                                                                                                                                                                                                                      C001
+                                                                       Temperature (ƒC)                                     C001                                                                 Temperature (ƒC)
+                                          Performance is across VDD with SET high or low                                                                             Performance is across VDD with SET high or low
+                            Figure 5-2. Undervoltage Accuracy vs Temperature                                                                              Figure 5-3. Overvoltage Accuracy vs Temperature
+                           20000                                                                                                                        20000
+                           18000                                                                                                                        18000
+                           16000                                                                                                                        16000
+                           14000                                                                                                                        14000
+                           12000                                                                                                                        12000
+
+    Count                  10000                                                                                                   Count                10000
+                            8000                                                                                                                         8000
+                            6000                                                                                                                         6000
+                            4000                                                                                                                         4000
+                            2000                                                                                                                         2000
+                                     0                                                                                                                          0
+                                                                                   0                                                                                                                          0
+                                         -0.8   -0.6       -0.4        -0.2                0.2        0.4   0.6       0.8                                           -0.8   -0.6      -0.4        -0.2                 0.2        0.4   0.6      0.8
+                                                                          VIT- Accuracy (%)                                                                                                        VIT+ Accuracy (%)
+                                          Performance is across VDD with SET high or low                                                                             Performance is across VDD with SET high or low
+                                Figure 5-4. Undervoltage Accuracy Distribution                                                                                 Figure 5-5. Overvoltage Accuracy Distribution
+
+                           12                                                                                                                           1.65
+                                                  -40ƒC                            0ƒC                        25ƒC                                                                 UVLO Postive                             UVLO Negative
+                                                  105ƒC                            125ƒC
+                           10                                                                                                                            1.6
+
+
+
+
+     Supply Current ( A)                                                                                                           UVLO Threshold (V)
+                            8
+                                                                                                                                                        1.55
+
+                            6
+                                                                                                                                                         1.5
+                            4
+
+                                                                                                                                                        1.45
+                            2
+
+
+                            0                                                                                                                            1.4
+                                0               3                 6                9             12         15              18                                 ±40 ±25 ±10           5      20          35    50     65     80     95 110 125 140
+                                                                      Supply Voltage (V)                                    C001                                                                 Temperature (ƒC)                                     C001
+
+
+                                    Figure 5-6. Supply Current vs Supply Voltage                                                   Figure 5-7. Undervoltage Lockout Threshold vs Temperature
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                                                                                              Submit Document Feedback                        7
+                                                                                                            Product Folder Links: TPS3702
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                                                                              www.ti.com
+
+5.7 Typical Characteristics (continued)
+At TJ = 25°C, VDD = 3V, and RPU = 10kΩ, unless otherwise noted.
+
+                                28                                                                                        70
+                                           -40ƒC              0ƒC               25ƒC                                                -40ƒC               0ƒC                25ƒC
+                                           105ƒC              125ƒC                                                                 105ƒC               125ƒC
+                                24                                                                                        60
+
+
+
+
+       Propagation Delay ( S)                                                                    Propagation Delay ( S)
+                                20                                                                                        50
+
+                                16                                                                                        40
+
+                                12                                                                                        30
+
+                                 8                                                                                        20
+
+                                 4                                                                                        10
+
+                                 0                                                                                         0
+                                      0     2         4               6    8           10                                       0   2           4               6      8           10
+                                                                                        C001
+                                                      Overdrive (%)                                                                             Overdrive (%)                      C001
+
+
+                                           SENSE transitions from high to low                                                       SENSE transitions from low to high
+            Figure 5-8. Undervoltage Propagation Delay vs Overdrive                                               Figure 5-9. Overvoltage Propagation Delay vs Overdrive
+
+                                70                                                                                        28
+                                           -40ƒC              0ƒC               25ƒC                                                -40ƒC               0ƒC                25ƒC
+                                           105ƒC              125ƒC                                                                 105ƒC               125ƒC
+                                60                                                                                        24
+
+
+
+
+    Propagation Delay ( S)                                                                       Propagation Delay ( S)
+                                50                                                                                        20
+
+                                40                                                                                        16
+
+                                30                                                                                        12
+
+                                20                                                                                         8
+
+                                10                                                                                         4
+
+                                 0                                                                                         0
+                                      0     2         4               6    8            10                                      0   2           4               6      8           10
+                                                      Overdrive (%)                     C001                                                    Overdrive (%)                      C001
+
+
+                                           SENSE transitions from low to high                                                       SENSE transitions from high to low
+     Figure 5-10. Undervoltage Propagation Delay vs Overdrive                                              Figure 5-11. Overvoltage Propagation Delay vs Overdrive
+                                 1                                                                                         1
+                                           -40ƒC              0ƒC               25ƒC                                                -40ƒC               0ƒC                25ƒC
+                                           105ƒC              125ƒC                                                                 105ƒC               125ƒC
+                                0.8                                                                                       0.8
+
+
+
+                                                                                                VOL (V)
+                                0.6                                                                                       0.6
+    VOL (V)
+                                0.4                                                                                       0.4
+
+
+                                0.2                                                                                       0.2
+
+
+                                 0                                                                                         0
+                                      0     2         4               6    8            10                                      0   2           4               6      8           10
+                                                          Load (mA)                    C001                                                         Load (mA)                      C001
+
+
+                                                      VDD = 1.8V                                                                                 VDD = 18V
+              Figure 5-12. Low-Level Output Voltage vs Output Current                                      Figure 5-13. Low-Level Output Voltage vs Output Current
+
+
+
+
+8                               Submit Document Feedback                                                                                    Copyright © 2024 Texas Instruments Incorporated
+
+                                                                               Product Folder Links: TPS3702
+                                                                                                                                                            TPS3702
+www.ti.com                                                                                                            SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+
+5.7 Typical Characteristics (continued)
+At TJ = 25°C, VDD = 3V, and RPU = 10kΩ, unless otherwise noted.
+
+                                                               700
+                                                                                        VIH                         VIL
+
+
+                                                               600
+
+
+
+
+                                           SET Theshold (mV)
+                                                               500
+
+
+
+                                                               400
+
+
+
+                                                               300
+                                                                     ±40 ±25 ±10   5   20     35   50   65     80   95 110 125 140
+                                                                                            Temperature (ƒC)                    C001
+
+
+                                                                      Figure 5-14. SET Threshold vs Temperature
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                        Submit Document Feedback    9
+                                                                             Product Folder Links: TPS3702
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                       www.ti.com
+
+
+6 Detailed Description
+6.1 Overview
+The TPS3702 family of devices combines two comparators and a precision reference for overvoltage and
+undervoltage detection. The TPS3702 features a wide supply voltage range (2V to 18V) and highly accurate
+window threshold voltages (0.9% over temperature). The TPS3702 is designed for systems that require an
+active low signal if the voltage from the monitored power supply exits the accuracy band. The outputs can be
+pulled up to 18V and can sink up to 10mA.
+Unlike many other window voltage detectors, the TPS3702 includes the resistors used to set the overvoltage and
+undervoltage thresholds internal to the device. These internal resistors allow for lower component counts and
+greatly simplifies the design because no additional margins are needed to account for the accuracy of external
+resistors.
+The TPS3702 is designed to assert active low output signals when the monitored voltage is outside the window
+band. The relationship between the monitored voltage and the states of the outputs is shown in Table 6-1.
+                                                   Table 6-1. Truth Table
+                          CONDITION                         OUTPUT                        STATUS
+                       SENSE < VIT–(UV)                      UV low                  UV is asserted
+                    SENSE > VIT–(UV) + VHYS                 UV high               UV is high impedance
+                       SENSE > VIT+(OV)                      OV low                  OV is asserted
+                    SENSE < VIT+(OV) – VHYS                 OV high               OV is high impedance
+
+
+6.2 Functional Block Diagram
+                                                               VDD
+
+
+                                   SENSE
+
+                                                                                     UV
+
+
+
+
+                                                                                     OV
+
+
+
+
+                                                         Reference
+
+
+
+
+                                      SET                 Threshold
+                                                            Logic
+
+
+                                                               GND
+
+
+
+
+10    Submit Document Feedback                                                       Copyright © 2024 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TPS3702
+                                                                                                                       TPS3702
+www.ti.com                                                                        SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+
+6.3 Feature Description
+6.3.1 Input (SENSE)
+The TPS3702 combines two comparators with a precision reference voltage and a trimmed resistor divider.
+Only a single external input is monitored by the two comparators because the resistor divider is internal to the
+device. This configuration optimizes device accuracy because all resistor tolerances are accounted for in the
+accuracy and performance specifications. Both comparators also include built-in hysteresis that provides some
+noise immunity and maintains stable operation.
+The SENSE input can vary from ground to 6.5V (7.0V, absolute maximum), regardless of the device supply
+voltage used. Although not required in most cases, for noisy applications good analog design practice is to place
+a 1nF to 10nF bypass capacitor at the SENSE input to reduce sensitivity to transient voltages on the monitored
+signal.
+For the undervoltage detector, the undervoltage output is driven to logic low when the SENSE voltage drops
+below the undervoltage falling threshold, VIT–(UV). When the voltage exceeds the undervoltage rising threshold,
+VIT+(UV) (which is VIT-(UV) + VHYS), the undervoltage output goes to a high-impedance state; see Figure 5-1.
+For the overvoltage detector, the overvoltage output is driven to logic low when the voltage at SENSE exceeds
+the overvoltage rising threshold, VIT+(OV). When the voltage drops below the overvoltage falling threshold,
+VIT–(OV) (which is VIT+(OV) – VHYS), the overvoltage output goes to a high-impedance state; see Figure 5-1.
+Together, these two comparators form a window voltage detector function as described in the Section 7.1.1
+section. Also see the Section 10.1.2 section.
+6.3.2 Outputs (UV, OV)
+In a typical TPS3702 application, the outputs are connected to a reset or enable input of a processor [such
+as a digital signal processor (DSP), application-specific integrated circuit (ASIC), or other processor type] or
+the outputs are connected to the enable input of a voltage regulator [such as a dc-dc converter or low-dropout
+regulator (LDO)].
+The TPS3702 provides two open-drain outputs (UV and OV) and uses pull-up resistors to hold these lines high
+when the output goes to a high-impedance state. Connect the pull-up resistors to the proper voltage rails to
+enable the outputs to be connected to other devices at the correct interface voltage levels. The TPS3702 outputs
+can be pulled up to 18V, independent of the device supply voltage. To make sure of proper voltage levels, give
+some consideration when choosing the pull-up resistor values. The pull-up resistor value is determined by VOL,
+output capacitive loading, and output leakage current (ID(leak)). These values are specified in the Section 5.5
+table. Use wired-OR logic to merge the undervoltage and overvoltage signals into one logic signal that goes low
+if either outputs are asserted because of a fault condition.
+Table 6-1 describes how the outputs are either asserted low or high impedance. See Figure 5-1 for a timing
+diagram that describes the relationship between the threshold voltages and the respective output.
+6.3.3 User-Configurable Accuracy Band (SET)
+The TPS3702 has a remarkable feature allowing each device to be set for one of two accuracy bands,
+Table 10-1 describes the available accuracy bands with nominal thresholds ranging from ±2% to ±10% of
+the monitored rail nominal voltage. Forcing the voltage on the SET pin above the high-level SET pin input
+voltage, VIH(SET), sets the thresholds for the tighter window whereas forcing the voltage on the SET pin below the
+low-level SET pin input voltage, VIL(SET), sets the thresholds for the wider window.
+Using the TPS3702Cxxx as an example, when VSET ≥ VIH(SET) the nominal thresholds are set to ±4% (see
+Figure 6-1). Thus, when the positive-going and negative-going threshold accuracy is accounted for, the device
+outputs an active low signal for voltage excursions outside a ±4.9% band (worst case), which is calculated
+by taking the nominal threshold percentage for that given part number and adding that value to the threshold
+accuracy found in the Section 5 section. Similarly, when VSET ≤ VIL(SET), the nominal thresholds are set to ±9%
+and the device outputs an active low signal for voltage excursions outside the ±9.9% band (worst case).
+The ability for the user to change the accuracy band allows a system to programmatically change the accuracy
+band during certain conditions. One example is during system start up when the monitored voltage can be
+
+Copyright © 2024 Texas Instruments Incorporated                                                  Submit Document Feedback     11
+                                                  Product Folder Links: TPS3702
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                    www.ti.com
+
+
+slightly outside the typical accuracy specifications but a reset signal is not desired. In this case, VSET can be set
+below VIL(SET) to detect voltage excursions outside the 10% band and, after the system is fully started up, VSET
+can be pulled higher than VIH(SET), thus tightening the band to ±5%.
+
+                                         +9%
+                              VIT+(OV)
+                                Nom
+                                                       +4%
+
+
+                                 Vmon
+                                 Nom
+
+
+                              VIT-(UV)                  -4%
+                               Nom
+                                         -9%
+
+                                                                   VIH(SET)
+                                 SET
+
+
+                                                                   VIL(SET)
+
+
+
+
+                          Figure 6-1. TPS3702Cxxx User-Configurable Accuracy Bands
+
+Another benefit of allowing the user to change the accuracy band is the reduction in qualification costs. Users
+who have multiple rail monitoring needs (such as some rails that must be within ±5% of the nominal voltage and
+other rails that must be within ±10% of the same nominal voltage) benefit by only having to spend the time and
+money qualifying one device instead of two.
+6.4 Device Functional Modes
+6.4.1 Normal Operation (VDD > UVLO)
+When the voltage on VDD is greater than UVLO for approximately 300µs (tSD), the undervoltage and
+overvoltage signals correspond to the voltage on the SENSE pin; see Table 6-1.
+6.4.2 Undervoltage Lockout (V(POR) < VDD < UVLO)
+When the voltage on VDD is less than the device UVLO voltage but greater than the power-on reset voltage
+(V(POR)), the undervoltage output is asserted and the overvoltage output is high impedance, regardless of the
+voltage on SENSE.
+6.4.3 Power-On Reset (VDD < V(POR))
+When the voltage on VDD is lower than the required voltage to internally pull the asserted output to GND
+(V(POR)), both outputs are undefined and are not to be relied upon for proper device function.
+
+
+
+
+12    Submit Document Feedback                                                    Copyright © 2024 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TPS3702
+                                                                                                                                  TPS3702
+www.ti.com                                                                                   SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+
+7 Application and Implementation
+                                                                        Note
+       Information in the following applications sections is not part of the TI component specification,
+       and TI does not warrant its accuracy or completeness. TI’s customers are responsible for
+       determining suitability of components for their purposes, as well as validating and testing their design
+       implementation to confirm system functionality.
+
+7.1 Application Information
+The TPS3702 is a precision window voltage detector that can be used in several different configurations. The
+supply voltage (VDD), the monitored voltage, and the output pull-up voltage can be independent voltages or
+connected in many configurations. Figure 7-1 shows how the outputs operate with respect to the voltage on the
+SENSE pin.
+                                          VIT+(OV)
+                     Overvoltage Limit
+                                          VIT+(OV)   (HYS)
+
+
+                               VSENSE
+                                          VIT (UV) + (HYS)
+                                          VIT (UV)
+                    Undervoltage Limit
+
+
+
+
+                               OV Pin
+
+
+
+                               UV Pin
+
+
+                                          Figure 7-1. Window Voltage Detector Operation
+
+The following sections show the connection configurations and the voltage limitations for each configuration.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                             Submit Document Feedback     13
+                                                             Product Folder Links: TPS3702
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                                        www.ti.com
+
+7.1.1 Window Voltage Detector Considerations
+The inverting and non-inverting configurations of the comparators form a window voltage detector circuit by
+using the internal resistor divider. The internal resistor divider allows for set voltage thresholds that already
+account for the tolerances of the resistors in the resistor divider. The UV and OV pins signal undervoltage and
+overvoltage conditions, respectively, on the SENSE pin, as shown in Figure 7-2.
+                                     2V to 18V
+
+
+
+
+            Up to 6.5V                  VDD
+
+                                                                                  To a system reset
+                         SENSE                                                     or enable input
+                                                        UV
+                                                                                 VIT-(UV)                                   VIT+(OV)
+
+
+
+
+                                                                       UV + OV
+                                       Device
+
+
+
+
+                         SET                            OV                                  VIT-(UV) + VHYS   VIT+(OV) - VHYS
+
+
+
+                                        GND
+
+
+
+
+                                  Figure 7-2. Window Voltage Detector Schematic
+
+The TPS3702 flags the overvoltage or undervoltage conditions with the most accuracy to make sure of proper
+system operation. The highest accuracy threshold voltages are VIT–(UV) and VIT+(OV), and correspond with
+the falling SENSE undervoltage flag and the rising SENSE overvoltage flag, respectively. These thresholds
+represent the accuracy when the monitored voltage changes from being within the desired window (when both
+the undervoltage and overvoltage outputs are high) to when the monitored voltage goes outside the desired
+window, indicating a fault condition. If the monitored voltage is outside of the valid window (VSENSE is less than
+the undervoltage limit, VIT–(UV), or greater than overvoltage limit, VIT+(OV)), then the SENSE threshold voltages to
+enter into the valid window are VIT+(UV) = VIT–(UV) + VHYS or VIT–(OV) = VIT+(OV) – VHYS.
+
+
+
+
+14    Submit Document Feedback                                                                       Copyright © 2024 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TPS3702
+                                                                                                                                                TPS3702
+www.ti.com                                                                                      SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+
+7.1.2 Input and Output Configurations
+Figure 7-3 to Figure 7-5 illustrate examples of the various input and output configurations.
+                                                                                    VPULLUP
+                                                  2V to 18V                       (up to 18V)
+
+
+
+
+                  Up to 6.5V                         VDD
+                                                                                                                                      VPULLUP
+
+                                SENSE                                  UV                        UV
+
+
+
+                                                                                                         VIT-(UV)    VIT-(UV) + VHYS
+                                                     Device
+
+                                                                                                                                    VPULLUP
+
+
+                                                                                                 OV
+                                SET                                    OV
+
+
+                                                     GND                                               VIT+(OV) - VHYS    VIT+(OV)
+
+
+
+
+                                        Figure 7-3. Interfacing to Voltages Other Than VDD
+                                                  2V to 6.5V
+
+
+
+
+                                                     VDD
+                                                                                                                                    VDD
+
+                               SENSE                                  UV                        UV
+
+
+
+                                                                                                       VIT-(UV)     VIT-(UV) + VHYS
+                                                    Device
+
+                                                                                                                                     VDD
+
+
+                               SET                                    OV                        OV
+
+
+
+                                                     GND                                              VIT+(OV) - VHYS    VIT+(OV)
+
+
+
+
+                           Figure 7-4. Monitoring the Same Voltage as VDD with Wired-OR Logic
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                     Submit Document Feedback         15
+                                                               Product Folder Links: TPS3702
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                                        www.ti.com
+
+                                     2V to 18V
+
+
+
+
+            Up to 6.5V                  VDD
+
+                                                                                  To a system reset
+                           SENSE                                                   or enable input
+                                                        UV
+                                                                                 VIT-(UV)                                   VIT+(OV)
+
+
+
+
+                                                                       UV + OV
+                                       Device
+
+
+
+
+                           SET                          OV                                  VIT-(UV) + VHYS   VIT+(OV) - VHYS
+
+
+
+                                        GND
+
+
+
+
+                         Figure 7-5. Monitoring a Voltage Other Than VDD with Wired-OR Logic
+
+Note that the SENSE input can also monitor voltages that are higher than VSENSE (max) or that may not be
+designed for rail voltages with the use of an external resistor divider network. If a resistor divider is used to
+reduce the voltage on the SENSE pin, make sure that the ISENSE current is accounted for so the accuracy is
+not unexpectedly affected. As a general approximation, the current flowing through the resistor divider to ground
+must be greater than 100 times the current going into the SENSE pin. See application report Optimizing Resistor
+Dividers at a Comparator Input (SLVA450) for a more in-depth discussion on setting an external resistor divider.
+7.1.3 Immunity to SENSE Pin Voltage Transients
+The TPS3702 is immune to short voltage transient spikes on the input pins. Sensitivity to transients depends on
+both transient duration and overdrive (amplitude) of the transient.
+Overdrive is defined by how much the VSENSE exceeds the specified threshold, and is important to know
+because the smaller the overdrive, the slower the response of the outputs (UV and OV). Threshold overdrive is
+calculated as a percent of the threshold in question, as shown in Equation 1:
+
+     Overdrive = | (VSENSE / VIT – 1) × 100% |                                                                                            (1)
+
+where:
+•    VIT is either VIT– or VIT+ for UV or OV.
+Figure 5-8 to Figure 5-11 illustrate the VSENSE minimum detectable pulse versus overdrive, and can be used to
+visualize the relationship that overdrive has on propagation delay.
+
+
+
+
+16     Submit Document Feedback                                                                      Copyright © 2024 Texas Instruments Incorporated
+
+                                                  Product Folder Links: TPS3702
+                                                                                                                                         TPS3702
+www.ti.com                                                                                     SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+
+7.2 Typical Application
+
+3.3 V                                                                                                                                SOC
+                                            1.8 V
+                                                                                    1.2 V
+
+                              VDD                                    VDD                                     VDD
+
+           SENSE                       UV           SENSE                     UV             SENSE                     UV
+
+                                                                                                                                    RESET
+                      TPS3702Cx33                              TPS3702Cx18                             TPS3702Cx12
+            SET                        OV            SET                      OV              SET                      OV
+
+
+
+
+                                    Figure 7-6. ±5% Window Voltage Detector for SOC Power Rails
+
+7.2.1 Design Requirements
+                                                           Table 7-1. Design Parameters
+            PARAMETER                               DESIGN REQUIREMENT                                         DESIGN RESULT
+                                       3.3V nominal, with alerts if outside of ±5% of 3.3V           Worst case VIT+(OV) = 3.463V (4.94%),
+                                                 (including device accuracy)                         Worst case VIT–(UV) = 3.139V (4.86%)
+                                       1.8V nominal, with alerts if outside of ±5% of 1.8V           Worst case VIT+(OV) = 1.889V (4.94%),
+            Monitored rails
+                                                 (including device accuracy)                         Worst case VIT–(UV) = 1.712V (4.86%)
+                                       1.2V nominal, with alerts if outside of ±5% of 1.2V           Worst case VIT+(OV) = 1.259V (4.94%),
+                                                 (including device accuracy)                         Worst case VIT–(UV) = 1.142V (4.86%)
+          Output logic voltage                              3.3V CMOS                                                3.3V CMOS
+        Maximum device current
+                                                              50µA                                    40.5µA (maximum), 24µA (typical)
+             consumption
+
+
+7.2.2 Detailed Design Procedure
+Determine which version of the TPS3702 best suits the application nominal rail and window tolerances. See
+Table 10-1 for selecting the appropriate device number for the application needs. If the nominal rail voltage to be
+monitored is not listed as an option, a resistor divider can be used to reduce the voltage to a nominal voltage
+that is available. The current ISENSE causes an error in the voltage detected at the SENSE pin because the
+SENSE current only flows through the resistor at the top of the resistor divider. The larger the current through the
+resistor divider to ground, the smaller this error can be. To optimize this resistor divider, refer to application report
+Optimizing Resistor Dividers at a Comparator Input (SLVA450) for more information.
+When the outputs switch to the high-Z state, the rise time of the UV or OV node depends on the pull-up
+resistance and the capacitance on that node. Choose pull-up resistors that satisfy both the downstream timing
+requirements and the sink current required to have a VOL low enough for the application; 10kΩ to 1MΩ resistors
+are a good choice for low-capacitive loads.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                    Submit Document Feedback   17
+                                                             Product Folder Links: TPS3702
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                                       www.ti.com
+
+7.2.3 Application Curves
+
+
+               OV
+             2 V/div
+                                                                                          OV
+                                                                                        2 V/div
+
+
+
+
+               UV
+                                                                                          UV
+             2 V/div
+                                                                                        2 V/div
+
+
+
+
+            SENSE                                                                        VDD
+            2 V/div                                                                     2 V/div
+
+
+
+                            Time (1 ms/div)
+                                                                                                        Time (1 ms/div)
+      VSENSE goes from 0V to 3.47V (VIT+(OV)), VDD = 3.3V, VPULL-UP                VDD goes from 0V to 3.3V, VSENSE = 3.47V (above VIT+(OV))
+                                = 3.3V
+                                                                           Figure 7-8. TPS3702CX33 Startup with VPULL-UP =
+ Figure 7-7. TPS3702CX33 Window Voltage Detector                                                3V
+                     Function
+
+
+                                                OV
+                                              2 V/div
+
+
+
+
+                                                UV
+                                              2 V/div
+
+
+
+
+                                               VDD
+                                              2 V/div
+
+
+
+                                                                 Time (1 ms/div)
+
+                                                    VDD goes from 0V to 3.3V, VSENSE = 3.3V
+
+                                  Figure 7-9. TPS3702CX33 Startup with VPULL-UP = VDD
+
+
+
+
+18    Submit Document Feedback                                                                       Copyright © 2024 Texas Instruments Incorporated
+
+                                                        Product Folder Links: TPS3702
+                                                                                                                       TPS3702
+www.ti.com                                                                        SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+
+8 Power Supply Recommendations
+The TPS3702 is designed to operate from an input voltage supply range between 2V and 18V. An input supply
+capacitor is not required for this device; however, if the input supply is noisy good analog practice is to place
+a 0.1µF capacitor between the VDD pin and the GND pin. This device has a 20V absolute maximum rating on
+the VDD pin. If the voltage supply providing power to VDD is susceptible to any large voltage transient that can
+exceed 20V, additional precautions must be taken.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                  Submit Document Feedback     19
+                                                  Product Folder Links: TPS3702
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                                www.ti.com
+
+
+9 Layout
+9.1 Layout Guidelines
+•    Place the VDD decoupling capacitor close to the device.
+•    Avoid using long traces for the VDD supply node. The VDD capacitor (CVDD), along with parasitic inductance
+     from the supply to the capacitor, can form an LC tank and create ringing with peak voltages above the
+     maximum VDD voltage.
+9.2 Layout Example
+                                              Pullup
+                                             Voltage
+
+                                                         RPU1            RPU2
+                                                                                       Overvoltage
+                                                                                       Flag
+
+
+
+                                     Undervoltage
+                                                                1           6          CVDD
+                                             Flag
+                                                                                              Input
+                                                                2           5
+                                                                                              Supply
+
+                                 Monitored                                                     Set
+                                                                3           4
+                                  Voltage                                                      Voltage
+
+
+                                               Figure 9-1. Recommended Layout
+
+
+
+
+20    Submit Document Feedback                                                                Copyright © 2024 Texas Instruments Incorporated
+
+                                                       Product Folder Links: TPS3702
+                                                                                                                                 TPS3702
+www.ti.com                                                                                 SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024
+
+
+10 Device and Documentation Support
+10.1 Device Support
+10.1.1 Development Support
+10.1.1.1 Evaluation Module
+An evaluation module (EVM) is available to assist in the initial circuit performance evaluation using the TPS3702.
+The TPS3702CX33EVM-683 evaluation module (and related user guide) can be requested at the Texas
+Instruments website through the product folders or purchased directly from the TI eStore.
+10.1.2 Device Nomenclature
+Table 10-1 shows how to decode the function of the device based on the part number, with TPS3702CX33 used
+as an example.
+                                                   Table 10-1. Device Naming Convention
+                      DESCRIPTION                              NOMENCLATURE                                  VALUE
+                       TPS3702
+                                                                       —                                          —
+     (high-accuracy window voltage detector family)
+                                                                       A                      SET pin high = ±2%, SET pin low = ±6%
+                           C                                           B                      SET pin high = ±3%, SET pin low = ±7%
+     (nominal thresholds as a percent of the nominal
+                   monitored voltage)                                  C                      SET pin high = ±4%, SET pin low = ±9%
+                                                                       D                      SET pin high = ±5%, SET pin low = ±10%
+
+                             X                                         X                                      0.55%
+                     (hysteresis option)                               Y                                         1.0%
+                                                                       10                                        1.0V
+                                                                       12                                        1.2V
+                           33
+                                                                       18                                        1.8V
+            (nominal monitored voltage option)
+                                                                       33                                        3.3V
+                                                                       50                                        5.0V
+
+
+Table 10-2 shows the released versions of the TPS3702, including the nominal undervoltage and overvoltage
+thresholds. Contact the factory for details and availability of other options shown in Table 10-1; minimum order
+quantities apply.
+                                                  Table 10-2. Released Device Thresholds
+                                                         UV THRESHOLD        UV THRESHOLD           OV THRESHOLD        OV THRESHOLD
+                           NOMINAL HYSTERESI
+      PRODUCT                                                  (V)                 (V)                    (V)                 (V)
+                          SUPPLY (V) S (%)
+                                                          SET ≤ VIL(SET)      SET ≥ VIH(SET)         SET ≤ VIL(SET)      SET ≥ VIH(SET)
+    TPS3702CX10                1.0                0.5          0.91                 0.96                  1.09                1.04
+    TPS3702CX12                1.2                0.5          1.09                 1.15                  1.31                1.25
+    TPS3702AX18                1.8                0.5          1.69                 1.76                  1.91                1.84
+    TPS3702CX18                1.8                0.5          1.64                 1.73                  1.96                1.87
+    TPS3702AX33                3.3                0.5          3.10                 3.23                  3.50                3.37
+    TPS3702CX33                3.3                0.5          3.00                 3.17                  3.60                3.43
+    TPS3702CX50                5.0                0.5          4.55                 4.80                  5.45                5.20
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                           Submit Document Feedback        21
+                                                          Product Folder Links: TPS3702
+TPS3702
+SBVS251A – JANUARY 2015 – REVISED FEBRUARY 2024                                                                                                  www.ti.com
+
+10.2 Documentation Support
+10.2.1 Related Documentation
+Optimizing Resistor Dividers at a Comparator Input, SLVA450
+TPS3702CX33EVM-683 Evaluation Module, SBVU026
+10.3 Support Resources
+TI E2E™ support forums are an engineer's go-to source for fast, verified answers and design help — straight
+from the experts. Search existing answers or ask your own question to get the quick design help you need.
+Linked content is provided "AS IS" by the respective contributors. They do not constitute TI specifications and do
+not necessarily reflect TI's views; see TI's Terms of Use.
+10.4 Trademarks
+TI E2E™ is a trademark of Texas Instruments.
+All trademarks are the property of their respective owners.
+10.5 Electrostatic Discharge Caution
+                    This integrated circuit can be damaged by ESD. Texas Instruments recommends that all integrated circuits be handled
+                    with appropriate precautions. Failure to observe proper handling and installation procedures can cause damage.
+                    ESD damage can range from subtle performance degradation to complete device failure. Precision integrated circuits may
+                    be more susceptible to damage because very small parametric changes could cause the device not to meet its published
+                    specifications.
+
+
+10.6 Glossary
+ TI Glossary             This glossary lists and explains terms, acronyms, and definitions.
+
+
+11 Revision History
+Changes from Revision * (January 2015) to Revision A (February 2024)                                                                                   Page
+• Changed device naming to "voltage detector" throughout data sheet ...............................................................1
+• Updated the numbering format for tables, figures, and cross-references throughout the document................. 1
+• Changed first two sentences of Description section...........................................................................................1
+• Updated timing diagram..................................................................................................................................... 6
+• Changed device naming to voltage detector.................................................................................................... 10
+• Updated images for Input and Output Configurations...................................................................................... 15
+
+
+
+12 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical, packaging, and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+22     Submit Document Feedback                                                                               Copyright © 2024 Texas Instruments Incorporated
+
+                                                             Product Folder Links: TPS3702
+                                                                                                                              PACKAGE OPTION ADDENDUM
+
+  www.ti.com                                                                                                                                                  9-Nov-2025
+
+
+
+
+PACKAGING INFORMATION
+
+ Orderable part number   Status   Material type   Package | Pins   Package qty | Carrier   RoHS      Lead finish/       MSL rating/        Op temp (°C)   Part marking
+                           (1)         (2)                                                  (3)      Ball material      Peak reflow                            (6)
+                                                                                                          (4)                (5)
+
+   TPS3702AX18DDCR       Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAUO
+                                                  THIN (DDC) | 6
+  TPS3702AX18DDCR.A      Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAUO
+                                                  THIN (DDC) | 6
+   TPS3702AX18DDCT       Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAUO
+                                                  THIN (DDC) | 6
+  TPS3702AX18DDCT.A      Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAUO
+                                                  THIN (DDC) | 6
+   TPS3702AX33DDCR       Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAPO
+                                                  THIN (DDC) | 6
+  TPS3702AX33DDCR.A      Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAPO
+                                                  THIN (DDC) | 6
+   TPS3702AX33DDCT       Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAPO
+                                                  THIN (DDC) | 6
+  TPS3702AX33DDCT.A      Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAPO
+                                                  THIN (DDC) | 6
+   TPS3702CX10DDCR       Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZARO
+                                                  THIN (DDC) | 6
+  TPS3702CX10DDCR.A      Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZARO
+                                                  THIN (DDC) | 6
+   TPS3702CX10DDCT       Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZARO
+                                                  THIN (DDC) | 6
+  TPS3702CX10DDCT.A      Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZARO
+                                                  THIN (DDC) | 6
+   TPS3702CX12DDCR       Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAVO
+                                                  THIN (DDC) | 6
+  TPS3702CX12DDCR.A      Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAVO
+                                                  THIN (DDC) | 6
+   TPS3702CX12DDCT       Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAVO
+                                                  THIN (DDC) | 6
+  TPS3702CX12DDCT.A      Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAVO
+                                                  THIN (DDC) | 6
+
+
+
+
+                                                                                   Addendum-Page 1
+                                                                                                                             PACKAGE OPTION ADDENDUM
+
+www.ti.com                                                                                                                                                   9-Nov-2025
+
+
+
+
+Orderable part number   Status   Material type   Package | Pins   Package qty | Carrier   RoHS      Lead finish/       MSL rating/        Op temp (°C)   Part marking
+                          (1)         (2)                                                  (3)      Ball material      Peak reflow                            (6)
+                                                                                                         (4)                (5)
+
+ TPS3702CX18DDCR        Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAWO
+                                                 THIN (DDC) | 6
+ TPS3702CX18DDCR.A      Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAWO
+                                                 THIN (DDC) | 6
+TPS3702CX18DDCRG4       Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAWO
+                                                 THIN (DDC) | 6
+TPS3702CX18DDCRG4.A     Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAWO
+                                                 THIN (DDC) | 6
+ TPS3702CX18DDCT        Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAWO
+                                                 THIN (DDC) | 6
+ TPS3702CX18DDCT.A      Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAWO
+                                                 THIN (DDC) | 6
+ TPS3702CX33DDCR        Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAQO
+                                                 THIN (DDC) | 6
+ TPS3702CX33DDCR.A      Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAQO
+                                                 THIN (DDC) | 6
+ TPS3702CX33DDCT        Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAQO
+                                                 THIN (DDC) | 6
+ TPS3702CX33DDCT.A      Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAQO
+                                                 THIN (DDC) | 6
+TPS3702CX33DDCTG4       Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAQO
+                                                 THIN (DDC) | 6
+TPS3702CX33DDCTG4.A     Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZAQO
+                                                 THIN (DDC) | 6
+ TPS3702CX50DDCR        Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZASO
+                                                 THIN (DDC) | 6
+ TPS3702CX50DDCR.A      Active    Production       SOT-23-         3000 | LARGE T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZASO
+                                                 THIN (DDC) | 6
+ TPS3702CX50DDCT        Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZASO
+                                                 THIN (DDC) | 6
+ TPS3702CX50DDCT.A      Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZASO
+                                                 THIN (DDC) | 6
+TPS3702CX50DDCTG4       Active    Production       SOT-23-          250 | SMALL T&R        Yes        NIPDAU        Level-2-260C-1 YEAR    -40 to 125       ZASO
+                                                 THIN (DDC) | 6
+
+
+
+
+                                                                                  Addendum-Page 2
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                    9-Nov-2025
+
+
+
+
+       Orderable part number          Status     Material type      Package | Pins      Package qty | Carrier        RoHS             Lead finish/              MSL rating/               Op temp (°C)          Part marking
+                                        (1)            (2)                                                             (3)            Ball material             Peak reflow                                           (6)
+                                                                                                                                            (4)                      (5)
+
+      TPS3702CX50DDCTG4.A             Active      Production          SOT-23-             250 | SMALL T&R             Yes                NIPDAU           Level-2-260C-1 YEAR              -40 to 125               ZASO
+                                                                    THIN (DDC) | 6
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+OTHER QUALIFIED VERSIONS OF TPS3702 :
+
+• Automotive : TPS3702-Q1
+
+NOTE: Qualified Version Definitions:
+
+
+
+
+                                                                                                          Addendum-Page 3
+                                                                                                                      PACKAGE OPTION ADDENDUM
+
+www.ti.com                                                                                                                              9-Nov-2025
+
+
+
+
+   • Automotive - Q100 devices qualified for high-reliability automotive applications targeting zero defects
+
+
+
+
+                                                                                                    Addendum-Page 4
+                                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                                                          18-Jun-2025
+
+
+
+TAPE AND REEL INFORMATION
+
+       REEL DIMENSIONS                                                                       TAPE DIMENSIONS
+                                                                                        K0         P1
+
+
+
+                                                                                                                         B0 W
+                                          Reel
+                                        Diameter
+                                                                                     Cavity             A0
+                                                                 A0   Dimension designed to accommodate the component width
+                                                                 B0   Dimension designed to accommodate the component length
+                                                                 K0   Dimension designed to accommodate the component thickness
+                                                                 W    Overall width of the carrier tape
+                                                                 P1   Pitch between successive cavity centers
+
+
+                                         Reel Width (W1)
+                               QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                        Sprocket Holes
+
+
+                                                   Q1       Q2          Q1    Q2
+
+                                                   Q3       Q4          Q3    Q4                    User Direction of Feed
+
+
+
+                                                             Pocket Quadrants
+
+
+*All dimensions are nominal
+             Device           Package Package Pins               SPQ        Reel   Reel   A0                   B0         K0     P1     W     Pin1
+                               Type Drawing                               Diameter Width (mm)                 (mm)       (mm)   (mm)   (mm) Quadrant
+                                                                            (mm) W1 (mm)
+   TPS3702AX18DDCR            SOT-23-     DDC           6        3000        179.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+   TPS3702AX18DDCT            SOT-23-     DDC           6         250        179.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+   TPS3702AX33DDCR            SOT-23-     DDC           6        3000        179.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+   TPS3702AX33DDCT            SOT-23-     DDC           6         250        180.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+   TPS3702CX10DDCR            SOT-23-     DDC           6        3000        179.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+   TPS3702CX10DDCT            SOT-23-     DDC           6         250        179.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+   TPS3702CX12DDCR            SOT-23-     DDC           6        3000        179.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+   TPS3702CX12DDCT            SOT-23-     DDC           6         250        179.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+   TPS3702CX18DDCR            SOT-23-     DDC           6        3000        179.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+
+
+
+
+                                                                        Pack Materials-Page 1
+                                                           PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                         18-Jun-2025
+
+
+
+             Device   Package Package Pins   SPQ       Reel   Reel   A0           B0     K0     P1     W     Pin1
+                       Type Drawing                  Diameter Width (mm)         (mm)   (mm)   (mm)   (mm) Quadrant
+                                                       (mm) W1 (mm)
+ TPS3702CX18DDCRG4 SOT-23-      DDC    6     3000      179.0      8.4      3.2   3.2    1.4    4.0    8.0     Q3
+                    THIN
+   TPS3702CX18DDCT    SOT-23-   DDC    6     250       179.0      8.4      3.2   3.2    1.4    4.0    8.0     Q3
+                       THIN
+  TPS3702CX33DDCR     SOT-23-   DDC    6     3000      180.0      8.4      3.2   3.2    1.4    4.0    8.0     Q3
+                       THIN
+   TPS3702CX33DDCT    SOT-23-   DDC    6     250       180.0      8.4      3.2   3.2    1.4    4.0    8.0     Q3
+                       THIN
+ TPS3702CX33DDCTG4 SOT-23-      DDC    6     250       180.0      8.4      3.2   3.2    1.4    4.0    8.0     Q3
+                    THIN
+  TPS3702CX50DDCR     SOT-23-   DDC    6     3000      179.0      8.4      3.2   3.2    1.4    4.0    8.0     Q3
+                       THIN
+   TPS3702CX50DDCT    SOT-23-   DDC    6     250       180.0      8.4      3.2   3.2    1.4    4.0    8.0     Q3
+                       THIN
+ TPS3702CX50DDCTG4 SOT-23-      DDC    6     250       180.0      8.4      3.2   3.2    1.4    4.0    8.0     Q3
+                    THIN
+
+
+
+
+                                                   Pack Materials-Page 2
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                              18-Jun-2025
+
+
+
+ TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                               Width (mm)
+                                                                              H
+
+
+
+
+                      W                                   L
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins         SPQ    Length (mm)   Width (mm)   Height (mm)
+   TPS3702AX18DDCR            SOT-23-THIN         DDC           6           3000      213.0        191.0         35.0
+   TPS3702AX18DDCT            SOT-23-THIN         DDC           6           250       213.0        191.0         35.0
+   TPS3702AX33DDCR            SOT-23-THIN         DDC           6           3000      213.0        191.0         35.0
+   TPS3702AX33DDCT            SOT-23-THIN         DDC           6           250       213.0        191.0         35.0
+   TPS3702CX10DDCR            SOT-23-THIN         DDC           6           3000      213.0        191.0         35.0
+   TPS3702CX10DDCT            SOT-23-THIN         DDC           6           250       213.0        191.0         35.0
+   TPS3702CX12DDCR            SOT-23-THIN         DDC           6           3000      213.0        191.0         35.0
+   TPS3702CX12DDCT            SOT-23-THIN         DDC           6           250       213.0        191.0         35.0
+   TPS3702CX18DDCR            SOT-23-THIN         DDC           6           3000      213.0        191.0         35.0
+ TPS3702CX18DDCRG4            SOT-23-THIN         DDC           6           3000      213.0        191.0         35.0
+   TPS3702CX18DDCT            SOT-23-THIN         DDC           6           250       213.0        191.0         35.0
+   TPS3702CX33DDCR            SOT-23-THIN         DDC           6           3000      213.0        191.0         35.0
+   TPS3702CX33DDCT            SOT-23-THIN         DDC           6           250       213.0        191.0         35.0
+  TPS3702CX33DDCTG4           SOT-23-THIN         DDC           6           250       213.0        191.0         35.0
+   TPS3702CX50DDCR            SOT-23-THIN         DDC           6           3000      213.0        191.0         35.0
+   TPS3702CX50DDCT            SOT-23-THIN         DDC           6           250       213.0        191.0         35.0
+  TPS3702CX50DDCTG4           SOT-23-THIN         DDC           6           250       213.0        191.0         35.0
+
+
+
+
+                                                        Pack Materials-Page 3
+                                                                                                             PACKAGE OUTLINE
+ DDC0006A                                                           SCALE 4.000
+                                                                                                             SOT-23 - 1.1 max height
+                                                                                                                 SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                              3.05                                                                  1.1
+                                              2.55                                                                  0.7
+                                              1.75                                                                                0.1 C
+                                                                B                        A
+                                              1.45
+                 PIN 1
+           INDEX AREA
+
+                             1
+                                                                                   6
+
+
+                   4X 0.95
+
+                                                                                        3.05
+             1.9
+                                                                                        2.75
+
+
+
+
+                                                                                   4
+                             3                                                                    4X 0 -15
+
+
+                                                                                           0.5                               0.1
+                                                                                        6X                                       TYP
+                                                                                           0.3                               0.0
+                                                                                          0.2    C A B
+
+
+
+
+                                                                          4X 4 -15
+
+
+
+
+                                                                                             C
+      0 -8 TYP
+
+
+
+                                                 SEATING PLANE                          0.25
+           0.20
+                TYP                                                                     GAGE PLANE
+           0.12
+                                       0.6
+                                           TYP
+                                       0.3
+
+
+
+
+                                                                                                                          4214841/E 08/2024
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. Reference JEDEC MO-193.
+
+
+
+
+                                                                                  www.ti.com
+                                                                               EXAMPLE BOARD LAYOUT
+ DDC0006A                                                                                     SOT-23 - 1.1 max height
+                                                                                                     SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                SYMM
+                                                  6X (1.1)
+                                             1
+
+                                  6X (0.6)                                                6
+
+
+
+                                                                                              SYMM
+
+
+                              4X (0.95)
+
+                                                                                          4
+                                             3
+
+                            (R0.05) TYP
+                                                                 (2.7)
+
+
+                                                     LAND PATTERN EXAMPLE
+                                                         EXPLOSED METAL SHOWN
+                                                               SCALE:15X
+
+
+
+
+                                                                         METAL UNDER                     SOLDER MASK
+              SOLDER MASK                        METAL                   SOLDER MASK                     OPENING
+              OPENING
+
+                                                                 EXPOSED METAL
+
+
+                                                      EXPOSED METAL
+
+                                    0.07 MAX                                                  0.07 MIN
+                                    ARROUND                                                   ARROUND
+
+                             NON SOLDER MASK                                             SOLDER MASK
+                                 DEFINED                                                   DEFINED
+
+
+                                                    SOLDERMASK DETAILS
+
+
+
+
+                                                                                                              4214841/E 08/2024
+
+NOTES: (continued)
+
+4. Publication IPC-7351 may have alternate designs.
+5. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                 www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+ DDC0006A                                                                                       SOT-23 - 1.1 max height
+                                                                                                      SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                SYMM
+                                                6X (1.1)
+                                            1
+
+                                 6X (0.6)                                                6
+
+
+
+                                                                                             SYMM
+
+
+                             4X(0.95)
+
+                                                                                         4
+                                            3
+
+                           (R0.05) TYP
+                                                                 (2.7)
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                   BASED ON 0.125 THICK STENCIL
+                                                           SCALE:15X
+
+
+
+
+                                                                                                                   4214841/E 08/2024
+
+NOTES: (continued)
+
+6. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+7. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2025, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+
