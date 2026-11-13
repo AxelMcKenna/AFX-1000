@@ -342,6 +342,13 @@ def board_state(manifest):
     return result
 
 
+def container_absent(probe):
+    """Recognize Docker's explicit missing-container replies, not access failures."""
+    return probe.returncode != 0 and re.search(
+        r'(?im)^(?:error(?: response from daemon)?:\s*)?no such (?:object|container)(?::|$)',
+        probe.stderr.strip()) is not None
+
+
 def recover(job_path, reason):
     """Archive a terminal runtime failure after explicit diagnosis; never rerun it."""
     folder = (CACHE / job_path).resolve()
@@ -353,7 +360,7 @@ def recover(job_path, reason):
         container = result.get('container')
         assert container, 'Missing container ownership; inspect this job manually'
         probe = subprocess.run([DOCKER, 'inspect', '--format', '{{.State.Running}}', container], capture_output=True, text=True, timeout=10)
-        assert (probe.returncode == 0 and probe.stdout.strip() == 'false') or (probe.returncode != 0 and 'No such' in probe.stderr), 'Container termination not established'
+        assert (probe.returncode == 0 and probe.stdout.strip() == 'false') or container_absent(probe), 'Container termination not established'
     else:
         running = json.loads((folder / 'running.json').read_text())
         pid = running.get('pid')
@@ -368,7 +375,7 @@ def recover(job_path, reason):
         if probe.returncode == 0:
             assert probe.stdout.strip() == 'false', 'CAD container remains live'
         else:
-            assert 'No such' in probe.stderr, 'Cannot establish container termination'
+            assert container_absent(probe), 'Cannot establish container termination'
     archive = CACHE / 'failed' / (folder.parent.name + '-' + folder.name + '-' + uuid.uuid4().hex[:8])
     archive.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(folder), str(archive))

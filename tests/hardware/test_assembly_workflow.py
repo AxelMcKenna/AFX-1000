@@ -213,6 +213,43 @@ class WorkflowTests(unittest.TestCase):
         self.assertFalse(recovered['automatically_retried'])
         self.assertTrue((self.root/recovered['archived']/'result.json').exists())
 
+    def test_recovery_requires_explicit_container_absence_or_stopped_state(self):
+        responses = [
+            (1, '', 'error: no such object: owned', True),
+            (1, '', 'Error response from daemon: No such container: owned', True),
+            (1, '', 'No such container', True),
+            (0, 'false\n', '', True),
+            (0, 'true\n', '', False),
+            (1, '', 'permission denied connecting to Docker', False),
+            (1, '', 'Cannot connect to the Docker daemon', False),
+            (1, '', 'No such image: owned', False),
+            (1, '', 'unrelated diagnostic: no such object: owned', False),
+        ]
+        for incomplete in (False, True):
+            for code, stdout, stderr, allowed in responses:
+                with self.subTest(incomplete=incomplete, stderr=stderr, stdout=stdout):
+                    _, folder = w.job('component', self.parts['a'], self.parts)
+                    folder.mkdir(parents=True, exist_ok=True)
+                    state = {'pid': 99999999, 'container': 'owned'} if incomplete else {
+                        'runtime_failure': True, 'container': 'owned'}
+                    evidence = folder / ('running.json' if incomplete else 'result.json')
+                    evidence.write_text(json.dumps(state))
+                    probe = type('Probe', (), dict(returncode=code, stdout=stdout, stderr=stderr))()
+                    with patch.object(w.os, 'kill', side_effect=ProcessLookupError), patch.object(
+                            w.subprocess, 'run', return_value=probe) as inspect:
+                        if allowed:
+                            result = w.recover(str(folder.relative_to(w.CACHE)), 'Explicit diagnosis')
+                            self.assertFalse(result['automatically_retried'])
+                            self.assertFalse(folder.exists())
+                            self.assertTrue((self.root / result['archived'] / evidence.name).exists())
+                        else:
+                            with self.assertRaises(AssertionError):
+                                w.recover(str(folder.relative_to(w.CACHE)), 'Must remain retained')
+                            self.assertTrue(evidence.exists())
+                            evidence.unlink()
+                    self.assertEqual(inspect.call_count, 1)
+                    self.assertEqual(inspect.call_args.args[0][1], 'inspect')
+
     def test_live_job_cannot_be_archived(self):
         _, folder=w.job('component',self.parts['a'],self.parts)
         folder.mkdir(parents=True)
