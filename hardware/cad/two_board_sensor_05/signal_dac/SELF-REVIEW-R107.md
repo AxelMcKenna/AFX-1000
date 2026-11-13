@@ -12,6 +12,8 @@ Fixed findings:
 
 - A fresh relocated-closure test exposed a missing ancestor input-capture script in the earlier closure traversal. The final gate now traverses both sibling electrical source trees; relocation is tested from a directory containing only bound files.
 
+- Root integration exposed broad-directory closure instability: unrelated shared-folder additions and a legitimately updated README changed the frozen result. The gate now enumerates explicit contract files, recursively verifies their declared source/PCB bindings, and enumerates project/test artifacts from immutable manifests. Shared README and volatile cache files are excluded. A regression adds unrelated text and pycache entries and independently mutates contract bytes; unrelated additions pass and contract tampering fails.
+
 Acceptance attacks: exact five-object allowlist; full surviving group membership without merges/splits; all 477 footprint objects; unchanged original zones/settings; full receiving area against captured copper; native mutation UUID matching; source byte hashes; exact return identity mutations; portability without other-worktree reads. Cumulative reference and return gates retain raw losses and original tolerances.
 
 No further actionable defect identified in this bounded checkpoint after these checks. Remaining analog, ESS, connectivity, fabrication and root integration gaps are explicitly outside its acceptance claim.

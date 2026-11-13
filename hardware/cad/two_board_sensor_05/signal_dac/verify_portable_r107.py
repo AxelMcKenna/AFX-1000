@@ -87,6 +87,10 @@ def main(reference=False, regressions=False):
         execute(HERE / 'review_r107.py')
     if regressions:
         regression_checks()
+        import unittest
+        from hardware.cad.two_board_sensor_05.signal_dac.test_portable_closure_r107 import ClosureRegression
+        result = unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromTestCase(ClosureRegression))
+        assert result.wasSuccessful(), 'portable closure regressions failed'
     print('Portable verification passed; frozen evidence unchanged; all dependencies read from', ROOT)
 
 if __name__ == '__main__':

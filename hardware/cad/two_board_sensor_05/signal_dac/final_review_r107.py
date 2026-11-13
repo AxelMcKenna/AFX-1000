@@ -27,17 +27,22 @@ assert fid['pass']and len(fid['cases'])==236
 assert len(drill['new_or_replaced_vias'])==98 and drill['minimum_gap_mm']>=.1
 assert {x['case']for x in tests['tests']}=={'track','via','smd_pad','npth_annulus'}and all(x['caught']for x in tests['tests'])
 paths=[Path(__file__),R/'verify_portable_r107.py',R/'CHECKPOINT-R107.md',R/'SELF-REVIEW-R107.md',R/'final-review-r98.json',R/'native-r107/review.json',R/'native-r107/drc.json',R/'native-r107/erc.json',R/'native-r107/object-delta.json',R/'native-r107/netlist.xml',R/'capture-r107/capture.json',R/'capture-r107/precision.json',R/'capture_bundle_r107.py',R/'reference-review-r107.json',R/'transitions-r107.json',R/'fidelity-r107.json',R/'native-r107/added-via-drill-review.json',R/'mount-audit-r107.json',R/'keepout-tests-r107/review.json',R/'run_linux.py',R/'native-r104/run.log',R/'mount_r104.py',R/'native_r104.py',R/'candidate-r104/routing.json',R/'native-r105/review.json',R/'reference-review-r105.json',R/'keepout-tests-r105/run.log',R/'keepout-tests-r106/run.log',R/'keepout_regressions_r105.py',R/'keepout_regressions_r106.py',R/'verification-preflight-r105.txt']
-for p in (R/'native-r107').rglob('*'):
- if not p.is_file():continue
- rel=p.relative_to(R/'native-r107')
+# Enumerate immutable project dependencies from the accepted ancestor manifest,
+# never from the current directory contents.
+ancestor=read(R/'final-review-r98.json');prefix=str((R/'native-r98').relative_to(REPO))+'/'
+for name in ancestor['source_sha256']:
+ if not name.startswith(prefix):continue
+ rel=Path(name.removeprefix(prefix));p=R/'native-r107'/rel
  if p.suffix in ['.kicad_sch','.kicad_pro','.kicad_dru']or p.name in ['sym-lib-table','fp-lib-table']or rel.parts[0]in ['libraries','symbols']:
   if p.suffix=='.kicad_dru':assert sha(p)==sha(R/'candidate-r107'/rel)
   else:assert sha(p)==sha(R/'native-r98'/rel)
   paths.append(p)
 for test in tests['tests']:
  observed=read(R/'keepout-tests-r107'/test['case']/'drc.json');assert all(x in observed['violations']for x in test['caught'])
-paths.extend(p for p in (R/'keepout-tests-r107').rglob('*')if p.is_file() and p.suffix!='.kicad_prl')
-paths.extend(p for p in (REPO/'hardware/cad/assembly_workflow/verification/main-fasteners-r1').rglob('*')if p.is_file())
+ paths.extend(R/'keepout-tests-r107'/test['case']/name for name in ['drc.json','run.log','signal_main.kicad_pcb','signal_main.kicad_pro','signal_main.kicad_dru'])
+contract=REPO/'hardware/cad/assembly_workflow/verification/main-fasteners-r1'
+paths.extend(contract/name for name in ['contact-keepouts.json','copper-screen.json','source-review.json'])
+paths.append(R/'test_portable_closure_r107.py')
 closure={};queue=list(paths)
 while queue:
  p=queue.pop();p=local(p).resolve();name=str(p.relative_to(REPO))
@@ -51,9 +56,14 @@ while queue:
    for module in modules:
     if not module.startswith('hardware.'):continue
     parts=module.split('.');candidates=[REPO.joinpath(*parts).with_suffix('.py'),*[REPO.joinpath(*parts[:i],'__init__.py')for i in range(1,len(parts)+1)]];queue.extend(x for x in candidates if x.is_file())
- if p.suffix=='.json'and p.is_relative_to(R.parent):
+ if p.suffix=='.json'and (p.is_relative_to(R.parent)or p.is_relative_to(contract)):
   doc=read(p)
   if isinstance(doc,dict):
+   for binding in doc.get('source_pcbs',{}).values():
+    dep=local(binding['path']);assert sha(dep)==binding['sha256'],('stale contract PCB',dep);queue.append(dep)
+   for binding in doc.get('boards',{}).values():
+    if isinstance(binding,dict)and 'source_pcb'in binding:
+     dep=local(binding['source_pcb']);assert sha(dep)==binding['source_pcb_sha256'],('stale screened PCB',dep);queue.append(dep)
    for key,bindings in doc.items():
     if key.endswith('source_sha256')and isinstance(bindings,dict):
      for dependency,digest in bindings.items():

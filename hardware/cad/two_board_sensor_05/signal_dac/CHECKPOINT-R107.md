@@ -16,6 +16,8 @@ Run the portable frozen verification from any checkout:
 .venv/bin/python -m hardware.cad.two_board_sensor_05.signal_dac.verify_portable_r107 --reference --regressions
 ```
 
+The portable gate enumerates immutable contract inputs and recursively verifies their declared source/PCB byte bindings. It does not scan the shared evidence folder or bind its mutable README. `--regressions` checks unrelated-file/pycache stability and rejects changed contract bytes.
+
 Gates cover native geometry/ERC/netlist parity, independent 167 opens, all r98 partitions and authored objects, 130 cumulative introduced-route reference cases, 4873 retained original reference cases, 66 independently proven returns, 236 raw-zone fidelity cases, and 98 new/replaced drill clearances. The four removed original tracks are replaced by separately screened new paths; their obsolete geometry is not counted as retained. Reference tolerance and source-sensitive exclusions are unchanged. The newly excluded LED39 transition is bound to its exact native UUID/net/position/group and verified return. No diagnostic exclusion is treated as analog acceptance.
 
 Failed r104 is preserved: blanket pad prohibitions flagged NPTH apertures, and the shifted via required its attached endpoints to be recentered. r105 passed native/reference geometry, then gained only the 2 nm outward guard in r107. Two regression-harness runs failed on unsupported SWIG LSET constructors; r107 copies the actual layer set of an existing front SMD pad and completes all four tests. The r105 transition report initially lacked a derived distance field; its preserved preflight log records that reporting failure, corrected before acceptance.
