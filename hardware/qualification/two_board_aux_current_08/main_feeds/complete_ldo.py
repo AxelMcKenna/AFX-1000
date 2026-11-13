@@ -1,0 +1,11 @@
+"""Route main LDO feed after reserving the paired VIN transition corridor."""
+import json
+from pathlib import Path
+from shapely.geometry import LineString,Point,shape as geo_shape
+from shapely.ops import unary_union,nearest_points
+from ..routed.plan import sha,shape,astar
+H=Path(__file__).resolve().parent
+
+def run():
+ p=json.loads((H/'vin-plan.json').read_text());c=json.loads((H/'capture-01/capture.json').read_text());q=json.loads((H.parent/'routed/quiet-exclusion.json').read_text());ids=set(q['retained_object_uuids']);by={o['ref']+'.'+o['pin']:o for o in c['objects'] if o.get('ref')};a=by['P_C901.1'];b=by['P_C102.1'];net=a['net'];assert net==b['net']=='/P_power_supply/AUX_PREREG5';width=.3;ref=unary_union([shape(z['polygons']) for z in c['zones'] if z['uuid'] in p['reference_zone_uuids']]);mech=unary_union([geo_shape(f['geometry']) for f in json.loads((H/'contact-keepouts.json').read_text())['features'] if 'B.Cu' in f['properties']['layers']]);blocked=unary_union([shape(o['layers']['B.Cu']).buffer(.2+width/2+.002) for o in c['objects'] if 'B.Cu' in o['layers'] and (o['net']!=net or o['uuid'] in ids)]+[LineString(r['path_mm']).buffer(r['width_mm']/2+.2+width/2+.002) for r in p['routes'] if r['net']!=net]+[Point(v['position_mm']).buffer(v['size_mm']/2+.2+width/2+.002) for v in p['new_vias']]+[mech.buffer(width/2+.002)]);ga=shape(a['layers']['B.Cu']).intersection(ref.buffer(-width/2-.002)).difference(blocked.buffer(.000001));gb=shape(b['layers']['B.Cu']).intersection(ref.buffer(-width/2-.002)).difference(blocked.buffer(.000001));assert not ga.is_empty and not gb.is_empty;start,end=nearest_points(ga,gb);path,nodes=astar(list(start.coords)[0],list(end.coords)[0],blocked,ref,width,margin=5,step=.1);print('LDO nodes',nodes,'path',bool(path),flush=True);assert path,'No LDO feed after reserving VIN transition';g=LineString(path).buffer(width/2);p['routes'].append({'source':'P_C901.1','target':'P_C102.1','net':net,'layer':'B.Cu','width_mm':width,'search_nodes':nodes,'path_mm':path,'length_mm':LineString(path).length,'reference_uncovered_mm2':g.difference(ref).area});p['ldo_script_sha256']=sha(Path(__file__));p['vin_plan_sha256']=sha(H/'vin-plan.json');(H/'plan.json').write_text(json.dumps(p,indent=2)+'\n')
+if __name__=='__main__':run()
