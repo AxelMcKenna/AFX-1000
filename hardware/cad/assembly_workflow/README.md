@@ -87,7 +87,7 @@ The r16 checkpoint installed the conditional splice cage and replacement selecto
 
 The r18 checkpoint added the keyed R13 guide and replacement selector rear hardware (66 roles; 22 checks). See `verification/ground-r18/`. Separate removable-handle withdrawal/tool-space checks also pass against the current modeled assembly; full service opening remains unqualified.
 
-The current selection has 86 roles and 169 passing clearance checks: signal r139 (163 opens), TBP73 (1936 opens), corrected scene ground r22 and eleven receiving panel inputs. `mechanical_capture` selects the cumulative R303/R308/D101 update under `pcb_updates/r125/`. Native screening rejected the earlier S02 control collision and a tight nominal revision before accepting r13 with an expanded control-clearance probe. See `verification/panel-signals-r21-r13/`.
+The current selection has 86 roles and 169 configured clearance checks (passed under the prior runtime; recovery-fix runtime revalidation is in progress): signal r139 (163 opens), TBP73 (1936 opens), corrected scene ground r22 and eleven receiving panel inputs. `mechanical_capture` selects the cumulative R303/R308/D101 update under `pcb_updates/r125/`. Native screening rejected the earlier S02 control collision and a tight nominal revision before accepting r13 with an expanded control-clearance probe. See `verification/panel-signals-r21-r13/`.
 
 There are 219 further non-ground signal/power segments. The wider main-population screen passes controls and sensor checks, while `verification/coverage-01/` records an unresolved own fan-connector reservation/harness mismatch. The isolated buck and single-row connector candidates remain unselected. Full service, physical receiving, electrical/thermal and fabrication gates remain open.
 
