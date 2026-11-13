@@ -1,0 +1,42 @@
+02:57:03: Debug: Adding duplicate image handler for 'PNG file'
+02:57:03: Debug: Adding duplicate image handler for 'JPEG file'
+02:57:03: Debug: Adding duplicate image handler for 'TIFF file'
+02:57:03: Debug: Adding duplicate image handler for 'GIF file'
+02:57:03: Debug: Adding duplicate image handler for 'PNM file'
+02:57:03: Debug: Adding duplicate image handler for 'PCX file'
+02:57:03: Debug: Adding duplicate image handler for 'IFF file'
+02:57:03: Debug: Adding duplicate image handler for 'Windows icon file'
+02:57:03: Debug: Adding duplicate image handler for 'Windows cursor file'
+02:57:03: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+02:57:03: Debug: Adding duplicate image handler for 'TGA file'
+02:57:03: Debug: Adding duplicate image handler for 'XPM file'
+02:57:07: Debug: Adding duplicate image handler for 'PNG file'
+02:57:07: Debug: Adding duplicate image handler for 'JPEG file'
+02:57:07: Debug: Adding duplicate image handler for 'TIFF file'
+02:57:07: Debug: Adding duplicate image handler for 'GIF file'
+02:57:07: Debug: Adding duplicate image handler for 'PNM file'
+02:57:07: Debug: Adding duplicate image handler for 'PCX file'
+02:57:07: Debug: Adding duplicate image handler for 'IFF file'
+02:57:07: Debug: Adding duplicate image handler for 'Windows icon file'
+02:57:07: Debug: Adding duplicate image handler for 'Windows cursor file'
+02:57:07: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+02:57:07: Debug: Adding duplicate image handler for 'TGA file'
+02:57:07: Debug: Adding duplicate image handler for 'XPM file'
+Traceback (most recent call last):
+  File "/private/tmp/rmx-lever-sensor-20261112/hardware/cad/two_board_sensor_05/signal_dac/keepout_regressions_r106.py", line 18, in <module>
+    if case=='smd_pad':o.SetAttribute(pcbnew.PAD_ATTRIB_SMD);o.SetDrillSize(pcbnew.VECTOR2I(0,0));o.SetLayerSet(pcbnew.LSET([pcbnew.F_Cu]));o.SetNet(net)
+                                                                                                                ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/pcbnew.py", line 10176, in __init__
+    _pcbnew.LSET_swiginit(self, _pcbnew.new_LSET(*args))
+                                ~~~~~~~~~~~~~~~~^^^^^^^
+TypeError: in method 'new_LSET', argument 1 of type 'std::vector< PCB_LAYER_ID,std::allocator< PCB_LAYER_ID > > const &'
+Additional information:
+Wrong number or type of arguments for overloaded function 'new_LSET'.
+  Possible C/C++ prototypes are:
+    LSET::LSET()
+    LSET::LSET(BASE_SET const &)
+    LSET::LSET(std::initializer_list< PCB_LAYER_ID >)
+    LSET::LSET(std::vector< PCB_LAYER_ID,std::allocator< PCB_LAYER_ID > > const &)
+    LSET::LSET(LSEQ const &)
+    LSET::LSET(LAYER_RANGE const &)
+
