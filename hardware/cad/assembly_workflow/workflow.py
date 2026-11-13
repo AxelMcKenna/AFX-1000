@@ -339,6 +339,7 @@ def recover(job_path, reason):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['status', 'plan', 'check', 'export', 'scene', 'recover'])
+    parser.add_argument('--manifest', type=Path, help='Candidate manifest within this worktree; leaves current.json unchanged')
     parser.add_argument('--only', nargs='+', help='Check IDs, or component IDs for export')
     parser.add_argument('--reservations', action='store_true')
     parser.add_argument('--motion', action='store_true')
@@ -350,7 +351,16 @@ def main():
         assert args.job and args.reason
         print(json.dumps(recover(args.job, args.reason), indent=2))
         return
-    data, components, checks, registries = load_manifest()
+    if args.manifest is not None:
+        if args.action == 'scene' and args.output is None:
+            parser.error('Candidate scenes require --output to preserve the selected assembly view')
+        manifest_path = (ROOT / args.manifest).resolve()
+        manifest_path.relative_to(ROOT.resolve())  # Reject manifests outside this worktree.
+        data, components, checks, registries = load_manifest(manifest_path)
+    else:
+        data, components, checks, registries = load_manifest()
+    if args.action in ('check', 'export') and args.output and args.output.exists():
+        parser.error('Fresh evidence output required')
     boards = board_state(data)
     batch_sources = dict(data['_loaded_sources'])
     for path, expected in boards['source_sha256'].items():

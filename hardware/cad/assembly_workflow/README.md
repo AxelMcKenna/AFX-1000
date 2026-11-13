@@ -14,6 +14,22 @@ Use `./hardware/cad/assembly_workflow/run` as the short command (for example, `r
 
 `scene` writes one assembled SCAD entry point at `generated/assembly.scad`. The default is the one-piece structural assembly. Receiving envelopes and motion sweeps are opt-in, translucent layers. Atomic switch/clip/holder alternatives and split-lid bars are excluded when their composite or one-piece replacement is selected. Main-board allocations omit the seven connector reservations replaced by current panel and sensor mates. Nominal shafts, shims, springs, button mechanisms and touch parts come from existing sources; unresolved exact supplier geometry stays explicitly labeled.
 
+## Candidate work and parallel ownership
+
+Each agent uses its existing task branch and isolated worktree. The integration owner alone changes `current.json`; candidate checks never promote a design. Use the same runner directly for a candidate, without Python monkeypatches:
+
+```sh
+./hardware/cad/assembly_workflow/run status --manifest path/to/candidate.json
+./hardware/cad/assembly_workflow/run scene --manifest path/to/candidate.json --output path/to/candidate-view.scad
+./hardware/cad/assembly_workflow/run check --manifest path/to/candidate.json --only check_id --output path/to/new-results.json
+```
+
+Manifest paths are relative to the repository root (absolute paths within that worktree also work). Registry and source paths remain repository-relative. Candidate scenes require an explicit output so the selected assembly view is preserved. Check/export evidence must use a new output path; existing evidence is rejected before native work starts. All existing freshness, source-binding, immutable-cache and failure rules apply to candidates too.
+
+Before handing a candidate to integration, retain its manifest, exact source hashes, commands, native results and rejected witnesses. Declare changed PCB identities/nets or geometry roles and the remaining qualification limits. Integration reviews those deltas and runs the candidate checks before selecting it. Identical nets do not make connector ownership interchangeable; extra touch wiring must not be counted as completed panel-inventory edges.
+
+Use `status`/`plan` before native work and `--only` while iterating. The final integration batch covers all selected checks. A runner-code change intentionally invalidates native cache keys; historical results remain evidence for their original runtime, not a new pass. Native PCB zone-fill experiments must retain crashes and must not be automatically retried or treated as successful boards.
+
 ## KiCad mechanical freshness
 
 Before scene/export/check work, the bridge compares both selected PCB files against the CAD capture: outlines, thickness, mounting holes, footprint presence/position/side, physical footprint fields, courtyards, pad/drill geometry and part properties. Mechanical changes block stale CAD checks. Pure routing changes can retain the mechanical cache after comparison. Board results are themselves source-bound and cached; the full batch checks the board, manifest and registry snapshot again before reporting success. Supplier heights remain receiving assumptions.

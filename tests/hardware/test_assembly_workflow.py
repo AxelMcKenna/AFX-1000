@@ -38,6 +38,52 @@ class WorkflowTests(unittest.TestCase):
             patcher.stop()
         self.temp.cleanup()
 
+    def candidate_manifest(self):
+        registry = self.root / 'registry.json'
+        registry.write_text(json.dumps({'components': list(self.parts.values())}))
+        candidate = self.root / 'candidate.json'
+        candidate.write_text(json.dumps({'schema_version': 1, 'registries': ['registry.json'],
+                                         'checks': [self.check], 'unresolved': []}))
+        return candidate
+
+    def test_candidate_scene_uses_candidate_without_changing_selection(self):
+        candidate = self.candidate_manifest()
+        selected = (self.root / 'current.json').read_bytes()
+        output = self.root / 'candidate-view.scad'
+        state = {'geometry_fresh': True, 'source_sha256': {}}
+        with patch.object(w, 'board_state', return_value=state), patch.object(w.sys, 'argv',
+                ['workflow', 'scene', '--manifest', str(candidate), '--output', str(output)]):
+            w.main()
+        self.assertIn('a();', output.read_text())
+        self.assertEqual(selected, (self.root / 'current.json').read_bytes())
+        self.assertFalse((self.root / 'generated/assembly.scad').exists())
+
+    def test_candidate_scene_requires_separate_output(self):
+        with patch.object(w, 'board_state') as board, patch.object(w.sys, 'argv',
+                ['workflow', 'scene', '--manifest', str(self.candidate_manifest())]):
+            with self.assertRaises(SystemExit):
+                w.main()
+            board.assert_not_called()
+
+    def test_candidate_outside_worktree_rejected_before_loading(self):
+        with patch.object(w, 'load_manifest') as load, patch.object(w.sys, 'argv',
+                ['workflow', 'status', '--manifest', str(self.root.parent / 'foreign.json')]):
+            with self.assertRaises(ValueError):
+                w.main()
+            load.assert_not_called()
+
+    def test_existing_evidence_rejected_before_native_work(self):
+        candidate = self.candidate_manifest()
+        output = self.root / 'evidence.json'
+        output.write_text('preserve me')
+        with patch.object(w, 'board_state') as board, patch.object(w, 'execute') as execute, patch.object(w.sys, 'argv',
+                ['workflow', 'check', '--manifest', str(candidate), '--output', str(output)]):
+            with self.assertRaises(SystemExit):
+                w.main()
+            board.assert_not_called()
+            execute.assert_not_called()
+        self.assertEqual(output.read_text(), 'preserve me')
+
     def test_selected_capture_change_invalidates_board_cache(self):
         from hardware.cad.two_board_installation_06.workflow_adapter import pcb_freshness
         for name in ['capture-a.json','capture-b.json']:(self.root/name).write_text('{}')
