@@ -3,6 +3,29 @@
 **The complete unit is not ready for fabrication.** This inventory targets the
 first prototype of the full 12 V higher-headroom standalone design. B1 is separate.
 
+The latest verified working candidate is [TBP67](staging/two-board-power-monitor-return-planes-native-01/README.md):
+**2,037 power-board opens**, zero native geometry/parity/ERC errors and two retained
+ERC warnings. Four local tracks and fifteen ground vias close five ground
+connections, including the last four surveyed SN74 monitor-logic ground pins.
+All 75 surveyed SN74 grounds now reach main ground. The audit preserves every
+other native connection group, all 2,401 retained reference cases and all seven
+quiet-ground networks. Nine supply fields stay exact. The two DC-input sheets
+retain connected copper and contact banks; their conditional paired resistance
+increases by 0.6246% after the declared via clearances and local minimum-width
+cleanup. Current capacity and installed thermal performance remain unqualified.
+Four older control connector-end reference gaps remain. The signal board still
+has 251 opens and one missing codec footprint.
+[Final evidence](staging/two-board-power-monitor-return-planes-native-01/final-review.json)
+and [current project links](active/README.md) identify the working designs.
+The refreshed [TBP66 backlog](staging/two-board-completion-inventory-01/inventory.json)
+retains the immediate pre-TBP67 counts: 465 open nets, 442 ground gaps, 184 AUX
+gaps and 50 surveyed startup joins. TBP67 closes five of those ground gaps.
+
+The [TBH01 r6 housing](../cad/two_board_print_01/README.md) is available for an
+unpowered fit print. Complete carriers, lever hardware, harness and cooling
+remain unfinished. The records below retain their original revision scope;
+TBP50 counts and older surveys are historical rather than current totals.
+
 The [current AUX load review](staging/two-board-aux-load-review-01/README.md)
 finds that the old AX03 current budget cannot transfer unchanged to TBP25:
 E_U42 now uses LVC with three active inputs, and POWER_READY has two loaded
@@ -52,7 +75,7 @@ current evenly. Via barrels, component/contact losses and local bulk return
 are excluded; this is not a complete input-loop model, accepted stack or
 thermal/current rating. That analysis did not edit the PCB; the newer routing checkpoint below changes the distribution and slightly refills the inlet plane.
 
-The [current power checkpoint](staging/two-board-power-startup-remaining-native-03/README.md)
+The [earlier TBP50 power checkpoint](staging/two-board-power-startup-remaining-native-03/README.md)
 closes **27 connections**, completing the remaining eight U18–U28 local
 bypass/ground cells and U19's additional supply-pin tie. All eleven local
 cells are complete, but none reaches the AUX regulator source yet.
