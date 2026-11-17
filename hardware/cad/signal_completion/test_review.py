@@ -4,6 +4,9 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
+
+import hardware.cad.signal_completion.review_routes as reviewer
 
 from hardware.cad.signal_completion.review_routes import audit, retained_board_check
 from hardware.electronics.common.sexpr import first, read_sexpr, sexpr
@@ -22,6 +25,15 @@ class NativeEvidenceRegression(unittest.TestCase):
             (folder / 'native-review.json').write_text(json.dumps(report))
             (folder / 'signal_main.kicad_pcb').symlink_to(NATIVE / 'signal_main.kicad_pcb')
             audit(CANDIDATE, folder, folder / 'review.json')
+
+    def test_shared_dependency_drift_fails(self):
+        original = reviewer.sha
+        def changed(path):
+            return '0' * 64 if path.name == 'sexpr.py' else original(path)
+        with tempfile.TemporaryDirectory(prefix='signal-drift-', dir=HERE) as directory:
+            with patch.object(reviewer, 'sha', side_effect=changed):
+                with self.assertRaisesRegex(AssertionError, 'stale gate dependency'):
+                    audit(CANDIDATE, NATIVE, Path(directory) / 'review.json')
 
     def test_complete_native_checkpoint_passes(self):
         with tempfile.TemporaryDirectory(prefix='signal-positive-', dir=HERE) as directory:

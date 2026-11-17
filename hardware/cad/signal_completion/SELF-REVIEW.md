@@ -8,12 +8,15 @@ missing reference fields, silent plane changes, and a misleading fabrication-rea
 claim. Native DRC/ERC, exact netlist partitions, old-group preservation and the
 independent cluster-gap sum agree on 144 remaining opens.
 
-Two acceptance weaknesses were fixed before handoff: the initial reviewer relied
+Three acceptance weaknesses were fixed before handoff: the initial reviewer relied
 on UUID-bearing objects for preservation, leaving global stack/settings outside
 that comparison; and converting added copper directly to a dictionary could hide
 duplicate identities. The final reviewer compares global nodes and all retained
 objects/fills directly from native files and explicitly rejects duplicate UUIDs.
-The delivered regressions cover both cases and the other evidence failure paths.
+The post-PR review also found that shared parser/capture dependencies were not
+fully frozen by the new gate. `source-inputs.json` now binds them and the verifier
+runtime itself. Nine regressions, including a stale-dependency counterexample,
+pass with the current positive native checkpoint.
 
 All 18 added joins are on F.Cu without new holes or changed reference fills. This
 retains the earlier verified via-return evidence exactly. It does not establish

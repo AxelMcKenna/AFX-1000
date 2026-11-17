@@ -26,12 +26,14 @@ no new via, footprint move, drill, plane edit or rule exception is introduced.
 - A fresh native capture independently sums pad-cluster gaps to 144.
 - Acceptance regressions reject missing references, changed fills, altered
   stack settings, incorrect open counts, wrong nets, extra copper and
-  duplicate copper identities; the positive frozen checkpoint is exercised.
+  duplicate copper identities and stale shared dependencies; the positive frozen checkpoint is exercised.
 - The assembly freshness comparison finds no mechanical differences in
   all 477 signal and 1,101 power footprint records. Full assembly checks
   run against `assembly-candidate.json`; results are recorded separately.
 
-`routes-01-final-review.json` binds the routing/reference acceptance.
+`routes-01-source-bound-review.json` binds the current routing/reference acceptance.
+`source-inputs.json` freezes the verifier and shared dependencies; stale inputs
+fail acceptance. The earlier final-review file retains the preceding gate revision.
 `capture-routes-02/capture.json` is the portable native input for the next
 routing pass. Superseded local experiments are retained under the ignored
 `experiments/` directory and are not selected artifacts.

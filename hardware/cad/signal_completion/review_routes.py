@@ -43,6 +43,9 @@ def retained_board_check(before_path, after_path, expected_added):
 def audit(candidate, native, output):
     candidate, native, output = candidate.resolve(), native.resolve(), output.resolve()
     assert not output.exists(), 'Do not overwrite review evidence'
+    source_inputs = Path(__file__).with_name('source-inputs.json')
+    for name, expected in json.loads(source_inputs.read_text())['source_sha256'].items():
+        assert sha(ROOT / name) == expected, ('stale gate dependency', name)
     manifest = json.loads((candidate / 'routing.json').read_text())
     review_path = native / 'native-review.json'
     native_review = json.loads(review_path.read_text())
@@ -113,7 +116,7 @@ def audit(candidate, native, output):
               'all_original_authored_objects_and_connectivity_preserved': True,
               'all_saved_reference_fills_exact': True,
               'scope': 'Additive surface routing only; missing ESS footprint, remaining routing and complete-board qualification are open.',
-              'source_sha256': {str(p.relative_to(ROOT)): sha(p) for p in [Path(__file__), review_path,
+              'source_sha256': {str(p.relative_to(ROOT)): sha(p) for p in [Path(__file__), source_inputs, review_path,
                   candidate / 'routing.json', BASE / 'capture-r148/capture.json']}}
     output.write_text(json.dumps(report, indent=2) + '\n')
     print('PASS', len(cases), 'native copper/reference cases;', report['native_opens'], 'opens')
