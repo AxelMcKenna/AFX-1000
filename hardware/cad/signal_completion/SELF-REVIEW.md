@@ -1,4 +1,4 @@
-# Antagonistic self-review — signal routing checkpoint 01
+# Antagonistic self-review — signal routing checkpoint 02
 
 This is a self-review, not independent hardware qualification.
 
@@ -6,7 +6,7 @@ The review challenged accidental global-board edits, duplicate copper identities
 stale source/PCB evidence, wrong-net routing, unintended group merges and losses,
 missing reference fields, silent plane changes, and a misleading fabrication-ready
 claim. Native DRC/ERC, exact netlist partitions, old-group preservation and the
-independent cluster-gap sum agree on 144 remaining opens.
+independent cluster-gap sum agree on 143 remaining opens.
 
 Three acceptance weaknesses were fixed before handoff: the initial reviewer relied
 on UUID-bearing objects for preservation, leaving global stack/settings outside
@@ -18,9 +18,18 @@ fully frozen by the new gate. `source-inputs.json` now binds them and the verifi
 runtime itself. Nine regressions, including a stale-dependency counterexample,
 pass with the current positive native checkpoint.
 
-All 18 added joins are on F.Cu without new holes or changed reference fills. This
+All 19 added joins are on F.Cu without new holes or changed reference fills. This
 retains the earlier verified via-return evidence exactly. It does not establish
 analog noise/stability, clock timing, manufacturing tolerances or physical fit.
-The missing ESS footprint, 144 opens and fabrication gates remain release blockers.
+The missing ESS footprint, 143 opens and fabrication gates remain release blockers.
 All 169 configured assembly checks passed before selection, with every recorded
 source hash rechecked. Mechanical freshness confirms unchanged footprint geometry.
+
+The second checkpoint also challenged selection binding: a manifest could have
+pointed at another filename in the same native directory while the audit checked
+`signal_main.kicad_pcb`. The selector now rejects that mismatch before audit; a
+negative regression demonstrates rejection. CI runs the gate on the actual
+assembly selection, and the native receiving-pad regression verifies the newly
+completed right-input net. All 51 acceptance/connectivity and assembly/freshness
+regressions pass after this fix. No additional actionable defect was found in
+the final checkpoint diff.

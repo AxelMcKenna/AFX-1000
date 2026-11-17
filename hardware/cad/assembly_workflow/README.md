@@ -1,7 +1,7 @@
 # Unified assembly workflow
 
-The current signal selection is [routing checkpoint 01](../signal_completion/README.md),
-with **144 native opens**. The selected power board remains TBP73. All **169**
+The current signal selection is [routing checkpoint 02](../signal_completion/README.md),
+with **143 native opens**. The selected power board remains TBP73. All **169**
 configured assembly checks pass for this selection; native and selected-manifest
 results are retained in `../signal_completion/`. Missing ESS geometry, remaining
 routing and fabrication qualification remain open. Later sections retain earlier
