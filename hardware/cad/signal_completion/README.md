@@ -4,8 +4,8 @@ The verified routing candidate is `native-routes-01/signal_main.kicad_pro`.
 It adds 18 joins to r148, reducing native opens from 162 to **144**. Relative
 to the selected r139 board, this also carries the verified PD_R repair in r148.
 This is an intermediate checkpoint toward completing the signal PCB; it is
-**not a fabrication release**. The assembly selection remains separate until
-its configured compatibility checks finish.
+**not a fabrication release**. All 169 configured compatibility checks pass, and the candidate is selected
+in the assembly workflow. This selection does not release fabrication.
 
 The new routes cover ADC left input, processor input, bypass input/output and
 output coupling/series nodes. `routes-01/routing.json` records exact nets,
@@ -24,12 +24,14 @@ no new via, footprint move, drill, plane edit or rule exception is introduced.
   connected adjacent ground fields. Existing same-net transition holes are
   accounted separately under the r148 policy; none are added or enlarged.
 - A fresh native capture independently sums pad-cluster gaps to 144.
+- Forty assembly-workflow and mechanical-freshness regressions pass after selection.
 - Acceptance regressions reject missing references, changed fills, altered
   stack settings, incorrect open counts, wrong nets, extra copper and
   duplicate copper identities and stale shared dependencies; the positive frozen checkpoint is exercised.
 - The assembly freshness comparison finds no mechanical differences in
-  all 477 signal and 1,101 power footprint records. Full assembly checks
-  run against `assembly-candidate.json`; results are recorded separately.
+  all 477 signal and 1,101 power footprint records. All 169 configured assembly checks pass
+  against `assembly-candidate.json`, with the complete input snapshot verified
+  before selection. `assembly-results.json` records the native run.
 
 `routes-01-source-bound-review.json` binds the current routing/reference acceptance.
 `source-inputs.json` freezes the verifier and shared dependencies; stale inputs

@@ -22,4 +22,5 @@ All 18 added joins are on F.Cu without new holes or changed reference fills. Thi
 retains the earlier verified via-return evidence exactly. It does not establish
 analog noise/stability, clock timing, manufacturing tolerances or physical fit.
 The missing ESS footprint, 144 opens and fabrication gates remain release blockers.
-Configured full assembly checks are recorded separately before integration.
+All 169 configured assembly checks passed before selection, with every recorded
+source hash rechecked. Mechanical freshness confirms unchanged footprint geometry.
