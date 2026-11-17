@@ -1,5 +1,12 @@
 # Unified assembly workflow
 
+The current signal selection is [routing checkpoint 02](../signal_completion/README.md),
+with **143 native opens**. The selected power board remains TBP73. All **169**
+configured assembly checks pass for this selection; native and selected-manifest
+results are retained in `../signal_completion/`. Missing ESS geometry, remaining
+routing and fabrication qualification remain open. Later sections retain earlier
+checkpoint history within their recorded revision scope.
+
 This is the entry point for mechanical integration. `current.json` selects the active component registries, current KiCad boards, housing variant and clearance checks. Existing CAD sources remain authoritative; adapters apply their installed transforms once and do not copy or redesign parts.
 
 Use `./hardware/cad/assembly_workflow/run` as the short command (for example, `run status`, `run scene`, or `run check`). The equivalent explicit commands from the repository root are:
