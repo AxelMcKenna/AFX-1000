@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The working power board includes the reference-capacitor placement reviewed in [revision 29](../staging/two-board-power-buffer-filter-placement-29/README.md).
+The working power board includes the reference-buffer input reviewed in [revision 30](../staging/two-board-power-filter-buffer-input-30/README.md).
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-16/signal_main.kicad_pro) | [123 opens and missing codec footprint](../../cad/signal_completion/native-routes-16/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-buffer-filter-placement-29/power_protection.kicad_pro) | [1,642 opens and unfinished AUX source distribution](../staging/two-board-power-buffer-filter-placement-29/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-filter-buffer-input-30/power_protection.kicad_pro) | [1,641 opens and unfinished AUX source distribution](../staging/two-board-power-filter-buffer-input-30/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
