@@ -46,10 +46,10 @@ Panel boards and bought-in modules are additional; “two boards” describes th
 
 | Current board | Functions | Overall size | Checked routing status |
 | --- | --- | --- | --- |
-| [Signal main](hardware/cad/signal_completion/native-routes-04/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 141 open connections, zero geometry/ERC errors, missing ESS codec footprint |
+| [Signal main](hardware/cad/signal_completion/native-routes-05/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 140 open connections, zero geometry/ERC errors, missing ESS codec footprint |
 | [Power/protection](hardware/fabrication/staging/two-board-power-monitor-dividers-16/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 1,700 open connections, zero geometry/parity/ERC errors, two retained isolated-reference ERC warnings |
 
-The signal board has 466 placed electrical footprints. A_U201 still needs the ESS codec land pattern. The latest route connects the audio and digital codec run-control groups over existing plated transitions. [Signal routing and reference checks](hardware/cad/signal_completion/native-routes-04/README.md)
+The signal board has 466 placed electrical footprints. A_U201 still needs the ESS codec land pattern. The latest route connects the DAC reference-buffer capacitors over a new local ground pour tied to two existing vias. [Signal routing and reference checks](hardware/cad/signal_completion/native-routes-05/README.md)
 
 The power board has 1,086 electrical components. The latest revision connects six monitoring and reset divider nodes. Earlier revisions connect the negative-startup supervisor to the 2.5 V regulator and three Schmitt buffers to local bypass capacitors. Native KiCad connectivity confirms each intended merge, and a full zone refill passes geometry and schematic parity checks. The two boards retain the placement used for the housing review. [Power routing and reference checks](hardware/fabrication/staging/two-board-power-monitor-dividers-16/README.md) · [Paired placement comparison](hardware/fabrication/staging/two-board-power-monitor-dividers-16/placement.json)
 
