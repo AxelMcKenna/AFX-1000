@@ -1,6 +1,6 @@
 # Voltage monitor mode straps and supply branch
 
-The LTC2910 disable and polarity-select inputs connect to system ground. A 0.40 mm trace supplies the monitor pull-up resistor M_R113 from the existing 3.3 V rail. The rail review checks the new branch against its adjacent ground plane. Loaded current and temperature performance remain to be measured. KiCad verifies 2 intended joins and 1,360 remaining open connections.
+The LTC2910 disable and polarity-select inputs connect to system ground. A 0.40 mm trace joins M_R113 to the local 3.3 V copper at M_U8. That branch still needs a connection to the monitor supply header M_J1. The rail review checks the new branch against its adjacent ground plane. Loaded current and temperature performance remain to be measured. KiCad verifies 2 intended joins and 1,360 remaining open connections.
 
 | Width (mm) | Joined pad groups | Layer | Length (mm) |
 |---|---|---|---:|
