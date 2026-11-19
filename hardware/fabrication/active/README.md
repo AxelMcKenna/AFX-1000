@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The working power board includes the reference filter and monitor dividers reviewed in [revision 26](../staging/two-board-power-reference-filter-26/README.md).
+The working power board includes the reference-capacitor ground returns reviewed in [revision 27](../staging/two-board-power-reference-capacitor-returns-27/README.md).
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
-| Signal main | [KiCad project](../../cad/signal_completion/native-routes-13/signal_main.kicad_pro) | [127 opens and missing codec footprint](../../cad/signal_completion/native-routes-13/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-reference-filter-26/power_protection.kicad_pro) | [1,663 opens and unfinished AUX source distribution](../staging/two-board-power-reference-filter-26/README.md) |
+| Signal main | [KiCad project](../../cad/signal_completion/native-routes-14/signal_main.kicad_pro) | [126 opens and missing codec footprint](../../cad/signal_completion/native-routes-14/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-reference-capacitor-returns-27/power_protection.kicad_pro) | [1,653 opens and unfinished AUX source distribution](../staging/two-board-power-reference-capacitor-returns-27/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and

@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-13/signal_main.kicad_pro) has **127 open connections**. The right output coupling capacitor now connects directly to A_R508 over analog ground. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-13/README.md)
+The [latest routing project](native-routes-14/signal_main.kicad_pro) has **126 open connections**. The right ADC reference divider now connects to A_C120 over analog ground. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-14/README.md)
 
 ## Assembly workflow checkpoint 02
 
