@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-10/signal_main.kicad_pro) has **131 open connections**. The left receive and bypass-timer traces now run directly over analog ground. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-10/README.md)
+The [latest routing project](native-routes-11/signal_main.kicad_pro) has **130 open connections**. The right ADC common-mode sense trace now connects the capacitor and sense resistor over analog ground. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-11/README.md)
 
 ## Assembly workflow checkpoint 02
 
