@@ -20,6 +20,42 @@ def expanded_pad(pad, layer, distance):
     return polygon
 
 
+def segment_ids(route):
+    return route["segments"] if "segments" in route else [route["segment"]]
+
+
+def check_return(route, board, tracks, pads, field, layer):
+    if "ground_rings" in route:
+        rings = route["ground_rings"]
+    else:
+        inner, outer = route["verified_ground_ring_beyond_pad_mm"]
+        rings = [dict(pad=route["through_pad"], inner_mm=inner, outer_mm=outer)]
+    clearances = pcbnew.SHAPE_POLY_SET()
+    for ring in rings:
+        pad = pads[ring["pad"]]
+        assert pad.GetAttribute() == pcbnew.PAD_ATTRIB_PTH and pad.GetNetname() == route["net"]
+        clearances.BooleanAdd(expanded_pad(pad, layer, 0.21))
+        inner = expanded_pad(pad, layer, ring["inner_mm"])
+        outer = expanded_pad(pad, layer, ring["outer_mm"])
+        if "neighbor_via" in ring:
+            via = tracks[ring["neighbor_via"]]
+            assert via.GetClass() == "PCB_VIA" and via.GetNetname() != pad.GetNetname()
+            inner.BooleanAdd(expanded_pad(via, layer, ring["inner_mm"]))
+            outer.BooleanAdd(expanded_pad(via, layer, ring["outer_mm"]))
+        outer.BooleanSubtract(inner)
+        outer.BooleanSubtract(field)
+        assert outer.Area() == 0, "Incomplete ground ring around clearance opening"
+    signal = board.GetLayerID(route.get("signal_layer", "B.Cu"))
+    for uid in segment_ids(route):
+        trace = tracks[uid]
+        assert trace.GetLayer() == signal and trace.GetNetname() == route["net"]
+        assert trace.GetWidth() == pcbnew.FromMM(route["width_mm"])
+        gap = copper(trace, signal)
+        gap.BooleanSubtract(field)
+        gap.BooleanSubtract(clearances)
+        assert gap.Area() == 0, "Ground reference interrupted outside a plated-pad clearance"
+
+
 def verify(parent, project):
     name = "signal_main.kicad_pcb"
     report = json.loads((project / "native-review.json").read_text())
@@ -30,9 +66,11 @@ def verify(parent, project):
     prefix = original.rstrip()[:-1]
     assert candidate.startswith(prefix)
     added = read_sexpr("(" + candidate[len(prefix):].decode())
-    intended = {r[k]: kind for r in routes for k, kind in (
-        ("segment", "segment"), ("zone", "zone"), ("new_ground_via", "via")
-    )}
+    intended = {}
+    for route in routes:
+        intended[route["zone"]] = "zone"
+        intended[route["new_ground_via"]] = "via"
+        intended.update(dict.fromkeys(segment_ids(route), "segment"))
     assert len(added) == len(intended)
     assert {first(node, "uuid")[1]: node[0] for node in added} == intended
 
@@ -53,7 +91,7 @@ def verify(parent, project):
     assert expected[0] == report["native_opens"] and pad_groups(after) == expected
 
     saved, saved_after = filled_polygons(before), filled_polygons(after)
-    new_zones = {(r["zone"], "In6.Cu") for r in routes}
+    new_zones = {(r["zone"], r.get("reference_layer", "In6.Cu")) for r in routes}
     assert saved.keys() | new_zones == saved_after.keys()
     assert all(p.Format() == saved_after[key].Format() for key, p in saved.items())
     for board in (before, after):
@@ -64,25 +102,12 @@ def verify(parent, project):
     assert all(same_filled_area(saved_after[key], fields[key]) for key in new_zones)
     tracks = {item.m_Uuid.AsString(): item for item in after.GetTracks()}
     zones = {item.m_Uuid.AsString(): item for item in after.Zones()}
-    layer = after.GetLayerID("In6.Cu")
     for route in routes:
-        trace = tracks[route["segment"]]
-        assert trace.GetLayer() == pcbnew.B_Cu and trace.GetNetname() == route["net"]
-        assert trace.GetWidth() == pcbnew.FromMM(route["width_mm"])
-        field = fields[route["zone"], "In6.Cu"]
+        name = route.get("reference_layer", "In6.Cu")
+        layer = after.GetLayerID(name)
+        field = fields[route["zone"], name]
         assert field.OutlineCount() == 1 and zones[route["zone"]].GetNetname() == "LINK_AGND"
-        pad = pads[route["through_pad"]]
-        assert pad.GetAttribute() == pcbnew.PAD_ATTRIB_PTH and pad.GetNetname() == trace.GetNetname()
-        inner, outer = route["verified_ground_ring_beyond_pad_mm"]
-        clearance = expanded_pad(pad, layer, inner)
-        uncovered = copper(trace, trace.GetLayer())
-        uncovered.BooleanSubtract(field)
-        uncovered.BooleanSubtract(clearance)
-        assert uncovered.Area() == 0, "Ground reference interrupted outside the plated-pad clearance"
-        ring = expanded_pad(pad, layer, outer)
-        ring.BooleanSubtract(clearance)
-        ring.BooleanSubtract(field)
-        assert ring.Area() == 0, "Incomplete ground ring at plated pad"
+        check_return(route, after, tracks, pads, field, layer)
         ground = pads[route["ground_anchor"]]
         assert ground.GetNetname() == "LINK_AGND"
         connected = {o.m_Uuid.AsString() for o in after.GetConnectivity().GetConnectedItems(ground)}
