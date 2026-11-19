@@ -1,8 +1,10 @@
 """Check the native pad partition and filled copper after refilling an additive power layout."""
 
+from collections import Counter
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 
 import pcbnew
@@ -39,6 +41,52 @@ def filled_polygons(board):
     }
 
 
+def boundary_events(polygons):
+    """Represent oriented straight boundaries in integer nanometers.
+
+    Collinear subdivisions and the two opposite edges of a fill fracture
+    cancel. A displacement, even by one coordinate unit, remains visible.
+    """
+    events = Counter()
+    for index in range(polygons.OutlineCount()):
+        rings = [polygons.COutline(index)]
+        rings.extend(polygons.CHole(index, j) for j in range(polygons.HoleCount(index)))
+        for ring in rings:
+            count = ring.PointCount()
+            if count < 2:
+                continue
+            previous = ring.CPoint(count - 1)
+            for j in range(count):
+                point = ring.CPoint(j)
+                dx, dy = point.x - previous.x, point.y - previous.y
+                divisor = math.gcd(dx, dy)
+                if divisor:
+                    if dx < 0 or (dx == 0 and dy < 0):
+                        divisor = -divisor
+                    ux, uy = dx // divisor, dy // divisor
+                    offset = ux * previous.y - uy * previous.x
+                    events[ux, uy, offset, previous.x if ux else previous.y] += 1
+                    events[ux, uy, offset, point.x if ux else point.y] -= 1
+                previous = point
+    return {key: value for key, value in events.items() if value}
+
+
+def same_filled_area(left, right):
+    if left.Format() == right.Format():
+        return True
+    # Fractured fills encode a hole using a slit from the outer ring. KiCad
+    # can choose a different slit, rounding its intersection on the nm grid.
+    # Recover explicit holes before comparing actual copper boundaries.
+    def actual_boundaries(poly):
+        if any(poly.HoleCount(i) for i in range(poly.OutlineCount())):
+            return boundary_events(poly)
+        unfractured = pcbnew.SHAPE_POLY_SET(poly)
+        unfractured.Unfracture()
+        return boundary_events(unfractured)
+
+    return actual_boundaries(left) == actual_boundaries(right)
+
+
 def verify(project, parent):
     path = project / "power_protection.kicad_pcb"
     expected = json.loads((project / "connectivity.json").read_text())
@@ -70,7 +118,7 @@ def verify(project, parent):
     for key, polygon in before.items():
         if polygon.Format() != parent_saved[key].Format():
             raise ValueError(f"Saved candidate differs from parent zone {key}")
-        if after[key].Format() != parent_refilled[key].Format():
+        if not same_filled_area(after[key], parent_refilled[key]):
             raise ValueError(f"Refilled candidate differs from refilled parent zone {key}")
         if polygon.Format() != after[key].Format():
             polygon.BooleanXor(after[key])
