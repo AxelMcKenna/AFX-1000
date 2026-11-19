@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-19/signal_main.kicad_pro) has **118 open connections**. The right output driver now has a 7.67 mm connection between A_R505 and A_R507 over continuous analog ground. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-19/README.md)
+The [latest routing project](native-routes-20/signal_main.kicad_pro) has **118 open connections**. The 5 V via at A_D101 now clears the diode solder land by 0.18 mm. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-20/README.md)
 
 ## Assembly workflow checkpoint 02
 
