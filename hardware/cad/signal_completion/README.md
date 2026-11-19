@@ -1,6 +1,10 @@
-# Signal PCB completion — routing checkpoint 02
+# Signal PCB completion
 
-The verified routing candidate is `native-routes-02/signal_main.kicad_pro`.
+The [latest routing project](native-routes-04/signal_main.kicad_pro) has **141 open connections**. The two revisions after checkpoint 02 add a local audio connection and connect the audio and digital codec run-control groups. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-04/README.md)
+
+## Assembly workflow checkpoint 02
+
+The routing candidate selected by the assembly workflow is `native-routes-02/signal_main.kicad_pro`.
 It adds 19 joins to r148, reducing native opens from 162 to **143**. Relative
 to the selected r139 board, this also carries the verified PD_R repair in r148.
 This is an intermediate checkpoint toward completing the signal PCB; it is
