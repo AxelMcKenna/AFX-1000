@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-11/signal_main.kicad_pro) has **130 open connections**. The right ADC common-mode sense trace now connects the capacitor and sense resistor over analog ground. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-11/README.md)
+The [latest routing project](native-routes-12/signal_main.kicad_pro) has **128 open connections**. The left ADC differential filter capacitor now connects to both shunt capacitors over a shared analog-ground pour. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-12/README.md)
 
 ## Assembly workflow checkpoint 02
 
