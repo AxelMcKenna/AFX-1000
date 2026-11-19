@@ -46,10 +46,10 @@ Panel boards and bought-in modules are additional; “two boards” describes th
 
 | Current board | Functions | Overall size | Checked routing status |
 | --- | --- | --- | --- |
-| [Signal main](hardware/cad/signal_completion/native-routes-12/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 128 open connections, zero geometry/ERC errors, missing ESS codec footprint |
+| [Signal main](hardware/cad/signal_completion/native-routes-13/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 127 open connections, zero geometry/ERC errors, missing ESS codec footprint |
 | [Power/protection](hardware/fabrication/staging/two-board-power-control-pulldowns-24/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 1,672 open connections, zero geometry/parity/ERC errors, two retained isolated-reference ERC warnings |
 
-The signal board has 466 placed electrical footprints. A_U201 still needs the ESS codec land pattern. The left ADC differential filter capacitor now connects to both shunt capacitors over a shared analog-ground pour. [Signal routing and reference checks](hardware/cad/signal_completion/native-routes-12/README.md)
+The signal board has 466 placed electrical footprints. A_U201 still needs the ESS codec land pattern. The right output coupling capacitor now connects directly to A_R508 over analog ground. [Signal routing and reference checks](hardware/cad/signal_completion/native-routes-13/README.md)
 
 The power board has 1,086 electrical components. The latest revision connects five control pull-down resistors to nearby analog-ground contacts. Earlier revisions connect the negative-startup supervisor to the 2.5 V regulator and three Schmitt buffers to local bypass capacitors. Native KiCad connectivity confirms each intended merge, and a full zone refill passes geometry and schematic parity checks. The paired placements match the updated assembly capture. Full housing fit remains open. [Power routing and reference checks](hardware/fabrication/staging/two-board-power-control-pulldowns-24/README.md) · [Paired placement comparison](hardware/fabrication/staging/two-board-power-control-pulldowns-24/placement.json)
 
