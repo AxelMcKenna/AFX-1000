@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The working power board includes the three local bypass connections reviewed in [revision 13](../staging/two-board-power-bypass-13/README.md).
+The working power board includes the negative-startup supervisor connections reviewed in [revision 14](../staging/two-board-power-aux-supervisor-14/README.md).
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-04/signal_main.kicad_pro) | [141 opens and missing codec footprint](../../cad/signal_completion/native-routes-04/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-bypass-13/power_protection.kicad_pro) | [1,717 opens and unfinished AUX source distribution](../staging/two-board-power-bypass-13/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-aux-supervisor-14/power_protection.kicad_pro) | [1,714 opens and unfinished AUX source distribution](../staging/two-board-power-aux-supervisor-14/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
