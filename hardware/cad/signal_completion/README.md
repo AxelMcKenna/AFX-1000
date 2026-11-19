@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-05/signal_main.kicad_pro) has **140 open connections**. A_C203 and A_C204 now share their reference-buffer node over a local ground pour tied to two existing vias. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-05/README.md)
+The [latest routing project](native-routes-06/signal_main.kicad_pro) has **138 open connections**. A_C513 and A_C514 now connect to their respective output series resistors over stitched ground pours. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-06/README.md)
 
 ## Assembly workflow checkpoint 02
 
