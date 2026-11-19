@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-15/signal_main.kicad_pro) has **125 open connections**. A_C504 and A_C516 now connect over analog ground in the right output stage. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-15/README.md)
+The [latest routing project](native-routes-16/signal_main.kicad_pro) has **123 open connections**. The left and right ADC negative-bias branches now share a continuous analog-ground reference. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-16/README.md)
 
 ## Assembly workflow checkpoint 02
 
