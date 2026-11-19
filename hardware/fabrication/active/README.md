@@ -6,7 +6,7 @@ Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
-| Signal main | [KiCad project](../../cad/signal_completion/native-routes-56/signal_main.kicad_pro) | [71 opens and missing codec footprint](../../cad/signal_completion/native-routes-56/README.md) |
+| Signal main | [KiCad project](../../cad/signal_completion/native-routes-57/signal_main.kicad_pro) | [70 opens and missing codec footprint](../../cad/signal_completion/native-routes-57/README.md) |
 | Power/protection | [KiCad project](../staging/two-board-power-fan-monitor-supply-125/power_protection.kicad_pro) | [1,251 opens and unfinished AUX source distribution](../staging/two-board-power-fan-monitor-supply-125/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
