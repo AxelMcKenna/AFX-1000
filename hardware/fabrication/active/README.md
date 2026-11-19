@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The working power board includes the monitoring and reset divider connections reviewed in [revision 16](../staging/two-board-power-monitor-dividers-16/README.md).
+The working power board includes the E_U35 bypass capacitor placement and routing reviewed in [revision 17](../staging/two-board-power-buffer-decoupling-17/README.md).
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-06/signal_main.kicad_pro) | [138 opens and missing codec footprint](../../cad/signal_completion/native-routes-06/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-monitor-dividers-16/power_protection.kicad_pro) | [1,700 opens and unfinished AUX source distribution](../staging/two-board-power-monitor-dividers-16/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-buffer-decoupling-17/power_protection.kicad_pro) | [1,698 opens and unfinished AUX source distribution](../staging/two-board-power-buffer-decoupling-17/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
