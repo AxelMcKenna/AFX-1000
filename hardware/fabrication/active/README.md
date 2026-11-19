@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The negative 12 V startup monitor has a routed undervoltage reference. [Revision 44](../staging/two-board-power-startup-uv-reference-44/README.md)
+Nine local ground returns connect regulator, capacitor and divider pads to the analog ground plane. [Revision 45](../staging/two-board-power-regulator-ground-escapes-45/README.md)
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-22/signal_main.kicad_pro) | [116 opens and missing codec footprint](../../cad/signal_completion/native-routes-22/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-startup-uv-reference-44/power_protection.kicad_pro) | [1,554 opens and unfinished AUX source distribution](../staging/two-board-power-startup-uv-reference-44/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-regulator-ground-escapes-45/power_protection.kicad_pro) | [1,545 opens and unfinished AUX source distribution](../staging/two-board-power-regulator-ground-escapes-45/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
