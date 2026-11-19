@@ -3,9 +3,9 @@
 **The complete unit is not ready for fabrication.** This inventory targets the
 first prototype of the full 12 V higher-headroom standalone design. B1 is separate.
 
-The latest verified working candidate is [TBP73](staging/two-board-power-aux-local-distribution-native-03/README.md): **1,936 power-board opens**, zero native geometry/parity/ERC errors and two retained ERC warnings. Its one additional local AUX join uses two surface tracks and no vias, preserving all original copper and 47 plane fills. [Final evidence](staging/two-board-power-aux-local-distribution-native-03/final-review.json) and [current project links](active/README.md) identify the working designs.
+The power/protection board has **1,717 open connections**. The latest layout connects three Schmitt buffers to their local 100 nF bypass capacitors. The signal board has **141 open connections** and still needs the ES9292QPRO footprint. Both editable KiCad projects are in the [current project index](active/README.md). [Power routing review](staging/two-board-power-bypass-13/README.md) · [Signal routing review](../cad/signal_completion/native-routes-04/README.md)
 
-The [current AUX inventory](staging/two-board-aux-distribution-survey-07/inventory.json) records 78 of 87 capacitor grounds connected, but 72 of 81 IC supply pins still lack regulator connections. The [signal DAC-r46 candidate](../cad/two_board_sensor_05/signal_dac/README.md) has 196 opens and the missing codec footprint. Its 34 joins preserve all but one footprint pose; the R303 translation has refreshed mechanical evidence, and six DAC joins remain. Full-board, analog-performance, current, startup and thermal qualification remain incomplete.
+The [TBP73 review](staging/two-board-power-aux-local-distribution-native-03/README.md), [AUX distribution survey](staging/two-board-aux-distribution-survey-07/inventory.json) and [signal DAC-r46 review](../cad/two_board_sensor_05/signal_dac/README.md) retain the measurements for those earlier boards. Full-board routing, analog performance, power distribution, startup and thermal qualification remain open.
 
 The [TBP66 backlog](staging/two-board-completion-inventory-01/inventory.json) is historical: its 2,042 opens precede the 99 connections subsequently closed through TBP71. Do not use its per-net totals as current measurements.
 
