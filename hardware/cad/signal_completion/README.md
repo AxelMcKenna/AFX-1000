@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-08/signal_main.kicad_pro) has **134 open connections**. The bit-clock and word-select resistors now connect directly to the codec header over a shared ground pour. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-08/README.md)
+The [latest routing project](native-routes-09/signal_main.kicad_pro) has **133 open connections**. The bit-clock, word-select and ADC data resistors now connect directly to the codec header over a shared ground pour. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-09/README.md)
 
 ## Assembly workflow checkpoint 02
 
