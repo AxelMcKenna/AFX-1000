@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-17/signal_main.kicad_pro) has **122 open connections**. The relocated right ADC sense resistor joins its input capacitor through a 2.56 mm trace over continuous analog ground. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-17/README.md)
+The [latest routing project](native-routes-18/signal_main.kicad_pro) has **119 open connections**. Three routes connect the bypass timer divider, left preamplifier and left output driver over continuous analog ground. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-18/README.md)
 
 ## Assembly workflow checkpoint 02
 
