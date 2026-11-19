@@ -33,7 +33,7 @@ The characterization ADC driver board does not complete the codec board.
 
 ## PCB fabrication and assembly
 
-The two-board via review measures nominal drill edges against the exported mask and paste openings. The smallest power-board mask clearance is 0.0621 mm. Supplier registration and via tenting remain to be confirmed. [Two-board measurements](staging/two-board-via-assembly-review-01/README.md)
+The two-board via review measures nominal drill edges against the exported mask and paste openings. The smallest power-board mask clearance is 0.1246 mm. Supplier registration and via tenting remain to be confirmed. [Two-board measurements](staging/two-board-via-assembly-review-01/README.md)
 
 The current consolidation target is two main PCBs. The [integrated signal
 checkpoint](staging/two-board-signal-routed-native-03/README.md) has a provisional
