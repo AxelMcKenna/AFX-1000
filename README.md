@@ -47,11 +47,11 @@ Panel boards and bought-in modules are additional; “two boards” describes th
 | Current board | Functions | Overall size | Checked routing status |
 | --- | --- | --- | --- |
 | [Signal main](hardware/cad/signal_completion/native-routes-41/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 87 open connections, zero geometry/ERC errors, missing ESS codec footprint |
-| [Power/protection](hardware/fabrication/staging/two-board-power-local-ground-88/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 1,381 open connections, zero geometry/parity/ERC errors, two retained isolated-reference ERC warnings |
+| [Power/protection](hardware/fabrication/staging/two-board-power-monitor-ground-89/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 1,373 open connections, zero geometry/parity/ERC errors, two retained isolated-reference ERC warnings |
 
 The signal board has 466 placed electrical footprints. A_U201 still needs the ESS codec land pattern. The A_D601 and A_D603 flyback diodes connect to their respective relay coil drivers. The 5 V via at A_D101 clears the diode solder land by 0.18 mm. [Signal routing and reference checks](hardware/cad/signal_completion/native-routes-41/README.md)
 
-The power board has 1,086 electrical components. The 2.5 V auxiliary regulator output reaches 173 of its 230 assigned pads. KiCad checks pass for geometry and schematic parity. The paired placements match the assembly capture. Full housing fit and loaded rail performance remain open. [Power routing and reference checks](hardware/fabrication/staging/two-board-power-local-ground-88/README.md) · [Paired placement comparison](hardware/fabrication/staging/two-board-power-local-ground-88/placement.json)
+The power board has 1,086 electrical components. The 2.5 V auxiliary regulator output reaches 173 of its 230 assigned pads. KiCad checks pass for geometry and schematic parity. The paired placements match the assembly capture. Full housing fit and loaded rail performance remain open. [Power routing and reference checks](hardware/fabrication/staging/two-board-power-monitor-ground-89/README.md) · [Paired placement comparison](hardware/fabrication/staging/two-board-power-monitor-ground-89/placement.json)
 
 The earlier TBP73 AUX survey found 78 of 87 capacitor ground pins connected and 72 of 81 IC supply pins still awaiting regulator connections. Those counts describe TBP73. [TBP73 evidence](hardware/fabrication/staging/two-board-power-aux-local-distribution-native-03/final-review.json) · [AUX inventory](hardware/fabrication/staging/two-board-aux-distribution-survey-07/inventory.json)
 
@@ -97,7 +97,7 @@ For the lever, use the [TBH03-r5 retention add-on](hardware/cad/two_board_print_
 
 The newer selector/display/LED/sensor carriers and lever spring/magnet assemblies have modeled verification. Complete harness integration, actual-part receiving and operating cooling remain unfinished. The CAD supports use the TBP61 placement snapshot; TBP62–66 preserve those board outlines, mounts and component positions. Both boards use a provisional eight-layer template; the manufacturing stack is not accepted.
 
-Remaining work includes full routing and current returns, approved ESS package/land/stencil inputs, loaded power and startup checks, AUX distribution, installed thermal and assembly qualification, exact BOM and reviewed manufacturing outputs. The [latest power-board review](hardware/fabrication/staging/two-board-power-local-ground-88/README.md) records the current checks; the [fabrication inventory](hardware/fabrication/README.md) retains detailed engineering history.
+Remaining work includes full routing and current returns, approved ESS package/land/stencil inputs, loaded power and startup checks, AUX distribution, installed thermal and assembly qualification, exact BOM and reviewed manufacturing outputs. The [latest power-board review](hardware/fabrication/staging/two-board-power-monitor-ground-89/README.md) records the current checks; the [fabrication inventory](hardware/fabrication/README.md) retains detailed engineering history.
 
 The [standalone firmware candidate](hardware/firmware/full_engine/README.md) builds the shared DSP engine with 152 parameters, bounded SDRAM storage and control-fault recovery. Full-unit hardware operation remains to be qualified.
 
