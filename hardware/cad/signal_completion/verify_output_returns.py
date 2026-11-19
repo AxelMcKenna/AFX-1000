@@ -111,13 +111,19 @@ def verify(parent, project):
         ground = pads[route["ground_anchor"]]
         assert ground.GetNetname() == "LINK_AGND"
         connected = {o.m_Uuid.AsString() for o in after.GetConnectivity().GetConnectedItems(ground)}
-        for uid in (route["new_ground_via"], route["existing_ground_via"]):
-            via = tracks[uid]
-            assert via.GetClass() == "PCB_VIA" and uid in connected
-            overlap = copper(via, layer)
+        if "ground_pad" in route:
+            contact = pads[route["ground_pad"]]
+            assert contact.GetAttribute() == pcbnew.PAD_ATTRIB_PTH
+        else:
+            contact = tracks[route["existing_ground_via"]]
+            assert contact.GetClass() == "PCB_VIA"
+        via = tracks[route["new_ground_via"]]
+        assert via.GetClass() == "PCB_VIA"
+        for item in (via, contact):
+            assert item.GetNetname() == "LINK_AGND" and item.m_Uuid.AsString() in connected
+            overlap = copper(item, layer)
             overlap.BooleanIntersection(field)
             assert overlap.Area() > 0.01 * 1e12
-        via = tracks[route["new_ground_via"]]
         assert via.GetDrillValue() == pcbnew.FromMM(0.30) and via.GetWidth(layer) == pcbnew.FromMM(0.60)
         assert via.TopLayer() == pcbnew.F_Cu and via.BottomLayer() == pcbnew.B_Cu
     return expected[0]
