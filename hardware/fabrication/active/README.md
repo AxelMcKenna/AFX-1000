@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The working power board includes the five control pull-down returns reviewed in [revision 24](../staging/two-board-power-control-pulldowns-24/README.md).
+The working power board includes the validity-signal pull-down returns reviewed in [revision 25](../staging/two-board-power-validity-returns-25/README.md).
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-13/signal_main.kicad_pro) | [127 opens and missing codec footprint](../../cad/signal_completion/native-routes-13/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-control-pulldowns-24/power_protection.kicad_pro) | [1,672 opens and unfinished AUX source distribution](../staging/two-board-power-control-pulldowns-24/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-validity-returns-25/power_protection.kicad_pro) | [1,670 opens and unfinished AUX source distribution](../staging/two-board-power-validity-returns-25/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
