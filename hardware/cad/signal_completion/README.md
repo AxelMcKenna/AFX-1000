@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-16/signal_main.kicad_pro) has **123 open connections**. The left and right ADC negative-bias branches now share a continuous analog-ground reference. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-16/README.md)
+The [latest routing project](native-routes-17/signal_main.kicad_pro) has **122 open connections**. The relocated right ADC sense resistor joins its input capacitor through a 2.56 mm trace over continuous analog ground. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-17/README.md)
 
 ## Assembly workflow checkpoint 02
 
