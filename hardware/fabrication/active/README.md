@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The working power board includes the rail-disconnect status and fan tachometer connections reviewed in [revision 21](../staging/two-board-power-supervisory-signals-21/README.md).
+The working power board includes the negative-rail reset and fault signals reviewed in [revision 22](../staging/two-board-power-negative-rail-signals-22/README.md).
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-09/signal_main.kicad_pro) | [133 opens and missing codec footprint](../../cad/signal_completion/native-routes-09/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-supervisory-signals-21/power_protection.kicad_pro) | [1,681 opens and unfinished AUX source distribution](../staging/two-board-power-supervisory-signals-21/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-negative-rail-signals-22/power_protection.kicad_pro) | [1,678 opens and unfinished AUX source distribution](../staging/two-board-power-negative-rail-signals-22/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
