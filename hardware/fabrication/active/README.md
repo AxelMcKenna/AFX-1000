@@ -1,13 +1,13 @@
 # Current hardware designs
 
-Seven new ground connections serve the fan regulator and five supply capacitors. [Revision 42](../staging/two-board-power-local-supply-returns-42/README.md)
+Three new rail-disconnect sense connections join amplifier and divider pads across the board. [Revision 43](../staging/two-board-power-rail-sense-transitions-43/README.md)
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-22/signal_main.kicad_pro) | [116 opens and missing codec footprint](../../cad/signal_completion/native-routes-22/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-local-supply-returns-42/power_protection.kicad_pro) | [1,558 opens and unfinished AUX source distribution](../staging/two-board-power-local-supply-returns-42/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-rail-sense-transitions-43/power_protection.kicad_pro) | [1,555 opens and unfinished AUX source distribution](../staging/two-board-power-rail-sense-transitions-43/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
