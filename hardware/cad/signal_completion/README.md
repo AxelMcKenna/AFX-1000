@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-71/signal_main.kicad_pro) has **55 open connections**. The A_D601 and A_D603 flyback diodes connect to their respective relay coil drivers. The 5 V via at A_D101 clears the diode solder land by 0.18 mm. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-71/README.md)
+The [latest routing project](native-routes-72/signal_main.kicad_pro) has **54 open connections**. The A_D601 and A_D603 flyback diodes connect to their respective relay coil drivers. The 5 V via at A_D101 clears the diode solder land by 0.18 mm. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-72/README.md)
 
 ## Assembly workflow checkpoint 02
 
