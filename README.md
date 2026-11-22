@@ -46,10 +46,10 @@ Panel boards and bought-in modules are additional; “two boards” describes th
 
 | Current board | Functions | Overall size | Checked routing status |
 | --- | --- | --- | --- |
-| [Signal main](hardware/cad/signal_completion/native-routes-84/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 42 open connections, zero geometry/ERC errors, missing ESS codec footprint |
+| [Signal main](hardware/cad/signal_completion/native-routes-85/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 41 open connections, zero geometry/ERC errors, missing ESS codec footprint |
 | [Power/protection](hardware/fabrication/staging/two-board-power-monitor-supply-branches-219/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 1,014 open connections, zero geometry/parity/ERC errors, two retained isolated-reference ERC warnings |
 
-The signal board has 466 placed electrical footprints. A_U201 still needs the ESS codec land pattern. The A_D601 and A_D603 flyback diodes connect to their respective relay coil drivers. The 5 V via at A_D101 clears the diode solder land by 0.18 mm. [Signal routing and reference checks](hardware/cad/signal_completion/native-routes-84/README.md)
+The signal board has 466 placed electrical footprints. A_U201 still needs the ESS codec land pattern. The A_D601 and A_D603 flyback diodes connect to their respective relay coil drivers. The 5 V via at A_D101 clears the diode solder land by 0.18 mm. [Signal routing and reference checks](hardware/cad/signal_completion/native-routes-85/README.md)
 
 The power board has 1,086 electrical components. The 2.5 V auxiliary regulator output reaches 200 of its 230 assigned pads. KiCad checks pass for geometry and schematic parity. The paired placements match the assembly capture. Full housing fit and loaded rail performance remain open. [Power routing and reference checks](hardware/fabrication/staging/two-board-power-monitor-supply-branches-219/README.md) · [Paired placement comparison](hardware/fabrication/staging/two-board-power-monitor-supply-branches-219/placement.json)
 
