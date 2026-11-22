@@ -7,3 +7,5 @@ The 5 V distribution gains two connections to existing supply vias. An 11.64 mm 
 KiCad verified 36 open connections, zero geometry violations and zero ERC findings. A_U201 still requires the ES9292QPRO footprint.
 
 [Routing and ground checks](reference-review.json) · [Sheet model](power-sheet.json) · [Connectivity](native-review.json) · [Placement](placement.json) · [DRC](drc.json) · [ERC](erc.json)
+
+A native recheck on this board confirms that every route leg of LINK_GAIN_REQ and LINK_INPUT_READY shares its ground island with the adjacent transition stitches. All six legs passed. [Stitch contacts](control-stitches.json)
