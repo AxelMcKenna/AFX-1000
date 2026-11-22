@@ -3,7 +3,7 @@
 **The complete unit is not ready for fabrication.** This inventory targets the
 first prototype of the full 12 V higher-headroom standalone design. B1 is separate.
 
-The power/protection board has **999 open connections**. The 2.5 V auxiliary regulator output reaches 200 of its 230 assigned pads. The signal board has **38 open connections** and still needs the ES9292QPRO footprint. Both editable KiCad projects are in the [current project index](active/README.md). [Power routing review](staging/two-board-power-monitor-ground-230/README.md) · [Signal routing review](../cad/signal_completion/native-routes-88/README.md) · [Via clearances to plotted mask and paste](staging/two-board-via-assembly-review-01/README.md)
+The power/protection board has **997 open connections**. The 2.5 V auxiliary regulator output reaches 200 of its 230 assigned pads. The signal board has **38 open connections** and still needs the ES9292QPRO footprint. Both editable KiCad projects are in the [current project index](active/README.md). [Power routing review](staging/two-board-power-startup-status-connections-231/README.md) · [Signal routing review](../cad/signal_completion/native-routes-88/README.md) · [Via clearances to plotted mask and paste](staging/two-board-via-assembly-review-01/README.md)
 
 The [TBP73 review](staging/two-board-power-aux-local-distribution-native-03/README.md), [AUX distribution survey](staging/two-board-aux-distribution-survey-07/inventory.json) and [signal DAC-r46 review](../cad/two_board_sensor_05/signal_dac/README.md) retain the measurements for those earlier boards. Full-board routing, analog performance, power distribution, startup and thermal qualification remain open.
 
@@ -717,7 +717,7 @@ nearby foreign-copper clearance, and the new via is independently checked agains
 Recursive auditing checks 8,597 source bindings with only the same two disclosed
 historical NF test mismatches; all 213 current unit-source bindings match. Eight
 layers and two regions on all signal layers were visually reviewed for each new
-checkpoint. Twenty-one exposed-pad process holds remain; SD planar spread is 5.999239 mm.
+checkpoint. Twenty-one exposed-pad process holds remain; SD planar spread is 5.997239 mm.
 All six sequential orders for LED13, LED14 and LED16 yielded one completed route;
 LED16 was the shortest. This does not prove that multiple routes are globally impossible.
 
