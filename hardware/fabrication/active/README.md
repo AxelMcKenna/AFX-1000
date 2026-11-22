@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The 2.5 V auxiliary regulator output reaches 200 of its 230 assigned pads. [Revision 236](../staging/two-board-power-right-fan-supply-and-return-236/README.md)
+The 2.5 V auxiliary regulator output reaches 200 of its 230 assigned pads. [Revision 237](../staging/two-board-power-left-fan-output-and-bypass-237/README.md)
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-90/signal_main.kicad_pro) | [36 opens and missing codec footprint](../../cad/signal_completion/native-routes-90/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-right-fan-supply-and-return-236/power_protection.kicad_pro) | [973 opens and unfinished AUX source distribution](../staging/two-board-power-right-fan-supply-and-return-236/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-left-fan-output-and-bypass-237/power_protection.kicad_pro) | [971 opens and unfinished AUX source distribution](../staging/two-board-power-left-fan-output-and-bypass-237/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
