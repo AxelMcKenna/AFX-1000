@@ -40,7 +40,8 @@ def check(board_path, reports):
     for report in reports:
         route = json.loads(report.read_text())["routes"]
         stitches = route["stitch_ids"]
-        assert len(stitches) == len(route["segment_ids"]) - 1 and set(stitches) <= connected
+        assert len(stitches) == len(route["segment_ids"]) - 1 and {uid for uid in stitches if uid} <= connected
+        previous_island = None
         for leg_index, (face, segments) in enumerate(zip(route["layers"], route["segment_ids"], strict=True)):
             ref = REFERENCE[face]
             layer = board.GetLayerID(ref)
@@ -55,19 +56,25 @@ def check(board_path, reports):
                 if contact.GetClass() == "PCB_VIA" or contact.GetDrillSize().x > 0:
                     projection.BooleanSubtract(expanded_pad(contact, layer, .23))
             ends = stitches[max(0, leg_index - 1):leg_index + 1]
-            for island in fields[ref]:
+            shared = leg_index > 0 and stitches[leg_index - 1] is None
+            if shared and REFERENCE[route["layers"][leg_index - 1]] != ref:
+                raise ValueError("A reference-layer change requires a connected return stitch")
+            for island_number, island in enumerate(fields[ref]):
+                if shared and previous_island != island_number:
+                    continue
                 gap = pcbnew.SHAPE_POLY_SET(projection)
                 gap.BooleanSubtract(island)
                 if gap.Area() > 1e6:
                     continue
                 contacts = []
-                for uid in ends:
+                for uid in filter(None, ends):
                     contact = copper(items[uid], layer)
                     contact.BooleanIntersection(island)
                     contacts.append(contact.Area() / 1e12)
-                if min(contacts) > .01:
+                if all(area > .01 for area in contacts):
+                    previous_island = island_number
                     legs.append(dict(net=route["net"], signal_layer=face, reference_layer=ref,
-                                     uncovered_mm2=gap.Area()/1e12, stitch_ids=ends, contact_mm2=contacts))
+                                     uncovered_mm2=gap.Area()/1e12, stitch_ids=list(filter(None, ends)), contact_mm2=contacts))
                     break
             else:
                 raise ValueError(f"{route['net']} leg {leg_index} lacks a common return island")
