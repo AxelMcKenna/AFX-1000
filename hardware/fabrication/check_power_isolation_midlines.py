@@ -25,16 +25,25 @@ def package_midline(pads, banks):
     for bank in banks:
         lands = [pads[str(number)] for number in bank]
         hulls.append(union_all(lands).convex_hull)
-    between = LineString([hull.centroid for hull in hulls])
-    mid = between.centroid
-    start, end = between.coords
-    dx = (end[0] - start[0]) / between.length
-    dy = (end[1] - start[1]) / between.length
+    first, second = hulls
+    dx = second.centroid.x - first.centroid.x
+    dy = second.centroid.y - first.centroid.y
+    # These footprints are axis-aligned. The DC/DC packages have unequal pin
+    # spacing within each bank, so their centroids do not bisect the free gap.
+    axis = 0 if abs(dx) > abs(dy) else 1
+    low, high = sorted(hulls, key=lambda h: h.bounds[axis])
+    left_edge = low.bounds[axis + 2]
+    right_edge = high.bounds[axis]
+    if right_edge <= left_edge:
+        raise ValueError("The two pin banks do not have an axis-aligned gap")
+    center = (left_edge + right_edge) / 2
     envelope = union_all(hulls).convex_hull
-    extent = envelope.length
-    axis = LineString([(mid.x - extent * dy, mid.y + extent * dx),
-                       (mid.x + extent * dy, mid.y - extent * dx)])
-    return envelope.intersection(axis)
+    x0, y0, x1, y1 = envelope.bounds
+    if axis == 0:
+        cut = LineString([(center, y0 - 1), (center, y1 + 1)])
+    else:
+        cut = LineString([(x0 - 1, center), (x1 + 1, center)])
+    return envelope.intersection(cut)
 
 
 def inventory(capture):
