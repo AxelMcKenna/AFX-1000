@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The 2.5 V auxiliary regulator output reaches 198 of its 230 assigned pads. [Revision 213](../staging/two-board-power-e-c42-isolation-clearance-213/README.md)
+The 2.5 V auxiliary regulator output reaches 198 of its 230 assigned pads. [Revision 214](../staging/two-board-power-p12-isolator-eight-layer-clearance-214/README.md)
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-82/signal_main.kicad_pro) | [44 opens and missing codec footprint](../../cad/signal_completion/native-routes-82/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-e-c42-isolation-clearance-213/power_protection.kicad_pro) | [1,025 opens and unfinished AUX source distribution](../staging/two-board-power-e-c42-isolation-clearance-213/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-p12-isolator-eight-layer-clearance-214/power_protection.kicad_pro) | [1,025 opens and unfinished AUX source distribution](../staging/two-board-power-p12-isolator-eight-layer-clearance-214/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
