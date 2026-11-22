@@ -10,3 +10,5 @@ F_R401 connects the current-limit pin of F_U401 to system ground. The resistor s
 Two inherited auxiliary-supply traces cross the midpoint between the input and output pin rows at E_U3 and E_U4. Their nearest isolated lands are 0.343 mm and 0.363 mm away. Both require rerouting before fabrication. [Gate-driver isolation review](gate-driver-isolation-review.json)
 
 [Routes](routes.json) · [Connectivity](connectivity.json) · [Copper refill checks](plane-review.json) · [Placement](placement.json) · [DRC](drc.json) · [ERC](erc.json)
+
+The whole-board survey found copper at the midpoint between the two pin banks of 13 isolation packages. The 75 layer intersections include 50 filled-plane intersections. The record identifies each layer, net and object for layout review. Installed isolation remains unverified. [Copper intersections by package](isolation-midlines.json)
