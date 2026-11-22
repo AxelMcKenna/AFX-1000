@@ -1,6 +1,6 @@
 # Via clearances to mask and paste openings
 
-This check measures the nominal edge of each through-via drill against the nearest opening in the four KiCad Gerber plots. Distances below are in mm. All 2,277 drills clear the plotted openings on both faces. [Signal board](../../../cad/signal_completion/native-routes-76/signal_main.kicad_pcb) · [Power board](../two-board-power-monitor-and-clamp-placement-180/power_protection.kicad_pcb)
+This check measures the nominal edge of each through-via drill against the nearest opening in the four KiCad Gerber plots. Distances below are in mm. All 2,277 drills clear the plotted openings on both faces. [Signal board](../../../cad/signal_completion/native-routes-76/signal_main.kicad_pcb) · [Power board](../two-board-power-gate-driver-primary-supply-181/power_protection.kicad_pcb)
 
 | Board | Vias | Front mask | Back mask | Front paste | Back paste |
 | --- | ---: | ---: | ---: | ---: | ---: |
