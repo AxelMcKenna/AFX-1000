@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The 2.5 V auxiliary regulator output reaches 200 of its 230 assigned pads. [Revision 246](../staging/two-board-power-fan-header-controls-246/README.md)
+The 2.5 V auxiliary regulator output reaches 201 of its 230 assigned pads. [Revision 247](../staging/two-board-power-positive-12-monitor-pullup-placement-247/README.md)
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-91/signal_main.kicad_pro) | [35 opens and missing codec footprint](../../cad/signal_completion/native-routes-91/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-fan-header-controls-246/power_protection.kicad_pro) | [957 opens and unfinished AUX source distribution](../staging/two-board-power-fan-header-controls-246/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-positive-12-monitor-pullup-placement-247/power_protection.kicad_pro) | [955 opens and unfinished AUX source distribution](../staging/two-board-power-positive-12-monitor-pullup-placement-247/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
