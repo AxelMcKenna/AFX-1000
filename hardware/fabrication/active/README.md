@@ -1,13 +1,13 @@
 # Current hardware designs
 
-The fan watchdog and logic 3.3 V supply reaches all 31 assigned pads. The 2.5 V auxiliary regulator output reaches 216 of its 230 assigned pads. [Revision 306](../staging/two-board-power-input-valid-divider-upper-306/README.md)
+The fan watchdog and logic 3.3 V supply reaches all 31 assigned pads. The 2.5 V auxiliary regulator output reaches 216 of its 230 assigned pads. [Revision 307](../staging/two-board-power-input-valid-supply-feed-307/README.md)
 [TBP50](../staging/two-board-fabrication-status-50/status.json) remains an earlier recorded selection.
 Neither board is ready for fabrication.
 
 | Design | Editable project | Review |
 | --- | --- | --- |
 | Signal main | [KiCad project](../../cad/signal_completion/native-routes-94/signal_main.kicad_pro) | [32 opens and missing codec footprint](../../cad/signal_completion/native-routes-94/README.md) |
-| Power/protection | [KiCad project](../staging/two-board-power-input-valid-divider-upper-306/power_protection.kicad_pro) | [856 opens and unfinished AUX source distribution](../staging/two-board-power-input-valid-divider-upper-306/README.md) |
+| Power/protection | [KiCad project](../staging/two-board-power-input-valid-supply-feed-307/power_protection.kicad_pro) | [855 opens and unfinished AUX source distribution](../staging/two-board-power-input-valid-supply-feed-307/README.md) |
 
 Supporting inventories retain their own revision scope; the latest [control-return survey](../staging/two-board-control-return-survey-after-08/survey.json) covers TBP67. Earlier inventories cover [startup connectivity](../staging/two-board-startup-connectivity-survey-06/README.md),
 [local startup cells](../staging/two-board-startup-cell-survey-04/README.md) and
