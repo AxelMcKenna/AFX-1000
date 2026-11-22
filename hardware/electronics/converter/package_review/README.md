@@ -2,7 +2,7 @@
 
 The [official ESS CODEC listing](https://www.esstech.com/products-overview/codecs/) still points to the [183-page v0.1 datasheet](https://www.esstech.com/wp-content/uploads/2026/08/ES9292_DS_v0.1.pdf). A fresh download matches the existing SHA-256 reference. PDF pinout, layout and ordering pages were visually reviewed using the PDF review workflow.
 
-On 2026-11-19 the ESS product listing still linked the same PDF. Its SHA-256 matched the reviewed copy. A search of the manufacturer's public media catalog for ES9292 returned two files, the datasheet and a product photo. The package drawing and recommended land and stencil dimensions remain outstanding. [ESS public media results](https://www.esstech.com/wp-json/wp/v2/media?search=ES9292&per_page=100)
+On 2026-11-22 the ESS product listing still linked the same PDF. Its SHA-256 matched the reviewed copy. A search of the manufacturer's public media catalog for ES9292 returned two files, the datasheet and a product photo. The package drawing and recommended land and stencil dimensions remain outstanding. [ESS public media results](https://www.esstech.com/wp-json/wp/v2/media?search=ES9292&per_page=100)
 
 The audit checks all 49 pin identities and 45 firmware setting masks. Critical clock/format/qualifier values, reserved-bit preservation, GPIO output enabling and fully-ramped-up status are checked separately. Registers 63/64 are independent byte registers combined by the writer. Documentary consistency does not verify actual SAI timing or codec operation.
 
