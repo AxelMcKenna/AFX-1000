@@ -1,5 +1,5 @@
-# Module eFuse ground connection
+# Module eFuse timing network
 
-The 0.25 mm ground trace from G_U1 pin 17 reaches the primary return at G_C2 pad 2. The route runs 5.56 mm across the two outer layers with one 0.30 mm drill. The adjacent MODULE_RTN trace still reaches pin 15 and its exposed pad. The original pad groups are preserved except for the intended ground connection. [Route geometry](layout.json) · [Connectivity](connectivity.json)
+G_U1 pin 20 now reaches the G_C3 and G_C4 slew-rate capacitors. Their return reaches the eFuse MODULE_RTN pin and exposed pad through the existing G_R2 connection. Both new traces run on the front layer. The DVDT trace is 12.12 mm long and the return branch is 10.23 mm long. [Route geometry](layout.json)
 
-KiCad counted 726 remaining opens. Copper refills on all eight layers reproduced the saved geometry. The placement check matched the signal and power boards to the enclosure capture. The isolation survey found zero package-midline crossings. Two existing ground-pin ERC warnings remain. [Ground planes](plane-review.json) · [Placement](placement.json) · [Isolation survey](isolation-midlines.json) · [DRC](drc.json) · [ERC](erc.json)
+KiCad verified both pad-group joins, preserved every other pad group, and counted 724 remaining opens. The copper fills on all eight layers reproduced the previous geometry. The power and signal placements match the enclosure capture. No copper crosses the surveyed isolation-package midlines. The power schematic retains two ground-pin ERC warnings. [Connectivity](connectivity.json) · [Plane check](plane-review.json) · [Placement](placement.json) · [Isolation survey](isolation-midlines.json) · [DRC](drc.json) · [ERC](erc.json)
