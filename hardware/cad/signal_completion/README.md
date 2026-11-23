@@ -1,6 +1,6 @@
 # Signal PCB completion
 
-The [latest routing project](native-routes-96/signal_main.kicad_pro) has **30 open connections**. The A_D601 and A_D603 flyback diodes connect to their respective relay coil drivers. The 5 V via at A_D101 clears the diode solder land by 0.18 mm. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-96/README.md)
+The [latest routing project](native-routes-97/signal_main.kicad_pro) has **30 open connections**. The A_D601 and A_D603 flyback diodes connect to their respective relay coil drivers. The 5 V via at A_D101 clears the diode solder land by 0.18 mm. KiCad reports zero geometry and ERC findings. A_U201 still needs the ES9292QPRO footprint. [Latest routing review](native-routes-97/README.md)
 
 ## Assembly workflow checkpoint 02
 
@@ -84,6 +84,6 @@ nominal generic 48-QFN does not close this requirement.
 
 Zero routing opens alone will not complete fabrication acceptance: finish the
 codec's actual placement and all associated connections, review the complete
-analog force/sense loops and references, resolve the nominal 0.02 mm D101/C105
-receiving gap with actual manufacturing tolerances, and accept the stack,
+analog force/sense loops and references, confirm the updated 0.37 mm D101/C105
+modeled clearance against actual manufacturing tolerances, and accept the stack,
 BOM/lands and manufacturing outputs. Physical operation remains unmeasured.
