@@ -1,5 +1,5 @@
 # Power and protection PCB
 
-The input TVS diode G_D1 and bypass capacitor G_C1 now share a short supply and return loop. A separate branch joins the output clamp G_D2 to the return of G_C2. All three connections use 0.80 mm front-layer copper and extend their full width inside each terminal land. KiCad verified the three pad joins and counted 731 remaining opens. The filled copper zones on all eight layers match the previous revision. [Route geometry](layout.json) · [Reference-plane measurements](plane-review.json)
+The module eFuse output at G_U1 pins 23 and 24 now connects to clamp G_D2. The force trace is 0.80 mm wide and splits into two equal 0.25 mm pin connections shorter than 0.61 mm. All eight layers retain the same filled copper after refill. KiCad verified the intended pad groups and counted 730 remaining opens. [Route geometry](layout.json) · [Reference-plane measurements](plane-review.json)
 
 The isolation survey found zero package-midline crossings. The two existing ground-pin ERC warnings remain open. [Connectivity](connectivity.json) · [Enclosure check](placement.json) · [Isolation survey](isolation-midlines.json) · [DRC](drc.json) · [ERC](erc.json)
