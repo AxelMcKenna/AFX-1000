@@ -1,5 +1,5 @@
-# 12 V disconnect driver source return
+# Analog reference and feedback branches
 
-A 13.47 mm front-layer trace connects the common source of E_Q5 and E_Q6 to the isolated gate driver's output reference and the gate pulldown. All eight pads on P12_COMMON now share one copper connection. The branch is 0.30 mm wide and uses no vias. All existing zone fills reproduce without a change in area. [Routing](layout.json) · [Connectivity](connectivity.json) · [Copper review](plane-review.json)
+P_R46 joins P_C72 on the 1 V reference through 14.36 mm of copper. The raw positive regulator feedback connection from P_R3 to P_C12 uses 13.78 mm. Both branches stay on the back layer and are covered by analog ground on In6.Cu. The new ground copper preserves the existing supply fills and ground connections. [Routing](layout.json) · [Ground and copper checks](plane-review.json)
 
-KiCad counts 710 open connections. Geometry and schematic parity checks pass. The placement still matches the enclosure capture and copper clears the surveyed isolation-package midlines. Two isolated-reference ERC warnings remain. [Placement](placement.json) · [Isolation survey](isolation-midlines.json) · [DRC](drc.json) · [ERC](erc.json)
+KiCad verified both pad-group joins, leaving 708 open connections. Geometry and schematic parity checks pass. The paired placements match the enclosure capture and copper clears the surveyed isolation-package midlines. The power schematic retains two isolated-reference ERC warnings. [Connectivity](connectivity.json) · [DRC](drc.json) · [ERC](erc.json) · [Placement](placement.json) · [Isolation survey](isolation-midlines.json)
