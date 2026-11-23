@@ -1,5 +1,5 @@
 # Power and protection PCB
 
-A 0.60 mm front-layer trace connects P_C66 directly to the positive 17 V rectifier output at P_D3. A 0.40 mm back-layer trace connects F_C403 and F_C404 on the fan switch output rail. Each trace has continuous analog ground beneath it, with at least 0.30 mm of ground beyond the trace edges. KiCad verified both intended joins and counted 734 remaining opens. [Route geometry](layout.json) · [Reference-plane measurements](plane-review.json)
+The input TVS diode G_D1 and bypass capacitor G_C1 now share a short supply and return loop. A separate branch joins the output clamp G_D2 to the return of G_C2. All three connections use 0.80 mm front-layer copper and extend their full width inside each terminal land. KiCad verified the three pad joins and counted 731 remaining opens. The filled copper zones on all eight layers match the previous revision. [Route geometry](layout.json) · [Reference-plane measurements](plane-review.json)
 
 The isolation survey found zero package-midline crossings. The two existing ground-pin ERC warnings remain open. [Connectivity](connectivity.json) · [Enclosure check](placement.json) · [Isolation survey](isolation-midlines.json) · [DRC](drc.json) · [ERC](erc.json)
