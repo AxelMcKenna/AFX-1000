@@ -47,7 +47,7 @@ Panel boards and bought-in modules are additional; “two boards” describes th
 | Current board | Functions | Overall size | Checked routing status |
 | --- | --- | --- | --- |
 | [Signal main](hardware/cad/signal_completion/native-routes-98/signal_main.kicad_pro) | Audio, converter interface, Daisy processor, controls and LED drivers | 268 × 63 mm | 30 open connections, zero geometry/ERC errors, missing ESS codec footprint |
-| [Power/protection](hardware/fabrication/staging/two-board-power-working/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 736 open connections, zero geometry/parity/ERC errors, two retained isolated-reference ERC warnings |
+| [Power/protection](hardware/fabrication/staging/two-board-power-working/power_protection.kicad_pro) | 12 V supply, inlet, rail protection, monitoring, negative-rail startup and fan health | 320 × 181.1 mm | 734 open connections, zero geometry/parity/ERC errors, two retained isolated-reference ERC warnings |
 
 The signal board has 466 placed electrical footprints. A_U201 still needs the ESS codec land pattern. The A_D601 and A_D603 flyback diodes connect to their respective relay coil drivers. The 5 V via at A_D101 clears the diode solder land by 0.18 mm. [Signal routing and reference checks](hardware/cad/signal_completion/native-routes-98/README.md)
 
