@@ -1,5 +1,7 @@
-# Negative-rail monitor bias network
+# 19 V regulator feedback and compensation
 
-All four assigned resistor pads reach the monitor bias node. The front trace connects P_R310 to P_R311 and P_R312. P_R314 connects to P_R312 through a single 0.30 mm drill. Their front and back traces total 17.57 mm. The ground via 2.78 mm from that layer change connects both reference planes. Ground copper covers both traces up to the signal via clearance. [Route geometry](layout.json) · [Reference-plane verification](plane-review.json)
+P_C34 now connects between the output and inverting input of error amplifier P_U5. The output trace to the capacitor is 4.08 mm long. The feedback trace is 9.71 mm long. The R21 and R22 divider joins the feedback trace at a branch on the front layer. All four assigned feedback pads are connected. [Route geometry](layout.json) · [Connectivity](connectivity.json)
 
-KiCad counted 721 remaining opens and preserved every other pad group. All eight layers refill reproducibly. The power and signal placements match the enclosure capture, and copper clears the surveyed isolation-package midlines. Two ground-pin ERC warnings remain. [Connectivity](connectivity.json) · [Placement](placement.json) · [Isolation survey](isolation-midlines.json) · [DRC](drc.json) · [ERC](erc.json)
+KiCad counted 718 remaining opens and verified that every other pad group was preserved. A ground via within 2.40 mm of each layer change connects the adjacent reference planes. The new traces have ground coverage up to the signal via clearances. The existing routed signals retain their ground reference. [Ground measurements](plane-review.json)
+
+All eight layers refill reproducibly. The signal and power placements match the enclosure capture. Copper clears the surveyed isolation-package midlines. The power schematic retains two ground-pin ERC warnings. [Placement](placement.json) · [Isolation survey](isolation-midlines.json) · [DRC](drc.json) · [ERC](erc.json)
