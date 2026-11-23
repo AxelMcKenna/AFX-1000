@@ -3,7 +3,7 @@
 **The complete unit is not ready for fabrication.** This inventory targets the
 first prototype of the full 12 V higher-headroom standalone design. B1 is separate.
 
-The power/protection board has **699 open connections**. The 2.5 V auxiliary regulator output reaches 219 of its 230 assigned pads. The signal board has **29 open connections** and still needs the ES9292QPRO footprint. Both editable KiCad projects are in the [current project index](active/README.md). [Power routing review](staging/two-board-power-flying-capacitor-391/README.md) · [Signal routing review](../cad/signal_completion/native-routes-100/README.md) · [Via clearances to plotted mask and paste](staging/two-board-via-assembly-review-01/README.md)
+The power/protection board has **698 open connections**. The 2.5 V auxiliary regulator output reaches 219 of its 230 assigned pads. The signal board has **29 open connections** and still needs the ES9292QPRO footprint. Both editable KiCad projects are in the [current project index](active/README.md). [Power routing review](staging/two-board-power-positive-switch-392/README.md) · [Signal routing review](../cad/signal_completion/native-routes-100/README.md) · [Via clearances to plotted mask and paste](staging/two-board-via-assembly-review-01/README.md)
 
 The [TBP73 review](staging/two-board-power-aux-local-distribution-native-03/README.md), [AUX distribution survey](staging/two-board-aux-distribution-survey-07/inventory.json) and [signal DAC-r46 review](../cad/two_board_sensor_05/signal_dac/README.md) retain the measurements for those earlier boards. Full-board routing, analog performance, power distribution, startup and thermal qualification remain open.
 
