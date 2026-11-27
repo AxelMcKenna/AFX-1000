@@ -1,0 +1,72 @@
+[
+  {
+    "tag": "baseline",
+    "kind": "netlist",
+    "command": [
+      "kicad-cli",
+      "sch",
+      "export",
+      "netlist",
+      "--format",
+      "kicadxml",
+      "--output",
+      "/out/baseline-netlist.xml",
+      "/baseline/power_protection.kicad_sch"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "tag": "baseline",
+    "kind": "erc",
+    "command": [
+      "kicad-cli",
+      "sch",
+      "erc",
+      "--format",
+      "json",
+      "--output",
+      "/out/baseline-erc.json",
+      "/baseline/power_protection.kicad_sch"
+    ],
+    "returncode": 0,
+    "stdout": "Found 2 violations\nSaved ERC Report to /out/baseline-erc.json\n",
+    "stderr": ""
+  },
+  {
+    "tag": "candidate",
+    "kind": "netlist",
+    "command": [
+      "kicad-cli",
+      "sch",
+      "export",
+      "netlist",
+      "--format",
+      "kicadxml",
+      "--output",
+      "/out/candidate-netlist.xml",
+      "/work/hardware/qualification/two_board_aux_current_08/schematic_candidate/authored/power_protection.kicad_sch"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "tag": "candidate",
+    "kind": "erc",
+    "command": [
+      "kicad-cli",
+      "sch",
+      "erc",
+      "--format",
+      "json",
+      "--output",
+      "/out/candidate-erc.json",
+      "/work/hardware/qualification/two_board_aux_current_08/schematic_candidate/authored/power_protection.kicad_sch"
+    ],
+    "returncode": 0,
+    "stdout": "Found 2 violations\nSaved ERC Report to /out/candidate-erc.json\n",
+    "stderr": ""
+  }
+]

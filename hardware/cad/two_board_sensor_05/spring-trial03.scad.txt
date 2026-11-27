@@ -1,0 +1,59 @@
+// TBH05 spring attachment trial. Existing bracket/arm eye holes unchanged.
+include <carrier.scad>
+// All shaft axes X. Brass bolts/sleeves reduce nearby ferromagnetic material.
+// Full spring loops slide onto a removable smooth sleeve, not through eye holes.
+module spring_pin(y,z){
+ translate([311.4,y,z])rotate([0,90,0])cylinder(d=3.8,h=1.6);
+ translate([313,y,z])rotate([0,90,0])cylinder(d=2,h=18);
+ translate([319,y,z])rotate([0,90,0])difference(){cylinder(d=4,h=7.15);translate([0,0,-.01])cylinder(d=2.3,h=7.17);}
+ translate([319,y,z])rotate([0,90,0])difference(){cylinder(d=2.2,h=7.85);translate([0,0,-.01])cylinder(d=2.1,h=7.87);}
+ translate([326.85,y,z])rotate([0,90,0])difference(){cylinder(d=4,h=.4);translate([0,0,-.01])cylinder(d=2.1,h=.42);}
+ translate([327.25,y,z])rotate([0,90,0])difference(){cylinder(d=4.7,h=2.5,$fn=6);translate([0,0,-.01])cylinder(d=1.6,h=2.52);}
+}
+module lever_arm_spring(angle=0) {
+    // Pull toward front (+Y); 0..35 degrees. Sensor magnet is on the left end.
+    translate([316,82,24]) rotate([-angle,0,0]) {
+        difference() {
+            union() {
+                rotate([0,90,0]) cylinder(h=14,d=10,center=true,$fn=48);
+                translate([-11,0,0]) rotate([0,90,0]) cylinder(h=4,d=8,$fn=48);
+                translate([-2,-2,0]) cube([4,4,24]);
+                translate([-8,-4,22]) cube([16,8,4]);
+                translate([-2,-1.5,-10]) cube([4,3,7]);
+                translate([-3,-2,5.5]) cube([6,4,4]);
+            }
+            translate([-1,0,0]) rotate([0,90,0]) cylinder(h=10,d=3.2,$fn=48);
+            // Tap M3 after printing for a radial grub screw clamping the pivot.
+            translate([4,6,0]) rotate([90,0,0]) cylinder(h=7,d=2.5,$fn=32);
+            // Captive diametric magnet socket. Retention/adhesive tested on coupon.
+            translate([-11.1,0,0]) rotate([0,90,0]) cylinder(h=2.2,d=6.2,$fn=48);
+            translate([-4,0,7.5]) rotate([0,90,0]) cylinder(h=8,d=2.2,$fn=32);
+        }
+    }
+}
+
+
+module spring_bracket_world(){difference(){union(){bracket_world();translate([313,68,33.6])cube([6,4,7]);}translate([312,70,38.6])rotate([0,90,0])cylinder(d=2.2,h=8);}}
+module fixed_pin(){spring_pin(70,38.6);}
+module moving_pin(a=0){translate([0,82,31.6])rotate([-a,0,0])translate([0,-82,-31.6])spring_pin(82,39.1);}
+// Full connected spring occupied volume, including loop and coil maxima.
+// Spring center X326.5 with ±0.17 axial loop play and 0.10 radial allowance.
+module attached_spring_corridor(){for(a=[0:1:34])hull(){
+ for(dx=[-.17,.17])translate([326.5+dx,70,38.6])sphere(d=3.38,$fn=32);
+ for(t=[a,a+1],dx=[-.17,.17])translate([326.5+dx,82+7.5*sin(t),31.6+7.5*cos(t)])sphere(d=3.38,$fn=32);
+}}
+module pin_sweep(){for(a=[0:1:34])hull(){moving_pin(a);moving_pin(a+1);}}
+module spring_installed_envelope(){fixed_pin();pin_sweep();attached_spring_corridor();}
+if(part=="spring_hardware_controls_clearance")intersection(){spring_installed_envelope();union(){translate([0,0,H])lid();guide_installed();holders_installed();}}
+if(part=="spring_hardware_shell_clearance")intersection(){spring_installed_envelope();shell();}
+if(part=="spring_hardware_components_clearance")intersection(){spring_installed_envelope();box_rows(component_boxes);}
+if(part=="spring_hardware_carrier_clearance")intersection(){spring_installed_envelope();tbh05_installed();}
+// Sleeve/hardware intentionally engage existing eyes; spring body excludes ends.
+module spring_body_at(t){hull(){
+ fy=70;fz=38.6;my=82+7.5*sin(t);mz=31.6+7.5*cos(t);l=sqrt(pow(my-fy,2)+pow(mz-fz,2));
+ for(f=[0,1],dx=[-.17,.17])translate([326.5+dx,fy+(my-fy)*f,fz+(mz-fz)*f])sphere(d=3.38,$fn=32);
+}}
+if(part=="spring_body_lever_clearance")union()for(a=[0:.25:35])intersection(){spring_body_at(a);union(){spring_bracket_world();guard();translate([0,0,7.6])lever_arm_spring(a);}}
+if(part=="lever_arm_spring")translate([-305,-78,-14])lever_arm_spring(0);
+
+if(part=="spring_bracket")translate([-303,-66,-14.6])spring_bracket_world();

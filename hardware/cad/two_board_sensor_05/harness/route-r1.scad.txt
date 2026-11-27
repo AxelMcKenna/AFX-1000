@@ -1,0 +1,21 @@
+// Sensor harness development candidate. Nominal geometry; not assembly release.
+include <../../two_board_print_03/retention_r5.scad>
+use <../carrier.scad>
+use <../spring.scad>
+use <../population.scad>
+$fn=32;
+module cable_segment(a,b,r=4){hull(){translate(a)sphere(r=r);translate(b)sphere(r=r);}}
+module cable_route(){
+ cable_segment([234,55,28],[246,62,28]);
+ cable_segment([246,62,28],[283,76,28]);
+ cable_segment([283,76,28],[293,82,25.1]);
+}
+module sensor_fanout(){for(y=[78,80.5,83,85.5])cable_segment([293,82,25.1],[298.2,y,25.1],.7);}
+module main_mate(){translate([228.63,53.75,10.89])cube([10.36,2.5,14]);}
+module main_fanout(){for(x=[230,232.54,235.08,237.62])cable_segment([x,55,24.89],[234,55,28],.7);}
+module tbh05_harness_installed(){cable_route();sensor_fanout();main_mate();main_fanout();}
+if(part=="route_components_clearance")intersection(){union(){cable_route();sensor_fanout();main_fanout();}box_rows(component_boxes);}
+if(part=="route_controls_clearance")intersection(){tbh05_harness_installed();union(){translate([0,0,H])lid();guide_installed();holders_installed();}}
+if(part=="route_carrier_clearance")intersection(){tbh05_harness_installed();union(){carrier_complete();sensor_cap();}}
+if(part=="route_shell_clearance")intersection(){tbh05_harness_installed();shell();}
+if(part=="route_positive")tbh05_harness_installed();

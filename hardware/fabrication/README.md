@@ -3,6 +3,17 @@
 **The complete unit is not ready for fabrication.** This inventory targets the
 first prototype of the full 12 V higher-headroom standalone design. B1 is separate.
 
+The power/protection board has **695 open connections**. The 2.5 V auxiliary regulator output reaches 219 of its 230 assigned pads. The signal board has **29 open connections** and still needs the ES9292QPRO footprint. Both editable KiCad projects are in the [current project index](active/README.md). [Power routing review](staging/two-board-power-feedforward-capacitor-394/README.md) · [Signal routing review](../cad/signal_completion/native-routes-100/README.md) · [Via clearances to plotted mask and paste](staging/two-board-via-assembly-review-01/README.md)
+
+The [TBP73 review](staging/two-board-power-aux-local-distribution-native-03/README.md), [AUX distribution survey](staging/two-board-aux-distribution-survey-07/inventory.json) and [signal DAC-r46 review](../cad/two_board_sensor_05/signal_dac/README.md) retain the measurements for those earlier boards. Full-board routing, analog performance, power distribution, startup and thermal qualification remain open.
+
+The [TBP66 backlog](staging/two-board-completion-inventory-01/inventory.json) is historical: its 2,042 opens precede the 99 connections subsequently closed through TBP71. Do not use its per-net totals as current measurements.
+
+The [TBH01 r6 housing](../cad/two_board_print_01/README.md) is available for an
+unpowered fit print. Complete carriers, lever hardware, harness and cooling
+remain unfinished. The records below retain their original revision scope;
+TBP50 counts and older surveys are historical rather than current totals.
+
 The [current AUX load review](staging/two-board-aux-load-review-01/README.md)
 finds that the old AX03 current budget cannot transfer unchanged to TBP25:
 E_U42 now uses LVC with three active inputs, and POWER_READY has two loaded
@@ -52,7 +63,7 @@ current evenly. Via barrels, component/contact losses and local bulk return
 are excluded; this is not a complete input-loop model, accepted stack or
 thermal/current rating. That analysis did not edit the PCB; the newer routing checkpoint below changes the distribution and slightly refills the inlet plane.
 
-The [current power checkpoint](staging/two-board-power-startup-remaining-native-03/README.md)
+The [earlier TBP50 power checkpoint](staging/two-board-power-startup-remaining-native-03/README.md)
 closes **27 connections**, completing the remaining eight U18–U28 local
 bypass/ground cells and U19's additional supply-pin tie. All eleven local
 cells are complete, but none reaches the AUX regulator source yet.
@@ -706,7 +717,7 @@ nearby foreign-copper clearance, and the new via is independently checked agains
 Recursive auditing checks 8,597 source bindings with only the same two disclosed
 historical NF test mismatches; all 213 current unit-source bindings match. Eight
 layers and two regions on all signal layers were visually reviewed for each new
-checkpoint. Twenty-one exposed-pad process holds remain; SD planar spread is 5.999239 mm.
+checkpoint. Twenty-one exposed-pad process holds remain; SD planar spread is 5.994239 mm.
 All six sequential orders for LED13, LED14 and LED16 yielded one completed route;
 LED16 was the shortest. This does not prove that multiple routes are globally impossible.
 

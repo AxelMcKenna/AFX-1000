@@ -1,0 +1,1953 @@
+                                                                                                                               SN74LVC2T45
+                                                                                               SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+                              SN74LVC2T45 Dual-Bit Dual-Supply Bus Transceiver
+                                    With Configurable Voltage Translation
+1 Features                                                                  3 Description
+•        Fully configurable dual-rail design allows each port               This dual-bit noninverting bus transceiver uses two
+         to operate over the full 1.65-V to 5.5-V power-                    separate configurable power-supply rails. The A port
+         supply range                                                       is designed to track VCCA. VCCA accepts any supply
+•        VCC isolation feature – if either VCC input is at                  voltage from 1.65V to 5.5V. The B port is designed
+         GND, both ports are in the high-impedance state                    to track VCCB. VCCB accepts any supply voltage from
+•        DIR input circuit referenced to VCCA                               1.65V to 5.5V. This allows for universal low-voltage
+•        Low power consumption, 4-μA maximum ICC                            bidirectional translation between any of the 1.8V, 2.5V,
+•        Available in the Texas Instruments NanoFree™                       3.3V, and 5V voltage nodes.
+         package
+                                                                            The SN74LVC2T45 is designed for asynchronous
+•        ±24-mA output drive at 3.3 V
+                                                                            communication between two data buses. The logic
+•        Ioff supports Partial-Power-Down mode operation
+                                                                            levels of the direction-control (DIR) input activate
+•        Maximum data rates:
+                                                                            either the B-port outputs or the A-port outputs. The
+         – 420 Mbps (3.3-V to 5-V translation)                              device transmits data from the A bus to the B bus
+         – 210 Mbps (translate to 3.3 V)                                    when the B-port outputs are activated, and from the
+         – 140 Mbps (translate to 2.5 V)                                    B bus to the A bus when the A-port outputs are
+         – 75 Mbps (translate to 1.8 V)                                     activated. The input circuitry on both A and B ports
+•        Latch-up performance exceeds 100 mA per JESD                       are always active and must have a logic HIGH or
+         78, Class II                                                       LOW level applied to prevent excess ICC and ICCZ.
+•        ESD protection exceeds JESD 22
+         – 4000-V Human-Body Model (A114-A)                                 The SN74LVC2T45 is designed so that VCCA supplies
+         – 200-V Machine Model (A115-A)                                     the DIR input circuit. This device is fully specified
+         – 1000-V Charged-Device Model (C101)                               for partial-power-down applications using Ioff. The Ioff
+                                                                            circuitry disables the outputs, preventing damaging
+2 Applications                                                              current backflow through the device when it is
+                                                                            powered down.
+•        Personal electronic
+•        Industrial                                                         The VCC isolation feature is designed so that if either
+•        Enterprise                                                         VCC input is at GND, both ports are in the high-
+•        Telecom                                                            impedance state.
+                                                                                                Package Information
+                                                                                  PART NUMBER           PACKAGE(1)         PACKAGE SIZE(2)
+
+          5
+                                                                                                    DCT (SM8, 8)          2.95mm × 4mm
+DIR
+                                                                            SN74LVC2T45             DCU (VSSOP, 8)        2mm × 3.1mm
+                                                                                                    YZP (DSBGA, 8)        1.5mm × 0.5mm
+          2
+    A1
+                                                                            (1)    For more information, see Section 11.
+                                                                            (2)    The package size (length × width) is a nominal value and
+                                                                7                  includes pins, where applicable.
+                                                                    B1
+
+
+
+          3
+    A2
+
+
+
+                                                                6
+                                                                    B2
+
+
+
+
+                       VCCA                        VCCB
+
+
+                    Functional Block Diagram
+
+
+          An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+          intellectual property matters and other important disclaimers. PRODUCTION DATA.
+SN74LVC2T45
+SCES516N – DECEMBER 2003 – REVISED JUNE 2024                                                                                                                     www.ti.com
+
+
+                                                                        Table of Contents
+1 Features............................................................................1     7.2 Functional Block Diagram......................................... 14
+2 Applications..................................................................... 1       7.3 Feature Description...................................................14
+3 Description.......................................................................1       7.4 Device Functional Modes..........................................15
+4 Pin Configuration and Functions...................................2                     8 Application and Implementation.................................. 16
+5 Specifications.................................................................. 4        8.1 Application Information............................................. 16
+  5.1 Absolute Maximum Ratings........................................ 4                    8.2 Typical Applications.................................................. 16
+  5.2 ESD Ratings............................................................... 4          8.3 Power Supply Recommendations.............................19
+  5.3 Recommended Operating Conditions.........................4                            8.4 Layout....................................................................... 19
+  5.4 Thermal Information....................................................5            9 Device and Documentation Support............................21
+  5.5 Electrical Characteristics.............................................6              9.1 Documentation Support............................................ 21
+  5.6 Switching Characteristics: VCCA = 1.8V ± 0.15V.........7                              9.2 Receiving Notification of Documentation Updates....21
+  5.7 Switching Characteristics: VCCA = 2.5V ± 0.2V...........7                             9.3 Support Resources................................................... 21
+  5.8 Switching Characteristics: VCCA = 3.3V ± 0.3V...........8                             9.4 Trademarks............................................................... 21
+  5.9 Switching Characteristics: VCCA = 5V ± 0.5V..............8                            9.5 Electrostatic Discharge Caution................................21
+  5.10 Operating Characteristics......................................... 9                 9.6 Glossary....................................................................21
+  5.11 Typical Characteristics............................................ 10             10 Revision History.......................................................... 21
+6 Parameter Measurement Information.......................... 13                          11 Mechanical, Packaging, and Orderable
+7 Detailed Description......................................................14              Information.................................................................... 21
+  7.1 Overview................................................................... 14
+
+
+4 Pin Configuration and Functions
+
+                                                                        VCCA       1       8    VCCB
+                                                                          A1       2       7    B1
+                                                                          A2       3       6    B2
+                                                                        GND        4       5    DIR
+
+                                  Figure 4-1. DCT or DCU Package, 8-Pin SM8 or VSSOP (Top View)
+
+                                                            Table 4-1. Pin Functions: DCT, DCU
+               PIN
+                                         TYPE(1)                                                          DESCRIPTION
+    NAME             NO.
+    VCCA              1                      P              A-port supply voltage. 1.65V ≤ VCCA ≤ 5.5V
+    A1                2                     I/O             Input/output A1. Referenced to VCCA
+    A2                3                     I/O             Input/output A2. Referenced to VCCA
+    GND               4                      G              Ground
+    DIR               5                      I              Direction control signal
+    B2                6                     I/O             Input/output B2. Referenced to VCCB
+    B1                7                     I/O             Input/output B1. Referenced to VCCB
+    VCCB              8                      P              B-port supply voltage. 1.65V ≤ VCCB ≤ 5.5V
+
+(1)        I = input, O = output, P = power, G =ground
+
+
+
+
+2          Submit Document Feedback                                                                                      Copyright © 2024 Texas Instruments Incorporated
+
+                                                                  Product Folder Links: SN74LVC2T45
+                                                                                                                       SN74LVC2T45
+www.ti.com                                                                                 SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+                                                                     1           2
+
+
+                                                               D    GND        DIR
+
+
+
+                                                               C     A2         B2
+
+
+
+                                                               B     A1         B1
+
+
+
+                                                               A    VCCA       VCCB
+
+                                                                           Not to scale
+
+
+                                     Figure 4-2. YZP Package, 8-Pin DSGBA (Bottom View)
+
+                                                      Table 4-2. Pin Functions: YZP
+               PIN
+                                          TYPE(1)                                         DESCRIPTION
+ NO.                 NAME
+ A1                   VCCA                    P          A-port supply voltage. 1.65V ≤ VCCA ≤ 5.5V
+ A2                   VCCB                    P          B-port supply voltage. 1.65V ≤ VCCB ≤ 5.5V
+ B1                    A1                    I/O         Input/output A1. Referenced to VCCA
+ B2                    B1                    I/O         Input/output B1. Referenced to VCCB
+ C1                    A2                    I/O         Input/output A2. Referenced to VCCA
+ C2                    B2                    I/O         Input/output B2. Referenced to VCCB
+ D1                   GND                    G           Ground
+ D2                   DIR                     I          Direction control signal
+
+(1)    I = input, O = output, P = power, G = ground
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                         Submit Document Feedback     3
+                                                      Product Folder Links: SN74LVC2T45
+SN74LVC2T45
+SCES516N – DECEMBER 2003 – REVISED JUNE 2024                                                                                              www.ti.com
+
+5 Specifications
+5.1 Absolute Maximum Ratings
+over operating free-air temperature range (unless otherwise noted)(1)
+                                                                                                               MIN            MAX             UNIT
+    VCCA
+              Supply voltage                                                                                   –0.5            6.5             V
+    VCCB
+    VI        Input voltage(2)                                                                                 –0.5            6.5             V
+    VO        Voltage range applied to any output in the high-impedance or power-off state(2)                  –0.5            6.5             V
+
+              Voltage range applied to any output in the high or low A port                                    –0.5        VCCA + 0.5
+    VO                                                                                                                                         V
+              state(2) (3)                                           B port                                    –0.5        VCCB + 0.5
+    IIK       Input clamp current                                     VI < 0                                   –50                            mA
+    IOK       Output clamp current                                    VO < 0                                   –50                            mA
+    IO        Continuous output current                                                                        –50             50             mA
+              Continuous current through VCC or GND                                                            –100            100            mA
+    TJ        Junction temperature                                                                                             150             °C
+    Tstg      Storage temperature                                                                              –65             150             °C
+
+(1)        Stresses beyond those listed under Absolute Maximum Ratings may cause permanent damage to the device. These are stress
+           ratings only, which do not imply functional operation of the device at these or any other conditions beyond those indicated under
+           Recommended Operating Conditions. Exposure to absolute-maximum-rated conditions for extended periods may affect device
+           reliability.
+(2)        The input and output negative-voltage ratings may be exceeded if the input and output clamp-current ratings are observed.
+(3)        The value of VCC is provided in the Recommended Operating Conditions table.
+
+5.2 ESD Ratings
+                                                                                                                            VALUE             UNIT
+                                          Human body model (HBM), per ANSI/ESDA/JEDEC JS-0011                               ±4000
+    V(ESD)      Electrostatic discharge                                                                                                        V
+                                          Charged device model (CDM), per ANSI/ESDA/JEDEC JS-002 2                          ±1000
+
+(1)        JEDEC document JEP155 states that 500V HBM allows safe manufacturing with a standard ESD control process.
+(2)        JEDEC document JEP157 states that 250V CDM allows safe manufacturing with a standard ESD control process.
+
+
+5.3 Recommended Operating Conditions
+over operating free-air temperature range (unless otherwise noted)(1) (2) (3)
+                                                                          VCCI              VCCO               MIN                   MAX       UNIT
+    VCCA                                                                                                       1.65                     5.5
+                 Supply voltage                                                                                                                    V
+    VCCB                                                                                                       1.65                     5.5
+                                                                     1.65V to 1.95V                        VCCI × 0.65
+
+                 High-level                                           2.3V to 2.7V                             1.7
+    VIH                                   Data inputs(4)                                                                                           V
+                 input voltage                                         3V to 3.6V                               2
+                                                                      4.5V to 5.5V                          VCCI × 0.7
+                                                                     1.65V to 1.95V                                           VCCI × 0.35
+
+                 Low-level                                            2.3V to 2.7V                                                      0.7
+    VIL                                   Data inputs(4)                                                                                           V
+                 input voltage                                         3V to 3.6V                                                       0.8
+                                                                      4.5V to 5.5V                                             VCCI × 0.3
+                                                                     1.65V to 1.95V                        VCCA × 0.65
+
+                 High-level               DIR                         2.3V to 2.7V                             1.7
+    VIH                                                                                                                                            V
+                 input voltage            (referenced to VCCA)(5)      3V to 3.6V                               2
+                                                                      4.5V to 5.5V                         VCCA × 0.7
+
+
+
+4          Submit Document Feedback                                                                     Copyright © 2024 Texas Instruments Incorporated
+
+                                                           Product Folder Links: SN74LVC2T45
+                                                                                                                                  SN74LVC2T45
+www.ti.com                                                                                    SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+5.3 Recommended Operating Conditions (continued)
+over operating free-air temperature range (unless otherwise noted)(1) (2) (3)
+                                                                        VCCI             VCCO             MIN                     MAX   UNIT
+                                                                   1.65V to 1.95V                                      VCCA × 0.35
+
+              Low-level                  DIR                        2.3V to 2.7V                                           0.7
+ VIL                                                                                                                                      V
+              input voltage              (referenced to VCCA)(5)     3V to 3.6V                                            0.8
+                                                                    4.5V to 5.5V                                       VCCA × 0.3
+ VI           Input voltage                                                                                   0            5.5            V
+ VO           Output voltage                                                                                  0           VCCO            V
+                                                                                    1.65V to 1.95V                         –4
+                                                                                     2.3V to 2.7V                          –8
+ IOH          High-level output current                                                                                                  mA
+                                                                                      3V to 3.6V                          –24
+                                                                                     4.5V to 5.5V                         –32
+                                                                                    1.65V to 1.95V                            4
+                                                                                     2.3V to 2.7V                             8
+ IOL          Low-level output current                                                                                                   mA
+                                                                                      3V to 3.6V                           24
+                                                                                     4.5V to 5.5V                          32
+                                                                   1.65V to 1.95V                                          20
+                                                                    2.3V to 2.7V                                           20
+              Input transition           Data inputs
+ Δt/Δv                                                               3V to 3.6V                                            10            ns/V
+              rise or fall rate
+                                                                    4.5V to 5.5V                                              5
+                                         Control input              1.65V to 5.5V                                             5
+ TA           Operating free-air temperature                                                               –40             85            °C
+
+(1)     VCCI is the VCC associated with the input port.
+(2)     VCCO is the VCC associated with the output port.
+(3)     All unused data inputs of the device must be held at VCCI or GND for proper device operation. See Implications of Slow or Floating
+        CMOS Inputs, SCBA004.
+(4)     For VCCI values not specified in the data sheet, VIH min = VCCI × 0.7V, VIL max = VCCI × 0.3V.
+(5)     For VCCI values not specified in the data sheet, VIH min = VCCA × 0.7V, VIL max = VCCA × 0.3V.
+
+5.4 Thermal Information
+                                                                                                    SN74LVC2T45
+                                  THERMAL METRIC(1)                                   DCU              DCT              YZP             UNIT
+                                                                                                      8 PINS
+ RθJA         Junction-to-ambient thermal resistance                                  246.4            195.3           105.8            °C/W
+ RθJC(top)    Junction-to-case (top) thermal resistance                               95.4              106             1.6             °C/W
+ RθJB         Junction-to-board thermal resistance                                    157.8            110.8            10.8            °C/W
+ ψJT          Junction-to-top characterization parameter                               37              38.3             3.1             °C/W
+ ψJB          Junction-to-board characterization parameter                            156.9            109.3            10.8            °C/W
+
+(1)     For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+        report.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                               Submit Document Feedback          5
+                                                         Product Folder Links: SN74LVC2T45
+SN74LVC2T45
+SCES516N – DECEMBER 2003 – REVISED JUNE 2024                                                                                      www.ti.com
+
+
+5.5 Electrical Characteristics
+over recommended operating free-air temperature range (unless otherwise noted)1 2
+                                                                                             TA = 25°C         –40°C to +85°C
+         PARAMETER          TEST CONDITIONS                   VCCA          VCCB                                                      UNIT
+                                                                                         MIN    TYP      MAX          MIN     MAX
+                       IOH = –100μA                     1.65V to 4.5V   1.65V to 4.5V                          VCCO – 0.1
+                       IOH = –4mA                             1.65V         1.65V                                      1.2
+    VOH                IOH = –8mA         VI = VIH            2.3V          2.3V                                       1.9              V
+                       IOH = –24mA                             3V            3V                                        2.4
+                       IOH = –32mA                            4.5V          4.5V                                       3.8
+                       IOL = 100μA                      1.65V to 4.5V   1.65V to 4.5V                                           0.1
+                       IOL = 4mA                              1.65V         1.65V                                             0.45
+    VOL                IOL = 8mA          VI = VIL            2.3V          2.3V                                                0.3     V
+                       IOL = 24mA                              3V            3V                                               0.55
+                       IOL = 32mA                             4.5V          4.5V                                              0.55
+    II        DIR      VI = VCCA or GND                 1.65V to 5.5V   1.65V to 5.5V                     ±1                    ±2      µA
+              A port                                           0V         0 to 5.5V                       ±1                    ±2
+    Ioff               VI or VO = 0 to 5.5V                                                                                             µA
+              B port                                      0 to 5.5V          0V                           ±1                    ±2
+              A or B
+    IOZ                VO = VCCO or GND                 1.65V to 5.5V   1.65V to 5.5V                     ±1                    ±2      µA
+              port
+                                                        1.65V to 5.5V   1.65V to 5.5V                                             3
+    ICCA               VI = VCCI or GND, IO = 0                5V            0V                                                   2     µA
+                                                               0V            5V                                                 –2
+                                                        1.65V to 5.5V   1.65V to 5.5V                                             3
+    ICCB               VI = VCCI or GND, IO = 0                5V            0V                                                 –2      µA
+                                                               0V            5V                                                   2
+    ICCA + ICCB
+                       VI = VCCI or GND, IO = 0         1.65V to 5.5V   1.65V to 5.5V                                             4     µA
+    (see Table 8-4)
+                       One A port at VCCA – 0.6V,
+              A port   DIR at VCCA,                                                                                             50
+                       B port = open
+    ΔICCA                                                3V to 5.5V       3V to 5.5V                                                    µA
+                       DIR at VCCA – 0.6V,
+              DIR      B port = open,                                                                                           50
+                       A port at VCCA or GND
+                       One B port at VCCB – 0.6V,
+    ΔICCB     B port                                     3V to 5.5V       3V to 5.5V                                            50      µA
+                       DIR at GND, A port = open
+    CI        DIR      VI = VCCA or GND                       3.3V          3.3V                 2.5                                    pF
+              A or B
+    Cio                VO = VCCA/B or GND                     3.3V          3.3V                  6                                     pF
+              port
+
+(1)        VCCO is the VCC associated with the output port.
+(2)        VCCI is the VCC associated with the input port.
+
+
+
+
+6           Submit Document Feedback                                                             Copyright © 2024 Texas Instruments Incorporated
+
+                                                         Product Folder Links: SN74LVC2T45
+                                                                                                                            SN74LVC2T45
+www.ti.com                                                                                      SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+
+
+5.6 Switching Characteristics: VCCA = 1.8V ± 0.15V
+over recommended operating free-air temperature range, VCCA = 1.8V ± 0.15V (unless otherwise noted) (see Figure 6-1)
+                                                          VCCB = 1.8V        VCCB = 2.5V          VCCB = 3.3V       VCCB = 5V
+                           FROM               TO            ±0.15V             ±0.2V                ±0.3V             ±0.5V
+   PARAMETER                                                                                                                          UNIT
+                          (INPUT)          (OUTPUT)
+                                                           MIN     MAX        MIN    MAX           MIN     MAX      MIN     MAX
+        tPLH                                                  3    17.7        2.2    10.3          1.7      8.3     1.4        7.2
+                             A                    B                                                                                    ns
+        tPHL                                                2.8    14.3        2.2     8.5          1.8      7.1     1.7         7
+
+        tPLH                                                  3    17.7        2.3         16       2.1     15.5     1.9    15.1
+                             B                    A                                                                                    ns
+        tPHL                                                2.8    14.3        2.1    12.9            2     12.6     1.8    12.2
+
+        tPHZ                                                5.5    30.9        5.5    30.5          5.5     30.5     5.5    29.3
+                            DIR                   A                                                                                    ns
+         tPLZ                                               4.3    19.7        4.2    19.6          4.1     19.5       4    19.4
+
+        tPHZ                                                  6    27.9         5     14.9            5     11.3     4.1        8.6
+                            DIR                   B                                                                                    ns
+         tPLZ                                                 5    19.5        3.9    12.6          4.3      9.7     2.1        7.1
+
+        tPZH 1                                                     37.2               28.6                  25.2            22.2
+                            DIR                   A                                                                                    ns
+        tPZL 1                                                     42.2               27.8                  23.9            20.8
+
+        tPZH 1                                                     37.4               29.9                  27.8            26.6
+                            DIR                   B                                                                                    ns
+        tPZL   1                                                   45.2                    39               37.6            36.3
+
+(1)    The enable time is a calculated value, derived using the formula shown in the Enable Times section.
+
+5.7 Switching Characteristics: VCCA = 2.5V ± 0.2V
+over recommended operating free-air temperature range, VCCA = 2.5V ± 0.2V (unless otherwise noted) (see Figure 6-1)
+                                                          VCCB = 1.8V        VCCB = 2.5V          VCCB = 3.3V       VCCB = 5V
+                           FROM               TO            ±0.15V             ±0.2V                ±0.3V             ±0.5V
+   PARAMETER                                                                                                                          UNIT
+                          (INPUT)          (OUTPUT)
+                                                           MIN     MAX        MIN    MAX           MIN     MAX      MIN     MAX
+        tPLH                                                2.3         16     1.5     8.5          1.3      6.4     1.1        5.1
+                             A                    B                                                                                    ns
+        tPHL                                                2.1    12.9        1.4     7.5          1.3      5.4     0.9        4.6
+        tPLH                                                2.2    10.3        1.5     8.5          1.4         8      1        7.5
+                             B                    A                                                                                    ns
+        tPHL                                                2.2     8.5        1.4     7.5          1.3         7    0.9        6.2
+        tPHZ                                                4.2    17.1        4.2    16.8          4.1     16.8     4.1    16.5
+                            DIR                   A                                                                                    ns
+         tPLZ                                               3.2    12.6        3.2    12.5          3.2     12.3       3    12.3
+
+        tPHZ                                                  6    27.9        4.7    13.9          4.7     10.5     3.5        7.6
+                            DIR                   B                                                                                    ns
+         tPLZ                                               4.2    18.9        3.6    11.2          3.6      8.9     1.4        6.2
+        tPZH 1                                                     29.2               19.7                  16.9            13.7
+                            DIR                   A                                                                                    ns
+        tPZL 1                                                     36.4               21.4                  17.5            13.8
+        tPZH 1                                                     28.6                    21               18.7            17.4
+                            DIR                   B                                                                                    ns
+        tPZL 1                                                          30            24.3                  22.2            21.1
+
+(1)    The enable time is a calculated value, derived using the formula shown in the Enable Times section.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                              Submit Document Feedback        7
+                                                      Product Folder Links: SN74LVC2T45
+SN74LVC2T45
+SCES516N – DECEMBER 2003 – REVISED JUNE 2024                                                                                        www.ti.com
+
+
+5.8 Switching Characteristics: VCCA = 3.3V ± 0.3V
+over recommended operating free-air temperature range, VCCA = 3.3V ± 0.3V (unless otherwise noted) (see Figure 6-1)
+                                                       VCCB = 1.8V        VCCB = 2.5V        VCCB = 3.3V          VCCB = 5V
+                        FROM             TO              ±0.15V             ±0.2V              ±0.3V                ±0.5V
+    PARAMETER                                                                                                                         UNIT
+                       (INPUT)        (OUTPUT)
+                                                         MIN     MAX        MIN     MAX        MIN      MAX        MIN      MAX
+       tPLH                                               2.1     15.5       1.4        8       0.7         5.6     0.7       4.4
+                          A                B                                                                                           ns
+       tPHL                                                 2     12.6       1.3        7       0.8          5      0.7         4
+       tPLH                                               1.7      8.3       1.3      6.4       0.7         5.8     0.6       5.4
+                          B                A                                                                                           ns
+       tPHL                                               1.8      7.1       1.3      5.4       0.8          5      0.7       4.5
+       tPHZ                                               4.5     10.9       4.5     10.8       4.4     10.8        4.4      10.4
+                         DIR               A                                                                                           ns
+       tPLZ                                               3.4      8.4       3.7      8.4       3.9         8.1     3.3       7.8
+       tPHZ                                               5.7     27.3       4.7     13.7       4.7     10.4        2.9       7.4
+                         DIR               B                                                                                           ns
+       tPLZ                                               4.5     17.7       3.5     11.3       4.3         8.3       1       5.6
+      tPZH 1                                                         26              17.7               14.1                   11
+                         DIR               A                                                                                           ns
+      tPZL   1                                                    34.4               19.1               15.4                 11.9
+      tPZH 1                                                      23.9               16.4               13.9                 12.2
+                         DIR               B                                                                                           ns
+      tPZL   1                                                    23.5               17.8               15.8                 14.4
+
+(1)   The enable time is a calculated value, derived using the formula shown in the Enable Times section.
+
+5.9 Switching Characteristics: VCCA = 5V ± 0.5V
+over recommended operating free-air temperature range, VCCA = 5V ± 0.5V (unless otherwise noted) (see Figure 6-1)
+                                                       VCCB = 1.8V        VCCB = 2.5V        VCCB = 3.3V          VCCB = 5V
+                        FROM             TO              ±0.15V             ±0.2V              ±0.3V                ±0.5V
+    PARAMETER                                                                                                                         UNIT
+                       (INPUT)        (OUTPUT)
+                                                         MIN     MAX        MIN     MAX        MIN      MAX        MIN      MAX
+       tPLH                                               1.9     15.1         1      7.5       0.6         5.4     0.5       3.9
+                          A                B                                                                                           ns
+       tPHL                                               1.8     12.2       0.9      6.2       0.7         4.5     0.5       3.5
+       tPLH                                               1.4      7.2         1      5.1       0.7         4.4     0.5       3.9
+                          B                A                                                                                           ns
+       tPHL                                               1.7        7       0.9      4.6       0.7          4      0.5       3.5
+       tPHZ                                               2.9      8.2       2.9      7.9       2.8         7.9     2.2       7.8
+                         DIR               A                                                                                           ns
+       tPLZ                                               1.4      6.9       1.3      6.7       0.7         6.7     0.7       6.6
+       tPHZ                                               5.8     26.1       4.4     13.9       4.4     10.1        1.3       7.3
+                         DIR               B                                                                                           ns
+       tPLZ                                               4.7     16.9       3.3        11        4         7.7       1       5.6
+      tPZH 1                                                      24.1               16.1               12.1                  9.5
+                         DIR               A                                                                                           ns
+      tPZL   1                                                    33.1               18.5               14.1                 10.8
+      tPZH 1                                                         22              14.2               12.1                 10.5
+                         DIR               B                                                                                           ns
+      tPZL   1                                                    20.4               14.1               12.4                 11.3
+
+(1)   The enable time is a calculated value, derived using the formula shown in the Enable Times section.
+
+
+
+
+8     Submit Document Feedback                                                                   Copyright © 2024 Texas Instruments Incorporated
+
+                                                   Product Folder Links: SN74LVC2T45
+                                                                                                                              SN74LVC2T45
+www.ti.com                                                                                       SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+
+5.10 Operating Characteristics
+TA = 25°C
+                                                                     VCCA =          VCCA =            VCCA =         VCCA =
+                                             TEST                  VCCB = 1.8V     VCCB = 2.5V       VCCB = 3.3V     VCCB = 5V
+            PARAMETER                                                                                                                UNIT
+                                          CONDITIONS
+                                                                       TYP             TYP              TYP             TYP
+             A-port input,
+                                             CL = 0pF,                  3               4                 4              4
+             B-port output
+ CpdA (1)                                   f = 10MHz,                                                                                pF
+             B-port input,                  tr = tf = 1ns              18              19                20              21
+             A-port output
+             A-port input,
+                                             CL = 0pF,                 18              19                20              21
+             B-port output
+ CpdB (1)                                   f = 10MHz,                                                                                pF
+             B-port input,                  tr = tf = 1ns               3               4                 4              4
+             A-port output
+
+(1)    Power dissipation capacitance per transceiver.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                               Submit Document Feedback      9
+                                                            Product Folder Links: SN74LVC2T45
+SN74LVC2T45
+SCES516N – DECEMBER 2003 – REVISED JUNE 2024                                                                                                                                                      www.ti.com
+
+5.11 Typical Characteristics
+                     10                                                                                                      10
+
+                            9                                                                                                     9
+                                                                                                                                                  VCCB = 1.8 V
+
+                            8                                                                                                     8
+                                        VCCB = 1.8 V
+                            7                                                                                                     7
+
+                            6                                                                                                     6               VCCB = 2.5 V
+
+               t PHL − ns   5           VCCB = 2.5 V                                                                  t PLH− ns   5
+                                                                                                                                                  VCCB = 3.3 V
+
+                            4                                                                                                     4
+                                                                                                                                                  VCCB = 5 V
+                            3           VCCB = 3.3 V                                                                              3
+                                        VCCB = 5 V
+                            2                                                                                                     2
+
+                            1                                                                                                     1
+
+                            0                                                                                                     0
+                                0   5         10       15        20    25   30     35                                                 0       5          10      15         20   25   30    35
+                                                        CL − pF                                                                                                   CL − pF
+
+ Figure 5-1. Typical Propagation Delay of High-to-Low (A to B) vs Figure 5-2. Typical Propagation Delay of Low-to-High (A to B) vs
+             Load Capacitance TA = 25°C, VCCA = 1.8V                          Load Capacitance TA = 25°C, VCCA = 1.8V
+                    10                                                                                                     10
+
+                            9                                                                                                9
+                                                                                                                                                  VCCB = 1.8 V
+
+                            8                                                                                                8                    VCCB = 2.5 V
+                                        VCCB = 1.8 V
+                            7                                                                                                7
+
+                            6                                                                                                                     VCCB = 3.3 V
+                                                                                                                             6
+
+             t PHL − ns                                                                                       t PLH − ns
+                                                                                                                                                  VCCB = 5 V
+                            5           VCCB = 2.5 V                                                                         5
+                                        VCCB = 3.3 V
+                            4           VCCB = 5 V                                                                           4
+
+                            3                                                                                                3
+
+                            2                                                                                                2
+
+                            1                                                                                                1
+
+                            0                                                                                                0
+                                0   5         10       15        20    25   30     35                                             0           5         10       15      20      25    30    35
+                                                            CL − pF                                                                                                CL − pF
+
+ Figure 5-3. Typical Propagation Delay of High-to-Low (B to A) vs Figure 5-4. Typical Propagation Delay of Low-to-High (B to A) vs
+             Load Capacitance TA = 25°C, VCCA = 1.8V                          Load Capacitance TA = 25°C, VCCA = 1.8V
+                     10                                                                                              10
+
+                            9                                                                                              9
+
+                            8                                                                                              8                  VCCB = 1.8 V
+
+                            7           VCCB = 1.8 V                                                                       7
+
+                            6                                                                                              6
+
+              t PHL − ns    5                                                                                 t PLH − ns   5                  VCCB = 2.5 V
+                                        VCCB = 2.5 V
+                            4                                                                                              4                  VCCB = 3.3 V
+
+                            3                                                                                              3                  VCCB = 5 V
+
+
+                            2           VCCB = 3.3 V                                                                       2
+                                        VCCB = 5 V
+                            1                                                                                              1
+
+                            0                                                                                              0
+                                0   5          10      15         20   25   30     35                                             0       5             10       15     20       25   30     35
+                                                        CL − pF                                                                                                   CL − pF
+
+ Figure 5-5. Typical Propagation Delay of High-to-Low (A to B) vs Figure 5-6. Typical Propagation Delay of Low-to-High (A to B) vs
+             Load Capacitance TA = 25°C, VCCA = 2.5V                          Load Capacitance TA = 25°C, VCCA = 2.5V
+
+
+
+
+10    Submit Document Feedback                                                                                                                         Copyright © 2024 Texas Instruments Incorporated
+
+                                                                                 Product Folder Links: SN74LVC2T45
+                                                                                                                                                                                            SN74LVC2T45
+www.ti.com                                                                                                                                  SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+
+5.11 Typical Characteristics (continued)
+                             10                                                                                                    10
+
+                              9                                                                                                     9
+
+                              8                                                                                                     8
+
+                              7                                                                                                     7
+
+
+                t PHL − ns
+                              6                                                                                                     6
+
+                                                                                                                     t PLH − ns
+                                                                                                                                                  VCCB = 1.8 V
+                                               VCCB = 1.8 V
+                              5                                                                                                     5
+
+                              4                                                                                                     4
+                                                                                                                                                  VCCB = 2.5 V
+                              3                                                                                                     3
+                                                VCCB = 2.5 V                                                                                      VCCB = 3.3 V
+                                                                                                                                                  VCCB = 5 V
+                              2                 VCCB = 3.3 V                                                                        2
+                                                VCCB = 5 V
+                              1                                                                                                     1
+
+                              0                                                                                                     0
+                                       0   5          10       15      20     25   30     35                                            0    5          10       15         20   25    30   35
+                                                               CL − pF                                                                                            CL − pF
+
+ Figure 5-7. Typical Propagation Delay of High-to-Low (B to A) vs Figure 5-8. Typical Propagation Delay of Low-to-High (B to A) vs
+             Load Capacitance TA = 25°C, VCCA = 2.5V                          Load Capacitance TA = 25°C, VCCA = 2.5V
+                             10                                                                                               10
+
+                              9                                                                                                    9
+
+                              8                                                                                                    8             VCCB = 1.8 V
+
+
+                              7                                                                                                    7
+                                                VCCB = 1.8 V
+                              6                                                                                                    6
+
+
+                 t PHL − ns                                                                                           t PLH − ns
+                              5                                                                                                    5             VCCB = 2.5 V
+
+                              4                 VCCB = 2.5 V                                                                       4
+                                                                                                                                                 VCCB = 3.3 V
+
+                              3                                                                                                    3
+
+                              2                                                                                                    2             VCCB = 5 V
+                                                VCCB = 3.3 V
+                              1                                                                                                    1
+                                                VCCB = 5 V
+                              0                                                                                                    0
+                                   0       5          10       15        20   25   30     35                                           0     5         10        15     20       25   30    35
+                                                               CL − pF                                                                                            CL − pF
+
+ Figure 5-9. Typical Propagation Delay of High-to-Low (A to B) vs                                         Figure 5-10. Typical Propagation Delay of Low-to-High (A to B)
+             Load Capacitance TA = 25°C, VCCA = 3.3V                                                               vs Load Capacitance TA = 25°C, VCCA = 3.3V
+                              10                                                                                                   10
+
+                               9                                                                                                    9
+
+                               8                                                                                                    8
+
+                               7                                                                                                    7
+
+                               6                                                                                                    6
+
+
+                t PHL − ns
+                                                                                                                     t PLH − ns
+                               5                                                                                                    5             VCCB = 1.8 V
+                                               VCCB = 1.8 V
+                               4                                                                                                    4
+
+                               3                                                                                                    3
+
+                               2                                                                                                                  VCCB = 2.5 V
+                                               VCCB = 2.5 V                                                                         2
+                                                                                                                                                  VCCB = 3.3 V
+                                               VCCB = 3.3 V
+                               1                                                                                                    1             VCCB = 5 V
+                                               VCCB = 5 V
+                               0                                                                                                    0
+                                   0       5          10       15        20   25   30     35                                            0    5          10       15         20   25   30    35
+                                                               CL − pF                                                                                            CL − pF
+
+  Figure 5-11. Typical Propagation Delay of High-to-Low (B to A)                                          Figure 5-12. Typical Propagation Delay of Low-to-High (B to A)
+           vs Load Capacitance TA = 25°C, VCCA = 3.3V                                                              vs Load Capacitance TA = 25°C, VCCA = 3.3V
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                                                                       Submit Document Feedback       11
+                                                                                        Product Folder Links: SN74LVC2T45
+SN74LVC2T45
+SCES516N – DECEMBER 2003 – REVISED JUNE 2024                                                                                                                                           www.ti.com
+
+5.11 Typical Characteristics (continued)
+                       10                                                                                              10
+
+                              9                                                                                              9
+
+                              8                                                                                              8
+                                                                                                                                     VCCB = 1.8 V
+                              7                                                                                              7
+                                          VCCB = 1.8 V
+                              6                                                                                              6
+
+
+                                                                                                                t PLH − ns   5
+
+                 t PHL − ns
+                              5
+                                                                                                                                     VCCB = 2.5 V
+                              4           VCCB = 2.5 V                                                                       4
+                                                                                                                                     VCCB = 3.3 V
+                              3                                                                                              3
+                                                                                                                                     VCCB = 5 V
+                              2                                                                                              2
+                                          VCCB = 3.3 V
+                              1           VCCB = 5 V                                                                         1
+
+                              0                                                                                              0
+                                  0   5         10       15     20      25   30     35                                           0   5          10       15        20   25   30   35
+                                                         CL − pF                                                                                         CL − pF
+
+     Figure 5-13. Typical Propagation Delay of High-to-Low (A to B)                                 Figure 5-14. Typical Propagation Delay of Low-to-High (A to B)
+               vs Load Capacitance TA = 25°C, VCCA = 5V                                                       vs Load Capacitance TA = 25°C, VCCA = 5V
+                         10                                                                                             10
+
+                              9                                                                                              9
+
+                              8                                                                                              8
+
+                              7                                                                                              7
+
+                              6                                                                                              6
+
+
+                t PHL− ns
+                                                                                                               t PLH − ns
+                              5                                                                                              5
+                                                                                                                                          VCCB = 1.8 V
+                                          VCCB = 1.8 V
+                              4                                                                                              4
+                                                                                                                                          VCCB = 2.5 V
+                                          VCCB = 2.5 V
+                              3                                                                                              3
+
+                              2                                                                                              2
+                                          VCCB = 3.3 V                                                                                    VCCB = 3.3 V
+                              1           VCCB = 5 V                                                                         1            VCCB = 5 V
+
+                              0                                                                                              0
+                                  0   5         10       15        20   25   30     35                                           0    5         10       15        20   25   30   35
+                                                          CL − pF                                                                                         CL − pF
+
+     Figure 5-15. Typical Propagation Delay of High-to-Low (B to A)                                 Figure 5-16. Typical Propagation Delay of Low-to-High (B to A)
+               vs Load Capacitance TA = 25°C, VCCA = 5V                                                       vs Load Capacitance TA = 25°C, VCCA = 5V
+
+
+
+
+12       Submit Document Feedback                                                                                                              Copyright © 2024 Texas Instruments Incorporated
+
+                                                                                  Product Folder Links: SN74LVC2T45
+                                                                                                                                         SN74LVC2T45
+www.ti.com                                                                                          SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+
+6 Parameter Measurement Information
+                                                                       2 × VCCO
+                                                                                                      TEST                 S1
+                                            RL              S1           Open                          tpd                 Open
+     From Output
+                                                                       GND                          tPLZ/tPZL            2 × VCCO
+       Under Test
+                                                                                                    tPHZ/tPZH              GND
+                   CL                 RL
+          (see Note A)
+
+
+
+
+                                  LOAD CIRCUIT                                                                      tw
+
+                                                                                                                                                 VCCI
+                                                                                      Input                VCCI/2                   VCCI/2
+                  VCCO               CL            RL            VTP                                                                             0V
+             1.8 V ± 0.15 V       15 pF           2 kΩ       0.15 V
+                                                                                                          VOLTAGE WAVEFORMS
+             2.5 V ± 0.2 V        15 pF           2 kΩ       0.15 V                                         PULSE DURATION
+             3.3 V ± 0.3 V        15 pF           2 kΩ       0.3 V
+              5 V ± 0.5 V         15 pF           2 kΩ       0.3 V
+
+                                                                                         Output                                                  VCCA
+                                                                                         Control                VCCA/2          VCCA/2
+                                                                                      (low-level
+                                                                                      enabling)                                                  0V
+
+                                                                                                   tPZL                                tPLZ
+
+                                                                                          Output                                                 VCCO
+                                                                         VCCI
+         Input              VCCI/2                      VCCI/2                      Waveform 1                      VCCO/2           VOL + VTP
+                                                                                  S1 at 2 × VCCO                                                 VOL
+                                                                         0V
+                                                                                   (see Note B)
+                 tPLH                                             tPHL                             tPZH                                tPHZ
+                                                                                        Output
+                                                                                                                                                 VOH
+                                                                       VOH          Waveform 2                                      VOH − VTP
+                                                                                     S1 at GND                      VCCO/2
+       Output                         VCCO/2                     VCCO/2
+                                                                                   (see Note B)                                                  0V
+                                                                       VOL
+                           VOLTAGE WAVEFORMS                                                         VOLTAGE WAVEFORMS
+                         PROPAGATION DELAY TIMES                                                   ENABLE AND DISABLE TIMES
+
+ NOTES: A. CL includes probe and jig capacitance.
+        B. Waveform 1 is for an output with internal conditions such that the output is low, except when disabled by the output control.
+            Waveform 2 is for an output with internal conditions such that the output is high, except when disabled by the output control.
+        C. All input pulses are supplied by generators having the following characteristics: PRR v10 MHz, ZO = 50 Ω, dv/dt ≥ 1 V/ns.
+        D. The outputs are measured one at a time, with one transition per measurement.
+        E. tPLZ and tPHZ are the same as tdis.
+        F. tPZL and tPZH are the same as ten.
+        G. tPLH and tPHL are the same as tpd.
+        H. VCCI is the VCC associated with the input port.
+         I. VCCO is the VCC associated with the output port.
+        J. All parameters and waveforms are not applicable to all devices.
+
+                                           Figure 6-1. Load Circuit and Voltage Waveforms
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                                      Submit Document Feedback          13
+                                                          Product Folder Links: SN74LVC2T45
+SN74LVC2T45
+SCES516N – DECEMBER 2003 – REVISED JUNE 2024                                                                            www.ti.com
+
+7 Detailed Description
+7.1 Overview
+The SN74LVC2T45 is a dual-bit, dual-supply noninverting voltage level translation device. VCCA supports pin Ax
+and the direction control pin, and VCCB supports pin Bx. The A port can accept I/O voltages ranging from 1.65V
+to 5.5V, while the B port can accept I/O voltages from 1.65V to 5.5V. The high on DIR allows data transmission
+from A to B and a low on DIR allows data transmission from B to A.
+7.2 Functional Block Diagram
+
+
+
+                                         5
+                                   DIR
+
+
+
+                                         2
+                                   A1
+
+
+
+                                                                                   7
+                                                                                        B1
+
+
+
+                                         3
+                                   A2
+
+
+
+                                                                                   6
+                                                                                        B2
+
+
+
+
+                                                    VCCA                   VCCB
+
+
+                                        Figure 7-1. Logic Diagram (Positive Logic)
+
+7.3 Feature Description
+7.3.1 Fully Configurable Dual-Rail Design Allows Each Port to Operate Over the Full 1.65V to 5.5V
+Power-Supply Range
+Both VCCA and VCCB can be supplied at any voltage between 1.65V and 5.5V making the device suitable for
+translating between any of the voltage nodes (1.8V, 2.5V, 3.3V, and 5V).
+7.3.2 Support High-Speed Translation
+SN74LVC2T45 can support high data rate applications. The translated signal data rate can be up to 420Mbps
+when signal is translated from 3.3V to 5V.
+7.3.3 Ioff Supports Partial-Power-Down Mode Operation
+Ioff will prevent backflow current by disabling I/O output circuits when the device is in Partial-Power-Down mode.
+The inputs and outputs for this device enter a high-impedance state when the device is powered down, inhibiting
+current backflow into the device. The maximum leakage into or out of any input or output pin on the device is
+specified by Ioff in the Electrical Characteristics.
+7.3.4 Balanced High-Drive CMOS Push-Pull Outputs
+A balanced output allows the device to sink and source similar currents. The high drive capability of this device
+creates fast edges into light loads so impedance matching and load conditions should be considered to prevent
+ringing. Additionally, the outputs of this device are capable of driving larger currents than the device can sustain
+without being damaged. Two outputs can be connected together for a stronger output drive strength. The
+electrical and thermal limits defined in the Absolute Maximum Ratings must be followed at all times.
+7.3.5 Glitch-Free Power Supply Sequencing
+Either supply rail may be powered on or off in any order without producing a glitch on the I/Os (that is, where
+the output erroneously transitions to VCC when it should be held low or vice versa). Glitches of this nature can
+
+14    Submit Document Feedback                                                         Copyright © 2024 Texas Instruments Incorporated
+
+                                               Product Folder Links: SN74LVC2T45
+                                                                                                                              SN74LVC2T45
+www.ti.com                                                                                        SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+
+be misinterpreted by a peripheral as a valid data bit, which could trigger a false device reset of the peripheral, a
+false device configuration of the peripheral, or even a false data initialization by the peripheral.
+7.3.6 Vcc Isolation
+The I/Os of both ports will enter a high-impedance state when either of the supplies are at GND, while the other
+supply is still connected to the device. The maximum leakage into or out of any input or output pin on the device
+is specified by Ioff in the Electrical Characteristics.
+7.4 Device Functional Modes
+Table 7-1 lists the functional modes of the SN74LVC2T45 device.
+                                            Table 7-1. Function Table (Each Transceiver)(1)
+                                                  INPUT
+                                                                                   OPERATION
+                                                   DIR
+                                                    L                             B data to A bus
+                                                    H                             A data to B bus
+
+                                      (1)    Input circuits of the data I/Os always are active.
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                               Submit Document Feedback     15
+                                                        Product Folder Links: SN74LVC2T45
+SN74LVC2T45
+SCES516N – DECEMBER 2003 – REVISED JUNE 2024                                                                                     www.ti.com
+
+8 Application and Implementation
+                                                               Note
+      Information in the following applications sections is not part of the TI component specification,
+      and TI does not warrant its accuracy or completeness. TI’s customers are responsible for
+      determining suitability of components for their purposes, as well as validating and testing their design
+      implementation to confirm system functionality.
+
+8.1 Application Information
+The SN74LVC2T45 device can be used in level-translation applications for interfacing devices or systems
+operating at different interface voltages with one another. The maximum data rate can be up to 420Mbps when
+the device translates signal from 3.3V to 5V. It is recommended to tie all unused I/Os to GND. The device should
+not have any floating I/Os when changing translation direction.
+8.2 Typical Applications
+8.2.1 Unidirectional Logic Level-Shifting Application
+Figure 8-1 shows an example of the SN74LVC2T45 being used in a unidirectional logic level-shifting application.
+
+                                                      VCC1                               VCC2
+
+
+                          VCC1                                                                            VCC2
+                                                                  1       8
+                                                                  2       7
+                                                                  3       6                       VCC2
+                                                                  4       5
+                          VCC1
+
+
+
+
+                                 SYSTEM-1                                                                SYSTEM-2
+
+                              Figure 8-1. Unidirectional Logic Level-Shifting Application
+
+8.2.1.1 Design Requirements
+Table 8-1 lists the pins and pin descriptions of the SN74LVC2T45 connections with SYSTEM-1 and SYSTEM-2.
+                   Table 8-1. SN74LVC2T45 Pin Connections With SYSTEM-1 and SYSTEM-2
+      PIN             NAME               FUNCTION                                          DESCRIPTION
+       1               VCCA                    VCC1          SYSTEM-1 supply voltage (1.65V to 5.5V)
+       2                A1                  OUT1             Output level depends on VCC1 voltage.
+       3                A2                  OUT2             Output level depends on VCC1 voltage.
+       4               GND                     GND           Device GND
+       5                DIR                    DIR           GND (low level) determines B-port to A-port direction.
+       6                B2                     IN2           Input threshold value depends on VCC2 voltage.
+       7                B1                     IN1           Input threshold value depends on VCC2 voltage.
+       8               VCCB                    VCC2          SYSTEM-2 supply voltage (1.65V to 5.5V)
+
+
+For this design example, use the parameters listed in Table 8-2.
+
+
+
+16    Submit Document Feedback                                                                  Copyright © 2024 Texas Instruments Incorporated
+
+                                                Product Folder Links: SN74LVC2T45
+                                                                                                                          SN74LVC2T45
+www.ti.com                                                                                    SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+                                                         Table 8-2. Design Parameters
+                                             DESIGN PARAMETER                    EXAMPLE VALUE
+                                                  Input voltage range               1.65V to 5.5V
+                                              Output voltage range                  1.65V to 5.5V
+
+
+8.2.1.2 Detailed Design Procedure
+To begin the design process, determine the following:
+•    Input voltage range
+     – Use the supply voltage of the device that is driving the SN74LVC2T45 device to determine the input
+        voltage range. For a valid logic high, the value must exceed the VIH of the input port. For a valid logic low,
+        the value must be less than the VIL of the input port.
+•    Output voltage range
+     – Use the supply voltage of the device that the SN74LVC2T45 device is driving to determine the output
+        voltage range.
+8.2.1.3 Application Curve
+
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                           Submit Document Feedback     17
+                                                          Product Folder Links: SN74LVC2T45
+SN74LVC2T45
+SCES516N – DECEMBER 2003 – REVISED JUNE 2024                                                                                                 www.ti.com
+
+8.2.2 Bidirectional Logic Level-Shifting Application
+Figure 8-2 shows the SN74LVC2T45 being used in a bidirectional logic level-shifting application. Because the
+SN74LVC2T45 does not have an output-enable (OE) pin, the system designer should take precautions to avoid
+bus contention between SYSTEM-1 and SYSTEM-2 when changing directions.
+
+                  VCC1                                    VCC1                                     VCC2                               VCC2
+
+                                       Pullup/Down                                                        Pullup/Down
+                         I/O-1         or Bus Hold(1)                                                     or Bus Hold(1)      I/O-2
+                                                                        1        8
+                                                                        2        7
+                                                                        3        6
+                                                                        4        5
+
+
+                    DIR CTRL
+
+
+
+
+                                 SYSTEM-1                                                                             SYSTEM-2
+
+                                       Figure 8-2. Bidirectional Logic Level-Shifting Application
+
+8.2.2.1 Design Requirements
+Refer to Section 8.2.1.
+8.2.2.2 Detailed Design Procedure
+Table 8-3 provides data transmission from SYSTEM-1 to SYSTEM-2 and then from SYSTEM-2 to SYSTEM-1.
+                                                  Table 8-3. Data Transmission Sequence
+    STATE      DIR CTRL      I/O-1        I/O-2                                             DESCRIPTION
+      1            H             Out       In     SYSTEM-1 data to SYSTEM-2
+                                                  SYSTEM-2 is getting ready to send data to SYSTEM-1. I/O-1 and I/O-2 are disabled. The
+      2            H         Hi-Z         Hi-Z
+                                                  bus-line state depends on pullup or pulldown.(1)
+                                                  DIR bit is flipped. I/O-1 and I/O-2 still are disabled. The bus-line state depends on pullup or
+      3            L         Hi-Z         Hi-Z
+                                                  pulldown.(1)
+      4            L             In       Out     SYSTEM-2 data to SYSTEM-1
+
+(1)       SYSTEM-1 and SYSTEM-2 must use the same conditions, that is, both pullup or both pulldown.
+
+8.2.2.2.1 Enable Times
+Calculate the enable times for the SN74LVC2T45 using the following formulas:
+•     tPZH (DIR to A) = tPLZ (DIR to B) + tPLH (B to A)
+•     tPZL (DIR to A) = tPHZ (DIR to B) + tPHL (B to A)
+•     tPZH (DIR to B) = tPLZ (DIR to A) + tPLH (A to B)
+•     tPZL (DIR to B) = tPHZ (DIR to A) + tPHL (A to B)
+In a bidirectional application, these enable times provide the maximum delay from the time the DIR bit is
+switched until an output is expected. For example, if the SN74LVC2T45 initially is transmitting from A to B, then
+the DIR bit is switched; the B port of the device must be disabled before presenting it with an input. After the
+B port has been disabled, an input signal applied to it appears on the corresponding A port after the specified
+propagation delay.
+
+
+
+18        Submit Document Feedback                                                                        Copyright © 2024 Texas Instruments Incorporated
+
+                                                         Product Folder Links: SN74LVC2T45
+                                                                                                                  SN74LVC2T45
+www.ti.com                                                                            SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+
+8.2.2.3 Application Curve
+
+
+
+
+8.3 Power Supply Recommendations
+Always apply a ground reference to the GND pins first. This device is designed for glitch free power sequencing
+without any supply sequencing requirements such as ramp order or ramp rate.
+This device was designed with various power supply sequencing methods in mind to help prevent unintended
+triggering of downstream devices, as described in Glitch-free Power Supply Sequencing.
+8.3.1 Power-Up Consideration
+Each VCC pin must have a good bypass capacitor to prevent power disturbance. For devices with a single
+supply, 0.1µF is recommended. If there are multiple VCC pins, 0.01µF or 0.022µF is recommended for each
+power pin. It is acceptable to parallel multiple bypass capacitors to reject different frequencies of noise. 0.1µF
+and 1µF capacitors are commonly used in parallel. The bypass capacitor must be installed as close to the power
+pin as possible for best results.
+                               Table 8-4. Typical Total Static Power Consumption (ICCA + ICCB)
+                                                                VCCA
+                       VCCB                                                                               UNIT
+                                        0V        1.8V          2.5V          3.3V            5V
+                        0V              0         <1             <1            <1             <1
+                       1.8V            <1         <2             <2            <2              2
+                       2.5V            <1         <2             <2            <2             <2           µA
+                       3.3V            <1         <2             <2            <2             <2
+                        5V             <1          2             <2            <2             <2
+
+
+8.4 Layout
+8.4.1 Layout Guidelines
+It is recommended to follow common printed-circuit board layout guidelines for device reliability, such as the
+follows:
+•    Use bypass capacitors on the power supplies.
+•    Use short trace lengths to avoid excessive loading.
+•    Place pads on the signal paths for loading capacitors or pullup resistors to help adjust rise and fall times of
+     signals depending on the system requirements.
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                    Submit Document Feedback    19
+                                                  Product Folder Links: SN74LVC2T45
+SN74LVC2T45
+SCES516N – DECEMBER 2003 – REVISED JUNE 2024                                                                                   www.ti.com
+
+8.4.2 Layout Example
+                                LEGEND
+
+
+         VIA to Power Plane                  Polygonal Copper Pour
+
+          VIA to GND Plane (Inner Layer)
+
+
+
+
+                         VCCA                                                                                                VCCB
+
+
+
+     Bypass Capacitor                                                                              Bypass Capacitor
+
+
+
+
+                                                        1   VCCA                       VCCB    8
+
+
+                 From                                                                                                                 To
+                                                        2    A1                        B1      7                                    System
+               Controller
+
+
+                  From                                                                                                                To
+                                                        3    A2                        B2      6                                    System
+                Controller
+
+
+                                                        4   GND                        DIR     5                                         VCCA
+
+                                                                     SN74LVC2T45
+
+
+                                           Figure 8-3. SN74LVC2T45 Layout Example
+
+
+
+
+20     Submit Document Feedback                                                               Copyright © 2024 Texas Instruments Incorporated
+
+                                                   Product Folder Links: SN74LVC2T45
+                                                                                                                           SN74LVC2T45
+www.ti.com                                                                                 SCES516N – DECEMBER 2003 – REVISED JUNE 2024
+
+
+9 Device and Documentation Support
+9.1 Documentation Support
+9.1.1 Related Documentation
+For related documentation, see the following:
+• Texas Instruments, Implications of Slow or Floating CMOS Inputs application note
+• Texas Instruments, Designing with SN74LVCXT245 and SN74LVCHXT245 Family of Direction controlled
+   voltage translators application note
+9.2 Receiving Notification of Documentation Updates
+To receive notification of documentation updates, navigate to the device product folder on ti.com. Click on
+Notifications to register and receive a weekly digest of any product information that has changed. For change
+details, review the revision history included in any revised document.
+9.3 Support Resources
+TI E2E™ support forums are an engineer's go-to source for fast, verified answers and design help — straight
+from the experts. Search existing answers or ask your own question to get the quick design help you need.
+Linked content is provided "AS IS" by the respective contributors. They do not constitute TI specifications and do
+not necessarily reflect TI's views; see TI's Terms of Use.
+9.4 Trademarks
+NanoFree™ is a trademark of Texas Instruments.
+TI E2E™ is a trademark of Texas Instruments.
+All trademarks are the property of their respective owners.
+9.5 Electrostatic Discharge Caution
+                    This integrated circuit can be damaged by ESD. Texas Instruments recommends that all integrated circuits be handled
+                    with appropriate precautions. Failure to observe proper handling and installation procedures can cause damage.
+                    ESD damage can range from subtle performance degradation to complete device failure. Precision integrated circuits may
+                    be more susceptible to damage because very small parametric changes could cause the device not to meet its published
+                    specifications.
+
+
+9.6 Glossary
+ TI Glossary             This glossary lists and explains terms, acronyms, and definitions.
+
+10 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+Changes from Revision M (October 2022) to Revision N (June 2024)                                                                 Page
+• Updated the Power Supply Recommendations section................................................................................... 19
+
+
+
+Changes from Revision L (October 2022) to Revision M (October 2022)                                                              Page
+• Changed the TA operating free-air temperature back to 85°C .......................................................................... 4
+
+
+11 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical, packaging, and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+Copyright © 2024 Texas Instruments Incorporated                                                          Submit Document Feedback         21
+                                                    Product Folder Links: SN74LVC2T45
+                                                                                                                               PACKAGE OPTION ADDENDUM
+
+  www.ti.com                                                                                                                                                    23-Apr-2026
+
+
+
+
+PACKAGING INFORMATION
+
+ Orderable part number   Status   Material type   Package | Pins    Package qty | Carrier   RoHS      Lead finish/       MSL rating/       Op temp (°C)      Part marking
+                           (1)         (2)                                                   (3)      Ball material      Peak reflow                              (6)
+                                                                                                           (4)                (5)
+
+   SN74LVC2T45DCTR       Active    Production     SSOP (DCT) | 8     3000 | LARGE T&R        Yes          SN          Level-1-260C-UNLIM     -40 to 85           CT2
+                                                                                                                                                                (R, Z)
+  SN74LVC2T45DCTR.A      Active    Production     SSOP (DCT) | 8     3000 | LARGE T&R        Yes          SN          Level-1-260C-UNLIM     -40 to 85           CT2
+                                                                                                                                                                (R, Z)
+ SN74LVC2T45DCTRE4       Active    Production     SSOP (DCT) | 8     3000 | LARGE T&R        Yes          SN          Level-1-260C-UNLIM     -40 to 85           CT2
+                                                                                                                                                                (R, Z)
+   SN74LVC2T45DCTT       Active    Production     SSOP (DCT) | 8      250 | SMALL T&R        Yes          SN          Level-1-260C-UNLIM     -40 to 85           CT2
+                                                                                                                                                                (R, Z)
+  SN74LVC2T45DCTT.A      Active    Production     SSOP (DCT) | 8      250 | SMALL T&R        Yes          SN          Level-1-260C-UNLIM     -40 to 85           CT2
+                                                                                                                                                                (R, Z)
+ SN74LVC2T45DCTTG4       Active    Production     SSOP (DCT) | 8      250 | SMALL T&R        Yes          SN          Level-1-260C-UNLIM     -40 to 85           CT2
+                                                                                                                                                                (R, Z)
+   SN74LVC2T45DCUR       Active    Production     VSSOP (DCU) | 8    3000 | LARGE T&R        Yes      NIPDAU | SN     Level-1-260C-UNLIM     -40 to 85    (CT2J, CT2Q, CT2R,
+                                                                                                                                                                   T2)
+                                                                                                                                                                  CZ
+  SN74LVC2T45DCUR.A      Active    Production     VSSOP (DCU) | 8    3000 | LARGE T&R        Yes        NIPDAU        Level-1-260C-UNLIM     -40 to 85    (CT2J, CT2Q, CT2R,
+                                                                                                                                                                   T2)
+                                                                                                                                                                  CZ
+ SN74LVC2T45DCURE4       Active    Production     VSSOP (DCU) | 8    3000 | LARGE T&R        Yes        NIPDAU        Level-1-260C-UNLIM     -40 to 85          CT2R
+ SN74LVC2T45DCURG4       Active    Production     VSSOP (DCU) | 8    3000 | LARGE T&R        Yes        NIPDAU        Level-1-260C-UNLIM     -40 to 85          CT2R
+ SN74LVC2T45DCURG4.A     Active    Production     VSSOP (DCU) | 8    3000 | LARGE T&R        Yes        NIPDAU        Level-1-260C-UNLIM     -40 to 85          CT2R
+   SN74LVC2T45DCUT       Active    Production     VSSOP (DCU) | 8     250 | SMALL T&R        Yes      NIPDAU | SN     Level-1-260C-UNLIM     -40 to 85    (CT2J, CT2Q, CT2R,
+                                                                                                                                                                   T2)
+                                                                                                                                                                  CZ
+  SN74LVC2T45DCUT.A      Active    Production     VSSOP (DCU) | 8     250 | SMALL T&R        Yes        NIPDAU        Level-1-260C-UNLIM     -40 to 85    (CT2J, CT2Q, CT2R,
+                                                                                                                                                                   T2)
+                                                                                                                                                                  CZ
+ SN74LVC2T45DCUTG4       Active    Production     VSSOP (DCU) | 8     250 | SMALL T&R        Yes        NIPDAU        Level-1-260C-UNLIM     -40 to 85          CT2R
+ SN74LVC2T45DCUTG4.A     Active    Production     VSSOP (DCU) | 8     250 | SMALL T&R        Yes        NIPDAU        Level-1-260C-UNLIM     -40 to 85          CT2R
+ SN74LVC2T45DCUTG4.B     Active    Production     VSSOP (DCU) | 8     250 | SMALL T&R        Yes        NIPDAU        Level-1-260C-UNLIM     -40 to 85          CT2R
+   SN74LVC2T45YZPR       Active    Production     DSBGA (YZP) | 8    3000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 85        (TB, TB7)
+  SN74LVC2T45YZPR.B      Active    Production     DSBGA (YZP) | 8    3000 | LARGE T&R        Yes       SNAGCU         Level-1-260C-UNLIM     -40 to 85        (TB, TB7)
+
+
+
+
+                                                                                    Addendum-Page 1
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                    23-Apr-2026
+
+
+
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+OTHER QUALIFIED VERSIONS OF SN74LVC2T45 :
+
+• Automotive : SN74LVC2T45-Q1
+• Enhanced Product : SN74LVC2T45-EP
+
+NOTE: Qualified Version Definitions:
+
+           • Automotive - Q100 devices qualified for high-reliability automotive applications targeting zero defects
+           • Enhanced Product - Supports Defense, Aerospace and Medical Applications
+
+
+                                                                                                            Addendum-Page 2
+                                                                                                         PACKAGE OUTLINE
+YZP0008                                                             SCALE 8.000
+                                                                                                    DSBGA - 0.5 mm max height
+                                                                                                                DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                   B            E                         A
+
+
+
+
+                                     BALL A1
+                                    CORNER
+
+
+                                                                                          D
+
+
+
+
+                                                                                           C
+                                   0.5 MAX
+
+                                                                                                SEATING PLANE
+                                            0.19
+                                            0.15                                                0.05 C
+                                                                 BALL TYP
+
+                                                                                      0.5 TYP
+
+
+
+                                                       D
+
+
+
+
+                                                       C
+                                                                                        SYMM
+                                 1.5
+                                 TYP
+                                                                                                   D: Max = 1.918 mm, Min =1.858 mm
+                                                       B
+                                                                                                   E: Max = 0.918 mm, Min =0.858 mm
+                                             0.5
+                                             TYP
+                                                       A
+
+                                             0.25
+                                       8X                  1                      2
+                                             0.21
+                               0.015        C A B
+                                                               SYMM
+
+
+                                                                                                                        4223082/A 07/2016
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+
+
+
+
+                                                                                  www.ti.com
+                                                                                  EXAMPLE BOARD LAYOUT
+YZP0008                                                                                 DSBGA - 0.5 mm max height
+                                                                                                           DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                                  (0.5) TYP
+                                         8X ( 0.23)
+                                                              1               2
+
+
+                                                        A
+
+                                            (0.5) TYP
+
+
+
+                                                        B
+                                                                                    SYMM
+
+
+
+                                                        C
+
+
+
+
+                                                        D
+
+                                                                   SYMM
+
+
+
+                                                      LAND PATTERN EXAMPLE
+                                                                  SCALE:40X
+
+
+
+
+            SOLDER MASK                        0.05 MAX                0.05 MIN                      ( 0.23)
+                OPENING                                                                              SOLDER MASK
+                                                                                                     OPENING
+
+
+
+                                                 ( 0.23)
+                                                 METAL                                                METAL UNDER
+                                                                                                      SOLDER MASK
+                            NON-SOLDER MASK                                          SOLDER MASK
+                                DEFINED                                                DEFINED
+                              (PREFERRED)
+
+
+                                                        SOLDER MASK DETAILS
+                                                                  NOT TO SCALE
+
+                                                                                                                   4223082/A 07/2016
+
+NOTES: (continued)
+
+3. Final dimensions may vary due to manufacturing tolerance considerations and also routing constraints.
+   For more information, see Texas Instruments literature number SNVA009 (www.ti.com/lit/snva009).
+
+
+
+
+                                                                   www.ti.com
+                                                                                EXAMPLE STENCIL DESIGN
+YZP0008                                                                                  DSBGA - 0.5 mm max height
+                                                                                                        DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                              (0.5) TYP
+
+                                         8X ( 0.25)
+                                                                                    (R0.05) TYP
+                                                          1               2
+
+
+                                                      A
+
+                                             (0.5)
+                                             TYP
+
+
+                                                      B
+                                                                                 SYMM
+
+
+
+                                                      C
+
+
+                                        METAL
+                                          TYP
+
+
+                                                      D
+
+
+                                                                SYMM
+
+
+
+                                                     SOLDER PASTE EXAMPLE
+                                                 BASED ON 0.1 mm THICK STENCIL
+                                                          SCALE:40X
+
+
+
+
+                                                                                                                4223082/A 07/2016
+
+NOTES: (continued)
+
+4. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release.
+
+
+
+
+                                                                  www.ti.com
+                                                                                                             PACKAGE OUTLINE
+DCT0008A                                                         SCALE 3.500
+                                                                                                          SSOP - 1.3 mm max height
+                                                                                                                        SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                                                                              C
+                                          4.25
+                                               TYP
+                                          3.95                                                                SEATING PLANE
+              A                                  PIN 1 ID
+                                                 AREA                                                                    0.1 C
+
+                                                                                                6X 0.65
+                                                                                    8
+                     1
+
+
+
+            3.1                                                                                  2X
+            2.9                                                                                 1.95
+           NOTE 3
+
+
+
+                     4
+                                                                                5
+                                                                                                 0.30
+                                                                                           8X
+                                                                                                 0.15
+                                            3.1                                                   0.13    C A B               1.3
+                         B
+                                            2.9                                                                               1.0
+                                           NOTE 4
+
+
+
+
+                                          SEE DETAIL A                                     (0.15) TYP
+
+
+
+
+                                                                                               0.25
+                                                                                        GAGE PLANE
+
+
+
+
+                                                                                                                                           0.2
+                                                                                          0 -8                    0.6                      0.0
+                                                                                                                  0.2
+
+                                                                                                                        DETAIL A
+                                                                                                                         TYPICAL
+
+
+                                                                                                                                 4220784/D 10/2025
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+4. This dimension does not include interlead flash. Interlead flash shall not exceed 0.25 mm per side.
+
+
+
+
+                                                                               www.ti.com
+                                                                               EXAMPLE BOARD LAYOUT
+DCT0008A                                                                                 SSOP - 1.3 mm max height
+                                                                                                       SMALL OUTLINE PACKAGE
+
+
+
+
+                                             8X (1.1)
+                                                                 SYMM
+                                                                                                     (R0.05)
+                                         1                                                           TYP
+                                                                                                8
+
+                          8X (0.4)
+                                                                                                     SYMM
+
+
+
+                            6X (0.65)
+                                                                                                5
+                                         4
+
+                                                                  (3.8)
+
+
+                                                        LAND PATTERN EXAMPLE
+                                                          EXPOSED METAL SHOWN
+                                                               SCALE:15X
+
+
+
+
+               SOLDER MASK                                                METAL UNDER                 SOLDER MASK
+                                              METAL                                                   OPENING
+               OPENING                                                    SOLDER MASK
+
+
+                                                   EXPOSED METAL                                          EXPOSED METAL
+                                        0.07 MAX                                              0.07 MIN
+                                        ALL AROUND                                            ALL AROUND
+
+                           NON SOLDER MASK                                              SOLDER MASK
+                               DEFINED                                                    DEFINED
+
+                                                   SOLDER MASK DETAILS
+
+
+
+
+                                                                                                               4220784/D 10/2025
+
+NOTES: (continued)
+
+5. Publication IPC-7351 may have alternate designs.
+6. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+DCT0008A                                                                                   SSOP - 1.3 mm max height
+                                                                                                         SMALL OUTLINE PACKAGE
+
+
+
+
+                                            8X (1.1)              SYMM
+                                        1
+                                                                                                  8
+
+                          8X (0.4)
+                                                                                                      SYMM
+
+
+
+                            6X (0.65)
+                                                                                                  5
+                                        4
+
+                                                                   (3.8)
+
+
+                                                        SOLDER PASTE EXAMPLE
+                                                       BASED ON 0.125 mm THICK STENCIL
+                                                                  SCALE:15X
+
+
+
+
+                                                                                                                  4220784/D 10/2025
+
+NOTES: (continued)
+
+7. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+8. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                                                                                             PACKAGE OUTLINE
+DCU0008A                                                      SCALE 6.000
+                                                                                                          VSSOP - 0.9 mm max height
+                                                                                                                       SMALL OUTLINE PACKAGE
+
+
+
+
+                                   3.2
+                                       TYP                                                                               C
+                                   3.0
+       A
+                                                                                                                 0.1 C
+                                   PIN 1 INDEX AREA                                                                                    SEATING
+                                                                                         6X 0.5                                        PLANE
+                                                                            8
+             1
+
+
+                                                                                          2X
+     2.1
+                                                                                          1.5
+     1.9
+    NOTE 3
+
+
+
+              4
+                                                             5
+                                                                                        0.25
+                                                                                   8X
+                                                                                        0.17
+                                    2.4
+             B                                                                          0.08     C A B
+                                    2.2
+                                   NOTE 3
+
+
+
+
+                            SEE DETAIL A
+
+
+                                                                                                      0.12                              0.9
+                                                                                               GAGE PLANE                               0.6
+
+
+
+
+                                                                                                                                       0.1
+                                                                                                   0 -6         0.35                   0.0
+                                                     (0.13) TYP
+                                                                                                                0.20
+
+                                                                                                                       DETAIL A
+                                                                                                                          A 30
+
+
+
+
+                                                                                                                        TYPICAL
+
+
+
+
+                                                                                                                                 4225266/A 09/2014
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+4. Reference JEDEC registration MO-187 variation CA.
+
+
+
+
+                                                                                www.ti.com
+                                                                                   EXAMPLE BOARD LAYOUT
+DCU0008A                                                                                    VSSOP - 0.9 mm max height
+                                                                                                          SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                                                     SEE SOLDER MASK
+                                 8X (0.85)                            SYMM                           DETAILS
+
+                                                                                                                (R0.05) TYP
+
+                8X (0.3)   1                                                                              8
+
+
+
+
+                                                                                                              SYMM
+               6X (0.5)
+
+
+
+
+                           4                                                                              5
+
+
+
+
+                                                                      (3.1)
+
+
+
+
+                                                   LAND PATTERN EXAMPLE
+                                                      EXPOSED METAL SHOWN
+                                                           SCALE: 25X
+
+
+
+
+                     SOLDER MASK                                              METAL UNDER            SOLDER MASK
+                                                  METAL
+                         OPENING                                              SOLDER MASK            OPENING
+
+
+            EXPOSED METAL                                                                                     EXPOSED METAL
+
+                                       0.05 MAX                                                    0.05 MIN
+                                       ALL AROUND                                                  ALL AROUND
+
+                               NON-SOLDER MASK                                              SOLDER MASK
+                                   DEFINED                                                    DEFINED
+                                 (PREFERRED)
+                                                     SOLDER MASK DETAILS
+                                                             15.000
+
+
+
+
+                                                                                                                     4225266/A 09/2014
+NOTES: (continued)
+
+5. Publication IPC-7351 may have alternate designs.
+6. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                      www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+DCU0008A                                                                                VSSOP - 0.9 mm max height
+                                                                                                         SMALL OUTLINE PACKAGE
+
+
+
+
+                                 8X (0.85)
+                                                                SYMM
+                                                                                                                (R0.05) TYP
+
+                8X (0.3)    1                                                                             8
+
+
+
+
+                                                                                                              SYMM
+               6X (0.5)
+
+
+
+
+                            4                                                                             5
+
+
+
+
+                                                                 (3.1)
+
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                 BASED ON 0.125 mm THICK STENCIL
+                                                           SCALE: 25X
+
+
+
+
+                                                                                                                     4225266/A 09/2014
+NOTES: (continued)
+
+7. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+8. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                 www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2026, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

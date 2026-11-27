@@ -1,0 +1,3003 @@
+                                Product         Order        Technical           Tools &          Support &
+                                Folder          Now          Documents           Software         Community
+
+
+
+                                                                                                                     SN74AUP1G17
+                                                                                         SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017
+
+                         SN74AUP1G17 Low-Power Single Schmitt-Trigger Buffer
+1 Features                                                             3 Description
+1•   Latch-Up Performance Exceeds 100 mA Per                           The AUP family of devices is TI's premier solution to
+     JESD 78, Class II                                                 the industry's low-power needs in battery-powered
+                                                                       portable applications. This family ensures a very low
+•    ESD Performance Tested Per JESD 22                                static- and dynamic-power consumption across the
+     – 2000-V Human-Body Model                                         entire VCC range of 0.8 V to 3.6 V, resulting in
+          (A114-B, Class II)                                           increased battery life. This product also maintains
+     – 1000-V Charged-Device Model (C101)                              excellent signal integrity (see AUP – The Lowest-
+                                                                       Power Family and Excellent Signal Integrity).
+•    Available in the Texas Instruments NanoStar™
+     Package                                                           This device functions as an independent gate with
+                                                                       Schmitt-trigger inputs, which allows for slow input
+•    Low Static-Power Consumption
+                                                                       transition and better switching-noise immunity at the
+     (ICC = 0.9 µA Maximum)                                            input.
+•    Low Dynamic-Power Consumption
+     (Cpd = 4.4 pF Typical at 3.3 V)                                   NanoStar™ package technology is a major
+                                                                       breakthrough in IC packaging concepts, using the die
+•    Low Input Capacitance (Ci = 1.5 pF Typical)                       as the package.
+•    Low Noise – Overshoot and Undershoot
+                                                                       This device is fully specified for partial-power-down
+     <10% of VCC                                                       applications using Ioff. The Ioff circuitry disables the
+•    Ioff Supports Partial-Power-Down Mode Operation                   outputs when the device is powered down. This
+•    Includes Schmitt-Trigger Inputs                                   inhibits current backflow into the device which
+•    Wide Operating VCC Range of 0.8 V to 3.6 V                        prevents damage to the device.
+•    Optimized for 3.3-V Operation                                                          Device Information(1)
+•    3.6-V I/O Tolerant to Support Mixed-Mode Signal                        PART NUMBER            PACKAGE         BODY SIZE (NOM)
+     Operation                                                           SN74AUP1G17DBV         SOT-23 (5)        1.60 mm × 2.90 mm
+•    tpd = 5.1 ns Maximum at 3.3 V                                       SN74AUP1G17DCK         SC70 (5)          1.25 mm × 2.00 mm
+•    Suitable for Point-to-Point Applications                            SN74AUP1G17DRL         SOT-5X3 (5)       1.60 mm × 1.20 mm
+                                                                         SN74AUP1G17DRY         SON (6)           1.00 mm × 1.45 mm
+2 Applications                                                           SN74AUP1G17DSF         SON (6)           1.00 mm × 1.00 mm
+•    Grid Infrastructure                                                 SN74AUP1G17YFP         DSBGA (4)         0.76 mm × 0.76 mm
+•    PC & Notebooks                                                      SN74AUP1G17YZP         DSBGA (5)         0.89 mm × 1.39 mm
+•    Tablets                                                             SN74AUP1G17DPW         X2SON (5)         0.80 mm × 0.80 mm
+•    Factory Automation & Control                                        (1) For all available packages, see the orderable addendum at
+                                                                             the end of the data sheet.
+•    Gaming
+•    Server
+           Logic Diagram (Positive Logic)                                            Logic Diagram (Positive Logic)
+     (DBV, DCK, DPW, DRL, DRT, DRY, and YZP                                                  (YFP Package)
+                     Packages)
+                                                                                     1                                   3
+                                                                                 A                                           Y
+           2                                        4
+       A                                                 Y
+
+
+
+
+1
+
+
+
+
+       An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+       intellectual property matters and other important disclaimers. PRODUCTION DATA.
+SN74AUP1G17
+SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017                                                                                                                                      www.ti.com
+
+
+                                                                            Table of Contents
+    1    Features .................................................................. 1                   8     Detailed Description ............................................ 12
+    2    Applications ........................................................... 1                             8.1    Overview ................................................................. 12
+    3    Description ............................................................. 1                            8.2    Functional Block Diagrams ..................................... 12
+    4    Revision History..................................................... 2                                8.3    Feature Description................................................. 12
+                                                                                                                8.4    Device Functional Modes........................................ 13
+    5    Pin Configuration and Functions ......................... 3
+    6    Specifications......................................................... 4                       9     Application and Implementation ........................ 14
+                                                                                                                9.1 Application Information............................................ 14
+         6.1 Absolute Maximum Ratings ...................................... 4
+                                                                                                                9.2 Typical Application .................................................. 14
+         6.2 ESD Ratings.............................................................. 4
+         6.3 Recommended Operating Conditions....................... 4                                   10 Power Supply Recommendations ..................... 16
+         6.4 Thermal Information .................................................. 5                    11 Layout................................................................... 16
+         6.5 Electrical Characteristics........................................... 5                            11.1 Layout Guidelines ................................................. 16
+         6.6 Switching Characteristics: CL = 5 pF ........................ 7                                    11.2 Layout Example .................................................... 16
+         6.7 Switching Characteristics: CL = 10 pF ...................... 8                              12 Device and Documentation Support ................. 17
+         6.8 Switching Characteristics: CL = 15 pF ...................... 8                                     12.1     Documentation Support ........................................ 17
+         6.9 Switching Characteristics: CL = 30 pF ...................... 9                                     12.2     Receiving Notification of Documentation Updates 17
+         6.10 Operating Characteristics........................................ 9                               12.3     Community Resources.......................................... 17
+         6.11 Typical Characteristics ............................................ 9                            12.4     Trademarks ........................................................... 17
+    7    Parameter Measurement Information ................ 10                                                  12.5     Electrostatic Discharge Caution ............................ 17
+         7.1 Propagation Delays, Setup and Hold Times, and                                                      12.6     Glossary ................................................................ 17
+             Pulse Duration ......................................................... 10                 13 Mechanical, Packaging, and Orderable
+         7.2 Enable and Disable Times ...................................... 11                             Information ........................................................... 17
+
+
+
+4 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+
+Changes from Revision I (March 2010) to Revision J                                                                                                                                          Page
+
+•   Added Applications, Device Information table, Pin Configuration and Functions section, ESD Ratings table, Thermal
+    Information table, Feature Description section, Application and Implementation section, Power Supply
+    Recommendations section, Layout section, Device and Documentation Support section, and Mechanical,
+    Packaging, and Orderable Information section ...................................................................................................................... 1
+•   Deleted Ordering Information table, see Mechanical, Packaging, and Orderable Information at the end of the data
+    sheet ...................................................................................................................................................................................... 1
+
+
+
+
+2        Submit Documentation Feedback                                                                                       Copyright © 2004–2017, Texas Instruments Incorporated
+
+                                                                      Product Folder Links: SN74AUP1G17
+                                                                                                                                                               SN74AUP1G17
+www.ti.com                                                                                                         SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017
+
+
+5 Pin Configuration and Functions
+
+                            DBV Package
+                            5-Pin SOT-23                                                                                   DCK Package
+                              Top View                                                                                      5-Pin SC70
+                                                                                                                             Top View
+
+                 N.C.          1                     5                VCC                                           N.C.        1              5           VCC
+
+                                                                                                                      A         2
+                    A          2
+                                                                                                                   GND          3               4          Y
+
+                GND            3                     4                Y
+
+            N.C. – No internal connection.
+
+                           DRL Package
+                           5-Pin SOT-5X3                                                                                   DPW Package
+                              Top View                                                                                     5-Pin X2SON
+                                                                                                                             Top View
+                        N.C.       1             5           VCC                                                                NC                      VCC
+                          A        2
+                                                                                                                    GND
+                                                                                                                                 A                      Y
+                        GND        3             4           Y
+
+                            DRY Package
+                             6-Pin SON                                                                                     DSF Package
+                             Top View                                                                                       6-Pin SON
+                                                                                                                            Top View
+                        N.C.       1         6           VCC
+                                                                                                                        N.C.    1           6       VCC
+                           A       2         5           N.C.
+                                                                                                                           A    2           5       N.C.
+                        GND        3         4           Y
+                                                                                                                       GND      3           4       Y
+
+
+                            YFP Package
+                            4-Pin DSBGA                                                                                    YZP Package
+                            Bottom View                                                                                    5-Pin DSBGA
+                                                                                                                           Bottom View
+                                    1            2
+                                                                                                                                    1      2
+                           B   GND               Y
+                                                                                                                            C   GND        Y
+
+                           A       A         VCC                                                                            B       A
+                                       Not to scale
+                                                                                                                            A   DNU       VCC
+            See mechanical drawings for dimensions.
+                                                                                                                                    Not to scale
+
+                                                                                                          DNU – Do not use
+
+                                                                                     Pin Functions
+                                   PIN
+              DBV, DCK,                                                                   I/O                              DESCRIPTION
+NAME                           DRY, DSF                        YFP             YZP
+              DRL, DPW
+A                   2                    2                       A1             B1         I     Input
+DNU                —                    —                        —              A1        —      Do not use
+GND                 3                    3                       B1             C1        —      Ground
+                                         1
+N.C.                1                                            —              —         —      No connection
+                                         5
+VCC                 5                    6                       A2             A2        —      Positive supply
+Y                   4                    4                       B2             C2         O     Output
+
+Copyright © 2004–2017, Texas Instruments Incorporated                                                                      Submit Documentation Feedback                 3
+                                                                            Product Folder Links: SN74AUP1G17
+SN74AUP1G17
+SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017                                                                                              www.ti.com
+
+
+6 Specifications
+6.1 Absolute Maximum Ratings
+over operating free-air temperature range (unless otherwise noted) (1)
+                                                                                                                MIN          MAX             UNIT
+VCC            Supply voltage                                                                                   –0.5            4.6            V
+                               (2)
+VI             Input voltage                                                                                    –0.5            4.6            V
+VO             Voltage range applied to any output in the high-impedance or power-off state (2)                 –0.5            4.6            V
+VO             Output voltage range in the high or low state (2)                                                –0.5      VCC + 0.5            V
+IIK            Input clamp current                                     VI < 0                                                   –50           mA
+IOK            Output clamp current                                    VO < 0                                                   –50           mA
+IO             Continuous output current                                                                                        ±20           mA
+               Continuous current through VCC or GND                                                                            ±50           mA
+Tj             Junction temperature                                                                                             150           °C
+Tstg           Storage temperature                                                                              –65             150           °C
+
+(1)    Stresses beyond those listed under Absolute Maximum Ratings may cause permanent damage to the device. These are stress ratings
+       only, which do not imply functional operation of the device at these or any other conditions beyond those indicated under Recommended
+       Operating Conditions. Exposure to absolute-maximum-rated conditions for extended periods may affect device reliability.
+(2)    The input and output negative-voltage ratings may be exceeded if the input and output current ratings are observed.
+
+6.2 ESD Ratings
+                                                                                                                          VALUE              UNIT
+                                           Human-body model (HBM), per ANSI/ESDA/JEDEC JS-001 (1)                           2000
+V(ESD)      Electrostatic discharge                                                                                                            V
+                                           Charged-device model (CDM), per JEDEC specification JESD22-C101 (2)              1000
+
+(1)    JEDEC document JEP155 states that 500-V HBM allows safe manufacturing with a standard ESD control process.
+(2)    JEDEC document JEP157 states that 250-V CDM allows safe manufacturing with a standard ESD control process.
+
+6.3 Recommended Operating Conditions
+See (1)
+                                                                                                                          MIN         MAX      UNIT
+VCC        Supply voltage                                                                                                  0.8        3.6          V
+VI         Input voltage                                                                                                    0         3.6          V
+VO         Output voltage                                                                                                   0         VCC          V
+                                                                                VCC = 0.8 V                                           –20          µA
+                                                                                VCC = 1.1 V                                           –1.1
+                                                                                VCC = 1.4 V                                           –1.7
+IOH (2)    High-level output current
+                                                                                VCC = 1.65                                            –1.9      mA
+                                                                                VCC = 2.3 V                                           –3.1
+                                                                                VCC = 3 V                                             –4
+                                                                                VCC = 0.8 V                                           20           µA
+                                                                                VCC = 1.1 V                                           1.1
+                                                                                VCC = 1.4 V                                           1.7
+IOL (2)    Low-level output current
+                                                                                VCC = 1.65 V                                          1.9       mA
+                                                                                VCC = 2.3 V                                           3.1
+                                                                                VCC = 3 V                                              4
+TA         Operating free-air temperature                                                                                 –40         85           °C
+
+(1)    All unused inputs of the device must be held at VCC or GND to ensure proper device operation. See Implications of Slow or Floating
+       CMOS Inputs.
+(2)    Defined by the signal-integrity requirements and design-goal priorities
+
+
+
+
+4         Submit Documentation Feedback                                                        Copyright © 2004–2017, Texas Instruments Incorporated
+
+                                                       Product Folder Links: SN74AUP1G17
+                                                                                                                                 SN74AUP1G17
+www.ti.com                                                                                        SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017
+
+
+6.4 Thermal Information
+                                                                                    SN74AUP1G17
+                                                 DBV       DCK       DRL         DPW         DRY          DSF         YFP           YZP
+            THERMAL METRIC (1)                                                                                                                UNIT
+                                               (SOT-23)   (SC70)   (SOT-5X3)   (X2SON)      (SON)        (SON)      (DSBGA)       (DSBGA)
+                                               5 PINS     5 PINS    5 PINS     5 PINS      6 PINS       6 PINS          4 PINS     5 PINS
+            Junction-to-ambient thermal
+RθJA                                            267.2     284.1      294.7      489.2       347.8        386.2          179.3      146.2      °C/W
+            resistance
+            Junction-to-case (top) thermal
+RθJC(top)                                       191.9     208.5      132.5      226.3       237.7        192.9           2.8        1.4       °C/W
+            resistance
+            Junction-to-board thermal
+RθJB                                            101.1     103.1      143.6      352.9       210.6        242.2           58.3       39.3      °C/W
+            resistance
+            Junction-to-top characterization
+ψJT                                              83.0      76.6      14.5       38.2         64.4         28.9           1.1        0.7       °C/W
+            parameter
+            Junction-to-board
+ψJB                                             100.8     102.3      144.1      352.1       210.6        241.9           58.6       39.8      °C/W
+            characterization parameter
+            Junction-to-case (bottom)
+RθJC(bot)                                        N/A       N/A       N/A        150.8        N/A          N/A            N/A        N/A       °C/W
+            thermal resistance
+
+(1)    For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+       report.
+
+6.5 Electrical Characteristics
+over operating free-air temperature range (unless otherwise noted)
+      PARAMETER                                TEST CONDITIONS                            VCC                    MIN      TYP    MAX        UNIT
+                          TA = 25°C                                                                               0.3              0.6
+                                                                                         0.8 V
+                          TA = –40°C to +85°C                                                                     0.3              0.6
+                          TA = 25°C                                                                              0.53              0.9
+                                                                                         1.1 V
+                          TA = –40°C to +85°C                                                                    0.53              0.9
+                          TA = 25°C                                                                              0.74             1.11
+VT+                                                                                      1.4 V
+Positive-going            TA = –40°C to +85°C                                                                    0.74             1.11
+                                                                                                                                             V
+input threshold           TA = 25°C                                                                              0.91             1.29
+voltage                                                                                  1.65 V
+                          TA = –40°C to +85°C                                                                    0.91             1.29
+                          TA = 25°C                                                                              1.37             1.77
+                                                                                         2.3 V
+                          TA = –40°C to +85°C                                                                    1.37             1.77
+                          TA = 25°C                                                                              1.88             2.29
+                                                                                          3V
+                          TA = –40°C to +85°C                                                                    1.88             2.29
+                          TA = 25°C                                                                               0.1              0.6
+                                                                                         0.8 V
+                          TA = –40°C to +85°C                                                                     0.1              0.6
+                          TA = 25°C                                                                              0.26             0.65
+                                                                                         1.1 V
+                          TA = –40°C to +85°C                                                                    0.26             0.65
+                          TA = 25°C                                                                              0.39             0.75
+VT–                                                                                      1.4 V
+Negative-going            TA = –40°C to +85°C                                                                    0.39             0.75
+                                                                                                                                             V
+input threshold           TA = 25°C                                                                              0.47             0.84
+voltage                                                                                  1.65 V
+                          TA = –40°C to +85°C                                                                    0.47             0.84
+                          TA = 25°C                                                                              0.69             1.04
+                                                                                         2.3 V
+                          TA = –40°C to +85°C                                                                    0.69             1.04
+                          TA = 25°C                                                                              0.88             1.24
+                                                                                          3V
+                          TA = –40°C to +85°C                                                                    0.88             1.24
+
+
+
+
+Copyright © 2004–2017, Texas Instruments Incorporated                                                   Submit Documentation Feedback                5
+                                                          Product Folder Links: SN74AUP1G17
+SN74AUP1G17
+SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017                                                                                 www.ti.com
+
+
+Electrical Characteristics (continued)
+over operating free-air temperature range (unless otherwise noted)
+    PARAMETER                       TEST CONDITIONS                           VCC                    MIN     TYP      MAX       UNIT
+                    TA = 25°C                                                                       0.07                0.5
+                                                                             0.8 V
+                    TA = –40°C to +85°C                                                             0.07                0.5
+                    TA = 25°C                                                                       0.08              0.46
+                                                                             1.1 V
+                    TA = –40°C to +85°C                                                             0.08              0.46
+                    TA = 25°C                                                                       0.18              0.56
+                                                                             1.4 V
+ΔVT                 TA = –40°C to +85°C                                                             0.18              0.56
+Hysteresis                                                                                                                        V
+(VT+ – VT–)         TA = 25°C                                                                       0.27              0.66
+                                                                            1.65 V
+                    TA = –40°C to +85°C                                                             0.27              0.66
+                    TA = 25°C                                                                       0.53              0.92
+                                                                             2.3 V
+                    TA = –40°C to +85°C                                                             0.53              0.92
+                    TA = 25°C                                                                       0.79              1.31
+                                                                              3V
+                    TA = –40°C to +85°C                                                             0.79              1.31
+                                                 TA = 25°C                                     VCC – 0.1
+                    IOH = –20 µA                                         0.8 V to 3.6 V
+                                                 TA = –40°C to +85°C                           VCC – 0.1
+                                                 TA = 25°C                                   0.75 × VCC
+                    IOH = –1.1 mA                                            1.1 V
+                                                 TA = –40°C to +85°C                           0.7 × VCC
+                                                 TA = 25°C                                          1.11
+                    IOH = –1.7 mA                                            1.4 V
+                                                 TA = –40°C to +85°C                                1.03
+                                                 TA = 25°C                                          1.32
+                    IOH = –1.9 mA                                           1.65 V
+                                                 TA = –40°C to +85°C                                  1.3
+VOH                                                                                                                               V
+                                                 TA = 25°C                                          2.05
+                    IOH = –2.3 mA
+                                                 TA = –40°C to +85°C                                1.97
+                                                                             2.3 V
+                                                 TA = 25°C                                            1.9
+                    IOH = –3.1 mA
+                                                 TA = –40°C to +85°C                                1.85
+                                                 TA = 25°C                                          2.72
+                    IOH = –2.7 mA
+                                                 TA = –40°C to +85°C                                2.67
+                                                                              3V
+                                                 TA = 25°C                                            2.6
+                    IOH = –4 mA
+                                                 TA = –40°C to +85°C                                2.55
+                                                 TA = 25°C                                                              0.1
+                    IOL = 20 µA                                          0.8 V to 3.6 V
+                                                 TA = –40°C to +85°C                                                    0.1
+                                                                                                                      0.3 ×
+                                                 TA = 25°C
+                                                                                                                       VCC
+                    IOL = 1.1 mA                                             1.1 V
+                                                                                                                      0.3 ×
+                                                 TA = –40°C to +85°C
+                                                                                                                       VCC
+                                                 TA = 25°C                                                            0.31
+                    IOL = 1.7 mA                                             1.4 V
+                                                 TA = –40°C to +85°C                                                  0.37
+                                                 TA = 25°C                                                            0.31
+                    IOL = 1.9 mA                                            1.65 V
+VOL                                              TA = –40°C to +85°C                                                  0.35        V
+                                                 TA = 25°C                                                            0.31
+                    IOL = 2.3 mA
+                                                 TA = –40°C to +85°C                                                  0.33
+                                                                             2.3 V
+                                                 TA = 25°C                                                            0.44
+                    IOL = 3.1 mA
+                                                 TA = –40°C to +85°C                                                  0.45
+                                                 TA = 25°C                                                            0.31
+                    IOL = 2.7 mA
+                                                 TA = –40°C to +85°C                                                  0.33
+                                                                              3V
+                                                 TA = 25°C                                                            0.44
+                    IOL = 4 mA
+                                                 TA = –40°C to +85°C                                                  0.45
+
+
+
+6      Submit Documentation Feedback                                                 Copyright © 2004–2017, Texas Instruments Incorporated
+
+                                                Product Folder Links: SN74AUP1G17
+                                                                                                                                    SN74AUP1G17
+www.ti.com                                                                                       SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017
+
+
+Electrical Characteristics (continued)
+over operating free-air temperature range (unless otherwise noted)
+       PARAMETER                          TEST CONDITIONS                                 VCC                   MIN       TYP       MAX     UNIT
+                                                         TA = 25°C                                                                    0.1
+II       A inputs      VI = GND to 3.6 V                                              0 V to 3.6 V                                          µA
+                                                         TA = –40°C to +85°C                                                          0.5
+                                                         TA = 25°C                                                                    0.2
+Ioff                   VI or VO = 0 V to 3.6 V                                            0V                                                µA
+                                                         TA = –40°C to +85°C                                                          0.6
+                                                         TA = 25°C                                                                    0.2
+ΔIoff                  VI or VO = 0 V to 3.6 V                                        0 V to 0.2 V                                          µA
+                                                         TA = –40°C to +85°C                                                          0.6
+                       VI = GND or (VCC to 3.6 V),       TA = 25°C                                                                    0.5
+ICC                                                                                  0.8 V to 3.6 V                                         µA
+                       IO = 0                            TA = –40°C to +85°C                                                          0.9
+                                                         TA = 25°C                                                                    40
+ΔICC                   VI = VCC 0.6 V, IO = 0                                            3.3 V                                              µA
+                                                         TA = –40°C to +85°C                                                          50
+                                                                                          0V                              1.5
+Ci                     VI = VCC or GND                                                                                                       pF
+                                                                                         3.6 V                            1.5
+Co                     VO = GND                                                           0V                              2.5                pF
+
+
+6.6 Switching Characteristics: CL = 5 pF
+over recommended operating free-air temperature range, CL = 5 pF (unless otherwise noted) (see Figure 3 and Figure 4)
+                             FROM                   TO
+       PARAMETER                                                             TEST CONDITIONS                      MIN     TYP MAX           UNIT
+                            (INPUT)              (OUTPUT)
+                                                               VCC = 0.8 V                TA = 25°C                       22.7
+                                                                                          TA = 25°C                6.3          8    12.8
+                                                               VCC = 1.2 V ± 0.1 V        TA = –40°C to
+                                                                                                                   3.9               14.6
+                                                                                          +85°C
+                                                                                          TA = 25°C                4.6     5.8        8.4
+                                                               VCC = 1.5 V ± 0.1 V        TA = –40°C to
+                                                                                                                   2.8                10
+                                                                                          +85°C
+                                                                                          TA = 25°C                3.9     4.8        7.2
+tpd                             A                   Y                                                                                        ns
+                                                               VCC = 1.8 V ± 0.15 V       TA = –40°C to
+                                                                                                                   2.4                8.1
+                                                                                          +85°C
+                                                                                          TA = 25°C                3.1     3.6        5.1
+                                                               VCC = 2.5 V ± 0.2 V        TA = –40°C to
+                                                                                                                      2               6.1
+                                                                                          +85°C
+                                                                                          TA = 25°C                2.7          3     4.4
+                                                               VCC = 3.3 V ± 0.3 V        TA = –40°C to
+                                                                                                                   1.9                5.1
+                                                                                          +85°C
+
+
+
+
+Copyright © 2004–2017, Texas Instruments Incorporated                                                     Submit Documentation Feedback            7
+                                                        Product Folder Links: SN74AUP1G17
+SN74AUP1G17
+SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017                                                                                    www.ti.com
+
+
+6.7 Switching Characteristics: CL = 10 pF
+over recommended operating free-air temperature range, CL = 10 pF (unless otherwise noted) (see Figure 3 and Figure 4)
+                          FROM              TO
+      PARAMETER                                                          TEST CONDITIONS                   MIN    TYP MAX          UNIT
+                         (INPUT)         (OUTPUT)
+                                                           VCC = 0.8 V            TA = 25°C                       25.1
+                                                                                  TA = 25°C                 7.1    9.1   13.8
+                                                           VCC = 1.2 V ± 0.1 V    TA = –40°C to
+                                                                                                            4.7          15.6
+                                                                                  +85°C
+                                                                                  TA = 25°C                 5.2    6.5     9.4
+                                                           VCC = 1.5 V ± 0.1 V    TA = –40°C to
+                                                                                                            3.4            11
+                                                                                  +85°C
+                                                                                  TA = 25°C                 4.5    5.4       8
+tpd                         A                   Y                                                                                   ns
+                                                           VCC = 1.8 V ± 0.15 V   TA = –40°C to
+                                                                                                            2.9              9
+                                                                                  +85°C
+                                                                                  TA = 25°C                 3.5    4.2     5.7
+                                                           VCC = 2.5 V ± 0.2 V    TA = –40°C to
+                                                                                                            2.4            6.8
+                                                                                  +85°C
+                                                                                  TA = 25°C                 3.1    3.5     4.9
+                                                           VCC = 3.3 V ± 0.3 V    TA = –40°C to
+                                                                                                            2.2            5.7
+                                                                                  +85°C
+
+
+
+6.8 Switching Characteristics: CL = 15 pF
+over recommended operating free-air temperature range, CL = 15 pF (unless otherwise noted) (see Figure 3 and Figure 4)
+                          FROM              TO
+      PARAMETER                                                          TEST CONDITIONS                   MIN    TYP MAX          UNIT
+                         (INPUT)         (OUTPUT)
+                                                           VCC = 0.8 V            TA = 25°C                       27.6
+                                                                                  TA = 25°C                 7.8   10.1   14.8
+                                                           VCC = 1.2 V ± 0.1 V    TA = –40°C to
+                                                                                                            5.3          16.7
+                                                                                  +85°C
+                                                                                  TA = 25°C                 5.8    7.4   10.3
+                                                           VCC = 1.5 V ± 0.1 V    TA = –40°C to
+                                                                                                            3.9            12
+                                                                                  +85°C
+                                                                                  TA = 25°C                   5    6.1     8.8
+tpd                         A                   Y                                                                                   ns
+                                                           VCC = 1.8 V ± 0.15 V   TA = –40°C to
+                                                                                                            3.4            10
+                                                                                  +85°C
+                                                                                  TA = 25°C                   4    4.7     6.4
+                                                           VCC = 2.5 V ± 0.2 V    TA = –40°C to
+                                                                                                            2.8            7.5
+                                                                                  +85°C
+                                                                                  TA = 25°C                 3.5    4.1     5.4
+                                                           VCC = 3.3 V ± 0.3 V    TA = –40°C to
+                                                                                                            2.6            6.2
+                                                                                  +85°C
+
+
+
+
+8        Submit Documentation Feedback                                                  Copyright © 2004–2017, Texas Instruments Incorporated
+
+                                                    Product Folder Links: SN74AUP1G17
+                                                                                                                                                                        SN74AUP1G17
+www.ti.com                                                                                                                     SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017
+
+
+6.9 Switching Characteristics: CL = 30 pF
+over recommended operating free-air temperature range, CL = 30 pF (unless otherwise noted) (see Figure 3 and Figure 4)
+                                    FROM                      TO
+      PARAMETER                                                                             TEST CONDITIONS                                            MIN      TYP MAX              UNIT
+                                   (INPUT)                 (OUTPUT)
+                                                                              VCC = 0.8 V                           TA = 25°C                                   35.1
+                                                                                                                    TA = 25°C                            10     13.1     18.1
+                                                                              VCC = 1.2 V ± 0.1 V                   TA = –40°C to
+                                                                                                                                                        7.5              19.8
+                                                                                                                    +85°C
+                                                                                                                    TA = 25°C                           7.4      9.6     12.9
+                                                                              VCC = 1.5 V ± 0.1 V                   TA = –40°C to
+                                                                                                                                                        5.6              14.9
+                                                                                                                    +85°C
+                                                                                                                    TA = 25°C                           6.4      7.9      11
+tpd                                      A                         Y                                                                                                                  ns
+                                                                              VCC = 1.8 V ± 0.15 V                  TA = –40°C to
+                                                                                                                                                        4.8              12.4
+                                                                                                                    +85°C
+                                                                                                                    TA = 25°C                           5.2      6.1      7.9
+                                                                              VCC = 2.5 V ± 0.2 V                   TA = –40°C to
+                                                                                                                                                          4               9.3
+                                                                                                                    +85°C
+                                                                                                                    TA = 25°C                           4.6      5.3      6.7
+                                                                              VCC = 3.3 V ± 0.3 V                   TA = –40°C to
+                                                                                                                                                        3.6               7.7
+                                                                                                                    +85°C
+
+
+
+6.10 Operating Characteristics
+TA = 25°C
+                                      PARAMETER                                                TEST CONDITIONS                                            VCC                 TYP     UNIT
+                                                                                                                                                         0.8 V                 4
+                                                                                                                                                     1.2 V ± 0.1 V             4
+                                                                                                                                                     1.5 V ± 0.1 V             4
+Cpd        Power dissipation capacitance                                                             f = 10 MHz                                                                        pF
+                                                                                                                                                    1.8 V ± 0.15 V             4
+                                                                                                                                                     2.5 V ± 0.2 V            4.2
+                                                                                                                                                     3.3 V ± 0.3 V            4.4
+
+
+6.11 Typical Characteristics
+
+             Static-Power Consumption                Dynamic-Power Consumption                                                         Switching Characteristics
+                           (mA)                                (pF)                                                                              at 25 MHz†
+         100%                                  100%                                                                 3.5
+         80%                                       80%
+                                                                                                                     3
+                                                                                                                    2.5
+
+
+
+                                                                                                     Voltage − V
+         60%                                       60%                                                                2       Input          Output
+                      3.3-V                                3.3-V
+                                                           LVC
+                     Logic†                               Logic†                                                    1.5
+         40%                                       40%
+                                                                                                                      1
+         20%                                       20%                                                              0.5
+                                   AUP                                  AUP                                           0
+          0%                                       0%
+                † Single, dual, and triple gates                                                                   −0.5
+                                                                                                                          0     5     10     20 25 30
+                                                                                                                                            15                     35    40     45
+                                                                                                                                             Time − ns
+                                                                                                                          † AUP1G08 data at C = 15 pF
+                                                                                                                                              L
+                    Figure 1. AUP – The Lowest-Power Family                                                                   Figure 2. Excellent Signal Integrity
+
+
+
+
+Copyright © 2004–2017, Texas Instruments Incorporated                                                                                      Submit Documentation Feedback                     9
+                                                                       Product Folder Links: SN74AUP1G17
+SN74AUP1G17
+SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017                                                                                             www.ti.com
+
+
+7 Parameter Measurement Information
+7.1 Propagation Delays, Setup and Hold Times, and Pulse Duration
+                                                       From Output
+                                                         Under Test
+
+                                                                     CL                1 MW
+                                                            (see Note A)
+
+
+
+                                                                           LOAD CIRCUIT
+
+
+                                              VCC = 1.2 V            VCC = 1.5 V     VCC = 1.8 V         VCC = 2.5 V           VCC = 3.3 V
+                           VCC = 0.8 V
+                                                ± 0.1 V                ± 0.1 V        ± 0.15 V             ± 0.2 V               ± 0.3 V
+                 CL       5, 10, 15, 30 pF   5, 10, 15, 30 pF   5, 10, 15, 30 pF    5, 10, 15, 30 pF   5, 10, 15, 30 pF      5, 10, 15, 30 pF
+                 VM            VCC/2              VCC/2              VCC/2               VCC/2              VCC/2                 VCC/2
+                 VI             VCC                VCC                VCC                 VCC                VCC                   VCC
+
+
+
+                                                                                                                tw
+
+                                                                                                                                             VCC
+                                                                                   Input               VCC/2                     VCC/2
+                                                                VI
+                                                                                                                                             0V
+        Input                 VM               VM
+                                                                0V                                     VOLTAGE WAVEFORMS
+                                                                                                         PULSE DURATION
+                   tPLH                                 tPHL
+                                                                VOH
+                                                                                                                                             VCC
+       Output                        VM               VM
+                                                                             Timing Input                            VCC/2
+                                                                VOL
+                                                                                                                                             0V
+                   tPHL                                 tPLH
+                                                                                                          tsu          th
+                                                                VOH
+       Output                        VM               VM                                                                                     VCC
+                                                                VOL            Data Input                VCC/2                    VCC/2
+                                                                                                                                             0V
+                        VOLTAGE WAVEFORMS
+                     PROPAGATION DELAY TIMES                                                         VOLTAGE WAVEFORMS
+                INVERTING AND NONINVERTING OUTPUTS                                                  SETUP AND HOLD TIMES
+
+     NOTES: A.    CL includes probe and jig capacitance.
+            B.    All input pulses are supplied by generators having the following characteristics: PRR≤ 10 MHz, ZO = 50 W, tr/tf = 3 ns.
+            C.    The outputs are measured one at a time, with one transition per measurement.
+            D.    tPLH and tPHL are the same as tpd.
+            E.    All parameters and waveforms are not applicable to all devices.
+
+                                         Figure 3. Load Circuit And Voltage Waveforms
+
+
+
+
+10      Submit Documentation Feedback                                                          Copyright © 2004–2017, Texas Instruments Incorporated
+
+                                                     Product Folder Links: SN74AUP1G17
+                                                                                                                                    SN74AUP1G17
+www.ti.com                                                                                           SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017
+
+
+7.2 Enable and Disable Times
+                                                                      2 × VCC
+                                             5 kW             S1
+       From Output
+         Under Test                                                    GND                               TEST             S1
+                    CL                                                                                tPLZ/tPZL        2 × VCC
+           (see Note A)                  5 kW
+                                                                                                      tPHZ/tPZH         GND
+
+
+
+
+                             LOAD CIRCUIT
+
+
+
+                                                VCC = 1.2 V         VCC = 1.5 V        VCC = 1.8 V          VCC = 2.5 V          VCC = 3.3 V
+                           VCC = 0.8 V
+                                                  ± 0.1 V             ± 0.1 V           ± 0.15 V              ± 0.2 V              ± 0.3 V
+                CL        5, 10, 15, 30 pF   5, 10, 15, 30 pF      5, 10, 15, 30 pF   5, 10, 15, 30 pF    5, 10, 15, 30 pF     5, 10, 15, 30 pF
+                VM             VCC/2              VCC/2                 VCC/2              VCC/2               VCC/2                VCC/2
+                VI              VCC                VCC                   VCC                VCC                 VCC                  VCC
+                VD             0.1 V              0.1 V                 0.1 V              0.15 V              0.15 V               0.3 V
+
+
+
+                                                                                                          VCC
+                                             Output
+                                                                     VCC/2            VCC/2
+                                             Control
+                                                                                                          0V
+
+                                                        tPZL                                  tPLZ
+                                             Output
+                                                                                                          VCC
+                                        Waveform 1
+                                                                          VCC/2
+                                       S1 at 2 × VCC                                     VOL + VD
+                                       (see Note B)                                                       VOL
+
+                                                        tPZH                                  tPHZ
+                                            Output
+                                                                                                          VOH
+                                        Waveform 2                                       VOH − VD
+                                                                          VCC/2
+                                         S1 at GND
+                                       (see Note B)                                                       ≈0 V
+
+                                                               VOLTAGE WAVEFORMS
+                                                             ENABLE AND DISABLE TIMES
+                                                           LOW- AND HIGH-LEVEL ENABLING
+
+
+   NOTES: A. CL includes probe and jig capacitance.
+          B. Waveform 1 is for an output with internal conditions such that the output is low, except when disabled by the output control.
+             Waveform 2 is for an output with internal conditions such that the output is high, except when disabled by the output control.
+          C. All input pulses are supplied by generators having the following characteristics: PRR≤ 10 MHz, ZO = 50 W, tr/tf = 3 ns.
+          D. The outputs are measured one at a time, with one transition per measurement.
+          E. tPLZ and tPHZ are the same as tdis.
+          F. t PZL and tPZH are the same as ten.
+          G. All parameters and waveforms are not applicable to all devices.
+
+                                          Figure 4. Load Circuit And Voltage Waveforms
+
+
+
+
+Copyright © 2004–2017, Texas Instruments Incorporated                                                      Submit Documentation Feedback          11
+                                                        Product Folder Links: SN74AUP1G17
+SN74AUP1G17
+SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017                                                                               www.ti.com
+
+
+8 Detailed Description
+
+8.1 Overview
+This device functions as an independent gate with Schmitt-trigger inputs, which allows for slow input transition
+and better switching-noise immunity at the input.
+The AUP family is TI's premier solution to the industry's low power needs in battery-powered portable
+applications. This family assures a very low static and dynamic power consumption across the entire VCC range
+of 0.8 V to 3.6 V, resulting in an increased battery life.
+This device is fully specified for partial-power-down applications using Ioff. The Ioff circuitry disables the outputs
+when the device is powered down. This inhibits current backflow into the device which prevents damage to the
+device and excess power consumption.
+
+8.2 Functional Block Diagrams
+
+                                            2                                       4
+                                        A                                                   Y
+
+
+
+                                     Figure 5. Logic Diagram (Positive Logic)
+                               (DBV, DCK, DPW, DRL, DRT, DRY, and YZP Packages)
+
+                                                1                               3
+                                            A                                           Y
+
+
+
+                                       Figure 6. Logic Diagram (Positive Logic)
+                                                   (YFP Package)
+
+
+8.3 Feature Description
+8.3.1 Balanced High-Drive CMOS Push-Pull Outputs
+A balanced output allows the device to sink and source similar currents. The high drive capability of this device
+creates fast edges into light loads so routing and load conditions should be considered to prevent ringing.
+Additionally, the outputs of this device are capable of driving larger currents than the device can sustain without
+being damaged. It is important for the power output of the device to be limited to avoid thermal runaway and
+damage due to over-current. The electrical and thermal limits defined the in the Absolute Maximum Ratings table
+must be followed at all times.
+
+8.3.2 Standard CMOS Inputs
+Standard CMOS inputs are high impedance and are typically modelled as a resistor in parallel with the input
+capacitance given in the Electrical Characteristics table. The worst case resistance is calculated with the
+maximum input voltage, given in the Absolute Maximum Ratings table, and the maximum input leakage current,
+given in the Electrical Characteristics table, using ohm's law (R = V ÷ I).
+Signals applied to the inputs need to have fast edge rates, as defined by Δt/Δv in Recommended Operating
+Conditions table to avoid excessive currents and oscillations. If a slow or noisy input signal is required, a device
+with a Schmitt-trigger input should be used to condition the input signal prior to the standard CMOS input.
+
+
+
+
+12     Submit Documentation Feedback                                                Copyright © 2004–2017, Texas Instruments Incorporated
+
+                                                Product Folder Links: SN74AUP1G17
+                                                                                                                               SN74AUP1G17
+www.ti.com                                                                                          SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017
+
+
+Feature Description (continued)
+8.3.3 Clamp Diodes
+The inputs and outputs to this device have negative clamping diodes.
+
+                                                                          CAUTION
+                 Voltages beyond the values specified in the Absolute Maximum Ratings table can
+                 cause damage to the device. The input negative-voltage and output voltage ratings
+                 may be exceeded if the input and output clamp-current ratings are observed.
+
+
+                                                                            VCC
+                                                            Device
+
+
+
+
+                                                  Input                    Logic                Output
+
+                                                           -IIK                          -IOK
+
+
+
+                                                                           GND
+
+                    Figure 7. Electrical Placement of Clamping Diodes for Each Input and Output
+
+8.3.4 Partial Power Down (Ioff)
+The inputs and outputs for this device enter a high impedance state when the supply voltage is 0 V. The
+maximum leakage into or out of any input or output pin on the device is specified by Ioff in the Electrical
+Characteristics table.
+
+8.3.5 Over-Voltage Tolerant Inputs
+Input signals to this device can be driven above the supply voltage so long as they remain below the maximum
+input voltage value specified in the Absolute Maximum Ratings table.
+
+8.4 Device Functional Modes
+Table 1 lists the functional modes of the SN74AUP1G17 device.
+
+                                                             Table 1. Function Table
+                                                                  INPUT            OUTPUT
+                                                                    A                Y
+                                                                   H                 H
+                                                                    L                L
+
+
+
+
+Copyright © 2004–2017, Texas Instruments Incorporated                                                     Submit Documentation Feedback       13
+                                                          Product Folder Links: SN74AUP1G17
+SN74AUP1G17
+SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017                                                                               www.ti.com
+
+
+9 Application and Implementation
+
+                                                        NOTE
+            Information in the following applications sections is not part of the TI component
+            specification, and TI does not warrant its accuracy or completeness. TI’s customers are
+            responsible for determining suitability of components for their purposes. Customers should
+            validate and test their design implementation to confirm system functionality.
+
+
+9.1 Application Information
+There are many situations in which a device needs to be initialized or held off for a short time at system turn-on.
+This application of the SN74AUP1G17 utilizes the delay created in an RC circuit to hold a line low for a short
+time when the system is first started, then maintains the line high while the system operates. The SN74AUP1G17
+is ideal for this application because it must be tied directly to the primary supply for correct operation and is
+designed to draw minimal supply current during operation.
+
+9.2 Typical Application
+                                                         VCC
+
+
+
+                                                                         VO
+                                                    VC
+
+
+                            Figure 8. Turn-On Pulse Generator (Normally High Output)
+
+9.2.1 Design Requirements
+This device uses CMOS technology and has balanced output drive. Take care to avoid bus contention because it
+can drive currents that would exceed maximum limits. The drive strength also creates fast edges into light loads,
+so routing and load conditions should be considered to prevent ringing.
+
+9.2.2 Detailed Design Procedure
+ 1. Recommended Input Conditions:
+    – For specified high and low levels, see (VT+ and VT-) in the Electrical Characteristics table.
+    – Inputs are overvoltage tolerant allowing them to go as high as (VI max) in the Absolute Maximum Ratings
+      table at any valid VCC.
+ 2. Recommended Output Conditions:
+    – Load currents should not exceed (IO max) per output and should not exceed (continuous current through
+      VCC or GND) total current for the part. These limits are located in the Absolute Maximum Ratings table.
+
+
+
+
+14     Submit Documentation Feedback                                                Copyright © 2004–2017, Texas Instruments Incorporated
+
+                                                Product Folder Links: SN74AUP1G17
+                                                                                                                                       SN74AUP1G17
+www.ti.com                                                                                                  SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017
+
+
+Typical Application (continued)
+9.2.3 Application Curve
+                                                              100%
+                                                              90%
+                                                              80%
+                                                              70%
+
+
+
+
+                                         Voltage (% of VCC)
+                                                              60%
+                                                              50%
+                                                              40%
+                                                              30%
+                                                              20%                                                VC
+                                                              10%                                                VCC
+                                                                                                                 VO
+                                                                 0
+                                                                     0 0.5 1 1.5 2 2.5 3 3.5 4 4.5 5 5.5 6 6.5 7
+                                                                                        Time (W)
+                                  Figure 9. Simulated Output Response to Supply Turn-On
+
+
+
+
+Copyright © 2004–2017, Texas Instruments Incorporated                                                             Submit Documentation Feedback       15
+                                                                        Product Folder Links: SN74AUP1G17
+SN74AUP1G17
+SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017                                                                                www.ti.com
+
+
+10 Power Supply Recommendations
+The power supply can be any voltage between the min and max supply voltage rating located in the
+Recommended Operating Conditions table.
+Each VCC pin should have a good bypass capacitor to prevent power disturbance. It is ok to parallel multiple
+bypass caps to reject different frequencies of noise. 0.1-µF and 1-µF capacitors are commonly used in parallel.
+The bypass capacitor must be installed as close to the power pin as possible for best results.
+
+11 Layout
+
+11.1 Layout Guidelines
+Even low data rate digital signals can contain high-frequency signal components due to fast edge rates. When a
+printed-circuit board (PCB) trace turns a corner at a 90° angle, a reflection can occur. A reflection occurs
+primarily because of the change of width of the trace. At the apex of the turn, the trace width increases to 1.414
+times the width. This increase upsets the transmission-line characteristics, especially the distributed capacitance
+and self–inductance of the trace which results in the reflection. Not all PCB traces can be straight and therefore
+some traces must turn corners. Figure 10 shows progressively better techniques of rounding corners. Only the
+last example (BEST) maintains constant trace width and minimizes reflections.
+An example layout is given in Figure 11 for the DPW (X2SON-5) package. This example layout includes a 0402
+(metric) capacitor and uses the measurements found in the example board layout appended to this end of this
+datasheet. A via of diameter 0.1 mm (3.973 mil) is placed directly in the center of the device. This via can be
+used to trace out the center pin connection through another board layer, or it can be left out of the layout
+
+11.2 Layout Example
+                               WORST                          BETTER                        BEST
+
+
+
+
+                                                  Figure 10. Trace Example
+
+                                                      0402
+                                                     0.1 …F
+                                                    Bypass
+                                                  Capacitor
+
+
+                                                              4 mil
+                                                                            8 mil
+
+
+
+
+                                         8 mil                              8 mil
+
+                                                                             SOLDER MASK
+                                                                             OPENING, TYP
+                                                                           METAL UNDER
+                                                                           SOLDER MASK,
+                                                                           TYP
+
+                             Figure 11. Example Layout With DPW (X2SON-5) Package
+
+
+
+
+16     Submit Documentation Feedback                                                 Copyright © 2004–2017, Texas Instruments Incorporated
+
+                                                 Product Folder Links: SN74AUP1G17
+                                                                                                                       SN74AUP1G17
+www.ti.com                                                                                  SCES579J – JUNE 2004 – REVISED SEPTEMBER 2017
+
+
+12 Device and Documentation Support
+
+12.1 Documentation Support
+12.1.1 Related Documentation
+For related documentation see the following:
+• Designing and Manufacturing with TI's X2SON Packages
+• Implications of Slow or Floating CMOS Inputs
+• How to Select Little Logic
+• Introduction to Logic
+• Semiconductor Packing Material Electrostatic Discharge (ESD) Protection
+
+12.2 Receiving Notification of Documentation Updates
+To receive notification of documentation updates, navigate to the device product folder on ti.com. In the upper
+right corner, click on Alert me to register and receive a weekly digest of any product information that has
+changed. For change details, review the revision history included in any revised document.
+
+12.3 Community Resources
+The following links connect to TI community resources. Linked contents are provided "AS IS" by the respective
+contributors. They do not constitute TI specifications and do not necessarily reflect TI's views; see TI's Terms of
+Use.
+TI E2E™ Online Community TI's Engineer-to-Engineer (E2E) Community. Created to foster collaboration
+           among engineers. At e2e.ti.com, you can ask questions, share knowledge, explore ideas and help
+           solve problems with fellow engineers.
+Design Support TI's Design Support Quickly find helpful E2E forums along with design support tools and
+           contact information for technical support.
+
+12.4 Trademarks
+NanoStar, E2E are trademarks of Texas Instruments.
+All other trademarks are the property of their respective owners.
+12.5 Electrostatic Discharge Caution
+          This integrated circuit can be damaged by ESD. Texas Instruments recommends that all integrated circuits be handled with
+          appropriate precautions. Failure to observe proper handling and installation procedures can cause damage.
+          ESD damage can range from subtle performance degradation to complete device failure. Precision integrated circuits may be more
+          susceptible to damage because very small parametric changes could cause the device not to meet its published specifications.
+
+12.6 Glossary
+SLYZ022 — TI Glossary.
+   This glossary lists and explains terms, acronyms, and definitions.
+
+13 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical, packaging, and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+Copyright © 2004–2017, Texas Instruments Incorporated                                             Submit Documentation Feedback       17
+                                                        Product Folder Links: SN74AUP1G17
+                                                                                                                                     PACKAGE OPTION ADDENDUM
+
+  www.ti.com                                                                                                                                                           7-Oct-2025
+
+
+
+
+PACKAGING INFORMATION
+
+  Orderable part number   Status   Material type    Package | Pins     Package qty | Carrier   RoHS         Lead finish/       MSL rating/       Op temp (°C)     Part marking
+                            (1)         (2)                                                     (3)         Ball material      Peak reflow                              (6)
+                                                                                                                 (4)                (5)
+
+   SN74AUP1G17DBVR        Active    Production     SOT-23 (DBV) | 5     3000 | LARGE T&R        Yes         NIPDAU | SN     Level-1-260C-UNLIM     -40 to 85    (H175, H17F, H17K,
+                                                                                                                                                                        H17R)
+  SN74AUP1G17DBVR.B       Active    Production     SOT-23 (DBV) | 5     3000 | LARGE T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85    (H175, H17F, H17K,
+                                                                                                                                                                        H17R)
+ SN74AUP1G17DBVRG4        Active    Production     SOT-23 (DBV) | 5     3000 | LARGE T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85          H17F
+ SN74AUP1G17DBVRG4.B      Active    Production     SOT-23 (DBV) | 5     3000 | LARGE T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85          H17F
+   SN74AUP1G17DBVT        Active    Production     SOT-23 (DBV) | 5      250 | SMALL T&R        Yes         NIPDAU | SN     Level-1-260C-UNLIM     -40 to 85    (H175, H17F, H17K,
+                                                                                                                                                                        H17R)
+  SN74AUP1G17DBVT.B       Active    Production     SOT-23 (DBV) | 5      250 | SMALL T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85    (H175, H17F, H17K,
+                                                                                                                                                                        H17R)
+  SN74AUP1G17DCKR         Active    Production      SC70 (DCK) | 5      3000 | LARGE T&R        Yes         NIPDAU | SN     Level-1-260C-UNLIM     -40 to 85    (H75, H7F, H7K, H7
+                                                                                                                                                                         R)
+  SN74AUP1G17DCKR.B       Active    Production      SC70 (DCK) | 5      3000 | LARGE T&R        Yes             SN          Level-1-260C-UNLIM     -40 to 85    (H75, H7F, H7K, H7
+                                                                                                                                                                         R)
+ SN74AUP1G17DCKRG4        Active    Production      SC70 (DCK) | 5      3000 | LARGE T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85    (H75, H7F, H7K, H7
+                                                                                                                                                                         R)
+ SN74AUP1G17DCKRG4.B      Active    Production      SC70 (DCK) | 5      3000 | LARGE T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85    (H75, H7F, H7K, H7
+                                                                                                                                                                         R)
+   SN74AUP1G17DCKT        Active    Production      SC70 (DCK) | 5       250 | SMALL T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85    (H75, H7F, H7K, H7
+                                                                                                                                                                         R)
+  SN74AUP1G17DCKT.B       Active    Production      SC70 (DCK) | 5       250 | SMALL T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85    (H75, H7F, H7K, H7
+                                                                                                                                                                         R)
+  SN74AUP1G17DPWR         Active    Production     X2SON (DPW) | 5      3000 | LARGE T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85         (C, C3)
+  SN74AUP1G17DPWR.B       Active    Production     X2SON (DPW) | 5      3000 | LARGE T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85         (C, C3)
+ SN74AUP1G17DPWRG4        Active    Production     X2SON (DPW) | 5      3000 | LARGE T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85            C
+ SN74AUP1G17DPWRG4.B      Active    Production     X2SON (DPW) | 5      3000 | LARGE T&R        Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 85            C
+   SN74AUP1G17DRLR        Active    Production     SOT-5X3 (DRL) | 5    4000 | LARGE T&R        Yes      NIPDAU | NIPDAUAG Level-1-260C-UNLIM      -40 to 85       (H77, H7R)
+  SN74AUP1G17DRLR.B       Active    Production     SOT-5X3 (DRL) | 5    4000 | LARGE T&R        Yes          NIPDAUAG       Level-1-260C-UNLIM     -40 to 85       (H77, H7R)
+  SN74AUP1G17DRYR         Active    Production      SON (DRY) | 6       5000 | LARGE T&R        Yes      NIPDAU | NIPDAUAG Level-1-260C-UNLIM      -40 to 85           H7
+  SN74AUP1G17DRYR.B       Active    Production      SON (DRY) | 6       5000 | LARGE T&R        Yes          NIPDAUAG       Level-1-260C-UNLIM     -40 to 85           H7
+   SN74AUP1G17DSFR        Active    Production       SON (DSF) | 6      5000 | LARGE T&R        Yes      NIPDAU | NIPDAUAG Level-1-260C-UNLIM      -40 to 85           H7
+  SN74AUP1G17DSFR.B       Active    Production       SON (DSF) | 6      5000 | LARGE T&R        Yes          NIPDAUAG       Level-1-260C-UNLIM     -40 to 85           H7
+
+
+                                                                                       Addendum-Page 1
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                     7-Oct-2025
+
+
+
+
+       Orderable part number          Status     Material type      Package | Pins      Package qty | Carrier        RoHS             Lead finish/              MSL rating/               Op temp (°C)          Part marking
+                                        (1)            (2)                                                             (3)            Ball material             Peak reflow                                           (6)
+                                                                                                                                            (4)                      (5)
+
+        SN74AUP1G17YFPR               Active      Production       DSBGA (YFP) | 4       3000 | LARGE T&R             Yes               SNAGCU             Level-1-260C-UNLIM                   -                     H7
+                                                                                                                                                                                                                    (2, N)
+       SN74AUP1G17YFPR.B              Active      Production       DSBGA (YFP) | 4       3000 | LARGE T&R             Yes               SNAGCU             Level-1-260C-UNLIM               -40 to 85                 H7
+                                                                                                                                                                                                                    (2, N)
+        SN74AUP1G17YZPR               Active      Production       DSBGA (YZP) | 5       3000 | LARGE T&R             Yes               SNAGCU             Level-1-260C-UNLIM               -40 to 85                H7N
+       SN74AUP1G17YZPR.B              Active      Production       DSBGA (YZP) | 5       3000 | LARGE T&R             Yes               SNAGCU             Level-1-260C-UNLIM               -40 to 85                H7N
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+OTHER QUALIFIED VERSIONS OF SN74AUP1G17 :
+
+
+
+
+                                                                                                          Addendum-Page 2
+                                                                                                     PACKAGE OPTION ADDENDUM
+
+   www.ti.com                                                                                                          7-Oct-2025
+
+
+
+
+• Enhanced Product : SN74AUP1G17-EP
+
+NOTE: Qualified Version Definitions:
+
+       • Enhanced Product - Supports Defense, Aerospace and Medical Applications
+
+
+
+
+                                                                                   Addendum-Page 3
+                                                                               PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                                                          3-Sep-2026
+
+
+
+TAPE AND REEL INFORMATION
+
+       REEL DIMENSIONS                                                                      TAPE DIMENSIONS
+                                                                                       K0         P1
+
+
+
+                                                                                                                         B0 W
+                                         Reel
+                                       Diameter
+                                                                                    Cavity             A0
+                                                                A0   Dimension designed to accommodate the component width
+                                                                B0   Dimension designed to accommodate the component length
+                                                                K0   Dimension designed to accommodate the component thickness
+                                                                W    Overall width of the carrier tape
+                                                                P1   Pitch between successive cavity centers
+
+
+                                        Reel Width (W1)
+                              QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                        Sprocket Holes
+
+
+                                                  Q1       Q2          Q1    Q2
+
+                                                  Q3       Q4          Q3    Q4                    User Direction of Feed
+
+
+
+                                                            Pocket Quadrants
+
+
+*All dimensions are nominal
+             Device           Package Package Pins              SPQ        Reel   Reel   A0                    B0         K0     P1     W     Pin1
+                               Type Drawing                              Diameter Width (mm)                  (mm)       (mm)   (mm)   (mm) Quadrant
+                                                                           (mm) W1 (mm)
+  SN74AUP1G17DBVR             SOT-23     DBV           5        3000        178.0           9.0        3.23   3.17       1.37   4.0    8.0     Q3
+  SN74AUP1G17DBVR             SOT-23     DBV           5        3000        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+  SN74AUP1G17DBVR             SOT-23     DBV           5        3000        180.0           8.4        3.2     3.2       1.4    4.0    8.0     Q3
+  SN74AUP1G17DBVR             SOT-23     DBV           5        3000        180.0           8.4        3.2     3.2       1.4    4.0    8.0     Q3
+  SN74AUP1G17DBVR             SOT-23     DBV           5        3000        178.0           8.4        3.2     3.2       1.4    4.0    8.0     Q3
+ SN74AUP1G17DBVRG4            SOT-23     DBV           5        3000        178.0           9.0        3.23   3.17       1.37   4.0    8.0     Q3
+  SN74AUP1G17DBVT             SOT-23     DBV           5         250        180.0           8.4        3.23   3.17       1.37   4.0    8.0     Q3
+  SN74AUP1G17DBVT             SOT-23     DBV           5         250        178.0           9.0        3.23   3.17       1.37   4.0    8.0     Q3
+  SN74AUP1G17DBVT             SOT-23     DBV           5         250        180.0           8.4        3.2     3.2       1.4    4.0    8.0     Q3
+  SN74AUP1G17DBVT             SOT-23     DBV           5         250        180.0           8.4        3.2     3.2       1.4    4.0    8.0     Q3
+  SN74AUP1G17DCKR              SC70      DCK           5        3000        180.0           8.4        2.47    2.3       1.25   4.0    8.0     Q3
+  SN74AUP1G17DCKR              SC70      DCK           5        3000        180.0           8.4        2.3    2.55       1.2    4.0    8.0     Q3
+  SN74AUP1G17DCKR              SC70      DCK           5        3000        178.0           9.0        2.4     2.5       1.2    4.0    8.0     Q3
+  SN74AUP1G17DCKR              SC70      DCK           5        3000        178.0           9.2        2.4     2.4       1.22   4.0    8.0     Q3
+ SN74AUP1G17DCKRG4             SC70      DCK           5        3000        178.0           9.0        2.4     2.5       1.2    4.0    8.0     Q3
+ SN74AUP1G17DCKRG4             SC70      DCK           5        3000        178.0           9.2        2.4     2.4       1.22   4.0    8.0     Q3
+
+
+
+
+                                                                       Pack Materials-Page 1
+                                                           PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                          3-Sep-2026
+
+
+
+             Device   Package Package Pins   SPQ       Reel   Reel   A0            B0     K0     P1     W     Pin1
+                       Type Drawing                  Diameter Width (mm)          (mm)   (mm)   (mm)   (mm) Quadrant
+                                                       (mm) W1 (mm)
+ SN74AUP1G17DCKRG4     SC70     DCK    5     3000      180.0      8.4      2.47   2.3    1.25   4.0    8.0     Q3
+  SN74AUP1G17DCKT      SC70     DCK    5     250       180.0      8.4      2.47   2.3    1.25   4.0    8.0     Q3
+  SN74AUP1G17DCKT      SC70     DCK    5     250       178.0      9.0      2.4    2.5    1.2    4.0    8.0     Q3
+  SN74AUP1G17DCKT      SC70     DCK    5     250       178.0      9.2      2.4    2.4    1.22   4.0    8.0     Q3
+  SN74AUP1G17DPWR     X2SON     DPW    5     3000      180.0      8.4      0.91   0.91   0.5    2.0    8.0     Q3
+  SN74AUP1G17DPWR     X2SON     DPW    5     3000      178.0      8.4      0.91   0.91   0.5    2.0    8.0     Q3
+SN74AUP1G17DPWRG4 X2SON         DPW    5     3000      180.0      8.4      0.91   0.91   0.5    2.0    8.0     Q3
+  SN74AUP1G17DRLR     SOT-5X3   DRL    5     4000      180.0      8.4      1.98   1.78   0.69   4.0    8.0     Q3
+  SN74AUP1G17DRLR     SOT-5X3   DRL    5     4000      180.0      9.5      1.78   1.78   0.69   4.0    8.0     Q3
+  SN74AUP1G17DRYR      SON      DRY    6     5000      180.0      9.5      1.15   1.6    0.75   4.0    8.0     Q1
+  SN74AUP1G17DRYR      SON      DRY    6     5000      180.0      8.4      1.25   1.6    0.7    4.0    8.0     Q1
+  SN74AUP1G17DSFR      SON      DSF    6     5000      180.0      8.4      1.16   1.16   0.63   4.0    8.0     Q2
+  SN74AUP1G17DSFR      SON      DSF    6     5000      180.0      9.5      1.16   1.16   0.5    4.0    8.0     Q2
+  SN74AUP1G17YFPR     DSBGA     YFP    4     3000      178.0      9.2      0.89   0.89   0.58   4.0    8.0     Q1
+  SN74AUP1G17YZPR     DSBGA     YZP    5     3000      178.0      9.2      1.02   1.52   0.63   4.0    8.0     Q1
+
+
+
+
+                                                   Pack Materials-Page 2
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                              3-Sep-2026
+
+
+
+ TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                               Width (mm)
+                                                                              H
+
+
+
+
+                      W                                   L
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins         SPQ    Length (mm)   Width (mm)   Height (mm)
+   SN74AUP1G17DBVR              SOT-23            DBV           5           3000      180.0        180.0         18.0
+   SN74AUP1G17DBVR              SOT-23            DBV           5           3000      202.0        201.0         28.0
+   SN74AUP1G17DBVR              SOT-23            DBV           5           3000      210.0        185.0         35.0
+   SN74AUP1G17DBVR              SOT-23            DBV           5           3000      210.0        185.0         35.0
+   SN74AUP1G17DBVR              SOT-23            DBV           5           3000      208.0        191.0         35.0
+ SN74AUP1G17DBVRG4              SOT-23            DBV           5           3000      180.0        180.0         18.0
+   SN74AUP1G17DBVT              SOT-23            DBV           5           250       202.0        201.0         28.0
+   SN74AUP1G17DBVT              SOT-23            DBV           5           250       180.0        180.0         18.0
+   SN74AUP1G17DBVT              SOT-23            DBV           5           250       210.0        185.0         35.0
+   SN74AUP1G17DBVT              SOT-23            DBV           5           250       210.0        185.0         35.0
+   SN74AUP1G17DCKR               SC70             DCK           5           3000      202.0        201.0         28.0
+   SN74AUP1G17DCKR               SC70             DCK           5           3000      210.0        185.0         35.0
+   SN74AUP1G17DCKR               SC70             DCK           5           3000      180.0        180.0         18.0
+   SN74AUP1G17DCKR               SC70             DCK           5           3000      180.0        180.0         18.0
+ SN74AUP1G17DCKRG4               SC70             DCK           5           3000      180.0        180.0         18.0
+ SN74AUP1G17DCKRG4               SC70             DCK           5           3000      180.0        180.0         18.0
+ SN74AUP1G17DCKRG4               SC70             DCK           5           3000      202.0        201.0         28.0
+   SN74AUP1G17DCKT               SC70             DCK           5           250       202.0        201.0         28.0
+
+
+
+
+                                                        Pack Materials-Page 3
+                                                        PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                   3-Sep-2026
+
+
+
+             Device   Package Type   Package Drawing   Pins     SPQ     Length (mm)   Width (mm)   Height (mm)
+   SN74AUP1G17DCKT       SC70             DCK           5       250        180.0        180.0         18.0
+   SN74AUP1G17DCKT       SC70             DCK           5       250        180.0        180.0         18.0
+  SN74AUP1G17DPWR       X2SON             DPW           5       3000       210.0        185.0         35.0
+  SN74AUP1G17DPWR       X2SON             DPW           5       3000       205.0        200.0         33.0
+ SN74AUP1G17DPWRG4      X2SON             DPW           5       3000       210.0        185.0         35.0
+   SN74AUP1G17DRLR      SOT-5X3           DRL           5       4000       202.0        201.0         28.0
+   SN74AUP1G17DRLR      SOT-5X3           DRL           5       4000       184.0        184.0         19.0
+   SN74AUP1G17DRYR        SON             DRY           6       5000       184.0        184.0         19.0
+   SN74AUP1G17DRYR        SON             DRY           6       5000       202.0        201.0         28.0
+   SN74AUP1G17DSFR        SON             DSF           6       5000       202.0        201.0         28.0
+   SN74AUP1G17DSFR        SON             DSF           6       5000       184.0        184.0         19.0
+   SN74AUP1G17YFPR      DSBGA             YFP           4       3000       220.0        220.0         35.0
+   SN74AUP1G17YZPR      DSBGA             YZP           5       3000       220.0        220.0         35.0
+
+
+
+
+                                                Pack Materials-Page 4
+                                                                                                            PACKAGE OUTLINE
+DBV0005A                                                          SCALE 4.000
+                                                                                                     SOT-23 - 1.45 mm max height
+                                                                                                              SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                            3.0                                                                       C
+                                            2.6
+                                          1.75                                                                0.1 C
+                                                           B                               A
+                                          1.45
+            PIN 1
+      INDEX AREA
+
+                        1                                        5
+
+
+              2X 0.95                                            (0.1)
+                                                                                          3.05
+                                                                                          2.75
+        1.9                                                                         1.9
+                        2
+                                                                 (0.15)
+
+
+
+                                                                 4
+                            3
+              0.5
+           5X
+              0.3
+                                                                                                                             0.15
+               0.2      C A B                                                   NOTE 5           4X 0 -15      (1.1)              TYP
+                                                                                                                             0.00
+                                                                                                                1.45
+                                                                                                                0.90
+                                                               4X 4 -15
+
+
+
+          0.25
+ GAGE PLANE                                                                          0.22
+                                                                                          TYP
+                                                                                     0.08
+
+
+
+   8
+     TYP                          0.6
+   0                                  TYP            SEATING PLANE
+                                  0.3
+
+
+
+
+                                                                                                                          4214839/K 08/2024
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. Refernce JEDEC MO-178.
+4. Body dimensions do not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.25 mm per side.
+5. Support pin may differ or may not be present.
+
+
+
+
+                                                                                www.ti.com
+                                                                               EXAMPLE BOARD LAYOUT
+DBV0005A                                                                             SOT-23 - 1.45 mm max height
+                                                                                                     SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 5X (1.1)
+                                             1
+                                                                                         5
+                                  5X (0.6)
+
+
+                                                                                             SYMM
+                                                                                                     (1.9)
+                                             2
+                              2X (0.95)
+
+
+                                             3                                           4
+
+                             (R0.05) TYP                         (2.6)
+
+
+                                                     LAND PATTERN EXAMPLE
+                                                       EXPOSED METAL SHOWN
+                                                            SCALE:15X
+
+
+
+
+                                                                                                         SOLDER MASK
+                 SOLDER MASK                     METAL                   METAL UNDER                     OPENING
+                 OPENING                                                 SOLDER MASK
+
+
+
+
+         EXPOSED METAL                                        EXPOSED METAL
+
+                                          0.07 MAX                                           0.07 MIN
+                                          ARROUND                                            ARROUND
+
+                                NON SOLDER MASK                                        SOLDER MASK
+                                    DEFINED                                              DEFINED
+                                  (PREFERRED)
+
+                                                      SOLDER MASK DETAILS
+
+
+
+
+                                                                                                               4214839/K 08/2024
+
+NOTES: (continued)
+
+6. Publication IPC-7351 may have alternate designs.
+7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+ DBV0005A                                                                              SOT-23 - 1.45 mm max height
+                                                                                                       SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 5X (1.1)
+                                             1
+                                                                                         5
+                                  5X (0.6)
+
+
+
+                                                                                             SYMM
+                                             2                                                      (1.9)
+                             2X(0.95)
+
+
+                                             3                                           4
+
+                            (R0.05) TYP
+                                                                (2.6)
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                 BASED ON 0.125 mm THICK STENCIL
+                                                            SCALE:15X
+
+
+
+
+                                                                                                                   4214839/K 08/2024
+
+NOTES: (continued)
+
+8. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+9. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                                                     GENERIC PACKAGE VIEW
+DRY 6                                                            USON - 0.6 mm max height
+                                                                             PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+   Images above are just a representation of the package family, actual package may vary.
+   Refer to the product data sheet for package details.
+
+                                                                                                  4207181/G
+                                                                                                                PACKAGE OUTLINE
+DRY0006A                                                        SCALE 8.500
+                                                                                                             USON - 0.6 mm max height
+                                                                                                                PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                   1.05                                A
+                                    B
+                                                   0.95
+
+
+
+
+                  PIN 1 INDEX AREA
+                                                                                   1.5
+                                                                                   1.4
+
+
+
+
+                         0.6 MAX                                                                C
+
+
+                                                                                                    SEATING PLANE
+                            0.05
+                            0.00                                                                    0.08 C
+
+
+
+                                                  3X 0.6
+                                                  SYMM
+                                                                                                                                (0.127) TYP
+                                                                                       (0.05) TYP
+
+
+                                          3
+                                                                              4
+                                   4X
+                                   0.5
+                                                                                   SYMM
+                            2X
+                             1
+
+
+
+                                                                              6
+                                          1
+                                                                                                0.25
+                                                                                           6X
+                                    0.4                                                         0.15
+                                    0.3                                                          0.1    C A B
+                                                                                                 0.05    C
+                                             PIN 1 ID
+                                          (OPTIONAL)                                   0.35
+                                                                                  5X
+                                                                                       0.25
+                                                                                                                               4222894/A 01/2018
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+
+
+
+
+                                                                              www.ti.com
+                                                                                   EXAMPLE BOARD LAYOUT
+DRY0006A                                                                                      USON - 0.6 mm max height
+                                                                                                     PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                                   SYMM
+
+
+                                                 (0.35)
+                                                                                          5X (0.3)
+
+
+                                                          1                          6
+
+                                      6X (0.2)
+
+
+                                                                                         SYMM
+
+
+
+                                             4X (0.5)
+
+
+                                                                                     4
+                                                          3
+
+                                      (R0.05) TYP
+                                                                    (0.6)
+
+
+                                                          LAND PATTERN EXAMPLE
+                                                     1:1 RATIO WITH PKG SOLDER PADS
+                                                          EXPOSED METAL SHOWN
+                                                                SCALE:40X
+
+
+
+
+                                            0.05 MAX                                                  0.05 MIN
+                                            ALL AROUND                                                ALL AROUND
+
+                  EXPOSED
+                                                                             EXPOSED
+                    METAL
+                                                                               METAL
+
+
+                     SOLDER MASK          METAL                             METAL UNDER                    SOLDER MASK
+                     OPENING                                                SOLDER MASK                    OPENING
+                              NON SOLDER MASK
+                                  DEFINED                                                    SOLDER MASK
+                                                                                               DEFINED
+                                                                                             (PREFERRED)
+                                                      SOLDER MASK DETAILS
+
+
+                                                                                                                    4222894/A 01/2018
+NOTES: (continued)
+
+3. For more information, see QFN/SON PCB application report in literature No. SLUA271 (www.ti.com/lit/slua271).
+
+
+
+
+                                                                   www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+DRY0006A                                                                                   USON - 0.6 mm max height
+                                                                                                 PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                                     SYMM
+
+                                                   (0.35)                                 5X (0.3)
+
+
+                                                            1                         6
+
+                                        6X (0.2)
+
+
+                                                                                          SYMM
+
+
+
+                                               4X (0.5)
+
+
+                                                                                      4
+                                                            3
+
+                                        (R0.05) TYP                  (0.6)
+
+
+                                                            SOLDER PASTE EXAMPLE
+                                                    BASED ON 0.075 - 0.1 mm THICK STENCIL
+                                                                 SCALE:40X
+
+
+
+
+                                                                                                                  4222894/A 01/2018
+
+NOTES: (continued)
+
+4. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+  design recommendations.
+
+
+
+
+                                                                  www.ti.com
+                                                                                                                PACKAGE OUTLINE
+DSF0006A                                                       SCALE 10.000
+                                                                                                            X2SON - 0.4 mm max height
+                                                                                                                PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                      1.05
+                                  B                                                       A
+                                                      0.95
+
+
+
+
+               PIN 1 INDEX AREA
+                                                                                         1.05
+                                                                                         0.95
+
+
+
+
+                           0.4 MAX                                                                 C
+
+
+                                                                                                       SEATING PLANE
+
+                                                                                                       0.05 C
+
+                                                                                                                               (0.11) TYP
+                                                     SYMM                                                       0.05
+                                                                                                                0.00
+
+                                        3
+                                                                                     4
+
+
+
+                          2X                                                             SYMM
+                          0.7
+                                 4X
+                                0.35
+                                                                                     6
+                                        1
+                                                                                                   0.22
+                                                                                              6X
+                                                                                                   0.12
+                                          (0.1)
+                                       PIN 1 ID                               0.45                   0.07    C B A
+                                                              6X
+                                                                              0.35                   0.05    C
+
+
+                                                                                                                               4220597/B 06/2022
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. Reference JEDEC registration MO-287, variation X2AAF.
+
+
+
+
+                                                                               www.ti.com
+                                                                                   EXAMPLE BOARD LAYOUT
+ DSF0006A                                                                                   X2SON - 0.4 mm max height
+                                                                                                     PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                        6X (0.6)
+                                                                                                     (R0.05) TYP
+                                                 1
+                                     6X (0.17)                                               6
+
+
+                                                                                                 SYMM
+
+
+                                  4X (0.35)
+
+                                                                                             4
+                                                 3
+
+                                                                     SYMM
+
+
+                                                                     (0.8)
+
+                                                       LAND PATTERN EXAMPLE
+                                                          EXPOSED METAL SHOWN
+                                                               SCALE:40X
+
+
+
+
+                                                                                                       0.07 MIN
+                  0.07 MAX                           EXPOSED METAL                                     ALL AROUND
+              ALL AROUND
+
+
+                                                                      EXPOSED METAL
+
+              SOLDER MASK                             METAL                  METAL UNDER                           SOLDER MASK
+                  OPENING                                                    SOLDER MASK                           OPENING
+
+                               NON SOLDER MASK                                                   SOLDER MASK
+                                   DEFINED                                                         DEFINED
+
+                                                          SOLDER MASK DETAILS
+
+
+
+
+                                                                                                                      4220597/B 06/2022
+
+NOTES: (continued)
+
+4. For more information, see Texas Instruments literature number SLUA271 (www.ti.com/lit/slua271).
+
+
+
+
+                                                                     www.ti.com
+                                                                                   EXAMPLE STENCIL DESIGN
+ DSF0006A                                                                                    X2SON - 0.4 mm max height
+                                                                                                     PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                      6X (0.6)
+                                                                                                   (R0.05) TYP
+                                                1
+                                    6X (0.15)                                                 6
+
+
+                                                                                                  SYMM
+
+
+                                 4X (0.35)
+
+                                                                                              4
+                                                3
+
+                                                                   SYMM
+
+                                                                    (0.8)
+
+
+                                                     SOLDER PASTE EXAMPLE
+                                                    BASED ON 0.09 mm THICK STENCIL
+
+                                       PRINTED SOLDER COVERAGE BY AREA UNDER PACKAGE
+                                                         SCALE:40X
+
+
+
+
+                                                                                                                         4220597/B 06/2022
+
+4. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+
+
+
+
+                                                                     www.ti.com
+                                                                                                                PACKAGE OUTLINE
+ DRL0005A                                                         SCALE 8.000
+                                                                                                                SOT - 0.6 mm max height
+                                                                                                                        PLASTIC SMALL OUTLINE
+
+
+
+
+                                               1.7
+                                               1.5
+                                                     PIN 1                          A
+                                                     ID AREA
+
+
+                            1
+                                                                                5
+
+                   2X 0.5
+
+                                                                                  1.7
+           2X 1
+                                                                                  1.5
+                                                                                 NOTE 3
+
+
+                                                                                4                           2X 0 -10
+                            3
+
+
+
+                                               1.3                                       0.3                           0.05
+                                B                                                   5X                                      TYP
+                                               1.1                                       0.1                           0.00
+
+                                                                                2X 4 -15
+
+
+
+               0.6 MAX                                                                         C
+
+                                                                                                   SEATING PLANE
+                 0.18
+              5X                                                                                   0.05 C
+                 0.08
+                                             SYMM
+
+
+
+
+                   SYMM
+
+
+
+
+                                                                                               0.27
+                                                                                         5X
+                                                                                               0.15
+                                                          0.4                                    0.1    C A B
+                                                     5X
+                                                          0.2                                    0.05    C
+                                                                                                                                  4220753/E 11/2024
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+4. Reference JEDEC registration MO-293 Variation UAAD-1
+
+
+
+
+                                                                                www.ti.com
+                                                                                EXAMPLE BOARD LAYOUT
+DRL0005A                                                                                    SOT - 0.6 mm max height
+                                                                                                             PLASTIC SMALL OUTLINE
+
+
+
+
+                                                5X (0.67)       SYMM
+                                            1
+                                                                                            5
+                                 5X (0.3)
+
+
+
+                                                                                                SYMM
+                                                                                                       (1)
+
+                               2X (0.5)
+
+
+                                            3                                               4
+
+                          (R0.05) TYP
+                                                                 (1.48)
+
+
+                                                    LAND PATTERN EXAMPLE
+                                                              SCALE:30X
+
+
+
+
+                   0.05 MAX                                               0.05 MIN
+                   AROUND                                                 AROUND
+
+
+
+
+                 SOLDER MASK                        METAL                 METAL UNDER                    SOLDER MASK
+                 OPENING                                                  SOLDER MASK                    OPENING
+                               NON SOLDER MASK                                          SOLDER MASK
+                                   DEFINED                                                DEFINED
+                                 (PREFERRED)
+
+                                                       SOLDERMASK DETAILS
+
+
+
+
+                                                                                                                  4220753/E 11/2024
+
+NOTES: (continued)
+
+5. Publication IPC-7351 may have alternate designs.
+6. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                 www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+ DRL0005A                                                                                    SOT - 0.6 mm max height
+                                                                                                            PLASTIC SMALL OUTLINE
+
+
+
+
+                                                  5X (0.67)
+                                                                   SYMM
+                                              1
+                                                                                                5
+                                   5X (0.3)
+
+
+
+                                                                                                    SYMM
+                                                                                                           (1)
+
+                                2X (0.5)
+
+
+                                              3                                                4
+
+                           (R0.05) TYP
+                                                                   (1.48)
+
+
+                                                      SOLDER PASTE EXAMPLE
+                                                     BASED ON 0.1 mm THICK STENCIL
+                                                              SCALE:30X
+
+
+
+
+                                                                                                                   4220753/E 11/2024
+
+NOTES: (continued)
+
+7. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+8. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                                                                                              PACKAGE OUTLINE
+DPW0005A                                                           SCALE 12.000
+                                                                                                       X2SON - 0.4 mm max height
+                                                                                                              PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                       0.85                            A
+                                       B
+                                                       0.75
+
+
+
+
+               PIN 1 INDEX AREA                                                       0.85
+                                                                                      0.75
+
+
+
+
+                             0.4 MAX                                                   C
+
+                                                                                             SEATING PLANE
+
+                                                               NOTE 3
+
+
+
+                                                                                                                               (0.1)
+
+                           4X (0.05)                 (0.324)                                                    0.05
+                                                                                                                0.00
+
+
+                                           2                                                    0.25 0.1
+
+                                                                                  4
+                                                                                                              NOTE 3
+                                  2X                     3
+                                                                                       2X (0.26)
+                                 0.48
+
+                                                                                  5
+                                           1
+                                                                                             0.27
+                                0.239                                                   4X
+                                                                                             0.17
+                                0.139
+                                                                                               0.1    C A B
+                                                     0.288
+                                                3X                                             0.05    C
+                                                     0.188
+
+
+
+
+                                                                                                                             4223102/D 03/2022
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. The size and shape of this feature may vary.
+
+
+
+
+                                                                  www.ti.com
+                                                                                    EXAMPLE BOARD LAYOUT
+DPW0005A                                                                                   X2SON - 0.4 mm max height
+                                                                                                  PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                                   (0.78)
+
+                                                                  SYMM           ( 0.1)
+                            4X (0.42)                                            VIA                      0.05 MIN
+                                                                                                          ALL AROUND
+                                       1                                                                  TYP
+
+                                                                                                     5
+                           4X (0.22)
+
+
+
+                        SYMM
+                                                                                                     4X (0.26)
+                                                                                                                 (0.48)
+                                                                      3
+
+
+                                       2                                                             4
+
+                     (R0.05) TYP
+                                                                                                         SOLDER MASK
+                                                                            4X (0.06)                    OPENING, TYP
+                                           ( 0.25)
+                                                                          (0.21) TYP                METAL UNDER
+                                                                          EXPOSED METAL             SOLDER MASK
+                                                                          CLEARANCE                 TYP
+
+
+                                                       LAND PATTERN EXAMPLE
+                                                           SOLDER MASK DEFINED
+                                                                SCALE:60X
+
+
+
+
+                                                                                                                          4223102/D 03/2022
+NOTES: (continued)
+
+4. This package is designed to be soldered to a thermal pad on the board. For more information, refer to QFN/SON PCB application note
+   in literature No. SLUA271 (www.ti.com/lit/slua271).
+
+
+
+
+                                                                   www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+DPW0005A                                                                                X2SON - 0.4 mm max height
+                                                                                               PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                   4X (0.42)                    4X (0.06)
+
+
+
+
+                                                                                                                    5
+           4X (0.22)   1
+
+                                                                              ( 0.24)
+
+
+                             4X (0.26)
+             SYMM
+                                                                                          (0.21)                         (0.48)
+                                                                                           TYP
+                                  SOLDER MASK
+                                         EDGE                         3
+
+
+
+
+                       2
+                                                                                                                    4
+
+
+
+       (R0.05) TYP
+                                                                   SYMM
+
+
+                                                                   (0.78)
+
+
+                                                      SOLDER PASTE EXAMPLE
+                                                     BASED ON 0.1 mm THICK STENCIL
+
+                                                       EXPOSED PAD 3
+                                     92% PRINTED SOLDER COVERAGE BY AREA UNDER PACKAGE
+                                                         SCALE:100X
+
+
+
+
+                                                                                                                  4223102/D 03/2022
+NOTES: (continued)
+
+5. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+  design recommendations.
+
+
+
+
+                                                                 www.ti.com
+                                                                                                                    PACKAGE OUTLINE
+DPW0005B                                                           SCALE 12.000
+                                                                                                             X2SON - 0.4 mm max height
+                                                                                                                    PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                     0.85                                  A
+                                      B
+                                                     0.75
+
+
+
+
+                                                                                       0.85
+                PIN 1 INDEX AREA
+                                                                                       0.75
+
+
+
+
+                            0.4 MAX                                                     C
+
+                                                                                                      SEATING PLANE
+
+                              0.05                             NOTE 3
+                              0.00
+
+
+
+                                     0.35          2X (0.36)
+                                     0.15                                                  0.27                                     (0.1) TYP
+                                                                                      4X
+                                                                                           0.17
+
+                                            2
+                                                                                  4
+                                                                                                                    NOTE 3
+                                                        3
+                              2X 0.48                                                 2X (0.26)
+
+
+                                                                                  5
+                                            1
+
+                                                                                                    0.27
+                                                                                               4X
+                                   PIN 1 ID                                                         0.17
+                                                                                                     0.1    C A B
+                                                                                                     0.05    C
+
+
+
+
+                                                                                                                                   4228233/D 09/2023
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. The size and shape of this feature may vary.
+
+
+
+
+                                                                  www.ti.com
+                                                                                   EXAMPLE BOARD LAYOUT
+DPW0005B                                                                                   X2SON - 0.4 mm max height
+                                                                                                  PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                                   (0.78)
+
+                                                                  SYMM
+                            4X (0.42)                                       4X (0.06)                      0.05 MIN
+                                                                                                           ALL AROUND
+                                                                                                           TYP
+                                                                                                     5
+                        4X (0.22)       1
+
+
+                          SYMM                                                                                   (0.48)
+
+                                                                        3                                4X (0.26)
+
+
+
+                                        2
+                                                                                                     4
+
+                     (R0.05) TYP
+                                                                                                     SOLDER MASK
+                                                                              ( 0.1) VIA             OPENING, TYP
+                                            ( 0.25)
+                                                                                                   METAL UNDER
+                                                                   (0.21) TYP                      SOLDER MASK, TYP
+                                                                   EXPOSED METAL
+                                                                   CLEARANCE
+
+                                                       LAND PATTERN EXAMPLE
+                                                           SOLDER MASK DEFINED
+                                                                SCALE:60X
+
+
+
+
+                                                                                                                      4228233/D 09/2023
+NOTES: (continued)
+
+4. This package is designed to be soldered to a thermal pad on the board. For more information, refer to QFN/SON PCB application note
+   in literature No. SLUA271 (www.ti.com/lit/slua271).
+
+
+
+
+                                                                   www.ti.com
+                                                                                     EXAMPLE STENCIL DESIGN
+DPW0005B                                                                                X2SON - 0.4 mm max height
+                                                                                               PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                              4X (0.42)
+                                                                   4X (0.06)
+
+
+
+                                                                                                 5
+                            4X (0.22) 1
+                                                                           ( 0.24)
+
+                                            SOLDER MASK
+                             SYMM                  EDGE                3
+                                                                                                      (0.48)
+
+                                                                             (0.21)
+                                                                              TYP
+
+                                      2
+                                                                                                 4
+
+                        (R0.05) TYP
+                                                                 SYMM
+
+
+
+                                                                  (0.78)
+
+
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                  BASED ON 0.1 mm THICK STENCIL
+
+                                                     EXPOSED PAD 5
+                                   92% PRINTED SOLDER COVERAGE BY AREA UNDER PACKAGE
+                                                        SCALE:60X
+
+
+
+
+                                                                                                                  4228233/D 09/2023
+NOTES: (continued)
+
+5. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+  design recommendations.
+
+
+
+
+                                                                 www.ti.com
+                                                                                                         PACKAGE OUTLINE
+YZP0005                                                             SCALE 8.000
+                                                                                                    DSBGA - 0.5 mm max height
+                                                                                                                DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                   B            E                         A
+
+
+
+
+                                     BALL A1
+                                    CORNER
+
+                                                                                          D
+
+
+
+
+                                                                                           C
+                                   0.5 MAX
+
+                                                                                                SEATING PLANE
+                                            0.19
+                                            0.15                                                0.05 C
+                                                                 BALL TYP
+
+
+
+
+                                                                                      0.5 TYP
+
+
+
+
+                                                       C
+
+                                                                                        SYMM
+                                  1
+                                 TYP
+                                                       B                                           D: Max = 1.418 mm, Min =1.358 mm
+                                            0.5
+                                            TYP                                                    E: Max = 0.918 mm, Min =0.858 mm
+                                                       A
+
+                                             0.25
+                                       5X                  1                      2
+                                             0.21
+                               0.015        C A B
+                                                               SYMM
+
+
+
+
+                                                                                                                        4219492/A 05/2017
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+
+
+
+
+                                                                                  www.ti.com
+                                                                                  EXAMPLE BOARD LAYOUT
+YZP0005                                                                                 DSBGA - 0.5 mm max height
+                                                                                                           DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                                  (0.5) TYP
+                                         5X ( 0.23)
+                                                              1               2
+
+
+                                                        A
+
+                                           (0.5) TYP
+
+                                                                                    SYMM
+                                                        B
+
+
+
+
+                                                        C
+
+                                                                   SYMM
+
+
+
+                                                       LAND PATTERN EXAMPLE
+                                                                  SCALE:40X
+
+
+
+
+            SOLDER MASK                        0.05 MAX                0.05 MIN                      ( 0.23)
+                OPENING                                                                              SOLDER MASK
+                                                                                                     OPENING
+
+
+
+                                                 ( 0.23)
+                                                 METAL                                                METAL UNDER
+                                                                                                      SOLDER MASK
+                            NON-SOLDER MASK                                          SOLDER MASK
+                                DEFINED                                                DEFINED
+                              (PREFERRED)
+
+
+                                                         SOLDER MASK DETAILS
+                                                                  NOT TO SCALE
+
+                                                                                                                   4219492/A 05/2017
+
+NOTES: (continued)
+
+3. Final dimensions may vary due to manufacturing tolerance considerations and also routing constraints.
+   For more information, see Texas Instruments literature number SNVA009 (www.ti.com/lit/snva009).
+
+
+
+
+                                                                   www.ti.com
+                                                                                EXAMPLE STENCIL DESIGN
+YZP0005                                                                                  DSBGA - 0.5 mm max height
+                                                                                                        DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                              (0.5) TYP
+
+                                         5X ( 0.25)
+                                                                                    (R0.05) TYP
+                                                          1               2
+
+
+                                                      A
+
+                                             (0.5)
+                                             TYP
+
+                                                      B                          SYMM
+
+
+
+
+                                                      C
+
+                                        METAL                   SYMM
+                                          TYP
+
+
+                                                     SOLDER PASTE EXAMPLE
+                                                 BASED ON 0.1 mm THICK STENCIL
+                                                          SCALE:40X
+
+
+
+
+                                                                                                                4219492/A 05/2017
+
+NOTES: (continued)
+
+4. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release.
+
+
+
+
+                                                                  www.ti.com
+                                                                                                             PACKAGE OUTLINE
+YFP0004                                                            SCALE 10.000
+                                                                                                       DSBGA - 0.5 mm max height
+                                                                                                                    DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                 B             E                               A
+
+
+
+                                       BALL A1
+                                      CORNER
+                                                                                               D
+
+
+
+
+                                                                                                   C
+                                  0.5 MAX
+
+
+                                                                                                         SEATING PLANE
+                                          0.19
+                                          0.13                 BALL TYP
+                                                                                                        0.05 C
+
+
+
+
+                                                             0.4
+                                                             TYP
+
+
+                                                     B                                                 D: Max = 0.79 mm, Min = 0.73 mm
+                                                                                          SYMM
+                                           0.4                                                         E: Max = 0.79 mm, Min = 0.73 mm
+                                           TYP
+
+                                                     A
+                                            0.25
+                                      4X
+                                            0.21         1                        2
+                                  0.015     C A B
+                                                             SYMM
+
+
+
+
+                                                                                                                            4223507/A 01/2017
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+    per ASME Y14.5M.
+ 2. This drawing is subject to change without notice.
+
+
+
+
+                                                                                  www.ti.com
+                                                                                  EXAMPLE BOARD LAYOUT
+YFP0004                                                                                 DSBGA - 0.5 mm max height
+                                                                                                           DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                                  (0.4) TYP
+
+                                          4X ( 0.23)
+                                                              1               2
+
+                                                       A
+
+
+                                                                                     SYMM
+                                         (0.4) TYP
+
+                                                       B
+
+
+
+                                                                   SYMM
+
+
+
+                                                     LAND PATTERN EXAMPLE
+                                                        EXPOSED METAL SHOWN
+                                                             SCALE:50X
+
+
+
+
+                          ( 0.23)                      0.05 MAX           0.05 MIN                     METAL UNDER
+                           METAL                                                                       SOLDER MASK
+
+
+
+                                                       EXPOSED                                         ( 0.23)
+                 SOLDER MASK                           METAL             EXPOSED
+                     OPENING                                               METAL                       SOLDER MASK
+                                                                                                       OPENING
+                                    NON-SOLDER MASK                                  SOLDER MASK
+                                        DEFINED                                        DEFINED
+                                      (PREFERRED)
+
+                                                       SOLDER MASK DETAILS
+                                                             NOT TO SCALE
+                                                                                                                   4223507/A 01/2017
+
+NOTES: (continued)
+
+3. Final dimensions may vary due to manufacturing tolerance considerations and also routing constraints.
+   For more information, see Texas Instruments literature number SNVA009 (www.ti.com/lit/snva009).
+
+
+
+
+                                                                   www.ti.com
+                                                                                   EXAMPLE STENCIL DESIGN
+YFP0004                                                                                  DSBGA - 0.5 mm max height
+                                                                                                         DIE SIZE BALL GRID ARRAY
+
+
+
+
+                                                                   (0.4) TYP
+
+                                            4X ( 0.25)                                     (R0.05) TYP
+
+                                                               1               2
+
+                                                          A
+
+
+                                                                                        SYMM
+                                             (0.4) TYP
+
+                                                          B
+
+
+                                             METAL
+                                               TYP                   SYMM
+
+
+
+
+                                                         SOLDER PASTE EXAMPLE
+                                                         BASED ON 0.1 mm THICK STENCIL
+                                                                  SCALE:50X
+
+
+
+
+                                                                                                                 4223507/A 01/2017
+
+NOTES: (continued)
+
+4. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release.
+
+
+
+
+                                                                   www.ti.com
+                                                                                                                PACKAGE OUTLINE
+DCK0005A                                                           SCALE 5.600
+                                                                                                                    SOT - 1.1 max height
+                                                                                                                     SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                                                                             C
+                                                2.4
+                                                1.8                                                                          0.1 C
+                                                1.4
+                                                               B                                     A                  1.1 MAX
+                       PIN 1                    1.1
+                 INDEX AREA
+
+                                  1                                              5
+
+
+                        2X 0.65                                                  NOTE 4
+
+                                                                                                 2.15
+                  1.3                                         (0.15)                       1.3
+                                  2                                                              1.85
+
+                                                                          (0.1)
+
+                                                                                 4
+                      0.33            3
+                   5X
+                      0.15
+           0.1      C A B                                                                                4X 0 -12                        0.1
+                                                                                                                         (0.9)               TYP
+                   NOTE 5                                                                                                                0.0
+
+
+
+
+                                                                     4X 4 -15
+
+
+
+                    0.15
+          GAGE PLANE                                                                      0.22
+                                                                                               TYP
+                                                                                          0.08
+
+
+
+            8                              0.46
+              TYP                               TYP
+            0                              0.26
+                                                             SEATING PLANE
+
+
+
+
+                                                                                                                                 4214834/G 11/2024
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. Refernce JEDEC MO-203.
+4. Support pin may differ or may not be present.
+5. Lead width does not comply with JEDEC.
+6. Body dimensions do not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not exceed
+   0.25mm per side
+
+
+
+
+                                                                                 www.ti.com
+                                                                               EXAMPLE BOARD LAYOUT
+DCK0005A                                                                                             SOT - 1.1 max height
+                                                                                                      SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 5X (0.95)
+
+                                             1
+                                                                                         5
+                                  5X (0.4)
+
+
+                                                                                          SYMM
+                                                                                                     (1.3)
+                                             2
+                             2X (0.65)
+
+                                             3                                           4
+
+                            (R0.05) TYP                          (2.2)
+
+
+                                                    LAND PATTERN EXAMPLE
+                                                        EXPOSED METAL SHOWN
+                                                             SCALE:18X
+
+
+
+
+                                                                                                             SOLDER MASK
+                 SOLDER MASK                      METAL                  METAL UNDER                         OPENING
+                 OPENING                                                 SOLDER MASK
+
+
+
+           EXPOSED METAL                                       EXPOSED METAL
+
+
+                                         0.07 MAX                                            0.07 MIN
+                                         ARROUND                                             ARROUND
+
+                                NON SOLDER MASK                                        SOLDER MASK
+                                    DEFINED                                              DEFINED
+                                  (PREFERRED)
+
+                                                      SOLDER MASK DETAILS
+
+
+
+
+                                                                                                                   4214834/G 11/2024
+
+NOTES: (continued)
+
+7. Publication IPC-7351 may have alternate designs.
+8. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+ DCK0005A                                                                                            SOT - 1.1 max height
+                                                                                                       SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                5X (0.95)
+                                            1
+                                                                                         5
+                                 5X (0.4)
+
+
+                                                                                             SYMM
+                                                                                                    (1.3)
+                                            2
+                             2X(0.65)
+
+                                            3                                            4
+
+                           (R0.05) TYP
+                                                                (2.2)
+
+                                                  SOLDER PASTE EXAMPLE
+                                                  BASED ON 0.125 THICK STENCIL
+                                                          SCALE:18X
+
+
+
+
+                                                                                                                   4214834/G 11/2024
+
+NOTES: (continued)
+
+9. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+10. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2026, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

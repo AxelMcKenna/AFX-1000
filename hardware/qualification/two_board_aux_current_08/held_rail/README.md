@@ -1,0 +1,41 @@
+# Held gate/driver rail — conditional schematic candidate 02
+
+`authored/power_protection.kicad_sch` implements a separate held 3.3 V rail, derived from candidate01's independent 5 V preregulator. It is a prototype for qualification, **not an accepted PCB or a demonstrated current/turn-off bound**. No PCB is emitted or changed.
+
+The new rail supplies E_U29/E_U31, the four Si8751 input sides, their six bypass capacitors, and the fast supervisor's VDD/pullup/bypass. E_U19/E_U35 and all monitor circuitry remain on main AUX. Main AUX remains the 3.3 V supervisor's SENSE source. The transferred bypass ownership comes from `rail_disconnect/spec.py` (C1/5/9/13) and `revision28/positive.py` owner_ref fields (U29→C74, U31→C76), not nearest-component inference.
+
+## Implemented circuit
+
+- **P_U901 TPS7A2033PDBVR**: IN1 and EN3 to AUX_HELD_IN, GND2 to AGND, NC4 explicitly open, OUT5 to PWR_AUX_HELD3V3. Its specified 3.2505–3.3495 V band applies at input 3.6–6.0 V, load 1–300 mA, −40…125°C. P_R903 **TNPW08053K01BEEA**, 3.01 kΩ, ensures at least 1.076 mA even without the functional loads.
+- **P_R902 CRCW25124R70FKEG**, 4.7 Ω / 1% / 100 ppm/K, feeds AUX_HELD_IN from the 5 V preregulator. The resistor isolates a finite reservoir from a shorted upstream source without relying on an active ideal-diode turn-off time.
+- **P_C902/P_C905 T520D227M010ATE025**, two 220 µF / 10 V / 20% polymer tantalum capacitors, form the reservoir. Exact manufacturer sheets specify 7.3×4.3 mm ±0.3 mm, height 2.8±0.3 mm, −55…105°C, and 25 mΩ ESR at 100 kHz/25°C. The pair is 352 µF minimum from initial tolerance alone; **200 µF effective minimum** across actual temperature/voltage/age is a receiving requirement, not established by the part-specific sheet.
+- P_C903 **C0603C104K5RACTU**, 100 nF, bypasses the LDO input. P_C904 **C3216X7R1H225K160AB**, 2.2 µF / 50 V X7R, is its output capacitor. Include all held-domain bypasses in the total effective output-capacitance and reverse-current check. TI requires effective output capacitance ≥0.47 µF and ≤200 µF, ESR ≤100 mΩ; the 4 µF maximum used in the collapse screen is a separate receiving allocation.
+- **P_U902 TPS3703A5500DSER** senses the 5 V preregulator directly and is powered from held 3.3 V. CT/MR are open, and its open-drain RESET is wired-OR with E_U900's reset. P_C906 is another **C0603C104K5RACTU** bypass. The shared reset net is renamed globally to PWR_AUX_FAST_RESET_N; it still drives E_U31.6. The single 10 kΩ pullup is on the held rail. Combined RESET loading must satisfy the supervisor's 10 pF test condition.
+
+The second supervisor is essential. A separate held rail may decay before main AUX reaches its own threshold; therefore starting a hold-up timer at loss of 5 V while waiting only for AUX undervoltage was incorrect. The first draft without this monitor was rejected before promotion. The implemented 5 V supervisor has a maximum UV release threshold of 4.82125 V and minimum OV threshold of 5.21325 V. Candidate01's conditional 4.870693–5.190925 V preregulator range fits, with 49.443 mV / 22.325 mV static margins. Ripple and distribution still require inclusion.
+
+## Current and timing evidence
+
+`analysis.json` enumerates every contact on the four retained gate outputs and checks the resistor branches against the native netlist. Three 47 kΩ pulldowns, one 10 kΩ pulldown, and four 100 Ω + 10 kΩ receiver branches total **1.933281 mA** at 3.3495 V under a ±3% resistor envelope. This is a bounded passive subtotal under that envelope; it excludes input leakage. The four 10 kΩ TT branches have no parallel startup capacitor.
+
+The Si8751 table contributes **38 mA only under IN=VDD, TT=10 kΩ and the 100 pF gate-load test conditions**. It provides no IN-low maximum, no input-leakage maximum, and no maximum for the actual input transitions/paired MOSFET load. AUP2G08 current specifications also do not cover every falling-input state. E_J6.2 and E_J9.5 expose MASTER_ENABLE with no external load contract found. **A complete actual held-load bound cannot be obtained from the retained primary data.** The design's 100 mA drain limit must be established by supplier data or receiving characterization, including regulator current, leakage, all pin states, transitions and attached header loads. It is not promoted to a manufacturer guarantee.
+
+For a monotonically falling 5 V source, the new supervisor's worst 5%-overdrive endpoint is **4.4809125 V**. With total feed-resistor error ±3%, drain ≤100 mA, instantaneous ESR/distribution loss ≤20 mV, and reservoir ≥200 µF effective, the RC node is ≥3.9768125 V at that endpoint. Conservatively setting the upstream source immediately to zero gives
+
+`V(t) = (V0 + I·R) exp(−t/(R·C)) − I·R`.
+
+Using maximum R for the initial drop and minimum R for discharge yields **81.003 µs** until the LDO input reaches 3.6 V. While within this interval the decisive gates remain in their tabulated 3.0–3.6 V band. The 30 µs supervisor assertion maximum plus the retained **unqualified 1 µs gate/loading allocation** leaves **50.003 µs** for actual driver/MOSFET shutdown. The Si8751's 35 µs figure at 100 pF is not used as proof for the installed paired CSD18540Q5B plus 22 Ω network. Required effective C for a 100 µs regulated window is 246.903 µF under the same allocations.
+
+This is not a proof of instantaneous-fault safety: a local AUX short can invalidate the monitor comparators before a 30 µs reaction. The original “inhibit before monitor invalidity” criterion cannot be inferred for an arbitrarily fast local short. A held-rail short, repeated faults before recharge, arbitrary supply oscillation, and unbounded header loads are also outside this model. The actual permitted unsafe interval/fault-withstand limit is an external system requirement that remains unspecified.
+
+## Qualification and review
+
+R902's nominal steady dissipation is below 0.05 W at the receiving load limit. The worst initial charge/short pulse is about 5.91 W, and the maximum initial-tolerance reservoir energy is about 7.11 mJ. Vishay's page-5 pulse curves were visually inspected; use its repetitive-pulse and temperature-derating conditions when accepting a recharge/fault cycle schedule. Average power alone is insufficient. Polymer ESR/leakage specifications are at particular conditions; effective C, leakage and pulse behavior over the required environment remain unqualified.
+
+The LDO's stated 1150 µs startup maximum is at 1 mA, 1 µF and VIN=VOUT+0.3 V; it does not bound startup of this actual load/capacitor network. TPS3703 startup remains nominal-only. Test initial power-up and all partial-power orderings. After the regulated hold window, check the LDO reverse-current limit (5% of its rated current for a short period) and VOUT≤VIN+0.3 V, along with safe driver discharge and cross-domain pins. The regulated-window calculation does not waive those limits.
+
+Native pinned Linux KiCad ERC introduces **zero violations**, retaining only the two inherited ground-name warnings. Compared with candidate01: **1095 existing parts preserved, nine new parts, no value changes, exactly 18 moved existing pin nets** (15 held-supply contacts plus three reset-net aliases). The union-of-pin-key audit rejects accidental new or removed connections, exact added-part pin sets are checked, and both native source input sets are hash-verified. `python -m hardware.qualification.two_board_aux_current_08.held_rail.verify` repeats the check.
+
+New footprint assignments remain pending for R902, both bulk capacitors and U902; candidate01's three unassigned footprints also remain. The 2.9×2.8 mm LDO uses the bundled SOT-23-5 pattern pending land-pattern review. No footprint or added height is accepted for the housing by this schematic check.
+
+Self-review repaired the missing early 5 V monitor, corrected the timer's start voltage from the normal rail to the worst detection endpoint, and added the resistor-fed input power declaration without suppressing ERC. Four numerical/regression checks include independent time-domain integration of the RC discharge, preservation of the missing current/gate bounds, the minimum-load condition, and the early-monitor requirement. Together with earlier numerical and native-audit regressions, 35 tests pass. This is a conditional implementable prototype, not completed electrical qualification.

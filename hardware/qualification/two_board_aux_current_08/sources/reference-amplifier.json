@@ -1,0 +1,1830 @@
+{
+  "source_sha256": {
+    "hardware/fabrication/analyze_two_board_aux_reference_amplifier.py": "f97e746e940f7355b8940d063d90354c624e008ed62c0b7e7ea9c06845988e10",
+    "hardware/fabrication/staging/two-board-power-startup-remaining-native-03/netlist.xml": "80894d753180973c8eb47d173049341d3fe037cefe283f06f15df9d1ccf59abc",
+    "hardware/fabrication/staging/two-board-power-startup-remaining-native-03/review.json": "ac70176764093e9317923d72502e2ac499189405685f84595cc9d1114d84d3b4",
+    "hardware/fabrication/staging/two-board-aux-resistor-networks-01/analysis.json": "ce8dde765a31b109a626dcbf7027a79319ec2111845546bbf9cb26e306e82182",
+    "hardware/fabrication/staging/two-board-aux-resistor-networks-01/verification.json": "fafbc624702ec7edf2355b32052b3dd8102611dfbd8dbec1a7a24595d5c3f3c7",
+    "hardware/fabrication/assess_two_board_aux_load.py": "8ae0c1f330101c1b10d9930c20906350a12874465855816b0d9811a1af7b3a47",
+    "hardware/fabrication/analyze_two_board_aux_resistor_networks.py": "8eae527a767956c294ef7f876b73ad46c8927f65994987e8f31a8e78607087af",
+    "hardware/qualification/boards/aux_current_partition/sources/primary/REF35.pdf": "a3ba3224bd4fb37a551b3f15aa492713af0734511488d930926c6727a2e31dd4",
+    "hardware/qualification/boards/aux_current_partition/sources/primary/OPA333.pdf": "df60da7154848c5706e2c7743b5d532fb9b4db97b74b88d0b62b657f73c1f1b7"
+  },
+  "selected_revision": "TBP50",
+  "reference_networks": [
+    {
+      "id": "E_R59",
+      "roots": [
+        "E_R59"
+      ],
+      "resistors": [
+        {
+          "ref": "E_R59",
+          "nets": [
+            "E_rail_disconnect/P19_OV_REF",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R60",
+          "nets": [
+            "E_rail_disconnect/P19_OV_OK",
+            "E_rail_disconnect/P19_OV_REF"
+          ],
+          "nominal_ohm": 20000000.0,
+          "value": "20M 1%"
+        },
+        {
+          "ref": "E_R61",
+          "nets": [
+            "E_rail_disconnect/P19_OV_OK",
+            "PWR_V2V5_AUX"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 1%"
+        }
+      ],
+      "nodes": [
+        "E_rail_disconnect/P19_OV_OK",
+        "E_rail_disconnect/P19_OV_REF",
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "boundary_nodes": [
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "sink_nodes": [
+        "E_rail_disconnect/P19_OV_OK"
+      ],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "E_rail_disconnect/P19_OV_OK": [
+          {
+            "ref": "E_U36",
+            "pin": "1",
+            "pinfunction": "1A_1",
+            "pintype": "input",
+            "value": "SN74AUP3G17DCUR"
+          },
+          {
+            "ref": "E_U9",
+            "pin": "2",
+            "pinfunction": "1OUT_2",
+            "pintype": "open_collector",
+            "value": "TLV1824DR"
+          }
+        ],
+        "E_rail_disconnect/P19_OV_REF": [
+          {
+            "ref": "E_U9",
+            "pin": "5",
+            "pinfunction": "1+_5",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ]
+      },
+      "reference_current_range_A": [
+        -7.53112866514832e-08,
+        6.504479718904881e-08
+      ]
+    },
+    {
+      "id": "E_R62",
+      "roots": [
+        "E_R62"
+      ],
+      "resistors": [
+        {
+          "ref": "E_R62",
+          "nets": [
+            "E_rail_disconnect/N19_OV_REF",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R63",
+          "nets": [
+            "E_rail_disconnect/N19_OV_REF",
+            "PWR_N19_OV_OK"
+          ],
+          "nominal_ohm": 20000000.0,
+          "value": "20M 1%"
+        },
+        {
+          "ref": "E_R64",
+          "nets": [
+            "PWR_N19_OV_OK",
+            "PWR_V2V5_AUX"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 1%"
+        }
+      ],
+      "nodes": [
+        "E_rail_disconnect/N19_OV_REF",
+        "PWR_N19_OV_OK",
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "boundary_nodes": [
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "sink_nodes": [
+        "PWR_N19_OV_OK"
+      ],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "E_rail_disconnect/N19_OV_REF": [
+          {
+            "ref": "E_U9",
+            "pin": "7",
+            "pinfunction": "2+_7",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ],
+        "PWR_N19_OV_OK": [
+          {
+            "ref": "E_U36",
+            "pin": "3",
+            "pinfunction": "2A_3",
+            "pintype": "input",
+            "value": "SN74AUP3G17DCUR"
+          },
+          {
+            "ref": "E_U9",
+            "pin": "1",
+            "pinfunction": "2OUT_1",
+            "pintype": "open_collector",
+            "value": "TLV1824DR"
+          },
+          {
+            "ref": "N_J1",
+            "pin": "9",
+            "pinfunction": "N19_OV_OK_9",
+            "pintype": "passive",
+            "value": "NEW NF03C CONTROL/KELVIN INTERFACE - physical connector unselected"
+          },
+          {
+            "ref": "N_U42",
+            "pin": "5",
+            "pinfunction": "2B_5",
+            "pintype": "input",
+            "value": "SN74HCS08PWR"
+          }
+        ]
+      },
+      "reference_current_range_A": [
+        -7.53112866514832e-08,
+        6.504479718904881e-08
+      ]
+    },
+    {
+      "id": "E_R67",
+      "roots": [
+        "E_R67"
+      ],
+      "resistors": [
+        {
+          "ref": "E_R67",
+          "nets": [
+            "E_rail_disconnect/P12_OV_REF",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R68",
+          "nets": [
+            "E_rail_disconnect/P12_OV_OK",
+            "E_rail_disconnect/P12_OV_REF"
+          ],
+          "nominal_ohm": 20000000.0,
+          "value": "20M 1%"
+        },
+        {
+          "ref": "E_R69",
+          "nets": [
+            "E_rail_disconnect/P12_OV_OK",
+            "PWR_V2V5_AUX"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 1%"
+        }
+      ],
+      "nodes": [
+        "E_rail_disconnect/P12_OV_OK",
+        "E_rail_disconnect/P12_OV_REF",
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "boundary_nodes": [
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "sink_nodes": [
+        "E_rail_disconnect/P12_OV_OK"
+      ],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "E_rail_disconnect/P12_OV_OK": [
+          {
+            "ref": "E_U36",
+            "pin": "6",
+            "pinfunction": "3A_6",
+            "pintype": "input",
+            "value": "SN74AUP3G17DCUR"
+          },
+          {
+            "ref": "E_U9",
+            "pin": "14",
+            "pinfunction": "3OUT_14",
+            "pintype": "open_collector",
+            "value": "TLV1824DR"
+          }
+        ],
+        "E_rail_disconnect/P12_OV_REF": [
+          {
+            "ref": "E_U9",
+            "pin": "9",
+            "pinfunction": "3+_9",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ]
+      },
+      "reference_current_range_A": [
+        -7.53112866514832e-08,
+        6.504479718904881e-08
+      ]
+    },
+    {
+      "id": "E_R70",
+      "roots": [
+        "E_R70"
+      ],
+      "resistors": [
+        {
+          "ref": "E_R70",
+          "nets": [
+            "E_rail_disconnect/N12_OV_REF",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R71",
+          "nets": [
+            "E_rail_disconnect/N12_OV_REF",
+            "PWR_N12_OV_OK"
+          ],
+          "nominal_ohm": 20000000.0,
+          "value": "20M 1%"
+        },
+        {
+          "ref": "E_R72",
+          "nets": [
+            "PWR_N12_OV_OK",
+            "PWR_V2V5_AUX"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 1%"
+        }
+      ],
+      "nodes": [
+        "E_rail_disconnect/N12_OV_REF",
+        "PWR_N12_OV_OK",
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "boundary_nodes": [
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "sink_nodes": [
+        "PWR_N12_OV_OK"
+      ],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "E_rail_disconnect/N12_OV_REF": [
+          {
+            "ref": "E_U9",
+            "pin": "11",
+            "pinfunction": "4+_11",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ],
+        "PWR_N12_OV_OK": [
+          {
+            "ref": "E_U37",
+            "pin": "1",
+            "pinfunction": "1A_1",
+            "pintype": "input",
+            "value": "SN74AUP3G17DCUR"
+          },
+          {
+            "ref": "E_U9",
+            "pin": "13",
+            "pinfunction": "4OUT_13",
+            "pintype": "open_collector",
+            "value": "TLV1824DR"
+          },
+          {
+            "ref": "N_J1",
+            "pin": "10",
+            "pinfunction": "N12_OV_OK_10",
+            "pintype": "passive",
+            "value": "NEW NF03C CONTROL/KELVIN INTERFACE - physical connector unselected"
+          },
+          {
+            "ref": "N_U43",
+            "pin": "5",
+            "pinfunction": "2B_5",
+            "pintype": "input",
+            "value": "SN74HCS08PWR"
+          }
+        ]
+      },
+      "reference_current_range_A": [
+        -7.53112866514832e-08,
+        6.504479718904881e-08
+      ]
+    },
+    {
+      "id": "E_R75",
+      "roots": [
+        "E_R75"
+      ],
+      "resistors": [
+        {
+          "ref": "E_R75",
+          "nets": [
+            "E_rail_disconnect/V5_REG_OV_REF",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R76",
+          "nets": [
+            "E_rail_disconnect/V5_REG_OV_OK",
+            "E_rail_disconnect/V5_REG_OV_REF"
+          ],
+          "nominal_ohm": 20000000.0,
+          "value": "20M 1%"
+        },
+        {
+          "ref": "E_R77",
+          "nets": [
+            "E_rail_disconnect/V5_REG_OV_OK",
+            "PWR_V2V5_AUX"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 1%"
+        }
+      ],
+      "nodes": [
+        "E_rail_disconnect/V5_REG_OV_OK",
+        "E_rail_disconnect/V5_REG_OV_REF",
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "boundary_nodes": [
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "sink_nodes": [
+        "E_rail_disconnect/V5_REG_OV_OK"
+      ],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "E_rail_disconnect/V5_REG_OV_OK": [
+          {
+            "ref": "E_U10",
+            "pin": "2",
+            "pinfunction": "1OUT_2",
+            "pintype": "open_collector",
+            "value": "TLV1824DR"
+          },
+          {
+            "ref": "E_U37",
+            "pin": "3",
+            "pinfunction": "2A_3",
+            "pintype": "input",
+            "value": "SN74AUP3G17DCUR"
+          }
+        ],
+        "E_rail_disconnect/V5_REG_OV_REF": [
+          {
+            "ref": "E_U10",
+            "pin": "5",
+            "pinfunction": "1+_5",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ]
+      },
+      "reference_current_range_A": [
+        -7.53112866514832e-08,
+        6.504479718904881e-08
+      ]
+    },
+    {
+      "id": "E_R80",
+      "roots": [
+        "E_R80"
+      ],
+      "resistors": [
+        {
+          "ref": "E_R80",
+          "nets": [
+            "E_rail_disconnect/5V_DIG_OV_REF",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R81",
+          "nets": [
+            "E_rail_disconnect/5V_DIG_OV_OK",
+            "E_rail_disconnect/5V_DIG_OV_REF"
+          ],
+          "nominal_ohm": 20000000.0,
+          "value": "20M 1%"
+        },
+        {
+          "ref": "E_R82",
+          "nets": [
+            "E_rail_disconnect/5V_DIG_OV_OK",
+            "PWR_V2V5_AUX"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 1%"
+        }
+      ],
+      "nodes": [
+        "E_rail_disconnect/5V_DIG_OV_OK",
+        "E_rail_disconnect/5V_DIG_OV_REF",
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "boundary_nodes": [
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "sink_nodes": [
+        "E_rail_disconnect/5V_DIG_OV_OK"
+      ],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "E_rail_disconnect/5V_DIG_OV_OK": [
+          {
+            "ref": "E_U10",
+            "pin": "1",
+            "pinfunction": "2OUT_1",
+            "pintype": "open_collector",
+            "value": "TLV1824DR"
+          },
+          {
+            "ref": "E_U37",
+            "pin": "6",
+            "pinfunction": "3A_6",
+            "pintype": "input",
+            "value": "SN74AUP3G17DCUR"
+          }
+        ],
+        "E_rail_disconnect/5V_DIG_OV_REF": [
+          {
+            "ref": "E_U10",
+            "pin": "7",
+            "pinfunction": "2+_7",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ]
+      },
+      "reference_current_range_A": [
+        -7.53112866514832e-08,
+        6.504479718904881e-08
+      ]
+    },
+    {
+      "id": "E_R85",
+      "roots": [
+        "E_R85"
+      ],
+      "resistors": [
+        {
+          "ref": "E_R85",
+          "nets": [
+            "E_rail_disconnect/REF_LOW_POSITIVE",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R86",
+          "nets": [
+            "E_rail_disconnect/REF_LOW_OK",
+            "E_rail_disconnect/REF_LOW_POSITIVE"
+          ],
+          "nominal_ohm": 20000000.0,
+          "value": "20M 1%"
+        },
+        {
+          "ref": "E_R87",
+          "nets": [
+            "E_rail_disconnect/REF_LOW_OK",
+            "PWR_V2V5_AUX"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 1%"
+        }
+      ],
+      "nodes": [
+        "E_rail_disconnect/REF_LOW_OK",
+        "E_rail_disconnect/REF_LOW_POSITIVE",
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "boundary_nodes": [
+        "PWR_PROTECT_REF",
+        "PWR_V2V5_AUX"
+      ],
+      "sink_nodes": [
+        "E_rail_disconnect/REF_LOW_OK"
+      ],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "E_rail_disconnect/REF_LOW_OK": [
+          {
+            "ref": "E_U10",
+            "pin": "14",
+            "pinfunction": "3OUT_14",
+            "pintype": "open_collector",
+            "value": "TLV1824DR"
+          },
+          {
+            "ref": "E_U38",
+            "pin": "1",
+            "pinfunction": "1A_1",
+            "pintype": "input",
+            "value": "SN74AUP3G17DCUR"
+          }
+        ],
+        "E_rail_disconnect/REF_LOW_POSITIVE": [
+          {
+            "ref": "E_U10",
+            "pin": "9",
+            "pinfunction": "3+_9",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ]
+      },
+      "reference_current_range_A": [
+        -7.53112866514832e-08,
+        6.504479718904881e-08
+      ]
+    },
+    {
+      "id": "E_R94",
+      "roots": [
+        "E_R94"
+      ],
+      "resistors": [
+        {
+          "ref": "E_R94",
+          "nets": [
+            "PWR_AGND",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 0.01% 5ppm"
+        }
+      ],
+      "nodes": [
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "boundary_nodes": [
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "sink_nodes": [],
+      "has_power_switch": false,
+      "non_resistor_contacts": {},
+      "reference_current_range_A": [
+        0.00012014563106796118,
+        0.00013015463917525773
+      ]
+    },
+    {
+      "id": "N_R25",
+      "roots": [
+        "N_R25"
+      ],
+      "resistors": [
+        {
+          "ref": "N_R25",
+          "nets": [
+            "N_negative_startup_protection/N19_OUT_UV_RMID",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 8660.0,
+          "value": "8660ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R26",
+          "nets": [
+            "N_negative_startup_protection/N19_OUT_UV_REF",
+            "N_negative_startup_protection/N19_OUT_UV_RMID"
+          ],
+          "nominal_ohm": 35.7,
+          "value": "35.7ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R27",
+          "nets": [
+            "N_negative_startup_protection/N19_OUT_UV_REF",
+            "PWR_AGND"
+          ],
+          "nominal_ohm": 100000.0,
+          "value": "100k COMPLETE0.1% RECEIVING"
+        }
+      ],
+      "nodes": [
+        "N_negative_startup_protection/N19_OUT_UV_REF",
+        "N_negative_startup_protection/N19_OUT_UV_RMID",
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "boundary_nodes": [
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "sink_nodes": [],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "N_negative_startup_protection/N19_OUT_UV_REF": [
+          {
+            "ref": "N_U15",
+            "pin": "4",
+            "pinfunction": "IN1-_4",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ],
+        "N_negative_startup_protection/N19_OUT_UV_RMID": []
+      },
+      "reference_current_range_A": [
+        1.1053393194760006e-05,
+        1.1974221535464067e-05
+      ]
+    },
+    {
+      "id": "N_R29",
+      "roots": [
+        "N_R29"
+      ],
+      "resistors": [
+        {
+          "ref": "N_R29",
+          "nets": [
+            "N_negative_startup_protection/N19_OUT_OV_RMID",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 2000.0,
+          "value": "2000ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R30",
+          "nets": [
+            "N_negative_startup_protection/N19_OUT_OV_REF",
+            "N_negative_startup_protection/N19_OUT_OV_RMID"
+          ],
+          "nominal_ohm": 40.2,
+          "value": "40.2ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R31",
+          "nets": [
+            "N_negative_startup_protection/N19_OUT_OV_REF",
+            "PWR_AGND"
+          ],
+          "nominal_ohm": 100000.0,
+          "value": "100k COMPLETE0.1% RECEIVING"
+        }
+      ],
+      "nodes": [
+        "N_negative_startup_protection/N19_OUT_OV_REF",
+        "N_negative_startup_protection/N19_OUT_OV_RMID",
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "boundary_nodes": [
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "sink_nodes": [],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "N_negative_startup_protection/N19_OUT_OV_REF": [
+          {
+            "ref": "N_U15",
+            "pin": "7",
+            "pinfunction": "IN2+_7",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ],
+        "N_negative_startup_protection/N19_OUT_OV_RMID": []
+      },
+      "reference_current_range_A": [
+        1.1774342961693666e-05,
+        1.2755231680778832e-05
+      ]
+    },
+    {
+      "id": "N_R33",
+      "roots": [
+        "N_R33"
+      ],
+      "resistors": [
+        {
+          "ref": "N_R33",
+          "nets": [
+            "N_negative_startup_protection/N19_SOURCE_UV_RMID",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 6040.0,
+          "value": "6040ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R34",
+          "nets": [
+            "N_negative_startup_protection/N19_SOURCE_UV_REF",
+            "N_negative_startup_protection/N19_SOURCE_UV_RMID"
+          ],
+          "nominal_ohm": 75.0,
+          "value": "75ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R35",
+          "nets": [
+            "N_negative_startup_protection/N19_SOURCE_UV_REF",
+            "PWR_AGND"
+          ],
+          "nominal_ohm": 100000.0,
+          "value": "100k COMPLETE0.1% RECEIVING"
+        }
+      ],
+      "nodes": [
+        "N_negative_startup_protection/N19_SOURCE_UV_REF",
+        "N_negative_startup_protection/N19_SOURCE_UV_RMID",
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "boundary_nodes": [
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "sink_nodes": [],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "N_negative_startup_protection/N19_SOURCE_UV_REF": [
+          {
+            "ref": "N_U14",
+            "pin": "2",
+            "pinfunction": "IN1-_2",
+            "pintype": "input",
+            "value": "TLV1822DR"
+          }
+        ],
+        "N_negative_startup_protection/N19_SOURCE_UV_RMID": []
+      },
+      "reference_current_range_A": [
+        1.132220996729672e-05,
+        1.2265432707465237e-05
+      ]
+    },
+    {
+      "id": "N_R42",
+      "roots": [
+        "N_R42"
+      ],
+      "resistors": [
+        {
+          "ref": "N_R42",
+          "nets": [
+            "N_negative_startup_protection/N12_OUT_UV_RMID",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 10700.0,
+          "value": "10700ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R43",
+          "nets": [
+            "N_negative_startup_protection/N12_OUT_UV_REF",
+            "N_negative_startup_protection/N12_OUT_UV_RMID"
+          ],
+          "nominal_ohm": 169.0,
+          "value": "169ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R44",
+          "nets": [
+            "N_negative_startup_protection/N12_OUT_UV_REF",
+            "PWR_AGND"
+          ],
+          "nominal_ohm": 100000.0,
+          "value": "100k COMPLETE0.1% RECEIVING"
+        }
+      ],
+      "nodes": [
+        "N_negative_startup_protection/N12_OUT_UV_REF",
+        "N_negative_startup_protection/N12_OUT_UV_RMID",
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "boundary_nodes": [
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "sink_nodes": [],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "N_negative_startup_protection/N12_OUT_UV_REF": [
+          {
+            "ref": "N_U15",
+            "pin": "8",
+            "pinfunction": "IN3-_8",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ],
+        "N_negative_startup_protection/N12_OUT_UV_RMID": []
+      },
+      "reference_current_range_A": [
+        1.0836720009015851e-05,
+        1.1739497891678819e-05
+      ]
+    },
+    {
+      "id": "N_R46",
+      "roots": [
+        "N_R46"
+      ],
+      "resistors": [
+        {
+          "ref": "N_R46",
+          "nets": [
+            "N_negative_startup_protection/N12_OUT_OV_REF",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 2000.0,
+          "value": "2000ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R47",
+          "nets": [
+            "N_negative_startup_protection/N12_OUT_OV_REF",
+            "PWR_AGND"
+          ],
+          "nominal_ohm": 100000.0,
+          "value": "100k COMPLETE0.1% RECEIVING"
+        }
+      ],
+      "nodes": [
+        "N_negative_startup_protection/N12_OUT_OV_REF",
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "boundary_nodes": [
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "sink_nodes": [],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "N_negative_startup_protection/N12_OUT_OV_REF": [
+          {
+            "ref": "N_U15",
+            "pin": "11",
+            "pinfunction": "IN4+_11",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ]
+      },
+      "reference_current_range_A": [
+        1.1778983438035366e-05,
+        1.2760258742672395e-05
+      ]
+    },
+    {
+      "id": "N_R49",
+      "roots": [
+        "N_R49"
+      ],
+      "resistors": [
+        {
+          "ref": "N_R49",
+          "nets": [
+            "N_negative_startup_protection/N12_SOURCE_UV_RMID",
+            "PWR_PROTECT_REF"
+          ],
+          "nominal_ohm": 8660.0,
+          "value": "8660ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R50",
+          "nets": [
+            "N_negative_startup_protection/N12_SOURCE_UV_REF",
+            "N_negative_startup_protection/N12_SOURCE_UV_RMID"
+          ],
+          "nominal_ohm": 35.7,
+          "value": "35.7ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R51",
+          "nets": [
+            "N_negative_startup_protection/N12_SOURCE_UV_REF",
+            "PWR_AGND"
+          ],
+          "nominal_ohm": 100000.0,
+          "value": "100k COMPLETE0.1% RECEIVING"
+        }
+      ],
+      "nodes": [
+        "N_negative_startup_protection/N12_SOURCE_UV_REF",
+        "N_negative_startup_protection/N12_SOURCE_UV_RMID",
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "boundary_nodes": [
+        "PWR_AGND",
+        "PWR_PROTECT_REF"
+      ],
+      "sink_nodes": [],
+      "has_power_switch": false,
+      "non_resistor_contacts": {
+        "N_negative_startup_protection/N12_SOURCE_UV_REF": [
+          {
+            "ref": "N_U14",
+            "pin": "6",
+            "pinfunction": "IN2-_6",
+            "pintype": "input",
+            "value": "TLV1822DR"
+          }
+        ],
+        "N_negative_startup_protection/N12_SOURCE_UV_RMID": []
+      },
+      "reference_current_range_A": [
+        1.1053393194760006e-05,
+        1.1974221535464067e-05
+      ]
+    }
+  ],
+  "amplifier_channels": [
+    {
+      "id": "E_U8.1",
+      "package": "E_U8",
+      "output_pin": "1",
+      "inverting_pin": "2",
+      "noninverting_pin": "3",
+      "output_node": "E_rail_disconnect/N19_INV",
+      "summing_node": "E_rail_disconnect/N19_SUM",
+      "rail_node": "PWR_N19_SOURCE",
+      "nominal_rail_V": -19.0,
+      "feedback_resistor": "E_R51",
+      "input_resistors": [
+        "E_R49",
+        "E_R50"
+      ],
+      "resistors": [
+        {
+          "ref": "E_R49",
+          "nets": [
+            "E_rail_disconnect/N19_INPUT_MID",
+            "PWR_N19_SOURCE"
+          ],
+          "nominal_ohm": 150000.0,
+          "value": "150k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R50",
+          "nets": [
+            "E_rail_disconnect/N19_INPUT_MID",
+            "E_rail_disconnect/N19_SUM"
+          ],
+          "nominal_ohm": 6200.0,
+          "value": "6.2k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R51",
+          "nets": [
+            "E_rail_disconnect/N19_INV",
+            "E_rail_disconnect/N19_SUM"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R52",
+          "nets": [
+            "E_rail_disconnect/N19_INV",
+            "PWR_N19_OV_SENSE"
+          ],
+          "nominal_ohm": 1000.0,
+          "value": "1k 1%"
+        },
+        {
+          "ref": "N_R36",
+          "nets": [
+            "N_negative_startup_protection/N19_SOURCE_UV_SENSE",
+            "PWR_N19_OV_SENSE"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k COMPLETE3% RECEIVING"
+        }
+      ],
+      "nodes": [
+        "E_rail_disconnect/N19_INPUT_MID",
+        "E_rail_disconnect/N19_INV",
+        "E_rail_disconnect/N19_SUM",
+        "N_negative_startup_protection/N19_SOURCE_UV_SENSE",
+        "PWR_N19_OV_SENSE",
+        "PWR_N19_SOURCE"
+      ],
+      "non_resistor_contacts": {
+        "E_rail_disconnect/N19_INPUT_MID": [],
+        "E_rail_disconnect/N19_INV": [
+          {
+            "ref": "E_U8",
+            "pin": "1",
+            "pinfunction": "OUT_A_1",
+            "pintype": "output",
+            "value": "OPA2333AID"
+          }
+        ],
+        "E_rail_disconnect/N19_SUM": [
+          {
+            "ref": "E_U8",
+            "pin": "2",
+            "pinfunction": "IN-_A_2",
+            "pintype": "input",
+            "value": "OPA2333AID"
+          }
+        ],
+        "N_negative_startup_protection/N19_SOURCE_UV_SENSE": [
+          {
+            "ref": "N_U14",
+            "pin": "3",
+            "pinfunction": "IN1+_3",
+            "pintype": "input",
+            "value": "TLV1822DR"
+          }
+        ],
+        "PWR_N19_OV_SENSE": [
+          {
+            "ref": "E_C27",
+            "pin": "1",
+            "pinfunction": "1_1",
+            "pintype": "passive",
+            "value": "100pF 50V C0G 5%"
+          },
+          {
+            "ref": "E_U9",
+            "pin": "6",
+            "pinfunction": "2-_6",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          },
+          {
+            "ref": "N_J1",
+            "pin": "11",
+            "pinfunction": "N19_OV_SENSE_11",
+            "pintype": "passive",
+            "value": "NEW NF03C CONTROL/KELVIN INTERFACE - physical connector unselected"
+          }
+        ]
+      },
+      "nominal": {
+        "node_voltage_V": {
+          "E_rail_disconnect/N19_INPUT_MID": -0.7541613316261203,
+          "E_rail_disconnect/N19_INV": 1.2163892445582585,
+          "E_rail_disconnect/N19_SUM": 0.0,
+          "N_negative_startup_protection/N19_SOURCE_UV_SENSE": 1.2163892445582585,
+          "PWR_N19_OV_SENSE": 1.2163892445582585,
+          "PWR_N19_SOURCE": -19.0
+        },
+        "resistor_current_A": {
+          "E_R49": 0.00012163892445582586,
+          "E_R50": -0.00012163892445582586,
+          "E_R51": 0.00012163892445582584,
+          "E_R52": 0.0,
+          "N_R36": 0.0
+        },
+        "output_source_A": 0.00012163892445582594,
+        "output_V": 1.2163892445582585
+      },
+      "output_current_range_A": [
+        0.00011809604316099575,
+        0.00012540095304724327
+      ],
+      "output_voltage_range_V": [
+        1.145531618661661,
+        1.2916298163866047
+      ],
+      "nominal_pin_injection_transfers": [
+        {
+          "node": "E_rail_disconnect/N19_SUM",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": -10000.000000000231
+        },
+        {
+          "node": "N_negative_startup_protection/N19_SOURCE_UV_SENSE",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": 0.0
+        },
+        {
+          "node": "PWR_N19_OV_SENSE",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": 0.0
+        }
+      ]
+    },
+    {
+      "id": "E_U8.7",
+      "package": "E_U8",
+      "output_pin": "7",
+      "inverting_pin": "6",
+      "noninverting_pin": "5",
+      "output_node": "E_rail_disconnect/N12_INV",
+      "summing_node": "E_rail_disconnect/N12_SUM",
+      "rail_node": "PWR_N12_SOURCE",
+      "nominal_rail_V": -12.0,
+      "feedback_resistor": "E_R54",
+      "input_resistors": [
+        "E_R53"
+      ],
+      "resistors": [
+        {
+          "ref": "E_R53",
+          "nets": [
+            "E_rail_disconnect/N12_SUM",
+            "PWR_N12_SOURCE"
+          ],
+          "nominal_ohm": 100000.0,
+          "value": "100k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R54",
+          "nets": [
+            "E_rail_disconnect/N12_INV",
+            "E_rail_disconnect/N12_SUM"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k 0.01% 5ppm"
+        },
+        {
+          "ref": "E_R55",
+          "nets": [
+            "E_rail_disconnect/N12_INV",
+            "PWR_N12_OV_SENSE"
+          ],
+          "nominal_ohm": 1000.0,
+          "value": "1k 1%"
+        },
+        {
+          "ref": "N_R52",
+          "nets": [
+            "N_negative_startup_protection/N12_SOURCE_UV_SENSE",
+            "PWR_N12_OV_SENSE"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k COMPLETE3% RECEIVING"
+        }
+      ],
+      "nodes": [
+        "E_rail_disconnect/N12_INV",
+        "E_rail_disconnect/N12_SUM",
+        "N_negative_startup_protection/N12_SOURCE_UV_SENSE",
+        "PWR_N12_OV_SENSE",
+        "PWR_N12_SOURCE"
+      ],
+      "non_resistor_contacts": {
+        "E_rail_disconnect/N12_INV": [
+          {
+            "ref": "E_U8",
+            "pin": "7",
+            "pinfunction": "OUT_B_7",
+            "pintype": "output",
+            "value": "OPA2333AID"
+          }
+        ],
+        "E_rail_disconnect/N12_SUM": [
+          {
+            "ref": "E_U8",
+            "pin": "6",
+            "pinfunction": "IN-_B_6",
+            "pintype": "input",
+            "value": "OPA2333AID"
+          }
+        ],
+        "N_negative_startup_protection/N12_SOURCE_UV_SENSE": [
+          {
+            "ref": "N_U14",
+            "pin": "5",
+            "pinfunction": "IN2+_5",
+            "pintype": "input",
+            "value": "TLV1822DR"
+          }
+        ],
+        "PWR_N12_OV_SENSE": [
+          {
+            "ref": "E_C28",
+            "pin": "1",
+            "pinfunction": "1_1",
+            "pintype": "passive",
+            "value": "100pF 50V C0G 5%"
+          },
+          {
+            "ref": "E_U9",
+            "pin": "10",
+            "pinfunction": "4-_10",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          },
+          {
+            "ref": "N_J1",
+            "pin": "12",
+            "pinfunction": "N12_OV_SENSE_12",
+            "pintype": "passive",
+            "value": "NEW NF03C CONTROL/KELVIN INTERFACE - physical connector unselected"
+          }
+        ]
+      },
+      "nominal": {
+        "node_voltage_V": {
+          "E_rail_disconnect/N12_INV": 1.2,
+          "E_rail_disconnect/N12_SUM": 0.0,
+          "N_negative_startup_protection/N12_SOURCE_UV_SENSE": 1.2,
+          "PWR_N12_OV_SENSE": 1.2,
+          "PWR_N12_SOURCE": -12.0
+        },
+        "resistor_current_A": {
+          "E_R53": 0.00012,
+          "E_R54": 0.00011999999999999999,
+          "E_R55": 0.0,
+          "N_R52": 0.0
+        },
+        "output_source_A": 0.00012000000000000008,
+        "output_V": 1.2
+      },
+      "output_current_range_A": [
+        0.0001165048543689318,
+        0.0001237113402061857
+      ],
+      "output_voltage_range_V": [
+        1.1300970873786405,
+        1.2742268041237115
+      ],
+      "nominal_pin_injection_transfers": [
+        {
+          "node": "E_rail_disconnect/N12_SUM",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": -9999.999999999787
+        },
+        {
+          "node": "N_negative_startup_protection/N12_SOURCE_UV_SENSE",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": 2.220446049250313e-10
+        },
+        {
+          "node": "PWR_N12_OV_SENSE",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": 2.220446049250313e-10
+        }
+      ]
+    },
+    {
+      "id": "N_U13.1",
+      "package": "N_U13",
+      "output_pin": "1",
+      "inverting_pin": "2",
+      "noninverting_pin": "3",
+      "output_node": "N_negative_startup_protection/N19_OUT_INV",
+      "summing_node": "N_negative_startup_protection/N19_OUT_SUM",
+      "rail_node": "PWR_N19",
+      "nominal_rail_V": -19.0,
+      "feedback_resistor": "N_R24",
+      "input_resistors": [
+        "N_R23"
+      ],
+      "resistors": [
+        {
+          "ref": "N_R23",
+          "nets": [
+            "N_negative_startup_protection/N19_OUT_SUM",
+            "PWR_N19"
+          ],
+          "nominal_ohm": 160000.0,
+          "value": "160000ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R24",
+          "nets": [
+            "N_negative_startup_protection/N19_OUT_INV",
+            "N_negative_startup_protection/N19_OUT_SUM"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R28",
+          "nets": [
+            "N_negative_startup_protection/N19_OUT_INV",
+            "N_negative_startup_protection/N19_OUT_UV_SENSE"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k COMPLETE3% RECEIVING"
+        },
+        {
+          "ref": "N_R32",
+          "nets": [
+            "N_negative_startup_protection/N19_OUT_INV",
+            "N_negative_startup_protection/N19_OUT_OV_SENSE"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k COMPLETE3% RECEIVING"
+        }
+      ],
+      "nodes": [
+        "N_negative_startup_protection/N19_OUT_INV",
+        "N_negative_startup_protection/N19_OUT_OV_SENSE",
+        "N_negative_startup_protection/N19_OUT_SUM",
+        "N_negative_startup_protection/N19_OUT_UV_SENSE",
+        "PWR_N19"
+      ],
+      "non_resistor_contacts": {
+        "N_negative_startup_protection/N19_OUT_INV": [
+          {
+            "ref": "N_U13",
+            "pin": "1",
+            "pinfunction": "OUTA_1",
+            "pintype": "output",
+            "value": "OPA2333AID"
+          }
+        ],
+        "N_negative_startup_protection/N19_OUT_OV_SENSE": [
+          {
+            "ref": "N_U15",
+            "pin": "6",
+            "pinfunction": "IN2-_6",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ],
+        "N_negative_startup_protection/N19_OUT_SUM": [
+          {
+            "ref": "N_U13",
+            "pin": "2",
+            "pinfunction": "INA-_2",
+            "pintype": "input",
+            "value": "OPA2333AID"
+          }
+        ],
+        "N_negative_startup_protection/N19_OUT_UV_SENSE": [
+          {
+            "ref": "N_U15",
+            "pin": "5",
+            "pinfunction": "IN1+_5",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ]
+      },
+      "nominal": {
+        "node_voltage_V": {
+          "N_negative_startup_protection/N19_OUT_INV": 1.1875,
+          "N_negative_startup_protection/N19_OUT_OV_SENSE": 1.1875,
+          "N_negative_startup_protection/N19_OUT_SUM": 0.0,
+          "N_negative_startup_protection/N19_OUT_UV_SENSE": 1.1875,
+          "PWR_N19": -19.0
+        },
+        "resistor_current_A": {
+          "N_R23": 0.00011875,
+          "N_R24": 0.00011875,
+          "N_R28": 0.0,
+          "N_R32": 0.0
+        },
+        "output_source_A": 0.00011875,
+        "output_V": 1.1875
+      },
+      "output_current_range_A": [
+        0.00011529126213592233,
+        0.00012242268041237118
+      ],
+      "output_voltage_range_V": [
+        1.1183252427184467,
+        1.2609536082474229
+      ],
+      "nominal_pin_injection_transfers": [
+        {
+          "node": "N_negative_startup_protection/N19_OUT_OV_SENSE",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": 0.0
+        },
+        {
+          "node": "N_negative_startup_protection/N19_OUT_SUM",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": -10000.000000000231
+        },
+        {
+          "node": "N_negative_startup_protection/N19_OUT_UV_SENSE",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": 0.0
+        }
+      ]
+    },
+    {
+      "id": "N_U13.7",
+      "package": "N_U13",
+      "output_pin": "7",
+      "inverting_pin": "6",
+      "noninverting_pin": "5",
+      "output_node": "N_negative_startup_protection/N12_OUT_INV",
+      "summing_node": "N_negative_startup_protection/N12_OUT_SUM",
+      "rail_node": "PWR_N12",
+      "nominal_rail_V": -12.0,
+      "feedback_resistor": "N_R41",
+      "input_resistors": [
+        "N_R40"
+      ],
+      "resistors": [
+        {
+          "ref": "N_R40",
+          "nets": [
+            "N_negative_startup_protection/N12_OUT_SUM",
+            "PWR_N12"
+          ],
+          "nominal_ohm": 102000.0,
+          "value": "102000ohm COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R41",
+          "nets": [
+            "N_negative_startup_protection/N12_OUT_INV",
+            "N_negative_startup_protection/N12_OUT_SUM"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k COMPLETE0.1% RECEIVING"
+        },
+        {
+          "ref": "N_R45",
+          "nets": [
+            "N_negative_startup_protection/N12_OUT_INV",
+            "N_negative_startup_protection/N12_OUT_UV_SENSE"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k COMPLETE3% RECEIVING"
+        },
+        {
+          "ref": "N_R48",
+          "nets": [
+            "N_negative_startup_protection/N12_OUT_INV",
+            "N_negative_startup_protection/N12_OUT_OV_SENSE"
+          ],
+          "nominal_ohm": 10000.0,
+          "value": "10k COMPLETE3% RECEIVING"
+        }
+      ],
+      "nodes": [
+        "N_negative_startup_protection/N12_OUT_INV",
+        "N_negative_startup_protection/N12_OUT_OV_SENSE",
+        "N_negative_startup_protection/N12_OUT_SUM",
+        "N_negative_startup_protection/N12_OUT_UV_SENSE",
+        "PWR_N12"
+      ],
+      "non_resistor_contacts": {
+        "N_negative_startup_protection/N12_OUT_INV": [
+          {
+            "ref": "N_U13",
+            "pin": "7",
+            "pinfunction": "OUTB_7",
+            "pintype": "output",
+            "value": "OPA2333AID"
+          }
+        ],
+        "N_negative_startup_protection/N12_OUT_OV_SENSE": [
+          {
+            "ref": "N_U15",
+            "pin": "10",
+            "pinfunction": "IN4-_10",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ],
+        "N_negative_startup_protection/N12_OUT_SUM": [
+          {
+            "ref": "N_U13",
+            "pin": "6",
+            "pinfunction": "INB-_6",
+            "pintype": "input",
+            "value": "OPA2333AID"
+          }
+        ],
+        "N_negative_startup_protection/N12_OUT_UV_SENSE": [
+          {
+            "ref": "N_U15",
+            "pin": "9",
+            "pinfunction": "IN3+_9",
+            "pintype": "input",
+            "value": "TLV1824DR"
+          }
+        ]
+      },
+      "nominal": {
+        "node_voltage_V": {
+          "N_negative_startup_protection/N12_OUT_INV": 1.1764705882352942,
+          "N_negative_startup_protection/N12_OUT_OV_SENSE": 1.1764705882352942,
+          "N_negative_startup_protection/N12_OUT_SUM": 0.0,
+          "N_negative_startup_protection/N12_OUT_UV_SENSE": 1.1764705882352942,
+          "PWR_N12": -12.0
+        },
+        "resistor_current_A": {
+          "N_R40": 0.00011764705882352942,
+          "N_R41": 0.00011764705882352942,
+          "N_R45": 0.0,
+          "N_R48": 0.0
+        },
+        "output_source_A": 0.00011764705882352942,
+        "output_V": 1.1764705882352942
+      },
+      "output_current_range_A": [
+        0.0001142204454597373,
+        0.00012128562765312316
+      ],
+      "output_voltage_range_V": [
+        1.1079383209594516,
+        1.2492419648271684
+      ],
+      "nominal_pin_injection_transfers": [
+        {
+          "node": "N_negative_startup_protection/N12_OUT_OV_SENSE",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": 0.0
+        },
+        {
+          "node": "N_negative_startup_protection/N12_OUT_SUM",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": -10000.000000000231
+        },
+        {
+          "node": "N_negative_startup_protection/N12_OUT_UV_SENSE",
+          "output_A_change_per_A": -0.9999999999999972,
+          "output_V_change_per_A": 0.0
+        }
+      ]
+    }
+  ],
+  "reference_direct_contacts": [
+    {
+      "ref": "E_C26",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "E_J6",
+      "pin": "3",
+      "pinfunction": "PROTECT_REF_3",
+      "pintype": "passive"
+    },
+    {
+      "ref": "E_R59",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "E_R62",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "E_R67",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "E_R70",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "E_R75",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "E_R80",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "E_R85",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "E_R94",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "E_U10",
+      "pin": "10",
+      "pinfunction": "4-_10",
+      "pintype": "input"
+    },
+    {
+      "ref": "E_U18",
+      "pin": "10",
+      "pinfunction": "REF-_10",
+      "pintype": "input"
+    },
+    {
+      "ref": "E_U18",
+      "pin": "4",
+      "pinfunction": "REF-_4",
+      "pintype": "input"
+    },
+    {
+      "ref": "E_U18",
+      "pin": "6",
+      "pinfunction": "REF-_6",
+      "pintype": "input"
+    },
+    {
+      "ref": "E_U18",
+      "pin": "8",
+      "pinfunction": "REF-_8",
+      "pintype": "input"
+    },
+    {
+      "ref": "E_U7",
+      "pin": "6",
+      "pinfunction": "VREF_6",
+      "pintype": "power_out"
+    },
+    {
+      "ref": "N_J1",
+      "pin": "8",
+      "pinfunction": "PROTECT_REF_8",
+      "pintype": "passive"
+    },
+    {
+      "ref": "N_R25",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "N_R29",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "N_R33",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "N_R42",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "N_R46",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    },
+    {
+      "ref": "N_R49",
+      "pin": "1",
+      "pinfunction": "1_1",
+      "pintype": "passive"
+    }
+  ],
+  "reference_shared_with_prior_AUX_resistors": [
+    "E_R59",
+    "E_R60",
+    "E_R61",
+    "E_R62",
+    "E_R63",
+    "E_R64",
+    "E_R67",
+    "E_R68",
+    "E_R69",
+    "E_R70",
+    "E_R71",
+    "E_R72",
+    "E_R75",
+    "E_R76",
+    "E_R77",
+    "E_R80",
+    "E_R81",
+    "E_R82",
+    "E_R85",
+    "E_R86",
+    "E_R87"
+  ],
+  "reference_new_resistors": [
+    "E_R94",
+    "N_R25",
+    "N_R26",
+    "N_R27",
+    "N_R29",
+    "N_R30",
+    "N_R31",
+    "N_R33",
+    "N_R34",
+    "N_R35",
+    "N_R42",
+    "N_R43",
+    "N_R44",
+    "N_R46",
+    "N_R47",
+    "N_R49",
+    "N_R50",
+    "N_R51"
+  ],
+  "amplifier_resistors": [
+    "E_R49",
+    "E_R50",
+    "E_R51",
+    "E_R52",
+    "E_R53",
+    "E_R54",
+    "E_R55",
+    "N_R23",
+    "N_R24",
+    "N_R28",
+    "N_R32",
+    "N_R36",
+    "N_R40",
+    "N_R41",
+    "N_R45",
+    "N_R48",
+    "N_R52"
+  ],
+  "reference_sum_of_branch_minima_A": 0.0001874374948269624,
+  "reference_sum_of_branch_maxima_A": 0.00020407881684910448,
+  "amplifier_nominal_output_sum_A": 0.0004780359832793554,
+  "amplifier_conditional_output_max_sum_A": 0.0004928206013189233,
+  "scope": "Steady-state, ideal linear amplifiers, zero input/connector leakage, ideal released/zero-volt comparator outputs, fixed reference. Amplifier rail inputs are nominal -19/-12 V only.",
+  "resistor_fraction_requirement": [
+    0.97,
+    1.03
+  ],
+  "actual_total_resistor_bounds_accepted": false,
+  "reference_voltage_requirement_V": [
+    1.2375,
+    1.2625
+  ],
+  "reference_accuracy_qualified": false,
+  "no_shared_AUX_pullup_current_added_again": true,
+  "package_currents_and_pin_leakage_included": false,
+  "input_and_output_dynamic_capacitor_currents_included": false,
+  "negative_rail_extrema_and_startup_fault_states_verified": false,
+  "complete_current_bound_established": false,
+  "fabrication_released": false
+}

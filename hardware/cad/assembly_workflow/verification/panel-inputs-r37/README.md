@@ -1,0 +1,9 @@
+# TAP/AUTO integration
+
+The selected r37 checkpoint has 80 modeled roles and 125 passing assembly checks. It adds S05 (D_J2001:9 CONTROL_02 to TAP terminal 1) and S06 (D_J2001:11 CONTROL_01 to AUTO terminal 1). Six receiving panel-input edges are now selected, leaving 224 further non-ground signal/power segments from the 230-edge inventory. This is routing progress, not a completed physical harness.
+
+Both original holder roles are replaced: the atomic `base_button_holders` and composite `controls_button_mechanisms`. Their replacements delegate all 29 original placements and remove only the source-bound r36 scene-zero plastic channels. Installed display roles and scene flags are retained, so the default assembly shows one mechanism composite without an atomic-holder duplicate. These display roles do not certify printed parts. The upper 0.5 mm switch-bearing layer, full posts, lead bores and nonplastic mechanism remain protected by the r36 proof; printed strength, creep, tolerance and retention remain unqualified.
+
+All 104 previous checks remain, with exactly these two role substitutions. Twenty new checks screen each wire against every one of the 78 prior roles; one additional check screens the two wires against each other. No contact exclusion or interference mask was added. Root reproduced the local analytic/native verifiers and all five invalid-contract mutations before running the complete pinned Linux CAD batch. `results.json` records 125 passes; `selected-status.json` confirms source-bound cache freshness after selection. `scene.json` confirms the displayed replacement is present exactly once.
+
+The selected signal board at this checkpoint is r107 (167 opens), with unchanged r62 mechanical capture and selected TBP73 power board. Full wired service, physical termination, support and manufacturing qualification remain open. `build.py` retains the previous manifest and preserves every unrelated component and board identity.

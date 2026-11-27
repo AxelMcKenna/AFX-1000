@@ -1,0 +1,2214 @@
+                                                                                                                                     TPS3704
+                                                                                          SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+            TPS3704x Quad, Triple, Dual Window or Standard Voltage Supervisor
+
+1 Features                                                             3 Description
+•   Up to four independent voltage supervisor                          The TPS3704x is a low-power precision window or
+    channels:                                                          standard voltage supervisor that can be configured as
+    – Fixed and adjustable window, UV, or OV                           a quad, triple, or dual channel. Each channel has a
+       voltage options. See Table 4-1 for available                    threshold accuracy of ±1% in an 8-pin
+       options.                                                        (1.6 mm x 2.9 mm) SOT-23 package offering a small
+    – Easy to use calculator tool for adjustable                       solution size. The TPS3704x includes a very accurate
+       versions                                                        threshold detection, with high resolution, that is ideal
+    – High threshold accuracy: ±0.25% (typical)                        for systems that operate on low-voltage supply rails
+    – Built-in precision hysteresis: 0.75% (typical)                   and have narrow margin supply tolerances. Built-in
+    – Fixed time delay options                                         low threshold hysteresis and a fixed reset delay
+    – Open drain outputs                                               prevent false reset signals when monitoring multiple
+•   Designed to support Arm-based processors such                      voltage rails.
+    as TDA4, Sitara AM33xx, and advanced FPGAs                         The TPS3704x does not require any external resistors
+    and SOCs                                                           for setting the over and undervoltage reset thresholds,
+•   Low quiescent current: 15 μA (maximum)                             which further optimizes overall high accuracy, cost,
+•   Temperature range: –40°C to +125°C                                 solution size, and improves reliability for safety
+•   Functional Safety-Compliant                                        systems.
+    – Systematic capability up to SIL 3
+    – Hardware capability up to SIL 1                                  Separate VDD and SENSEx pins allow monitoring of
+                                                                       rail voltages other than VDD or can be used as a
+2 Applications                                                         push-button input. Optional use of external resistors
+•   Factory automation                                                 are supported by the SENSEx pins. Each channel
+•   Building automation                                                on the TPS3704x can be customized to its own over
+•   Medical                                                            and undervoltage window detection with an upper and
+•   Motor drives                                                       lower threshold tolerance that can be symmetric or
+•   Grid infrastructure                                                asymmetric.
+•   Wireless infrastructure                                                                   Device Information
+•   Data center & enterprise computing                                       PART NUMBER            PACKAGE (1)          BODY SIZE (NOM)
+                                                                              TPS3704x            DDF (SOT-23 8-pin)     1.6 mm × 2.9 mm
+
+                                                                       (1)    For all available packages, see the orderable addendum at
+                                                                              the end of the data sheet.
+                                                                                VDD
+
+                                                                                            VDD                 RESET1         RPULL_UP
+                                                                                                    TPS37043 RESET2
+                                                                                                                RESET3             RESET
+                                                                                             SENSE1 SENSE2 SENSE3
+                                                                                                                                    Microcontroller
+
+                                                                  24 V VIN     Wide VIN                                3.3 V
+                                                                                                                                   VI/O
+                                                                                Buck
+
+                                                                                                                       1.8 V
+                                                                                            DC/DC                                  DVDD
+
+
+                                                                                                                       1.2 V       VCORE
+
+
+
+                                                                                          Typical Application Circuit
+
+
+
+
+     An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+     intellectual property matters and other important disclaimers. PRODUCTION DATA.
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                                                    www.ti.com
+
+
+                                                                        Table of Contents
+1 Features............................................................................1     7.3 Feature Description...................................................18
+2 Applications..................................................................... 1       7.4 Device Functional Modes..........................................20
+3 Description.......................................................................1     8 Application and Implementation.................................. 21
+4 Device Nomenclature...................................................... 3               8.1 Application Information............................................. 21
+5 Pin Configuration and Functions...................................5                       8.2 Typical Application.................................................... 23
+6 Specifications.................................................................. 7        8.3 Power Supply Recommendations.............................26
+  6.1 Absolute Maximum Ratings........................................ 7                    8.4 Layout....................................................................... 27
+  6.2 ESD Ratings............................................................... 7        9 Device and Documentation Support............................28
+  6.3 Recommended Operating Conditions.........................7                            9.1 Device Nomenclature................................................28
+  6.4 Thermal Information....................................................7              9.2 Receiving Notification of Documentation Updates....29
+  6.5 Electrical Characteristics.............................................8              9.3 Support Resources................................................... 29
+  6.6 Timing Requirements.................................................. 9               9.4 Trademarks............................................................... 29
+  6.7 Timing Diagrams ...................................................... 10             9.5 Electrostatic Discharge Caution................................29
+  6.8 Typical Characteristics.............................................. 12              9.6 Glossary....................................................................30
+7 Detailed Description......................................................16            10 Revision History.......................................................... 30
+  7.1 Overview................................................................... 16      11 Mechanical, Packaging, and Orderable
+  7.2 Functional Block Diagram......................................... 16                  Information.................................................................... 30
+
+
+
+
+2       Submit Document Feedback                                                                                         Copyright © 2023 Texas Instruments Incorporated
+
+                                                                      Product Folder Links: TPS3704
+                                                                                                                                     TPS3704
+www.ti.com                                                                                 SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+4 Device Nomenclature
+Figure 4-1 shows the device naming nomenclature to compare the different device variants. See Table 9-1 for a
+more detailed explanation. See Table 4-1 or Table 9-2 for the available device variants.
+                                                  Table 4-1. Device Threshold Table
+                                                  NUM OF       RESET
+   ORDERABLE PART NAME               VARIANT(3)                            SENSE1(1) (2)     SENSE2(1) (2)     SENSE3(1) (2)     SENSE4(1) (2)
+                                                   CHAN.        TIME
+      TPS37042BJOFDDFRQ1                 ADJ         2         10ms         0.8V (±4%)        0.8V (±4%)             -                 -
+
+      TPS37042A3OFDDFRQ1                Fixed        2         10ms         3.3V (±5%)        1.2V (±5%)             -                 -
+
+      TPS37042ZJOFDDFRQ1                Fixed        2         10ms        1.95V (±4%)        3.8V (±6%)             -                 -
+       TPS37043DJOFDDFR               ADJ/Fixed      3         10 ms        3.3V (-11%)       1.2V (-11%)        0.8V (-8%)            -
+
+      TPS37043A4OFDDFRQ1                Fixed        3         10ms         2.8V (±5%)        1.8V (±5%)         1.2V (±5%)            -
+
+      TPS37043A8OFDDFRQ1                Fixed        3         10ms         3.3V (±5%)        1.8V (±5%)         1.0V (±5%)            -
+
+      TPS37043CPOFDDFRQ1              ADJ/Fixed      3         10ms         3.3V (±4%)        0.75V (±4%)        0.8V (±3%)            -
+
+      TPS37043ZJOFDDFRQ1                Fixed        3         10ms        0.95V (±4%)        1.35V (±4%)        1.8V (±4%)            -
+
+      TPS37043LJOFDDFRQ1                 ADJ         3         10ms         0.4V (±5%)        0.4V (±5%)         0.8V (±5%)            -
+
+      TPS37043CJOFDDFRQ1                 ADJ         3         10ms         0.8V (±6%)        0.8V (±6%)         0.8V (±6%)            -
+
+      TPS37043MJOFDDFRQ1                 ADJ         3         10ms         0.4V (±7%)        0.4V (±7%)         0.8V (±7%)            -
+
+      TPS37043A5OFDDFRQ1                Fixed        3         10ms         3.3V (±4%)        1.8V (±4%)         1.2V (±4%)            -
+
+      TPS37043BJOFDDFRQ1                 ADJ         3         10ms         0.8V (±4%)        0.8V (±4%)         0.8V (±4%)            -
+       TPS37044BJOFDDFR                  ADJ         4         10 ms        0.8 V (±4%)       0.8 V (±4%)       0.8 V (±4%)      0.8 V (±4%)
+       TPS37044LJOJDDFR                  ADJ         4         35ms         0.4V (±5%)        0.4V (±5%)         0.8V (±5%)       0.8V (±5%)
+
+      TPS37044BJOFDDFRQ1                 ADJ         4         10ms         0.8V (±4%)        0.8V (±4%)         0.8V (±4%)       0.8V (±4%)
+
+      TPS37044CJOFDDFRQ1                 ADJ         4         10ms         0.8V (±6%)        0.8V (±6%)         0.8V (±6%)       0.8V (±6%)
+
+      TPS37044MJOFDDFRQ1                 ADJ         4         10ms         0.4V (±7%)        0.4V (±7%)         0.8V (±7%)       0.8V (±7%)
+
+      TPS37044A4OGDDFRQ1                Fixed        4         15ms         3.3V (±8%)        1.8V (±4%)        1.15V (±6%)      1.15V (±6%)
+
+(1)    Listed percentage denotes window tolerance, see Figure 6-1 for more information
+(2)    VIT threshold of 0.8V and 0.4V signifies an adjustable channel
+(3)    ADJ denotes an adjustable voltage threshold set by an external resistor divider, see Section 8.1.2 for more information
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                              Submit Document Feedback            3
+                                                         Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                         www.ti.com
+
+
+                         TPS3704 X XX X X XXXR
+
+    NUMBER OF CHANNELS DETECTION OPTIONS                 OUTPUT TYPE                 RESET TIME DELAY        PACKAGE
+    2: Dual           ** - See Table 9-2 for             O: Open Drain – Acve Low     A:      20 µs         DDF = SOT-23 8-pin
+    3: Triple              available device variants     L: Push Pull – Ac ve Low      B:       1 ms         R = Large reel
+    4: Quad                                              H: Push Pull – Acve High     C:       2 ms
+                                                                                       D:       3 ms
+                                                                                       E:       5 ms
+                                                                                       F:      10 ms
+                                                                                       G:      15 ms
+                                                                                       H:      20 ms
+                                                                                       I:      25 ms
+                                                                                       J:      35 ms
+                                                                                       K:      40 ms
+                                                                                       L:      50 ms
+                                                                                       M:      70 ms
+                                                                                       N:     100 ms
+                                                                                       O:     140 ms
+                                                                                       P:     150 ms
+                                                                                       R:     200 ms
+                                                                                       S:     280 ms
+                                                                                       T:     400 ms
+                                                                                       U:     560 ms
+                                                                                       V:     800 ms
+                                                                                       W: 1120 ms
+                                                                                       X:    1200 ms
+                                      Figure 4-1. Device Naming Nomenclature
+
+
+
+
+4      Submit Document Feedback                                                      Copyright © 2023 Texas Instruments Incorporated
+
+                                                Product Folder Links: TPS3704
+                                                                                                                                            TPS3704
+www.ti.com                                                                                           SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+5 Pin Configuration and Functions
+
+
+                                                         VDD         1                  8        RESET1
+
+
+                                                      SENSE1         2                  7        RESET2
+
+
+                                                      SENSE2         3                  6        NC
+
+
+                                                        GND          4                  5        NC
+
+
+
+                                                                         Not to scale
+
+
+                                                      Figure 5-1. SOT-23 8-PIN DDF Package
+                                                                    TPS37042
+                                                                    (Top View)
+
+
+
+
+               VDD           1                    8        RESET1                              VDD         1                  8    RESET1
+
+
+            SENSE1           2                    7        RESET2                           SENSE1         2                  7    RESET2
+
+
+            SENSE2           3                    6        RESET3                           SENSE2         3                  6    SENSE4
+
+
+               GND           4                    5        SENSE3                             GND          4                  5    SENSE3
+
+
+
+                                 Not to scale                                                                  Not to scale
+
+
+          Figure 5-2. SOT-23 8-PIN DDF Package                                              Figure 5-3. SOT-23 8-PIN DDF Package
+                        TPS37043                                                                          TPS37044
+                        (Top View)                                                                        (Top View)
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                                      Submit Document Feedback     5
+                                                               Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                    www.ti.com
+
+                                                    Table 5-1. Pin Functions
+                          PIN
+                                                        I/O                                 DESCRIPTION
+    NAME     TPS37041 TPS37042 TPS37043 TPS37044
+     VDD         1         1       1            1        I    Supply Input. Bypass with a 0.1 µF capacitor to GND.
+                                                              Connect directly to monitored voltage. RESET1/RESET1 is asserted when
+                                                              SENSE1 falls outside of window threshold. No external capacitor is required
+                                                              for this SENSE1 pin. For TPS37044 (quad version) RESET1/RESET1
+    SENSE1       2         2       2            2        I    asserts when either SENSE1 or SENSE2 falls outside of window threshold.
+                                                              For noisy applications, placing a 10 nF to 100 nF ceramic capacitor close
+                                                              to this pin may be needed for optimum performance. If the input pin is not
+                                                              being used, it can be left floating.
+                                                              Connect directly to monitored voltage. RESET2/RESET2 is asserted when
+                                                              SENSE2 falls outside of window threshold. No external capacitor is required
+                                                              for SENSE2 pin. For TPS37044 (quad version) RESET1/RESET1 asserts
+    SENSE2       -         3       3            3        I    when either SENSE1 or SENSE2 falls outside of window threshold. For
+                                                              noisy applications, placing a 10 nF to 100 nF ceramic capacitor close to this
+                                                              pin may be needed for optimum performance. If the input pin is not being
+                                                              used, it can be left floating.
+                                                              Connect directly to monitored voltage. RESET3/RESET3 is asserted when
+                                                              SENSE3 falls outside of window threshold. No external capacitor is required
+                                                              for SENSE3 pin. For TPS37044 (quad version) RESET2/RESET2 asserts
+    SENSE3       -         -       5            5        I    when either SENSE3 or SENSE4 falls outside of window threshold. For
+                                                              noisy applications, placing a 10 nF to 100 nF ceramic capacitor close to this
+                                                              pin may be needed for optimum performance. If the input pin is not being
+                                                              used, it can be left floating.
+                                                              Connect directly to monitored voltage. For TPS37044 (quad version)
+                                                              RESET2/RESET2 asserts when either SENSE3 or SENSE4 falls outside of
+    SENSE4       -         -       -            6        I    window threshold. For noisy applications, placing a 10 nF to 100 nF ceramic
+                                                              capacitor close to this pin may be needed for optimum performance. If the
+                                                              input pin is not being used, it can be left floating.
+                                                          RESET1/RESET1 asserts when SENSE1 falls outside of the overvoltage or
+                                                          undervoltage threshold window.
+    RESET1                                                RESET1/RESET1 stays asserted for the reset timeout period after SENSE1
+       /         8         8       8            8       O fall back within the window threshold. Active-low, open-drain reset output,
+    RESET1                                                requires an external pullup resistor. For TPS37044, RESET1/RESET1
+                                                          asserts when either SENSE1 or SENSE2 fall outside of the window
+                                                          threshold. The pin can be left floating if it is unused.
+
+                                                          RESET2/RESET2 asserts when SENSE2 falls outside of the overvoltage or
+                                                          undervoltage threshold window.
+    RESET2                                                RESET2/RESET2 stays asserted for the reset timeout period after SENSE2
+       /         -         7       7            7       O fall back within the window threshold. Active-low, open-drain reset output,
+    RESET2                                                requires an external pullup resistor. For TPS37044, RESET2/RESET2
+                                                          asserts when either SENSE3 or SENSE4 fall outside of the window
+                                                          threshold. The pin can be left floating if it is unused.
+                                                          RESET3/RESET3 asserts when SENSE3 falls outside of the overvoltage or
+                                                          undervoltage threshold window.
+    RESET3
+                                                          RESET3/RESET3 stays asserted for the reset timeout period after SENSE3
+       /         -         -       6            -       O
+                                                          fall back within the window threshold. Active-low, open-drain reset output,
+    RESET3
+                                                          requires an external pullup resistor. The pin can be left floating if it is
+                                                          unused.
+     GND         4         4       4            4        -    Ground
+     NC      3, 5, 6, 7   5, 6     -            -        -    No Connect
+
+
+
+
+6      Submit Document Feedback                                                                 Copyright © 2023 Texas Instruments Incorporated
+
+                                                    Product Folder Links: TPS3704
+                                                                                                                                          TPS3704
+www.ti.com                                                                                  SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+6 Specifications
+6.1 Absolute Maximum Ratings
+Over operating free-air temperature range (unless otherwise noted) (1)
+                                                                                                                 MIN              MAX      UNIT
+                                         VDD                                                                     –0.3               6.5        V
+ Voltage                                 VRESET1, VRESET2, VRESET3                                               –0.3               6.5        V
+                                         VSENSE1, VSENSE2, VSENSE3, VSENSE4                                      –0.3               6.5        V
+ Current                                 IRESET1, IRESET2,IRESET3 SINK                                                             ±20      mA
+                                         Continuous total power dissipation                 See the Thermal Information
+                                         Operating junction temperature, TJ                                       -40              150         °C
+ Temperature (2)
+                                         Operating free-air temperature, TA                                       -40              150         °C
+                                         Storage temperature, Tstg                                                -65              150         °C
+
+(1)     Stresses beyond values listed under Absolute Maximum Ratings (AMR) may cause permanent damage to the device. These are
+        stress ratings only, which do not imply functional operation of the device at these or any other conditions beyond those indicated under
+        Recommended Operating Conditions. Exposure to AMR-rated conditions for extended periods may affect device reliability.
+(2)     As a result of the low dissipated power in this device, it is assumed that TJ = TA.
+
+
+6.2 ESD Ratings
+                                                                                                                          VALUE           UNIT
+                                          Human-body model (HBM), per ANSI/ESDA/
+                                                                                                                          ±2000
+                    Electrostatic         JEDEC JS-001 (1)
+ V(ESD)                                                                                                                                    V
+                    discharge             Charged device model (CDM), per JEDEC
+                                                                                                                          ±750
+                                          specification JESD22-C101 (2)
+
+(1)     JEDEC document JEP155 states that 500-V HBM allows safe manufacturing with a standard ESD control process
+(2)     JEDEC document JEP157 states that 250-V CDM allows safe manufacturing with a standard ESD control process
+
+
+6.3 Recommended Operating Conditions
+                                                                                                        MIN         NOM        MAX        UNIT
+ VDD                                   Supply pin voltage                                                1.7                      6.0       V
+ VSENSE1,2,3,4                         Input pin voltage                                                   0                      6.0       V
+ VRESET1, VRESET2, VRESET3             Output pin voltage                                                  0                      6.0       V
+ IRESET1, IRESET2, IRESET3 SINK        Output pin current sink                                           0.3                       5       mA
+ TA                                    Operating free air temperature                                    -40                     125       ℃
+
+
+6.4 Thermal Information
+                                                                                                       TPS3704x
+                                    THERMAL METRIC (1)                                                    DDF                           UNIT
+                                                                                                          PINS
+ RθJA               Junction-to-ambient thermal resistance                                                121.5                         °C/W
+ RθJC(top)          Junction-to-case (top) thermal resistance                                             60.6                          °C/W
+ RθJB               Junction-to-board thermal resistance                                                  42.3                          °C/W
+ ΨJT                Junction-to-top characterization parameter                                             2.2                          °C/W
+ ΨJB                Junction-to-board characterization parameter                                          42.1                          °C/W
+ RθJC(bot)          Junction-to-case (bottom) thermal resistance                                           N/A                          °C/W
+
+(1)     For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+        report.
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                                Submit Document Feedback             7
+                                                            Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                             www.ti.com
+
+6.5 Electrical Characteristics
+At 1.7 V ≤ VDD ≤ 6.0 V, RESETx Voltage (VRESETx) = 10 kΩ to VDD, RESETx load = 10 pF, and over the operating free-air
+temperature range of – 40°C to 125°C, unless otherwise noted. Typical values are at TA = 25°C, typical conditions at VDD =
+3.3 V.
+                             PARAMETER                                             TEST CONDITIONS                 MIN     TYP    MAX        UNIT
+    VDD                 Supply Voltage                                                                              1.7             6.0        V
+    UVLO                Under Voltage Lockout (1)                    VDD falling below 1.7 V                        1.2     1.4     1.6        V
+    UVLO(HYS)           UVLO Hysteresis (2)                          VDD rising below 1.7 V                                  65               mV
+    VPOR                Power on reset voltage (3)                   VOL (MAX) = 0.3 V, IOUT = 15 µA                                0.7        V
+    VIT Range           Threshold Programming Range                                                                 0.4            5.55        V
+    VIT- (UV)           UV accuracy (25℃)                                                                                   0.1               %
+    VIT+ (OV)           OV accuracy (25℃)                                                                                   0.1               %
+    TOL_min             Tolerance Programming minimum                                                                         3               %
+    TOL_max             Tolerance Programming maximum                                                                        11               %
+    THR RES Low         Threshold Programming Resolution Low VIT ≤ 0.8 V                                                     20           mV / step
+    THR RES Mid         Threshold Programming Resolution Mid 0.8 V < VIT ≤ 4.0 V                                            0.5            % / step
+                 Threshold Programming Resolution
+    THR RES High                                                     VIT > 4.0 V                                             20           mV / step
+                 High
+                        Accuracy for absolute threshold
+    VIT                                                              VIT < 0.8 V                                   -1.6             1.6       %
+                        including tolerance
+                        Accuracy for absolute threshold
+    VIT                                                              VIT = 0.8 V - 5.55 V                            -1               1       %
+                        including tolerance
+    VHYS                VIT < 0.80V                                                                                 1.1     1.4     1.7       %
+    VHYS                VIT ≥ 0.80V                                                                                0.40    0.75       1       %
+    IDD                 TPS3704x                                     VDD ≤ 6.0V                                             5.5      15       µA
+    ISENSEx             Input current, SENSEx pin                    VSENSEx = 5.5 V                                          1     2.5       µA
+                        Input current, SENSE pin (Bypass
+    ISENSE_ADJ          internal resistor divider)- Adjustible       VSENSEx = 5.5 V                                                350       nA
+                        version
+    VOL                 Low level output voltage                     VDD = 1.7 V, ISINK = 0.4 mA                                    300       mV
+    VOL                 Low level output voltage                     VDD = 2 V, ISINK = 3 mA                                        300       mV
+    VOL                 Low level output voltage                     VDD = 6.0 V, ISINK = 5 mA                                      300       mV
+    I(lkg)              Open drain output leakage current            VDD = VRESETx = 6.0 V                                          350       nA
+
+(1)          RESETx pin is driven low when VDD falls below UVLO.
+(2)          Hysteresis is with respect of the tripoint (VIT- (UV), VIT+ (OV)).
+(3)          VPOR is the minimum VDD voltage level for a controlled output state. Slew rate = 100 mV / µs.
+
+
+
+
+8            Submit Document Feedback                                                                    Copyright © 2023 Texas Instruments Incorporated
+
+                                                                 Product Folder Links: TPS3704
+                                                                                                                                       TPS3704
+www.ti.com                                                                                   SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+6.6 Timing Requirements
+At 1.7 V ≤ VDD ≤ 6.0 V, RESETx voltage (VRESETx) = 10 kΩ to VDD, RESETx load = 10 pF, and over the operating free-air
+temperature range of – 40°C to 125°C, unless otherwise noted. Typical values are at TA = 25°C, typical conditions at VDD =
+3.3 V.
+                            PARAMETER                                          TEST CONDITIONS                        MIN NOM       MAX UNIT
+ tD          Reset release time delay                            Fixed delay option tD < 4 ms, overdrive = 10%        -40      tD     40    %
+ tD          Reset release time delay                            Fixed delay option tD > 5 ms, overdrive = 10%        -30      tD     30    %
+ tPD         Propagation detect delay (1)                        Fixed time delay tD > 1 ms, overdrive 10%                            10    µs
+ tGI(VIT-)   Glitch Immunity Undervoltage (5% overdrive) (2)                                                                    2           µs
+ tGI(VIT+)   Glitch Immunity Overvoltage (5% overdrive) (2)                                                                     2           µs
+ tR          Ouptut rise (Push-Pull) (2) (3)                                                                                   25           ns
+ tR          Output rise time (Open-Drain) (2) (3)                                                                            2.2           µs
+ tF          Output fall time (2) (3)                                                                                         0.2           µs
+ tSTRT       Startup delay (4)                                                                                                  1          ms
+
+(1)      tPD measured from threshold trip point (VIT-(UV) or VIT+(OV)) to RESETx VOL voltage
+(2)      5% Overdrive from threshold. Overdrive % = [(VSENSEx - VIT) / VIT]; Where VIT stands for VIT-(UV) or VIT+(OV)
+(3)      Output transitions from VOL to VOH or (VRESETx) for rise times and VOH or (VRESETx) to VOL for fall times.
+(4)      During the power-on sequence, VDD must be at or above VDD(MIN) for at least tSTRT + tD before the output is in the correct state. when
+         VDD is between VDD(MIN) and VPOR the RESETx pin will be engaged
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                              Submit Document Feedback             9
+                                                          Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                                                                                                       www.ti.com
+
+6.7 Timing Diagrams
+                                                                                            Highest Absolute Limit for the Monitored Voltage Rail
+                                                                                                       [1%]
+                                                                                                                VIT+(OV)MAX
+                                                                                                                                                                                            Accuracy band across
+                                                                                                                VIT+(OV)                                                                       (-40ºC to 125ºC)
+
+
+
+
+     Tolerance[-3% to -11%(typ.)] Tolerance[+3% to +11%(typ.)]
+                                                                                                                VIT+(OV)MIN
+                                                                                                                                                               [0.63% * (VIT+(OV)MIN)]
+                                                                                                                                                                                               Hys band for VIT+(OV)
+                                                                                                                                                     [VHYSMAX = 0.9% * (VIT+(OV)MIN )]
+
+
+
+
+                                                                                                                                                                                                      Power
+                                                                                                                                                                                                     Supply
+                                                                                                                                                                                                    Tolerance
+                                                                                                                                                                                                     Window
+
+
+
+
+                                                                                                                                                     [VHYSMAX = 0.9% * (VIT-(UV)MIN )]
+                                                                                                                                                                                                Hys band for VIT-(UV)
+                                                                                                       [1%]                                                    [0.63% * (VIT-(UV)MIN)]
+                                                                                                                VIT-(UV)MIN
+                                                                                                     [0.25%
+                                                                                                     ]                                                                                      Accuracy band across
+                                                                                                                VIT-(UV)                                                                       (-40ºC to 125ºC)
+                                                                                                     [-0.25%]
+                                                                                                                VIT-(UV)MAX
+
+
+                                                                                            Lowest Absolute Limit for the Monitored Voltage Rail
+                                                                                                  Figure 6-1. Voltage Threshold and Hysteresis Accuracy
+
+
+
+
+10                                                               Submit Document Feedback                                                                                          Copyright © 2023 Texas Instruments Incorporated
+
+                                                                                                                     Product Folder Links: TPS3704
+                                                                                                                                                                                          TPS3704
+www.ti.com                                                                                                                                   SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+
+                   VDD(MIN)
+                  UVLO
+ VDD       UVLO - UVLO(HYS)
+
+
+                     VPOR
+
+
+
+
+                   VIT+(OV)
+                                          Hysteresis
+      VIT+(OV) - VHYS
+SENSEx             VIT
+      VIT-(UV) + VHYS
+                                          Hysteresis
+               VIT-(UV)
+
+
+                                                                                                                                                                          *See
+                                                                                                                                                                         Note C
+
+
+RESETx                        Undefined                                                                                                                                             Undefined
+(-O: open-drain)
+                                                       tSTRT + tD            tPD                         tD         tPD               tD
+
+
+A.     Open-Drain timing diagram assumes the RESETx / RESETx pin is connected via an external pull-up resistor to VDD.
+B.     Be advised that Figure 6-2 shows the VDD falling slew rate is slow or the VDD decay time is much larger than the propagation detect delay (tPD) time.
+C.     RESETx/RESETx is asserted after a time delay, typical value of 100 μs, when VDD goes below the UVLO-UVLO(HYS) threshold.
+
+                                                                         Figure 6-2. SENSEx Timing Diagram
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                                                                                Submit Document Feedback         11
+                                                                                   Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                                                                                               www.ti.com
+
+6.8 Typical Characteristics
+Typical characteristics show the typical performance of the TPS3704x device. Test conditions are TA = 25°C, VDD = 3.3 V,
+and Rpull-upx = 10 kΩ, CLOAD = 50 pF, unless otherwise noted.
+
+                           0.50                                                                                                        0.50
+                                             CH 1 - 5.0 V             CH 3 - 0.8 V                                                                 CH 1 - 5.0 V           CH 3 - 0.8 V
+                           0.45              CH 2 - 1.8 V             CH 4 - 0.4 V                                                     0.45        CH 2 - 1.8 V           CH 4 - 0.4 V
+
+                           0.40                                                                                                        0.40
+
+                           0.35                                                                                                        0.35
+
+                           0.30                                                                                                        0.30
+
+
+
+
+     Accuracy (%)                                                                                                      Accuracy (%)
+                           0.25                                                                                                        0.25
+
+                           0.20                                                                                                        0.20
+
+                           0.15                                                                                                        0.15
+
+                           0.10                                                                                                        0.10
+
+                           0.05                                                                                                        0.05
+
+                           0.00                                                                                                        0.00
+
+                           -0.05                                                                                                      -0.05
+
+                           -0.10                                                                                                      -0.10
+                               -50          -25            0           25            50        75      100    125                         -50     -25            0         25            50    75     100      125
+                                                                    Temperature (qC)                          UV_a                                                      Temperature (qC)                        OV_a
+
+                               Figure 6-3. Undervoltage Accuracy vs Temperature                                                          Figure 6-4. Overvoltage Accuracy vs Temperature
+                           1.80                                                                                                       1.80
+                                            CH 1 - 5.0 V              CH 3 - 0.8 V                                                                CH 1 - 5.0 V            CH 3 - 0.8 V
+                           1.70             CH 2 - 1.8 V              CH 4 - 0.4 V                                                    1.70        CH 2 - 1.8 V            CH 4 - 0.4 V
+
+                           1.60                                                                                                       1.60
+
+                           1.50                                                                                                       1.50
+
+                           1.40                                                                                                       1.40
+
+
+
+
+     Accuracy (%)                                                                                                      Accuracy (%)
+                           1.30                                                                                                       1.30
+
+                           1.20                                                                                                       1.20
+
+                           1.10                                                                                                       1.10
+
+                           1.00                                                                                                       1.00
+
+                           0.90                                                                                                       0.90
+
+                           0.80                                                                                                       0.80
+
+                           0.70                                                                                                       0.70
+
+                           0.60                                                                                                       0.60
+                              -50           -25         0             25             50        75      100    125                        -50      -25         0           25             50    75     100       125
+                                                                Temperature (qC)                              UV_H                                                     Temperature (qC)                         OV_H
+
+                Figure 6-5. Undervoltage Hysteresis Voltage Accuracy vs                                                               Figure 6-6. Overvoltage Hysteresis Voltage Accuracy vs
+                                      Temperature                                                                                                          Temperature
+                           9                                                                                                          0.06
+                                       VDD = 3.3 V                                                                                                -40qC
+                                                                                                                                                  25qC
+                                                                                                                                                  125qC
+                           8                                                                                                          0.05
+
+
+
+
+     Supply Current (PA)
+                           7                                                                                                          0.04
+
+
+
+
+                                                                                                                       CH 1 VOL (V)
+                           6                                                                                                          0.03
+
+
+
+                           5                                                                                                          0.02
+
+
+
+                           4                                                                                                          0.01
+
+
+
+                           3                                                                                                             0
+                           -50        -25         0            25           50            75    100    125    150                            0   0.001     0.002         0.003      0.004     0.005   0.006    0.007
+                                                               Temperature (qC)                                IDD_                                                       IRESET1 (A)                           VOLV
+
+                                                      Output ( RESETx Pin) = High                                                                                        VDD = 1.7 V
+                                     Figure 6-7. Supply Current vs Temperature                                        Figure 6-8. Low-Level CH 1 Output Voltage vs RESET1 Current
+
+
+
+
+12                         Submit Document Feedback                                                                                                                  Copyright © 2023 Texas Instruments Incorporated
+
+                                                                                                      Product Folder Links: TPS3704
+                                                                                                                                                                             TPS3704
+www.ti.com                                                                                                                 SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+6.8 Typical Characteristics (continued)
+Typical characteristics show the typical performance of the TPS3704x device. Test conditions are TA = 25°C, VDD = 3.3 V,
+and Rpull-upx = 10 kΩ, CLOAD = 50 pF, unless otherwise noted.
+
+                      0.06                                                                                    0.06
+                                  -40qC                                                                                   -40qC
+                                  25qC                                                                                    25qC
+                                  125qC                                                                                   125qC
+                      0.05                                                                                    0.05
+
+
+
+                      0.04                                                                                    0.04
+
+
+
+
+       CH 1 VOL (V)                                                                            CH 2 VOL (V)
+                      0.03                                                                                    0.03
+
+
+
+                      0.02                                                                                    0.02
+
+
+
+                      0.01                                                                                    0.01
+
+
+
+                        0                                                                                       0
+                             0   0.001    0.002   0.003    0.004   0.005   0.006   0.007                             0   0.001    0.002   0.003      0.004   0.005   0.006   0.007
+                                                   IRESET1 (A)                      VOLV                                                   IRESET2 (A)                        VOLV
+
+
+                                                  VDD = 5 V                                                                               VDD = 1.7 V
+  Figure 6-9. Low-Level CH 1 Output Voltage vs RESET1 Current                              Figure 6-10. Low-Level CH 2 Output Voltage vs RESET2 Current
+                      0.06                                                                                    0.06
+                                  -40qC                                                                                   -40qC
+                                  25qC                                                                                    25qC
+                                  125qC                                                                                   125qC
+                      0.05                                                                                    0.05
+
+
+
+                      0.04                                                                                    0.04
+
+
+
+
+       CH 2 VOL (V)                                                                            CH 3 VOL (V)
+                      0.03                                                                                    0.03
+
+
+
+                      0.02                                                                                    0.02
+
+
+
+                      0.01                                                                                    0.01
+
+
+
+                        0                                                                                       0
+                             0   0.001    0.002   0.003    0.004   0.005   0.006   0.007                             0   0.001    0.002   0.003      0.004   0.005   0.006   0.007
+                                                   IRESET2 (A)                      VOLV                                                   IRESET3 (A)                        VOLV
+
+
+                                                  VDD = 5 V                                                                               VDD = 1.7 V
+  Figure 6-11. Low-Level CH 2 Output Voltage vs RESET2 Current                             Figure 6-12. Low-Level CH 3 Output Voltage vs RESET3 Current
+                      0.06                                                                                    0.06
+                                  -40qC                                                                                   -40qC
+                                  25qC                                                                                    25qC
+                                  125qC                                                                                   125qC
+                      0.05                                                                                    0.05
+
+
+
+                      0.04                                                                                    0.04
+
+
+
+
+       CH 3 VOL (V)                                                                            CH 4 VOL (V)
+                      0.03                                                                                    0.03
+
+
+
+                      0.02                                                                                    0.02
+
+
+
+                      0.01                                                                                    0.01
+
+
+
+                        0                                                                                       0
+                             0   0.001    0.002   0.003    0.004   0.005   0.006   0.007                             0   0.001    0.002   0.003      0.004   0.005   0.006   0.007
+                                                   IRESET3 (A)                      VOLV                                                   IRESET4 (A)                        VOLV
+
+
+                                                  VDD = 5 V                                                                               VDD = 1.7 V
+  Figure 6-13. Low-Level CH 3 Output Voltage vs RESET3 Current                             Figure 6-14. Low-Level CH 4 Output Voltage vs RESET4 Current
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                                                                   Submit Document Feedback           13
+                                                                            Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                                                                                       www.ti.com
+
+6.8 Typical Characteristics (continued)
+Typical characteristics show the typical performance of the TPS3704x device. Test conditions are TA = 25°C, VDD = 3.3 V,
+and Rpull-upx = 10 kΩ, CLOAD = 50 pF, unless otherwise noted.
+
+                                       0.06                                                                                                            6
+                                                    -40qC
+                                                    25qC                                                                                                                                           -40oC
+                                                    125qC                                                                                                                                          25oC
+
+
+
+
+                                                                                                                     SENSE1 UV Glitch Immunity (μ s)
+                                       0.05                                                                                                            5                                           125oC
+
+                                       0.04                                                                                                            4
+
+
+                CH 4 VOL (V)
+                                       0.03                                                                                                            3
+
+                                       0.02                                                                                                            2
+
+                                       0.01                                                                                                            1
+
+                                           0                                                                                                           0
+                                               0   0.001    0.002   0.003    0.004   0.005    0.006     0.007
+                                                                     IRESET4 (A)                         VOLV
+                                                                                                                                                           0   3       6           9         12          15
+                                                                                                                                                                       Overdrive (%)
+                                                                     VDD = 5 V
+                                                                                                                                                                       VDD = 1.7 V
+ Figure 6-15. Low-Level CH 4 Output Voltage vs RESET4 Current
+                                                                                                                     Figure 6-16. SENSE1 Glitch Immunity (VIT-) vs Overdrive
+                                       6                                                                                                               6
+                                                                                                      -40oC                                                                                        -40oC
+                                                                                                      25oC                                                                                         25oC
+
+
+
+
+     SENSE1 OV Glitch Immunity (μ s)                                                                                 SENSE1 UV Glitch Immunity (μ s)
+                                       5                                                              125oC                                            5                                           125oC
+
+                                       4                                                                                                               4
+
+
+                                       3                                                                                                               3
+
+
+                                       2                                                                                                               2
+
+
+                                       1                                                                                                               1
+
+
+                                       0                                                                                                               0
+                                           0           3            6           9            12            15                                              0   3       6           9         12          15
+                                                                    Overdrive (%)                                                                                      Overdrive (%)
+                                                                    VDD = 1.7 V                                                                                        VDD = 3.3 V
+     Figure 6-17. SENSE1 Glitch Immunity (VIT+) vs Overdrive                                                         Figure 6-18. SENSE1 Glitch Immunity (VIT-) vs Overdrive
+                                       6                                                                                                               6
+                                                                                                      -40oC                                                                                        -40oC
+                                                                                                      25oC                                                                                         25oC
+
+
+
+
+     SENSE1 OV Glitch Immunity (μ s)                                                                                 SENSE1 UV Glitch Immunity (μ s)
+                                       5                                                              125oC                                            5                                           125oC
+
+                                       4                                                                                                               4
+
+
+                                       3                                                                                                               3
+
+
+                                       2                                                                                                               2
+
+
+                                       1                                                                                                               1
+
+
+                                       0                                                                                                               0
+                                           0           3            6           9            12            15                                              0   3       6           9         12          15
+                                                                    Overdrive (%)                                                                                      Overdrive (%)
+                                                                    VDD = 3.3 V                                                                                         VDD = 5 V
+     Figure 6-19. SENSE1 Glitch Immunity (VIT+) vs Overdrive                                                         Figure 6-20. SENSE1 Glitch Immunity (VIT-) vs Overdrive
+
+
+
+
+14                     Submit Document Feedback                                                                                                                    Copyright © 2023 Texas Instruments Incorporated
+
+                                                                                                  Product Folder Links: TPS3704
+                                                                                                                                                          TPS3704
+www.ti.com                                                                                                             SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+6.8 Typical Characteristics (continued)
+Typical characteristics show the typical performance of the TPS3704x device. Test conditions are TA = 25°C, VDD = 3.3 V,
+and Rpull-upx = 10 kΩ, CLOAD = 50 pF, unless otherwise noted.
+
+                                                                              6
+                                                                                                                           -40oC
+                                                                                                                           25oC
+
+
+
+
+                                            SENSE1 OV Glitch Immunity (μ s)
+                                                                              5                                            125oC
+
+                                                                              4
+
+
+                                                                              3
+
+
+                                                                              2
+
+
+                                                                              1
+
+
+                                                                              0
+                                                                                  0    3        6           9         12       15
+                                                                                                Overdrive (%)
+                                                                                                 VDD = 5 V
+                                            Figure 6-21. SENSE1 Glitch Immunity (VIT+) vs Overdrive
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                                                      Submit Document Feedback    15
+                                                                                      Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                www.ti.com
+
+
+7 Detailed Description
+7.1 Overview
+TPS3704x is a family of quad, triple, and dual precision voltage supervisors where each channel has overvoltage
+and undervoltage detection capability. The TPS3704x features a highly accurate window threshold voltage
+where the upper and lower thresholds can be customized for symmetric or asymmetric tolerances. The reset
+signal for the TPS3704x is asserted, with a fault detection time delay (tPD = 10 μs maximum), when the sense
+voltage is outside of the overvoltage and undervoltage thresholds.
+TPS3704x includes the resistors used to set the overvoltage and undervoltage thresholds internal to the
+device. These internal resistors allow for lower component counts and greatly simplifies the design because
+no additional margins are needed to account for the accuracy of external resistors. The level of integration in the
+TPS3704x enables a total small solution size for any application.
+The TPS3704x is capable to monitor any voltage rail with high resolution (VIT ≤ 0.8 V: 20 mV steps /
+VIT > 0.8 V: 0.5% or 20 mV steps whichever is lower). Each channel in the TPS3704x can be configured
+independently as a window, OV or UV supervisor. Also, the VIT threshold voltage for each channel can be
+asymmetric. For example, a channel that is configured as an overvoltage supervisor can be setup with a +5%
+tolerance whereas an undervoltage channel supervisor can be programmed with a -4% tolerance. If a window
+supervisor is configured, the voltage threshold tolerance can either be symmetrical or asymmetrical.
+The TPS3704x includes fixed reset time delay (tD) options ranging from 20 μs to 1200 ms and can monitor up to
+four channels while maintaining an ultra-low IQ current of 15 μA (maximum).
+7.2 Functional Block Diagram
+
+                                    POR            OTP               BANDGAP                OSCILLATOR
+                   VDD
+       VDD                                                                                                                      GND
+                                                                                 VBG                    CLK
+                                          +
+                          VBG                      UVLO
+                                          –
+
+                              VREF_UVLO
+
+
+
+
+     SENSE1                   SENSE1
+                                                                               CLK
+     SENSE2
+
+                  VBG                          UNDERVOLTAGE
+                                              +                                                                                RESET1
+                                                                            TIME DELAY
+                        VREF_UV               –                               (counter)
+                                                                                                                               RESET2
+                                                     OTPUV_EN
+
+                        VREF_OV                      OTPOV_EN
+                                                                                     UVLO
+                              SENSE1          +
+
+                                              –
+                                                  OVERVOLTAGE
+
+
+
+
+                              Figure 7-1. TPS37042 Dual-Channel Functional Block Diagram
+
+
+
+
+16      Submit Document Feedback                                                            Copyright © 2023 Texas Instruments Incorporated
+
+                                                     Product Folder Links: TPS3704
+                                                                                                                              TPS3704
+www.ti.com                                                                                 SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+
+                                       POR             OTP               BANDGAP                  OSCILLATOR
+                      VDD
+
+      VDD                                                                                                                      GND
+                                                                                     VBG                    CLK
+                                             +
+                             VBG                       UVLO
+                                             –
+
+                                 VREF_UVLO
+
+
+
+
+                                 SENSE1
+  SENSE1
+                                                                                   CLK
+  SENSE2
+
+                     VBG                           UNDERVOLTAGE
+  SENSE3                                          +                                                                            RESET1
+                                                                                TIME DELAY
+                           VREF_UV                –                               (counter)
+                                                                                                                               RESET2
+                                                         OTPUV_EN
+
+                           VREF_OV                                                                                             RESET3
+                                                         OTPOV_EN
+                                                                                         UVLO
+                                 SENSE1           +
+
+                                                  –
+                                                      OVERVOLTAGE
+
+
+
+
+                                Figure 7-2. TPS37043 Triple-Channel Functional Block Diagram
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                          Submit Document Feedback       17
+                                                         Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                   www.ti.com
+
+
+                                 POR            OTP               BANDGAP                OSCILLATOR
+               VDD
+
+     VDD                                                                                                                 GND
+                                                                              VBG                 CLK
+                                       +
+                       VBG                      UVLO
+                                       –
+
+                           VREF_UVLO
+
+
+
+
+                           SENSE1
+SENSE1
+                                                                            CLK
+
+
+
+               VBG                          UNDERVOLTAGE
+SENSE3                                     +
+                                                                         TIME DELAY
+                     VREF_UV               –                               (counter)
+
+                                                  OTPUV_EN
+
+                     VREF_OV                      OTPOV_EN
+                                                                                  UVLO
+                           SENSE1          +
+
+                                           –
+                                               OVERVOLTAGE
+                                                                                                                         RESET1
+                                                                                                                        (SENSE1 and SENSE2)
+                                                                                                                         RESET2
+                                                                                                                        (SENSE3 and SENSE4)
+
+                           SENSE2
+ SENSE2
+                                                                            CLK
+
+
+
+               VBG                          UNDERVOLTAGE
+ SENSE4                                    +
+                                                                         TIME DELAY
+                     VREF_UV               –                               (counter)
+
+                                                  OTPUV_EN
+
+                     VREF_OV                      OTPOV_EN
+                                                                                  UVLO
+                           SENSE2          +
+
+                                           –
+                                               OVERVOLTAGE
+
+
+
+
+                           Figure 7-3. TPS37044 Quadruple-Channel Functional Block Diagram
+
+*For available voltages, window tolerance, time delays, and UV/OV threshold options, see Table 9-2.
+7.3 Feature Description
+7.3.1 VDD
+The TPS3704x is designed to operate from an input voltage supply range between 1.7 V to 6 V. The SENSEx
+pins is monitored by the internal comparator. VDD also functions as the supply for the internal bandgap, internal
+regulator, state machine, buffers and other control blocks. The reset signal is at a known state when VDD >
+VPOR. Undervoltage lockout forces the reset output to be asserted when VDD falls below the minimum VDD
+voltage.
+VDD capacitor is not required for this device; however, if the input supply is noisy, then it is good design practice
+to place a 0.1 μF to 1 µF bypass capacitor between the VDD pin and the GND pin to ensure enough charge is
+available for the device to power up correctly. VDD needs to be at or above VDD(MIN) for start-up delay
+
+
+18     Submit Document Feedback                                                                Copyright © 2023 Texas Instruments Incorporated
+
+                                                        Product Folder Links: TPS3704
+                                                                                                                                  TPS3704
+www.ti.com                                                                                    SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+(tSTRT + tD) to begin and for the device to be fully functional.
+7.3.2 SENSEx Input
+The SENSEx input can monitor supply rails from 0 V to 5.55 V, regardless of the device supply voltage used.
+The SENSEx pins are used to monitor critical voltage rails or push-button inputs. If the voltage on this pin drops
+below VIT-(UV) or goes above VIT+(OV), then RESETx/RESETx is asserted. When the voltage on the SENSEx pin
+rises above the positive threshold voltage VIT-(UV) + VHYS or goes below the negative threshold voltage VIT+(OV) -
+VHYS,
+RESETx/RESETx deasserts after the set RESETx/RESETx delay time. The internal comparators have built-in
+hysteresis to ensure well-defined RESETx/RESETx assertions and deassertions even when there are small
+changes on the voltage rail being monitored.
+The TPS3704x combines comparators with a precision reference voltage and a trimmed resistor divider. This
+configuration optimizes device accuracy because all resistor tolerances are accounted for in the accuracy and
+performance specifications. The TPS3704x device is relatively immune to short transients on the SENSEx pin.
+Although not required in most cases, for noisy applications, good analog design practice is to place a 10-nF
+to 100-nF bypass capacitor at the SENSEx inputs to reduce sensitivity to transient voltages on the monitored
+signals.
+7.3.2.1 Immunity to SENSEx Pins Voltage Transients
+The TPS3704x is immune to short voltage transient spikes on the input SENSEx pins. Sensitivity to transients
+depends on both transient duration and overdrive (amplitude) of the transient.
+Overdrive is defined by how much the VSENSEx exceeds the specified threshold, and is important to know
+because the smaller the overdrive, the slower the response of the (RESETx/RESETx) outputs. Threshold
+overdrive is calculated as a percent of the threshold in question, as shown in Equation 1:
+
+      Overdrive % = | (VSENSEx - (VIT-(UV) or VIT+(OV))) / VIT (Nominal) × 100% |                                                  (1)
+
+where:
+•    VSENSEx is the voltage at the SENSEx pin
+•    VIT (Nominal) is the nominal threshold voltage
+•    VIT-(UV) and VIT+(OV) represent the actual undervoltage or overvoltage tripping voltage
+7.3.2.1.1 SENSEx Hysteresis
+Overvoltage and undervoltage comparators include built-in hysteresis that provides noise immunity and ensures
+stable operation. For example, if the voltage on the SENSEx pin falls below VIT-(UV) or above VIT+(OV), then
+RESETx/RESETx is asserted. When the voltage on the SENSEx pin is between the positive and negative
+threshold voltages, RESETx/RESETx deasserts after the set RESETx/RESETx delay time. Figure 7-4 shows the
+relation between VIT-(UV),VIT+(OV) and the hysteresis voltage (VHYS).
+                          VRESETx
+
+
+
+
+                                                                           Window
+                                                                            (VIT)
+
+                    VOL
+                                                                                                                      VSENSEx
+
+                                              VIT-(UV)   VIT-(UV) + VHYS        VIT+(OV) - VHYS   VIT+(OV)
+
+                                                    Figure 7-4. SENSEx Pin Hysteresis
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                              Submit Document Feedback    19
+                                                           Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                      www.ti.com
+
+7.3.3 RESETx/RESETx
+In a typical TPS3704x application, the RESETx/RESETx output is connected to a reset or enable input of
+a processor [such as a digital signal processor (DSP), application-specific integrated circuit (ASIC), or other
+processor type] or the enable input of a voltage regulator [such as a DC-DC converter or low-dropout regulator
+(LDO)].
+The TPS3704x has open drain active low outputs that requires an external pull-up resistor to hold these lines
+high to the required voltage logic. Connect the external pull-up resistor to the proper voltage rail to enable the
+output to be connected to other devices at the correct interface voltage levels. To ensure proper voltage levels,
+give some consideration when choosing the external pull-up resistor values. The external pull-up resistor value is
+determined by VOL, output capacitive loading, and output leakage current. These values are specified in
+Section 6.5. The open drain output can be connected as a wired-OR logic with the other RESETx/RESETx open
+drain pins.
+                               VIT+(OV)
+                    OV Limit
+                               VIT+(OV) - VHYS
+
+                               VSENSEx
+
+                               VIT-(UV) + VHYS
+                    UV Limit
+                               VIT-(UV)
+
+
+
+                         RESETx                          tD              tPD                 tD                  tPD
+
+                                                     Figure 7-5. RESETx output
+
+7.4 Device Functional Modes
+                                             Table 7-1. Functional Mode Truth Table
+                                                                                                                    OUTPUT RESETx /
+       DESCRIPTION                               CONDITION                             VDD PIN
+                                                                                                                      (RESETx) PIN
+ Normal Operation              VIT–(UV) < SENSEx < VIT+(OV)             VDD > VDD(MIN)                                  High / (Low)
+ Normal Operation (UV Only)    SENSEx > VIT-(UV)                        VDD > VDD(MIN)                                  High / (Low)
+ Overvoltage detection         SENSEx > VIT+(OV)                        VDD > VDD(MIN)                                  Low / (High)
+ Undervoltage detection        SENSEx < VIT-(UV)                        VDD > VDD(MIN)                                  Low / (High)
+ UVLO engaged                  VIT–(UV) < SENSEx < VIT+(OV)             VPOR < VDD < UVLO                               Low / (High)
+
+
+7.4.1 Normal Operation (VDD > VDD(MIN))
+When the voltage on VDD is greater than VDD(MIN) for approximately (tSTRT + tD), the RESETx/RESETx output
+state will correspond to the SENSEx pin voltage with respect to the threshold limits, when SENSEx voltage is
+outside of threshold limits the RESETx/RESETx voltage will be asserted.
+7.4.2 Undervoltage Lockout (VPOR < VDD < UVLO)
+When the voltage on VDD is less than the device UVLO voltage but greater than the power-on reset voltage
+(VPOR), the RESETx/RESETx pin will be asserted, regardless of the voltage on SENSEx pin.
+7.4.3 Power-On Reset (VDD < VPOR)
+When the voltage on VDD is lower than the required voltage (VPOR) to internally pull the asserted output to GND,
+RESETx/RESETx signal is undefined and is not to be relied upon for proper device function.
+
+
+
+
+20    Submit Document Feedback                                                                    Copyright © 2023 Texas Instruments Incorporated
+
+                                                       Product Folder Links: TPS3704
+                                                                                                                       TPS3704
+www.ti.com                                                                          SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+8 Application and Implementation
+                                                               Note
+       Information in the following applications sections is not part of the TI component specification,
+       and TI does not warrant its accuracy or completeness. TI’s customers are responsible for
+       determining suitability of components for their purposes, as well as validating and testing their design
+       implementation to confirm system functionality.
+
+8.1 Application Information
+8.1.1 Voltage Threshold Accuracy
+Voltage monitoring requirements vary depending on the voltage supply tolerance of the device being powered.
+Due to the high precision of the TPS3704x (±1% maximum), the device allows for a wider supply voltage
+margins and threshold headroom for tight tolerance applications.
+For example, take a DC/DC regulator providing power to a core voltage rail of an MCU. The MCU has a
+tolerance of ±5% of the nominal output voltage of the DC/DC. The user sets an ideal voltage threshold of ±4%
+which allows for ±1% of threshold accuracy. Since the TPS3704x threshold accuracy is ±1%, the user has more
+supply voltage margin which can allow for a relaxed power supply design. This gives flexibility to the DC/DC to
+use a smaller output capacitor or inductor because of a larger voltage window for voltage ripple and transients.
+There is also headroom between the minimum system voltage and voltage tolerance of the MCU to ensure that
+the voltage supply will never be in the region of potential failure of malfunction without the TPS3704x asserting a
+reset signal.
+Figure 8-1 illustrates the supply undervoltage margin and accuracy of the TPS3704x for the example explained
+above. Using a low accuracy supervisor will eat into the available budget for the power supply ripple and
+transient response. This gives less flexibility to the user and a more stringent DC/DC converter design.
+
+                           DC/DC nominal output
+           0%
+                                                                                                          Supply
+                           Regulator output voltage accuracy
+                                                                                                          Voltage
+                                                                                                          Margin
+                           Margin for ripple and transients
+                          + 1% Allowed threshold tolerance                                                Voltage
+           4%                                                                                             Threshold
+                           - 1% Minimum system voltage                                                    Accuracy
+           5%
+
+                                Potential Failure or Malfunction
+
+                                        Figure 8-1. TPS3704x Voltage Threshold Accuracy
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                   Submit Document Feedback    21
+                                                    Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                www.ti.com
+
+8.1.2 Adjustable Voltage Thresholds
+The TPS3704x maximum accuracy (1%) allows for adjustable voltage thresholds using external resistors without
+adding major inaccuracies to the device. In case that the desired monitored voltage is not available, external
+resistor dividers can be used to set the desired voltage thresholds. Figure 8-2 illustrates an example of how
+to adjust the voltage threshold with external resistor dividers. For assistance in calulating the external resistors
+access the TPS3704 adjustable threshold voltage resistor calculator in the Design Tools and Simulation section
+of the TPS3704 product page. The resistors can be calculated depending on the desired voltage threshold and
+device part number. TI recommends using an adjustable voltage threshold device variant because of the bypass
+mode of internal resistor ladder.
+For example, consider a 2.0 V rail being monitored (VMON) using the TPS3704 0.8 V adjustable variant. Using
+Equation 2, R1 = 15 kΩ given that R2 = 10 kΩ, VMON = 2 V, and VSENSE1 = 0.8 V. This device is typically meant
+to monitor a 0.8 V rail with ±4% voltage thresholds. This means that the device undervoltage threshold (VIT-(UV))
+and overvoltage threshold (VIT+(OV)) is 0.768 V and 0.832 V respectively. Using Equation 2, VMON = 1.92 V
+when V SENSE1 = V IT-(UV). This can be denoted as VMON-, the monitored undervoltage threshold where the device
+will assert a reset signal. Using Equation 2 again, the monitored overvoltage threshold (VMON+) = 2.08 V when
+VSENSE1 = VIT+(OV). If a wider tolerance or UV only threshold is desired, use a device variant shown on
+Table 9-2 to determine what device part number matches your application.
+
+     VSENSE1 = VMON × (R2 / (R1 + R2))                                                                                           (2)
+
+There are inaccuracies that must be taken into consideration while adjusting voltage thresholds. Aside from the
+tolerance of the resistor divider, there is an internal resistance of the SENSE1 pin that may affect the accuracy
+of the resistor divider. Although expected to be very high impedance, users are recommended to calculate the
+values for design specifications. The internal sense resistance RSENSE1 can be calculated by the sense voltage
+VSENSE1 divided by the sense current ISENSE1 as shown in Equation 4. VSENSE1 can be calculated using
+Equation 2 depending on the resistor divider and monitored voltage. ISENSE1 can be calculated using Equation 3.
+
+     ISENSE1 = [(VMON – VSENSE1) / R1] – (VSENSE1 / R2)                                                                          (3)
+
+     RSENSE1 = VSENSE1 / ISENSE1                                                                                                 (4)
+                                                                                     VDD
+                                    VMON
+
+                                               VDD
+                                                                                           10 k
+                                   R1                   VDD               RESET1
+                                           VSENSE1
+                                                        SENSE1                 NC
+                                                              TPS37041
+                                   R2                   NC                     NC
+
+                                                        GND                    NC
+
+
+                   Figure 8-2. Adjustable Voltage Threshold with External Resistor Dividers
+
+
+
+
+22    Submit Document Feedback                                                              Copyright © 2023 Texas Instruments Incorporated
+
+                                                     Product Folder Links: TPS3704
+                                                                                                                                           TPS3704
+www.ti.com                                                                                      SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+8.2 Typical Application
+8.2.1 Design 1: Multi-Rail Window Monitoring for Microcontroller Power Rails
+A typical application for the TPS37042 is shown in Figure 8-3. The TPS37042 is used to monitor two PMIC
+voltage rails that powers the core and I/O voltage of the microcontroller that requires accurate reset delay and
+voltage supervision. It utilizes the TPS37042 to monitor the core voltage rail of a MCU similar to the circuit below.
+                                 VDD
+                                                     VOUT1                                       VCORE
+                                       VIN
+                                                     VOUT2                                       VI/O
+
+                                             PMIC                                         VDD       Microcontroller
+                                                                                     10 kΩ
+                                                                                                 RESET
+                                                                VDD      TPS37042
+                                                                      VDD      RESET1
+                                                                      SENSE1   RESET2
+                                                                      SENSE2       NC
+                                                                       GND         NC
+
+
+
+
+                   Figure 8-3. TPS37042 Dual-Channel Monitoring Two Microcontroller Power Rails
+
+8.2.1.1 Design Requirements
+                                                     Table 8-1. Design Requirements
+           PARAMETER                                 DESIGN REQUIREMENT                                           DESIGN RESULT
+                                     3.3-VI/O nominal, with alerts if outside of ±8% of 3.3 V     Worst case VIT+(OV) = 3.533 V (7.06%)
+                                     (including device accuracy), 10 ms reset delay               Worst case VIT–(UV) = 3.071 V (-6.94%)
+ Monitored rails
+                                     1.2-VCORE nominal, with alerts if outside of ±5% of 1.2 V Worst case VIT+(OV) = 1.2484 V (4.03%)
+                                     (including device accuracy), 10 ms reset delay            Worst case VIT–(UV) = 1.1524 V (-3.97%)
+ Output logic voltage                5-V CMOS                                                     5-V CMOS
+ Maximum system supervision
+                                     25 µA                                                        5.5 µA (15 µA max)
+ current consumption
+
+
+8.2.1.2 Detailed Design Procedure
+Determine which version of the TPS3704x best suits the monitored rail (VMON) and window tolerances found
+on Table 9-2. The TPS3704x allows overvoltage and undervoltage monitoring for precise voltage supervision of
+common rails between 0.4 V and 5.55 V. This application calls for very tight monitoring of the rail with only ±5%
+of variation allowed on the 1.2-VCORE rail. To ensure this requirement is met, the TPS37042 was chosen for its
+±3% thresholds. The 3.3-VI/O is more flexible and can operate up to 8% variance. Since the TPS3704x comes in
+various tolerance options, the ±6% thresholds can be chosen for this voltage rail. To calculate the worst-case for
+VIT+(OV) and VIT-(UV), the accuracy must also be taken into account. The worst-case for VIT+(OV) and VIT-(UV) can
+be calculated shown in Equation 5 and Equation 6 respectively:
+
+      VIT+(OV-Worst Case) = VMON × (1 + %Threshold ) × (1 + %Accuracy) = 1.2 × (1.03) × (1.01) = 1.2484 V                                   (5)
+
+      VIT-(UV-Worst Case) = VMON × (1 - %Threshold) × (1 - %Accuracy) = 1.2 × (0.97) × (0.99) = 1.1524V                                     (6)
+
+Hysteresis is also needed to be taken into account when determining the OV and UV thresholds such that the
+release point after the fault is higher than the power supply tolerance limits. Refer to Figure 6-1 for more details.
+When the outputs switch to a high impedance state, the rise time of the RESETx/RESETx pin depends on the
+pull-up resistance and the capacitance on that node. Choose pull-up resistors that satisfy both the downstream
+timing requirements and the sink current required to have a VOL low enough for the application; 10 kΩ to 1 MΩ
+resistors are a good choice for low-capacitive loads.
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                                  Submit Document Feedback         23
+                                                             Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                               www.ti.com
+
+8.2.2 Design 2: Manual Self-Test Option for Enhanced Functional Safety Use Cases
+Figure 8-4 displays a self-test scheme where a manual self-test function can be implemented. Any SENSEx pin
+can be reserved and used to trigger a fault to be observed at the output, thus pre-checking the TPS3704 for fault
+detection. TPS3704 is a functional safety compliant multichannel supervisor and enables applications such as
+factory automation and motor drive achieve IEC 61508 requirements and industrial safety integrity levels. This
+example uses a TPS37044F, configured for separate undervoltage and overvoltage (UV/OV) outputs where the
+SENSE4 thresholds are set at 5.5 V for OV and 2 V for UV.
+                                              VDD
+                                                          VDD      TPS37044F                    RPULL_UP
+                                              100 kΩ                           RESET1
+                                                          SENSE4               RESET2                  FPDLink
+                                       UV_Trig            SENSE1 SENSE2 SENSE3
+
+
+
+                                   9 V Coax                                                        Image Sensor
+                                               Wide Vin                           2.8 V/3.3 V
+                                                                                                  AVDD
+                                                Buck
+
+                                                                                    1.8 V
+                                                           DC/DC                                  IOVDD
+
+
+                                                                      LDO           1.2 V
+                                                                                                  DVDD
+
+
+
+     Figure 8-4. TPS37044F Quad-Channel Monitoring With Manual Self-Test Option for Functional Safety
+
+8.2.2.1 Design Requirements
+                                                    Table 8-2. Design Requirements
+     PARAMETER                                DESIGN REQUIREMENT                                                    DESIGN RESULT
+                      3.3-V AVDD nominal, with alerts if outside of ±4% of 3.3 V (including       Worst case VIT+(OV) = 3.432 V (+4%)
+                      device accuracy), 10-ms reset delay                                         Worst case VIT–(UV) = 3.168 V (–4%)
+                      1.8-V IOVDD nominal, with alerts if outside of ±4% of 1.8 V (including Worst case VIT+(OV) = 1.872 V (+4%)
+ Monitored rails
+                      device accuracy), 10-ms reset delay                                    Worst case VIT–(UV) = 1.728 V (–4%)
+                      1.2-V DVDD nominal, with alerts if outside of ±4% of 1.2 V (including       Worst case VIT+(OV) = 1.248 V (+4%)
+                      device accuracy), 10-ms reset delay                                         Worst case VIT–(UV) = 1.152 V (–4%)
+ SENSE4                                                                                           UV_Trig = High - causing SENSE4 pin going low
+                      100-kΩ pullup resistor to VDD with NFET pulldown transistor to GND
+ (Self-test Option)                                                                               UV_Trig = Low - in normal operation
+ Output logic
+                      5-V CMOS                                                                    5-V CMOS
+ voltage
+ Max system
+                      25 µA                                                                       5.5 µA (20 µA maximum)
+ IDD current
+
+
+8.2.2.2 Detailed Design Procedure
+Figure 8-4 shows a self-test scheme where a manual self-test function can be implemented. SENSE4 has an
+overvoltage (OV) threshold that is set at 5.5 V and the undervoltage (UV) threshold set at 2 V. SENSE4 can
+be connected via a 100-kΩ resistor to VDD. The self-test setup gives the added benefit of a built-in overvoltage
+detector for the rail powering the TPS37044F. From a functional safety perspective, a voltage supervisor cannot
+be considered reliable if the supervisor is operating outside its recommended operated limits.
+To trigger a manual self-test, pull UV_Trig high to cause SENSE4 to be logic low, therefore triggering an
+undervoltage (UV) fault. The UV fault appears at RESET2 as an asserted low signal. By tying both reset outputs
+to an NMI or interrupt input of the processor, this self-test option scheme serves as a purpose to ensure that
+RESET2, of the TPS37044F is operating properly. For more information on functional safety, see the Functional
+Safety Manual.
+
+
+
+
+24     Submit Document Feedback                                                                            Copyright © 2023 Texas Instruments Incorporated
+
+                                                          Product Folder Links: TPS3704
+                                                                                                                                       TPS3704
+www.ti.com                                                                                     SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+8.2.3 Application Curves
+These application curves were taken with the TPS3704Q1EVM. Please see the TPS3704Q1EVM User Guide for
+more information.
+
+
+       VDD
+
+
+                                                                                VDD
+
+                                             tD = 20.4 ms
+                                                                             RESET1
+    SENSE1
+
+                                                                                                     Reset Delay (tD) = 21.2 ms
+
+    RESET1                                                                   RESET2
+
+
+
+
+         VSENSE1 start up 0 V to 3.3 V, VDD = 3.3 V, VRESET1 = 3.3 V,            VDD start up 0 V to 3.3 V, VSENSE1 = 3.3 V, VSENSE2 = 1.8 V,
+                           TPS37044A7OHDDFR                                     VSENSE3_4 = 1.15 V, VRESET1_2 = 3.3 V, TPS37044A7OHDDFR
+
+   Figure 8-5. TPS37044 SENSE1 Start Up Function                               Figure 8-6. TPS37044 VDD Start Up Function
+
+      VDD                                                                      VDD
+
+
+
+
+                                      VIT+(OV)               VIT-(UV)
+
+    SENSE1                                3.57 V                                                   VIT+(OV)                           VIT-(UV)
+                                                                 3.02 V      SENSE2
+                                                                                                         1.82 V                         1.70 V
+    RESET1                                                                   RESET1
+
+
+
+
+             VSENSE1 ramp 0 V to 3.75 V, OV/UV Threshold = 3.3 V                        VSENSE2 ramp 0 V to 2 V, OV/UV Threshold = 1.8 V
+             (±8%), VSENSE2 = 1.8 V, VDD = 3.3 V, VRESET1 = 3.3 V,                         (+4%, -3.5%), VSENSE1 = 3.3 V, VDD = 3.3 V,
+                           TPS37044A7OHDDFR                                                  VRESET1 = 3.3 V, TPS37044A7OHDDFR
+
+            Figure 8-7. TPS37044 Overvoltage and                                     Figure 8-8. TPS37044 Overvoltage and
+                    Undervoltage Function                                                    Undervoltage Function
+
+          VDD
+                                                                             SENSE3 = SENSE4
+
+
+
+                                                                                  VDD
+
+                                       VIT+(OV)              VIT-(UV)
+                                        1.22 V                1.05 V
+                                                                                 RESET2
+    SENSE3 = SENSE4
+        RESET2
+
+
+
+
+             VSENSE3_4 ramp 0 V to 1.5 V, OV/UV Threshold = 1.15                     VDD ramp 0 V to 5 V, VSENSE3_4 = 1.2 V, VRESET2 = 3.3 V,
+               V (+7.5%, -5.5%), VDD = 3.3 V, VRESET2 = 3.3 V,                                       TPS37044A7OHDDFR
+                           TPS37044A7OHDDFR
+                                                                              Figure 8-10. TPS37044 VDD Ramp Up Function
+            Figure 8-9. TPS37044 Overvoltage and
+                    Undervoltage Function
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                                   Submit Document Feedback       25
+                                                            Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                       www.ti.com
+
+
+
+
+     SENSE1
+                                                                           SENSE3
+
+
+
+     SENSE2                                                                SENSE4
+
+
+     RESET1
+                                                                           RESET2
+
+
+
+
+            VSENSE1 toggling 0 V to 3.3 V [OV/UV Threshold = 3.3 V              VSENSE3 toggling 0 V to 1.15 V [OV/UV Threshold = 1.15 V
+              (±8%)], VSENSE2 toggling from 0 V to 1.8 V [OV/UV                   (+7.5%, -5.5%)], VSENSE4 toggling from 0 V to 1.15 V
+                Threshold = 1.8 V (+4%, -3.5%)], VDD = 3.3 V,                   [OV/UV Threshold = 1.15 V (+7.5%, -5.5%)], VDD = 3.3 V,
+                   VRESET1 = 3.3 V, TPS37044A7OHDDFR                                     VRESET1 = 3.3 V, TPS37044A7OHDDFR
+
+              Figure 8-11. TPS37044 SENSE 1 and                                     Figure 8-12. TPS37044 SENSE 3 and
+                       SENSE 2 Toggling                                                      SENSE 4 Toggling
+
+      VDD                                                                   VDD
+
+                                        1 ms
+
+     SENSE1                                                                SENSE1
+                                                                                                                tPD = 1.32 s
+
+
+     RESET1                                                                RESET1
+                                                 tD = 21.5 ms
+
+
+
+
+            VSENSE1 = 3.3 V, VSENSE1 = 0 V via push-button for 1 ms,              VSENSE1 toggling from 3.3 V to 0 V, VDD = 3.3 V, VRESET1
+             VDD = 3.3 V, VRESET1 = 3.3 V, TPS37044A7OHDDFR                          toggling from 3.3 V to 0 V, TPS37044A7OHDDFR
+
+      Figure 8-13. TPS37044 SENSE1 Push-Button                                        Figure 8-14. TPS37044 SENSE1
+       Monitoring Function with Reset Time Delay                                        Propagation Delay Function
+
+8.3 Power Supply Recommendations
+8.3.1 Power Supply Guidelines
+This device is designed to operate from an input supply with a voltage range between 1.7 V to 6 V. It has a 6.5 V
+absolute maximum rating on the VDD pin. It is good analog practice to place a 0.1 µF to 1 µF capacitor between
+the VDD pin and the GND pin depending on the input voltage supply noise. If the voltage supply providing power
+to VDD is susceptible to any large voltage transient that exceed maximum specifications, additional precautions
+must be taken. See SNVA849 for more information.
+
+
+
+
+26     Submit Document Feedback                                                                    Copyright © 2023 Texas Instruments Incorporated
+
+                                                          Product Folder Links: TPS3704
+                                                                                                                                           TPS3704
+www.ti.com                                                                                  SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+
+8.4 Layout
+8.4.1 Layout Guidelines
+•    Place the external components as close to the device as possible. This configuration prevents parasitic errors
+     from occurring.
+•    Avoid using long traces for the VDD supply node. The VDD capacitor, along with parasitic inductance from
+     the supply to the capacitor, can form an LC circuit and create ringing with peak voltages above the maximum
+     VDD voltage.
+•    Avoid using long traces of voltage to the sense pin. Long traces increase parasitic inductance and cause
+     inaccurate monitoring and diagnostics.
+•    If SENSEx capacitors (CSENSEx) are used, place the capacitors as close as possible to the SENSEx pins to
+     further improve the noise immunity on the SENSEx pins. Placing a 10 nF to 100 nF capacitors between the
+     SENSEx pins and GND can reduce the sensitivity to transient voltages on the monitored signal.
+•    Do not run sensitive analog traces in parallel with digital traces. Avoid crossing digital and analog traces if
+     possible, and only make perpendicular crossings when absolutely necessary.
+8.4.2 Layout Example
+                                                     CIN
+
+
+
+
+                                                                                                        Rpull-up1   Rpull-up2
+
+                                                     VDD                           RESET1
+
+          *CSENSE1
+
+
+                                                    SENSE1
+                                                                                   RESET2
+
+                                                                                                                                *CSENSE4
+
+
+                                                    SENSE2                        SENSE4
+
+
+
+
+                     *CSENSE2                       GND                           SENSE3
+
+
+
+
+                                                                                                       *CSENSE3
+                                                                       GND
+
+
+
+
+                                         Vias used to connect pins for application-specific connections
+                                         *CSENSEx capacitors can be added for improve noise immunity
+
+                                                  Figure 8-15. Recommended Layout
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                            Submit Document Feedback             27
+                                                           Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                       www.ti.com
+
+
+9 Device and Documentation Support
+9.1 Device Nomenclature
+Figure 4-1 in Section 4 and Table 9-1 shows how to decode the function of the device based on its part number
+shown in Table 9-2.
+                                       Table 9-1. Device Naming Convention
+                  DESCRIPTION                           NOMENCLATURE                               VALUE
+ Generic Part number                        TPS3704x                            TPS3704x
+ Channel Option                             1                                   One-channel option
+                                            2                                   Dual-channel option
+                                            3                                   Triple-channel option
+                                            4                                   Quad-channel option
+ Detection Options                          Ax, Bx, Cx,...                      Please refer to Table 9-2
+ Variant code (Output Topology)             O                                   Open-Drain, Active-Low
+                                            L                                   Push-Pull, Active-Low
+                                            H                                   Push-Pull, Active-High
+ Reset Time Delay Option                    A                                   20 μs reset time delay
+                                            B                                   1 ms reset time delay
+                                            C                                   2 ms reset time delay
+                                            D                                   3 ms reset time delay
+                                            E                                   5 ms reset time delay
+                                            F                                   10 ms reset time delay
+                                            G                                   15 ms reset time delay
+                                            H                                   20 ms reset time delay
+                                            I                                   25 ms reset time delay
+                                            J                                   35 ms reset time delay
+                                            K                                   40 ms reset time delay
+                                            L                                   50 ms reset time delay
+                                            M                                   70 ms reset time delay
+                                            N                                   100 ms reset time delay
+                                            O                                   140 ms reset time delay
+                                            P                                   150 ms reset time delay
+                                            R                                   200 ms reset time delay
+                                            S                                   280 ms reset time delay
+                                            T                                   400 ms reset time delay
+                                            U                                   560 ms reset time delay
+                                            V                                   800 ms reset time delay
+                                            W                                   1120 ms reset time delay
+                                            X                                   1200 ms reset time delay
+ Package                                    DDF                                 SOT-23 8-pin (1.6 mm × 2.9 mm)
+ Reel                                       R                                   Large Reel
+
+
+
+
+28      Submit Document Feedback                                                   Copyright © 2023 Texas Instruments Incorporated
+
+                                                Product Folder Links: TPS3704
+                                                                                                                                     TPS3704
+www.ti.com                                                                                 SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023
+
+                                                  Table 9-2. Device Threshold Table
+                                                  NUM OF        RESET
+   ORDERABLE PART NAME               VARIANT(3)                            SENSE1(1) (2)     SENSE2(1) (2)      SENSE3(1) (2)    SENSE4(1) (2)
+                                                   CHAN.         TIME
+      TPS37042BJOFDDFRQ1                 ADJ          2          10ms       0.8V (±4%)        0.8V (±4%)              -                -
+
+      TPS37042A3OFDDFRQ1                 Fixed        2          10ms       3.3V (±5%)        1.2V (±5%)              -                -
+
+      TPS37042ZJOFDDFRQ1                 Fixed        2          10ms      1.95V (±4%)        3.8V (±6%)              -                -
+       TPS37043DJOFDDFR               ADJ/Fixed       3         10 ms       3.3V (-11%)       1.2V (-11%)        0.8V (-8%)            -
+
+      TPS37043A4OFDDFRQ1                 Fixed        3          10ms       2.8V (±5%)        1.8V (±5%)         1.2V (±5%)            -
+
+      TPS37043A8OFDDFRQ1                 Fixed        3          10ms       3.3V (±5%)        1.8V (±5%)         1.0V (±5%)            -
+
+      TPS37043CPOFDDFRQ1              ADJ/Fixed       3          10ms       3.3V (±4%)        0.75V (±4%)        0.8V (±3%)            -
+
+      TPS37043ZJOFDDFRQ1                 Fixed        3          10ms      0.95V (±4%)        1.35V (±4%)        1.8V (±4%)            -
+
+      TPS37043LJOFDDFRQ1                 ADJ          3          10ms       0.4V (±5%)        0.4V (±5%)         0.8V (±5%)            -
+
+      TPS37043CJOFDDFRQ1                 ADJ          3          10ms       0.8V (±6%)        0.8V (±6%)         0.8V (±6%)            -
+
+      TPS37043MJOFDDFRQ1                 ADJ          3          10ms       0.4V (±7%)        0.4V (±7%)         0.8V (±7%)            -
+
+      TPS37043A5OFDDFRQ1                 Fixed        3          10ms       3.3V (±4%)        1.8V (±4%)         1.2V (±4%)            -
+
+      TPS37043BJOFDDFRQ1                 ADJ          3          10ms       0.8V (±4%)        0.8V (±4%)         0.8V (±4%)            -
+       TPS37044BJOFDDFR                  ADJ          4         10 ms       0.8 V (±4%)       0.8 V (±4%)       0.8 V (±4%)      0.8 V (±4%)
+       TPS37044LJOJDDFR                  ADJ          4          35ms       0.4V (±5%)        0.4V (±5%)         0.8V (±5%)       0.8V (±5%)
+
+      TPS37044BJOFDDFRQ1                 ADJ          4          10ms       0.8V (±4%)        0.8V (±4%)         0.8V (±4%)       0.8V (±4%)
+
+      TPS37044CJOFDDFRQ1                 ADJ          4          10ms       0.8V (±6%)        0.8V (±6%)         0.8V (±6%)       0.8V (±6%)
+
+      TPS37044MJOFDDFRQ1                 ADJ          4          10ms       0.4V (±7%)        0.4V (±7%)         0.8V (±7%)       0.8V (±7%)
+
+      TPS37044A4OGDDFRQ1                 Fixed        4          15ms       3.3V (±8%)        1.8V (±4%)        1.15V (±6%)      1.15V (±6%)
+
+(1)    Listed percentage denotes window tolerance, see Figure 6-1 for more information
+(2)    VIT threshold of 0.8V and 0.4V signifies an adjustable channel
+(3)    ADJ denotes an adjustable voltage threshold set by an external resistor divider, see Section 8.1.2 for more information
+
+9.2 Receiving Notification of Documentation Updates
+To receive notification of documentation updates, navigate to the device product folder on ti.com. Click on
+Notifications to register and receive a weekly digest of any product information that has changed. For change
+details, review the revision history included in any revised document.
+9.3 Support Resources
+TI E2E™ support forums are an engineer's go-to source for fast, verified answers and design help — straight
+from the experts. Search existing answers or ask your own question to get the quick design help you need.
+Linked content is provided "AS IS" by the respective contributors. They do not constitute TI specifications and do
+not necessarily reflect TI's views; see TI's Terms of Use.
+9.4 Trademarks
+TI E2E™ is a trademark of Texas Instruments.
+All trademarks are the property of their respective owners.
+9.5 Electrostatic Discharge Caution
+                    This integrated circuit can be damaged by ESD. Texas Instruments recommends that all integrated circuits be handled
+                    with appropriate precautions. Failure to observe proper handling and installation procedures can cause damage.
+                    ESD damage can range from subtle performance degradation to complete device failure. Precision integrated circuits may
+                    be more susceptible to damage because very small parametric changes could cause the device not to meet its published
+                    specifications.
+
+
+
+
+Copyright © 2023 Texas Instruments Incorporated                                                              Submit Document Feedback          29
+                                                          Product Folder Links: TPS3704
+TPS3704
+SNVSBZ2E – MARCH 2021 – REVISED DECEMBER 2023                                                                                                        www.ti.com
+
+9.6 Glossary
+ TI Glossary              This glossary lists and explains terms, acronyms, and definitions.
+
+
+10 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+
+Changes from Revision D (September 2022) to Revision E (December 2023)                                                                             Page
+• Remove TPS37044UJOFDDFR and TPS37044GJONDDFR from Device Threshold Table............................. 3
+• Remove single channel pin-out.......................................................................................................................... 5
+• Remove TPS37044UJOFDDFR and TPS37044GJONDDFR from Device Threshold Table........................... 28
+
+
+Changes from Revision C (September 2022) to Revision D (September 2023)                                                                                     Page
+• Clarifying text added to window tolerance specification..................................................................................... 1
+• Highlighted presence of device threshold table and calculator tool....................................................................1
+• Removed reference to single channel and condenced verbiage........................................................................1
+• Addition of Table 4-1 ..........................................................................................................................................3
+• Clarifying text added to window tolerance specification in Figure 6-1 ............................................................. 10
+• Removed reference to single channel supervisor............................................................................................ 16
+• Removed single channel block diagram...........................................................................................................16
+• Addition of reference to adjustable threshold resistor calculator...................................................................... 22
+• Orderable part name additions to Table 9-2 .................................................................................................... 28
+
+
+Changes from Revision B (November 2021) to Revision C (September 2022)                                                                           Page
+• Added Functional Safety information..................................................................................................................1
+• Added Manual Self-Test Option Section...........................................................................................................24
+
+
+Changes from Revision A (July 2021) to Revision B (November 2021)                                                                   Page
+• Change from Advance Information to Production Data...................................................................................... 1
+
+11 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical, packaging, and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+30     Submit Document Feedback                                                                                  Copyright © 2023 Texas Instruments Incorporated
+
+                                                               Product Folder Links: TPS3704
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                    9-Nov-2025
+
+
+
+
+PACKAGING INFORMATION
+
+       Orderable part number          Status     Material type      Package | Pins       Package qty | Carrier       RoHS             Lead finish/              MSL rating/               Op temp (°C)          Part marking
+                                        (1)            (2)                                                             (3)            Ball material             Peak reflow                                           (6)
+                                                                                                                                            (4)                      (5)
+
+       TPS37043DJOFDDFR               Active      Production     SOT-23-THIN (DDF) | 8    3000 | LARGE T&R            Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125              3DJOF
+      TPS37043DJOFDDFR.A              Active      Production     SOT-23-THIN (DDF) | 8    3000 | LARGE T&R            Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125              3DJOF
+        TPS37044BJOFDDFR              Active      Production     SOT-23-THIN (DDF) | 8    3000 | LARGE T&R            Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125               4BJOF
+      TPS37044BJOFDDFR.A              Active      Production     SOT-23-THIN (DDF) | 8    3000 | LARGE T&R            Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125               4BJOF
+        TPS37044LJOJDDFR              Active      Production     SOT-23-THIN (DDF) | 8    3000 | LARGE T&R            Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125               4LJOJ
+       TPS37044LJOJDDFR.A             Active      Production     SOT-23-THIN (DDF) | 8    3000 | LARGE T&R            Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125               4LJOJ
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+
+
+                                                                                                          Addendum-Page 1
+                                                                                                                          PACKAGE OPTION ADDENDUM
+
+   www.ti.com                                                                                                                               9-Nov-2025
+
+
+
+
+OTHER QUALIFIED VERSIONS OF TPS3704 :
+
+• Automotive : TPS3704-Q1
+
+NOTE: Qualified Version Definitions:
+
+       • Automotive - Q100 devices qualified for high-reliability automotive applications targeting zero defects
+
+
+
+
+                                                                                                        Addendum-Page 2
+                                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                                                          7-Dec-2023
+
+
+
+TAPE AND REEL INFORMATION
+
+       REEL DIMENSIONS                                                                       TAPE DIMENSIONS
+                                                                                        K0         P1
+
+
+
+                                                                                                                         B0 W
+                                          Reel
+                                        Diameter
+                                                                                     Cavity             A0
+                                                                 A0   Dimension designed to accommodate the component width
+                                                                 B0   Dimension designed to accommodate the component length
+                                                                 K0   Dimension designed to accommodate the component thickness
+                                                                 W    Overall width of the carrier tape
+                                                                 P1   Pitch between successive cavity centers
+
+
+                                         Reel Width (W1)
+                               QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                        Sprocket Holes
+
+
+                                                   Q1       Q2          Q1    Q2
+
+                                                   Q3       Q4          Q3    Q4                    User Direction of Feed
+
+
+
+                                                             Pocket Quadrants
+
+
+*All dimensions are nominal
+             Device           Package Package Pins               SPQ       Reel   Reel   A0                    B0         K0     P1     W     Pin1
+                               Type Drawing                              Diameter Width (mm)                  (mm)       (mm)   (mm)   (mm) Quadrant
+                                                                           (mm) W1 (mm)
+  TPS37043DJOFDDFR            SOT-23-     DDF           8        3000        180.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+  TPS37044BJOFDDFR            SOT-23-     DDF           8        3000        180.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+  TPS37044LJOJDDFR            SOT-23-     DDF           8        3000        180.0           8.4        3.2    3.2       1.4    4.0    8.0     Q3
+                               THIN
+
+
+
+
+                                                                       Pack Materials-Page 1
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                              7-Dec-2023
+
+
+
+ TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                               Width (mm)
+                                                                              H
+
+
+
+
+                      W                                   L
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins         SPQ    Length (mm)   Width (mm)   Height (mm)
+  TPS37043DJOFDDFR            SOT-23-THIN         DDF           8           3000      210.0        185.0         35.0
+  TPS37044BJOFDDFR            SOT-23-THIN         DDF           8           3000      210.0        185.0         35.0
+   TPS37044LJOJDDFR           SOT-23-THIN         DDF           8           3000      210.0        185.0         35.0
+
+
+
+
+                                                        Pack Materials-Page 2
+                                                                                                         PACKAGE OUTLINE
+DDF0008A                                                        SCALE 4.000
+                                                                                            SOT-23-THIN - 1.1 mm max height
+                                                                                                                      PLASTIC SMALL OUTLINE
+
+
+
+
+                                                                                                                          C
+                                    2.95                                                             SEATING PLANE
+                                         TYP
+                                    2.65
+
+          A                                  PIN 1 ID                                                                 0.1 C
+                                             AREA
+
+
+                                                                                  6X 0.65
+                                                                      8
+                1
+
+
+
+
+        2.95
+        2.85                                                                          2X
+       NOTE 3                                                                        1.95
+
+
+
+
+                4                                                                                    4X 0 -15
+                                                            5
+                                                                                   0.38
+                                                                                8X
+                                                                                   0.22
+                                      1.65                                     0.1    C A B
+                      B                                                                                                 1.1
+                                      1.55
+                                                                                                                        MAX
+
+
+                                                            4X 4 -15
+
+
+
+                                                                                 0.20
+                                                                                      TYP
+                                                                                 0.08
+
+
+
+
+                                         SEE DETAIL A
+
+                                                                                      0.25
+                                                                               GAGE PLANE
+
+
+
+                                                                                                                                        0.1
+                                                                                              0 -8              0.6                     0.0
+                                                                                                                0.3
+                                                                                                                       DETAIL A
+                                                                                                                        TYPICAL
+
+                                                                                                                              4222047/E 07/2024
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+
+
+
+
+                                                                              www.ti.com
+                                                                                 EXAMPLE BOARD LAYOUT
+DDF0008A                                                                        SOT-23-THIN - 1.1 mm max height
+                                                                                                       PLASTIC SMALL OUTLINE
+
+
+
+
+                                   8X (1.05)
+                                                                 SYMM
+                                               1
+                                                                                         8
+
+                               8X (0.45)
+                                                                                             SYMM
+
+
+
+                                   6X (0.65)
+                                                                                         5
+                                               4
+
+                                  (R0.05)
+                                  TYP                             (2.6)
+
+
+                                                    LAND PATTERN EXAMPLE
+                                                        EXPOSED METAL SHOWN
+                                                             SCALE:15X
+
+
+
+
+                  SOLDER MASK                                             METAL UNDER                SOLDER MASK
+                                               METAL                                                 OPENING
+                  OPENING                                                 SOLDER MASK
+
+
+
+
+                   0.05 MAX                    EXPOSED                                               EXPOSED
+                                               METAL                          0.05 MIN
+               ALL AROUND                                                 ALL AROUND                 METAL
+
+
+                              NON SOLDER MASK                                            SOLDER MASK
+                                  DEFINED                                                  DEFINED
+
+                                                   SOLDER MASK DETAILS
+
+
+                                                                                                               4222047/E 07/2024
+NOTES: (continued)
+
+4. Publication IPC-7351 may have alternate designs.
+5. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+DDF0008A                                                                       SOT-23-THIN - 1.1 mm max height
+                                                                                                           PLASTIC SMALL OUTLINE
+
+
+
+
+                                   8X (1.05)                      SYMM
+                                                                                                (R0.05) TYP
+                                               1
+                                                                                          8
+
+                                8X (0.45)
+                                                                                              SYMM
+
+
+
+                                   6X (0.65)
+                                                                                          5
+                                               4
+
+                                                                   (2.6)
+
+                                                       SOLDER PASTE EXAMPLE
+                                                   BASED ON 0.125 mm THICK STENCIL
+                                                              SCALE:15X
+
+
+
+
+                                                                                                                  4222047/E 07/2024
+NOTES: (continued)
+
+6. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+7. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                 www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2025, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

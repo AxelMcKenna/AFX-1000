@@ -1,0 +1,9 @@
+# Antagonistic self-review
+
+No complete-harness or electrical-release claim is justified: other I2C branches, board capacitance/stackup, missing codec, and physical waveform/noise tests remain open. The 12 pF ceiling is a receiving requirement, not a measured result or a manufacturer maximum. The source-bound contract explicitly records these limits.
+
+Concrete fixes: mounting heads interfered with support arms in r3, so r4 added head/tool access relief. The remaining apparent r4 collision had approximately7.4e-13 mm³ volume on the intended seating plane; r5 excludes only that0.01 mm contact band and separately verifies positive seating. The cable envelope increased to4.5 mm radius for placement allowance. Each clamp is one connected watertight native solid, and r6 checks full moving-lever/spring clearance and the purchased mate against all neighboring components.
+
+The pin mapping comes from actual checked main and sensor PCBs, not apparent wire order or a prior A12 harness. Main grounds use a soldered splice and one crimp conductor, avoiding an unsupported multiple-wire crimp. Ground guards remain connected at the main end. The selected header resolves the generic nativeHeader4 purchase specification but is not represented as already purchased or received. The four sensor solder wires retain the modeled back/front projection limits.
+
+The clamps use existing PCB mount holes with support heights exactly compensated by longer screws; original underside tip reach is preserved. Printed M2 engagement, silicone grip, mating height, wire dressing and assembly pull tests require receiving verification. Native checks establish modeled spatial feasibility, not force, vibration, fatigue, electromagnetic, or thermal acceptance. Final combination with latest controls and cooling is delegated to the root integration check.

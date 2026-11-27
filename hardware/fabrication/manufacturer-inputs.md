@@ -10,9 +10,9 @@ The selected codec's PCB remains incomplete. The available
 does not provide the revisioned package and recommended land-pattern inputs
 required by the project's [package review](../electronics/converter/package_review/README.md).
 The public [codec listing](https://www.esstech.com/products-overview/codecs/)
-was checked again on 2026-11-04 and still links the 183-page v0.1 datasheet.
-A focused connected-Drive search for `ES9292` on that date returned no matching files.
-The focused official-site search did not locate the missing revisioned package/land/stencil drawings.
+was checked again on 2026-11-19 and still links the 183-page v0.1 datasheet.
+A focused connected-Drive search for `ES9292` on 2026-11-04 returned no matching files.
+The November 19 search of ESS’s public media catalog returned the datasheet and a product photo. The revisioned package, land and stencil drawings remain outstanding.
 
 Suggested request:
 
@@ -32,6 +32,8 @@ Do not replace the deliberately absent footprint with a generic 7 mm QFN.
 The characterization ADC driver board does not complete the codec board.
 
 ## PCB fabrication and assembly
+
+The two-board via review measures nominal drill edges against the exported mask and paste openings. The smallest power-board mask clearance is 0.1246 mm. Supplier registration and via tenting remain to be confirmed. [Two-board measurements](staging/two-board-via-assembly-review-01/README.md)
 
 The current consolidation target is two main PCBs. The [integrated signal
 checkpoint](staging/two-board-signal-routed-native-03/README.md) has a provisional

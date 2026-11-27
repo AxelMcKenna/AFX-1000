@@ -1,0 +1,210 @@
+{
+  "board_sha256": "0d94c83eea8999da389b89aebf3ed55a71f5155aed3597d5de7c764fc76f2ac4",
+  "plan": {
+    "source_capture_sha256": "d6f1828a509513556e50a4deb21b2e958704ca7cf644eb5d536cdf4fcc05edf8",
+    "planner_sha256": "d00cb4ececd1cca1c11a39535af55deee5408a9b630ec48320b1e7138123a30d",
+    "rows": [
+      {
+        "capacitor": "E_C36",
+        "attempts": 95,
+        "chosen": {
+          "capacitor": "E_C36",
+          "driver": "E_U2",
+          "position_mm": [
+            61.525000000000006,
+            121.145
+          ],
+          "orientation_degrees": 90,
+          "removed_positive_track_uuids": [
+            "3d013691-6bca-5e10-bf0b-71e835d3f405"
+          ],
+          "supply_path_mm": [
+            [
+              62.25000000000001,
+              121.595
+            ],
+            [
+              63.106331,
+              120.663463
+            ]
+          ],
+          "ground_path_mm": [
+            [
+              62.25000000000001,
+              120.695
+            ],
+            [
+              60.550000000000004,
+              121.24499999999999
+            ],
+            [
+              60.400000000000006,
+              121.54499999999999
+            ],
+            [
+              60.400000000000006,
+              122.74499999999999
+            ],
+            [
+              62.20000000000001,
+              124.54499999999999
+            ],
+            [
+              62.50000000000001,
+              124.695
+            ],
+            [
+              62.95000000000001,
+              124.395
+            ],
+            [
+              63.10000000000001,
+              124.24499999999999
+            ],
+            [
+              63.169461,
+              123.907099
+            ]
+          ],
+          "ground_target_uuid": "12b50b05-b7ec-598e-891e-874f23ee76fc",
+          "new_ground_via": null,
+          "supply_length_mm": 1.265331562844298,
+          "ground_length_mm": 7.301092913489628,
+          "pad_centers_mm": {
+            "1": [
+              61.525,
+              122.09499999999998
+            ],
+            "2": [
+              61.525,
+              120.195
+            ]
+          },
+          "native_courtyard_verified": false
+        }
+      },
+      {
+        "capacitor": "E_C13",
+        "attempts": 1,
+        "chosen": {
+          "capacitor": "E_C13",
+          "driver": "E_U4",
+          "position_mm": [
+            108.275,
+            129.095
+          ],
+          "orientation_degrees": 180,
+          "removed_positive_track_uuids": [],
+          "supply_path_mm": [
+            [
+              109.72500000000001,
+              128.935006
+            ],
+            [
+              110.05,
+              128.935006
+            ]
+          ],
+          "ground_path_mm": [
+            [
+              106.825,
+              129.095
+            ],
+            [
+              106.325,
+              129.095
+            ]
+          ],
+          "ground_target_uuid": null,
+          "new_ground_via": {
+            "position_mm": [
+              106.325,
+              129.095
+            ],
+            "size_mm": 0.6,
+            "drill_mm": 0.3,
+            "net": "PWR_AGND"
+          },
+          "supply_length_mm": 0.32499999999998863,
+          "ground_length_mm": 0.5,
+          "pad_centers_mm": {
+            "1": [
+              109.22500000000001,
+              129.095
+            ],
+            "2": [
+              107.325,
+              129.095
+            ]
+          },
+          "native_courtyard_verified": false
+        }
+      }
+    ],
+    "qualified": false
+  },
+  "added_findings": [
+    {
+      "description": "Courtyards overlap",
+      "items": [
+        {
+          "description": "Footprint E_J10",
+          "pos": {
+            "x": 56.0,
+            "y": 126.0
+          },
+          "uuid": "0252295d-c49e-57e7-9a44-b48c4aea75c1"
+        },
+        {
+          "description": "Footprint E_C36",
+          "pos": {
+            "x": 61.525,
+            "y": 121.145
+          },
+          "uuid": "8d5a7611-08a7-584e-8112-6fced2fe35bd"
+        }
+      ],
+      "severity": "error",
+      "type": "courtyards_overlap"
+    },
+    {
+      "description": "Courtyards overlap",
+      "items": [
+        {
+          "description": "Footprint E_U4",
+          "pos": {
+            "x": 113.5,
+            "y": 131.0
+          },
+          "uuid": "04027db9-6840-5da0-91bd-837faeba9989"
+        },
+        {
+          "description": "Footprint E_C13",
+          "pos": {
+            "x": 108.275,
+            "y": 129.095
+          },
+          "uuid": "93cbb72d-750b-51d1-a718-5ba1e8313fb9"
+        }
+      ],
+      "severity": "error",
+      "type": "courtyards_overlap"
+    },
+    {
+      "description": "Track has unconnected end",
+      "items": [
+        {
+          "description": "Track [PWR_AGND] on F.Cu, length 1.2510 mm",
+          "pos": {
+            "x": 96.05,
+            "y": 127.5
+          },
+          "uuid": "6a809b80-0ffb-551e-8b88-4080568a9785"
+        }
+      ],
+      "severity": "warning",
+      "type": "track_dangling"
+    }
+  ],
+  "disposition": "Rejected. Native-02 retains C36 original pose and rotates relocated C13, removing obsolete ground stub. Native-03 separately completes C36 ground connectivity."
+}

@@ -1,0 +1,2 @@
+$fn=64;
+intersection(){union(){import("/private/tmp/rmx-hardware-integration-20261112/hardware/cad/assembly_workflow/cache/component/f752a94a27e4a068b052207f493f0b7b1235ce431ebbc9d98ac252f5ba2e9067/geometry.stl");}union(){import("/private/tmp/rmx-hardware-integration-20261112/hardware/cad/assembly_workflow/cache/component/66fbf6280db0a33819f62afba54e61e28aedcbaf43198b0c19f598d513e5f79d/geometry.stl");}}

@@ -1,0 +1,2914 @@
+                               Product        Sample &        Technical               Tools &                Support &                 Reference
+                               Folder         Buy             Documents               Software               Community                 Design
+
+
+
+                                                                                                                               OPA333, OPA2333
+                                                                                         SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+         OPAx333 1.8-V, microPower, CMOS Operational Amplifiers, Zero-Drift Series
+1 Features                                                            3 Description
+•
+1   Low Offset Voltage: 10 μV (Maximum)                               The OPAx333 series of CMOS operational amplifiers
+                                                                      use a proprietary auto-calibration technique to
+•   Zero Drift: 0.05 μV/°C (Maximum)                                  simultaneously provide very low offset voltage
+•   0.01-Hz to 10-Hz Noise: 1.1 μVPP                                  (10 μV, maximum) and near-zero drift over time and
+•   Quiescent Current: 17 μA                                          temperature. These miniature, high-precision, low
+•   Single-Supply Operation                                           quiescent current amplifiers offer high-impedance
+                                                                      inputs that have a common-mode range 100 mV
+•   Supply Voltage: 1.8 V to 5.5 V                                    beyond the rails, and rail-to-rail output that swings
+•   Rail-to-Rail Input/Output                                         within 50 mV of the rails. Single or dual supplies as
+•   microSize Packages: SC70 and SOT23                                low as 1.8 V (±0.9 V) and up to 5.5 V (±2.75 V) can
+                                                                      be used. These devices are optimized for low-
+                                                                      voltage, single-supply operation.
+2 Applications
+•   Transducers                                                       The OPAx333 family offers excellent CMRR without
+                                                                      the      crossover associated    with    traditional
+•   Temperature Measurements                                          complementary input stages. This design results in
+•   Electronic Scales                                                 superior performance for driving analog-to-digital
+•   Medical Instrumentation                                           converters (ADCs) without degradation of differential
+                                                                      linearity.
+•   Battery-Powered Instruments
+•   Handheld Test Equipment                                           The OPA333 (single version) is available in the 5-pin
+                                                                      SOT-23, SOT, and 8-pin SOIC packages, while the
+                                                                      OPA2333 (dual version) is available in the 8-pin
+                                                                      VSON, SOIC, and VSSOP packages. All versions are
+                                                                      specified for operation from –40°C to 125°C.
+
+                                                                                                 Device Information(1)
+                                                                          PART NUMBER                      PACKAGE                  BODY SIZE (NOM)
+                                                                                                   SOT-23 (5)                       2.90 mm × 1.60 mm
+                                                                       OPA333                      SOT (5)                          2.00 mm x 1.25 mm
+                                                                                                   SOIC (8)                         4.90 mm × 3.90 mm
+                                                                                                   VSON (8)                         3.00 mm × 3.00 mm
+                                                                       OPA2333                     SOIC (8)                         4.90 mm × 3.90 mm
+                                                                                                   VSSOP (8)                        3.00 mm × 3.00 mm
+                                                                       (1) For all available packages, see the orderable addendum at
+                                                                           the end of the data sheet.
+
+                      0.1-Hz to 10-Hz Noise                                              OPAx333 Pinout Diagrams
+                                                                                         OPA333                                     OPA333
+
+
+                                                                           OUT    1                    5   V+       +IN    1                 5   V+
+
+                                                                            V-    2                                  V-    2
+
+
+
+
+         500 nV/div
+                                                                            +IN   3                    4   -IN      -IN    3                 4   OUT
+
+
+                                                                                        SOT23-5                                     SC70-5
+                                                                                                             OPA2333
+
+
+                                                                                            OUT A      1                   8   V+
+                                                                                                             Exposed
+                                                                                             -IN A     2      Thermal      7   OUT B
+                               1 s/div                                                                        Die Pad
+                                                                                             +IN A     3         on        6   -IN B
+                                                                                                             Underside
+                                                                                                  V-   4                   5   +IN B
+
+
+                                                                                                           DFN-8 (SON-8)
+
+
+
+1
+
+
+
+
+      An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+      intellectual property matters and other important disclaimers. PRODUCTION DATA.
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                                                                                  www.ti.com
+
+
+                                                                             Table of Contents
+    1    Features .................................................................. 1                8     Application and Implementation ........................ 15
+    2    Applications ........................................................... 1                          8.1 Application Information............................................ 15
+    3    Description ............................................................. 1                         8.2 Typical Applications ............................................... 15
+    4    Revision History..................................................... 2                             8.3 System Examples ................................................... 20
+    5    Pin Configuration and Functions ......................... 3                                  9 Power Supply Recommendations...................... 22
+    6    Specifications......................................................... 5                    10 Layout................................................................... 23
+         6.1    Absolute Maximum Ratings ...................................... 5                            10.1 Layout Guidelines ................................................. 23
+         6.2    ESD Ratings.............................................................. 5                  10.2 Layout Example .................................................... 23
+         6.3    Recommended Operating Conditions....................... 5                             11 Device and Documentation Support ................. 24
+         6.4    Thermal Information: OPA333 .................................. 6                             11.1    Device Support...................................................... 24
+         6.5    Thermal Information: OPA2333 ................................ 6                              11.2    Documentation Support ........................................ 24
+         6.6    Electrical Characteristics........................................... 7                      11.3    Related Links ........................................................ 24
+         6.7    Typical Characteristics .............................................. 8                     11.4    Community Resources.......................................... 24
+    7    Detailed Description ............................................ 12                                11.5    Trademarks ........................................................... 24
+         7.1    Overview ................................................................. 12                11.6    Electrostatic Discharge Caution ............................ 24
+         7.2    Functional Block Diagram ....................................... 12                          11.7    Glossary ................................................................ 25
+         7.3    Feature Description................................................. 12               12 Mechanical, Packaging, and Orderable
+         7.4    Device Functional Modes........................................ 14                       Information ........................................................... 25
+
+
+
+4 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+
+Changes from Revision D (November 2013) to Revision E                                                                                                                                   Page
+
+•   Added Pin Configuration and Functions section, ESD Ratings and Thermal Information tables, Feature Description
+    section, Device Functional Modes, Application and Implementation section, Power Supply Recommendations
+    section, Layout section, Device and Documentation Support section, and Mechanical, Packaging, and Orderable
+    Information section ................................................................................................................................................................ 1
+
+
+Changes from Revision C (May 2007) to Revision D                                                                                                                                        Page
+
+•   Changed data sheet format to most current standard look and feel ...................................................................................... 1
+•   Added OPA2333 DFN-8 pinout to front page......................................................................................................................... 1
+•   Changed 2nd signal input terminals parameter in the Absolute Maximum Ratings from "voltage" to "current" (typo) .......... 5
+•   Added Table 1 ........................................................................................................................................................................ 8
+
+
+
+
+2        Submit Documentation Feedback                                                                                   Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                                                    Product Folder Links: OPA333 OPA2333
+                                                                                                                                OPA333, OPA2333
+www.ti.com                                                                                           SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+5 Pin Configuration and Functions
+
+                       OPA333 DBV Package
+                           5-Pin SOT                                                                        OPA333 DCK Package
+                            Top View                                                                            5-Pin SC70
+                                                                                                                 Top View
+
+                  OUT         1               5   V+
+                                                                                                      +IN    1                 5   V+
+                    V-        2
+                                                                                                      V-     2
+                    +IN       3               4   -IN
+                                                                                                      -IN    3                 4   OUT
+
+
+
+
+                                                                     OPA333 D Package
+                                                                        8-Pin SOIC
+                                                                         Top View
+
+                                                               (1)                             (1)
+                                                          NC         1              8     NC
+
+                                                           -IN       2              7     V+
+
+                                                           +IN       3              6     OUT
+                                                                                               (1)
+                                                            V-       4              5     NC
+
+
+
+                                                            Pin Functions: OPA333
+                                  PIN
+                                                                              I/O                                   DESCRIPTION
+      NAME           SOIC               SOT               SC70
++IN                       3              3                  1                  I        Noninverting input
+–IN                       2              4                  3                  I        Inverting input
+NC                   1, 5, 8            —                   —                 —         No internal connection (can be left floating)
+OUT                       6              1                  4                 O         Output
+V+                        7              5                  5                 —         Positive (highest) power supply
+V–                        4              2                  2                 —         Negative (lowest) power supply
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                                            Submit Documentation Feedback   3
+                                                        Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                                           www.ti.com
+
+
+                   OPA2333 DRB Package                                                          OPA2333 D or DGK Package
+           8-Pin VSON With Exposed Thermal Pad                                                    8-Pin SOIC or VSSOP
+                        Top View                                                                        Top View
+
+
+                                                                                             OUT A   1                      8   V+
+              OUT A     1                    8   V+                                                          A
+                              Exposed
+                              Thermal                                                        -IN A   2                      7   OUT B
+               -IN A    2                    7   OUT B
+                              Die Pad                                                                              B
+                                                                                             +IN A   3                      6   -IN B
+               +IN A    3        on          6   -IN B
+                                       (2)
+                             Underside                                                          V-   4                      5   +IN B
+                 V-     4                    5   +IN B
+
+
+
+
+                                                         Pin Functions: OPA2333
+                       PIN
+                                                         I/O                                      DESCRIPTION
+    NAME        VSON             SOIC, VSSOP
++IN               —                     —                 I     Noninverting input
++IN A              3                     3                I     Noninverting input, channel A
++IN B              5                     5                I     Noninverting input, channel B
+–IN               —                     —                 I     Inverting input
+–IN A              2                     2                I     Inverting input, channel A
+–IN B              6                     6                I     Inverting input, channel B
+OUT               —                     —                O      Output
+OUT A              1                     1               O      Output, channel A
+OUT B              7                     7               O      Output, channel B
+V+                 8                     8               —      Positive (highest) power supply
+V–                 4                     4               —      Negative (lowest) power supply
+
+
+
+
+4       Submit Documentation Feedback                                                           Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                                      Product Folder Links: OPA333 OPA2333
+                                                                                                                      OPA333, OPA2333
+www.ti.com                                                                                 SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+6 Specifications
+6.1 Absolute Maximum Ratings
+See (1)
+                                                                                                       MIN            MAX            UNIT
+                                Supply                                                                   7
+Voltage                                                                                                                               V
+                                Signal input terminals (2)                                             –0.3         (V+) + 0.3
+                                Signal input terminals (2)                                              –1                 1
+Current                                                                                                                               mA
+                                Output short-circuit (3)                                                     Continuous
+Operating junction temperature, TJ                                                                                        150
+Operating temperature, TA                                                                              –40                150         °C
+Storage temperature, Tstg                                                                              –65                150
+
+(1)   Stresses beyond those listed under Absolute Maximum Ratings may cause permanent damage to the device. These are stress ratings
+      only, which do not imply functional operation of the device at these or any other conditions beyond those indicated under Recommended
+      Operating Conditions. Exposure to absolute-maximum-rated conditions for extended periods may affect device reliability.
+(2)   Input terminals are diode-clamped to the power-supply rails. Input signals that can swing more than 0.3 V beyond the supply rails should
+      be current limited to 10 mA or less.
+(3)   Short-circuit to ground, one amplifier per package.
+
+6.2 ESD Ratings
+                                                                                                                          VALUE       UNIT
+             Electrostatic            Human body model (HBM), per ANSI/ESDA/JEDEC JS-001 (1)                              ±4000
+V(ESD)                                                                                                                                 V
+             discharge                Charged-device model (CDM), per JEDEC specification JESD22-C101 (2)                 ±1000
+
+(1)   JEDEC document JEP155 states that 500-V HBM allows safe manufacturing with a standard ESD control process.
+(2)   JEDEC document JEP157 states that 250-V CDM allows safe manufacturing with a standard ESD control process.
+
+6.3 Recommended Operating Conditions
+over operating free-air temperature range (unless otherwise noted)
+                                                                                                         MIN               MAX       UNIT
+Supply voltage, VS                                                                                           1.8               5.5    V
+Specified temperature                                                                                     –40                  125    °C
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                               Submit Documentation Feedback            5
+                                                        Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                                      www.ti.com
+
+
+6.4 Thermal Information: OPA333
+                                                                                               OPA333
+                       THERMAL METRIC (1)                                 D (SOIC)             DBV (SOT)            DCK (SC70)         UNIT
+                                                                           8 PINS                 5 PINS               5 PINS
+RθJA       Junction-to-ambient thermal resistance                          140.1                  220.8                 298.4          °C/W
+RθJC(top) Junction-to-case (top) thermal resistance                         89.8                   97.5                  65.4          °C/W
+RθJB       Junction-to-board thermal resistance                             80.6                   61.7                  97.1          °C/W
+ψJT        Junction-to-top characterization parameter                       28.7                    7.6                   0.8          °C/W
+ψJB        Junction-to-board characterization parameter                     80.1                   61.1                  95.5          °C/W
+RθJC(bot) Junction-to-case (bottom) thermal resistance                       —                      —                     —            °C/W
+
+(1)   For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+      report, SPRA953.
+
+6.5 Thermal Information: OPA2333
+                                                                                               OPA2333
+                                           (1)
+                       THERMAL METRIC                                     D (SOIC)            DGK (VSSOP)            DRB (VSON)        UNIT
+                                                                           8 PINS                 8 PINS                8 PINS
+RθJA       Junction-to-ambient thermal resistance                          124.0                   180.3                  46.7         °C/W
+RθJC(top) Junction-to-case (top) thermal resistance                         73.7                    48.1                  26.3         °C/W
+RθJB       Junction-to-board thermal resistance                             64.4                   100.9                  22.2         °C/W
+ψJT        Junction-to-top characterization parameter                       18.0                    2.4                   1.6          °C/W
+ψJB        Junction-to-board characterization parameter                     63.9                    99.3                  22.3         °C/W
+RθJC(bot) Junction-to-case (bottom) thermal resistance                       —                       —                    10.3         °C/W
+
+(1)   For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+      report, SPRA953.
+
+
+
+
+6        Submit Documentation Feedback                                                     Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                                    Product Folder Links: OPA333 OPA2333
+                                                                                                                             OPA333, OPA2333
+www.ti.com                                                                                     SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+6.6 Electrical Characteristics
+At TA = 25°C, RL = 10 kΩ connected to VS / 2, VCM = VS / 2, and VOUT = VS / 2, unless otherwise noted.
+                     PARAMETER                                    TEST CONDITIONS                     MIN            TYP           MAX     UNIT
+OFFSET VOLTAGE
+VOS           Input offset voltage                  VS = 5 V                                                            2            10     μV
+dVOS/dT       Input offset voltage drift            TA = –40°C to 125°C                                              0.02          0.05    μV/°C
+PSRR          Power-supply rejection ratio          VS = 1.8 V to 5.5 V, TA = –40°C to 125°C                            1             5    μV/V
+              Long-term stability (1)                                                                         See note (1)                  µV
+              Channel separation, dc                                                                                  0.1                  μV/V
+INPUT BIAS CURRENT
+                                                    TA= 25°C                                                          ±70          ±200
+IB            Input bias current
+                                                    TA = –40°C to 125°C                                             ±150                    pA
+IOS           Input offset current                                                                                  ±140           ±400
+NOISE
+                                                    f = 0.01 Hz to 1 Hz                                               0.3
+              Input voltage noise                                                                                                          μVPP
+                                                    f = 0.1 Hz to 10 Hz                                               1.1
+in            Input current noise                   f = 10 Hz                                                         100                  fA/√Hz
+INPUT VOLTAGE
+VCM           Common-mode voltage range                                                          (V–) – 0.1                   (V+) + 0.1     V
+                                                    (V–) – 0.1 V < VCM < (V+) + 0.1 V,
+CMRR          Common-mode rejection ratio                                                               106           130                   dB
+                                                    TA = –40°C to 125°C
+INPUT CAPACITANCE
+              Differential                                                                                              2                   pF
+              Common-mode                                                                                               4                   pF
+OPEN-LOOP GAIN
+                                                    (V–) + 100 mV < VO < (V+) – 100 mV,
+AOL           Open-loop voltage gain                                                                    106           130                   dB
+                                                    RL = 10 kΩ, TA = –40°C to 125°C
+FREQUENCY RESPONSE
+GBW           Gain-bandwidth product                CL = 100 pF                                                       350                   kHz
+SR            Slew rate                             G = +1                                                           0.16                  V/μs
+OUTPUT
+                                                    RL = 10 kΩ                                                         30            50
+              Voltage output swing from rail                                                                                                mV
+                                                    RL = 10 kΩ, TA = –40°C to 125°C                                                  70
+ISC           Short-circuit current                                                                                    ±5                   mA
+CL            Capacitive load drive                                                                  See Typical Characteristics
+              Open-loop output impedance            f = 350 kHz, IO = 0 A                                               2                   kΩ
+POWER SUPPLY
+VS            Specified voltage range                                                                   1.8                         5.5      V
+                                                    IO = 0 A                                                           17            25
+IQ            Quiescent current per amplifier                                                                                               μA
+                                                    TA = –40°C to 125°C                                                              28
+              Turn-on time                          VS = +5 V                                                         100                   μs
+TEMPERATURE
+              Specified range                                                                           –40                         125     °C
+TA
+              Operating range                                                                           –40                         150     °C
+Tstg          Storage range                                                                             –65                         150     °C
+
+(1)    300-hour life test at 150°C demonstrated randomly distributed variation of approximately 1 μV.
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                                   Submit Documentation Feedback               7
+                                                        Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                                               www.ti.com
+
+
+6.7 Typical Characteristics
+                                                   Table 1. List of Typical Characteristics
+                                                       TITLE                                                                    FIGURE
+Offset Voltage Production Distribution                                                                                          Figure 1
+Offset Voltage Drift Production Distribution                                                                                    Figure 2
+Open-Loop Gain vs Frequency                                                                                                     Figure 3
+Common-Mode Rejection Ratio vs Frequency                                                                                        Figure 4
+Power-Supply Rejection Ratio vs Frequency                                                                                       Figure 5
+Output Voltage Swing vs Output Current                                                                                          Figure 6
+Input Bias Current vs Common-Mode Voltage                                                                                       Figure 7
+Input Bias Current vs Temperature                                                                                               Figure 8
+Quiescent Current vs Temperature                                                                                                Figure 9
+Large-Signal Step Response                                                                                                      Figure 10
+Small-Signal Step Response                                                                                                      Figure 11
+Positive Overvoltage Recovery                                                                                                   Figure 12
+Negative Overvoltage Recovery                                                                                                   Figure 13
+Settling Time vs Closed-Loop Gain                                                                                               Figure 14
+Small-Signal Overshoot vs Load Capacitance                                                                                      Figure 15
+0.1-Hz to 10-Hz Noise                                                                                                           Figure 16
+Current and Voltage Noise Spectral Density vs Frequency                                                                         Figure 17
+
+At TA = 25°C, VS = 5 V, and CL = 0 pF, unless otherwise noted.
+
+
+
+
+                                                                                  Population
+      Population
+
+
+
+
+                                                                                                    0
+                                                                                               0.0025
+                                                                                               0.0050
+                                                                                               0.0075
+                                                                                               0.0100
+                                                                                               0.0125
+                                                                                               0.0150
+                                                                                               0.0175
+                   -10
+                    -9                                                                         0.0200
+                                                                                               0.0225
+                                                                                               0.0250
+                                                                                               0.0275
+                    -8
+                    -7
+                    -6
+                    -5
+                    -4
+                    -3                                                                         0.0300
+                                                                                               0.0325
+                                                                                               0.0350
+                                                                                               0.0375
+                    -2
+                    -1
+                     0
+                     1
+                     2
+                     3                                                                         0.0400
+                                                                                               0.0425
+                                                                                               0.0450
+                                                                                               0.0475
+                     4
+                     5
+                     6
+                     7
+                     8
+                     9                                                                         0.0500
+                    10
+                                 Offset Voltage (mV)                                                   Offset Voltage Drift (mV/°C)
+
+
+
+                   Figure 1. Offset Voltage Production Distribution                     Figure 2. Offset Voltage Drift Production Distribution
+
+
+
+
+8            Submit Documentation Feedback                                                        Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                                         Product Folder Links: OPA333 OPA2333
+                                                                                                                                                                                                            OPA333, OPA2333
+www.ti.com                                                                                                                                                       SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+At TA = 25°C, VS = 5 V, and CL = 0 pF, unless otherwise noted.
+            120                                                                                      250                                        140
+
+            100                                                                                      200                                        120
+
+              80                                                                                     150                                        100
+                                                                          Phase
+
+
+                                                                                                             Phase (°)      CMRR (dB)
+ AOL (dB)
+              60                                                                                     100                                         80
+
+              40                                                                                     50                                          60
+
+              20                                                                                     0                                           40
+                                                              Gain
+                   0                                                                                 -50                                         20
+
+            -20                                                                                      -100                                         0
+                         10               100        1k              10k          100k          1M                                                     1           10         100              1k         10k          100k         1M
+                                                     Frequency (Hz)                                                                                                                 Frequency (Hz)
+
+
+
+                              Figure 3. Open-Loop Gain and Phase vs Frequency                                                                    Figure 4. Common-Mode Rejection Ratio vs Frequency
+                         120                                                                                                                      3
+                                                +PSRR                                                                                                                                                                 VS = ±2.75 V
+                                                                                                                                                                                                                      VS = ±0.9 V
+                         100                                                                                                                      2
+                                      -PSRR                                                                                                                      -40°C
+
+
+
+
+                                                                                                                             Output Swing (V)
+                          80                                                                                                                      1
+
+
+             PSRR (dB)
+                                                                                                                                                                                                    +25°C
+                                                                                                                                                                                  +125°C
+                          60                                                                                                                      0
+                                                                                                                                                             +25°C
+                                                                                                                                                                                                                  -40°C
+                          40                                                                                                                     -1
+                                                                                                                                                                                                                             +125°C
+                                                                                                                                                                                                            +25°C
+                          20                                                                                                                     -2
+
+                                                                                                                                                                                                                      -40°C
+                              0                                                                                                                  -3
+                                  1         10       100             1k         10k      100k        1M                                                0     1       2        3      4         5      6      7         8       9     10
+                                                              Frequency (Hz)                                                                                                      Output Current (mA)
+
+
+
+                          Figure 5. Power-Supply Rejection Ratio vs Frequency                                                                         Figure 6. Output Voltage Swing vs Output Current
+                          100                                                                                                                   200
+                                                                                                                                                                                                                           VS = 5.5 V
+                              80
+                                                                                                                                                150                                                                        VS = 1.8 V
+                                                     -IB                                                                                                                           -IB
+                              60
+                                                                                                                                                100
+                              40                                                                                                                             -IB
+                              20                                                                                                                 50
+
+            IB (pA)               0                                                                                      IB (pA)                  0
+                                                                                                                                                                        +IB
+                          -20
+                                                                                                                                                 -50
+                          -40
+                                                                                                                                                -100
+                          -60                                                                                                                                                       +IB
+                                                        +IB
+                          -80                                                                                                                   -150
+
+                         -100                                                                                                                   -200
+                                      0          1              2           3            4               5                                             -50       -25          0           25         50          75         100       125
+                                                     Common-Mode Voltage (V)                                                                                                        Temperature (°C)
+
+
+
+                         Figure 7. Input Bias Current vs Common-Mode Voltage                                                                               Figure 8. Input Bias Current vs Temperature
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                                                                                                             Submit Documentation Feedback                             9
+                                                                                      Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                                                                                                                                  www.ti.com
+
+
+At TA = 25°C, VS = 5 V, and CL = 0 pF, unless otherwise noted.
+                             25
+                                                                                                                                                                     G=1
+                                                                                                                                                                     RL = 10 kW
+                             20
+
+
+
+
+                                                                                                                      Output Voltage (1 V/div)
+                                                                               VS = 5.5 V
+
+                             15
+     IQ (mA)                                                                   VS = 1.8 V
+                             10
+
+
+                                            5
+
+
+                                            0
+                                                -50      -25      0      25      50         75       100    125
+                                                                      Temperature (°C)                                                                                                            Time (50 ms/div)
+
+
+                                                      Figure 9. Quiescent Current vs Temperature                                                                                Figure 10. Large-Signal Step Response
+
+                                                                                                                                       2 V/div
+                                                 G = +1
+                                                 RL = 10 kW                                                                                                      0
+
+
+
+
+               Output Voltage (50 mV/div)
+                                                                                                                                                                                     Input
+
+
+                                                                                                                                                                                     Output
+
+
+                                                                                                                                                                                         10 kW
+
+
+                                                                                                                                                                                         +2.5 V
+                                                                                                                                                                              1 kW
+
+
+
+                                                                                                                                       1 V/div
+                                                                                                                                                                 0
+                                                                                                                                                                                        OPA333
+
+
+
+                                                                                                                                                                                         -2.5 V
+
+
+                                                                      Time (5 ms/div)                                                                                                              Time (50 ms/div)
+
+
+
+                                                        Figure 11. Small-Signal Step Response                                                                                 Figure 12. Positive Overvoltage Recovery
+                                                                                                                                                                 600
+                                                                                                                                                                               4-V Step
+                                                                                                                                                                 500
+                                                          Input
+
+         2 V/div
+
+
+                                                                                                                                            Settling Time (ms)
+                                                                                                                                                                 400
+                                            0
+                                                                                                                                                                 300
+
+         1 V/div
+                                            0
+                                                                                                  10 kW
+
+
+                                                                                                  +2.5 V
+                                                                                                                                                                 200
+                                                                                         1 kW                                                                                                                      0.001%
+                                                         Output                                                                                                  100
+                                                                                                 OPA333
+                                                                                                                                                                                                                       0.01%
+                                                                                                   -2.5 V                                                             0
+                                                                                                                                                                          1                               10                     100
+                                                                      Time (50 ms/div)                                                                                                                 Gain (dB)
+
+
+
+                                                      Figure 13. Negative Overvoltage Recovery                                                                            Figure 14. Settling Time vs Closed-Loop Gain
+
+
+
+
+10                      Submit Documentation Feedback                                                                                                                                  Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                                                                                Product Folder Links: OPA333 OPA2333
+                                                                                                                                                                                OPA333, OPA2333
+www.ti.com                                                                                                                             SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+At TA = 25°C, VS = 5 V, and CL = 0 pF, unless otherwise noted.
+                     40
+
+                     35
+
+                     30
+
+
+
+
+     Overshoot (%)
+                     25
+
+
+
+                                                                                                                      500nV/div
+                     20
+
+                     15
+
+                     10
+
+                      5
+
+                      0
+                          10                  100                                                  1000
+                                      Load Capacitance (pF)                                                                                                            1s/div
+
+
+
+                               Figure 15. Small-Signal Overshoot                                                                        Figure 16. 0.1-Hz to 10-Hz Noise
+                                     vs Load Capacitance
+                                                                       1000                                                                  1000
+
+
+
+
+                                              Voltage Noise (nV/ÖHz)                                                                                 Current Noise (fA/ÖHz)
+                                                                                  Continues with no 1/f (flicker) noise.
+
+                                                                                                 Current Noise
+                                                                        100                                                                  100
+
+
+                                                                                                 Voltage Noise
+
+
+
+
+                                                                         10                                                                  10
+                                                                              1             10            100                     1k   10k
+                                                                                                      Frequency (Hz)
+
+
+
+                                                     Figure 17. Current and Voltage Noise Spectral Density vs Frequency
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                                                                             Submit Documentation Feedback              11
+                                                                                     Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                               www.ti.com
+
+
+7 Detailed Description
+
+7.1 Overview
+The OPAx333 is a family of Zero-Drift, low-power, rail-to-rail input and output operational amplifiers. These
+devices operate from 1.8 V to 5.5 V, are unity-gain stable, and are suitable for a wide range of general-purpose
+applications. The Zero-Drift architecture provides ultra low offset voltage and near-zero offset voltage drift.
+
+7.2 Functional Block Diagram
+
+                                                                                                      C2
+
+
+
+
+                                                                   Notch
+                    CHOP1         GM1               CHOP2          Filter                 GM2                         GM3
+
+
++IN                                                                                                                                 OUT
+
+
+-IN
+
+
+
+
+                                                                                                                 C1
+                      GM_FF
+
+
+
+
+7.3 Feature Description
+
+The OPA333 and OPA2333 are unity-gain stable and free from unexpected output phase reversal. These
+devices use a proprietary auto-calibration technique to provide low offset voltage and very low drift over time and
+temperature. For lowest offset voltage and precision performance, optimize circuit layout and mechanical
+conditions. Avoid temperature gradients that create thermoelectric (Seebeck) effects in the thermocouple
+junctions formed from connecting dissimilar conductors. Cancel these thermally-generated potentials by assuring
+they are equal on both input terminals. Other layout and design considerations include:
+• Use low thermoelectric-coefficient conditions (avoid dissimilar metals).
+• Thermally isolate components from power supplies or other heat sources.
+• Shield operational amplifier and input circuitry from air currents, such as cooling fans.
+Following these guidelines reduces the likelihood of junctions being at different temperatures, which can cause
+thermoelectric voltages of 0.1 μV/°C or higher, depending on materials used.
+
+7.3.1 Operating Voltage
+The OPA333 and OPA2333 operational amplifiers operate over a power-supply range of 1.8 V to 5.5 V (±0.9 V to
+±2.75 V). Parameters that vary over supply voltage or temperature are shown in the Typical Characteristics
+section.
+
+                                                        CAUTION
+              Supply voltages higher than +7 V (absolute maximum) can permanently damage the
+              device.
+
+
+
+
+12     Submit Documentation Feedback                                               Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                            Product Folder Links: OPA333 OPA2333
+                                                                                                                                 OPA333, OPA2333
+www.ti.com                                                                                                SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+Feature Description (continued)
+7.3.2 Input Voltage
+The OPA333 and OPA2333 input common-mode voltage range extends 0.1 V beyond the supply rails. The
+OPA333 is designed to cover the full range without the troublesome transition region found in some other rail-to-
+rail amplifiers.
+Typically, input bias current is approximately 70 pA; however, input voltages that exceed the power supplies can
+cause excessive current to flow into or out of the input pins. Momentary voltages greater than the power supply
+can be tolerated if the input current is limited to 10 mA. This limitation is easily accomplished with an input
+resistor, as shown in Figure 18.
+                                          Current-limiting resistor
+                                          required if input voltage
+                                          exceeds supply rails by
+                                          ³ 0.5 V.
+                                                                                      +5 V
+
+                                                                 IOVERLOAD
+                                                                10 mA max
+                                                                                    OPA333                     VOUT
+                                                    VIN
+                                                                    5 kW
+
+
+                                                  Figure 18. Input Current Protection
+
+7.3.3 Internal Offset Correction
+The OPA333 and OPA2333 operational amplifiers use an auto-calibration technique with a time-continuous
+350-kHz operational amplifier in the signal path. This amplifier is zero-corrected every 8 μs using a proprietary
+technique. Upon power up, the amplifier requires approximately 100 μs to achieve specified VOS accuracy. This
+design has no aliasing or flicker noise.
+
+7.3.4 Achieving Output Swing to the Op Amp Negative Rail
+Some applications require output voltage swings from 0 V to a positive full-scale voltage (such as 2.5 V) with
+excellent accuracy. With most single-supply operational amplifiers, problems arise when the output signal
+approaches 0 V, near the lower output swing limit of a single-supply operational amplifier. A good, single-supply
+operational amplifier may swing close to single-supply ground, but does not reach ground. The output of the
+OPA333 and OPA2333 can be made to swing to, or slightly below, ground on a single-supply power source. This
+swing is achieved with the use of the use of another resistor and an additional, more negative power supply than
+the operational amplifier negative supply. A pulldown resistor can be connected between the output and the
+additional negative supply to pull the output down below the value that the output would otherwise achieve, as
+shown in Figure 19.
+                                                                        V+ = +5 V
+
+
+
+                                                                           OPA333                VOUT
+                                                          VIN
+                                                                                             RP = 20 kW
+
+
+                                                                 Op Amp V- = GND
+                                                                                      -5 V
+                                                                                    Additional
+                                                                                    Negative
+                                                                                     Supply
+
+                                                   Figure 19. VOUT Range to Ground
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                                             Submit Documentation Feedback     13
+                                                        Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                              www.ti.com
+
+
+Feature Description (continued)
+The OPA333 and OPA2333 have an output stage that allows the output voltage to be pulled to the negative
+supply rail, or slightly below, using the technique previously described. This technique only works with some
+types of output stages. The OPA333 and OPA2333 are characterized to perform with this technique; the
+recommended resistor value is approximately 20 kΩ.
+
+                                                       NOTE
+            This configuration increases the current consumption by several hundreds of microamps.
+
+Accuracy is excellent down to 0 V and as low as –2 mV. Limiting and nonlinearity occur below –2 mV, but
+excellent accuracy returns after the output is again driven above –2 mV. Lowering the resistance of the pulldown
+resistor allows the operational amplifier to swing even further below the negative rail. Resistances as low as
+10 kΩ can be used to achieve excellent accuracy down to –10 mV.
+
+7.3.5 DFN Package
+The OPA2333 is offered in an DFN-8 package (also known as SON). The DFN is a QFN package with lead
+contacts on only two sides of the bottom of the package. This leadless package maximizes board space and
+enhances thermal and electrical characteristics through an exposed pad.
+DFN packages are physically small, have a smaller routing area, improved thermal performance, and improved
+electrical parasitics. Additionally, the absence of external leads eliminates bent-lead issues.
+The DFN package can be easily mounted using standard PCB assembly techniques. See Application Reports
+SLUA271, QFN/SON PCB Attachment and SCBA017, Quad Flatpack No-Lead Logic Packages, both are
+available for download at www.ti.com.
+
+                                                   NOTE
+            The exposed leadframe die pad on the bottom of the package should be connected to V–
+            or left unconnected.
+
+
+7.4 Device Functional Modes
+The OPAx333 device has a single functional mode. The device is powered on as long as the power supply
+voltage is between 1.8 V (±0.9 V) and 5.5 V (±2.75 V).
+
+
+
+
+14     Submit Documentation Feedback                                               Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                            Product Folder Links: OPA333 OPA2333
+                                                                                                                                                OPA333, OPA2333
+www.ti.com                                                                                                           SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+8 Application and Implementation
+
+                                                           NOTE
+               Information in the following applications sections is not part of the TI component
+               specification, and TI does not warrant its accuracy or completeness. TI’s customers are
+               responsible for determining suitability of components for their purposes. Customers should
+               validate and test their design implementation to confirm system functionality.
+
+
+8.1 Application Information
+The OPAx333 family is a unity-gain stable, precision operational amplifier with very low offset voltage drift; these
+devices are also free from output phase reversal. Applications with noisy or high-impedance power supplies
+require decoupling capacitors close to the device power-supply pins. In most cases, 0.1-μF capacitors are
+adequate.
+
+8.2 Typical Applications
+8.2.1 High-Side Voltage-to-Current (V-I) Converter
+The circuit shown in Figure 20 is a high-side voltage-to-current (V-I) converter. It translates in input voltage of 0 V
+to 2 V to and output current of 0 mA to 100 mA. Figure 21 shows the measured transfer function for this circuit.
+The low offset voltage and offset drift of the OPA333 facilitate excellent dc accuracy for the circuit.
+                                                                                                         V+
+
+
+                                                                              RS2        IRS2                       RS3        IRS3
+                                                                          470                                       4.7
+                                                                          VRS2                  10 k      R4                   VRS3
+                                                                                                    C7
+                                                                                                     2200 pF
+
+                                                                                                               R5
+                                                                                                    A2
+                                                                                                +                         Q2
+                                                               V+                                             330
+
+                                                           +         200            Q1
+                                                               A1
+                                                                         R3
+                                               +
+                                         VIN
+                                               ±                1000 pF
+                                                            C6
+                                                           10 k                      VRS1                                      VLOAD
+                                                                    R2
+                                                                              RS1        IRS1                   RLOAD      ILOAD
+                                                                              2k
+
+
+
+
+                                   Figure 20. High-Side Voltage-to-Current (V-I) Converter
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                                                            Submit Documentation Feedback   15
+                                                        Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                                                     www.ti.com
+
+
+Typical Applications (continued)
+8.2.1.1 Design Requirements
+The design requirements are as follows:
+• Supply Voltage: 5 V DC
+• Input: 0 V to 2 V DC
+• Output: 0 mA to 100 mA DC
+
+8.2.1.2 Detailed Design Procedure
+The V-I transfer function of the circuit is based on the relationship between the input voltage, VIN, and the three
+current sensing resistors, RS1, RS2, and RS3. The relationship between VIN and RS1 determines the current that
+flows through the first stage of the design. The current gain from the first stage to the second stage is based on
+the relationship between RS2 and RS3.
+For a successful design, pay close attention to the dc characteristics of the operational amplifier chosen for the
+application. To meet the performance goals, this application benefits from an operational amplifier with low offset
+voltage, low temperature drift, and rail-to-rail output. The OPA2333 CMOS operational amplifier is a high-
+precision, 5-uV offset, 0.05-μV/°C drift amplifier optimized for low-voltage, single-supply operation with an output
+swing to within 50 mV of the positive rail. The OPA2333 family uses chopping techniques to provide low initial
+offset voltage and near-zero drift over time and temperature. Low offset voltage and low drift reduce the offset
+error in the system, making these devices appropriate for precise dc control. The rail-to-rail output stage of the
+OPA2333 ensures that the output swing of the operational amplifier is able to fully control the gate of the
+MOSFET devices within the supply rails.
+A detailed error analysis, design procedure, and additional measured results are given in TIPD102.
+
+8.2.1.3 Application Curve
+                                                        0.1
+                                                                   Load
+
+
+                                                 0.075
+
+
+
+
+                                  Output Current (A)
+                                                       0.05
+
+
+
+                                                 0.025
+
+
+
+                                                         0
+                                                              0           0.5           1           1.5           2
+                                                                                Input Voltage (V)                 D001
+
+
+                      Figure 21. Measured Transfer Function for High-Side V-I Converter
+
+
+
+
+16     Submit Documentation Feedback                                                                      Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                                                  Product Folder Links: OPA333 OPA2333
+                                                                                                                         OPA333, OPA2333
+www.ti.com                                                                                        SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+Typical Applications (continued)
+8.2.2 Precision, Low-Level Voltage-to-Current (V-I) Converter
+The circuit shown in Figure 22 is a precision, low-level voltage-to-current (V-I) converter. The converter translates
+in input voltage of 0 V to 5 V and output current of 0 µA to 5 µA. Figure 23 shows the measured transfer function
+for this circuit. The low offset voltage and offset drift of the OPA333 facilitate excellent dc accuracy for the circuit.
+Figure 24 shows the calibrated error for the entire range of the circuit.
+                                                              R3 100 k
+
+                                           C1 10 nF
+                                                   R4 100 k
+
+                                                  5V
+                                                                         VOUT_OPA
+                                                                                      5V
+
+                                             OPA333
+                                                                                    +R1
+                                              +                                                       VOUT_INA
+                                                             Rset         R1               U2
+                                                            100 k       40.2 k           INA326
+                                         +                                            R1
+                                           VIN                                       ±      R2
+
+
+                                                           RLOAD                      R2
+                                                                           IOUT                       C2 1 nF
+                                                                                    200 k
+
+                                                                    +
+                                                                    A       AM1
+
+
+
+
+                                          Figure 22. Low-Level, Precision V-I Converter
+
+8.2.2.1 Design Requirements
+The design requirements are as follows:
+• Supply Voltage: 5 V DC
+• Input: 0 V to 5 V DC
+• Output: 0 μA to 5 μA DC
+
+8.2.2.2 Detailed Design Procedure
+The V-I transfer function of the circuit is based on the relationship between the input voltage, VIN, RSET, and the
+instrumentation amplifier (INA) gain. During operation, the input voltage divided by the INA gain appears across
+the set resistor in Equation 1:
+       VSET = VIN/GINA                                                                                                                      (1)
+The current through RSET must flow through the load, so IOUT is VSET / RSET. IOUT remains a well-regulated current
+as long as the total voltage across RSET and RLOAD does not violate the output limits of the operational amplifier
+or the input common-mode limits of the INA. The voltage across the set resistor (VSET) is the input voltage
+divided by the INA gain (that is, VSET = 1 V / 10 = 0.1 V). The current is determined by VSET and RSET shown in
+Equation 2:
+       IOUT = VSET / RSET = 0.1 V / 100 kΩ = 1 μA                                                                                           (2)
+A detailed error analysis, design procedure, and additional measured results are given in TIPD107.
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                                     Submit Documentation Feedback     17
+                                                        Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                                                                                                                 www.ti.com
+
+
+Typical Applications (continued)
+8.2.2.3 Application Curves
+
+                             0.1                                                                                                            100
+
+
+
+
+                                                                                                      Measured Output Current Error (pA)
+                                                                                                                                             80
+                                                                                                                                             60
+                           0.075
+
+
+
+
+     Output Current (µA)
+                                                                                                                                             40
+                                                                                                                                             20
+                            0.05                                                                                                              0
+                                                                                                                                            –20
+                                                                                                                                            –40
+                           0.025
+                                                                                                                                            –60
+                                                                                                                                            –80
+                              0                                                                                                            –100
+                               0        1         2           3             4            5                                                        0                1           2            3           4          5
+                                                Input Voltage (V)                        D002
+                                                                                                                                                                  Desired Output Current, Iout_desired (µA)        D002
+                              Figure 23. Measured Transfer Function for Low-Level                                                                 Figure 24. Calibrated Output Error for Low-Level V-I
+                                                 Precision V-I
+
+
+8.2.3 Composite Amplifier
+The circuit shown in Figure 25 is a composite amplifier used to drive the reference on the ADS8881. The
+OPA333 provides excellent dc accuracy, and the THS4281 allows the output of the circuit to respond quickly to
+the transient current requirements of a typical SAR data converter reference input. The ADS8881 system was
+optimized for THD and achieved a measured performance of –110 dB. The linearity of the ADC is shown
+Figure 26.
+
+                                                                                              20k                                                  REFERENCE DRIVE CIRCUIT
+
+                                                                                                     1µF
+
+                                                                    THS4281         -
+
+                                                                                               1k                                                     -
+                                                                                +                                                                                                       AVDD
+                                                                                    +                                                                                       REF5045
+                                                                                                                                                                 1k
+                                                       0.2                                                                                        +
+                                                                                             1µF                                                      +                   Vout    Vin
+                                                                                                     OPA333
+                                                                                AVDD
+                                                                                                                                             AVDD                 1µF            Temp
+                                                       10µF
+                                                                                                                                                                          Trim Gnd
+
+                                                                                                                                                                          1µF
+
+
+
+                                                              1K            1K
+                                                                                                                                                             AVDD
+                                                                       AVDD
+                                                   VIN+
+                                                                            THS4521
+                                                                                         10                                                               REFP AVDD
+                                                 VCM                    + + -                                                                     AINP
+                                                                                                                                                  V+             CONVST
+
+                                                                                                                                                         ADS8881
+                                                                                              10nF
+                                                                        -       +                                                                 AINM
+                                                                                                                                                           GND                     CONVST
+                                                                                         10
+                                                   VIN-
+                                                          +
+
+                                                              1K            1K
+                                                                                                                                                                             18-Bit 1MSPS
+                                                                                    INPUT DRIVER                                                                               SAR ADC
+
+
+                                                   Figure 25. Composite Amplifier Reference Driver Circuit
+
+
+
+
+18                           Submit Documentation Feedback                                                                                                            Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                                                       Product Folder Links: OPA333 OPA2333
+                                                                                                                                                              OPA333, OPA2333
+www.ti.com                                                                                                                             SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+Typical Applications (continued)
+8.2.3.1 Design Requirements
+The design requirements for this block design are:
+• System Supply Voltage: 5 V DC
+• ADC Supply Voltage: 3.3 V DC
+• ADC Sampling Rate: 1 MSPS
+• ADC Reference Voltage (VREF): 4.5 V DC
+• ADC Input Signal: A differential input signal with amplitude of Vpk = 4.315 V (–0.4 dBFS to avoid clipping) and
+   frequency, fIN = 10 kHz are applied to each differential input of the ADC
+
+8.2.3.2 Detailed Design Procedure
+The two primary design considerations to maximize the performance of a high-resolution SAR ADC are the input
+driver and the reference driver design. The circuit comprises the critical analog circuit blocks, the input driver,
+anti-aliasing filter, and the reference driver. Each analog circuit block should be carefully designed based on the
+ADC performance specifications in order to maximize the distortion and noise performance of the data
+acquisition system while consuming low power. The diagram includes the most important specifications for each
+individual analog block. This design systematically approaches the design of each analog circuit block to achieve
+a 16-bit, low-noise and low-distortion data acquisition system for a 10-kHz sinusoidal input signal. The first step
+in the design requires an understanding of the requirement of extremely low distortion input driver amplifier. This
+understanding helps in the decision of an appropriate input driver configuration and selection of an input amplifier
+to meet the system requirements. The next important step is the design of the anti-aliasing RC-filter to attenuate
+ADC kick-back noise while maintaining the amplifier stability. The final design challenge is to design a high-
+precision reference driver circuit, which would provide the required value VREF with low offset, drift, and noise
+contributions.
+In designing a very low distortion data acquisition block, it is important to understand the sources of nonlinearity.
+Both the ADC and the input driver introduce nonlinearity in a data acquisition block. To achieve the lowest
+distortion, the input driver for a high-performance SAR ADC must have a distortion that is negligible against the
+ADC distortion. This parameter requires the input driver distortion to be 10 dB lower than the ADC THD. This
+stringent requirement ensures that overall THD of the system is not degraded by more than –0.5 dB.
+THDAMP < THDADC – 10 dB                                                                                                                                                          (3)
+
+It is therefore important to choose an amplifier that meets the above criteria to avoid the system THD from being
+limited by the input driver. The amplifier nonlinearity in a feedback system depends on the available loop gain. A
+detailed error analysis, design procedure, and additional measured results are given in TIPD115.
+
+8.2.3.3 Application Curve
+                                                                               1.5
+
+
+
+
+                                         Integral Non-Linearity Error (LSB)
+                                                                                 1
+
+
+                                                                               0.5
+
+
+                                                                                0
+
+
+                                                                              –0.5
+
+
+                                                                                –1
+
+
+                                                                              –1.5
+                                                                                 –4.5   –3.5 –2.5    –1.5 –0.5 0.5         1.5   2.5    3.5   4.5
+                                                                                                    ADC Differential Input                    D002
+
+
+                                                                              Figure 26. Linearity of the ADC8881 System
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                                                                          Submit Documentation Feedback     19
+                                                                                        Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                                                           www.ti.com
+
+
+8.3 System Examples
+8.3.1 Temperature Measurement Application
+Figure 27 shows a temperature measurement application.
+                                                                               4.096 V
+                                            +5 V            REF3140
+                                                       +
+                                             0.1 mF                                                        R9
+                                                                                                         150 kW
+                                                                               R1
+                                                                               6.04 kW
+                                                                                            R5
+                                                                                            31.6 kW     +5 V
+                                                           D1
+                                                                                                           0.1 mF
+                                                                                                           +
+                                                                               R2             R2
+                                                                               2.94 kW       549 W
+                                                   -   -
+
+                                                   + +                                                 OPA333                VO
+                                                                                   R6
+                                             K-Type                             200 W
+                                          Thermocouple                                         Zero
+                                                                     R4        R3
+                                                                                              Adjust
+                                           40.7 mV/°C                6.04 kW   60.4 W
+
+
+
+
+                                                   Figure 27. Temperature Measurementf
+
+8.3.2 Single Operational Amplifier Bridge Amplifier Application
+Figure 28 shows the basic configuration for a bridge amplifier.
+                                                            VEX
+                                                                                               R1
+
+
+                                                                                             +5 V
+                                                           R R
+                                                           R R
+                                                                                          OPA333                  VOUT
+
+
+
+                                                                                              R1
+                                                                                                           VREF
+
+                                   Figure 28. Single Operational Amplifier Bridge Amplifier
+
+8.3.3 Low-Side Current Monitor Application
+A low-side current shunt monitor is shown in Figure 29. RN are operational resistors used to isolate the ADS1100
+from the noise of the digital I2C bus. The ADS1100 is a 16-bit converter; therefore, a precise reference is
+essential for maximum accuracy. If absolute accuracy is not required and the 5-V power supply is sufficiently
+stable, the REF3130 can be omitted.
+                                                                                                                    3V
+                                                                                          +5 V         REF3130
+                                   Load
+                                                                   R1                      R2
+                                                                4.99 kW                  49.9 kW
+
+                                                                                                                R6
+                                                                                                                71.5 kW                 RN
+                    V                                                                                                                  56 W
+                           ILOAD      RSHUNT
+                                      1W                                       OPA333
+                                                                   R3                      R4                             ADS1100       RN         2
+                                                                                                                                               IC
+                                                                4.99 kW                  48.7 kW                                       56 W
+
+
+
+                                      Stray Ground-Loop Resistance                                              R7                (PGA Gain = 4)
+                                                                                                                1.18 kW           FS = 3.0 V
+
+
+     NOTE: 1% resistors provide adequate common-mode rejection at small ground-loop errors.
+
+                                                       Figure 29. Low-Side Current Monitor
+
+20       Submit Documentation Feedback                                                                          Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                                           Product Folder Links: OPA333 OPA2333
+                                                                                                                                     OPA333, OPA2333
+www.ti.com                                                                                              SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+8.3.4 Other Applications
+Additional application ideas are shown in Figure 30 through Figure 33.
+
+                                                                         RG
+
+
+                                                                               (1)
+                                                                       zener                   V+
+                                                         RSHUNT               (2)
+                                                                          R1                                         MOSFET rated to
+                                                                         10 kW          OPA333                       stand-off supply voltage
+                                                                                                                     such as BSS84 for
+                                                                                                                     up to 50 V.
+                                                                                                       +5V
+                   V+
+
+                                                                         Two zener
+                                                                      biasing methods
+                                                                                   (3)
+                                                                        are shown.
+
+                                                                                                                     Output
+                                                  Load                  RBIAS
+                                                                                                                RL
+
+
+
+
+       (1)   Zener rated for op amp supply capability (that is, 5.1 V for OPA333).
+       (2)   Current-limiting resistor.
+       (3)   Choose zener biasing resistor or dual N-MOSFETs (FDG6301N, NTJD4001N, or Si1034).
+
+                                                Figure 30. High-Side Current Monitor
+
+
+                                                                                               100 kW
+                                                         1 MW            60 kW
+
+
+                                           3V
+                                                                              NTC
+                                                         1 MW                 Thermistor      OPA333
+
+
+
+
+                                                 Figure 31. Thermistor Measurement
+
+                                           V1
+                                          -In                                        INA152
+                                                 OPA333
+                                                                  2                                      5
+                                                        R2
+
+
+                                                                                                         6
+                                                 R1                                                             VO
+                                                        R2
+
+
+                                                                  3                                      1
+
+                                                 OPA333
+                                           V2
+                                          +In
+                                                                       VO = (1 + 2R2 / R1) (V2 - V1)
+
+                                          Figure 32. Precision Instrumentation Amplifier
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                                           Submit Documentation Feedback     21
+                                                        Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                                                                www.ti.com
+
+
+
+                                        +VS                                                                                             fLPF = 150 Hz
+                                                                                                                                               C4
+             R1                        1/2                                                                                                  1.06 nF
+           100 kW                    OPA2333
+     RA
+                                                                                                                                              R14
+                                                                                                             GTOT = 1 kV/V
+                                                                      R7                                                                     1 MW
+                                                                                           +VS
+                                        +VS                           100 kW
+                                                      R6                                              GINA = 5               R12              +VS
+                                                                                  3          7
+             R2                                     100 kW                                                                  5 kW
+                                       1/2
+                                                                                                (1)
+                                                                                                      6
+           100 kW                    OPA2333                                          INA321
+                                                                                  2                   1
+     LL                                                                                      4                                              OPA333            VOUT
+                                                                                                            C3
+                                                                                       5                   1 mF                                       GOPA = 200
+                                                                      R8                                                    R13
+                                        +VS                           100 kW                                                318 kW
+                                                                                                          +VS
+                                                                                 dc        ac
+             R3                        1/2
+           100 kW                    OPA2333                                                                1/2
+     LA                                                                 Wilson                            OPA2333
+                                                                  VCENTRAL
+                             C1                      (RA + LA + LL) / 3
+                            47 pF                                                     fHPF = 0.5 Hz
+                                                                                      (provides ac signal coupling)
+                                                                                                                                   1/2 VS
+                              R5
+                            390 kW
+                                                           +VS
+                                            R9                                        VS = +2.7 V to +5.5 V
+                             +VS
+             R4                            20 kW                                      BW = 0.5 Hz to 150 Hz
+                                                             1/2
+           100 kW             1/2                          OPA2333
+     RL                     OPA2333
+                 Inverted
+                   VCM                                   +VS
+
+
+                                                               R10
+                                                               1 MW
+                                                               1/2 VS
+                                               C2              R11
+                                               0.64 mF         1 MW
+
+                                                                  fO = 0.5 Hz
+
+     (1)   Other instrumentation amplifiers can be used, such as the INA326, which has lower noise, but higher quiescent
+           current.
+
+                                     Figure 33. Single-Supply, Very Low Power, ECG Circuit
+
+
+9 Power Supply Recommendations
+The OPAx333 is specified for operation from 1.8 V to 5.5 V (±0.9 V to ±2.75 V); many specifications apply from
+–40°C to 125°C. The Typical Characteristics presents parameters that can exhibit significant variance with regard
+to operating voltage or temperature.
+
+                                                                             CAUTION
+               Supply voltages larger than 7 V can permanently damage the device (see the Absolute
+               Maximum Ratings).
+
+
+TI recommends placing 0.1-μF bypass capacitors close to the power-supply pins to reduce errors coupling in
+from noisy or high-impedance power supplies. For more detailed information on bypass capacitor placement,
+refer to the Layout section.
+
+
+
+22     Submit Documentation Feedback                                                                             Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                                         Product Folder Links: OPA333 OPA2333
+                                                                                                                                      OPA333, OPA2333
+www.ti.com                                                                                              SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+10 Layout
+
+10.1 Layout Guidelines
+10.1.1 General Layout Guidelines
+Pay attention to good layout practices. Keep traces short and when possible, use a printed-circuit-board (PCB)
+ground plane with surface-mount components placed as close to the device pins as possible. Place a 0.1-μF
+capacitor closely across the supply pins. Apply these guidelines throughout the analog circuit to improve
+performance and provide benefits, such as reducing the electromagnetic interference (EMI) susceptibility.
+Operational amplifiers vary in susceptibility to radio frequency interference (RFI). RFI can generally be identified
+as a variation in offset voltage or DC signal levels with changes in the interfering RF signal. The OPA333 is
+specifically designed to minimize susceptibility to RFI and demonstrates remarkably low sensitivity compared to
+previous generation devices. Strong RF fields may still cause varying offset levels.
+
+10.1.2 DFN Layout Guidelines
+Solder the exposed leadframe die pad on the DFN package to a thermal pad on the PCB. A mechanical drawing
+showing an example layout is attached at the end of this data sheet. Refinements to this layout may be
+necessary based on assembly process requirements. Mechanical drawings located at the end of this data sheet
+list the physical dimensions for the package and pad. The five holes in the landing pattern are optional, and are
+intended for use with thermal vias that connect the leadframe die pad to the heatsink area on the PCB.
+Soldering the exposed pad significantly improves board-level reliability during temperature cycling, key push,
+package shear, and similar board-level tests. Even with applications that have low-power dissipation, the
+exposed pad must be soldered to the PCB to provide structural integrity and long-term reliability.
+
+10.2 Layout Example
+
+                                                                  VIN                 +
+                                                                         RG                          VOUT
+
+                                                                                          RF
+
+
+                                                                        (Schematic Representation)
+
+
+
+                           Place components
+  Run the input traces   close to device and to
+   as far away from       each other to reduce
+    the supply lines         parasitic errors                                                                                  VS+
+      as possible                                  RF
+
+                                                        N/C                                                 N/C
+                                     RG
+                  GND                                   ±IN                                                 V+                                            GND
+
+
+                    VIN                                 +IN                                             OUTPUT
+
+                                                                                                                                   Use low-ESR, ceramic
+                                                        V±                                                  N/C
+                                                                                                                                     bypass capacitor
+
+
+
+
+  Use low-ESR,           GND                                                     VOUT
+                                             VS±
+ ceramic bypass                                                                                                   Ground (GND) plane on another layer
+    capacitor
+
+
+
+                                                                Figure 34. Layout Example
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                                             Submit Documentation Feedback                 23
+                                                              Product Folder Links: OPA333 OPA2333
+OPA333, OPA2333
+SBOS351E – MARCH 2006 – REVISED DECEMBER 2015                                                                                  www.ti.com
+
+
+11 Device and Documentation Support
+
+11.1 Device Support
+11.1.1 Development Support
+For development support on this product, see the following:
+• High-Side V-I Converter, 0 V to 2 V to 0 mA to 100 mA, 1% Full-Scale Error, TIPD102
+• Low-Level V-to-I Converter Reference Design, 0-V to 5-V Input to 0-µA to 5-µA Output, TIPD107
+• 18-Bit, 1-MSPS, Serial Interface, microPower, Truly-Differential Input, SAR ADC, ADS8881
+• Very Low-Power, High-Speed, Rail-To-Rail Input/Output, Voltage Feedback Operational Amplifier, THS4281
+• Data Acquisition Optimized for Lowest Distortion, Lowest Noise, 18-bit, 1-MSPS Reference Design, TIPD115
+• Self-Calibrating, 16-Bit Analog-to-Digital Converter, ADS1100
+• 20-ppm/Degrees C Max, 100-µA, SOT23-3 Series Voltage Reference, REF3130
+• Precision, Low Drift, CMOS Instrumentation Amplifier, INA326, INA326
+
+11.2 Documentation Support
+11.2.1 Related Documentation
+For related documentation, see the following:
+• QFN/SON PCB Attachment, SLUA271
+• Quad Flatpack No-Lead Logic Packages, SCBA017
+
+11.3 Related Links
+Table 2 lists quick access links. Categories include technical documents, support and community resources,
+tools and software, and quick access to sample or buy.
+
+                                                      Table 2. Related Links
+                                                                       TECHNICAL                TOOLS &                 SUPPORT &
+       PARTS          PRODUCT FOLDER           SAMPLE & BUY
+                                                                       DOCUMENTS               SOFTWARE                 COMMUNITY
+      OPA333               Click here              Click here             Click here             Click here               Click here
+      OPA2333              Click here              Click here             Click here             Click here               Click here
+
+
+11.4 Community Resources
+The following links connect to TI community resources. Linked contents are provided "AS IS" by the respective
+contributors. They do not constitute TI specifications and do not necessarily reflect TI's views; see TI's Terms of
+Use.
+TI E2E™ Online Community TI's Engineer-to-Engineer (E2E) Community. Created to foster collaboration
+           among engineers. At e2e.ti.com, you can ask questions, share knowledge, explore ideas and help
+           solve problems with fellow engineers.
+Design Support TI's Design Support Quickly find helpful E2E forums along with design support tools and
+           contact information for technical support.
+
+11.5 Trademarks
+E2E is a trademark of Texas Instruments.
+All other trademarks are the property of their respective owners.
+11.6 Electrostatic Discharge Caution
+        These devices have limited built-in ESD protection. The leads should be shorted together or the device placed in conductive foam
+        during storage or handling to prevent electrostatic damage to the MOS gates.
+
+
+
+
+24     Submit Documentation Feedback                                                   Copyright © 2006–2015, Texas Instruments Incorporated
+
+                                               Product Folder Links: OPA333 OPA2333
+                                                                                                                  OPA333, OPA2333
+www.ti.com                                                                                 SBOS351E – MARCH 2006 – REVISED DECEMBER 2015
+
+
+11.7 Glossary
+SLYZ022 — TI Glossary.
+   This glossary lists and explains terms, acronyms, and definitions.
+
+12 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical, packaging, and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+Copyright © 2006–2015, Texas Instruments Incorporated                                              Submit Documentation Feedback     25
+                                                        Product Folder Links: OPA333 OPA2333
+                                                                                                                                    PACKAGE OPTION ADDENDUM
+
+  www.ti.com                                                                                                                                                        15-Jul-2026
+
+
+
+
+PACKAGING INFORMATION
+
+ Orderable part number   Status   Material type   Package | Pins     Package qty | Carrier    RoHS         Lead finish/       MSL rating/        Op temp (°C)   Part marking
+                           (1)         (2)                                                     (3)         Ball material      Peak reflow                            (6)
+                                                                                                                (4)                (5)
+
+       OPA2333AID        Active    Production       SOIC (D) | 8          75 | TUBE            Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125      O2333A
+      OPA2333AID.B       Active    Production       SOIC (D) | 8          75 | TUBE            Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125      O2333A
+     OPA2333AIDG4        Active    Production       SOIC (D) | 8          75 | TUBE            Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125      O2333A
+    OPA2333AIDGKR        Active    Production     VSSOP (DGK) | 8     2500 | LARGE T&R         Yes         NIPDAU | SN     Level-1-260C-UNLIM     -40 to 125       OBAQ
+                                                                                                           | NIPDAUAG
+   OPA2333AIDGKR.B       Active    Production     VSSOP (DGK) | 8     2500 | LARGE T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125       OBAQ
+   OPA2333AIDGKRG4       Active    Production     VSSOP (DGK) | 8     2500 | LARGE T&R         Yes      NIPDAU | NIPDAUAG Level-1-260C-UNLIM      -40 to 125       OBAQ
+  OPA2333AIDGKRG4.B      Active    Production     VSSOP (DGK) | 8     2500 | LARGE T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125       OBAQ
+    OPA2333AIDGKT        Active    Production     VSSOP (DGK) | 8      250 | SMALL T&R         Yes         NIPDAU | SN     Level-1-260C-UNLIM     -40 to 125       OBAQ
+                                                                                                           | NIPDAUAG
+   OPA2333AIDGKT.B       Active    Production     VSSOP (DGK) | 8      250 | SMALL T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125       OBAQ
+   OPA2333AIDGKTG4       Active    Production     VSSOP (DGK) | 8      250 | SMALL T&R         Yes      NIPDAU | NIPDAUAG Level-1-260C-UNLIM      -40 to 125       OBAQ
+  OPA2333AIDGKTG4.B      Active    Production     VSSOP (DGK) | 8      250 | SMALL T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125       OBAQ
+      OPA2333AIDR        Active    Production       SOIC (D) | 8      2500 | LARGE T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125      O2333A
+     OPA2333AIDR.B       Active    Production       SOIC (D) | 8      2500 | LARGE T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125      O2333A
+    OPA2333AIDRBR        Active    Production      SON (DRB) | 8      3000 | LARGE T&R         Yes           NIPDAU        Level-2-260C-1 YEAR    -40 to 125       BQZ
+   OPA2333AIDRBR.B       Active    Production      SON (DRB) | 8      3000 | LARGE T&R         Yes           NIPDAU        Level-2-260C-1 YEAR    -40 to 125       BQZ
+    OPA2333AIDRBT        Active    Production      SON (DRB) | 8       250 | SMALL T&R         Yes           NIPDAU        Level-2-260C-1 YEAR    -40 to 125       BQZ
+   OPA2333AIDRBT.B       Active    Production      SON (DRB) | 8       250 | SMALL T&R         Yes           NIPDAU        Level-2-260C-1 YEAR    -40 to 125       BQZ
+   OPA2333AIDRBTG4       Active    Production      SON (DRB) | 8       250 | SMALL T&R         Yes           NIPDAU        Level-2-260C-1 YEAR    -40 to 125       BQZ
+    OPA2333AIDRG4        Active    Production       SOIC (D) | 8      2500 | LARGE T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125      O2333A
+       OPA333AID         Active    Production       SOIC (D) | 8          75 | TUBE            Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125      O333A
+      OPA333AID.A        Active    Production       SOIC (D) | 8          75 | TUBE            Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125      O333A
+      OPA333AID.B        Active    Production       SOIC (D) | 8          75 | TUBE            Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125      O333A
+     OPA333AIDBVR        Active    Production     SOT-23 (DBV) | 5    3000 | LARGE T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125       OAXQ
+    OPA333AIDBVR.B       Active    Production     SOT-23 (DBV) | 5    3000 | LARGE T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125       OAXQ
+    OPA333AIDBVRG4       Active    Production     SOT-23 (DBV) | 5    3000 | LARGE T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125       OAXQ
+     OPA333AIDBVT        Active    Production     SOT-23 (DBV) | 5     250 | SMALL T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125       OAXQ
+    OPA333AIDBVT.B       Active    Production     SOT-23 (DBV) | 5     250 | SMALL T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125       OAXQ
+    OPA333AIDBVTG4       Active    Production     SOT-23 (DBV) | 5     250 | SMALL T&R         Yes           NIPDAU        Level-1-260C-UNLIM     -40 to 125       OAXQ
+
+
+                                                                                      Addendum-Page 1
+                                                                                                                                                                     PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                    15-Jul-2026
+
+
+
+
+       Orderable part number          Status     Material type      Package | Pins      Package qty | Carrier       RoHS             Lead finish/               MSL rating/          Op temp (°C)               Part marking
+                                        (1)            (2)                                                            (3)            Ball material              Peak reflow                                           (6)
+                                                                                                                                          (4)                       (5)
+
+          OPA333AIDCKR                Active      Production        SC70 (DCK) | 5       3000 | LARGE T&R            Yes             NIPDAU | SN         Level-1-260C-UNLIM            -40 to 125                    BQY
+         OPA333AIDCKR.A               Active      Production        SC70 (DCK) | 5       3000 | LARGE T&R            Yes                  SN             Level-1-260C-UNLIM            -40 to 125                    BQY
+         OPA333AIDCKRG4               Active      Production        SC70 (DCK) | 5       3000 | LARGE T&R            Yes                  SN             Level-1-260C-UNLIM            -40 to 125                    BQY
+           OPA333AIDCKT               Active      Production        SC70 (DCK) | 5        250 | SMALL T&R            Yes             NIPDAU | SN         Level-1-260C-UNLIM            -40 to 125                    BQY
+         OPA333AIDCKT.A               Active      Production        SC70 (DCK) | 5        250 | SMALL T&R            Yes                  SN             Level-1-260C-UNLIM            -40 to 125                    BQY
+         OPA333AIDCKTG4               Active      Production        SC70 (DCK) | 5        250 | SMALL T&R            Yes                  SN             Level-1-260C-UNLIM            -40 to 125                    BQY
+           OPA333AIDG4                Active      Production            SOIC (D) | 8          75 | TUBE              Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   O333A
+            OPA333AIDR                Active      Production            SOIC (D) | 8     2500 | LARGE T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   O333A
+           OPA333AIDR.A               Active      Production            SOIC (D) | 8     2500 | LARGE T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   O333A
+           OPA333AIDR.B               Active      Production            SOIC (D) | 8     2500 | LARGE T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   O333A
+          OPA333AIDRG4                Active      Production            SOIC (D) | 8     2500 | LARGE T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   O333A
+         OPA333AIDRG4.A               Active      Production            SOIC (D) | 8     2500 | LARGE T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   O333A
+         OPA333AIDRG4.B               Active      Production            SOIC (D) | 8     2500 | LARGE T&R            Yes               NIPDAU            Level-1-260C-UNLIM            -40 to 125                   O333A
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+
+
+
+                                                                                                          Addendum-Page 2
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+    www.ti.com                                                                                                                                                                                                    15-Jul-2026
+
+
+
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+OTHER QUALIFIED VERSIONS OF OPA2333, OPA333 :
+
+• Automotive : OPA2333-Q1, OPA333-Q1
+
+NOTE: Qualified Version Definitions:
+
+        • Automotive - Q100 devices qualified for high-reliability automotive applications targeting zero defects
+
+
+
+
+                                                                                                          Addendum-Page 3
+                                                                               PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                                                       10-Aug-2026
+
+
+
+TAPE AND REEL INFORMATION
+
+       REEL DIMENSIONS                                                                      TAPE DIMENSIONS
+                                                                                       K0         P1
+
+
+
+                                                                                                                         B0 W
+                                         Reel
+                                       Diameter
+                                                                                    Cavity             A0
+                                                                A0   Dimension designed to accommodate the component width
+                                                                B0   Dimension designed to accommodate the component length
+                                                                K0   Dimension designed to accommodate the component thickness
+                                                                W    Overall width of the carrier tape
+                                                                P1   Pitch between successive cavity centers
+
+
+                                        Reel Width (W1)
+                              QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                        Sprocket Holes
+
+
+                                                  Q1       Q2          Q1    Q2
+
+                                                  Q3       Q4          Q3    Q4                    User Direction of Feed
+
+
+
+                                                            Pocket Quadrants
+
+
+*All dimensions are nominal
+             Device           Package Package Pins              SPQ        Reel   Reel   A0                    B0         K0     P1     W     Pin1
+                               Type Drawing                              Diameter Width (mm)                  (mm)       (mm)   (mm)   (mm) Quadrant
+                                                                           (mm) W1 (mm)
+    OPA2333AIDGKR             VSSOP      DGK           8        2500        330.0        12.4          5.3     3.4       1.4    8.0    12.0    Q1
+   OPA2333AIDGKRG4            VSSOP      DGK           8        2500        330.0        12.4          5.3     3.4       1.4    8.0    12.0    Q1
+   OPA2333AIDGKRG4            VSSOP      DGK           8        2500        330.0        12.4          5.3     3.4       1.4    8.0    12.0    Q1
+    OPA2333AIDGKT             VSSOP      DGK           8         250        330.0        12.4          5.3     3.4       1.4    8.0    12.0    Q1
+   OPA2333AIDGKTG4            VSSOP      DGK           8         250        330.0        12.4          5.3     3.4       1.4    8.0    12.0    Q1
+   OPA2333AIDGKTG4            VSSOP      DGK           8         250        330.0        12.4          5.3     3.4       1.4    8.0    12.0    Q1
+      OPA2333AIDR              SOIC        D           8        2500        330.0        12.4          6.4     5.2       2.1    8.0    12.0    Q1
+    OPA2333AIDRBR              SON       DRB           8        3000        330.0        12.4          3.3     3.3       1.1    8.0    12.0    Q2
+    OPA2333AIDRBT              SON       DRB           8         250        180.0        12.4          3.3     3.3       1.1    8.0    12.0    Q2
+     OPA333AIDBVR             SOT-23     DBV           5        3000        178.0           9.0        3.3     3.2       1.4    4.0    8.0     Q3
+     OPA333AIDBVR             SOT-23     DBV           5        3000        179.0           8.4        3.2     3.2       1.4    4.0    8.0     Q3
+     OPA333AIDBVT             SOT-23     DBV           5         250        178.0           9.0        3.23   3.17       1.37   4.0    8.0     Q3
+     OPA333AIDCKR              SC70      DCK           5        3000        179.0           8.4        2.2     2.5       1.2    4.0    8.0     Q3
+     OPA333AIDCKR              SC70      DCK           5        3000        180.0           8.4        2.3    2.55       1.2    4.0    8.0     Q3
+     OPA333AIDCKT              SC70      DCK           5         250        179.0           8.4        2.2     2.5       1.2    4.0    8.0     Q3
+     OPA333AIDCKT              SC70      DCK           5         250        180.0           8.4        2.3    2.55       1.2    4.0    8.0     Q3
+
+
+
+
+                                                                       Pack Materials-Page 1
+                                                           PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                      10-Aug-2026
+
+
+
+             Device   Package Package Pins   SPQ       Reel   Reel   A0           B0     K0     P1     W     Pin1
+                       Type Drawing                  Diameter Width (mm)         (mm)   (mm)   (mm)   (mm) Quadrant
+                                                       (mm) W1 (mm)
+      OPA333AIDR       SOIC     D      8     2500      330.0     12.4      6.4   5.2    2.1    8.0    12.0    Q1
+     OPA333AIDRG4      SOIC     D      8     2500      330.0     12.4      6.4   5.2    2.1    8.0    12.0    Q1
+
+
+
+
+                                                   Pack Materials-Page 2
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                              10-Aug-2026
+
+
+
+ TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                               Width (mm)
+                                                                              H
+
+
+
+
+                      W                                   L
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins         SPQ    Length (mm)   Width (mm)   Height (mm)
+     OPA2333AIDGKR              VSSOP             DGK           8           2500      353.0        353.0         32.0
+   OPA2333AIDGKRG4              VSSOP             DGK           8           2500      353.0        353.0         32.0
+   OPA2333AIDGKRG4              VSSOP             DGK           8           2500      364.0        364.0         27.0
+     OPA2333AIDGKT              VSSOP             DGK           8           250       353.0        353.0         32.0
+   OPA2333AIDGKTG4              VSSOP             DGK           8           250       364.0        364.0         27.0
+   OPA2333AIDGKTG4              VSSOP             DGK           8           250       353.0        353.0         32.0
+      OPA2333AIDR                SOIC              D            8           2500      353.0        353.0         32.0
+     OPA2333AIDRBR                SON             DRB           8           3000      353.0        353.0         32.0
+     OPA2333AIDRBT                SON             DRB           8           250       213.0        191.0         35.0
+     OPA333AIDBVR               SOT-23            DBV           5           3000      180.0        180.0         18.0
+     OPA333AIDBVR               SOT-23            DBV           5           3000      200.0        183.0         25.0
+     OPA333AIDBVT               SOT-23            DBV           5           250       180.0        180.0         18.0
+     OPA333AIDCKR                SC70             DCK           5           3000      200.0        183.0         25.0
+     OPA333AIDCKR                SC70             DCK           5           3000      210.0        185.0         35.0
+     OPA333AIDCKT                SC70             DCK           5           250       200.0        183.0         25.0
+     OPA333AIDCKT                SC70             DCK           5           250       210.0        185.0         35.0
+       OPA333AIDR                SOIC              D            8           2500      353.0        353.0         32.0
+     OPA333AIDRG4                SOIC              D            8           2500      353.0        353.0         32.0
+
+
+
+
+                                                        Pack Materials-Page 3
+                                                                 PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                   10-Aug-2026
+
+
+
+TUBE
+
+       T - Tube
+        height                                                     L - Tube length
+
+
+                      W - Tube
+                       width
+
+
+         B - Alignment groove width
+
+*All dimensions are nominal
+             Device           Package Name   Package Type   Pins       SPQ     L (mm)   W (mm)   T (µm)   B (mm)
+       OPA2333AID                  D            SOIC         8          75      506.6     8      3940      4.32
+      OPA2333AID.B                 D            SOIC         8          75      506.6     8      3940      4.32
+      OPA2333AIDG4                 D            SOIC         8          75      506.6     8      3940      4.32
+        OPA333AID                  D            SOIC         8          75      506.6     8      3940      4.32
+       OPA333AID.A                 D            SOIC         8          75      506.6     8      3940      4.32
+       OPA333AID.B                 D            SOIC         8          75      506.6     8      3940      4.32
+      OPA333AIDG4                  D            SOIC         8          75      506.6     8      3940      4.32
+
+
+
+
+                                                       Pack Materials-Page 4
+                                                                                                            PACKAGE OUTLINE
+DBV0005A                                                          SCALE 4.000
+                                                                                                     SOT-23 - 1.45 mm max height
+                                                                                                              SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                            3.0                                                                       C
+                                            2.6
+                                          1.75                                                                0.1 C
+                                                           B                               A
+                                          1.45
+            PIN 1
+      INDEX AREA
+
+                        1                                        5
+
+
+              2X 0.95                                            (0.1)
+                                                                                          3.05
+                                                                                          2.75
+        1.9                                                                         1.9
+                        2
+                                                                 (0.15)
+
+
+
+                                                                 4
+                            3
+              0.5
+           5X
+              0.3
+                                                                                                                             0.15
+               0.2      C A B                                                   NOTE 5           4X 0 -15      (1.1)              TYP
+                                                                                                                             0.00
+                                                                                                                1.45
+                                                                                                                0.90
+                                                               4X 4 -15
+
+
+
+          0.25
+ GAGE PLANE                                                                          0.22
+                                                                                          TYP
+                                                                                     0.08
+
+
+
+   8
+     TYP                          0.6
+   0                                  TYP            SEATING PLANE
+                                  0.3
+
+
+
+
+                                                                                                                          4214839/K 08/2024
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. Refernce JEDEC MO-178.
+4. Body dimensions do not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.25 mm per side.
+5. Support pin may differ or may not be present.
+
+
+
+
+                                                                                www.ti.com
+                                                                               EXAMPLE BOARD LAYOUT
+DBV0005A                                                                             SOT-23 - 1.45 mm max height
+                                                                                                     SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 5X (1.1)
+                                             1
+                                                                                         5
+                                  5X (0.6)
+
+
+                                                                                             SYMM
+                                                                                                     (1.9)
+                                             2
+                              2X (0.95)
+
+
+                                             3                                           4
+
+                             (R0.05) TYP                         (2.6)
+
+
+                                                     LAND PATTERN EXAMPLE
+                                                       EXPOSED METAL SHOWN
+                                                            SCALE:15X
+
+
+
+
+                                                                                                         SOLDER MASK
+                 SOLDER MASK                     METAL                   METAL UNDER                     OPENING
+                 OPENING                                                 SOLDER MASK
+
+
+
+
+         EXPOSED METAL                                        EXPOSED METAL
+
+                                          0.07 MAX                                           0.07 MIN
+                                          ARROUND                                            ARROUND
+
+                                NON SOLDER MASK                                        SOLDER MASK
+                                    DEFINED                                              DEFINED
+                                  (PREFERRED)
+
+                                                      SOLDER MASK DETAILS
+
+
+
+
+                                                                                                               4214839/K 08/2024
+
+NOTES: (continued)
+
+6. Publication IPC-7351 may have alternate designs.
+7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+ DBV0005A                                                                              SOT-23 - 1.45 mm max height
+                                                                                                       SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 5X (1.1)
+                                             1
+                                                                                         5
+                                  5X (0.6)
+
+
+
+                                                                                             SYMM
+                                             2                                                      (1.9)
+                             2X(0.95)
+
+
+                                             3                                           4
+
+                            (R0.05) TYP
+                                                                (2.6)
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                 BASED ON 0.125 mm THICK STENCIL
+                                                            SCALE:15X
+
+
+
+
+                                                                                                                   4214839/K 08/2024
+
+NOTES: (continued)
+
+8. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+9. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                                                                                        PACKAGE OUTLINE
+DGK0008A                                                 SCALE 4.000
+                                                                                                VSSOP - 1.1 mm max height
+                                                                                                                 SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                                                                   C
+                                          5.05
+                                               TYP
+          A                               4.75
+                                                                                                               0.1 C
+                                               PIN 1 INDEX AREA
+                                                                                                                                      SEATING
+                                                                                                                                      PLANE
+                                                                                         6X 0.65
+                                                                              8
+                1
+
+
+                                                                                            2X
+        3.1
+                                                                                           1.95
+        2.9
+       NOTE 3
+
+
+                4
+                                                                              5                 0.38
+                                                                                           8X
+                                                                                                0.25
+                                            3.1                                                  0.13   C A B
+                     B
+                                            2.9
+                                           NOTE 4
+
+
+
+
+                                                                                         0.23
+                                                                                         0.13
+
+
+
+
+                                          SEE DETAIL A
+                                                                                                   0.25
+                                                                                                   GAGE PLANE
+
+                                                                                                                                        1.1 MAX
+
+
+
+
+                                                                                                         0.7                              0.15
+                                                                                  0 -8                   0.4                              0.05
+                                                                                                                   DETAIL A
+                                                                                                                         A 20
+
+
+
+
+                                                                                                                       TYPICAL
+
+                                                                                                                                4214862/A 04/2023
+                                                                                                PowerPAD is a trademark of Texas Instruments.
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed 0.15 mm per side.
+4. This dimension does not include interlead flash. Interlead flash shall not exceed 0.25 mm per side.
+5. Reference JEDEC registration MO-187.
+
+
+
+
+                                                                       www.ti.com
+                                                                                          EXAMPLE BOARD LAYOUT
+                                                                                             TM
+DGK0008A                                                                                          VSSOP - 1.1 mm max height
+                                                                                                                  SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                            SYMM
+                                        8X (1.4)                                                                    (R0.05) TYP
+
+
+
+                    8X (0.45)    1                                                                          8
+
+
+
+                                                                                                                 SYMM
+
+
+
+                       6X (0.65)
+                                                                                                            5
+                                   4
+
+
+                                                                                                                SEE DETAILS
+
+                                                                            (4.4)
+
+                                                       LAND PATTERN EXAMPLE
+                                                          EXPOSED METAL SHOWN
+                                                               SCALE: 15X
+
+
+
+
+                   SOLDER MASK                                                      METAL UNDER                   SOLDER MASK
+                                                      METAL
+                       OPENING                                                      SOLDER MASK                   OPENING
+
+
+          EXPOSED METAL                                                                                                  EXPOSED METAL
+
+                                        0.05 MAX                                                        0.05 MIN
+                                        ALL AROUND                                                      ALL AROUND
+
+                                NON-SOLDER MASK                                                    SOLDER MASK
+                                    DEFINED                                                          DEFINED
+                                  (PREFERRED)
+                                                           SOLDER MASK DETAILS
+                                                                   15.000
+
+
+
+
+                                                                                                                            4214862/A 04/2023
+NOTES: (continued)
+
+ 6. Publication IPC-7351 may have alternate designs.
+ 7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+ 8. Vias are optional depending on application, refer to device data sheet. If any vias are implemented, refer to their locations shown
+    on this view. It is recommended that vias under paste be filled, plugged or tented.
+ 9. Size of metal pad may vary due to creepage requirement.
+
+
+
+
+                                                                             www.ti.com
+                                                                              EXAMPLE STENCIL DESIGN
+                                                                                     TM
+DGK0008A                                                                                  VSSOP - 1.1 mm max height
+                                                                                                         SMALL OUTLINE PACKAGE
+
+
+
+
+                                                                SYMM
+
+                                        8X (1.4)                                                            (R0.05) TYP
+
+
+                     8X (0.45)      1                                                                8
+
+
+
+                                                                                                         SYMM
+
+
+
+                        6X (0.65)
+                                                                                                     5
+                                    4
+
+
+
+
+                                                                 (4.4)
+
+
+
+                                                   SOLDER PASTE EXAMPLE
+                                                              SCALE: 15X
+
+
+
+
+                                                                                                                  4214862/A 04/2023
+NOTES: (continued)
+
+11. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+12. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                 www.ti.com
+                                                                                                                  PACKAGE OUTLINE
+DRB0008B                                                               SCALE 4.000
+                                                                                                              VSON - 1 mm max height
+                                                                                                                  PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                      3.1                                B
+                                 A
+                                                      2.9
+
+
+
+
+             PIN 1 INDEX AREA
+                                                                                         3.1
+                                                                                         2.9
+
+
+
+
+                                                                                                     C
+                        1 MAX
+
+                                                                                                          SEATING PLANE
+                          0.05
+                          0.00                                                                           0.08 C
+
+
+
+
+                      EXPOSED                     1.65 0.05                                                                      (0.2) TYP
+                   THERMAL PAD
+
+
+                                     4                                               5
+
+
+
+                           2X
+                          1.95                                                           2.4 0.05
+
+
+
+
+                                                                                     8
+                                     1
+                     6X 0.65                                                                        0.35
+                                                                                               8X
+                                                                                                    0.25
+                             PIN 1 ID                            0.5                                  0.1    C A B
+                          (OPTIONAL)                        8X
+                                                                 0.3                                  0.05    C
+
+
+
+                                                                                                                                 4218876/A 12/2017
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. The package thermal pad must be soldered to the printed circuit board for thermal and mechanical performance.
+
+
+
+
+                                                                       www.ti.com
+                                                                                       EXAMPLE BOARD LAYOUT
+DRB0008B                                                                                             VSON - 1 mm max height
+                                                                                                         PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                                    (1.65)
+
+                              8X (0.6)                              SYMM
+
+                                         1
+                                                                                                     8
+
+
+                           8X (0.3)
+
+
+                                                                                                                  (2.4)
+
+
+                                                                                                         (0.95)
+                             6X (0.65)
+                                         4
+                                                                                                    5
+                       (R0.05) TYP
+                                                                        (0.575)
+                               ( 0.2) VIA
+                               TYP                                   (2.8)
+
+
+                                                      LAND PATTERN EXAMPLE
+                                                                  SCALE:20X
+
+
+
+
+                                             0.07 MAX                                                     0.07 MIN
+                                             ALL AROUND                                                   ALL AROUND
+
+
+
+
+                 SOLDER MASK                        METAL                      METAL UNDER                         SOLDER MASK
+                 OPENING                                                       SOLDER MASK                         OPENING
+                                 NON SOLDER MASK
+                                                                                                  SOLDER MASK
+                                     DEFINED
+                                                                                                    DEFINED
+                                   (PREFERRED)
+
+                                                           SOLDER MASK DETAILS
+
+
+
+                                                                                                                            4218876/A 12/2017
+
+NOTES: (continued)
+
+4. This package is designed to be soldered to a thermal pad on the board. For more information, see Texas Instruments literature
+   number SLUA271 (www.ti.com/lit/slua271).
+5. Vias are optional depending on application, refer to device data sheet. If any vias are implemented, refer to their locations shown
+   on this view. It is recommended that vias under paste be filled, plugged or tented.
+
+
+
+
+                                                                       www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+DRB0008B                                                                                     VSON - 1 mm max height
+                                                                                               PLASTIC SMALL OUTLINE - NO LEAD
+
+
+
+
+                                                                 SYMM                METAL
+                        8X (0.6)
+                                                                                     TYP
+                                   1
+
+                        8X (0.3)                                                                     8
+
+
+
+
+                                                                                                         (0.63)
+                          SYMM
+
+
+
+
+                      6X (0.65)                                                                             (1.06)
+
+
+                                                                                                     5
+                                   4
+
+                 (R0.05) TYP
+                                                                 (1.47)
+
+                                                                  (2.8)
+
+
+                                                    SOLDER PASTE EXAMPLE
+                                                  BASED ON 0.125 mm THICK STENCIL
+
+                                                           EXPOSED PAD
+                                               81% PRINTED SOLDER COVERAGE BY AREA
+                                                             SCALE:25X
+
+
+
+
+                                                                                                                     4218876/A 12/2017
+
+NOTES: (continued)
+
+6. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+
+
+
+
+                                                                 www.ti.com
+                                                                                                                PACKAGE OUTLINE
+DCK0005A                                                           SCALE 5.600
+                                                                                                                    SOT - 1.1 max height
+                                                                                                                     SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                                                                             C
+                                                2.4
+                                                1.8                                                                          0.1 C
+                                                1.4
+                                                               B                                     A                  1.1 MAX
+                       PIN 1                    1.1
+                 INDEX AREA
+
+                                  1                                              5
+
+
+                        2X 0.65                                                  NOTE 4
+
+                                                                                                 2.15
+                  1.3                                         (0.15)                       1.3
+                                  2                                                              1.85
+
+                                                                          (0.1)
+
+                                                                                 4
+                      0.33            3
+                   5X
+                      0.15
+           0.1      C A B                                                                                4X 0 -12                        0.1
+                                                                                                                         (0.9)               TYP
+                   NOTE 5                                                                                                                0.0
+
+
+
+
+                                                                     4X 4 -15
+
+
+
+                    0.15
+          GAGE PLANE                                                                      0.22
+                                                                                               TYP
+                                                                                          0.08
+
+
+
+            8                              0.46
+              TYP                               TYP
+            0                              0.26
+                                                             SEATING PLANE
+
+
+
+
+                                                                                                                                 4214834/G 11/2024
+
+NOTES:
+
+1. All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+   per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. Refernce JEDEC MO-203.
+4. Support pin may differ or may not be present.
+5. Lead width does not comply with JEDEC.
+6. Body dimensions do not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not exceed
+   0.25mm per side
+
+
+
+
+                                                                                 www.ti.com
+                                                                               EXAMPLE BOARD LAYOUT
+DCK0005A                                                                                             SOT - 1.1 max height
+                                                                                                      SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                 5X (0.95)
+
+                                             1
+                                                                                         5
+                                  5X (0.4)
+
+
+                                                                                          SYMM
+                                                                                                     (1.3)
+                                             2
+                             2X (0.65)
+
+                                             3                                           4
+
+                            (R0.05) TYP                          (2.2)
+
+
+                                                    LAND PATTERN EXAMPLE
+                                                        EXPOSED METAL SHOWN
+                                                             SCALE:18X
+
+
+
+
+                                                                                                             SOLDER MASK
+                 SOLDER MASK                      METAL                  METAL UNDER                         OPENING
+                 OPENING                                                 SOLDER MASK
+
+
+
+           EXPOSED METAL                                       EXPOSED METAL
+
+
+                                         0.07 MAX                                            0.07 MIN
+                                         ARROUND                                             ARROUND
+
+                                NON SOLDER MASK                                        SOLDER MASK
+                                    DEFINED                                              DEFINED
+                                  (PREFERRED)
+
+                                                      SOLDER MASK DETAILS
+
+
+
+
+                                                                                                                   4214834/G 11/2024
+
+NOTES: (continued)
+
+7. Publication IPC-7351 may have alternate designs.
+8. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                www.ti.com
+                                                                               EXAMPLE STENCIL DESIGN
+ DCK0005A                                                                                            SOT - 1.1 max height
+                                                                                                       SMALL OUTLINE TRANSISTOR
+
+
+
+
+                                                                 PKG
+                                                5X (0.95)
+                                            1
+                                                                                         5
+                                 5X (0.4)
+
+
+                                                                                             SYMM
+                                                                                                    (1.3)
+                                            2
+                             2X(0.65)
+
+                                            3                                            4
+
+                           (R0.05) TYP
+                                                                (2.2)
+
+                                                  SOLDER PASTE EXAMPLE
+                                                  BASED ON 0.125 THICK STENCIL
+                                                          SCALE:18X
+
+
+
+
+                                                                                                                   4214834/G 11/2024
+
+NOTES: (continued)
+
+9. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+    design recommendations.
+10. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                  www.ti.com
+                                                                                                                  PACKAGE OUTLINE
+D0008A                                                           SCALE 2.800
+                                                                                                          SOIC - 1.75 mm max height
+                                                                                                              SMALL OUTLINE INTEGRATED CIRCUIT
+
+
+
+                                                                                                                                        C
+
+                                                                                                                     SEATING PLANE
+                                      .228-.244 TYP
+                                      [5.80-6.19]
+                                                                                                                             .004 [0.1] C
+         A                                    PIN 1 ID AREA
+                                                                                           6X .050
+                                                                                              [1.27]
+                                                                               8
+                   1
+
+
+
+
+     .189-.197                                                                              2X
+     [4.81-5.00]                                                                          .150
+       NOTE 3                                                                             [3.81]
+
+
+                                                                                                               4X (0 -15 )
+
+                   4
+                                                                               5
+                                                                                           8X .012-.020
+                       B                .150-.157                                             [0.31-0.51]
+                                                                                                                                    .069 MAX
+                                        [3.81-3.98]                                       .010 [0.25]     C A B                      [1.75]
+                                          NOTE 4
+
+
+
+
+                                                                                            .005-.010 TYP
+                                                                                            [0.13-0.25]
+
+
+                                        4X (0 -15 )
+
+                       SEE DETAIL A
+                                                                                     .010
+                                                                                     [0.25]
+
+
+
+
+                                                                                                                                        .004-.010
+                                                                                   0 -8                                                 [0.11-0.25]
+                                                                                          .016-.050
+                                                                                          [0.41-1.27]                        DETAIL A
+                                                                                                            (.041)           TYPICAL
+                                                                                                            [1.04]
+
+                                                                                                                                     4214825/C 02/2019
+
+NOTES:
+
+1. Linear dimensions are in inches [millimeters]. Dimensions in parenthesis are for reference only. Controlling dimensions are in inches.
+   Dimensioning and tolerancing per ASME Y14.5M.
+2. This drawing is subject to change without notice.
+3. This dimension does not include mold flash, protrusions, or gate burrs. Mold flash, protrusions, or gate burrs shall not
+   exceed .006 [0.15] per side.
+4. This dimension does not include interlead flash.
+5. Reference JEDEC registration MS-012, variation AA.
+
+
+
+
+                                                                        www.ti.com
+                                                                              EXAMPLE BOARD LAYOUT
+D0008A                                                                                  SOIC - 1.75 mm max height
+                                                                                           SMALL OUTLINE INTEGRATED CIRCUIT
+
+
+
+
+                                8X (.061 )
+                                    [1.55]
+                                                               SYMM                        SEE
+                                                                                           DETAILS
+                                             1
+                                                                                       8
+
+                             8X (.024)
+                                 [0.6]                                                      SYMM
+
+
+
+                                                                                             (R.002 ) TYP
+                                                                                               [0.05]
+                                                                                       5
+                                             4
+                         6X (.050 )
+                             [1.27]
+                                                               (.213)
+                                                                [5.4]
+
+                                                   LAND PATTERN EXAMPLE
+                                                     EXPOSED METAL SHOWN
+                                                           SCALE:8X
+
+
+
+
+                                                 SOLDER MASK            SOLDER MASK
+                     METAL                                                                                  METAL UNDER
+                                                 OPENING                    OPENING                         SOLDER MASK
+
+
+           EXPOSED
+             METAL                                                      EXPOSED
+                                                                          METAL
+                                      .0028 MAX                                              .0028 MIN
+                                      [0.07]                                                 [0.07]
+                                      ALL AROUND                                             ALL AROUND
+
+                           NON SOLDER MASK                                                 SOLDER MASK
+                               DEFINED                                                       DEFINED
+
+
+                                                      SOLDER MASK DETAILS
+
+
+
+
+                                                                                                               4214825/C 02/2019
+
+NOTES: (continued)
+
+6. Publication IPC-7351 may have alternate designs.
+7. Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+
+
+
+
+                                                                www.ti.com
+                                                                              EXAMPLE STENCIL DESIGN
+D0008A                                                                                   SOIC - 1.75 mm max height
+                                                                                            SMALL OUTLINE INTEGRATED CIRCUIT
+
+
+
+
+                                   8X (.061 )
+                                       [1.55]                       SYMM
+
+                                                 1
+                                                                                             8
+
+                                 8X (.024)
+                                     [0.6]                                                       SYMM
+
+
+
+
+                                                                                                   (R.002 ) TYP
+                                                                                             5       [0.05]
+                                                 4
+                             6X (.050 )
+                                 [1.27]
+                                                                    (.213)
+                                                                     [5.4]
+
+
+                                                       SOLDER PASTE EXAMPLE
+                                                BASED ON .005 INCH [0.125 MM] THICK STENCIL
+                                                                 SCALE:8X
+
+
+
+
+                                                                                                                  4214825/C 02/2019
+
+NOTES: (continued)
+
+8. Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+   design recommendations.
+9. Board assembly site may have different recommendations for stencil design.
+
+
+
+
+                                                                 www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2026, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

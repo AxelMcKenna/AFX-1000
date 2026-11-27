@@ -1,0 +1,1 @@
+Exploratory host searches and diagnosis only. These logs are not qualification evidence, may predate the current corridor functions, and must not be used to count completed wires. Final source-bound host/native reports are in the parent directory.

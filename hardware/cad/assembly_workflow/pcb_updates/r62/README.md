@@ -1,0 +1,7 @@
+# R62 mechanical update
+
+The selected signal board has192 native opens after38 DAC joins. R308 alone moves from(116,68) to(120.5,81) on F.Cu with unchanged orientation/package. Exact physical snapshot comparison rejects every other pose/property/pad/drill change. R303 retains its previously verified position(109,82.5). The receiving box for R308 translates by[4.5,13,0] to[118.82,80.05,122.18,81.95], retainingZ7.99..11.21. All other allocation rows and frozen structural sources are preserved.
+
+The R308 box clears every other modeled allocation and selected part; its XY intersection with the power substrate is zero. Contact with its own signal substrate is expected. All30 candidate checks pass, comprising29 selected checks and the temporary moved-body diagnostic. The extra two permanent coverage checks screen main-board population against controls and sensor assemblies. Diagnostic roles are absent from selection.json and the installed scene.
+
+Root portable recomputation passes79 new/4,877 retained reference cases and exact transition identity regressions, with305 source/evidence files. Source-native evidence also includes44 local returns,198 fidelity cases and68 drill cases. Sensitive R308pad2 ownership and its transported0.5mm exclusion are explicit in that routing proof; no broad reference waiver is introduced. Two DAC joins and approved ESS package/land input remain open. Analog stability/noise, supplier body heights, physical assembly and fabrication are not qualified.

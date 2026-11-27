@@ -1,0 +1,24 @@
+# Conditional fan connector reconciliation
+
+This candidate addresses two different issues without editing frozen r7/r8/r9 sources, native PCBs or unrelated component allocations. **The actual assembled connector maximum and wire-entry registration are still unqualified.** It is not a fabrication release or a full assembly fit approval.
+
+Current power PCB identifies F_J202 and F_J203 as JST B3B-XH-A / XHP-3 / SXH-001T-P0.6. `build.py --pcb PATH` independently checks the exact retained three pad coordinates, nets, value and footprint. Pin1 is ground; pin2 is switched5V; pin3 is tach. Existing rear pod→F_J202/front pod→F_J203 wiring is unchanged.
+
+The visually inspected [primary JST catalogue](https://www.jst.com/wp-content/uploads/2025/06/eXH.pdf), pages1,2,4,5, gives9.8 mm reference assembly height,9.9×5.75×7.0 header dimensions and XHP-3 reference9.8×5.7×7.5. It does not supply a guaranteed assembled maximum or positional tolerances for the wire exit. Exact-part2D links on JST's series page did not yield controlled drawings (product page through web; direct HTTP403). Do not call the reference9.8 a maximum.
+
+Captured own connector boxes reachZ23.36. The alternative **project receiving requirement** is assembled projection≤10.5 mm above PCBtopZ9.5, therefore body top≤Z20.0. This is the same explicit conditional limit used in the earlier front-bay XH receiving study, not a new manufacturer claim. Captured XY extents and lowerZ9.14 remain unchanged. Only these two own body allocations are candidates for replacement; all other bodies/tails remain intact. Acceptance requires supplier-controlled tolerances or measured received/assembled parts establishing the cap and wire-axis registration. Without that, retain the original generic reservation and report its overlap as unresolved.
+
+The six proposed contact masks are cylindersr0.98 at the exact retained pinXY, Z18.3–20.00001. They cover only the frozen straight own-wire entries and their end caps (nominal wire endsZ19.3, rendered hemispheres reach18.33). The0.98 radius encloses the existing0.97 rendering; it is not a manufacturer cavity dimension. Actual contact-cavity registration, terminal preparation and strain acceptance remain open. Masks must be scoped only to the declared harness/own connector pair; no blanket own-connector or foreign-wire waiver is permitted.
+
+A separate representation defect was found: r8 delegates both full r7 bundle tubes through their finalZ22.3 station *and* six individual wire fanouts beginning earlier. The redundant bundle endpoint hit outside the entry columns even with the conditional body cap (native r1 residual0.058511mm³). `harness.scad` retains only the exact existing bundle cells through the first grid station at/after each frozen fanout start, then delegates all six individual wires unchanged. This changes reservation ownership, not physical wire paths.
+
+| Branch | Exact fanout parameter | Last retained station | Original cells retained | Complete start-sphere containment margin |
+| --- | ---: | ---: | ---: | ---: |
+| F_J202 |0.799975296557|0.8|128|0.038485mm|
+| F_J203 |0.647103008748|0.65|104|0.034027mm|
+
+The232 retained cells use identical coordinates, sphere radii and facets to their frozen counterparts. Each packed start vector is perpendicular to the bundle tangent; every strand start tangent matches the translated bundle prefix (dot>1−1e−8). A conservative sphere-inradius/chord-sag calculation encloses every complete0.97 mm start sphere and the conceptual translated strand prefix. Native start-sphere containment is also empty, demonstrating overlap at the ownership transition and no uncovered bridge interval.
+
+Final native r2: corrected own-body intersection outside the six entry columns is empty; start containment is empty; intended unmasked contact is23.210098mm³; shifting masks0.5 mm exposes6.445051mm³, proving they are position-specific. Corrected full harness is closed with92714 triangles,4 excluded degenerate triangles and0 bad edges. The direct bundle-subset Boolean returns a nonclosed coincident boundary residual6.53e−7mm³ with170 bad edges; this is retained as a diagnostic, **not a native empty/pass**. Independent exact cell inclusion establishes the subset relationship. Root must re-screen current full assembly before selecting the candidate.
+
+`verify.py --pcb PATH` checks sources, current native PCB hash, all232 emitted cells, exact mask locations, unchanged six-wire delegation and native witnesses. The adapter exports new receiving roles and a proposed scoped contact mask; it does not change root selection. Self-review found and corrected the duplicated bundle reservation instead of enlarging masks. Remaining physical uncertainties include receiving dimensions, wire-axis registration, factory-lead transition, qualified crimping, original tight fanout packing clearance, supports/abrasion and opening/service acceptance.

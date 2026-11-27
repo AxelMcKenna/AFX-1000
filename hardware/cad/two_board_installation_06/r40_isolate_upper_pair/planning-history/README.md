@@ -1,0 +1,1 @@
+These exploratory logs compare intermediate host-only route families. The helper evolved during planning; they are not reproducible source-bound qualification evidence and are not included in the adapter. Current verification uses routes.json, verification.json and exact native source snapshots. Retained native failures are separately hash-verified.

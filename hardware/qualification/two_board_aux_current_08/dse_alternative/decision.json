@@ -1,0 +1,130 @@
+{
+  "primary": {
+    "tps3702.pdf": {
+      "url": "https://www.ti.com/lit/ds/symlink/tps3702.pdf",
+      "sha256": "3f1fb9255cfa9b220938447e903cc6d72eae2abe228393bcb8f1afcb4adb52c8"
+    },
+    "tps37.pdf": {
+      "url": "https://www.ti.com/lit/ds/symlink/tps37.pdf",
+      "sha256": "9289a7680a49b42ebe4381d90f3e05a73b8c393c4adc7d3df9c17fa8da6345a0"
+    },
+    "tps3704.pdf": {
+      "url": "https://www.ti.com/lit/ds/symlink/tps3704.pdf",
+      "sha256": "2c191e129facf23a1f57fa351c47f4b8857aba1c04bc110166b64a5cd231b9cc"
+    },
+    "tps3704-q1.pdf": {
+      "url": "https://www.ti.com/lit/ds/symlink/tps3704-q1.pdf",
+      "sha256": "cbe435f8182a08c0249f54d79814bd692040febe79411ab58f98402b061f5028"
+    }
+  },
+  "existing_dse_drawing_check_sha256": "292289898b856b9813b85d00583970f3c4284eeb9fb500577f2f2a90c2660028",
+  "existing_supervisor_datasheet_sha256": "cc65714774e50c97dca9a1bf094489b17350cc70fa16068880e108e320f8a6ea",
+  "existing_DRC_sha256": "6cd4efc011f4392a3eebf56283071a0675e8944ee42c055525b8af9941852f78",
+  "exact_errors": [
+    {
+      "reference": "E_U900",
+      "pin_pairs": [
+        [
+          "1",
+          "2"
+        ],
+        [
+          "2",
+          "3"
+        ]
+      ]
+    },
+    {
+      "reference": "P_U902",
+      "pin_pairs": [
+        [
+          "1",
+          "2"
+        ],
+        [
+          "2",
+          "3"
+        ]
+      ]
+    }
+  ],
+  "existing_DSE": {
+    "pitch_mm": 0.5,
+    "mask_opening_mm": 0.25,
+    "SMD_copper_overlap_per_side_mm": 0.05,
+    "copper_width_mm": 0.35,
+    "gap_mm": 0.15,
+    "project_requirement_mm": 0.2,
+    "package_alternative_with_same_TPS3703": null
+  },
+  "TPS3702_DDC": {
+    "pitch_mm": 0.95,
+    "land_width_mm": 0.6,
+    "gap_mm": 0.35,
+    "timing_nominal_only_us": [
+      19,
+      35
+    ],
+    "decision": "Reject as source-guaranteed shutdown replacement; no maximum propagation in table5.6."
+  },
+  "TPS37_DYY": {
+    "adjustable_detect_max_us": 17,
+    "specified_overdrive_fraction": 0.2,
+    "decision": "Not a minimal compatible replacement;20% overdrive reaches5V*.95*.985*.8=3.743V before reservoir feed drop, below required held-LDO headroom."
+  },
+  "candidate": {
+    "MPN": "TPS37042A3OFDDFRQ1",
+    "primary_orderable_url": "https://www.ti.com/product/TPS3704-Q1/part-details/TPS37042A3OFDDFRQ1",
+    "package": "DDF0008A",
+    "drawing": "4222047/E 07/2024",
+    "pitch_mm": 0.65,
+    "NSMD_copper_width_mm": 0.45,
+    "nominal_gap_mm": 0.2,
+    "pad_length_mm": 1.05,
+    "row_center_spacing_mm": 2.6,
+    "max_height_mm": 1.1,
+    "supply_V": [
+      1.7,
+      6.0
+    ],
+    "threshold_accuracy_fraction": 0.01,
+    "channel_nominal_V": [
+      3.3,
+      1.2
+    ],
+    "window_fraction": 0.05,
+    "reset_release_nominal_ms": 10,
+    "reset_release_tolerance_fraction": 0.3,
+    "assertion_max_us": 10,
+    "assertion_overdrive_fraction": 0.1,
+    "assertion_load_pF": 10,
+    "assertion_pullup_ohm": 10000,
+    "startup_ms_typical_only": 1,
+    "supply_current_max_uA": 15,
+    "pinout": {
+      "1": "VDD held3V3",
+      "2": "SENSE1 mainAUX3V3",
+      "3": "SENSE2 divided5V",
+      "4": "GND",
+      "5": "NC",
+      "6": "NC",
+      "7": "RESET2 open-drain",
+      "8": "RESET1 open-drain"
+    },
+    "proposed_wiring": "One dual supervisor could replace the two existing single supervisors; join RESET1/2 to current FAST_RESET_N and add a5V\u21921.2V divider. Existing remote routing and placement must be redesigned.",
+    "ideal_divider_ratio": 0.24,
+    "minimum_bias_model_missing": "Fixed-channel input-current max2.5uA is tabulated atVSENSE5.5V, not a characterized resistor-divider model at1.2V; section8.1.2 calls for effective input-resistance analysis. Do not assume zero loading.",
+    "decision": "Concrete package option meeting nominal0.20mm rule, NOT a drop-in or presently qualified electrical replacement. Requires effective reservoir increase and divider/threshold/current/timing/placement requalification."
+  },
+  "conditional_sensitivity": {
+    "conditional_ideal_divider_5V_endpoint_V": 4.23225,
+    "reservoir_start_V": 3.7281499999999994,
+    "200uF_window_us": 28.36342261962226,
+    "after_10us_detect_and_1us_unqualified_logic_us": 17.36342261962226,
+    "effective_uF_for_50us_shutdown_plus_11us": 430.13144653282603,
+    "includes_real_divider_tolerance_input_current_TCR": false,
+    "qualification": false
+  },
+  "selected_board_changed": false,
+  "clearance_waiver": false
+}

@@ -1,0 +1,7 @@
+# Corrected scene ground selected
+
+The selected assembly replaces panel_ground_r15_scene_links with panel_ground_r22_scene_links exactly once. Four ground links use radius18mm downward arcs; five remain unchanged. Electrical graph and all terminal endpoints are unchanged. These bows free four previously obstructed fixed signal terminal locations. Local source-bound verification checks all29 signal-terminal spheres, exact curve reconstruction, radius, endpoint identity and wire separation.
+
+All27 selected full-assembly clearance checks pass, including a new strict check of all nine scene links against current base allocations, substrates, rear panel, holders, board heads, panel mates, splice cage, selectors, keyed guide, splice and S01. Current signal r50 remains194 opens; power TBP73 remains1936. No S02/S03 candidate wire is selected here. The original S02 attempt was rejected for a button clip/motion collision, preserved separately under panel-signals-r21/rejected-r5.
+
+Self-review checked replacement uniqueness, absence of superseded roles, source bindings and unchanged endpoint/electrical ownership. The new base/support check closes a gap in inherited ground-check coverage. Physical joint approach, wire preparation, supports, strain relief and service opening remain unqualified; the four changed approach tangents are explicitly recorded in the local contract. There are still229 further non-ground panel segments. No fabrication release.
